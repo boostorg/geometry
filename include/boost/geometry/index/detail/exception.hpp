@@ -24,11 +24,46 @@ inline void throw_runtime_error(const char * str)
     throw std::runtime_error(str);
 }
 
+inline void throw_logic_error(const char * str)
+{
+    throw std::logic_error(str);
+}
+
+inline void throw_invalid_argument(const char * str)
+{
+    throw std::invalid_argument(str);
+}
+
+inline void throw_length_error(const char * str)
+{
+    throw std::length_error(str);
+}
+
 #else
 
 inline void throw_runtime_error(const char * str)
 {
     BOOST_ASSERT_MSG(!"runtime_error thrown", str);
+    std::abort();
+}
+
+inline void throw_logic_error(const char * str)
+{
+    BOOST_ASSERT_MSG(!"logic_error thrown", str);
+    std::abort();
+}
+
+inline void throw_invalid_argument(const char * str)
+{
+    throw std::invalid_argument(str);
+    BOOST_ASSERT_MSG(!"invalid_argument thrown", str);
+    std::abort();
+}
+
+inline void throw_length_error(const char * str)
+{
+    throw std::length_error(str);
+    BOOST_ASSERT_MSG(!"length_error thrown", str);
     std::abort();
 }
 

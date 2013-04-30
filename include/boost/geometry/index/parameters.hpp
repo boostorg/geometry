@@ -15,13 +15,8 @@
 
 namespace boost { namespace geometry { namespace index {
 
-// TODO: awulkiew - add asserts or exceptions?
-// 0 < MIN
-// 2 * MIN <= MAX
-// or rather MIN <= (MAX + 1) / 2 for classic variants
-// assuming that MAX is the number of elements without overflowing ones
-// and something like MIN <= (MAX + OVERFLOWING_NODES) / K for cR-tree
-// this implies 2 <= MAX for classic variants
+//TODO:
+// add default value of Min = 0.3 * Max?
 
 /*!
 \brief Linear r-tree creation algorithm parameters.
@@ -32,6 +27,9 @@ namespace boost { namespace geometry { namespace index {
 template <size_t MaxElements, size_t MinElements>
 struct linear
 {
+    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+                         INVALID_STATIC_MIN_MAX_PARAMETERS, (linear));
+
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
 
@@ -48,6 +46,9 @@ struct linear
 template <size_t MaxElements, size_t MinElements>
 struct quadratic
 {
+    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+                         INVALID_STATIC_MIN_MAX_PARAMETERS, (quadratic));
+
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
 
@@ -71,13 +72,13 @@ struct default_rstar_reinserted_elements_s
 \tparam MaxElements             Maximum number of elements in nodes.
 \tparam MinElements             Minimum number of elements in nodes.
 \tparam ReinsertedElements      The number of elements reinserted by forced reinsertions algorithm.
-                                If 0 forced reinsertions are disabled. Maximum value is Max-Min+1.
-                                Greater values are truncated.
+                                If 0 forced reinsertions are disabled. Maximum value is Max+1-Min.
+                                Greater values are truncated. Default: 0.3*Max.
 \tparam OverlapCostThreshold    The number of most suitable leafs taken into account while choosing
                                 the leaf node to which currently inserted value will be added. If
                                 value is in range (0, MaxElements) - the algorithm calculates
                                 nearly minimum overlap cost, otherwise all leafs are analyzed
-                                and true minimum overlap cost is calculated.
+                                and true minimum overlap cost is calculated. Default: 32.
 */
 template <size_t MaxElements,
           size_t MinElements,
@@ -85,6 +86,9 @@ template <size_t MaxElements,
           size_t OverlapCostThreshold = 32>
 struct rstar
 {
+    BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
+                         INVALID_STATIC_MIN_MAX_PARAMETERS, (rstar));
+
     static const size_t max_elements = MaxElements;
     static const size_t min_elements = MinElements;
     static const size_t reinserted_elements = ReinsertedElements;
@@ -118,7 +122,10 @@ public:
     dynamic_linear(size_t max_elements, size_t min_elements)
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
-    {}
+    {
+        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_linear");
+    }
 
     size_t get_max_elements() const { return m_max_elements; }
     size_t get_min_elements() const { return m_min_elements; }
@@ -143,7 +150,10 @@ public:
     dynamic_quadratic(size_t max_elements, size_t min_elements)
         : m_max_elements(max_elements)
         , m_min_elements(min_elements)
-    {}
+    {
+        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_quadratic");
+    }
 
     size_t get_max_elements() const { return m_max_elements; }
     size_t get_min_elements() const { return m_min_elements; }
@@ -175,12 +185,12 @@ public:
     \param min_elements             Minimum number of elements in nodes.
     \param reinserted_elements      The number of elements reinserted by forced reinsertions algorithm.
                                     If 0 forced reinsertions are disabled. Maximum value is Max-Min+1.
-                                    Greater values are truncated.
+                                    Greater values are truncated. Default: 0.3*Max.
     \param overlap_cost_threshold   The number of most suitable leafs taken into account while choosing
                                     the leaf node to which currently inserted value will be added. If
                                     value is in range (0, MaxElements) - the algorithm calculates
                                     nearly minimum overlap cost, otherwise all leafs are analyzed
-                                    and true minimum overlap cost is calculated.
+                                    and true minimum overlap cost is calculated. Default: 32.
     */
     dynamic_rstar(size_t max_elements,
                   size_t min_elements,
@@ -193,7 +203,10 @@ public:
             (max_elements * 3) / 10 :
             reinserted_elements )
         , m_overlap_cost_threshold(overlap_cost_threshold)
-    {}
+    {
+        if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
+            detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_rstar");
+    }
 
     size_t get_max_elements() const { return m_max_elements; }
     size_t get_min_elements() const { return m_min_elements; }
