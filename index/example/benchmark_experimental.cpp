@@ -24,22 +24,6 @@ namespace bgi = bg::index;
 typedef bg::model::point<double, 2, bg::cs::cartesian> P;
 typedef bg::model::box<P> B;
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
-
-#include <boost/type_erasure/iterator.hpp>
-
-typedef boost::type_erasure::any<
-    boost::type_erasure::iterator<
-        boost::single_pass_traversal_tag,
-        boost::type_erasure::_self,
-        B const&,
-        std::ptrdiff_t,
-        const B
-    >
-> iterator;
-
-#endif
-
 int main()
 {
     typedef boost::chrono::thread_clock clock_t;
@@ -140,8 +124,8 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
-                iterator first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
-                iterator last = t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator last = t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
                 std::copy(first, last, std::back_inserter(result));
                 temp += result.size();
             }
@@ -220,8 +204,8 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
-                iterator first = t.qbegin(bgi::nearest(P(x, y), neighbours_count));
-                iterator last = t.qend(bgi::nearest(P(x, y), neighbours_count));
+                RT::const_query_iterator first = t.qbegin(bgi::nearest(P(x, y), neighbours_count));
+                RT::const_query_iterator last = t.qend(bgi::nearest(P(x, y), neighbours_count));
                 std::copy(first, last, std::back_inserter(result));
                 temp += result.size();
             }
