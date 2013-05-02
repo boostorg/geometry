@@ -90,13 +90,14 @@ public:
 
     typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
+    typedef typename rtree::elements_type<leaf>::type::const_iterator leaf_iterator;
 
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query_incremental(Translator const& t, Predicates const& p)
         : m_translator(::boost::addressof(t))
         , m_pred(p)
-        , m_values(0), m_value_index(0)
+        , m_values(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -109,40 +110,40 @@ public:
 
     inline void operator()(leaf const& n)
     {
-        m_values = boost::addressof(rtree::elements(n));
-        m_value_index = 0;
+        m_values = ::boost::addressof(rtree::elements(n));
+        m_current = rtree::elements(n).begin();
+        m_last = rtree::elements(n).end();
     }
 
     const_reference dereference() const
     {
         BOOST_ASSERT_MSG(m_values, "not dereferencable");
-        return (*m_values)[m_value_index];
+        return *m_current;
     }
 
     void increment()
     {
         if ( m_values )
-            ++m_value_index;
+            ++m_current;
 
         for (;;)
         {
             // if leaf is choosen, move to the next value in leaf
             if ( m_values )
             {
-                if ( m_value_index < m_values->size() )
+                if ( m_current != m_last )
                 {
                     // return if next value is found
-                    Value const& v = (*m_values)[m_value_index];
+                    Value const& v = *m_current;
                     if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(m_pred, v, (*m_translator)(v)) )
                         return;
 
-                    ++m_value_index;
+                    ++m_current;
                 }
                 // no more values, clear current leaf
                 else
                 {
                     m_values = 0;
-                    m_value_index = 0;
                 }
             }
             // if leaf isn't choosen, move to the next leaf
@@ -171,7 +172,7 @@ public:
 
     friend bool operator==(spatial_query_incremental const& l, spatial_query_incremental const& r)
     {
-        return (l.m_values == r.m_values) && (l.m_value_index == r.m_value_index);
+        return (l.m_values == r.m_values) && (l.m_values == 0 || l.m_current == r.m_current );
     }
 
 private:
@@ -182,7 +183,7 @@ private:
 
     std::vector< std::pair<internal_iterator, internal_iterator> > m_internal_stack;
     const leaf_elements * m_values;
-    size_type m_value_index;
+    leaf_iterator m_current, m_last;
 };
 
 } // namespace visitors
