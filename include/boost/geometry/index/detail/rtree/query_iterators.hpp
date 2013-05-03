@@ -125,7 +125,7 @@ public:
 
     friend bool operator!=(spatial_query_iterator const& l, spatial_query_iterator const& r)
     {
-        return l.m_visitor != r.m_visitor;
+        return !(l.m_visitor == r.m_visitor);
     }
 
     friend bool operator!=(spatial_query_iterator const& l, end_query_iterator<Value, Allocators>)
@@ -206,7 +206,7 @@ public:
 
     friend bool operator!=(nearest_query_iterator const& l, nearest_query_iterator const& r)
     {
-        return l.m_visitor != r.m_visitor;
+        return !(l.m_visitor == r.m_visitor);
     }
 
     friend bool operator!=(nearest_query_iterator const& l, end_query_iterator<Value, Allocators>)
