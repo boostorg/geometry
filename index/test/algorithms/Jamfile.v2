@@ -13,6 +13,7 @@ test-suite boost-geometry-index-algorithms
 	[ run is_valid.cpp ]
     [ run margin.cpp ]	
 	#[ run minmaxdist.cpp ]
-	[ run union_content.cpp ]	
+	[ run union_content.cpp ]
+    [ run segment_intersection.cpp ]
     ;
     
