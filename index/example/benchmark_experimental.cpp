@@ -24,6 +24,13 @@ namespace bgi = bg::index;
 typedef bg::model::point<double, 2, bg::cs::cartesian> P;
 typedef bg::model::box<P> B;
 
+template <typename I1, typename I2, typename O>
+void mycopy(I1 first, I2 last, O o)
+{
+    for ( ; first != last ; ++o, ++first )
+        *o = *first;
+}
+
 int main()
 {
     typedef boost::chrono::thread_clock clock_t;
@@ -107,13 +114,31 @@ int main()
                 float x = coords[i].first;
                 float y = coords[i].second;
                 result.clear();
-                std::copy(t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
-                          t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
-                          std::back_inserter(result));
+                std::copy(
+                    t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                    t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                    std::back_inserter(result));
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - query iterator(B) " << queries_count << " found " << temp << '\n';
+            std::cout << time << " - qbegin(B) qend(B) " << queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                mycopy(
+                    t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                    t.qend(),
+                    std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - qbegin(B) qend() " << queries_count << " found " << temp << '\n';
         }
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
         {
@@ -130,7 +155,7 @@ int main()
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - type-erased query iterator(B) " << queries_count << " found " << temp << '\n';
+            std::cout << time << " - type-erased qbegin(B) qend(B) " << queries_count << " found " << temp << '\n';
         }
 #endif
 #endif
@@ -187,13 +212,31 @@ int main()
                 float x = coords[i].first + 100;
                 float y = coords[i].second + 100;
                 result.clear();
-                std::copy(t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
-                          t.qend(bgi::nearest(P(x, y), neighbours_count)),
-                          std::back_inserter(result));
+                std::copy(
+                    t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
+                    t.qend(bgi::nearest(P(x, y), neighbours_count)),
+                    std::back_inserter(result));
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+            std::cout << time << " - qbegin(nearest(P, " << neighbours_count << ")) qend(n) " << nearest_queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
+            {
+                float x = coords[i].first + 100;
+                float y = coords[i].second + 100;
+                result.clear();
+                mycopy(
+                    t.qbegin(bgi::nearest(P(x, y), neighbours_count)),
+                    t.qend(),
+                    std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - qbegin(nearest(P, " << neighbours_count << ")) qend() " << nearest_queries_count << " found " << temp << '\n';
         }
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
         {
@@ -210,7 +253,7 @@ int main()
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - type-erased nearest_iterator(P, " << neighbours_count << ")) " << nearest_queries_count << " found " << temp << '\n';
+            std::cout << time << " - type-erased qbegin(nearest(P, " << neighbours_count << ")) qend(n) " << nearest_queries_count << " found " << temp << '\n';
         }
 #endif
 #endif
