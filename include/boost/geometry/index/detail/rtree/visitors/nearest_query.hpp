@@ -470,10 +470,15 @@ public:
         }
     }
 
+    bool is_end() const
+    {
+        return (std::numeric_limits<size_type>::max)() == current_neighbor;
+    }
+
     friend bool operator==(nearest_query_incremental const& l, nearest_query_incremental const& r)
     {
         BOOST_ASSERT_MSG(l.current_neighbor != r.current_neighbor ||
-                         l.current_neighbor == (std::numeric_limits<size_type>::max)() ||
+                         (std::numeric_limits<size_type>::max)() == l.current_neighbor ||
                          l.neighbors[l.current_neighbor].second == r.neighbors[r.current_neighbor].second,
                          "not corresponding iterators");
         return l.current_neighbor == r.current_neighbor;
@@ -629,70 +634,7 @@ private:
     node_distance_type next_closest_node_distance;
 };
 
-} // namespace visitors
-
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, unsigned NearestPredicateIndex>
-class nearest_query_iterator
-{
-    typedef visitors::nearest_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
-    typedef typename visitor_type::node_pointer node_pointer;
-
-public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef Value value_type;
-    typedef typename Allocators::const_reference reference;
-    typedef typename Allocators::difference_type difference_type;
-    typedef typename Allocators::const_pointer pointer;
-
-    inline nearest_query_iterator(Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
-    {}
-
-    inline nearest_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
-    {
-        detail::rtree::apply_visitor(m_visitor, *root);
-        m_visitor.increment();
-    }
-
-    reference operator*() const
-    {
-        return m_visitor.dereference();
-    }
-
-    const value_type * operator->() const
-    {
-        return boost::addressof(m_visitor.dereference());
-    }
-
-    nearest_query_iterator & operator++()
-    {
-        m_visitor.increment();
-        return *this;
-    }
-
-    nearest_query_iterator operator++(int)
-    {
-        nearest_query_iterator temp = *this;
-        this->operator++();
-        return temp;
-    }
-
-    friend bool operator==(nearest_query_iterator const& l, nearest_query_iterator const& r)
-    {
-        return l.m_visitor == r.m_visitor;
-    }
-
-    friend bool operator!=(nearest_query_iterator const& l, nearest_query_iterator const& r)
-    {
-        return !(l.m_visitor == r.m_visitor);
-    }
-
-private:
-    visitor_type m_visitor;
-};
-
-}} // namespace detail::rtree
+}}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 
