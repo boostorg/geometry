@@ -57,8 +57,11 @@
 
 #include <boost/geometry/index/inserter.hpp>
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+#include <boost/geometry/index/detail/rtree/query_iterators.hpp>
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 #include <boost/geometry/index/detail/type_erased_iterators.hpp>
+#endif
 #endif
 
 // TODO change the name to bounding_tree
@@ -743,6 +746,16 @@ public:
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 
+    // BEWARE!
+    // Don't use this type-erased iterator after assigning values returned by qbegin(Pred) and qend()
+    // e.g. don't pass them into the std::copy() or compare them like this:
+    // const_query_iterator i1 = qbegin(...);
+    // const_query_iterator i2 = qend();
+    // i1 == i2; // BAM!
+    // now this will cause undefined behaviour.
+    // using native types is ok:
+    // qbegin(...) == qend();
+
     typedef typename index::detail::single_pass_iterator_type<
         value_type, const_reference, const_pointer, difference_type
     >::type const_query_iterator;
@@ -802,6 +815,12 @@ public:
         >::type iterator_type;
 
         return iterator_type(m_members.translator(), predicates);
+    }
+
+    detail::rtree::end_query_iterator<value_type, allocators_type>
+    qend() const
+    {
+        return detail::rtree::end_query_iterator<value_type, allocators_type>();
     }
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL

@@ -170,9 +170,14 @@ public:
         }
     }
 
+    bool is_end() const
+    {
+        return 0 == m_values;
+    }
+
     friend bool operator==(spatial_query_incremental const& l, spatial_query_incremental const& r)
     {
-        return (l.m_values == r.m_values) && (l.m_values == 0 || l.m_current == r.m_current );
+        return (l.m_values == r.m_values) && (0 == l.m_values || l.m_current == r.m_current );
     }
 
 private:
@@ -186,70 +191,7 @@ private:
     leaf_iterator m_current, m_last;
 };
 
-} // namespace visitors
-
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates>
-class spatial_query_iterator
-{
-    typedef visitors::spatial_query_incremental<Value, Options, Translator, Box, Allocators, Predicates> visitor_type;
-    typedef typename visitor_type::node_pointer node_pointer;
-
-public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef Value value_type;
-    typedef typename Allocators::const_reference reference;
-    typedef typename Allocators::difference_type difference_type;
-    typedef typename Allocators::const_pointer pointer;
-
-    inline spatial_query_iterator(Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
-    {}
-
-    inline spatial_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
-        : m_visitor(t, p)
-    {
-        detail::rtree::apply_visitor(m_visitor, *root);
-        m_visitor.increment();
-    }
-
-    reference operator*() const
-    {
-        return m_visitor.dereference();
-    }
-
-    const value_type * operator->() const
-    {
-        return boost::addressof(m_visitor.dereference());
-    }
-
-    spatial_query_iterator & operator++()
-    {
-        m_visitor.increment();
-        return *this;
-    }
-
-    spatial_query_iterator operator++(int)
-    {
-        spatial_query_iterator temp = *this;
-        this->operator++();
-        return temp;
-    }
-
-    friend bool operator==(spatial_query_iterator const& l, spatial_query_iterator const& r)
-    {
-        return l.m_visitor == r.m_visitor;
-    }
-
-    friend bool operator!=(spatial_query_iterator const& l, spatial_query_iterator const& r)
-    {
-        return !(l.m_visitor == r.m_visitor);
-    }
-    
-private:
-    visitor_type m_visitor;
-};
-
-}} // namespace detail::rtree
+}}} // namespace detail::rtree::visitors
 
 }}} // namespace boost::geometry::index
 
