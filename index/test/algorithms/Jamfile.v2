@@ -15,5 +15,6 @@ test-suite boost-geometry-index-algorithms
 	#[ run minmaxdist.cpp ]
 	[ run union_content.cpp ]
     [ run segment_intersection.cpp ]
+    [ run path_intersection.cpp ]
     ;
     
