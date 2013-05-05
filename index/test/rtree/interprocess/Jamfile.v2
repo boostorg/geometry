@@ -16,7 +16,6 @@ rule test_all
       :  # additional args
       :  # test-files
       :  # requirements
-        <toolset>msvc:<cxxflags>-bigobj
         <toolset>acc:<linkflags>-lrt
         <toolset>acc-pa_risc:<linkflags>-lrt
         <toolset>gcc-mingw:<linkflags>"-lole32 -loleaut32 -lpsapi -ladvapi32"
