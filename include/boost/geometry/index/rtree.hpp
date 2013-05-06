@@ -714,14 +714,12 @@ public:
     tree.query(bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
     // return 5 elements nearest to pt and elements are intersecting box
     tree.query(bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
-    // return 5 elements which centroids are nearest to pt and elements aren't within box
-    tree.query(bgi::nearest(bgi::to_centroid(pt), 5) && !bgi::within(box), std::back_inserter(result));
     \endverbatim
 
     \par Throws
     If Value copy constructor or copy assignment throws.
 
-    \info
+    \warning
     Only one \c nearest() perdicate may be passed to the query. Passing more of them results in compile-time assert.
     
     \param predicates   Predicates.
@@ -1456,14 +1454,12 @@ bgi::query(tree, bgi::intersects(poly) && !bgi::within(box), std::back_inserter(
 bgi::query(tree, bgi::overlaps(box) && bgi::satisfies(my_fun), std::back_inserter(result));
 // return 5 elements nearest to pt and elements are intersecting box
 bgi::query(tree, bgi::nearest(pt, 5) && bgi::intersects(box), std::back_inserter(result));
-// return 5 elements which centroids are nearest to pt and elements aren't within box
-bgi::query(tree, bgi::nearest(bgi::to_centroid(pt), 5) && !bgi::within(box), std::back_inserter(result));
 \endverbatim
 
 \par Throws
 If Value copy constructor or copy assignment throws.
 
-\note
+\warning
 Only one \c nearest() perdicate may be passed to the query. Passing more of them results in compile-time assert.
 
 \ingroup rtree_functions
