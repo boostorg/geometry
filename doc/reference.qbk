@@ -4,6 +4,7 @@
   Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
   Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
   Copyright (c) 2009-2012 Bruno Lalande, Paris, France.
+  Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -264,7 +265,7 @@
 [include index/generated/adaptors.qbk]
 
 [include index/generated/predicates.qbk]
-[include index/generated/nearest_relations.qbk]
+[/include index/generated/nearest_relations.qbk]
 
 [endsect]
 

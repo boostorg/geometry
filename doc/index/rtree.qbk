@@ -15,6 +15,7 @@
 [include rtree/creation.qbk]
 [include rtree/query.qbk]
 [include rtree/examples.qbk]
-[/include rtree/reference.qbk/]
+[include rtree/experimental.qbk]
+[/include rtree/reference.qbk]
 
 [endsect]
