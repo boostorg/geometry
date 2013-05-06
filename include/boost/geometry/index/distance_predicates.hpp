@@ -21,6 +21,8 @@ namespace boost { namespace geometry { namespace index {
 
 // relations generators
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
 /*!
 \brief Generate to_nearest() relationship.
 
@@ -88,6 +90,8 @@ detail::to_furthest<T> to_furthest(T const& v)
 {
     return detail::to_furthest<T>(v);
 }
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 // distance predicates generators
 
