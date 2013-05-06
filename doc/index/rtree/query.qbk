@@ -1,7 +1,7 @@
 [/============================================================================
   Boost.Geometry Index
 
-  Copyright (c) 2011-2012 Adam Wulkiewicz.
+  Copyright (c) 2011-2013 Adam Wulkiewicz.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -87,7 +87,7 @@ The example of knn query is presented below. 5 `__value__`s nearest to some poin
 
 [$img/index/rtree/knn.png]
 
-[section k nearest neighbours]
+[heading k nearest neighbours]
 
 There are three ways of performing knn queries. Following queries returns
 `k` `__value__`s closest to some point in space. For `__box__`es
@@ -110,22 +110,6 @@ Use of `operator |`
  __point__ pt(...);
  BOOST_FOREACH(__value__ & v, rt | index::adaptors::queried(index::nearest(pt, k)))
    ; // do something with v
-
-[endsect]
-
-[section Distance calculation]
-
-It is possible to define how distance to the non-point `__value__` should be calculated. To do this one may pass
-a relation object generated as follows:
-
- /* caluclate distance to the Indexables' nearest points */
- tree::query(index::nearest(index::to_nearest(pt), k), std::back_inserter(returned_values)); // default
- /* caluclate distance to the Indexables' centroid */
- tree::query(index::nearest(index::to_centroid(pt), k), std::back_inserter(returned_values));
- /* caluclate distance to the Indexables' furthest points */
- tree::query(index::nearest(index::to_furthest(pt), k), std::back_inserter(returned_values));
-
-[endsect]
 
 [endsect]
 

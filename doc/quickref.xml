@@ -8,6 +8,7 @@
   Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
   Copyright (c) 2009-2011 Barend Gehrels, Amsterdam, the Netherlands.
   Copyright (c) 2009-2011 Bruno Lalande, Paris, France.
+  Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -733,17 +734,17 @@
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.overlaps_geometry_const___">overlaps(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.within_geometry_const___">within(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.satisfies_unarypredicate_const___">satisfies(UnaryPredicate const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_pointorrelation_const____unsigned_">nearest(PointOrRelation const &amp;, unsigned)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_point_const____unsigned_">nearest(Point const &amp;, unsigned)</link></member>
     </simplelist>
    </entry>
-   <entry valign="top">
+   <!--entry valign="top">
     <bridgehead renderas="sect3">Nearest relations (boost::geometry::index::)</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.spatial_indexes.group__nearest__relations.to_nearest_t_const___">to_nearest(T const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__nearest__relations.to_centroid_t_const___">to_centroid(T const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__nearest__relations.to_furthest_t_const___">to_furthest(T const &amp;) </link></member>
     </simplelist>
-   </entry>
+   </entry-->
   </row>
  </tbody>
 </tgroup>

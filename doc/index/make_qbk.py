@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # ===========================================================================
 #  Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+#  Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 # 
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -31,7 +32,7 @@ os.system(cmd % ("structboost_1_1geometry_1_1index_1_1indexable", "indexable"))
 os.system(cmd % ("structboost_1_1geometry_1_1index_1_1equal__to", "equal_to"))
 
 os.system(cmd % ("group__predicates", "predicates"))
-os.system(cmd % ("group__nearest__relations", "nearest_relations"))
+#os.system(cmd % ("group__nearest__relations", "nearest_relations"))
 os.system(cmd % ("group__adaptors", "adaptors"))
 os.system(cmd % ("group__inserters", "inserters"))
 
