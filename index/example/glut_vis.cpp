@@ -15,6 +15,7 @@
 
 #include <boost/geometry/index/rtree.hpp>
 
+#include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
@@ -30,6 +31,7 @@ namespace bgi = bg::index;
 typedef bg::model::point<float, 2, boost::geometry::cs::cartesian> P;
 typedef bg::model::box<P> B;
 //bgi::rtree<B> t(2, 1);
+typedef bg::model::linestring<P> LS;
 typedef bg::model::ring<P> R;
 typedef bg::model::polygon<P> Poly;
 typedef bg::model::multi_polygon<Poly> MPoly;
@@ -48,14 +50,15 @@ B search_box;
 R search_ring;
 Poly search_poly;
 MPoly search_multi_poly;
+LS search_path;
 
 enum query_mode_type {
-    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi, qm_mpi
+    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi, qm_mpi, qm_path
 } query_mode = qm_knn;
 
 bool search_valid = false;
 
-void knn()
+void query_knn()
 {
     float x = ( rand() % 1000 ) / 10.0f;
     float y = ( rand() % 1000 ) / 10.0f;
@@ -80,6 +83,43 @@ void knn()
     }
     else
         std::cout << "nearest not found\n";
+}
+
+void query_path()
+{
+    float x = ( rand() % 1000 ) / 10.0f;
+    float y = ( rand() % 1000 ) / 10.0f;
+    float w = 20 + ( rand() % 1000 ) / 100.0f;
+    float h = 20 + ( rand() % 1000 ) / 100.0f;
+
+    search_path.resize(10);
+    float yy = y-h;
+    for ( int i = 0 ; i < 5 ; ++i, yy += h / 2 )
+    {
+        search_path[2 * i] = P(x-w, yy);
+        search_path[2 * i + 1] = P(x+w, yy);
+    }
+        
+    nearest_boxes.clear();
+    found_count = t.query(
+        bgi::detail::path<LS>(search_path, count),
+        std::back_inserter(nearest_boxes)
+        );
+
+    if ( found_count > 0 )
+    {
+        std::cout << "search path: ";
+        BOOST_FOREACH(P const& p, search_path)
+            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+        std::cout << "\nfound: ";
+        for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
+        {
+            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            std::cout << '\n';
+        }
+    }
+    else
+        std::cout << "values on path not found\n";
 }
 
 template <typename Predicate>
@@ -298,7 +338,7 @@ void query_multi_poly()
 void search()
 {
     if ( query_mode == qm_knn )
-        knn();
+        query_knn();
     else if ( query_mode == qm_c )
         query< bgi::detail::covered_by<B> >();
     else if ( query_mode == qm_d )
@@ -327,6 +367,8 @@ void search()
         query_poly< bgi::detail::intersects<Poly> >();
     else if ( query_mode == qm_mpi )
         query_multi_poly< bgi::detail::intersects<MPoly> >();
+    else if ( query_mode == qm_path )
+        query_path();
 
     search_valid = true;
 }
@@ -356,6 +398,21 @@ void draw_knn_area(float min_distance, float max_distance)
     glBegin(GL_LINE_LOOP);
     for(float a = 0 ; a < 3.14158f * 2 ; a += 3.14158f / 180)
         glVertex3f(x + max_distance * ::cos(a), y + max_distance * ::sin(a), z);
+    glEnd();
+}
+
+void draw_path(LS const& ls)
+{
+    glBegin(GL_LINE_STRIP);
+
+    BOOST_FOREACH(P const& p, ls)
+    {
+        float x = boost::geometry::get<0>(p);
+        float y = boost::geometry::get<1>(p);
+        float z = t.depth();
+        glVertex3f(x, y, z);
+    }
+
     glEnd();
 }
 
@@ -428,6 +485,8 @@ void render_scene(void)
             draw_polygon(search_poly);
         else if ( query_mode == qm_mpi )
             draw_multi_polygon(search_multi_poly);
+        else if ( query_mode == qm_path )
+            draw_path(search_path);
         else
             draw_box(search_box);
 
@@ -591,6 +650,8 @@ void keyboard(unsigned char key, int x, int y)
                 query_mode = qm_pi;
             else if ( current_line == "mpi" )
                 query_mode = qm_mpi;
+            else if ( current_line == "path" )
+                query_mode = qm_path;
             
             search();
             glutPostRedisplay();

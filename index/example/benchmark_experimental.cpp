@@ -17,12 +17,14 @@
 #include <boost/random.hpp>
 
 #include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = bg::index;
 
 typedef bg::model::point<double, 2, bg::cs::cartesian> P;
 typedef bg::model::box<P> B;
+typedef bg::model::linestring<P> LS;
 
 template <typename I1, typename I2, typename O>
 void mycopy(I1 first, I2 last, O o)
@@ -40,14 +42,16 @@ int main()
     size_t queries_count = 100000;
     size_t nearest_queries_count = 10000;
     unsigned neighbours_count = 10;
+    size_t path_queries_count = 1000;
+    unsigned path_values_count = 10;
 
+    float max_val = static_cast<float>(values_count / 2);
     std::vector< std::pair<float, float> > coords;
 
     //randomize values
     {
         boost::mt19937 rng;
         //rng.seed(static_cast<unsigned int>(std::time(0)));
-        float max_val = static_cast<float>(values_count / 2);
         boost::uniform_real<float> range(-max_val, max_val);
         boost::variate_generator<boost::mt19937&, boost::uniform_real<float> > rnd(rng, range);
 
@@ -242,7 +246,7 @@ int main()
         {
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
-            for (size_t i = 0 ; i < queries_count ; ++i )
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
             {
                 float x = coords[i].first;
                 float y = coords[i].second;
@@ -256,8 +260,31 @@ int main()
             std::cout << time << " - type-erased qbegin(nearest(P, " << neighbours_count << ")) qend(n) " << nearest_queries_count << " found " << temp << '\n';
         }
 #endif
-#endif
 
+        {
+            LS ls;
+            ls.resize(6);
+            
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < path_queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                for ( int i = 0 ; i < 3 ; ++i )
+                {
+                    float foo = i*max_val/300;
+                    ls[2*i] = P(x, y+foo);
+                    ls[2*i+1] = P(x+max_val/100, y+foo);
+                }                
+                result.clear();
+                t.query(bgi::path(ls, path_values_count), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(path(LS, " << path_values_count << ")) " << path_queries_count << " found " << temp << '\n';
+        }
+#endif
         {
             clock_t::time_point start = clock_t::now();
             for (size_t i = 0 ; i < values_count / 10 ; ++i )
