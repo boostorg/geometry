@@ -129,14 +129,25 @@ struct not_within
     Geometry geometry;
 };
 
-template <typename DistancePredicates>
+template <typename PointOrRelation>
 struct nearest
 {
-    nearest(DistancePredicates const& dpred, unsigned k)
-        : distance_predicates(dpred)
+    nearest(PointOrRelation const& por, unsigned k)
+        : point_or_relation(por)
         , count(k)
     {}
-    DistancePredicates distance_predicates;
+    PointOrRelation point_or_relation;
+    unsigned count;
+};
+
+template <typename Linestring>
+struct path
+{
+    path(Linestring const& ls, unsigned k)
+        : linestring(ls)
+        , count(k)
+    {}
+    Linestring linestring;
     unsigned count;
 };
 
@@ -377,6 +388,16 @@ struct predicate_check<nearest<DistancePredicates>, value_tag>
     }
 };
 
+template <typename Linestring>
+struct predicate_check<path<Linestring>, value_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(path<Linestring> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
 // ------------------------------------------------------------------ //
 // predicate_check_default for bounds
 // ------------------------------------------------------------------ //
@@ -566,6 +587,16 @@ struct predicate_check<nearest<DistancePredicates>, bounds_tag>
 {
     template <typename Value, typename Box>
     static inline bool apply(nearest<DistancePredicates> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename Linestring>
+struct predicate_check<path<Linestring>, bounds_tag>
+{
+    template <typename Value, typename Box>
+    static inline bool apply(path<Linestring> const&, Value const&, Box const&)
     {
         return true;
     }
@@ -805,13 +836,19 @@ inline bool predicates_check(Predicates const& p, Value const& v, Indexable cons
 // predicates_is_nearest
 
 template <typename P>
-struct predicates_is_nearest
+struct predicates_is_distance
 {
     static const unsigned value = 0;
 };
 
 template <typename DistancePredicates>
-struct predicates_is_nearest< nearest<DistancePredicates> >
+struct predicates_is_distance< nearest<DistancePredicates> >
+{
+    static const unsigned value = 1;
+};
+
+template <typename Linestring>
+struct predicates_is_distance< path<Linestring> >
 {
     static const unsigned value = 1;
 };
@@ -819,46 +856,46 @@ struct predicates_is_nearest< nearest<DistancePredicates> >
 // predicates_count_nearest
 
 template <typename T>
-struct predicates_count_nearest
+struct predicates_count_distance
 {
-    static const unsigned value = predicates_is_nearest<T>::value;
+    static const unsigned value = predicates_is_distance<T>::value;
 };
 
 //template <typename F, typename S>
-//struct predicates_count_nearest< std::pair<F, S> >
+//struct predicates_count_distance< std::pair<F, S> >
 //{
-//    static const unsigned value = predicates_is_nearest<F>::value
-//                                + predicates_is_nearest<S>::value;
+//    static const unsigned value = predicates_is_distance<F>::value
+//                                + predicates_is_distance<S>::value;
 //};
 
 template <typename Tuple, unsigned N>
-struct predicates_count_nearest_tuple
+struct predicates_count_distance_tuple
 {
     static const unsigned value =
-        predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value
-        + predicates_count_nearest_tuple<Tuple, N-1>::value;
+        predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value
+        + predicates_count_distance_tuple<Tuple, N-1>::value;
 };
 
 template <typename Tuple>
-struct predicates_count_nearest_tuple<Tuple, 1>
+struct predicates_count_distance_tuple<Tuple, 1>
 {
     static const unsigned value =
-        predicates_is_nearest<typename boost::tuples::element<0, Tuple>::type>::value;
+        predicates_is_distance<typename boost::tuples::element<0, Tuple>::type>::value;
 };
 
 //template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-//struct predicates_count_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//struct predicates_count_distance< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 //{
-//    static const unsigned value = predicates_count_nearest_tuple<
+//    static const unsigned value = predicates_count_distance_tuple<
 //        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
 //        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
 //    >::value;
 //};
 
 template <typename Head, typename Tail>
-struct predicates_count_nearest< boost::tuples::cons<Head, Tail> >
+struct predicates_count_distance< boost::tuples::cons<Head, Tail> >
 {
-    static const unsigned value = predicates_count_nearest_tuple<
+    static const unsigned value = predicates_count_distance_tuple<
         boost::tuples::cons<Head, Tail>,
         boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
     >::value;
@@ -867,50 +904,50 @@ struct predicates_count_nearest< boost::tuples::cons<Head, Tail> >
 // predicates_find_nearest
 
 template <typename T>
-struct predicates_find_nearest
+struct predicates_find_distance
 {
-    static const unsigned value = predicates_is_nearest<T>::value ? 0 : 1;
+    static const unsigned value = predicates_is_distance<T>::value ? 0 : 1;
 };
 
 //template <typename F, typename S>
-//struct predicates_find_nearest< std::pair<F, S> >
+//struct predicates_find_distance< std::pair<F, S> >
 //{
-//    static const unsigned value = predicates_is_nearest<F>::value ? 0 :
-//                                    (predicates_is_nearest<S>::value ? 1 : 2);
+//    static const unsigned value = predicates_is_distance<F>::value ? 0 :
+//                                    (predicates_is_distance<S>::value ? 1 : 2);
 //};
 
 template <typename Tuple, unsigned N>
-struct predicates_find_nearest_tuple
+struct predicates_find_distance_tuple
 {
-    static const bool is_found = predicates_find_nearest_tuple<Tuple, N-1>::is_found
-                                || predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value;
+    static const bool is_found = predicates_find_distance_tuple<Tuple, N-1>::is_found
+                                || predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value;
 
-    static const unsigned value = predicates_find_nearest_tuple<Tuple, N-1>::is_found ?
-        predicates_find_nearest_tuple<Tuple, N-1>::value :
-        (predicates_is_nearest<typename boost::tuples::element<N-1, Tuple>::type>::value ?
+    static const unsigned value = predicates_find_distance_tuple<Tuple, N-1>::is_found ?
+        predicates_find_distance_tuple<Tuple, N-1>::value :
+        (predicates_is_distance<typename boost::tuples::element<N-1, Tuple>::type>::value ?
             N-1 : boost::tuples::length<Tuple>::value);
 };
 
 template <typename Tuple>
-struct predicates_find_nearest_tuple<Tuple, 1>
+struct predicates_find_distance_tuple<Tuple, 1>
 {
-    static const bool is_found = predicates_is_nearest<typename boost::tuples::element<0, Tuple>::type>::value;
+    static const bool is_found = predicates_is_distance<typename boost::tuples::element<0, Tuple>::type>::value;
     static const unsigned value = is_found ? 0 : boost::tuples::length<Tuple>::value;
 };
 
 //template <typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-//struct predicates_find_nearest< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+//struct predicates_find_distance< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 //{
-//    static const unsigned value = predicates_find_nearest_tuple<
+//    static const unsigned value = predicates_find_distance_tuple<
 //        boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>,
 //        boost::tuples::length< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >::value
 //    >::value;
 //};
 
 template <typename Head, typename Tail>
-struct predicates_find_nearest< boost::tuples::cons<Head, Tail> >
+struct predicates_find_distance< boost::tuples::cons<Head, Tail> >
 {
-    static const unsigned value = predicates_find_nearest_tuple<
+    static const unsigned value = predicates_find_distance_tuple<
         boost::tuples::cons<Head, Tail>,
         boost::tuples::length< boost::tuples::cons<Head, Tail> >::value
     >::value;

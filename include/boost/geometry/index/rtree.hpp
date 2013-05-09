@@ -733,11 +733,11 @@ public:
         if ( !m_members.root )
             return 0;
 
-        static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        static const bool is_nearest = 0 < nearest_count;
-        BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
+        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        static const bool is_distance_predicate = 0 < distance_predicates_count;
+        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
 
-        return query_dispatch(predicates, out_it, boost::mpl::bool_<is_nearest>());
+        return query_dispatch(predicates, out_it, boost::mpl::bool_<is_distance_predicate>());
     }
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -762,24 +762,24 @@ public:
 
     template <typename Predicates>
     typename boost::mpl::if_c<
-        detail::predicates_count_nearest<Predicates>::value == 0,
+        detail::predicates_count_distance<Predicates>::value == 0,
         detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        detail::rtree::nearest_query_iterator<
+        detail::rtree::distance_query_iterator<
             value_type, options_type, translator_type, box_type, allocators_type, Predicates,
-            detail::predicates_find_nearest<Predicates>::value
+            detail::predicates_find_distance<Predicates>::value
         >
     >::type
     qbegin(Predicates const& predicates) const
     {
-        static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
+        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
 
         typedef typename boost::mpl::if_c<
-            detail::predicates_count_nearest<Predicates>::value == 0,
+            detail::predicates_count_distance<Predicates>::value == 0,
             detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-            detail::rtree::nearest_query_iterator<
+            detail::rtree::distance_query_iterator<
                 value_type, options_type, translator_type, box_type, allocators_type, Predicates,
-                detail::predicates_find_nearest<Predicates>::value
+                detail::predicates_find_distance<Predicates>::value
             >
         >::type iterator_type;
 
@@ -791,24 +791,24 @@ public:
 
     template <typename Predicates>
     typename boost::mpl::if_c<
-        detail::predicates_count_nearest<Predicates>::value == 0,
+        detail::predicates_count_distance<Predicates>::value == 0,
         detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        detail::rtree::nearest_query_iterator<
+        detail::rtree::distance_query_iterator<
             value_type, options_type, translator_type, box_type, allocators_type, Predicates,
-            detail::predicates_find_nearest<Predicates>::value
+            detail::predicates_find_distance<Predicates>::value
         >
     >::type
     qend(Predicates const& predicates) const
     {
-        static const unsigned nearest_count = detail::predicates_count_nearest<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((nearest_count <= 1), PASS_ONLY_ONE_NEAREST_PREDICATE, (Predicates));
+        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
 
         typedef typename boost::mpl::if_c<
-            detail::predicates_count_nearest<Predicates>::value == 0,
+            detail::predicates_count_distance<Predicates>::value == 0,
             detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-            detail::rtree::nearest_query_iterator<
+            detail::rtree::distance_query_iterator<
                 value_type, options_type, translator_type, box_type, allocators_type, Predicates,
-                detail::predicates_find_nearest<Predicates>::value
+                detail::predicates_find_distance<Predicates>::value
             >
         >::type iterator_type;
 
@@ -1182,7 +1182,7 @@ private:
     strong
     */
     template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_nearest*/) const
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_distance_predicate*/) const
     {
         detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
             find_v(m_members.translator(), predicates, out_it);
@@ -1199,37 +1199,23 @@ private:
     strong
     */
     template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_nearest*/) const
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_distance_predicate*/) const
     {
-        static const unsigned nearest_index = detail::predicates_find_nearest<Predicates>::value;
-        typedef index::detail::predicates_element<nearest_index, Predicates> nearest_predicate_access;
-        typedef typename index::detail::distance_predicates_type<typename nearest_predicate_access::type >::type distance_predicates_type;
-        typedef typename detail::point_relation<distance_predicates_type>::type point_relation;
-        typedef typename detail::relation<point_relation>::value_type point_type;
-
-        typedef detail::rtree::visitors::nearest_query_result_k<
-            value_type,
-            translator_type,
-            point_type,
-            OutIter
-        > result_type;
-
-        result_type result(nearest_predicate_access::get(predicates).count, out_it);
-
-        detail::rtree::visitors::nearest_query<
+        static const unsigned distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
+        detail::rtree::visitors::distance_query<
             value_type,
             options_type,
             translator_type,
             box_type,
             allocators_type,
             Predicates,
-            nearest_index,
-            result_type
-        > nearest_v(m_members.parameters(), m_members.translator(), predicates, result);
+            distance_predicate_index,
+            OutIter
+        > distance_v(m_members.parameters(), m_members.translator(), predicates, out_it);
 
-        detail::rtree::apply_visitor(nearest_v, *m_members.root);
+        detail::rtree::apply_visitor(distance_v, *m_members.root);
 
-        return result.finish();
+        return distance_v.finish();
     }
 
     struct members_holder
