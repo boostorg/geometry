@@ -43,6 +43,17 @@ struct satisfies
     typedef satisfies_impl<Fun, ::boost::is_function<Fun>::value> base;
 
     satisfies(Fun const& f) : base(f) {}
+    satisfies(base const& b) : base(b) {}
+};
+
+template <typename Fun>
+struct not_satisfies
+    : satisfies_impl<Fun, ::boost::is_function<Fun>::value>
+{
+    typedef satisfies_impl<Fun, ::boost::is_function<Fun>::value> base;
+
+    not_satisfies(Fun const& f) : base(f) {}
+    not_satisfies(base const& b) : base(b) {}
 };
 
 template <typename Geometry>
@@ -258,6 +269,16 @@ struct predicate_check<satisfies<Fun>, value_tag>
     }
 };
 
+template <typename Fun>
+struct predicate_check<not_satisfies<Fun>, value_tag>
+{
+    template <typename Value, typename Indexable>
+    static inline bool apply(not_satisfies<Fun> const& p, Value const& v, Indexable const&)
+    {
+        return !p.fun(v);
+    }
+};
+
 template <typename Geometry>
 struct predicate_check<covered_by<Geometry>, value_tag>
 {
@@ -453,6 +474,16 @@ struct predicate_check<satisfies<Fun>, bounds_tag>
 {
     template <typename Value, typename Box>
     static bool apply(satisfies<Fun> const&, Value const&, Box const&)
+    {
+        return true;
+    }
+};
+
+template <typename Fun>
+struct predicate_check<not_satisfies<Fun>, bounds_tag>
+{
+    template <typename Value, typename Box>
+    static bool apply(not_satisfies<Fun> const&, Value const&, Box const&)
     {
         return true;
     }

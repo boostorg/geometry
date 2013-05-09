@@ -271,84 +271,98 @@ namespace detail {
 
 // operator! generators
 
-template <typename Geometry>
+template <typename Fun> inline
+not_satisfies<Fun>
+operator!(satisfies<Fun> const& p)
+{
+    return not_satisfies<Fun>(p);
+}
+
+template <typename Fun> inline
+satisfies<Fun>
+operator!(not_satisfies<Fun> const& p)
+{
+    return satisfies<Fun>(p);
+}
+
+template <typename Geometry> inline
 not_covered_by<Geometry>
 operator!(covered_by<Geometry> const& p)
 {
     return not_covered_by<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 covered_by<Geometry>
 operator!(not_covered_by<Geometry> const& p)
 {
     return covered_by<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 not_disjoint<Geometry>
 operator!(disjoint<Geometry> const& p)
 {
     return not_disjoint<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 disjoint<Geometry>
 operator!(not_disjoint<Geometry> const& p)
 {
     return disjoint<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 not_intersects<Geometry>
 operator!(intersects<Geometry> const& p)
 {
     return not_intersects<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 intersects<Geometry>
 operator!(not_intersects<Geometry> const& p)
 {
     return intersects<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 not_overlaps<Geometry>
 operator!(overlaps<Geometry> const& p)
 {
     return not_overlaps<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 overlaps<Geometry>
 operator!(not_overlaps<Geometry> const& p)
 {
     return overlaps<Geometry>(p.geometry);
 }
 
-//template <typename Geometry>
+//template <typename Geometry> inline
 //not_touches<Geometry>
 //operator!(touches<Geometry> const& p)
 //{
 //    return not_touches<Geometry>(p.geometry);
 //}
 //
-//template <typename Geometry>
+//template <typename Geometry> inline
 //touches<Geometry>
 //operator!(not_touches<Geometry> const& p)
 //{
 //    return touches<Geometry>(p.geometry);
 //}
 
-template <typename Geometry>
+template <typename Geometry> inline
 not_within<Geometry>
 operator!(within<Geometry> const& p)
 {
     return not_within<Geometry>(p.geometry);
 }
 
-template <typename Geometry>
+template <typename Geometry> inline
 within<Geometry>
 operator!(not_within<Geometry> const& p)
 {
