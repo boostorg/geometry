@@ -31,12 +31,26 @@ a relation object instead of a Point to the nearest predicate, as follows:
  /* caluclate distance to the Indexables' furthest points */
  rtree.query(index::nearest(index::to_furthest(pt), k), std::back_inserter(returned_values));
 
+[heading Path query]
+
+Path query returns `k` first `__value__`s intersecting a path defined by a `Linestring`. Query returning first 5
+values intersecting a path is presented below. Path's flow is denoted by blue arrows, returned values are orange.
+
+[$img/index/rtree/path.png]
+ 
+To perform this query one may pass a `path()` predicate taking a `Linestring` and maximum number of `__value__`s which
+should be returned:
+
+ rtree.query(index::path(linestring, k), std::back_inserter(returned_values));
+
+[warning Only one distance predicate may be used in a query. This means that there can be only one `nearest()` or `path()` predicate passed. Passing more of them will result in compile-time error.]
+
 [heading Incremental queries]
 
 Sometimes there is a need to brake querying at some desired point because it depends on objects already
 returned or to pause it in order to resume later. For this purpose iterators may be used.
 
-In this library incremental queries are implemented as input (single pass) const iterators, relatively
+Currently incremental queries are implemented as input (single pass) const iterators, relatively
 big fat-iterators storing stack used in the tree-traversing process. Because the type of predicates passed
 to the query varies, the type of the iterator varies as well.
 
