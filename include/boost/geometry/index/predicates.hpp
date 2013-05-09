@@ -211,8 +211,8 @@ inline detail::satisfies<UnaryPredicate> satisfies(UnaryPredicate const& pred)
 \brief Generate nearest() predicate.
 
 When nearest predicate is passed to the query, k-nearest neighbour search will be performed.
-
-The simplest way of defining the knn query is passing a \c Point to which \c Values must be closest.
+\c nearest() predicate takes a \c Point from which distance to \c Values is calculated
+and the maximum number of \c Values that should be returned.
 
 \par Example
 \verbatim
@@ -234,6 +234,38 @@ nearest(Point const& point, unsigned k)
 {
     return detail::nearest<Point>(point, k);
 }
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+/*!
+\brief Generate path() predicate.
+
+When path predicate is passed to the query, the returned values are k values on the path closest to
+its begin. \c path() predicate takes a \c Linestring defining the path and the maximum
+number of \c Values that should be returned.
+
+\par Example
+\verbatim
+bgi::query(spatial_index, bgi::path(pt, 5), std::back_inserter(result));
+bgi::query(spatial_index, bgi::path(pt, 5) && bgi::intersects(box), std::back_inserter(result));
+\endverbatim
+
+\warning
+Only one distance predicate (\c nearest() or \c path()) may be used in a query.
+
+\ingroup predicates
+
+\param point        The point from which distance is calculated.
+\param k            The maximum number of values to return.
+*/
+template <typename Linestring> inline
+detail::path<Linestring>
+path(Linestring const& linestring, unsigned k)
+{
+    return detail::path<Linestring>(linestring, k);
+}
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 namespace detail {
 

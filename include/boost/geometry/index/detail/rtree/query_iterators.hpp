@@ -143,9 +143,9 @@ private:
 };
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, unsigned NearestPredicateIndex>
-class nearest_query_iterator
+class distance_query_iterator
 {
-    typedef visitors::nearest_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
+    typedef visitors::distance_query_incremental<Value, Options, Translator, Box, Allocators, Predicates, NearestPredicateIndex> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
 public:
@@ -155,11 +155,11 @@ public:
     typedef typename Allocators::difference_type difference_type;
     typedef typename Allocators::const_pointer pointer;
 
-    inline nearest_query_iterator(Translator const& t, Predicates const& p)
+    inline distance_query_iterator(Translator const& t, Predicates const& p)
         : m_visitor(t, p)
     {}
 
-    inline nearest_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
+    inline distance_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
         : m_visitor(t, p)
     {
         detail::rtree::apply_visitor(m_visitor, *root);
@@ -176,45 +176,45 @@ public:
         return boost::addressof(m_visitor.dereference());
     }
 
-    nearest_query_iterator & operator++()
+    distance_query_iterator & operator++()
     {
         m_visitor.increment();
         return *this;
     }
 
-    nearest_query_iterator operator++(int)
+    distance_query_iterator operator++(int)
     {
-        nearest_query_iterator temp = *this;
+        distance_query_iterator temp = *this;
         this->operator++();
         return temp;
     }
 
-    friend bool operator==(nearest_query_iterator const& l, nearest_query_iterator const& r)
+    friend bool operator==(distance_query_iterator const& l, distance_query_iterator const& r)
     {
         return l.m_visitor == r.m_visitor;
     }
 
-    friend bool operator==(nearest_query_iterator const& l, end_query_iterator<Value, Allocators>)
+    friend bool operator==(distance_query_iterator const& l, end_query_iterator<Value, Allocators>)
     {
         return l.m_visitor.is_end();
     }
 
-    friend bool operator==(end_query_iterator<Value, Allocators>, nearest_query_iterator const& r)
+    friend bool operator==(end_query_iterator<Value, Allocators>, distance_query_iterator const& r)
     {
         return r.m_visitor.is_end();
     }
 
-    friend bool operator!=(nearest_query_iterator const& l, nearest_query_iterator const& r)
+    friend bool operator!=(distance_query_iterator const& l, distance_query_iterator const& r)
     {
         return !(l.m_visitor == r.m_visitor);
     }
 
-    friend bool operator!=(nearest_query_iterator const& l, end_query_iterator<Value, Allocators>)
+    friend bool operator!=(distance_query_iterator const& l, end_query_iterator<Value, Allocators>)
     {
         return !l.m_visitor.is_end();
     }
 
-    friend bool operator!=(end_query_iterator<Value, Allocators>, nearest_query_iterator const& r)
+    friend bool operator!=(end_query_iterator<Value, Allocators>, distance_query_iterator const& r)
     {
         return !r.m_visitor.is_end();
     }
