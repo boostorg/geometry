@@ -289,7 +289,7 @@ public:
     struct internal_stack_element
     {
         internal_stack_element() : current_branch(0) {}
-#ifdef BOOST_NO_RVALUE_REFERENCES
+#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
         // Required in c++03 for containers using Boost.Move
         internal_stack_element & operator=(internal_stack_element const& o)
         {
