@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// R-tree k nearest neighbour query visitor implementation
+// R-tree distance (knn, path, etc. ) query visitor implementation
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_NEAREST_QUERY_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_NEAREST_QUERY_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
 
 namespace boost { namespace geometry { namespace index {
 
@@ -537,4 +537,4 @@ private:
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_NEAREST_QUERY_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
