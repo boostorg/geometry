@@ -33,7 +33,7 @@ a relation object instead of a Point to the nearest predicate, as follows:
 
 [heading Path query]
 
-Path query returns `k` first `__value__`s intersecting a path defined by a `Linestring`. Query returning first 5
+Path query returns `k` first `__value__`s intersecting a path defined by a `Linestring`. The result of a query returning first 5
 values intersecting a path is presented below. Path's flow is denoted by blue arrows, returned values are orange.
 
 [$img/index/rtree/path.png]
@@ -47,10 +47,10 @@ should be returned:
 
 [heading Incremental queries]
 
-Sometimes there is a need to brake querying at some desired point because it depends on objects already
-returned or to pause it in order to resume later. For this purpose iterators may be used.
+Sometimes there is a need to stop querying at some desired moment because for example the decision that query should find another value
+is made after analysis of previously returned values. There can also be desirable to pause querying and resume it later. 
 
-Currently incremental queries are implemented as input (single pass) const iterators, relatively
+Currently, those kind of incremental queries are implemented as input (single pass) const iterators, relatively
 big fat-iterators storing stack used in the tree-traversing process. Because the type of predicates passed
 to the query varies, the type of the iterator varies as well.
 
