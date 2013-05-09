@@ -999,16 +999,27 @@ struct satisfies_obj
 template <typename Rtree, typename Value>
 void satisfies(Rtree const& rtree, std::vector<Value> const& input)
 {
-    std::vector<Value> result;
+    std::vector<Value> result;    
     rtree.query(bgi::satisfies(satisfies_obj()), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
+    rtree.query(!bgi::satisfies(satisfies_obj()), std::back_inserter(result));
+    BOOST_CHECK(result.size() == 0);
+
+    result.clear();
     rtree.query(bgi::satisfies(satisfies_fun<Value>), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
+    result.clear();
+    rtree.query(!bgi::satisfies(satisfies_fun<Value>), std::back_inserter(result));
+    BOOST_CHECK(result.size() == 0);
+
 #ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
     rtree.query(bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
+    result.clear();
+    rtree.query(!bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
+    BOOST_CHECK(result.size() == 0);
 #endif
 }
 
