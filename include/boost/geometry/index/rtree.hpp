@@ -36,6 +36,7 @@
 #include <boost/geometry/index/distance_predicates.hpp>
 #include <boost/geometry/index/detail/rtree/adaptors.hpp>
 
+#include <boost/geometry/index/detail/meta.hpp>
 #include <boost/geometry/index/detail/utilities.hpp>
 #include <boost/geometry/index/detail/rtree/node/node.hpp>
 
@@ -569,6 +570,8 @@ public:
     template <typename Range>
     inline void insert(Range const& rng)
     {
+        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value), PASSED_OBJECT_IS_NOT_A_RANGE, (Range));
+
         if ( !m_members.root )
             this->raw_create();
 
@@ -658,6 +661,8 @@ public:
     template <typename Range>
     inline size_type remove(Range const& rng)
     {
+        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value), PASSED_OBJECT_IS_NOT_A_RANGE, (Range));
+
         size_type result = 0;
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
