@@ -26,7 +26,7 @@ define `Value` we will use predefined __box__ and unsigned int.
 
 R-tree may be created using various algorithm and parameters. You should choose the algorithm you'll
 find the best for your purpose. In this example we will use quadratic algorithm. Parameters are
-passed as template parameters. Maximum number of elements in nodes are set to 32, minimum to 8. 
+passed as template parameters. Maximum number of elements in nodes is set to 16. 
 
 [rtree_quickstart_create]
 
