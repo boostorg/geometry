@@ -60,7 +60,7 @@ int main(void)
     bgi::rtree< value, bgi::rstar<16, 4> > rtree;
 
     // fill the spatial index
-    for ( size_t i = 0 ; i < polygons.size() ; ++i )
+    for ( unsigned i = 0 ; i < polygons.size() ; ++i )
     {
         // calculate polygon bounding box
         box b = bg::return_envelope<box>(polygons[i]);
