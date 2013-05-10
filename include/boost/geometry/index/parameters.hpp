@@ -15,16 +15,67 @@
 
 namespace boost { namespace geometry { namespace index {
 
-//TODO:
-// add default value of Min = 0.3 * Max?
+namespace detail { 
+
+template <size_t MaxElements>
+struct default_min_elements_s
+{
+    // TODO - assert MaxElements <= (std::numeric_limits<size_t>::max)()/3
+    static const size_t raw_value = (MaxElements * 3) / 10;
+    static const size_t value = 1 <= raw_value ? raw_value : 1;
+};
+
+inline size_t default_min_elements_d()
+{
+    return (std::numeric_limits<size_t>::max)();
+}
+
+inline size_t default_min_elements_d_calc(size_t max_elements, size_t min_elements)
+{
+    if ( default_min_elements_d() == min_elements )
+    {
+        // TODO - assert MaxElements <= (std::numeric_limits<size_t>::max)()/3
+        size_t raw_value = (max_elements * 3) / 10;
+        return 1 <= raw_value ? raw_value : 1;
+    }
+    
+    return min_elements;
+}
+
+template <size_t MaxElements>
+struct default_rstar_reinserted_elements_s
+{
+    // TODO - assert MaxElements <= (std::numeric_limits<size_t>::max)()/3
+    static const size_t value = (MaxElements * 3) / 10;
+};
+
+inline size_t default_rstar_reinserted_elements_d()
+{
+    return (std::numeric_limits<size_t>::max)();
+};
+
+inline size_t default_rstar_reinserted_elements_d_calc(size_t max_elements, size_t reinserted_elements)
+{
+    if ( default_rstar_reinserted_elements_d() == reinserted_elements )
+    {
+        // TODO - assert MaxElements <= (std::numeric_limits<size_t>::max)()/3
+        return (max_elements * 3) / 10;
+    }
+    
+    return reinserted_elements;
+}
+
+} // namespace detail
 
 /*!
 \brief Linear r-tree creation algorithm parameters.
 
 \tparam MaxElements     Maximum number of elements in nodes.
-\tparam MinElements     Minimum number of elements in nodes.
+\tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
 */
-template <size_t MaxElements, size_t MinElements>
+template <size_t MaxElements,
+          size_t MinElements = detail::default_min_elements_s<MaxElements>::value
+>
 struct linear
 {
     BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
@@ -41,9 +92,10 @@ struct linear
 \brief Quadratic r-tree creation algorithm parameters.
 
 \tparam MaxElements     Maximum number of elements in nodes.
-\tparam MinElements     Minimum number of elements in nodes.
+\tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
 */
-template <size_t MaxElements, size_t MinElements>
+template <size_t MaxElements,
+          size_t MinElements = detail::default_min_elements_s<MaxElements>::value>
 struct quadratic
 {
     BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
@@ -56,21 +108,11 @@ struct quadratic
     static size_t get_min_elements() { return MinElements; }
 };
 
-namespace detail { 
-
-template <size_t MaxElements>
-struct default_rstar_reinserted_elements_s
-{
-    static const size_t value = (MaxElements * 3) / 10;
-};
-
-} // namespace detail
-
 /*!
 \brief R*-tree creation algorithm parameters.
 
 \tparam MaxElements             Maximum number of elements in nodes.
-\tparam MinElements             Minimum number of elements in nodes.
+\tparam MinElements             Minimum number of elements in nodes. Default: 0.3*Max.
 \tparam ReinsertedElements      The number of elements reinserted by forced reinsertions algorithm.
                                 If 0 forced reinsertions are disabled. Maximum value is Max+1-Min.
                                 Greater values are truncated. Default: 0.3*Max.
@@ -81,7 +123,7 @@ struct default_rstar_reinserted_elements_s
                                 and true minimum overlap cost is calculated. Default: 32.
 */
 template <size_t MaxElements,
-          size_t MinElements,
+          size_t MinElements = detail::default_min_elements_s<MaxElements>::value,
           size_t ReinsertedElements = detail::default_rstar_reinserted_elements_s<MaxElements>::value,
           size_t OverlapCostThreshold = 32>
 struct rstar
@@ -117,11 +159,12 @@ public:
     \brief The constructor.
 
     \param max_elements     Maximum number of elements in nodes.
-    \param min_elements     Minimum number of elements in nodes.
+    \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
     */
-    dynamic_linear(size_t max_elements, size_t min_elements)
+    dynamic_linear(size_t max_elements,
+                   size_t min_elements = detail::default_min_elements_d())
         : m_max_elements(max_elements)
-        , m_min_elements(min_elements)
+        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
     {
         if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
             detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_linear");
@@ -145,11 +188,12 @@ public:
     \brief The constructor.
 
     \param max_elements     Maximum number of elements in nodes.
-    \param min_elements     Minimum number of elements in nodes.
+    \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
     */
-    dynamic_quadratic(size_t max_elements, size_t min_elements)
+    dynamic_quadratic(size_t max_elements,
+                      size_t min_elements = detail::default_min_elements_d())
         : m_max_elements(max_elements)
-        , m_min_elements(min_elements)
+        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
     {
         if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
             detail::throw_invalid_argument("invalid min or/and max parameters of dynamic_quadratic");
@@ -163,15 +207,6 @@ private:
     size_t m_min_elements;
 };
 
-namespace detail { 
-
-inline size_t default_rstar_reinserted_elements_d()
-{
-    return (std::numeric_limits<size_t>::max)();
-};
-
-} // namespace detail
-
 /*!
 \brief R*-tree creation algorithm parameters - run-time version.
 */
@@ -182,7 +217,7 @@ public:
     \brief The constructor.
 
     \param max_elements             Maximum number of elements in nodes.
-    \param min_elements             Minimum number of elements in nodes.
+    \param min_elements             Minimum number of elements in nodes. Default: 0.3*Max.
     \param reinserted_elements      The number of elements reinserted by forced reinsertions algorithm.
                                     If 0 forced reinsertions are disabled. Maximum value is Max-Min+1.
                                     Greater values are truncated. Default: 0.3*Max.
@@ -193,15 +228,12 @@ public:
                                     and true minimum overlap cost is calculated. Default: 32.
     */
     dynamic_rstar(size_t max_elements,
-                  size_t min_elements,
+                  size_t min_elements = detail::default_min_elements_d(),
                   size_t reinserted_elements = detail::default_rstar_reinserted_elements_d(),
                   size_t overlap_cost_threshold = 32)
         : m_max_elements(max_elements)
-        , m_min_elements(min_elements)
-        , m_reinserted_elements(
-            detail::default_rstar_reinserted_elements_d() == reinserted_elements ?
-            (max_elements * 3) / 10 :
-            reinserted_elements )
+        , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
+        , m_reinserted_elements(detail::default_rstar_reinserted_elements_d_calc(max_elements, reinserted_elements))
         , m_overlap_cost_threshold(overlap_cost_threshold)
     {
         if (!(0 < m_min_elements && 2*m_min_elements <= m_max_elements+1))
