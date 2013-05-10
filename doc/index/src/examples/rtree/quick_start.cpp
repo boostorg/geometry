@@ -39,7 +39,7 @@ int main(void)
 
     //[rtree_quickstart_create
     // create the rtree using default constructor
-    bgi::rtree< value, bgi::quadratic<16, 4> > rtree;
+    bgi::rtree< value, bgi::quadratic<16> > rtree;
     //]
 
     //[rtree_quickstart_insert
