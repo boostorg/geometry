@@ -13,22 +13,22 @@
 
 //#include <boost/geometry/io/wkt/read.hpp>
 
-template <typename Box, typename Point>
+template <typename Box, typename Point, typename RelativeDistance>
 void test_segment_intersection(Box const& box, Point const& p0, Point const& p1,
                                bool expected_result,
-                               typename bgi::detail::default_relative_distance_type<Box, Point>::type expected_rel_dist)
+                               RelativeDistance expected_rel_dist)
 {
-    typename bgi::detail::default_relative_distance_type<Box, Point>::type rel_dist;
+    RelativeDistance rel_dist;
     bool value = bgi::detail::segment_intersection(box, p0, p1, rel_dist);
     BOOST_CHECK(value == expected_result);
     if ( value && expected_result )
         BOOST_CHECK_CLOSE(rel_dist, expected_rel_dist, 0.0001);
 }
 
-template <typename Box, typename Point>
+template <typename Box, typename Point, typename RelativeDistance>
 void test_geometry(std::string const& wkt_g, std::string const& wkt_p0, std::string const& wkt_p1,
                    bool expected_result,
-                   typename bgi::detail::default_relative_distance_type<Box, Point>::type expected_rel_dist)
+                   RelativeDistance expected_rel_dist)
 {
     Box box;
     bg::read_wkt(wkt_g, box);
@@ -106,14 +106,14 @@ int test_main(int, char* [])
     test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(0 5)", "POINT(0 0)", true, 0.2f);
     test_geometry<bg::model::box<P2dc>, P2dc>("POLYGON((0 1,2 4))", "POINT(0 0)", "POINT(0 5)", true, 0.2);
 
-    test_geometry<bg::model::box<P2ic>, P2ic>("POLYGON((0 1,2 4))", "POINT(3 0)", "POINT(3 5)", false, 0);
-    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(3 5)", "POINT(3 0)", false, 0);
-    test_geometry<bg::model::box<P2dc>, P2dc>("POLYGON((0 1,2 4))", "POINT(3 0)", "POINT(3 5)", false, 0);
+    test_geometry<bg::model::box<P2ic>, P2ic>("POLYGON((0 1,2 4))", "POINT(3 0)", "POINT(3 5)", false, 0.0f);
+    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(3 5)", "POINT(3 0)", false, 0.0f);
+    test_geometry<bg::model::box<P2dc>, P2dc>("POLYGON((0 1,2 4))", "POINT(3 0)", "POINT(3 5)", false, 0.0);
 
-    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(1 0)", "POINT(1 1)", true, 1);
-    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(1 4)", "POINT(1 5)", true, 0);
+    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(1 0)", "POINT(1 1)", true, 1.0f);
+    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(1 4)", "POINT(1 5)", true, 0.0f);
 
-    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(0.5 2)", "POINT(1.5 3)", true, 0);
+    test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(0.5 2)", "POINT(1.5 3)", true, 0.0f);
     
 #ifdef HAVE_TTMATH
     typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;

@@ -42,7 +42,8 @@ int main()
     size_t queries_count = 100000;
     size_t nearest_queries_count = 10000;
     unsigned neighbours_count = 10;
-    size_t path_queries_count = 1000;
+    size_t path_queries_count = 2000;
+    size_t path_queries_count2 = 10000;
     unsigned path_values_count = 10;
 
     float max_val = static_cast<float>(values_count / 2);
@@ -283,6 +284,26 @@ int main()
             }
             dur_t time = clock_t::now() - start;
             std::cout << time << " - query(path(LS, " << path_values_count << ")) " << path_queries_count << " found " << temp << '\n';
+        }
+
+        {
+            LS ls;
+            ls.resize(2);
+
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < path_queries_count2 ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                ls[0] = P(x, y);
+                ls[1] = P(x+max_val/100, y+max_val/100);
+                result.clear();
+                t.query(bgi::path(ls, path_values_count), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(path(LS, " << path_values_count << ")) " << path_queries_count2 << " found " << temp << '\n';
         }
 #endif
         {
