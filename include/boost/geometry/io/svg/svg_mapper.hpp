@@ -41,7 +41,7 @@
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
-#include <boost/geometry/extensions/io/svg/write_svg.hpp>
+#include <boost/geometry/io/svg/write_svg.hpp>
 
 // Helper geometries (all points are transformed to integer-points)
 #include <boost/geometry/geometries/geometries.hpp>

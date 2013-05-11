@@ -30,7 +30,7 @@
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/multi/algorithms/envelope.hpp>
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 

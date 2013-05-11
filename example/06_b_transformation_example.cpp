@@ -24,7 +24,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 #if defined(HAVE_SVG)
-#  include <boost/geometry/extensions/io/svg/write_svg.hpp>
+#  include <boost/geometry/io/svg/write_svg.hpp>
 #endif
 
 #include <boost/bind.hpp>

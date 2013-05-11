@@ -40,7 +40,7 @@
 #if defined(TEST_WITH_SVG)
 #  define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 

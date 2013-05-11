@@ -16,7 +16,7 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 
 #include <boost/geometry/extensions/gis/projections/parameters.hpp>

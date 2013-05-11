@@ -13,7 +13,7 @@
 #define BOOST_GEOMETRY_IO_SVG_WRITE_SVG_MULTI_HPP
 
 
-#include <boost/geometry/extensions/io/svg/write_svg.hpp>
+#include <boost/geometry/io/svg/write_svg.hpp>
 
 
 namespace boost { namespace geometry
