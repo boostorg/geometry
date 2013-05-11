@@ -21,7 +21,7 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 #if defined(TEST_WITH_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>

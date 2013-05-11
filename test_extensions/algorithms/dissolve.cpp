@@ -34,15 +34,10 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
-
-
-
-
-
 
 #if defined(TEST_WITH_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/write_svg_multi.hpp>
 #endif
 
 template <typename Mapper>

@@ -21,7 +21,7 @@
 #include <boost/type_traits/is_same.hpp>
 
 #ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
+#  include <boost/geometry/contrib/ttmath_stub.hpp>
 #endif
 
 #include <geometry_test_common.hpp>
@@ -62,7 +62,7 @@
 
 
 #if defined(TEST_WITH_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 #include <boost/geometry/strategies/strategies.hpp>

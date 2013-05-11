@@ -15,7 +15,7 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/extensions/io/svg/write_svg.hpp>
+#include <boost/geometry/io/svg/write_svg.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 #include <boost/geometry/extensions/gis/projections/project_transformer.hpp>
 

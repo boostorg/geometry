@@ -21,7 +21,7 @@
 #include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #if defined(TEST_WITH_SVG)
-# include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+# include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 #include <boost/random/linear_congruential.hpp>
