@@ -34,34 +34,40 @@ struct path_intersection<Indexable, Linestring, box_tag>
 {
     typedef typename default_length_result<Linestring>::type length_type;
 
-    static inline bool apply(Indexable const& b, Linestring const& path, length_type & distance)
+    static inline bool apply(Indexable const& b, Linestring const& path, length_type & comparable_distance)
     {
         typedef typename ::boost::range_value<Linestring>::type point_type;
-        typedef typename default_relative_distance_type<Indexable, point_type>::type relative_distance_type;
         typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;        
+        typedef typename ::boost::range_size<Linestring>::type size_type;
+        
+        const size_type count = ::boost::size(path);
 
-        if ( ::boost::size(path) < 2 )
-            return false;
-
-        const_iterator it0 = ::boost::begin(path);
-        const_iterator it1 = ::boost::begin(path) + 1;
-        const_iterator last = ::boost::end(path);
-
-        distance = 0;
-
-        for ( ; it1 != last ; ++it0, ++it1 )
+        if ( count == 2 )
         {
-            typename default_distance_result<point_type, point_type>::type
-                dist = geometry::distance(*it0, *it1);
+            return index::detail::segment_intersection(b, *::boost::begin(path), *(::boost::begin(path)+1), comparable_distance);
+        }
+        else if ( 2 < count )
+        {
+            const_iterator it0 = ::boost::begin(path);
+            const_iterator it1 = ::boost::begin(path) + 1;
+            const_iterator last = ::boost::end(path);
 
-            relative_distance_type rel_dist;
-            if ( index::detail::segment_intersection(b, *it0, *it1, rel_dist) )
+            comparable_distance = 0;
+
+            for ( ; it1 != last ; ++it0, ++it1 )
             {
-                distance += dist * rel_dist;
-                return true;
+                typename default_distance_result<point_type, point_type>::type
+                    dist = geometry::distance(*it0, *it1);
+
+                length_type rel_dist;
+                if ( index::detail::segment_intersection(b, *it0, *it1, rel_dist) )
+                {
+                    comparable_distance += dist * rel_dist;
+                    return true;
+                }
+                else
+                    comparable_distance += dist;
             }
-            else
-                distance += dist;
         }
 
         return false;

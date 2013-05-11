@@ -15,21 +15,21 @@
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
-template <typename Indexable, typename Point>
-struct default_relative_distance_type
-{
-    typedef typename select_most_precise<
-        typename select_most_precise<
-            typename traits::coordinate_type<Indexable>::type,
-            typename traits::coordinate_type<Point>::type
-        >::type,
-        float // TODO - use bigger type, calculated from the size of coordinate types
-    >::type type;
-
-
-    BOOST_MPL_ASSERT_MSG((!::boost::is_unsigned<type>::value),
-        THIS_TYPE_SHOULDNT_BE_UNSIGNED, (type));
-};
+//template <typename Indexable, typename Point>
+//struct default_relative_distance_type
+//{
+//    typedef typename select_most_precise<
+//        typename select_most_precise<
+//        typename traits::coordinate_type<Indexable>::type,
+//        typename traits::coordinate_type<Point>::type
+//        >::type,
+//        float // TODO - use bigger type, calculated from the size of coordinate types
+//    >::type type;
+//
+//
+//    BOOST_MPL_ASSERT_MSG((!::boost::is_unsigned<type>::value),
+//        THIS_TYPE_SHOULDNT_BE_UNSIGNED, (type));
+//};
 
 namespace dispatch {
 
@@ -40,16 +40,15 @@ struct box_segment_intersection_dim
     BOOST_STATIC_ASSERT(I < traits::dimension<Point>::value);
     BOOST_STATIC_ASSERT(traits::dimension<Point>::value == traits::dimension<Box>::value);
 
-    typedef typename default_relative_distance_type<Box, Point>::type relative_distance_type;
+    // WARNING! - RelativeDistance must be IEEE float for this to work
 
-    // WARNING! - relative_distance_type must be IEEE float for this to work
-
+    template <typename RelativeDistance>
     static inline bool apply(Box const& b, Point const& p0, Point const& p1,
-                             relative_distance_type & t_near, relative_distance_type & t_far)
+                             RelativeDistance & t_near, RelativeDistance & t_far)
     {
-        relative_distance_type ray_d = geometry::get<I>(p1) - geometry::get<I>(p0);
-        relative_distance_type tn = ( detail::get<min_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
-        relative_distance_type tf = ( detail::get<max_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
+        RelativeDistance ray_d = geometry::get<I>(p1) - geometry::get<I>(p0);
+        RelativeDistance tn = ( detail::get<min_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
+        RelativeDistance tf = ( detail::get<max_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
         if ( tf < tn )
             ::std::swap(tn, tf);
 
@@ -68,10 +67,10 @@ struct box_segment_intersection
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
 
     typedef box_segment_intersection_dim<Box, Point, CurrentDimension - 1> for_dim;
-    typedef typename for_dim::relative_distance_type relative_distance_type;
 
+    template <typename RelativeDistance>
     static inline bool apply(Box const& b, Point const& p0, Point const& p1,
-                             relative_distance_type & t_near, relative_distance_type & t_far)
+                             RelativeDistance & t_near, RelativeDistance & t_far)
     {
         return box_segment_intersection<Box, Point, CurrentDimension - 1>::apply(b, p0, p1, t_near, t_far)
             && for_dim::apply(b, p0, p1, t_near, t_far);
@@ -82,10 +81,10 @@ template <typename Box, typename Point>
 struct box_segment_intersection<Box, Point, 1>
 {
     typedef box_segment_intersection_dim<Box, Point, 0> for_dim;
-    typedef typename for_dim::relative_distance_type relative_distance_type;
 
+    template <typename RelativeDistance>
     static inline bool apply(Box const& b, Point const& p0, Point const& p1,
-                             relative_distance_type & t_near, relative_distance_type & t_far)
+                             RelativeDistance & t_near, RelativeDistance & t_far)
     {
         return for_dim::apply(b, p0, p1, t_near, t_far);
     }
@@ -107,12 +106,15 @@ template <typename Indexable, typename Point>
 struct segment_intersection<Indexable, Point, box_tag>
 {
     typedef dispatch::box_segment_intersection<Indexable, Point, detail::traits::dimension<Indexable>::value> impl;
-    typedef typename impl::relative_distance_type relative_distance_type;
 
-    static inline bool apply(Indexable const& b, Point const& p0, Point const& p1, relative_distance_type & relative_distance)
+    template <typename RelativeDistance>
+    static inline bool apply(Indexable const& b, Point const& p0, Point const& p1, RelativeDistance & relative_distance)
     {
-        relative_distance_type t_near = -(::std::numeric_limits<relative_distance_type>::max)();
-        relative_distance_type t_far = (::std::numeric_limits<relative_distance_type>::max)();
+        static const bool check = !::boost::is_integral<RelativeDistance>::value;
+        BOOST_MPL_ASSERT_MSG(check, RELATIVE_DISTANCE_MUST_BE_FLOATING_POINT_TYPE, (RelativeDistance));
+
+        RelativeDistance t_near = -(::std::numeric_limits<RelativeDistance>::max)();
+        RelativeDistance t_far = (::std::numeric_limits<RelativeDistance>::max)();
 
         return impl::apply(b, p0, p1, t_near, t_far) &&
                (t_near <= 1) &&
@@ -122,11 +124,11 @@ struct segment_intersection<Indexable, Point, box_tag>
 
 } // namespace dispatch
 
-template <typename Indexable, typename Point> inline
+template <typename Indexable, typename Point, typename RelativeDistance> inline
 bool segment_intersection(Indexable const& b,
                           Point const& p0,
                           Point const& p1,
-                          typename default_relative_distance_type<Indexable, Point>::type & relative_distance)
+                          RelativeDistance & relative_distance)
 {
     // TODO check Indexable and Point concepts
 
