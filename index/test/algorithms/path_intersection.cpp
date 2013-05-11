@@ -89,12 +89,14 @@ int test_main(int, char* [])
     typedef bg::model::linestring<P3fc> L3fc;
     typedef bg::model::linestring<P3dc> L3dc;
     
-    test_geometry<bg::model::box<P2ic>, L2ic>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, ::sqrt(29.0f)/5);
-    test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, ::sqrt(29.0f)/5);
-    test_geometry<bg::model::box<P2dc>, L2dc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, ::sqrt(29.0)/5);
-    test_geometry<bg::model::box<P3ic>, L3ic>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, ::sqrt(78.0f)*2.0f/7);
-    test_geometry<bg::model::box<P3fc>, L3fc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, ::sqrt(78.0f)*2.0f/7);
-    test_geometry<bg::model::box<P3dc>, L3dc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, ::sqrt(78.0)*2.0/7);
+    // IMPORTANT! For 2-point linestrings comparable distance optimization is enabled!
+
+    test_geometry<bg::model::box<P2ic>, L2ic>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, 1.0f/5);
+    test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, 1.0f/5);
+    test_geometry<bg::model::box<P2dc>, L2dc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, 1.0/5);
+    test_geometry<bg::model::box<P3ic>, L3ic>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, 2.0f/7);
+    test_geometry<bg::model::box<P3fc>, L3fc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, 2.0f/7);
+    test_geometry<bg::model::box<P3dc>, L3dc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, 2.0/7);
 
     test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 1 0, 1 5)", true, 2);
     test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 3 0, 3 2, 0 2)", true, 6);
@@ -107,8 +109,8 @@ int test_main(int, char* [])
     typedef bg::model::linestring<P2ttmc> L2ttmc;
     typedef bg::model::linestring<P3ttmc> L3ttmc;
 
-    test_geometry<bg::model::box<P2ttmc>, L2ttmc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, ::sqrt(29.0f)/5);
-    test_geometry<bg::model::box<P3ttmc>, L3ttmc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, ::sqrt(78.0f)*2.0f/7);
+    test_geometry<bg::model::box<P2ttmc>, L2ttmc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, 1.0/5);
+    test_geometry<bg::model::box<P3ttmc>, L3ttmc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, 2.0/7);
 #endif
 
     test_large_integers();
