@@ -15,9 +15,10 @@ and that it translates from Doxygen-XML output to Quickbook (without xslt)
 
 1) install Doxygen
 2) install QuickBook using http://www.boost.org/doc/libs/1_45_0/doc/html/quickbook/install.html#quickbook.install.linux
-3) compile doxygen_xml2qbk, in src/docutils/tools/doxygen_xml2qbk
-4) put binary somewhere, e.g. in /usr/local/bin/doxygen_xml2qbk
-5) execute python file "make_qbk.py" (calling doxygen, doxygen_xml2qbk, bjam)
+3) unpack RapidXML, see src/docutils/tools/doxygen_xml2qbk/contrib/readme.txt
+4) compile doxygen_xml2qbk, in src/docutils/tools/doxygen_xml2qbk
+5) put binary somewhere, e.g. in /usr/local/bin/doxygen_xml2qbk
+6) execute python file "make_qbk.py" (calling doxygen, doxygen_xml2qbk, bjam)
 
 Folders in this folder:
 concept: manually written documentation QBK files, on concept

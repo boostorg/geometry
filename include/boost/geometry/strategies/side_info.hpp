@@ -21,6 +21,11 @@
 namespace boost { namespace geometry
 {
 
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)  
+#endif
 
 /*!
 \brief Class side_info: small class wrapping for sides (-1,0,1)
@@ -145,7 +150,7 @@ public :
             << sides[0].second << " "
             << sides[1].first << " "
             << sides[1].second 
-			<< std::endl;
+            << std::endl;
     }
 
 
@@ -159,6 +164,9 @@ public :
 
 };
 
+#if defined(_MSC_VER)
+#pragma warning(pop)  
+#endif
 
 }} // namespace boost::geometry
 

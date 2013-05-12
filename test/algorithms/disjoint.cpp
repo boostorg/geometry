@@ -205,6 +205,22 @@ void test_all()
 
 }
 
+
+template <typename P>
+void test_3d()
+{
+    typedef bg::model::box<P> box;
+
+    test_disjoint<P, P>("pp 3d 1", "point(1 1 1)", "point(1 1 1)", false);
+    test_disjoint<P, P>("pp 3d 2", "point(1 1 1)", "point(1.001 1 1)", true);
+
+    test_disjoint<box, box>("bb1", "box(1 1 1, 2 2 2)", "box(3 1 1, 4 2 1)", true);
+    test_disjoint<box, box>("bb2", "box(1 1 1, 2 2 2)", "box(2 1 1, 3 2 1)", false);
+    test_disjoint<box, box>("bb3", "box(1 1 1, 2 2 2)", "box(2 2 1, 3 3 1)", false);
+    test_disjoint<box, box>("bb4", "box(1 1 1, 2 2 2)", "box(2.001 2 1, 3 3 1)", true);
+
+}
+
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<float> >();
@@ -213,6 +229,9 @@ int test_main(int, char* [])
 #ifdef HAVE_TTMATH
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
+
 
     return 0;
 }

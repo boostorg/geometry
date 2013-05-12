@@ -39,7 +39,6 @@ TAB_SIZE               = 8
 # \return* for various return cases
 ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			qbk{2}="\xmlonly <qbk.\1>\2</qbk.\1> \endxmlonly" \
-			qbk_skip="\xmlonly <qbk.skip/> \endxmlonly" \
 			brief_calc{1}="Calculates the \1 of a geometry" \
 			brief_calc2{1}="Calculate the \1 of two geometries" \
 			brief_calc2{2}="Calculate the \1 \2 two geometries" \
@@ -56,7 +55,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			tparam_box_or_segment="Any type fulfilling a Box Concept or a Segment Concept" \
 			tparam_calculation="numeric type for calculation (e.g. high precision); if [*void] then it is extracted automatically from the coordinate type and (if necessary) promoted to floating point" \
 			tparam_container="container type, for example std::vector, std::deque" \
-			tparam_dimension_required="Dimension, this template parameter is required. Should contain \[0 .. n-1\] for an n-dimensional geometry" \
+			tparam_dimension_required="Dimension, this template parameter is required. Should contain \\[0 .. n-1\\] for an n-dimensional geometry" \
 			tparam_first_point="first point type" \
 			tparam_functor="Function or class with operator()" \
 			tparam_output_collection="output collection, either a multi-geometry, or a std::vector<Geometry> / std::deque<Geometry> etc" \
@@ -159,7 +158,6 @@ GENERATE_DEPRECATEDLIST= YES
 ENABLED_SECTIONS       = 
 MAX_INITIALIZER_LINES  = 30
 SHOW_USED_FILES        = NO
-SHOW_DIRECTORIES       = NO
 FILE_VERSION_FILTER    = 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -254,7 +252,6 @@ HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = doxygen_input/ggl_doxygen_header.html
 HTML_FOOTER            = doxygen_input/ggl_doxygen_footer.html
 HTML_STYLESHEET        = 
-HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
 GENERATE_DOCSET        = NO
 DOCSET_FEEDNAME        = "Generated documentation, by Doxygen"

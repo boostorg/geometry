@@ -29,7 +29,7 @@
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 
 #if defined(HAVE_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian);

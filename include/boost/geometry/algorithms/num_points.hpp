@@ -24,14 +24,23 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
-
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+// Silence warning C4127: conditional expression is constant
+#if defined(_MSC_VER)
+#pragma warning(push)  
+#pragma warning(disable : 4127)
+#endif
+
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace num_points
@@ -46,9 +55,7 @@ struct range_count
         std::size_t n = boost::size(range);
         if (add_for_open && n > 0)
         {
-            closure_selector const s = geometry::closure<Range>::value;
-
-            if (s == open)
+            if (geometry::closure<Range>::value == open)
             {
                 if (geometry::disjoint(*boost::begin(range), *(boost::begin(range) + n - 1)))
                 {
@@ -137,6 +144,41 @@ struct num_points<Geometry, polygon_tag>
         : detail::num_points::polygon_count
 {};
 
+template <typename Geometry>
+struct devarianted_num_points
+{
+    static inline std::size_t apply(Geometry const& geometry,
+                                    bool add_for_open)
+    {
+        return num_points<Geometry>::apply(geometry, add_for_open);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<std::size_t>
+    {
+        bool m_add_for_open;
+
+        visitor(bool add_for_open): m_add_for_open(add_for_open) {}
+
+        template <typename Geometry>
+        typename std::size_t operator()(Geometry const& geometry) const
+        {
+            return dispatch::num_points<Geometry>::apply(geometry, m_add_for_open);
+        }
+    };
+
+    static inline std::size_t
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          bool add_for_open)
+    {
+        return boost::apply_visitor(visitor(add_for_open), geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif
 
@@ -157,8 +199,12 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 {
     concept::check<Geometry const>();
 
-    return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
+    return dispatch::devarianted_num_points<Geometry>::apply(geometry, add_for_open);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 }} // namespace boost::geometry
 

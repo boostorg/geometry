@@ -17,7 +17,7 @@
 #include <boost/algorithm/string.hpp>
 
 #if defined(HAVE_SVG)
-#  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
 template <typename Geometry, typename Range>

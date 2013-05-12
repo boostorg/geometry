@@ -18,9 +18,9 @@ OBSOLETE
 #include <boost/geometry/multi/multi.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/extensions/io/svg/write_svg_multi.hpp>
+#include <boost/geometry/io/svg/write_svg_multi.hpp>
 
-#include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
+#include <boost/geometry/io/svg/svg_mapper.hpp>
 
 
 static const int wkt_countries_count = 1;

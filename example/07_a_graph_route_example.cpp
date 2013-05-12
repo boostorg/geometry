@@ -28,16 +28,14 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 
+// For output:
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+
+// Yes, this example currently uses an extension:
+
+// For distance-calculations over the Earth:
+//#include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
 // Yes, this example currently uses some extensions:
-
-    // For output:
-    #if defined(HAVE_SVG)
-    #  include <boost/geometry/extensions/io/svg/svg_mapper.hpp>
-    #endif
-
-    // For distance-calculations over the Earth:
-    //#include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
-
 
 
 // Read an ASCII file containing WKT's, fill a vector of tuples
