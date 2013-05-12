@@ -20,9 +20,18 @@
 [*Additional functionality]
 
 * added Spatial Index, developed for Boost.Geometry by Adam Wulkiewicz. The spatial index was originally started by Federico J. Fernandez during the Google Summer of Code 2008 program, mentored by Hartmut Kaiser.
+* added SVG-output, this was already in extensions for several years
+
+[*Documentation]
+
+* small fixes of missing words
 
 [*Bugfixes]
+
 * collinear opposite segments did sometimes (in circles) have a robustness issue, fixed
+* fixed insertion of false intersection point (found by buffer)
+* applied patch of Vladimir Petrovic for debugging traversals
+
 
 [*Solved tickets]
 
@@ -33,6 +42,10 @@
 * [@https://svn.boost.org/trac/boost/ticket/8393 8393] polygon model doesn't adhere to stated Polygon concept rules, doc updated.
 * [@https://svn.boost.org/trac/boost/ticket/8403 8403] silenced compiler warning C4127: conditional expression is constant
 * [@https://svn.boost.org/trac/boost/ticket/8405 8405] silenced compiler warning C4189: '...' : local variable is initialized but not referenced
+
+[*Internal changes]
+
+* Made several algorithms variant-aware (append, area, clear, convert, equals, length, num_points)
 
 
 [/=================]
