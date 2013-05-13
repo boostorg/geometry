@@ -10,8 +10,6 @@
 
 [section Creation and Modification]
 
-[section Creation]
-
 [h4 Template parameters]
 
 __rtree__ has 5 parameters but only 2 are required:
@@ -102,9 +100,7 @@ The obvious drawback is a slightly slower __rtree__.
 
 Non-default R-tree parameters are described in the reference.
 
-[endsect]
-
-[section Copying, moving and swapping]
+[h4 Copying, moving and swapping]
 
 The __rtree__ is copyable and movable container. Move semantics is implemented using Boost.Move library
 so it's possible to move the container on a compilers without rvalue references support.
@@ -127,9 +123,7 @@ so it's possible to move the container on a compilers without rvalue references 
  // swap
  rt3.swap(rt2);
 
-[endsect]
-
-[section Inserting and removing Values]
+[h4 Inserting and removing Values]
 
 The following code creates an __rtree__ using quadratic balancing algorithm.
 
@@ -221,7 +215,5 @@ Geometry.Index provide its own `bgi::insert_iterator<Container>` which is genera
  // create R-tree and insert values returned by a query
  RTree rt2;
  rt1.spatial_query(Box(/*...*/), bgi::inserter(rt2));
-
-[endsect]
 
 [endsect] [/ Creation and Modification /]
