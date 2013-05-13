@@ -10,7 +10,7 @@
 
 [section Introduction]
 
-The __boost_geometry_index__ is intetended to gather data structures called spatial
+The __boost_geometry_index__ is intended to gather data structures called spatial
 indexes which may be used to accelerate searching for objects in space. In general,
 spatial indexes stores geometric objects' representations and allows searching for
 objects occupying some space or close to some point in space.
