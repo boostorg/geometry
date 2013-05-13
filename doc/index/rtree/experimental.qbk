@@ -8,7 +8,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section Experimental features]
+[section Experimental Features]
 
 This section describes experimental features which are implemented but unavailable by default.
 Be aware that they may not be released in the future or functionalities may be released but

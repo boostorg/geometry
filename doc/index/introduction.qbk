@@ -17,7 +17,7 @@ objects occupying some space or close to some point in space.
 
 Currently, only one spatial index is implemented - __rtree__.
 
-[section __rtree__]
+[heading __rtree__]
 
 __rtree__ is a tree data structure used for spatial searching. It was proposed by
 Antonin Guttman in 1984 [footnote Guttman, A. (1984). /R-Trees: A Dynamic Index Structure for Spatial Searching/]

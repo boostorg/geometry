@@ -115,14 +115,16 @@ Boost.Geometry contains contributions by:
 [include imports.qbk]
 
 [include introduction.qbk]
-[include quickstart.qbk]
-
-[include design_rationale.qbk]
 [include compiling.qbk]
 
-[section Spatial indexes] 
+[include design_rationale.qbk]
+[include quickstart.qbk]
+
+[section Spatial Indexes] 
 [include index/index.qbk]
 [endsect]
+
+[include reference.qbk]
 
 [section Indexes] 
 [include matrix.qbk]
@@ -130,8 +132,6 @@ Boost.Geometry contains contributions by:
 '''<index><title/></index>'''
 [endsect]
 [endsect] 
-
-[include reference.qbk]
 
 [include release_notes.qbk]
 

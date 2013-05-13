@@ -81,7 +81,7 @@ All spatial predicates may be negated, e.g.:
 
 [section Distance predicates]
 
-[heading Nearest neighbours queries]
+[h4 Nearest neighbours queries]
 
 Nearest neighbours queries returns `__value__`s which are closest to some point in space.
 Additionally it is possible to define how the distance to the `Value` should be calculated.
@@ -89,7 +89,7 @@ The example of knn query is presented below. 5 `__value__`s nearest to some poin
 
 [$img/index/rtree/knn.png]
 
-[heading k nearest neighbours]
+[h4 k nearest neighbours]
 
 There are three ways of performing knn queries. Following queries returns
 `k` `__value__`s closest to some point in space. For `__box__`es

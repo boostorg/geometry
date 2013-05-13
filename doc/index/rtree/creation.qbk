@@ -8,11 +8,13 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section Creation and modification]
+[section Creation and Modification]
 
-[section Template parameters]
+[section Construction]
 
-__rtree__ has 5 parameters:
+[h4 Template parameters]
+
+__rtree__ has 5 parameters but only 2 are required:
 
  rtree<Value,
        Parameters,
@@ -26,9 +28,7 @@ __rtree__ has 5 parameters:
 * `EqualTo` - function object comparing `__value__`s,
 * `Allocator` - `Value`s allocator, all allocators needed by the container are created from it.
 
-[endsect]
-
-[section Values and Indexables]
+[h4 Values and Indexables]
 
 __rtree__ may store `__value__`s of any type as long as passed function objects know how to interpret those `__value__`s, that is
 extract an `__indexable__` that the __rtree__ can handle and compare `__value__`s.
@@ -63,11 +63,7 @@ The predefined `index::equal_to<Value>`:
 * for `tuple<...>` - compares all components of the `__value__`. If the component is a `Geometry`, `geometry::equals()`
   function is used. For other types it uses `operator==()`.
 
-[endsect]
-
-[section Balancing algorithms]
-
-[heading Compile-time]
+[h4 Balancing algorithms compile-time parameters]
 
 `__value__`s may be inserted to the __rtree__ in many various ways. Final internal structure
 of the __rtree__ depends on algorithms used in the insertion process and parameters. The most important is
@@ -85,7 +81,7 @@ R*-tree - balancing algorithm minimizing nodes' overlap with forced reinsertions
  
  index::rtree< __value__, index::rstar<16> > rt;
 
-[heading Run-time]
+[h4 Balancing algorithms run-time parameters]
 
 Balancing algorithm parameters may be passed to the __rtree__ in run-time.
 To use run-time versions of the __rtree__ one may pass parameters which
@@ -102,7 +98,7 @@ names start with `dynamic_`.
 
 The obvious drawback is a slightly slower __rtree__.
 
-[heading Non-default parameters]
+[h4 Non-default parameters]
 
 Non-default R-tree parameters are described in the reference.
 
@@ -163,7 +159,7 @@ Typically you will perform those operations in a loop in order to e.g. insert
 some number of `__value__`s corresponding to geometrical objects (e.g. `Polygons`)
 stored in another container.
 
-[heading Additional interface]
+[h4 Additional interface]
 
 The __rtree__ allows creation, inserting and removing of Values from a range. The range may be passed as
 [first, last) Iterators pair or as a Range.
@@ -204,7 +200,7 @@ The __rtree__ allows creation, inserting and removing of Values from a range. Th
  // remove values with remove(Range)
  rt3.remove(values);
 
-[heading Insert iterator]
+[h4 Insert iterator]
 
 There are functions like `std::copy()`, or __rtree__'s queries that copy values to an output iterator.
 In order to insert values to a container in this kind of function insert iterators may be used.
@@ -228,4 +224,4 @@ Geometry.Index provide its own `bgi::insert_iterator<Container>` which is genera
 
 [endsect]
 
-[endsect] [/ Creation and modification /]
+[endsect] [/ Creation and Modification /]
