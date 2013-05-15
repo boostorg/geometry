@@ -143,14 +143,14 @@ struct calculate_distance< nearest< to_furthest<Point> >, Indexable, value_tag>
     }
 };
 
-template <typename Linestring, typename Indexable, typename Tag>
-struct calculate_distance< path<Linestring>, Indexable, Tag>
+template <typename SegmentOrLinestring, typename Indexable, typename Tag>
+struct calculate_distance< path<SegmentOrLinestring>, Indexable, Tag>
 {
-    typedef typename geometry::default_length_result<Linestring>::type result_type;
+    typedef typename geometry::default_length_result<SegmentOrLinestring>::type result_type;
 
-    static inline bool apply(path<Linestring> const& p, Indexable const& i, result_type & result)
+    static inline bool apply(path<SegmentOrLinestring> const& p, Indexable const& i, result_type & result)
     {
-        return index::detail::path_intersection(i, p.linestring, result);
+        return index::detail::path_intersection(i, p.geometry, result);
     }
 };
 
