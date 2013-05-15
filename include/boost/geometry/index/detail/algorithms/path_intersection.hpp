@@ -17,24 +17,33 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 
 namespace dispatch {
 
-template <typename Indexable, typename LineString, typename Tag>
+template <typename Indexable, typename Geometry, typename IndexableTag, typename GeometryTag>
 struct path_intersection
 {
-    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (path_intersection));
+    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEXABLE, (path_intersection));
+};
+
+template <typename Indexable, typename Segment>
+struct path_intersection<Indexable, Segment, box_tag, segment_tag>
+{
+    typedef typename default_distance_result<typename ::boost::geometry::traits::point_type<Segment>::type>::type comparable_distance_type;
+
+    static inline bool apply(Indexable const& b, Segment const& segment, comparable_distance_type & comparable_distance)
+    {
+        typedef typename ::boost::geometry::traits::point_type<Segment>::type point_type;
+        point_type p1, p2;
+        geometry::detail::assign_point_from_index<0>(segment, p1);
+        geometry::detail::assign_point_from_index<1>(segment, p2);
+        return index::detail::segment_intersection(b, p1, p2, comparable_distance);
+    }
 };
 
 template <typename Indexable, typename Linestring>
-struct path_intersection<Indexable, Linestring, point_tag>
+struct path_intersection<Indexable, Linestring, box_tag, linestring_tag>
 {
-    BOOST_MPL_ASSERT_MSG((false), SEGMENT_POINT_INTERSECTION_UNAVAILABLE, (path_intersection));
-};
+    typedef typename default_length_result<Linestring>::type comparable_distance_type;
 
-template <typename Indexable, typename Linestring>
-struct path_intersection<Indexable, Linestring, box_tag>
-{
-    typedef typename default_length_result<Linestring>::type length_type;
-
-    static inline bool apply(Indexable const& b, Linestring const& path, length_type & comparable_distance)
+    static inline bool apply(Indexable const& b, Linestring const& path, comparable_distance_type & comparable_distance)
     {
         typedef typename ::boost::range_value<Linestring>::type point_type;
         typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;        
@@ -59,7 +68,7 @@ struct path_intersection<Indexable, Linestring, box_tag>
                 typename default_distance_result<point_type, point_type>::type
                     dist = geometry::distance(*it0, *it1);
 
-                length_type rel_dist;
+                comparable_distance_type rel_dist;
                 if ( index::detail::segment_intersection(b, *it0, *it1, rel_dist) )
                 {
                     comparable_distance += dist * rel_dist;
@@ -76,19 +85,28 @@ struct path_intersection<Indexable, Linestring, box_tag>
 
 } // namespace dispatch
 
-// TODO - change the name e.g. to path_intersection_distance
-//        and segment_intersection e.g. to segment_intersection_relative_distance
+template <typename Indexable, typename SegmentOrLinestring>
+struct default_path_intersection_distance_type
+{
+    typedef typename dispatch::path_intersection<
+        Indexable, SegmentOrLinestring,
+        typename detail::traits::tag<Indexable>::type,
+        typename detail::traits::tag<SegmentOrLinestring>::type
+    >::comparable_distance_type type;
+};
 
-template <typename Indexable, typename Linestring> inline
+template <typename Indexable, typename SegmentOrLinestring> inline
 bool path_intersection(Indexable const& b,
-                       Linestring const& path,
-                       typename default_length_result<Linestring>::type & distance)
+                       SegmentOrLinestring const& path,
+                       typename default_path_intersection_distance_type<Indexable, SegmentOrLinestring>::type & comparable_distance)
 {
     // TODO check Indexable and Linestring concepts
 
     return dispatch::path_intersection<
-            Indexable, Linestring, typename detail::traits::tag<Indexable>::type
-        >::apply(b, path, distance);
+            Indexable, SegmentOrLinestring,
+            typename detail::traits::tag<Indexable>::type,
+            typename detail::traits::tag<SegmentOrLinestring>::type
+        >::apply(b, path, comparable_distance);
 }
 
 }}}} // namespace boost::geometry::index::detail
