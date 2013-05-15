@@ -11,6 +11,12 @@
 
 #include <boost/geometry/index/detail/algorithms/path_intersection.hpp>
 
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/segment.hpp>
+
 //#include <boost/geometry/io/wkt/read.hpp>
 
 template <typename Box, typename Linestring>
@@ -18,11 +24,24 @@ void test_path_intersection(Box const& box, Linestring const& path,
                             bool expected_result,
                             typename bg::default_length_result<Linestring>::type expected_dist)
 {
-    typename bg::default_length_result<Linestring>::type dist;
+    typename bgi::detail::default_path_intersection_distance_type<Box, Linestring>::type dist;
+
     bool value = bgi::detail::path_intersection(box, path, dist);
     BOOST_CHECK(value == expected_result);
     if ( value && expected_result )
         BOOST_CHECK_CLOSE(dist, expected_dist, 0.0001);
+
+    if ( ::boost::size(path) == 2 )
+    {
+        typedef typename ::boost::range_value<Linestring>::type P;
+        typedef bg::model::segment<P> Seg;
+        typename bgi::detail::default_path_intersection_distance_type<Box, Seg>::type dist;
+        Seg seg(*::boost::begin(path), *(::boost::begin(path)+1));
+        bool value = bgi::detail::path_intersection(box, seg, dist);
+        BOOST_CHECK(value == expected_result);
+        if ( value && expected_result )
+            BOOST_CHECK_CLOSE(dist, expected_dist, 0.0001);
+    }
 }
 
 template <typename Box, typename Linestring>
@@ -36,11 +55,6 @@ void test_geometry(std::string const& wkt_g, std::string const& wkt_path,
     bg::read_wkt(wkt_path, path);
     test_path_intersection(box, path, expected_result, expected_dist);
 }
-
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
 
 void test_large_integers()
 {

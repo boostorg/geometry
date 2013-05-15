@@ -18,6 +18,7 @@
 
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = bg::index;
@@ -25,6 +26,7 @@ namespace bgi = bg::index;
 typedef bg::model::point<double, 2, bg::cs::cartesian> P;
 typedef bg::model::box<P> B;
 typedef bg::model::linestring<P> LS;
+typedef bg::model::segment<P> S;
 
 template <typename I1, typename I2, typename O>
 void mycopy(I1 first, I2 last, O o)
@@ -283,7 +285,7 @@ int main()
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(path(LS, " << path_values_count << ")) " << path_queries_count << " found " << temp << '\n';
+            std::cout << time << " - query(path(LS6, " << path_values_count << ")) " << path_queries_count << " found " << temp << '\n';
         }
 
         {
@@ -303,7 +305,23 @@ int main()
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(path(LS, " << path_values_count << ")) " << path_queries_count2 << " found " << temp << '\n';
+            std::cout << time << " - query(path(LS2, " << path_values_count << ")) " << path_queries_count2 << " found " << temp << '\n';
+        }
+
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < path_queries_count2 ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                S seg(P(x, y), P(x+max_val/100, y+max_val/100));
+                result.clear();
+                t.query(bgi::path(seg, path_values_count), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - query(path(S, " << path_values_count << ")) " << path_queries_count2 << " found " << temp << '\n';
         }
 #endif
         {
