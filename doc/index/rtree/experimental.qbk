@@ -33,14 +33,15 @@ a relation object instead of a Point to the nearest predicate, as follows:
 
 [heading Path query]
 
-Path query returns `k` first `__value__`s intersecting a path defined by a `Linestring`. The result of a query returning first 5
+Path query returns `k` first `__value__`s intersecting a path defined by a `Segment` or a`Linestring`. The result of a query returning first 5
 values intersecting a path is presented below. Path's flow is denoted by blue arrows, returned values are orange.
 
 [$img/index/rtree/path.png]
  
-To perform this query one may pass a `path()` predicate taking a `Linestring` and maximum number of `__value__`s which
+To perform this query one may pass a `path()` predicate taking a `Segment` or a `Linestring` and maximum number of `__value__`s which
 should be returned:
 
+ rtree.query(index::path(segment, k), std::back_inserter(returned_values));
  rtree.query(index::path(linestring, k), std::back_inserter(returned_values));
 
 [warning Only one distance predicate may be used in a query. This means that there can be only one `nearest()` or `path()` predicate passed. Passing more of them will result in compile-time error.]
