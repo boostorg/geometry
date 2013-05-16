@@ -22,7 +22,7 @@ For example queries may be used to retrieve Values:
 * are nearest to some point,
 * overlapping a box and has user-defined property.
 
-[section Performing a query]
+[h4 Performing a query]
 
 There are three ways to perform a query presented below. All of them returns `__value__`s intersecting some
 region defined as a `__box__`.
@@ -45,9 +45,7 @@ Use of pipe operator generating a range
  BOOST_FOREACH(__value__ & v, rt | index::adaptors::queried(bgi::intersects(box_region)))
    ; // do something with v
 
-[endsect]
-
-[section Spatial predicates]
+[h4 Spatial predicates]
 
 Queries using spatial predicates returns `__value__`s which are related somehow to some Geometry - box, polygon, etc.
 Names of spatial predicates correspond to names of __boost_geometry__ algorithms. Examples of some
@@ -77,11 +75,9 @@ All spatial predicates may be negated, e.g.:
  // the same as
  rt.query(index::disjoint(box), std::back_inserter(result));
 
-[endsect]
+[h4 Distance predicates]
 
-[section Distance predicates]
-
-[h4 Nearest neighbours queries]
+[h5 Nearest neighbours queries]
 
 Nearest neighbours queries returns `__value__`s which are closest to some point in space.
 Additionally it is possible to define how the distance to the `Value` should be calculated.
@@ -89,7 +85,7 @@ The example of knn query is presented below. 5 `__value__`s nearest to some poin
 
 [$img/index/rtree/knn.png]
 
-[h4 k nearest neighbours]
+[h5 k nearest neighbours]
 
 There are three ways of performing knn queries. Following queries returns
 `k` `__value__`s closest to some point in space. For `__box__`es
@@ -113,9 +109,7 @@ Use of `operator |`
  BOOST_FOREACH(__value__ & v, rt | index::adaptors::queried(index::nearest(pt, k)))
    ; // do something with v
 
-[endsect]
-
-[section User-defined unary predicate]
+[h4 User-defined unary predicate]
 
 The user may pass a `UnaryPredicate` - function, function object or lambda expression taking const reference to Value and returning bool.
 This object may be passed to the query in order to check if `__value__` should be returned by the query. To do it one
@@ -161,9 +155,7 @@ may use `index::satisfies()` function like on the example below:
  rt.query(index::intersects(box) && !index::satisfies(is_not_red),
           std::back_inserter(result));
 
-[endsect]
-
-[section Passing a set of predicates]
+[h4 Passing a set of predicates]
 
 It's possible to use some number of predicates in one query by connecting them with `operator&&` e.g. `Pred1 && Pred2 && Pred3 && ...`.
 
@@ -185,9 +177,7 @@ Of course it's possible to connect different types of predicates together.
  BOOST_FOREACH(Value & v, rt | index::adaptors::queried(index::nearest(pt, k) && index::covered_by(b)))
    ; // do something with v
 
-[endsect]
-
-[section Inserting query results into the other R-tree]
+[h4 Inserting query results into the other R-tree]
 
 There are several ways of inserting Values returned by a query to the other R-tree container.
 The most basic way is creating a temporary container for Values and insert them later.
@@ -213,7 +203,5 @@ If you like Boost.Range you'll appreciate the third option. You may pass the res
 constructor.
 
  RTree rt4(rt1 | bgi::adaptors::queried(bgi::intersects(Box(/*...*/)))));
-
-[endsect]
 
 [endsect] [/ Queries /]
