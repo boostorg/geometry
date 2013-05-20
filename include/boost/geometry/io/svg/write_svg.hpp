@@ -224,7 +224,7 @@ struct svg<polygon_tag, Polygon>
 /*!
 \brief Generic geometry template manipulator class, takes corresponding output class from traits class
 \ingroup svg
-\details Stream manipulator, streams geometry classes as Virtual Earth shape
+\details Stream manipulator, streams geometry classes as SVG (Scalable Vector Graphics)
 */
 template <typename G>
 class svg_manipulator
@@ -256,15 +256,20 @@ private:
 };
 
 /*!
-\brief Main svg function to stream geometries as SVG
+\brief Manipulator to stream geometries as SVG
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\param style String containing verbatim SVG style information
+\param size Optional size (used for SVG points) in SVG pixels. For linestrings,
+    specify linewidth in the SVG style information
 \ingroup svg
 */
 template <typename Geometry>
-inline svg_manipulator<Geometry> svg(Geometry const& t, std::string const& style, int size = -1)
+inline svg_manipulator<Geometry> svg(Geometry const& geometry, std::string const& style, int size = -1)
 {
     concept::check<Geometry const>();
 
-    return svg_manipulator<Geometry>(t, style, size);
+    return svg_manipulator<Geometry>(geometry, style, size);
 }
 
 }} // namespace boost::geometry

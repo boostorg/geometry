@@ -10,7 +10,7 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
-[section:aboutdoc About this documentation]
+[section:aboutdoc About this Documentation]
 
 Within the Boost community there are several styles of documenting. Most libraries nowadays are using QuickBook, the WikiWiki style documentation.
 

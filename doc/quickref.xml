@@ -643,69 +643,69 @@
    <entry valign="top">
     <bridgehead renderas="sect3">R-tree</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree">boost::geometry::index::rtree</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree">boost::geometry::index::rtree</link></member>
     </simplelist>
 	<bridgehead renderas="sect3">R-tree parameters</bridgehead>
     <simplelist type="vert" columns="1">
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__linear">boost::geometry::index::linear</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__quadratic">boost::geometry::index::quadratic</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__rstar">boost::geometry::index::rstar</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__dynamic_linear">boost::geometry::index::dynamic_linear</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__dynamic_quadratic">boost::geometry::index::dynamic_quadratic</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.parameters.boost__geometry__index__dynamic_rstar">boost::geometry::index::dynamic_rstar</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__linear">boost::geometry::index::linear</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__quadratic">boost::geometry::index::quadratic</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__rstar">boost::geometry::index::rstar</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__dynamic_linear">boost::geometry::index::dynamic_linear</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__dynamic_quadratic">boost::geometry::index::dynamic_quadratic</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.parameters.boost__geometry__index__dynamic_rstar">boost::geometry::index::dynamic_rstar</link></member>
 	</simplelist>
 	<bridgehead renderas="sect3">R-tree constructors and destructor</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree__">rtree()</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_parameters_type_const____indexable_getter_const____value_equal_const____allocator_type_const___">rtree(parameters_type const &amp;, indexable_getter const &amp;, value_equal const &amp;, allocator_type const &amp;)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_iterator__iterator_">rtree(Iterator, Iterator)</link></member>        
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_range_const___">rtree(Range const &amp;)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_rtree_const___">rtree(rtree const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_rtree_const____allocator_type_const___">rtree(rtree const &amp;, allocator_type const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_rtree____">rtree(rtree &amp;&amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.rtree_rtree_____allocator_type_const___">rtree(rtree &amp;&amp;, allocator_type const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree._rtree__">~rtree()</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree__">rtree()</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_parameters_type_const____indexable_getter_const____value_equal_const____allocator_type_const___">rtree(parameters_type const &amp;, indexable_getter const &amp;, value_equal const &amp;, allocator_type const &amp;)</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_iterator__iterator_">rtree(Iterator, Iterator)</link></member>        
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_range_const___">rtree(Range const &amp;)</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_rtree_const___">rtree(rtree const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_rtree_const____allocator_type_const___">rtree(rtree const &amp;, allocator_type const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_rtree____">rtree(rtree &amp;&amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_rtree_____allocator_type_const___">rtree(rtree &amp;&amp;, allocator_type const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree._rtree__">~rtree()</link></member>
 	</simplelist>
    </entry>
    <entry valign="top">
 	<bridgehead renderas="sect3">R-tree member functions</bridgehead>
 	<simplelist type="vert" columns="1">
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.operator__rtree_const___">operator=(const rtree &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.operator__rtree____">operator=(rtree &amp;&amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.swap_rtree___">swap(rtree &amp;)</link></member>	 
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.insert_value_type_const___">insert(value_type const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.insert_iterator__iterator_">insert(Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.insert_range_const___">insert(Range const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.remove_value_type_const___">remove(value_type const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.remove_iterator__iterator_">remove(Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.remove_range_const___">remove(Range const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.query_predicates_const____outiter_">query(Predicates const &amp;, OutIter)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.size__">size()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.empty__">empty()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.clear__">clear()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.bounds__">bounds()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.count_valueorindexable_const___">count(ValueOrIndexable const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.parameters__">parameters()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.indexable_get__">indexable_get()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.value_eq__">value_eq()</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.boost__geometry__index__rtree.get_allocator__">get_allocator()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.operator__rtree_const___">operator=(const rtree &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.operator__rtree____">operator=(rtree &amp;&amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.swap_rtree___">swap(rtree &amp;)</link></member>	 
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_value_type_const___">insert(value_type const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_iterator__iterator_">insert(Iterator, Iterator)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_range_const___">insert(Range const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_value_type_const___">remove(value_type const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_iterator__iterator_">remove(Iterator, Iterator)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_range_const___">remove(Range const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.query_predicates_const____outiter_">query(Predicates const &amp;, OutIter)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.size__">size()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.empty__">empty()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.clear__">clear()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.bounds__">bounds()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.count_valueorindexable_const___">count(ValueOrIndexable const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.parameters__">parameters()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.indexable_get__">indexable_get()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.value_eq__">value_eq()</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.get_allocator__">get_allocator()</link></member>
 	</simplelist>
    </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">R-tree free functions (boost::geometry::index::)</bridgehead>
     <simplelist type="vert" columns="1">
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.insert_rtree_________value_const___">insert(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.insert_rtree_________iterator__iterator_">insert(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.insert_rtree_________range_const___">insert(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member> 
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.remove_rtree_________value_const___">remove(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.remove_rtree_________iterator__iterator_">remove(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.remove_rtree_________range_const___">remove(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.query_rtree______const____predicates_const____outiter_">query(rtree&lt;...&gt; const &amp;, Predicates const &amp;, OutIter)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.clear_rtree________">clear(rtree&lt;...&gt; &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.size_rtree______const___">size(rtree&lt;...&gt; const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.empty_rtree______const___">empty(rtree&lt;...&gt; const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.bounds_rtree______const___">bounds(rtree&lt;...&gt; const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.rtree.group__rtree__functions.swap_rtree_________rtree________">swap(rtree&lt;...&gt; &amp;, rtree&lt;...&gt; &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________value_const___">insert(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________iterator__iterator_">insert(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________range_const___">insert(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member> 
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________value_const___">remove(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________iterator__iterator_">remove(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________range_const___">remove(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.query_rtree______const____predicates_const____outiter_">query(rtree&lt;...&gt; const &amp;, Predicates const &amp;, OutIter)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.clear_rtree________">clear(rtree&lt;...&gt; &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.size_rtree______const___">size(rtree&lt;...&gt; const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.empty_rtree______const___">empty(rtree&lt;...&gt; const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.bounds_rtree______const___">bounds(rtree&lt;...&gt; const &amp;)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.swap_rtree_________rtree________">swap(rtree&lt;...&gt; &amp;, rtree&lt;...&gt; &amp;)</link></member>
     </simplelist>
    </entry>
   </row>

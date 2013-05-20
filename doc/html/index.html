@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Chapter&#160;1.&#160;Geometry</title>
 <link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
 <link rel="home" href="index.html" title="Chapter&#160;1.&#160;Geometry">
 <link rel="next" href="geometry/introduction.html" title="Introduction">
 </head>
@@ -46,15 +46,17 @@
 <p><b>Table of Contents</b></p>
 <dl>
 <dt><span class="section"><a href="geometry/introduction.html">Introduction</a></span></dt>
-<dt><span class="section"><a href="geometry/quickstart.html">Quick Start</a></span></dt>
-<dt><span class="section"><a href="geometry/design.html">Design Rationale</a></span></dt>
 <dt><span class="section"><a href="geometry/compilation.html">Compilation</a></span></dt>
-<dt><span class="section"><a href="geometry/spatial_indexes.html">Spatial indexes</a></span></dt>
-<dd><dl><dt><span class="section"><a href="geometry/spatial_indexes/r_tree.html">R-tree</a></span></dt></dl></dd>
-<dt><span class="section"><a href="geometry/indexes.html">Indexes</a></span></dt>
+<dt><span class="section"><a href="geometry/design.html">Design Rationale</a></span></dt>
+<dt><span class="section"><a href="geometry/quickstart.html">Quick Start</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes.html">Spatial Indexes</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="geometry/indexes/matrix.html">Reference matrix</a></span></dt>
-<dt><span class="section"><a href="geometry/indexes/alphabetical_index.html">Alphabetical Index</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes/introduction.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes/rtree_quickstart.html">Quick Start</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes/creation_and_modification.html">Creation
+      and Modification</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes/queries.html">Queries</a></span></dt>
+<dt><span class="section"><a href="geometry/spatial_indexes/rtree_examples.html">Examples</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="geometry/reference.html">Reference</a></span></dt>
 <dd><dl>
@@ -70,23 +72,28 @@
 <dt><span class="section"><a href="geometry/reference/exceptions.html">Exceptions</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/iterators.html">Iterators</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/models.html">Models</a></span></dt>
-<dt><span class="section"><a href="geometry/reference/spatial_indexes.html">Spatial indexes</a></span></dt>
+<dt><span class="section"><a href="geometry/reference/spatial_indexes.html">Spatial Indexes</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/strategies.html">Strategies</a></span></dt>
 <dt><span class="section"><a href="geometry/reference/views.html">Views</a></span></dt>
 </dl></dd>
+<dt><span class="section"><a href="geometry/indexes.html">Indexes</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="geometry/indexes/matrix.html">Reference Matrix</a></span></dt>
+<dt><span class="section"><a href="geometry/indexes/alphabetical_index.html">Alphabetical Index</a></span></dt>
+</dl></dd>
 <dt><span class="section"><a href="geometry/release_notes.html">Release Notes</a></span></dt>
-<dt><span class="section"><a href="geometry/aboutdoc.html">About this documentation</a></span></dt>
+<dt><span class="section"><a href="geometry/aboutdoc.html">About this Documentation</a></span></dt>
 <dt><span class="section"><a href="geometry/acknowledgments.html">Acknowledgments</a></span></dt>
 </dl>
 </div>
 <h3>
 <a name="geometry.h0"></a>
-    <span><a name="geometry.contributions"></a></span><a class="link" href="index.html#geometry.contributions">Contributions</a>
+    <span class="phrase"><a name="geometry.contributions"></a></span><a class="link" href="index.html#geometry.contributions">Contributions</a>
   </h3>
 <p>
     Boost.Geometry contains contributions by:
   </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
         Akira Takahashi (adaption of Boost.Fusion)
       </li>
@@ -102,7 +109,7 @@
 </ul></div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: May 12, 2013 at 10:55:03 GMT</small></p></td>
+<td align="left"><p><small>Last revised: May 16, 2013 at 10:14:50 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>

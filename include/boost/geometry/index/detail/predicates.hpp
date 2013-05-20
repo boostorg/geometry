@@ -151,14 +151,14 @@ struct nearest
     unsigned count;
 };
 
-template <typename Linestring>
+template <typename SegmentOrLinestring>
 struct path
 {
-    path(Linestring const& ls, unsigned k)
-        : linestring(ls)
+    path(SegmentOrLinestring const& g, unsigned k)
+        : geometry(g)
         , count(k)
     {}
-    Linestring linestring;
+    SegmentOrLinestring geometry;
     unsigned count;
 };
 

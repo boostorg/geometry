@@ -219,6 +219,17 @@
 [endsect] 
 
 
+[section:io IO (input/output)]
+[section:wkt WKT (Well-Known Text)]
+[/include generated/wkt.qbk/]
+[endsect]
+[section:svg SVG (Scalable Vector Graphics)]
+[include generated/svg.qbk]
+[include generated/svg_mapper.qbk]
+[endsect]
+[endsect] 
+
+
 [section:iterators Iterators]
 [include generated/closing_iterator.qbk]
 [include generated/circular_iterator.qbk]
@@ -242,9 +253,9 @@
 [endsect]
 
 
-[section:spatial_indexes Spatial indexes]
+[section:spatial_indexes Spatial Indexes]
 
-[section:rtree R-tree]
+[/section:rtree R-tree]
 [include index/generated/rtree.qbk]
 [include index/generated/rtree_functions.qbk]
 [section:parameters R-tree parameters (boost::geometry::index::)]
@@ -255,7 +266,7 @@
 [include index/generated/rtree_dynamic_quadratic.qbk]
 [include index/generated/rtree_dynamic_rstar.qbk]
 [endsect]
-[endsect]
+[/endsect]
 
 [section:observers Observers (boost::geometry::index::)]
 [include index/generated/indexable.qbk]
