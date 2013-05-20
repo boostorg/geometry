@@ -219,6 +219,17 @@
 [endsect] 
 
 
+[section:io IO (input/output)]
+[section:wkt WKT (Well-Known Text)]
+[/include generated/wkt.qbk/]
+[endsect]
+[section:svg SVG (Scalable Vector Graphics)]
+[include generated/svg.qbk]
+[include generated/svg_mapper.qbk]
+[endsect]
+[endsect] 
+
+
 [section:iterators Iterators]
 [include generated/closing_iterator.qbk]
 [include generated/circular_iterator.qbk]

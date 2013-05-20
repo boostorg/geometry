@@ -133,6 +133,10 @@ Boost.Geometry contains contributions by:
 [endsect]
 [endsect] 
 
+[section Examples] 
+[include example_adapting_a_legacy_geometry_object_model.qbk]
+[endsect]
+
 [include release_notes.qbk]
 
 [include about_documentation.qbk]
