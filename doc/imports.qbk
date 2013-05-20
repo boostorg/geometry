@@ -104,5 +104,7 @@
 [import src/examples/geometries/register/multi_linestring.cpp]
 [import src/examples/geometries/register/multi_polygon.cpp]
 
+[import src/examples/io/svg.cpp]
+
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]

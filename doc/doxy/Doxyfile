@@ -184,6 +184,8 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/geometries/adapted \
 			../../../../boost/geometry/geometries/register \
 			../../../../boost/geometry/iterators \
+			../../../../boost/geometry/io/wkt \
+			../../../../boost/geometry/io/svg \
 			../../../../boost/geometry/multi/algorithms \
 			../../../../boost/geometry/multi/algorithms/detail \
 			../../../../boost/geometry/multi/core \
