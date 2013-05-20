@@ -214,6 +214,15 @@ inline void svg_map(std::ostream& stream,
 }
 
 
+/*!
+\brief Helper class to create SVG maps
+\tparam Point Point type, for input geometries.
+\tparam SameScale Boolean flag indicating if horizontal and vertical scale should
+    be the same. The default value is true
+\ingroup svg
+
+\qbk{[include reference/io/svg.qbk]}
+*/
 template <typename Point, bool SameScale = true>
 class svg_mapper : boost::noncopyable
 {
@@ -252,21 +261,39 @@ class svg_mapper : boost::noncopyable
     }
 
 public :
-    svg_mapper(std::ostream& s, int w, int h
+    
+    /*!
+    \brief Constructor, initializing the SVG map. Opens and initializes the SVG. 
+         Should be called explicitly.
+    \param stream Output stream, should be a stream already open
+    \param width Width of the SVG map (in SVG pixels)
+    \param height Height of the SVG map (in SVG pixels)
+    \param width_height Optional information to increase width and/or height
+    */
+    explicit svg_mapper(std::ostream& stream, int width, int height
         , std::string const& width_height = "width=\"100%\" height=\"100%\"")
-        : m_stream(s)
-        , m_width(w)
-        , m_height(h)
+        : m_stream(stream)
+        , m_width(width)
+        , m_height(height)
         , m_width_height(width_height)
     {
         assign_inverse(m_bounding_box);
     }
 
+    /*!
+    \brief Destructor, called automatically. Closes the SVG by streaming <\/svg>
+    */
     virtual ~svg_mapper()
     {
         m_stream << "</svg>" << std::endl;
     }
 
+    /*!
+    \brief Adds a geometry to the transformation matrix. After doing this,
+        the specified geometry can be mapped fully into the SVG map
+    \tparam Geometry \tparam_geometry
+    \param geometry \param_geometry
+    */
     template <typename Geometry>
     void add(Geometry const& geometry)
     {
@@ -280,6 +307,14 @@ public :
         }
     }
 
+    /*!
+    \brief Maps a geometry into the SVG map using the specified style
+    \tparam Geometry \tparam_geometry
+    \param geometry \param_geometry
+    \param style String containing verbatim SVG style information
+    \param size Optional size (used for SVG points) in SVG pixels. For linestrings,
+        specify linewidth in the SVG style information
+    */
     template <typename Geometry>
     void map(Geometry const& geometry, std::string const& style,
                 int size = -1)
@@ -300,6 +335,16 @@ public :
         svg_map(m_stream, style, size, geometry, *m_matrix);
     }
 
+    /*!
+    \brief Adds a text to the SVG map
+    \tparam TextPoint \tparam_point
+    \param point Location of the text (in map units)
+    \param s The text itself
+    \param style String containing verbatim SVG style information, of the text
+    \param offset_x Offset in SVG pixels, defaults to 0
+    \param offset_y Offset in SVG pixels, defaults to 0
+    \param lineheight Line height in SVG pixels, in case the text contains \n
+    */
     template <typename TextPoint>
     void text(TextPoint const& point, std::string const& s,
                 std::string const& style,
