@@ -11,12 +11,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_BALL_ALGORITHMS_APPEND_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_BALL_ALGORITHMS_APPEND_HPP
 
-#include <boost/geometry/algorithms/num_points.hpp>
 
-#include <boost/geometry/extensions/nsphere/core/tags.hpp>
+#include <boost/geometry/algorithms/append.hpp>
+
+#include <boost/geometry/extensions/ball/core/tags.hpp>
 
 
 namespace boost { namespace geometry
@@ -24,23 +25,21 @@ namespace boost { namespace geometry
 
 
 
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
+// This file is probably obsolete
 
-template <typename Geometry>
-struct num_points<nsphere_tag, Geometry>
-        : detail::num_points::other_count<1>
-{};
-
+//template <typename TagRoP, typename N, typename RoP, bool Std>
+//struct append<ball_tag, TagRoP, N, RoP, Std> {};
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
 
 
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_BALL_ALGORITHMS_APPEND_HPP

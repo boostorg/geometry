@@ -11,10 +11,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
 
-#include <boost/geometry/algorithms/num_points.hpp>
+#ifndef BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_GEOMETRY_ID_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_GEOMETRY_ID_HPP
+
+
+#include <boost/geometry/core/geometry_id.hpp>
 
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 
@@ -23,24 +25,23 @@ namespace boost { namespace geometry
 {
 
 
-
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
+namespace core_dispatch
 {
 
 
-template <typename Geometry>
-struct num_points<nsphere_tag, Geometry>
-        : detail::num_points::other_count<1>
-{};
+template <>
+struct geometry_id<ball_tag>    : boost::mpl::int_<92> {};
 
 
 
-} // namespace dispatch
+} // namespace core_dispatch
 #endif
+
+
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_GEOMETRY_ID_HPP

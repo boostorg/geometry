@@ -11,36 +11,39 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
 
-#include <boost/geometry/algorithms/num_points.hpp>
+#ifndef BOOST_GEOMETRY_EXTENSIONS_BALL_GEOMETRIES_CONCEPTS_CHECK_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_BALL_GEOMETRIES_CONCEPTS_CHECK_HPP
 
-#include <boost/geometry/extensions/nsphere/core/tags.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry
 {
 
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
-
 template <typename Geometry>
-struct num_points<nsphere_tag, Geometry>
-        : detail::num_points::other_count<1>
+struct check<Geometry, ball_tag, true>
+    : detail::concept_check::check<concept::ConstBall<Geometry> >
 {};
 
-
+template <typename Geometry>
+struct check<Geometry, ball_tag, false>
+    : detail::concept_check::check<concept::Ball<Geometry> >
+{};
 
 } // namespace dispatch
 #endif
 
 
+
+
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_BALL_GEOMETRIES_CONCEPTS_CHECK_HPP
