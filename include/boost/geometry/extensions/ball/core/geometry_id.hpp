@@ -31,7 +31,7 @@ namespace core_dispatch
 
 
 template <>
-struct geometry_id<ball_tag>    : boost::mpl::int_<92> {};
+struct geometry_id<ball_tag>    : boost::mpl::int_<95> {};
 
 
 
