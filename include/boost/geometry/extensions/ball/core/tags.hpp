@@ -11,36 +11,19 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
-
-#include <boost/geometry/algorithms/num_points.hpp>
-
-#include <boost/geometry/extensions/nsphere/core/tags.hpp>
+#ifndef BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_TAGS_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_TAGS_HPP
 
 
 namespace boost { namespace geometry
 {
 
 
+/// Convenience 2D (circle) or 3D (sphere) - ball/n-sphere identifying tag
+struct ball_tag {};
 
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-template <typename Geometry>
-struct num_points<nsphere_tag, Geometry>
-        : detail::num_points::other_count<1>
-{};
-
-
-
-} // namespace dispatch
-#endif
 
 
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_NUM_POINTS_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_BALL_CORE_TAGS_HPP
