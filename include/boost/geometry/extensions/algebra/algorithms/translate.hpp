@@ -98,7 +98,7 @@ struct translate<Box, Vector, box_tag>
 
     static inline void apply(Box & box, Vector const& vector, boost::mpl::bool_<true> /*is_cartesian*/)
     {
-        geometry::detail::box_cartesian<
+        geometry::detail::translate::box_cartesian<
             Box, Vector, traits::dimension<point_type>::value
         >::apply(box, vector);
     }
