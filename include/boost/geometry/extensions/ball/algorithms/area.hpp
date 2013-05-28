@@ -17,7 +17,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/extensions/nsphere/core/tags.hpp>
+#include <boost/geometry/extensions/ball/core/tags.hpp>
 
 
 
