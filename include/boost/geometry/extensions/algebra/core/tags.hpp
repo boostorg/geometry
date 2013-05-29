@@ -21,7 +21,7 @@ namespace boost { namespace geometry
 
 
 struct vector_tag {};
-
+struct rotation_quaternion_tag {};
 
 
 }} // namespace boost::geometry

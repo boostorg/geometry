@@ -38,6 +38,16 @@ struct check<Geometry, vector_tag, false>
     : detail::concept_check::check<concept::Vector<Geometry> >
 {};
 
+template <typename Geometry>
+struct check<Geometry, rotation_quaternion_tag, true>
+    : detail::concept_check::check<concept::ConstRotationQuaternion<Geometry> >
+{};
+
+template <typename Geometry>
+struct check<Geometry, rotation_quaternion_tag, false>
+    : detail::concept_check::check<concept::RotationQuaternion<Geometry> >
+{};
+
 } // namespace dispatch
 #endif
 
