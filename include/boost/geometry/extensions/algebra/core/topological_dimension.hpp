@@ -30,9 +30,11 @@ namespace core_dispatch
 {
 
 
-template <>
-struct top_dim<vector_tag>    : boost::mpl::int_<0> {};
-
+//template <>
+//struct top_dim<vector_tag>    : boost::mpl::int_<0> {};
+//
+//template <>
+//struct top_dim<rotation_quaternion_tag>    : boost::mpl::int_<0> {};
 
 } // namespace core_dispatch
 #endif

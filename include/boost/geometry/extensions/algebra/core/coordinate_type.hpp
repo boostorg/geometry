@@ -27,10 +27,17 @@ namespace core_dispatch {
 template <typename Vector>
 struct coordinate_type<vector_tag, Vector>
 {
-    typedef typename traits::coordinate_type
-        <
-            typename geometry::util::bare_type<Vector>::type
-        >::type type;
+    typedef typename traits::coordinate_type<
+        typename geometry::util::bare_type<Vector>::type
+    >::type type;
+};
+
+template <typename G>
+struct coordinate_type<rotation_quaternion_tag, G>
+{
+    typedef typename traits::coordinate_type<
+        typename geometry::util::bare_type<G>::type
+    >::type type;
 };
 
 } // namespace core_dispatch

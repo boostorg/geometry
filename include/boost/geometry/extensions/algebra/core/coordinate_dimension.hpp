@@ -29,6 +29,11 @@ struct dimension<vector_tag, V>
     : traits::dimension<typename geometry::util::bare_type<V>::type>
 {};
 
+template <typename G>
+struct dimension<rotation_quaternion_tag, G>
+    : traits::dimension<typename geometry::util::bare_type<G>::type>
+{};
+
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
