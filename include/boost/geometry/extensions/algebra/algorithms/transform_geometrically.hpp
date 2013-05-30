@@ -11,6 +11,7 @@
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_matrix_concept.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 
 namespace boost { namespace geometry {
@@ -143,7 +144,19 @@ struct transform_geometrically<Vector, RotationQuaternion, vector_tag, rotation_
     }
 };
 
-// TODO - other geometries and transformations
+// Vector rotation by Matrix
+template <typename Vector, typename RotationMatrix>
+struct transform_geometrically<Vector, RotationMatrix, vector_tag, rotation_matrix_tag>
+{
+    static inline void apply(Vector & v, RotationMatrix const& r)
+    {
+        concept::check_concepts_and_equal_dimensions<Vector, RotationMatrix const>();
+
+        // TODO vector_type and convert from Vector
+        Vector tmp(v);
+        detail::algebra::matrix_mul(r, tmp, v);
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

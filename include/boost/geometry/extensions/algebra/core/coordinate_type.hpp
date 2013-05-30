@@ -40,6 +40,14 @@ struct coordinate_type<rotation_quaternion_tag, G>
     >::type type;
 };
 
+template <typename G>
+struct coordinate_type<rotation_matrix_tag, G>
+{
+    typedef typename traits::coordinate_type<
+        typename geometry::util::bare_type<G>::type
+    >::type type;
+};
+
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
