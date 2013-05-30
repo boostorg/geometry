@@ -102,6 +102,58 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
     }
 };
 
+template <typename V1, typename V2, typename Rotation>
+struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
+{
+    static const bool cs_check =
+        ::boost::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
+        ::boost::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
+
+    BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
+
+    typedef typename geometry::select_most_precise<
+        typename traits::coordinate_type<V1>::type,
+        typename traits::coordinate_type<V2>::type
+    >::type cv_type;
+
+    inline static void apply(V1 const& v1, V2 const& v2, Rotation & r)
+    {
+        namespace da = detail::algebra;
+
+        // TODO - should store coordinates in more precise variables before the normalization?
+
+        // angle
+        cv_type d = da::dot<0, 0, 2>(v1, v2);
+        cv_type l = ::sqrt(da::dot<0, 0, 2>(v1, v1) * da::dot<0, 0, 2>(v2, v2));
+        cv_type c = d / l;
+
+        // TODO return also if l == 0;
+
+        // rotation angle == 0
+        if ( 1 - std::numeric_limits<cv_type>::epsilon() <= c )
+        {
+            set<0, 0>(r, 1); set<0, 1>(r, 0);
+            set<1, 0>(r, 0); set<1, 1>(r, 1);
+        }
+        // rotation angle = 180
+        else if ( c <= std::numeric_limits<cv_type>::epsilon() - 1 )
+        {
+            set<0, 0>(r, -1); set<0, 1>(r, 0);
+            set<1, 0>(r, 0); set<1, 1>(r, -1);
+        }
+        else
+        {
+            // sin
+            cv_type s = (get<0>(v1) * get<1>(v2) - get<1>(v1) * get<0>(v2)) / l;
+
+            set<0, 0>(r, c); set<0, 1>(r, -s);
+            set<1, 0>(r, s); set<1, 1>(r, c);
+
+            int a = 10;
+        }
+    }
+};
+
 }} // namespace detail::rotation
 
 #ifndef DOXYGEN_NO_DISPATCH
