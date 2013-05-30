@@ -162,7 +162,7 @@ It's possible to use some number of predicates in one query by connecting them w
 These predicates are connected by logical AND. Passing all predicates together not only makes possible
 to construct advanced queries but is also faster than separate calls because the tree is traversed only once.
 Traversing is continued and `Value`s are returned only if all predicates are met. Predicates are checked
-left-to-right so placing most restictive predicates first should accelerate the search.
+left-to-right so placing most restrictive predicates first should accelerate the search.
 
  rt.query(index::intersects(box1) && !index::within(box2),
           std::back_inserter(result));
