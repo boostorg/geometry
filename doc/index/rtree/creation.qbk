@@ -51,7 +51,7 @@ Examples of default `__value__` types:
 
 The predefined `index::indexable<Value>` returns const reference to the `__indexable__` stored in the `__value__`.
 
-[important The translation is done quite frequently inside the continer - each time the rtree needs it. ]
+[important The translation is done quite frequently inside the container - each time the rtree needs it. ]
 
 The predefined `index::equal_to<Value>`:
 

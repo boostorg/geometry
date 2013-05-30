@@ -18,7 +18,7 @@ The code below assumes that following files are included and namespaces used.
 [rtree_quickstart_include]
 
 Typically you'll store e.g. `std::pair<Box, MyGeometryId>` in the __rtree__. `MyGeometryId`
-will be some indentifier of a complex `Geometry` stored in other container, e.g. index type
+will be some identifier of a complex `Geometry` stored in other container, e.g. index type
 of a `Polygon` stored in the vector or an iterator of list of `Ring`s. To keep it simple to
 define `Value` we will use predefined __box__ and unsigned int.
 
