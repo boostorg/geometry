@@ -81,6 +81,16 @@ struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::true
     }
 };
 
+template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::false_type>
+    : detail::indexed_access_non_pointer<RM, CoordinateType, I, J>
+{};
+
+template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::true_type>
+    : detail::indexed_access_pointer<RM, CoordinateType, I, J>
+{};
+
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH
 

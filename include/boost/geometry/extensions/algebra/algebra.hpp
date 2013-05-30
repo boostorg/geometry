@@ -24,10 +24,12 @@
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_matrix_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/check.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/vector.hpp>
 #include <boost/geometry/extensions/algebra/geometries/rotation_quaternion.hpp>
+#include <boost/geometry/extensions/algebra/geometries/rotation_matrix.hpp>
 
 #include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/clear.hpp>
@@ -35,6 +37,6 @@
 
 #include <boost/geometry/extensions/algebra/algorithms/translation.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/rotation.hpp>
-#include <boost/geometry/extensions/algebra/algorithms/transform.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/transform_geometrically.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGEBRA_HPP

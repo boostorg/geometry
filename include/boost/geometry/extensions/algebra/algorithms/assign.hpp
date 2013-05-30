@@ -24,7 +24,6 @@
 namespace boost { namespace geometry
 {
 
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
