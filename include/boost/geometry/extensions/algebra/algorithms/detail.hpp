@@ -14,6 +14,7 @@ namespace boost { namespace geometry
 
 namespace detail { namespace algebra {
 
+// Cross 3D of 3 components of Vectors/Quaternion starting from IS1 and IS2 and placing the result starting from D
 template <std::size_t IS1, std::size_t IS2, std::size_t ID, typename S1, typename S2, typename D>
 inline void cross(S1 const& s1, S2 const& s2, D & d)
 {
@@ -21,6 +22,8 @@ inline void cross(S1 const& s1, S2 const& s2, D & d)
     set<ID+1>(d, get<IS1+2>(s1)*get<IS2+0>(s2) - get<IS1+0>(s1)*get<IS2+2>(s2));
     set<ID+2>(d, get<IS1+0>(s1)*get<IS2+1>(s2) - get<IS1+1>(s1)*get<IS2+0>(s2));
 }
+
+// Dot of N components of Vectors/Quaternion starting from IS1 and IS2
 
 template <typename S1, typename S2, std::size_t IS1, std::size_t IS2, std::size_t N>
 struct dot_impl
@@ -63,6 +66,8 @@ dot(S1 const& s1, S2 const& s2)
     return dot_impl<S1, S2, IS1, IS2, N>::apply(s1, s2);
 }
 
+// Multiplication of N components starting from Ith by Value v
+
 template <typename S, typename T, std::size_t IS, std::size_t I, std::size_t N>
 struct mul_impl
 {
@@ -87,6 +92,8 @@ inline static void mul(S & s, T const& v)
     return mul_impl<S, T, IS, 0, N>::apply(s, v);
 }
 
+// Normalization of N components starting from Ith
+
 template <std::size_t I, std::size_t N, typename S>
 inline static void normalize(S & s)
 {
@@ -96,6 +103,8 @@ inline static void normalize(S & s)
     if ( std::numeric_limits<T>::epsilon() < lsqr )
         mul<I, N>(s, 1.0f / ::sqrt(lsqr));    
 }
+
+// Square matrix * Vector of the same dimension 
 
 template <typename M, typename V, typename VD, std::size_t I, std::size_t N>
 struct matrix_mul_row_impl
