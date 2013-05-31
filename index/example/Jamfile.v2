@@ -6,17 +6,49 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-# Usage: build as optimised for proper benchmarking:
+# Usage:
+# Build as optimised for proper benchmarking:
 #    b2 variant=release threading=multi
 #    b2 variant=release threading=multi link=static runtime-link=static
+# 
+# Set GLUT_ROOT to installation prefix of GLUT or, for Windows,
+# it may be all-in-one directory with GLUT header and binaries.
+
+import os ;
 
 project boost-geometry-index-example
     : requirements
         <source>/boost//headers
     ;
 
+local GLUT_ROOT = [ os.environ GLUT_ROOT ] ;
+if $(GLUT_ROOT)
+{
+    local glut_name = glut ;
+    if [ os.name ] = NT
+    {
+        glut_name = glut32 ;
+    }
+
+ lib glut
+    : 
+    :
+    <name>$(glut_name)
+    <search>$(GLUT_ROOT) 
+    <search>$(GLUT_ROOT)/lib
+    :
+    :
+    <include>$(GLUT_ROOT)
+    <include>$(GLUT_ROOT)/include
+    ;
+}
+
 exe random_test : random_test.cpp ;
 exe benchmark  : benchmark.cpp /boost//chrono ;
 exe benchmark2 : benchmark2.cpp /boost//chrono ;
 exe benchmark3 : benchmark3.cpp /boost//chrono ;
 exe benchmark_experimental : benchmark_experimental.cpp  /boost//chrono ;
+if $(GLUT_ROOT)
+{
+    exe glut_vis : glut_vis.cpp glut ;
+}
