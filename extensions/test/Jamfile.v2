@@ -13,7 +13,7 @@ import testing ;
 project boost-geometry-test
     :
     requirements
-        <include>../test
+        <include>../../test
         <include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
     ;
