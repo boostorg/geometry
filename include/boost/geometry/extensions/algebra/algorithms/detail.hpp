@@ -151,11 +151,32 @@ struct matrix_mul_impl<M, V, VD, N, N>
 };
 
 template <typename M, typename V, typename VD>
-inline static void matrix_mul(M const& m, V const& v, VD & vd)
+inline static void matrix_rotate(M const& m, V const& v, VD & vd)
 {
     static const std::size_t dimension = traits::dimension<M>::value;
 
     matrix_mul_impl<M, V, VD, 0, dimension>::apply(m, v, vd);
+}
+
+template <typename V, typename Q>
+inline static void quaternion_rotate(V & v, Q const& q)
+{
+    // TODO - choose more precise type?
+
+    typedef typename select_most_precise<
+        typename traits::coordinate_type<V>::type,
+        typename traits::coordinate_type<Q>::type
+    >::type T;
+
+    // Hamilton product T=Q*V
+    T a = /*get<0>(r) * 0 */- get<1>(r) * get<0>(v) - get<2>(r) * get<1>(v) - get<3>(r) * get<2>(v);
+    T b = get<0>(r) * get<0>(v)/* + get<1>(r) * 0*/ + get<2>(r) * get<2>(v) - get<3>(r) * get<1>(v);
+    T c = get<0>(r) * get<1>(v) - get<1>(r) * get<2>(v)/* + get<2>(r) * 0*/ + get<3>(r) * get<0>(v);
+    T d = get<0>(r) * get<2>(v) + get<1>(r) * get<1>(v) - get<2>(r) * get<0>(v)/* + get<3>(r) * 0*/;
+    // Hamilton product V=T*inv(Q)
+    set<0>(v, - a * get<1>(r) + b * get<0>(r) - c * get<3>(r) + d * get<2>(r));
+    set<1>(v, - a * get<2>(r) + b * get<3>(r) + c * get<0>(r) - d * get<1>(r));
+    set<2>(v, - a * get<3>(r) - b * get<2>(r) + c * get<1>(r) + d * get<0>(r));
 }
 
 }} // namespace detail::algebra

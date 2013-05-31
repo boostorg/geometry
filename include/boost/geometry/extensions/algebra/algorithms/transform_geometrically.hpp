@@ -126,21 +126,7 @@ struct transform_geometrically<Vector, RotationQuaternion, vector_tag, rotation_
     {
         concept::check_concepts_and_equal_dimensions<Vector, RotationQuaternion const>();
 
-        // TODO - choose more precise type?
-
-        typedef typename select_most_precise<
-            typename traits::coordinate_type<Vector>::type,
-            typename traits::coordinate_type<RotationQuaternion>::type
-        >::type T;
-
-        T a = /*get<0>(r) * 0 */- get<1>(r) * get<0>(v) - get<2>(r) * get<1>(v) - get<3>(r) * get<2>(v);
-        T b = get<0>(r) * get<0>(v)/* + get<1>(r) * 0*/ + get<2>(r) * get<2>(v) - get<3>(r) * get<1>(v);
-        T c = get<0>(r) * get<1>(v) - get<1>(r) * get<2>(v)/* + get<2>(r) * 0*/ + get<3>(r) * get<0>(v);
-        T d = get<0>(r) * get<2>(v) + get<1>(r) * get<1>(v) - get<2>(r) * get<0>(v)/* + get<3>(r) * 0*/;
-
-        set<0>(v, - a * get<1>(r) + b * get<0>(r) - c * get<3>(r) + d * get<2>(r));
-        set<1>(v, - a * get<2>(r) + b * get<3>(r) + c * get<0>(r) - d * get<1>(r));
-        set<2>(v, - a * get<3>(r) - b * get<2>(r) + c * get<1>(r) + d * get<0>(r));
+        detail::algebra::quaternion_rotate(v, r);
     }
 };
 
@@ -154,7 +140,7 @@ struct transform_geometrically<Vector, RotationMatrix, vector_tag, rotation_matr
 
         // TODO vector_type and convert from Vector
         Vector tmp(v);
-        detail::algebra::matrix_mul(r, tmp, v);
+        detail::algebra::matrix_rotate(r, tmp, v);
     }
 };
 
