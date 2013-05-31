@@ -1,0 +1,22 @@
+# Boost.Geometry (aka GGL, Generic Geometry Library)
+#
+# Copyright (c) 2013 Mateusz Loskot, London, UK.
+#
+# Use, modification and distribution is subject to the Boost Software License,
+# Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+# Usage: build as optimised for proper benchmarking:
+#    b2 variant=release threading=multi
+#    b2 variant=release threading=multi link=static runtime-link=static
+
+project boost-geometry-index-example
+    : requirements
+        <source>/boost//headers
+    ;
+
+exe random_test : random_test.cpp ;
+exe benchmark  : benchmark.cpp /boost//chrono ;
+exe benchmark2 : benchmark2.cpp /boost//chrono ;
+exe benchmark3 : benchmark3.cpp /boost//chrono ;
+exe benchmark_experimental : benchmark_experimental.cpp  /boost//chrono ;
