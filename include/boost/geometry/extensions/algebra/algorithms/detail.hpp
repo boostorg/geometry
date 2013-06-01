@@ -159,11 +159,11 @@ inline static void matrix_rotate(M const& m, V const& v, VD & vd)
 }
 
 template <typename V, typename Q>
-inline static void quaternion_rotate(V & v, Q const& q)
+inline static void quaternion_rotate(V & v, Q const& r)
 {
     // TODO - choose more precise type?
 
-    typedef typename select_most_precise<
+    typedef typename geometry::select_most_precise<
         typename traits::coordinate_type<V>::type,
         typename traits::coordinate_type<Q>::type
     >::type T;

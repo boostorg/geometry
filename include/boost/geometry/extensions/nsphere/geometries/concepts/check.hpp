@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -27,8 +28,15 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
+template <typename Geometry>
+struct check<Geometry, nsphere_tag, true>
+    : detail::concept_check::check<concept::ConstNsphere<Geometry> >
+{};
 
-
+template <typename Geometry>
+struct check<Geometry, nsphere_tag, false>
+    : detail::concept_check::check<concept::Nsphere<Geometry> >
+{};
 
 } // namespace dispatch
 #endif
