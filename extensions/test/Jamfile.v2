@@ -10,7 +10,7 @@
 
 import testing ;
 
-project boost-geometry-test
+project boost-geometry-extensions-test
     :
     requirements
         <include>../../test
