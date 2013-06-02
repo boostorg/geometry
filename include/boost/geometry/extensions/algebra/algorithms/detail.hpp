@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_DETAIL_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_DETAIL_HPP
 
+// TODO - for multiplication of coordinates
+// if coordinate_type is_integral - use double as the result type
+
 namespace boost { namespace geometry
 {
 
@@ -93,6 +96,32 @@ inline static void mul(S & s, T const& v)
     return mul_impl<S, T, IS, 0, N>::apply(s, v);
 }
 
+// Negation
+
+template <typename V, std::size_t I, std::size_t N>
+struct neg_impl
+{
+    BOOST_STATIC_ASSERT(0 < N);
+
+    static inline void apply(V & v)
+    {
+        set<I>(v, -get<I>(v));
+        neg_impl<V, I+1, N>::apply(v);
+    }
+};
+
+template <typename V, std::size_t N>
+struct neg_impl<V, N, N>
+{
+    static inline void apply(V &) {}
+};
+
+template <std::size_t I, std::size_t N, typename V>
+inline static void neg(V & v)
+{
+    return neg_impl<V, I, N>::apply(v);
+}
+
 // Normalization of N components starting from Ith
 
 template <std::size_t I, std::size_t N, typename S>
@@ -151,6 +180,8 @@ struct matrix_mul_impl<M, V, VD, N, N>
     static inline void apply(M const&, V const&, VD &) {}
 };
 
+// Matrix rotation - M*V
+
 template <typename M, typename V, typename VD>
 inline static void matrix_rotate(M const& m, V const& v, VD & vd)
 {
@@ -158,6 +189,8 @@ inline static void matrix_rotate(M const& m, V const& v, VD & vd)
 
     matrix_mul_impl<M, V, VD, 0, dimension>::apply(m, v, vd);
 }
+
+// Quaternion rotation - Q*V*Q' - * is Hamilton product
 
 template <typename V, typename Q>
 inline static void quaternion_rotate(V & v, Q const& r)
@@ -179,6 +212,8 @@ inline static void quaternion_rotate(V & v, Q const& r)
     set<1>(v, - a * get<2>(r) + b * get<3>(r) + c * get<0>(r) - d * get<1>(r));
     set<2>(v, - a * get<3>(r) - b * get<2>(r) + c * get<1>(r) + d * get<0>(r));
 }
+
+// Assign value
 
 template <typename G, typename V, std::size_t B, std::size_t E>
 struct assign_value
@@ -205,6 +240,8 @@ struct indexed_assign_value_per_index
         indexed_assign_value_per_index<G, V, BI, BD+1, EI, ED>::apply(g, v);
     }
 };
+
+// Assign value using indexed access
 
 template <typename G, typename V, std::size_t BI, std::size_t EI, std::size_t ED>
 struct indexed_assign_value_per_index<G, V, BI, ED, EI, ED>
@@ -238,6 +275,8 @@ struct identity_matrix_per_index
     }
 };
 
+// Identity matrix
+
 template <typename G, std::size_t BI, std::size_t EI, std::size_t ED>
 struct identity_matrix_per_index<G, BI, BI, EI, ED>
 {
@@ -266,6 +305,43 @@ struct identity_matrix
 
 template <typename G, std::size_t BD, std::size_t EI, std::size_t ED>
 struct identity_matrix<G, EI, BD, EI, ED>
+{
+    static inline void apply(G &) {}
+};
+
+// Matrix transpose
+
+template <typename G, std::size_t I, std::size_t D, std::size_t N>
+struct matrix_transpose_per_index
+{
+    static inline void apply(G & g)
+    {
+        // swap coordinates
+        typename coordinate_type<G>::type tmp = get<I, D>(g);
+        set<I, D>(g, get<D, I>(g));
+        set<D, I>(g, tmp);
+        matrix_transpose_per_index<G, I, D+1, N>::apply(g);
+    }
+};
+
+template <typename G, std::size_t I, std::size_t N>
+struct matrix_transpose_per_index<G, I, N, N>
+{
+    static inline void apply(G &) {}
+};
+
+template <typename G, std::size_t I, std::size_t D, std::size_t N>
+struct matrix_transpose
+{
+    static inline void apply(G & g)
+    {
+        matrix_transpose_per_index<G, I, I+1, N>::apply(g);
+        matrix_transpose<G, I+1, D, N>::apply(g);
+    }
+};
+
+template <typename G, std::size_t D, std::size_t N>
+struct matrix_transpose<G, N, D, N>
 {
     static inline void apply(G &) {}
 };

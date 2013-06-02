@@ -20,6 +20,10 @@
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
 
+// WARNING!
+// It is probable that the sequence of coordinate will change in the future
+// at the beginning there would be xyz, w would become the last coordinate
+
 namespace boost { namespace geometry
 {
 

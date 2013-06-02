@@ -69,6 +69,9 @@ struct assign_identity<rotation_matrix_tag, R>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+// TODO
+// Use assign_zero for initialization of 0-angle rotation instead of assign_identity?
+
 /*!
 \brief assign identity to Transformation
 \ingroup assign
@@ -116,7 +119,6 @@ struct assign<vector_tag, V, 3>
         set<2>(v, boost::numeric_cast<coordinate_type>(c3));
     }
 };
-
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

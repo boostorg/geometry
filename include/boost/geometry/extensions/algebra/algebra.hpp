@@ -33,8 +33,14 @@
 #include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/convert.hpp>
 
+// experimental 
+#include <boost/geometry/extensions/algebra/algorithms/clear.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/reverse.hpp>
+
 #include <boost/geometry/extensions/algebra/algorithms/translation.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/rotation.hpp>
+
+// should be removed, transform() should be used instead
 #include <boost/geometry/extensions/algebra/algorithms/transform_geometrically.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGEBRA_HPP

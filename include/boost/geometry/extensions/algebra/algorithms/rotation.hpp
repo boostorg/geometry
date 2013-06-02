@@ -13,6 +13,9 @@
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
 
+// TODO - for multiplication of coordinates
+// if coordinate_type is_integral - use double as the result type
+
 namespace boost { namespace geometry {
 
 namespace detail { namespace rotation {
