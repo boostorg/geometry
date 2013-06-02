@@ -41,9 +41,9 @@ public:
     inline rotation_quaternion(T const& w, T const& x, T const& y, T const& z)
     {
         m_values[0] = w;
-        m_values[1] = w;
-        m_values[2] = w;
-        m_values[3] = w;
+        m_values[1] = x;
+        m_values[2] = y;
+        m_values[3] = z;
     }
 
     /// @brief Get a coordinate
