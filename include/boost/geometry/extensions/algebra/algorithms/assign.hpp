@@ -25,8 +25,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename Vector>
 struct assign_zero<vector_tag, Vector>
@@ -41,29 +40,55 @@ struct assign_zero<vector_tag, Vector>
     }
 };
 
+template <typename GeometryTag, typename Geometry>
+struct assign_identity
+{
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (GeometryTag, Geometry));
+};
+
 template <typename R>
-struct assign_zero<rotation_quaternion_tag, R>
+struct assign_identity<rotation_quaternion_tag, R>
 {
     static inline void apply(R & g)
     {
-        detail::algebra::assign_value<
-            R, typename coordinate_type<R>::type,
-            0, 4
-        >::apply(g, 0);
+        set<0>(g, 1); set<1>(g, 0); set<2>(g, 0); set<3>(g, 0);
     }
 };
 
 template <typename R>
-struct assign_zero<rotation_matrix_tag, R>
+struct assign_identity<rotation_matrix_tag, R>
 {
-    static inline void apply(R & g)
+    static inline void apply(R & r)
     {
-        detail::algebra::indexed_assign_value<
-            R, typename coordinate_type<R>::type,
-            0, 0, dimension<R>::type::value, dimension<R>::type::value
-        >::apply(g, 0);
+        detail::algebra::identity_matrix<
+            R, 0, 0, dimension<R>::value, dimension<R>::value
+        >::apply(r);
     }
 };
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+/*!
+\brief assign identity to Transformation
+\ingroup assign
+\details The assign_identity function initializes a rotation or transformation with values indicating no rotation
+\tparam Rotation The rotation type.
+\param rotation The rotation.
+ */
+template <typename Rotation>
+inline void assign_identity(Rotation & rotation)
+{
+    concept::check<Rotation>();
+
+    dispatch::assign_identity<
+        typename tag<Rotation>::type,
+        Rotation
+    >::apply(rotation);
+}
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch {
 
 template <typename V>
 struct assign<vector_tag, V, 2>

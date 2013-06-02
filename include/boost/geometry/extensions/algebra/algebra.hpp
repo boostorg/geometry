@@ -31,6 +31,7 @@
 #include <boost/geometry/extensions/algebra/geometries/rotation_matrix.hpp>
 
 #include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/convert.hpp>
 
 #include <boost/geometry/extensions/algebra/algorithms/translation.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/rotation.hpp>
