@@ -228,6 +228,48 @@ struct indexed_assign_value<G, V, EI, BD, EI, ED>
     static inline void apply(G &, V const&) {}
 };
 
+template <typename G, std::size_t BI, std::size_t BD, std::size_t EI, std::size_t ED>
+struct identity_matrix_per_index
+{
+    static inline void apply(G & g)
+    {
+        set<BI, BD>(g, 0);
+        identity_matrix_per_index<G, BI, BD+1, EI, ED>::apply(g);
+    }
+};
+
+template <typename G, std::size_t BI, std::size_t EI, std::size_t ED>
+struct identity_matrix_per_index<G, BI, BI, EI, ED>
+{
+    static inline void apply(G & g)
+    {
+        set<BI, BI>(g, 1);
+        identity_matrix_per_index<G, BI, BI+1, EI, ED>::apply(g);
+    }
+};
+
+template <typename G, std::size_t BI, std::size_t EI, std::size_t ED>
+struct identity_matrix_per_index<G, BI, ED, EI, ED>
+{
+    static inline void apply(G &) {}
+};
+
+template <typename G, std::size_t BI, std::size_t BD, std::size_t EI, std::size_t ED>
+struct identity_matrix
+{
+    static inline void apply(G & g)
+    {
+        identity_matrix_per_index<G, BI, BD, EI, ED>::apply(g);
+        identity_matrix<G, BI+1, BD, EI, ED>::apply(g);
+    }
+};
+
+template <typename G, std::size_t BD, std::size_t EI, std::size_t ED>
+struct identity_matrix<G, EI, BD, EI, ED>
+{
+    static inline void apply(G &) {}
+};
+
 }} // namespace detail::algebra
 #endif // DOXYGEN_NO_DETAIL
 
