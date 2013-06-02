@@ -19,7 +19,7 @@
 
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
-
+#include <boost/geometry/extensions/algebra/algorithms/detail.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,8 +30,40 @@ namespace dispatch
 
 template <typename Vector>
 struct assign_zero<vector_tag, Vector>
-    : detail::assign::assign_zero_point<Vector>
-{};
+{
+    static inline void apply(Vector & g)
+    {
+        detail::algebra::assign_value<
+            Vector,
+            typename coordinate_type<Vector>::type,
+            0, dimension<Vector>::type::value
+        >::apply(g, 0);
+    }
+};
+
+template <typename R>
+struct assign_zero<rotation_quaternion_tag, R>
+{
+    static inline void apply(R & g)
+    {
+        detail::algebra::assign_value<
+            R, typename coordinate_type<R>::type,
+            0, 4
+        >::apply(g, 0);
+    }
+};
+
+template <typename R>
+struct assign_zero<rotation_matrix_tag, R>
+{
+    static inline void apply(R & g)
+    {
+        detail::algebra::indexed_assign_value<
+            R, typename coordinate_type<R>::type,
+            0, 0, dimension<R>::type::value, dimension<R>::type::value
+        >::apply(g, 0);
+    }
+};
 
 template <typename V>
 struct assign<vector_tag, V, 2>

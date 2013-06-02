@@ -56,6 +56,7 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
         cv_type c = d / l;
 
         // rotation angle == 0
+        // not needed really, because in this case function still returns zero-rotation
         if ( 1 - std::numeric_limits<cv_type>::epsilon() <= c )
         {
             set<0, 0>(r, 1); set<0, 1>(r, 0); set<0, 2>(r, 0);
@@ -130,6 +131,7 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
         // TODO return also if l == 0;
 
         // rotation angle == 0
+        // not needed really, because in this case function still returns zero-rotation
         if ( 1 - std::numeric_limits<cv_type>::epsilon() <= c )
         {
             set<0, 0>(r, 1); set<0, 1>(r, 0);
@@ -148,8 +150,6 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
 
             set<0, 0>(r, c); set<0, 1>(r, -s);
             set<1, 0>(r, s); set<1, 1>(r, c);
-
-            int a = 10;
         }
     }
 };
@@ -196,37 +196,33 @@ struct rotation<V1, V2, Rotation, vector_tag, vector_tag, rotation_quaternion_ta
 
         // TODO - should store coordinates in more precise variables before the normalization?
 
-        // half angle
-        cv_type d = da::dot<0, 0, 3>(v1, v2);
-        cv_type l = ::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2));
-        cv_type w = l + d;
+        cv_type d = da::dot<0, 0, 3>(v1, v2); // l1 * l2 * cos
+        cv_type l = ::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2)); // l1 * l2
+        cv_type w = l + d; // l1 * l2 * ( 1 + cos )
 
-        // rotation angle 0 or pi
-        if ( -std::numeric_limits<cv_type>::epsilon() <= w && w <= std::numeric_limits<cv_type>::epsilon() )
+        // rotation angle == 0
+        // not needed really, because in this case function still returns zero-rotation
+        if ( 2*l-std::numeric_limits<cv_type>::epsilon() <= w )
         {
-            // rotation angle == 0
-            if ( 0 <= d )
-            {
-                set<0>(r, 1); set<0>(r, 0); set<0>(r, 0); set<0>(r, 0);
-            }
-            // rotation angle == pi
-            else
-            {
-                set<0>(r, 0);
-                // find arbitrary rotation axis perpendicular to v1
-                da::cross<0, 0, 1>(vector_type(1, 0, 0), v1, r);
-                if ( da::dot<1, 1, 3>(r, r) < std::numeric_limits<cr_type>::epsilon() )
-                    da::cross<0, 0, 1>(vector_type(0, 1, 0), v1, r);
+            set<0>(r, 1); set<0>(r, 0); set<0>(r, 0); set<0>(r, 0);
+        }
+        // rotation angle == pi
+        else if ( w <= std::numeric_limits<cv_type>::epsilon() )
+        {
+            set<0>(r, 0);
+            // find arbitrary rotation axis perpendicular to v1
+            da::cross<0, 0, 1>(vector_type(1, 0, 0), v1, r);
+            if ( da::dot<1, 1, 3>(r, r) < std::numeric_limits<cr_type>::epsilon() )
+                da::cross<0, 0, 1>(vector_type(0, 1, 0), v1, r);
 
-                // normalize axis
-                da::normalize<1, 3>(r);
-            }
+            // normalize axis
+            da::normalize<1, 3>(r);
         }
         else
         {
-            set<0>(r, w);
+            set<0>(r, w); // l1 * l2 * ( 1 + cos )
             // rotation axis
-            da::cross<0, 0, 1>(v1, v2, r);
+            da::cross<0, 0, 1>(v1, v2, r); // l1 * l2 * sin * UNITA
 
             // normalize quaternion
             da::normalize<0, 4>(r);
