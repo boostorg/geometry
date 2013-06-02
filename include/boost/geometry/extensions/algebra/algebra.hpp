@@ -20,7 +20,6 @@
 #include <boost/geometry/extensions/algebra/core/coordinate_system.hpp>
 #include <boost/geometry/extensions/algebra/core/coordinate_type.hpp>
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
-#include <boost/geometry/extensions/algebra/core/topological_dimension.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
