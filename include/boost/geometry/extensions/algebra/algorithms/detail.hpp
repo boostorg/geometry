@@ -12,6 +12,7 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace algebra {
 
 // Cross 3D of 3 components of Vectors/Quaternion starting from IS1 and IS2 and placing the result starting from D
@@ -179,7 +180,56 @@ inline static void quaternion_rotate(V & v, Q const& r)
     set<2>(v, - a * get<3>(r) - b * get<2>(r) + c * get<1>(r) + d * get<0>(r));
 }
 
+template <typename G, typename V, std::size_t B, std::size_t E>
+struct assign_value
+{
+    static inline void apply(G & g, V const& v)
+    {
+        set<B>(g, v);
+        assign_value<G, V, B+1, E>::apply(g, v);
+    }
+};
+
+template <typename G, typename V, std::size_t E>
+struct assign_value<G, V, E, E>
+{
+    static inline void apply(G &, V const&) {}
+};
+
+template <typename G, typename V, std::size_t BI, std::size_t BD, std::size_t EI, std::size_t ED>
+struct indexed_assign_value_per_index
+{
+    static inline void apply(G & g, V const& v)
+    {
+        set<BI, BD>(g, v);
+        indexed_assign_value_per_index<G, V, BI, BD+1, EI, ED>::apply(g, v);
+    }
+};
+
+template <typename G, typename V, std::size_t BI, std::size_t EI, std::size_t ED>
+struct indexed_assign_value_per_index<G, V, BI, ED, EI, ED>
+{
+    static inline void apply(G &, V const&) {}
+};
+
+template <typename G, typename V, std::size_t BI, std::size_t BD, std::size_t EI, std::size_t ED>
+struct indexed_assign_value
+{
+    static inline void apply(G & g, V const& v)
+    {
+        indexed_assign_value_per_index<G, V, BI, BD, EI, ED>::apply(g, v);
+        indexed_assign_value<G, V, BI+1, BD, EI, ED>::apply(g, v);
+    }
+};
+
+template <typename G, typename V, std::size_t BD, std::size_t EI, std::size_t ED>
+struct indexed_assign_value<G, V, EI, BD, EI, ED>
+{
+    static inline void apply(G &, V const&) {}
+};
+
 }} // namespace detail::algebra
+#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 
