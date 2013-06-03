@@ -1,5 +1,6 @@
 // Boost.Geometry Index
-// Additional tests
+// Compare performance with std::set using 1-dimensional object
+// (i.e. angle, or number line coordiante)
 
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
