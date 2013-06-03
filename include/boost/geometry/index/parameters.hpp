@@ -52,7 +52,7 @@ struct default_rstar_reinserted_elements_s
 inline size_t default_rstar_reinserted_elements_d()
 {
     return (std::numeric_limits<size_t>::max)();
-};
+}
 
 inline size_t default_rstar_reinserted_elements_d_calc(size_t max_elements, size_t reinserted_elements)
 {
