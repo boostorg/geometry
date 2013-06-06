@@ -8,14 +8,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_PRINT_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_PRINT_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_PRINT_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_PRINT_HPP
 
 #include <iostream>
 
-namespace boost { namespace geometry { namespace index {
-
-namespace detail { namespace rtree { namespace visitors {
+namespace boost { namespace geometry { namespace index { namespace detail {
+    
+namespace utilities {
 
 namespace dispatch {
 
@@ -98,10 +98,8 @@ struct print_indexable<Indexable, point_tag>
 
 } // namespace dispatch
 
-namespace detail {
-
-template <typename Indexable>
-inline void print_indexable(std::ostream & os, Indexable const& i)
+template <typename Indexable> inline
+void print_indexable(std::ostream & os, Indexable const& i)
 {
     dispatch::print_indexable<
         Indexable,
@@ -109,7 +107,11 @@ inline void print_indexable(std::ostream & os, Indexable const& i)
     >::apply(os, i);
 }
 
-} // namespace detail
+} // namespace utilities
+
+namespace rtree { namespace utilities {
+
+namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct print : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
@@ -132,7 +134,7 @@ struct print : public rtree::visitor<Value, typename Options::parameters_type, B
             it != elements.end(); ++it)
         {
             spaces(level);
-            detail::print_indexable(os, it->first);
+            detail::utilities::print_indexable(os, it->first);
             os << " ->" << it->second << '\n';
         }
 
@@ -158,7 +160,7 @@ struct print : public rtree::visitor<Value, typename Options::parameters_type, B
             it != elements.end(); ++it)
         {
             spaces(level);
-            detail::print_indexable(os, tr(*it));
+            detail::utilities::print_indexable(os, tr(*it));
             os << '\n';
         }
     }
@@ -176,22 +178,26 @@ struct print : public rtree::visitor<Value, typename Options::parameters_type, B
     size_t level;
 };
 
-}}} // namespace detail::rtree::visitors
+} // namespace visitors
 
-template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
-std::ostream & operator<<(std::ostream & os, rtree<Value, Options, IndexableGetter, EqualTo, Allocator> const& tree)
+template <typename Rtree> inline
+void print(std::ostream & os, Rtree const& tree)
 {
-    typedef rtree<Value, Options, IndexableGetter, EqualTo, Allocator> rtree_type;
-    typedef typename rtree_type::value_type value_type;
-    typedef typename rtree_type::options_type options_type;
-    typedef typename rtree_type::translator_type translator_type;
-    typedef typename rtree_type::box_type box_type;
-    typedef typename rtree_type::allocators_type allocators_type;
-    detail::rtree::visitors::print<value_type, options_type, translator_type, box_type, allocators_type> print_v(os, tree.translator());
-    tree.apply_visitor(print_v);
-    return os;
+    typedef utilities::view<Rtree> RTV;
+    RTV rtv(tree);
+
+    visitors::print<
+        typename RTV::value_type,
+        typename RTV::options_type,
+        typename RTV::translator_type,
+        typename RTV::box_type,
+        typename RTV::allocators_type
+    > print_v(os, rtv.translator());
+    rtv.apply_visitor(print_v);
 }
 
-}}} // namespace boost::geometry::index
+}} // namespace rtree::utilities
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_PRINT_HPP
+}}}} // namespace boost::geometry::index::detail
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_PRINT_HPP

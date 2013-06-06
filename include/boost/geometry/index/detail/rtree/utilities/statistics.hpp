@@ -9,18 +9,18 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_STATISTICS_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_STATISTICS_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP
 
 #include <boost/geometry/index/detail/indexable.hpp>
 #include <algorithm>
 #include <tuple>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace utilities {
 
-namespace detail { namespace rtree { namespace visitors {
+namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename Value, typename Options, typename Box, typename Allocators>
 struct statistics : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
 {
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
@@ -80,30 +80,27 @@ struct statistics : public rtree::visitor<Value, typename Options::parameters_ty
     std::size_t values_max;
 };
 
-}}} // namespace detail::rtree::visitors
+} // namespace visitors
 
-template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
-std::tuple<std::size_t, std::size_t, std::size_t, std::size_t, std::size_t, std::size_t>
-    statistics(rtree<Value, Options, IndexableGetter, EqualTo, Allocator> const& tree)
+template <typename Rtree> inline
+boost::tuple<std::size_t, std::size_t, std::size_t, std::size_t, std::size_t, std::size_t>
+statistics(Rtree const& tree)
 {
-    typedef rtree<Value, Options, IndexableGetter, EqualTo, Allocator> rtree_type;
+    typedef utilities::view<Rtree> RTV;
+    RTV rtv(tree);
 
-    typedef typename rtree_type::value_type value_type;
-    typedef typename rtree_type::options_type options_type;
-    typedef typename rtree_type::translator_type translator_type;
-    typedef typename rtree_type::box_type box_type;
-    typedef typename rtree_type::allocators_type allocators_type;
+    visitors::statistics<
+        typename RTV::value_type,
+        typename RTV::options_type,
+        typename RTV::box_type,
+        typename RTV::allocators_type
+    > stats_v;
 
-    detail::rtree::visitors::statistics
-        <
-        value_type, options_type, translator_type, box_type, allocators_type
-        > stats_v;
-
-    tree.apply_visitor(stats_v);
+    rtv.apply_visitor(stats_v);
     
-    return std::make_tuple(stats_v.levels, stats_v.nodes, stats_v.leaves, stats_v.values, stats_v.values_min, stats_v.values_max);
+    return boost::make_tuple(stats_v.levels, stats_v.nodes, stats_v.leaves, stats_v.values, stats_v.values_min, stats_v.values_max);
 }
 
-}}} // namespace boost::geometry::index
+}}}}}} // namespace boost::geometry::index::detail::rtree::utilities
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_STATISTICS_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP

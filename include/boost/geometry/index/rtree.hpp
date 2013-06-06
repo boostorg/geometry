@@ -58,6 +58,8 @@
 
 #include <boost/geometry/index/inserter.hpp>
 
+#include <boost/geometry/index/detail/rtree/utilities/view.hpp>
+
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
@@ -141,9 +143,8 @@ public:
     /*! \brief The Box type used by the R-tree. */
     typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
 
-#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
-#endif
+
     typedef detail::translator<IndexableGetter, EqualTo> translator_type;
 
     typedef bounds_type box_type;
@@ -157,6 +158,8 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+
+    friend class detail::rtree::utilities::view<rtree>;
 
 public:
 
@@ -972,9 +975,8 @@ public:
         return m_members.allocators().allocator();
     }
 
-#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
-#endif
+
     /*!
     \brief Returns the translator object.
 
@@ -1007,21 +1009,6 @@ private:
     }
 
     /*!
-    \brief Returns the number of stored objects. Same as size().
-
-    This function is not a part of the 'official' interface.
-
-    \return     The number of stored objects.
-
-    \par Throws
-    Nothing.
-    */
-    inline size_type values_count() const
-    {
-        return m_members.values_count;
-    }
-
-    /*!
     \brief Returns the depth of the R-tree.
 
     This function is not a part of the 'official' interface.
@@ -1037,6 +1024,7 @@ private:
     }
 
 private:
+
     /*!
     \pre Root node must exist - m_root != 0.
 

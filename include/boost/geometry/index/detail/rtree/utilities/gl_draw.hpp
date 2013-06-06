@@ -8,14 +8,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_GL_DRAW_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_GL_DRAW_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 
 #include <boost/geometry/index/detail/indexable.hpp>
 
-namespace boost { namespace geometry { namespace index {
+namespace boost { namespace geometry { namespace index { namespace detail {
 
-namespace detail { namespace rtree { namespace visitors {
+namespace utilities {
 
 namespace dispatch {
 
@@ -81,10 +81,8 @@ struct gl_draw_indexable<Indexable, point_tag>
 
 } // namespace dispatch
 
-namespace detail {
-
-template <typename Indexable>
-inline void gl_draw_indexable(Indexable const& i, typename index::detail::traits::coordinate_type<Indexable>::type z)
+template <typename Indexable> inline
+void gl_draw_indexable(Indexable const& i, typename index::detail::traits::coordinate_type<Indexable>::type z)
 {
     dispatch::gl_draw_indexable<
         Indexable,
@@ -92,7 +90,11 @@ inline void gl_draw_indexable(Indexable const& i, typename index::detail::traits
     >::apply(i, z);
 }
 
-} // namespace detail
+} // namespace utilities
+
+namespace rtree { namespace utilities {
+
+namespace visitors {
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
@@ -139,7 +141,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
             for (typename elements_type::const_iterator it = elements.begin();
                 it != elements.end(); ++it)
             {
-                detail::gl_draw_indexable(it->first, level_rel * z_mul);
+                detail::utilities::gl_draw_indexable(it->first, level_rel * z_mul);
             }
         }
         
@@ -172,7 +174,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
             for (typename elements_type::const_iterator it = elements.begin();
                 it != elements.end(); ++it)
             {
-                detail::gl_draw_indexable(tr(*it), level_rel * z_mul);
+                detail::utilities::gl_draw_indexable(tr(*it), level_rel * z_mul);
             }
         }
     }
@@ -185,37 +187,39 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
     size_t level;
 };
 
-}}} // namespace detail::rtree::visitors
+} // namespace visitors
 
-template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
-void gl_draw(rtree<Value, Options, IndexableGetter, EqualTo, Allocator> const& tree,
+template <typename Rtree> inline
+void gl_draw(Rtree const& tree,
              size_t level_first = 0,
              size_t level_last = (std::numeric_limits<size_t>::max)(),
              typename index::detail::traits::coordinate_type<
-                    typename rtree<Value, Options, IndexableGetter, EqualTo, Allocator>::box_type
+                    typename Rtree::bounds_type
                 >::type z_coord_level_multiplier = 1
              )
 {
-    typedef rtree<Value, Options, IndexableGetter, EqualTo, Allocator> rtree_type;
-
-    typedef typename rtree_type::value_type value_type;
-    typedef typename rtree_type::options_type options_type;
-    typedef typename rtree_type::translator_type translator_type;
-    typedef typename rtree_type::box_type box_type;
-    typedef typename rtree_type::allocators_type allocators_type;
+    typedef utilities::view<Rtree> RTV;
+    RTV rtv(tree);
 
     if ( !tree.empty() )
     {
         glColor3f(0.75f, 0.75f, 0.75f);
-        detail::rtree::visitors::detail::gl_draw_indexable(tree.bounds(), 0);
+        detail::utilities::gl_draw_indexable(tree.bounds(), 0);
     }
 
-    detail::rtree::visitors::gl_draw<value_type, options_type, translator_type, box_type, allocators_type>
-        gl_draw_v(tree.translator(), level_first, level_last, z_coord_level_multiplier);
+    visitors::gl_draw<
+        typename RTV::value_type,
+        typename RTV::options_type,
+        typename RTV::translator_type,
+        typename RTV::box_type,
+        typename RTV::allocators_type
+    > gl_draw_v(rtv.translator(), level_first, level_last, z_coord_level_multiplier);
 
-    tree.apply_visitor(gl_draw_v);
+    rtv.apply_visitor(gl_draw_v);
 }
 
-}}} // namespace boost::geometry::index
+}} // namespace rtree::utilities
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_GL_DRAW_HPP
+}}}} // namespace boost::geometry::index::detail
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP

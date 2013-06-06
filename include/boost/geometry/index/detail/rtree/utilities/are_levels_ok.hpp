@@ -8,16 +8,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_LEVELS_OK_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_LEVELS_OK_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_LEVELS_OK_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_LEVELS_OK_HPP
 
 #include <boost/geometry/index/detail/rtree/node/node.hpp>
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace utilities {
 
 namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename Value, typename Options, typename Box, typename Allocators>
 class are_levels_ok
     : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
 {
@@ -25,8 +25,8 @@ class are_levels_ok
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
 public:
-    inline are_levels_ok(Translator const& tr)
-        : result(true), m_tr(tr), m_leafs_level((std::numeric_limits<size_t>::max)()), m_current_level(0)
+    inline are_levels_ok()
+        : result(true), m_leafs_level((std::numeric_limits<size_t>::max)()), m_current_level(0)
     {}
 
     inline void operator()(internal_node const& n)
@@ -80,35 +80,30 @@ public:
     bool result;
 
 private:
-    Translator const& m_tr;
     size_t m_leafs_level;
     size_t m_current_level;
 };
 
 } // namespace visitors
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
-#error "To use are_levels_ok() BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE should be defined before including the rtree"
-#endif
-
-template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
-bool are_levels_ok(index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+template <typename Rtree> inline
+bool are_levels_ok(Rtree const& tree)
 {
-    typedef index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> rt;
+    typedef utilities::view<Rtree> RTV;
+    RTV rtv(tree);
 
-    detail::rtree::visitors::are_levels_ok<
-        typename rt::value_type,
-        typename rt::options_type,
-        typename rt::translator_type,
-        typename rt::box_type,
-        typename rt::allocators_type
-    > v(tree.translator());
+    visitors::are_levels_ok<
+        typename RTV::value_type,
+        typename RTV::options_type,
+        typename RTV::box_type,
+        typename RTV::allocators_type
+    > v;
     
-    tree.apply_visitor(v);
+    rtv.apply_visitor(v);
 
     return v.result;
 }
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::utilities
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_LEVELS_OK_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_LEVELS_OK_HPP
