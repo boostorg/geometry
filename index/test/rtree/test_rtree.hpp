@@ -16,14 +16,13 @@
 
 #include <geometry_index_test_common.hpp>
 
-#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 // TEST
 //#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 //#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 #include <boost/geometry/index/rtree.hpp>
 
-#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_boxes_ok.hpp>
 
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>
@@ -651,9 +650,9 @@ void exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 c
 template <typename Rtree, typename Value, typename Predicates>
 void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
-    BOOST_CHECK( bgi::detail::rtree::are_levels_ok(rtree) );
+    BOOST_CHECK( bgi::detail::rtree::utilities::are_levels_ok(rtree) );
     if ( !rtree.empty() )
-        BOOST_CHECK( bgi::detail::rtree::are_boxes_ok(rtree) );
+        BOOST_CHECK( bgi::detail::rtree::utilities::are_boxes_ok(rtree) );
 
     std::vector<Value> output;
     size_t n = rtree.query(pred, std::back_inserter(output));
@@ -1361,7 +1360,7 @@ void test_rtree_queries(Parameters const& parameters, Allocator const& allocator
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1384,7 +1383,7 @@ void test_rtree_modifiers(Parameters const& parameters, Allocator const& allocat
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1421,7 +1420,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1464,7 +1463,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1495,7 +1494,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
     typedef typename bg::traits::point_type<B>::type P;
 
     B b;

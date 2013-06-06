@@ -26,7 +26,7 @@ void test_rtree_value_exceptions(Parameters const& parameters = Parameters())
 {
     typedef std::pair<bg::model::point<float, 2, bg::cs::cartesian>, throwing_value> Value;
     typedef bgi::rtree<Value, Parameters> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     throwing_value::reset_calls_counter();
     throwing_value::set_max_calls((std::numeric_limits<size_t>::max)());
@@ -100,7 +100,7 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 {
     typedef std::pair<bg::model::point<float, 2, bg::cs::cartesian>, throwing_value> Value;
     typedef bgi::rtree<Value, Parameters> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     throwing_value::reset_calls_counter();
     throwing_value::set_max_calls((std::numeric_limits<size_t>::max)());
