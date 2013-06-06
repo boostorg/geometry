@@ -44,11 +44,11 @@ if $(GLUT_ROOT)
 }
 
 exe random_test : random_test.cpp ;
-exe benchmark  : benchmark.cpp /boost//chrono ;
-exe benchmark2 : benchmark2.cpp /boost//chrono ;
-exe benchmark3 : benchmark3.cpp /boost//chrono ;
-exe benchmark_experimental : benchmark_experimental.cpp  /boost//chrono ;
+link benchmark.cpp /boost//chrono ;
+link benchmark2.cpp /boost//chrono ;
+link benchmark3.cpp /boost//chrono ;
+link benchmark_experimental.cpp  /boost//chrono ;
 if $(GLUT_ROOT)
 {
-    exe glut_vis : glut_vis.cpp glut ;
+    link glut_vis.cpp glut ;
 }
