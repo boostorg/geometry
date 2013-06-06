@@ -9,8 +9,6 @@
 
 #include <GL/glut.h>
 
-#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
-
 #include <boost/foreach.hpp>
 
 #include <boost/geometry/index/rtree.hpp>
@@ -20,10 +18,11 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/index/detail/rtree/visitors/gl_draw.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/print.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/gl_draw.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/print.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/statistics.hpp>
 
 namespace bg = boost::geometry;
 namespace bgi = bg::index;
@@ -36,10 +35,11 @@ typedef bg::model::ring<P> R;
 typedef bg::model::polygon<P> Poly;
 typedef bg::model::multi_polygon<Poly> MPoly;
 
-bgi::rtree<
+typedef bgi::rtree<
     B,
     bgi::rstar<4, 2>
-> t;
+> RTree;
+RTree t;
 std::vector<B> vect;
 
 size_t found_count = 0;
@@ -73,11 +73,11 @@ void query_knn()
     if ( found_count > 0 )
     {
         std::cout << "search point: ";
-        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, search_point);
+        bgi::detail::utilities::print_indexable(std::cout, search_point);
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -110,11 +110,11 @@ void query_path()
     {
         std::cout << "search path: ";
         BOOST_FOREACH(P const& p, search_path)
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+            bgi::detail::utilities::print_indexable(std::cout, p);
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -146,11 +146,11 @@ void query()
     if ( found_count > 0 )
     {
         std::cout << "search box: ";
-        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, search_box);
+        bgi::detail::utilities::print_indexable(std::cout, search_box);
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -193,13 +193,13 @@ void query_ring()
         std::cout << "search ring: ";
         BOOST_FOREACH(P const& p, search_ring)
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+            bgi::detail::utilities::print_indexable(std::cout, p);
             std::cout << ' ';
         }
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -249,13 +249,13 @@ void query_poly()
         std::cout << "search poly outer: ";
         BOOST_FOREACH(P const& p, search_poly.outer())
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+            bgi::detail::utilities::print_indexable(std::cout, p);
             std::cout << ' ';
         }
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -321,13 +321,13 @@ void query_multi_poly()
         std::cout << "search multi_poly[0] outer: ";
         BOOST_FOREACH(P const& p, search_multi_poly[0].outer())
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, p);
+            bgi::detail::utilities::print_indexable(std::cout, p);
             std::cout << ' ';
         }
         std::cout << "\nfound: ";
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
         {
-            bgi::detail::rtree::visitors::detail::print_indexable(std::cout, nearest_boxes[i]);
+            bgi::detail::utilities::print_indexable(std::cout, nearest_boxes[i]);
             std::cout << '\n';
         }
     }
@@ -377,7 +377,7 @@ void draw_knn_area(float min_distance, float max_distance)
 {
     float x = boost::geometry::get<0>(search_point);
     float y = boost::geometry::get<1>(search_point);
-    float z = t.depth();
+    float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
 
     // search point
     glBegin(GL_TRIANGLES);
@@ -409,7 +409,7 @@ void draw_path(LS const& ls)
     {
         float x = boost::geometry::get<0>(p);
         float y = boost::geometry::get<1>(p);
-        float z = t.depth();
+        float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
         glVertex3f(x, y, z);
     }
 
@@ -423,7 +423,7 @@ void draw_box(Box const& box)
     float y1 = boost::geometry::get<bg::min_corner, 1>(box);
     float x2 = boost::geometry::get<bg::max_corner, 0>(box);
     float y2 = boost::geometry::get<bg::max_corner, 1>(box);
-    float z = t.depth();
+    float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
 
     // search box
     glBegin(GL_LINE_LOOP);
@@ -437,7 +437,7 @@ void draw_box(Box const& box)
 template <typename Range>
 void draw_ring(Range const& range)
 {
-    float z = t.depth();
+    float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
 
     // search box
     glBegin(GL_LINE_LOOP);
@@ -471,7 +471,7 @@ void render_scene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    boost::geometry::index::gl_draw(t);
+    bgi::detail::rtree::utilities::gl_draw(t);
 
     if ( search_valid )
     {
@@ -491,7 +491,9 @@ void render_scene(void)
             draw_box(search_box);
 
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
-            boost::geometry::index::detail::rtree::visitors::detail::gl_draw_indexable(nearest_boxes[i], t.depth());
+            bgi::detail::utilities::gl_draw_indexable(
+                nearest_boxes[i],
+                bgi::detail::rtree::utilities::view<RTree>(t).depth());
     }
 
     glFlush();
@@ -502,7 +504,7 @@ void resize(int w, int h)
     if ( h == 0 )
         h = 1;
 
-    float ratio = float(w) / h;
+    //float ratio = float(w) / h;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -528,7 +530,7 @@ void resize(int w, int h)
     srand(1);
 }
 
-void mouse(int button, int state, int x, int y)
+void mouse(int button, int state, int /*x*/, int /*y*/)
 {
     if ( button == GLUT_LEFT_BUTTON && state == GLUT_DOWN )
     {
@@ -543,11 +545,11 @@ void mouse(int button, int state, int x, int y)
         vect.push_back(b);
 
         std::cout << "inserted: ";
-        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+        bgi::detail::utilities::print_indexable(std::cout, b);
         std::cout << '\n';
 
-        std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::detail::rtree::utilities::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::detail::rtree::utilities::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
 
         search_valid = false;
@@ -564,11 +566,11 @@ void mouse(int button, int state, int x, int y)
         vect.erase(vect.begin() + i);
 
         std::cout << "removed: ";
-        bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+        bgi::detail::utilities::print_indexable(std::cout, b);
         std::cout << '\n';
 
-        std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-        std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+        std::cout << ( bgi::detail::rtree::utilities::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+        std::cout << ( bgi::detail::rtree::utilities::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
         std::cout << "\n";
 
         search_valid = false;
@@ -583,13 +585,15 @@ void mouse(int button, int state, int x, int y)
 
 std::string current_line;
 
-void keyboard(unsigned char key, int x, int y)
+void keyboard(unsigned char key, int /*x*/, int /*y*/)
 {
     if ( key == '\r' || key == '\n' )
     {
         if ( current_line == "t" )
         {
-            std::cout << "\n" << t << "\n";
+            std::cout << "\n";
+            bgi::detail::rtree::utilities::print(std::cout, t);
+            std::cout << "\n";
         }
         else if ( current_line == "rand" )
         {
@@ -606,12 +610,12 @@ void keyboard(unsigned char key, int x, int y)
                 vect.push_back(b);
 
                 std::cout << "inserted: ";
-                bgi::detail::rtree::visitors::detail::print_indexable(std::cout, b);
+                bgi::detail::utilities::print_indexable(std::cout, b);
                 std::cout << '\n';
             }
 
-            std::cout << ( bgi::detail::rtree::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
-            std::cout << ( bgi::detail::rtree::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+            std::cout << ( bgi::detail::rtree::utilities::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+            std::cout << ( bgi::detail::rtree::utilities::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
             std::cout << "\n";
 
             search_valid = false;
