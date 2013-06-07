@@ -32,8 +32,8 @@ namespace linear {
 
 // TODO: Implement separate version for Points
 
-// What if width calculated inside find_greatest_normalized_separation::apply() is near 0?
-// What epsilon should be taken to calculation and what would be the value of resulting separation?
+// [DONE] What if width calculated inside find_greatest_normalized_separation::apply() is near 0?
+// [DONE] What epsilon should be taken to calculation and what would be the value of resulting separation?
 
 // from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
@@ -44,10 +44,20 @@ struct find_greatest_normalized_separation
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
+    typedef typename boost::mpl::if_c<
+        boost::is_integral<coordinate_type>::value,
+        double,
+        coordinate_type
+    >::type separation_type;
+
+    typedef ::boost::mpl::bool_<
+        boost::is_unsigned<coordinate_type>::value
+    > is_coordinate_type_unsigned;
+
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& translator,
-                             coordinate_type & separation,
+                             separation_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
@@ -96,23 +106,35 @@ struct find_greatest_normalized_separation
         coordinate_type const width = highest_high - lowest_low;
 
         // TODO: awulkiew - following separation calculation has two flaws:
-        // 1. for floating point numbers width should be compared witn some EPS
-        // 2. separation calculation won't work for unsigned numbers
+        // 1. [DONE] for floating point numbers width should be compared witn some EPS
+        // 2. [DONE] separation calculation won't work for unsigned numbers
         //    but there should be possible to calculate negative value (cast to some floating point type?)
 
-        // Temporary workaround
-        BOOST_STATIC_ASSERT(!boost::is_unsigned<coordinate_type>::value);
-
-        if ( width == 0 )
-            separation = 0;
-            // (highest_low - lowest_high) == 0
-        else
-            separation = (highest_low - lowest_high) / width;
+        separation = difference(highest_low, lowest_high, is_coordinate_type_unsigned());
+        // BOOST_ASSERT(0 <= width);
+        if ( std::numeric_limits<coordinate_type>::epsilon() < width )
+            separation /= width;
 
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
 
         BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+    }
+
+    static inline separation_type difference(coordinate_type const& highest_low,
+                                             coordinate_type const& lowest_high,
+                                             ::boost::mpl::bool_<false> const& /*is_unsigned*/)
+    {
+        return (highest_low - lowest_high);
+    }
+
+    static inline separation_type difference(coordinate_type const& highest_low,
+                                             coordinate_type const& lowest_high,
+                                             ::boost::mpl::bool_<true> const& /*is_unsigned*/)
+    {
+        return lowest_high <= highest_low ?
+            separation_type(highest_low - lowest_high) :
+            -separation_type(lowest_high - highest_low);
     }
 };
 
@@ -125,18 +147,21 @@ struct pick_seeds_impl
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
+    typedef find_greatest_normalized_separation<Elements, Parameters, Translator, Dimension - 1> find_norm_sep;
+    typedef typename find_norm_sep::separation_type separation_type;
+
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& tr,
-                             coordinate_type & separation,
+                             separation_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
         pick_seeds_impl<Elements, Parameters, Translator, Dimension - 1>::apply(elements, parameters, tr, separation, seed1, seed2);
 
-        coordinate_type current_separation;
+        separation_type current_separation;
         size_t s1, s2;
-        find_greatest_normalized_separation<Elements, Parameters, Translator, Dimension - 1>::apply(elements, parameters, tr, current_separation, s1, s2);
+        find_norm_sep::apply(elements, parameters, tr, current_separation, s1, s2);
 
         // in the old implementation different operator was used: <= (y axis prefered)
         if ( separation < current_separation )
@@ -155,14 +180,17 @@ struct pick_seeds_impl<Elements, Parameters, Translator, 1>
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
 
+    typedef find_greatest_normalized_separation<Elements, Parameters, Translator, 0> find_norm_sep;
+    typedef typename find_norm_sep::separation_type separation_type;
+
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& tr,
-                             coordinate_type & separation,
+                             separation_type & separation,
                              size_t & seed1,
                              size_t & seed2)
     {
-        find_greatest_normalized_separation<Elements, Parameters, Translator, 0>::apply(elements, parameters, tr, separation, seed1, seed2);
+        find_norm_sep::apply(elements, parameters, tr, separation, seed1, seed2);
     }
 };
 
@@ -177,13 +205,16 @@ struct pick_seeds
 
     static const size_t dimension = index::detail::traits::dimension<indexable_type>::value;
 
+    typedef pick_seeds_impl<Elements, Parameters, Translator, dimension> impl;
+    typedef typename impl::separation_type separation_type;
+
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& tr,
                              size_t & seed1,
                              size_t & seed2)
     {
-        coordinate_type separation = 0;
+        separation_type separation = 0;
         pick_seeds_impl<Elements, Parameters, Translator, dimension>::apply(elements, parameters, tr, separation, seed1, seed2);
     }
 };
