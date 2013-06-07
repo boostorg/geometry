@@ -26,8 +26,7 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_stati
 
     typedef detail::varray<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-        Parameters::max_elements + 1,
-        elements_allocator_type
+        Parameters::max_elements + 1
     > elements_type;
 
     template <typename Alloc>
@@ -45,8 +44,7 @@ struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 
     typedef detail::varray<
         Value,
-        Parameters::max_elements + 1,
-        elements_allocator_type
+        Parameters::max_elements + 1
     > elements_type;
 
     template <typename Alloc>
