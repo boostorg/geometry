@@ -110,8 +110,9 @@ private:
 
             // update result
             if ( overlap_diff < smallest_overlap_diff ||
-                 ( overlap_diff == smallest_overlap_diff && content_diff < smallest_content_diff ) ||
-                 ( content_diff == smallest_content_diff && content < smallest_content ) )
+                 ( overlap_diff == smallest_overlap_diff && ( content_diff < smallest_content_diff ||
+                   ( content_diff == smallest_content_diff && content < smallest_content ) )
+                 ) )
             {
                 smallest_overlap_diff = overlap_diff;
                 smallest_content_diff = content_diff;
