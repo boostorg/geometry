@@ -25,8 +25,7 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_stat
 
     typedef detail::varray<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-        Parameters::max_elements + 1,
-        elements_allocator_type
+        Parameters::max_elements + 1
     > elements_type;
 
     template <typename Alloc>
@@ -48,8 +47,7 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 
     typedef detail::varray<
         Value,
-        Parameters::max_elements + 1,
-        elements_allocator_type
+        Parameters::max_elements + 1
     > elements_type;
 
     template <typename Alloc>
@@ -88,8 +86,8 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, IsVisi
 };
 
 // elements derived type
-template <typename OldValue, size_t N, typename A, typename NewValue>
-struct container_from_elements_type<detail::varray<OldValue, N, A>, NewValue>
+template <typename OldValue, size_t N, typename NewValue>
+struct container_from_elements_type<detail::varray<OldValue, N>, NewValue>
 {
     typedef detail::varray<NewValue, N> type;
 };
