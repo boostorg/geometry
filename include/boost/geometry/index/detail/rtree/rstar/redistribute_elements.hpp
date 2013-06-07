@@ -90,6 +90,7 @@ struct choose_split_axis_and_index_for_corner
             content_type ovl = index::detail::intersection_content(box1, box2);
             content_type con = index::detail::content(box1) + index::detail::content(box2);
 
+            // TODO - shouldn't here be < instead of <= ?
             if ( ovl < smallest_overlap || (ovl == smallest_overlap && con <= smallest_content) )
             {
                 choosen_index = i;
