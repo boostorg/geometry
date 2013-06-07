@@ -187,8 +187,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                                       content_increase1, content_increase2);
 
                     if ( content_increase1 < content_increase2 ||
-                         ( content_increase1 == content_increase2 && content1 < content2 ) ||
-                         ( content1 == content2 && elements1_count <= elements2_count ) )
+                         ( content_increase1 == content_increase2 && ( content1 < content2 ||
+                           ( content1 == content2 && elements1_count <= elements2_count ) )
+                         ) )
                     {
                         insert_into_group1 = true;
                     }
