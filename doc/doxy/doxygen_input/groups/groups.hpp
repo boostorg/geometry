@@ -56,7 +56,7 @@
 \defgroup set set: set geometries
 \defgroup simplify simplify: remove points from a geometry, keeping shape (simplification or generalization)
 \defgroup strategies strategies: strategies
-\defgroup svg x Extension svg: Stream SVG (Scalable Vector Graphics)
+\defgroup svg svg: Stream SVG (Scalable Vector Graphics)
 \defgroup sym_difference sym_difference: sym_difference of two geometries
 \defgroup touches touches: detect if a geometry self-touches or if two geometries touch
 \defgroup traits traits: adapt geometries
