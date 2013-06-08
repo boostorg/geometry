@@ -25,6 +25,7 @@
 [*Documentation]
 
 * small fixes of missing words
+* fixes in doc of template parameters (convex_hull, exterior_ring, return_buffer)
 
 [*Bugfixes]
 
