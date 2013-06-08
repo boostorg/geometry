@@ -109,9 +109,10 @@ Boost.Geometry contains contributions by:
 
 * Akira Takahashi (adaption of Boost.Fusion)
 * Alfredo Correa (adaption of Boost.Array)
+* Andrew Hundt (varray container, aka. static_vector)
 * Federico Fern\u00E1ndez (preliminary version of R-tree spatial index)
 * Karsten Ahnert (patch for cross-track distance)
-* Andrew Hundt (varray container, aka. static_vector)
+* Mats Taraldsvik (documentation: adapting a legacy model)
 
 [include imports.qbk]
 
