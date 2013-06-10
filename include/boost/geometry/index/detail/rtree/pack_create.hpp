@@ -156,19 +156,26 @@ public:
             entries.push_back(std::make_pair(pt, first));
         }
 
-        std::pair<std::size_t, std::size_t> subtree_counts = subtree_elements_counts(count);
+        subtree_elements_counts subtree_counts = calculate_subtree_elements_counts(count);
         internal_element el = per_level(entries.begin(), entries.end(), hint_box, count, subtree_counts);
         return el.second;
     }
 
 private:
+    struct subtree_elements_counts
+    {
+        subtree_elements_counts(std::size_t ma, std::size_t mi) : maxc(ma), minc(mi) {}
+        std::size_t maxc;
+        std::size_t minc;
+    };
+
     template <typename EIt>
-    internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t count, std::pair<std::size_t, std::size_t> const& subtree_counts)
+    internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t count, subtree_elements_counts const& subtree_counts)
     {
         // remove it later
         BOOST_ASSERT(first <= last); BOOST_ASSERT(last - first == count);
 
-        if ( subtree_counts.first <= 1 )
+        if ( subtree_counts.maxc <= 1 )
         {
             // ROOT or LEAF
             BOOST_ASSERT(count <= m_parameters.get_max_elements());
@@ -190,57 +197,52 @@ private:
             return internal_element(elements_box, n);
         }
 
-        // calculate numbers of values in subtrees
-        values_counts_container values_counts;
-        calculate_nodes_counts(values_counts, count, subtree_counts);                                       // MAY THROW (A)
-        BOOST_ASSERT(are_nodes_counts_ok(values_counts, count, subtree_counts));
-        
         // calculate next max and min subtree counts
-        std::pair<std::size_t, std::size_t> next_subtree_counts = subtree_counts;
-        next_subtree_counts.first /= m_parameters.get_max_elements();
-        next_subtree_counts.second /= m_parameters.get_max_elements();
+        subtree_elements_counts next_subtree_counts = subtree_counts;
+        next_subtree_counts.maxc /= m_parameters.get_max_elements();
+        next_subtree_counts.minc /= m_parameters.get_max_elements();
 
         // create new internal node
         node_pointer n = rtree::create_node<Allocators, internal_node>::apply(m_allocators);                // MAY THROW (A)
         internal_node & in = rtree::get<internal_node>(*n);
         // reserve space for values
-        rtree::elements(in).reserve(values_counts.size());                                                  // MAY THROW (A)
+        rtree::elements(in).reserve(calculate_nodes_count(count, subtree_counts));                          // MAY THROW (A)
         // calculate values box and copy values
         Box elements_box;
         geometry::assign_inverse(elements_box);
 
-        per_level_packets(first, last, values_counts.begin(), values_counts.end(),
-                          hint_box, next_subtree_counts,
+        per_level_packets(first, last,
+                          hint_box,
+                          subtree_counts,
+                          next_subtree_counts,
                           rtree::elements(in), elements_box);
 
         return internal_element(elements_box, n);
     }
 
-    template <typename EIt, typename CIt>
-    void per_level_packets(EIt first, EIt last, CIt counts_first, CIt counts_last,
+    template <typename EIt>
+    void per_level_packets(EIt first, EIt last,
                            Box const& hint_box,
-                           std::pair<std::size_t, std::size_t> const& next_subtree_counts,
+                           subtree_elements_counts const& subtree_counts,
+                           subtree_elements_counts const& next_subtree_counts,
                            internal_elements & elements, Box & elements_box)
     {
-        std::size_t packets_count = counts_last - counts_first;
+        std::size_t values_count = last - first;
 
-        BOOST_ASSERT( 0 < packets_count );
+        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count );
 
-        if ( 1 == packets_count )
+        // only one packet
+        if ( values_count <= subtree_counts.maxc )
         {
             // the end, move to the next level
-            internal_element el = per_level(first, last, hint_box, *counts_first, next_subtree_counts);
+            internal_element el = per_level(first, last, hint_box, values_count, next_subtree_counts);
+            // this container should have memory allocated, reserve() called outside
             elements.push_back(el);                                                                         // SHOULDN'T THROW (C)
             geometry::expand(elements_box, el.first);
             return;
         }
         
-        CIt counts_median = counts_first + packets_count / 2;
-        std::size_t left_sum = 0;
-        for ( CIt it = counts_first ; it != counts_median ; ++it )
-            left_sum += *it;
-
-        EIt median = first + left_sum;
+        EIt median = first + calculate_median_count(values_count, subtree_counts);
 
         coordinate_type greatest_length;
         std::size_t greatest_dim_index = 0;
@@ -249,67 +251,81 @@ private:
         pack_utils::partial_sort_and_half_boxes<0, dimension>
             ::apply(first, median, last, hint_box, left, right, greatest_dim_index);
         
-        per_level_packets(first, median, counts_first, counts_median, left, next_subtree_counts, elements, elements_box);
-        per_level_packets(median, last, counts_median, counts_last, right, next_subtree_counts, elements, elements_box);
+        per_level_packets(first, median, left, subtree_counts, next_subtree_counts, elements, elements_box);
+        per_level_packets(median, last, right, subtree_counts, next_subtree_counts, elements, elements_box);
     }
 
-    std::pair<std::size_t, std::size_t> subtree_elements_counts(std::size_t elements_count)
+    subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count)
     {
-        std::pair<std::size_t, std::size_t> res = std::make_pair(1, 1);
+        subtree_elements_counts res(1, 1);
 
         std::size_t smax = m_parameters.get_max_elements();
-        std::size_t smin = m_parameters.get_min_elements();
+        for ( ; smax < elements_count ; smax *= m_parameters.get_max_elements() )
+            res.maxc = smax;
 
-        for ( ; smax < elements_count ; smax *= m_parameters.get_max_elements(), smin *= m_parameters.get_max_elements() )
-        {
-            res.first = smax;
-            res.second = smin;
-        }
+        res.minc = m_parameters.get_min_elements() * (res.maxc / m_parameters.get_max_elements());
 
         return res;
     }
 
-    void calculate_nodes_counts(values_counts_container & values_counts,
-                                std::size_t count,
-                                std::pair<std::size_t, std::size_t> const& subtree_counts)
+    std::size_t calculate_nodes_count(std::size_t count,
+                                      subtree_elements_counts const& subtree_counts)
+    {
+        std::size_t n = count / subtree_counts.maxc;
+        std::size_t r = count % subtree_counts.maxc;
+
+        if ( 0 < r && r < subtree_counts.minc )
+        {
+            std::size_t count_minus_min = count - subtree_counts.minc;
+            n = count_minus_min / subtree_counts.maxc;
+            r = count_minus_min % subtree_counts.maxc;
+            ++n;
+        }
+
+        if ( 0 < r )
+            ++n;
+
+        return n;
+    }
+
+    std::size_t calculate_median_count(std::size_t count,
+                                       subtree_elements_counts const& subtree_counts)
     {
         // e.g. for max = 5, min = 2, count = 52, subtree_max = 25, subtree_min = 10
 
-        std::size_t n = count / subtree_counts.first; // e.g. 52 / 25 = 2
-        std::size_t r = count % subtree_counts.first; // e.g. 52 % 25 = 2
-        bool is_min_node = false;
+        std::size_t n = count / subtree_counts.maxc; // e.g. 52 / 25 = 2
+        std::size_t r = count % subtree_counts.maxc; // e.g. 52 % 25 = 2
+        std::size_t median_count = (n / 2) * subtree_counts.maxc; // e.g. 2 / 2 * 25 = 25
 
-        if ( 0 < r && r < subtree_counts.second ) // 2 < 10
+        if ( 0 != r ) // e.g. 0 != 2
         {
-            is_min_node = true;
-            std::size_t count_minus_min = count - subtree_counts.second; // e.g. 52 - 10 = 42
-            n = count_minus_min / subtree_counts.first; // e.g. 42 / 25 = 1
-            r = count_minus_min % subtree_counts.first; // e.g. 42 % 25 = 17
+            if ( subtree_counts.minc <= r ) // e.g. 10 <= 2 == false
+            {
+                //BOOST_ASSERT_MSG(0 < n, "unexpected value");
+                median_count = ((n+1)/2) * subtree_counts.maxc; // if calculated ((2+1)/2) * 25 which would be ok, but not in all cases
+            }
+            else // r < subtree_counts.second  // e.g. 2 < 10 == true
+            {
+                std::size_t count_minus_min = count - subtree_counts.minc; // e.g. 52 - 10 = 42
+                n = count_minus_min / subtree_counts.maxc; // e.g. 42 / 25 = 1
+                r = count_minus_min % subtree_counts.maxc; // e.g. 42 % 25 = 17
+                if ( r == 0 )                               // e.g. false
+                {
+                    // n can't be equal to 0 because then there wouldn't be any element in the other node
+                    //BOOST_ASSERT_MSG(0 < n, "unexpected value");
+                    median_count = ((n+1)/2) * subtree_counts.maxc;     // if calculated ((1+1)/2) * 25 which would be ok, but not in all cases
+                }
+                else
+                {
+                    if ( n == 0 )                                        // e.g. false
+                        median_count = r;                                // if calculated -> 17 which is wrong!
+                    else
+                        median_count = ((n+2)/2) * subtree_counts.maxc; // e.g. ((1+2)/2) * 25 = 25
+                }
+            }
         }
 
-        values_counts.resize(n, subtree_counts.first);                                                          // MAY THROW (A)
-        if ( 0 < r )
-            values_counts.push_back(r);                                                                         // MAY THROW (A)
-        if ( is_min_node )
-            values_counts.push_back(subtree_counts.second);                                                     // MAY THROW (A)
-    }
-
-    bool are_nodes_counts_ok(values_counts_container const& values_counts,
-                             std::size_t count,
-                             std::pair<std::size_t, std::size_t> const& subtree_counts)
-    {
-        std::size_t sum = 0;
-
-        for(std::size_t i = 0 ; i < values_counts.size() ; ++i )
-        {
-            std::size_t c = values_counts[i];
-            sum += c;
-            if ( c < subtree_counts.second || subtree_counts.first < c )
-                return false;
-        }
-        if ( sum != count )
-            return false;
-        return true;
+        return median_count;
     }
 
     parameters_type const& m_parameters;
