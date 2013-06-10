@@ -1,15 +1,15 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-// (C) Copyright Ion Gaztanaga 2009.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
+// Boost.Geometry.Index varray
+// Unit Test
+
+// Copyright (c) 2009 Ion Gaztanaga
+// Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-//
-// See http://www.boost.org/libs/move for documentation.
-//
-//////////////////////////////////////////////////////////////////////////////
-#ifndef BOOST_MOVE_TEST_MOVABLE_HPP
-#define BOOST_MOVE_TEST_MOVABLE_HPP
+
+#ifndef BOOST_GEOMETRY_INDEX_TEST_MOVABLE_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_MOVABLE_HPP
 
 //[movable_definition 
 //header file "movable.hpp"
@@ -39,10 +39,10 @@ public:
 class copy_movable
 {
     BOOST_COPYABLE_AND_MOVABLE(copy_movable)
-    int value_;
+    size_t value_;
     
 public:
-    copy_movable(int value = 1) : value_(value){}
+    copy_movable(size_t value = 1) : value_(value){}
     
     //Move constructor and assignment
     copy_movable(BOOST_RV_REF(copy_movable) m)
@@ -89,4 +89,4 @@ struct has_nothrow_move<copy_movable>
 }  //namespace boost{
 //]
 
-#endif //BOOST_MOVE_TEST_MOVABLE_HPP
+#endif //BOOST_GEOMETRY_INDEX_TEST_MOVABLE_HPP

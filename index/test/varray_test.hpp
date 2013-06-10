@@ -19,38 +19,38 @@
 class value_ndc
 {
 public:
-    explicit value_ndc(int a) : aa(a) {}
+    explicit value_ndc(size_t a) : aa(a) {}
     ~value_ndc() {}
     bool operator==(value_ndc const& v) const { return aa == v.aa; }
     bool operator<(value_ndc const& v) const { return aa < v.aa; }
 private:
     value_ndc(value_ndc const&) {}
     value_ndc & operator=(value_ndc const&) { return *this; }
-    int aa;
+    size_t aa;
 };
 
 class value_nd
 {
 public:
-    explicit value_nd(int a) : aa(a) {}
+    explicit value_nd(size_t a) : aa(a) {}
     ~value_nd() {}
     bool operator==(value_nd const& v) const { return aa == v.aa; }
     bool operator<(value_nd const& v) const { return aa < v.aa; }
 private:
-    int aa;
+    size_t aa;
 };
 
 class value_nc
 {
 public:
-    explicit value_nc(int a = 0) : aa(a) {}
+    explicit value_nc(size_t a = 0) : aa(a) {}
     ~value_nc() {}
     bool operator==(value_nc const& v) const { return aa == v.aa; }
     bool operator<(value_nc const& v) const { return aa < v.aa; }
 private:
     value_nc(value_nc const&) {}
     value_nc & operator=(value_ndc const&) { return *this; }
-    int aa;
+    size_t aa;
 };
 
 class counting_value
@@ -58,7 +58,7 @@ class counting_value
     BOOST_COPYABLE_AND_MOVABLE(counting_value)
 
 public:
-    explicit counting_value(int a = 0, int b = 0) : aa(a), bb(b) { ++c(); }
+    explicit counting_value(size_t a = 0, size_t b = 0) : aa(a), bb(b) { ++c(); }
     counting_value(counting_value const& v) : aa(v.aa), bb(v.bb) { ++c(); }
     counting_value(BOOST_RV_REF(counting_value) p) : aa(p.aa), bb(p.bb) { p.aa = 0; p.bb = 0; ++c(); }                      // Move constructor
     counting_value& operator=(BOOST_RV_REF(counting_value) p) { aa = p.aa; p.aa = 0; bb = p.bb; p.bb = 0; return *this; }   // Move assignment
@@ -70,7 +70,7 @@ public:
 
 private:
     static size_t & c() { static size_t co = 0; return co; }
-    int aa, bb;
+    size_t aa, bb;
 };
 
 namespace boost {
@@ -85,13 +85,13 @@ struct has_nothrow_move<counting_value>
 
 class shptr_value
 {
-    typedef boost::shared_ptr<int> Ptr;
+    typedef boost::shared_ptr<size_t> Ptr;
 public:
-    explicit shptr_value(int a = 0) : m_ptr(new int(a)) {}
+    explicit shptr_value(size_t a = 0) : m_ptr(new size_t(a)) {}
     bool operator==(shptr_value const& v) const { return *m_ptr == *(v.m_ptr); }
     bool operator<(shptr_value const& v) const { return *m_ptr < *(v.m_ptr); }
 private:
-    boost::shared_ptr<int> m_ptr;
+    boost::shared_ptr<size_t> m_ptr;
 };
 
 #endif // BOOST_GEOMETRY_INDEX_TEST_VARRAY_TEST_HPP
