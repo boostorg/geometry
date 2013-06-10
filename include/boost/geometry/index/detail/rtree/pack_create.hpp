@@ -13,6 +13,80 @@
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
 
+namespace pack_utils {
+
+template <std::size_t Dimension>
+struct biggest_edge
+{
+    BOOST_STATIC_ASSERT(0 < Dimension);
+    template <typename Box>
+    static inline void apply(Box const& box, typename coordinate_type<Box>::type & length, std::size_t & dim_index)
+    {
+        biggest_edge<Dimension-1>::apply(box, length, dim_index);
+        typename coordinate_type<Box>::type curr
+            = geometry::get<max_corner, Dimension-1>(box) - geometry::get<min_corner, Dimension-1>(box);
+        if ( length < curr )
+        {
+            dim_index = Dimension - 1;
+            length = curr;
+        }
+    }
+};
+
+template <>
+struct biggest_edge<1>
+{
+    template <typename Box>
+    static inline void apply(Box const& box, typename coordinate_type<Box>::type & length, std::size_t & dim_index)
+    {
+        dim_index = 0;
+        length = geometry::get<max_corner, 0>(box) - geometry::get<min_corner, 0>(box);
+    }
+};
+
+template <std::size_t I>
+struct point_entries_comparer
+{
+    template <typename PointEntry>
+    bool operator()(PointEntry const& e1, PointEntry const& e2) const
+    {
+        return geometry::get<I>(e1.first) < geometry::get<I>(e2.first);
+    }
+};
+
+template <std::size_t I, std::size_t Dimension>
+struct partial_sort_and_half_boxes
+{
+    template <typename EIt, typename Box>
+    static inline void apply(EIt first, EIt median, EIt last, Box const& box, Box & left, Box & right, std::size_t dim_index)
+    {
+        if ( I == dim_index )
+        {
+            std::partial_sort(first, median, last, point_entries_comparer<I>());
+
+            geometry::convert(box, left);
+            geometry::convert(box, right);
+            typename coordinate_type<Box>::type edge_len
+                = geometry::get<max_corner, I>(box) - geometry::get<min_corner, I>(box);
+            typename coordinate_type<Box>::type median
+                = geometry::get<min_corner, I>(box) + edge_len / 2;
+            geometry::set<max_corner, I>(left, median);
+            geometry::set<min_corner, I>(right, median);
+        }
+        else
+            partial_sort_and_half_boxes<I+1, Dimension>::apply(first, median, last, box, left, right, dim_index);
+    }
+};
+
+template <std::size_t Dimension>
+struct partial_sort_and_half_boxes<Dimension, Dimension>
+{
+    template <typename EIt, typename Box>
+    static inline void apply(EIt , EIt , EIt , Box const& , Box & , Box & , std::size_t ) {}
+};
+
+} // namespace pack_utils
+
 // STR leafs number are calculated as rcount/max
 // and the number of splitting planes for each dimension as (count/max)^(1/dimension)
 // <-> for dimension==2 -> sqrt(count/max)
@@ -170,10 +244,10 @@ private:
 
         coordinate_type greatest_length;
         std::size_t greatest_dim_index = 0;
-        biggest_edge<dimension>::apply(hint_box, greatest_length, greatest_dim_index);
-        partial_sort_for_dimension<0, dimension>::apply(first, median, last, greatest_dim_index);
+        pack_utils::biggest_edge<dimension>::apply(hint_box, greatest_length, greatest_dim_index);
         Box left, right;
-        half_boxes_for_dimension<0, dimension>::apply(hint_box, left, right, greatest_dim_index);
+        pack_utils::partial_sort_and_half_boxes<0, dimension>
+            ::apply(first, median, last, hint_box, left, right, greatest_dim_index);
         
         per_level_packets(first, median, counts_first, counts_median, left, next_subtree_counts, elements, elements_box);
         per_level_packets(median, last, counts_median, counts_last, right, next_subtree_counts, elements, elements_box);
@@ -237,86 +311,6 @@ private:
             return false;
         return true;
     }
-
-    template <std::size_t Dimension>
-    struct biggest_edge
-    {
-        BOOST_STATIC_ASSERT(0 < Dimension);
-        static inline void apply(Box const& box, coordinate_type & length, std::size_t & dim_index)
-        {
-            biggest_edge<Dimension-1>::apply(box, length, dim_index);
-            coordinate_type curr = geometry::get<max_corner, Dimension-1>(box) - geometry::get<min_corner, Dimension-1>(box);
-            if ( length < curr )
-            {
-                dim_index = Dimension - 1;
-                length = curr;
-            }
-        }
-    };
-
-    template <>
-    struct biggest_edge<1>
-    {
-        static inline void apply(Box const& box, coordinate_type & length, std::size_t & dim_index)
-        {
-            dim_index = 0;
-            length = geometry::get<max_corner, 0>(box) - geometry::get<min_corner, 0>(box);
-        }
-    };
-
-    template <std::size_t I, std::size_t Dimension>
-    struct partial_sort_for_dimension
-    {
-        template <typename EIt>
-        static inline void apply(EIt first, EIt median, EIt last, std::size_t dim_index)
-        {
-            if ( I == dim_index )
-                std::partial_sort(first, median, last, point_entries_comparer<I>());
-            else
-                partial_sort_for_dimension<I+1, dimension>::apply(first, median, last, dim_index);
-        }
-    };
-
-    template <std::size_t Dimension>
-    struct partial_sort_for_dimension<Dimension, Dimension>
-    {
-        template <typename EIt>
-        static inline void apply(EIt , EIt , EIt , std::size_t ) {}
-    };
-
-    template <std::size_t I>
-    struct point_entries_comparer
-    {
-        template <typename typename PointEntry>
-        bool operator()(PointEntry const& e1, PointEntry const& e2) const
-        {
-            return geometry::get<I>(e1.first) < geometry::get<I>(e2.first);
-        }
-    };
-
-    template <std::size_t I, std::size_t Dimension>
-    struct half_boxes_for_dimension
-    {
-        static inline void apply(Box const& box, Box & left, Box & right, std::size_t dim_index)
-        {
-            if ( I == dim_index )
-            {
-                geometry::convert(box, left);
-                geometry::convert(box, right);
-                coordinate_type median = geometry::get<min_corner, I>(box) + (geometry::get<max_corner, I>(box) - geometry::get<min_corner, I>(box)) / 2;
-                geometry::set<max_corner, I>(left, median);
-                geometry::set<min_corner, I>(right, median);
-            }
-            else
-                half_boxes_for_dimension<I+1, dimension>::apply(box, left, right, dim_index);
-        }
-    };
-
-    template <std::size_t Dimension>
-    struct half_boxes_for_dimension<Dimension, Dimension>
-    {
-        static inline void apply(Box const& , Box & , Box & , std::size_t ) {}
-    };
 
     parameters_type const& m_parameters;
     Translator const& m_translator;
