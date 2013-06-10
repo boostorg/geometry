@@ -1153,14 +1153,14 @@ void create_insert(Rtree const& tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        exactly_the_same_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(input, tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        exactly_the_same_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
