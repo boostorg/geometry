@@ -16,6 +16,16 @@
 
 #include <rtree/exceptions/test_throwing.hpp>
 
+struct throwing_nodes_stats
+{
+    static void reset_counters() { get_internal_nodes_counter_ref() = 0; get_leafs_counter_ref() = 0; }
+    static size_t internal_nodes_count() { return get_internal_nodes_counter_ref(); }
+    static size_t leafs_count() { return get_leafs_counter_ref(); }
+
+    static size_t & get_internal_nodes_counter_ref() { static size_t cc = 0; return cc; }
+    static size_t & get_leafs_counter_ref() { static size_t cc = 0; return cc; }
+};
+
 namespace boost { namespace geometry { namespace index {
 
 template <size_t MaxElements, size_t MinElements>
@@ -79,12 +89,17 @@ struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_throwing_d
     > elements_type;
 
     template <typename Dummy>
-    inline dynamic_internal_node(Dummy const&) {}
+    inline dynamic_internal_node(Dummy const&) { throwing_nodes_stats::get_internal_nodes_counter_ref()++; }
+    inline ~dynamic_internal_node() { throwing_nodes_stats::get_internal_nodes_counter_ref()--; }
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
+
+private:
+    dynamic_internal_node(dynamic_internal_node const&);
+    dynamic_internal_node & operator=(dynamic_internal_node const&);
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
@@ -94,12 +109,17 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_throwing_d_mem_stat
     typedef throwing_varray<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Dummy>
-    inline dynamic_leaf(Dummy const&) {}
+    inline dynamic_leaf(Dummy const&) { throwing_nodes_stats::get_leafs_counter_ref()++; }
+    inline ~dynamic_leaf() { throwing_nodes_stats::get_leafs_counter_ref()--; }
 
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, false> & v) { v(*this); }
     void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_throwing_d_mem_static_tag, true> & v) const { v(*this); }
 
     elements_type elements;
+
+private:
+    dynamic_leaf(dynamic_leaf const&);
+    dynamic_leaf & operator=(dynamic_leaf const&);
 };
 
 // elements derived type
