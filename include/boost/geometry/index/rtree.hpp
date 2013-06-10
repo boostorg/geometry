@@ -56,6 +56,10 @@
 #include <boost/geometry/index/detail/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/detail/rtree/kmeans/kmeans.hpp>
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+#include <boost/geometry/index/detail/rtree/pack_create.hpp>
+#endif
+
 #include <boost/geometry/index/inserter.hpp>
 
 #include <boost/geometry/index/detail/rtree/utilities/view.hpp>
@@ -235,6 +239,13 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        typedef detail::rtree::packer<value_type, options_type, translator_type, box_type, allocators_type> packer;
+
+        packer p(m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.root = p.pack(first, last);
+#else
+
         BOOST_TRY
         {
             this->insert(first, last);
@@ -245,6 +256,7 @@ public:
             BOOST_RETHROW
         }
         BOOST_CATCH_END
+#endif
     }
 
     /*!
@@ -269,6 +281,12 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        typedef detail::rtree::packer<value_type, options_type, translator_type, box_type, allocators_type> packer;
+
+        packer p(m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.root = p.pack(::boost::begin(rng), ::boost::end(rng));
+#else
         BOOST_TRY
         {
             this->insert(rng);
@@ -279,6 +297,7 @@ public:
             BOOST_RETHROW
         }
         BOOST_CATCH_END
+#endif
     }
 
     /*!
