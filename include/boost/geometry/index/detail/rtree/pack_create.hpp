@@ -105,9 +105,17 @@ struct partial_sort_and_half_boxes<Dimension, Dimension>
 // it is more similar to the top-down recursive kd-tree creation algorithm
 // using object median split and split axis of greatest BB edge
 // BB is only used as a hint (assuming objects are distributed uniformly)
+//
+// Implemented algorithm guarantees that the number of elements in nodes will be between Min and Max
+// and that nodes are packed as tightly as possible
+// e.g. for 177 values Max = 5 and Min = 2 it will construct the following tree:
+// ROOT                 177
+// L1          125               52
+// L2  25  25  25  25  25   25  17    10
+// L3  5x5 5x5 5x5 5x5 5x5  5x5 3x5+2 2x5
 
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
-class packer
+class pack
 {
     typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
     typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
@@ -130,34 +138,37 @@ class packer
     typedef typename internal_elements::value_type internal_element;
 
 public:
-    packer(parameters_type const& p, Translator const& tr, Allocators & al) : m_parameters(p), m_translator(tr), m_allocators(al) {}
-
     // Arbitrary iterators
-    template <typename InIt>
-    node_pointer pack(InIt first, InIt last)
+    template <typename InIt> inline static
+    node_pointer apply(InIt first, InIt last,
+                       parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
+        typedef typename std::iterator_traits<InIt>::difference_type diff_type;
+            
+        diff_type diff = std::distance(first, last);
+        if ( diff <= 0 )
+            return node_pointer(0);
+
         typedef std::pair<point_type, InIt> entry_type;
         std::vector<entry_type> entries;
 
-        // TODO if RandomAccess
-        // count = distance(first, last);
-        // reserve(count);
-
+        std::size_t values_count = static_cast<std::size_t>(diff);
+        entries.reserve(values_count);
+        
         Box hint_box;
         geometry::assign_inverse(hint_box);
-
-        std::size_t count = 0;
-        for ( ; first != last ; ++first, ++count )
+        for ( ; first != last ; ++first )
         {
-            geometry::expand(hint_box, m_translator(*first));
+            geometry::expand(hint_box, translator(*first));
 
             point_type pt;
-            geometry::centroid(m_translator(*first), pt);
+            geometry::centroid(translator(*first), pt);
             entries.push_back(std::make_pair(pt, first));
         }
 
-        subtree_elements_counts subtree_counts = calculate_subtree_elements_counts(count);
-        internal_element el = per_level(entries.begin(), entries.end(), hint_box, count, subtree_counts);
+        subtree_elements_counts subtree_counts = calculate_subtree_elements_counts(values_count, parameters);
+        internal_element el = per_level(entries.begin(), entries.end(), hint_box, values_count, subtree_counts,
+                                        parameters, translator, allocators);
         return el.second;
     }
 
@@ -169,80 +180,84 @@ private:
         std::size_t minc;
     };
 
-    template <typename EIt>
-    internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t count, subtree_elements_counts const& subtree_counts)
+    template <typename EIt> inline static
+    internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t values_count, subtree_elements_counts const& subtree_counts,
+                               parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        // remove it later
-        BOOST_ASSERT(first <= last); BOOST_ASSERT(last - first == typename std::iterator_traits<EIt>::difference_type(count));
+        BOOST_ASSERT(first < last);
+        BOOST_ASSERT(last - first == values_count);
 
         if ( subtree_counts.maxc <= 1 )
         {
             // ROOT or LEAF
-            BOOST_ASSERT(count <= m_parameters.get_max_elements());
+            BOOST_ASSERT(values_count <= parameters.get_max_elements());
             // if !root check m_parameters.get_min_elements() <= count
 
             // create new leaf node
-            node_pointer n = rtree::create_node<Allocators, leaf>::apply(m_allocators);                     // MAY THROW (A)
+            node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
             leaf & l = rtree::get<leaf>(*n);
             // reserve space for values
-            rtree::elements(l).reserve(count);                                                              // MAY THROW (A)
+            rtree::elements(l).reserve(values_count);                                                       // MAY THROW (A)
             // calculate values box and copy values
             Box elements_box;
             geometry::assign_inverse(elements_box);
             for ( ; first != last ; ++first )
             {
                 rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (C)
-                geometry::expand(elements_box, m_translator(*(first->second)));
+                geometry::expand(elements_box, translator(*(first->second)));
             }
             return internal_element(elements_box, n);
         }
 
         // calculate next max and min subtree counts
         subtree_elements_counts next_subtree_counts = subtree_counts;
-        next_subtree_counts.maxc /= m_parameters.get_max_elements();
-        next_subtree_counts.minc /= m_parameters.get_max_elements();
+        next_subtree_counts.maxc /= parameters.get_max_elements();
+        next_subtree_counts.minc /= parameters.get_max_elements();
 
         // create new internal node
-        node_pointer n = rtree::create_node<Allocators, internal_node>::apply(m_allocators);                // MAY THROW (A)
+        node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);                  // MAY THROW (A)
         internal_node & in = rtree::get<internal_node>(*n);
         // reserve space for values
-        rtree::elements(in).reserve(calculate_nodes_count(count, subtree_counts));                          // MAY THROW (A)
+        std::size_t nodes_count = calculate_nodes_count(values_count, subtree_counts);
+        rtree::elements(in).reserve(nodes_count);                                                           // MAY THROW (A)
         // calculate values box and copy values
         Box elements_box;
         geometry::assign_inverse(elements_box);
 
-        per_level_packets(first, last,
-                          hint_box,
-                          subtree_counts,
-                          next_subtree_counts,
-                          rtree::elements(in), elements_box);
+        per_level_packets(first, last, hint_box, values_count, subtree_counts, next_subtree_counts,
+                          rtree::elements(in), elements_box,
+                          parameters, translator, allocators);
 
         return internal_element(elements_box, n);
     }
 
-    template <typename EIt>
-    void per_level_packets(EIt first, EIt last,
-                           Box const& hint_box,
+    template <typename EIt> inline static
+    void per_level_packets(EIt first, EIt last, Box const& hint_box,
+                           std::size_t values_count,
                            subtree_elements_counts const& subtree_counts,
                            subtree_elements_counts const& next_subtree_counts,
-                           internal_elements & elements, Box & elements_box)
+                           internal_elements & elements, Box & elements_box,
+                           parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        std::size_t values_count = last - first;
+        BOOST_ASSERT(first < last);
+        BOOST_ASSERT(last - first == values_count);
 
-        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count, "invalid min counter" );
+        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count, "too small number of elements");
 
         // only one packet
         if ( values_count <= subtree_counts.maxc )
         {
             // the end, move to the next level
-            internal_element el = per_level(first, last, hint_box, values_count, next_subtree_counts);
+            internal_element el = per_level(first, last, hint_box, values_count, next_subtree_counts,
+                                            parameters, translator, allocators);
             // this container should have memory allocated, reserve() called outside
             elements.push_back(el);                                                                         // SHOULDN'T THROW (C)
             geometry::expand(elements_box, el.first);
             return;
         }
         
-        EIt median = first + calculate_median_count(values_count, subtree_counts);
+        std::size_t median_count = calculate_median_count(values_count, subtree_counts);
+        EIt median = first + median_count;
 
         coordinate_type greatest_length;
         std::size_t greatest_dim_index = 0;
@@ -251,23 +266,33 @@ private:
         pack_utils::partial_sort_and_half_boxes<0, dimension>
             ::apply(first, median, last, hint_box, left, right, greatest_dim_index);
         
-        per_level_packets(first, median, left, subtree_counts, next_subtree_counts, elements, elements_box);
-        per_level_packets(median, last, right, subtree_counts, next_subtree_counts, elements, elements_box);
+        per_level_packets(first, median, left,
+                          median_count, subtree_counts, next_subtree_counts,
+                          elements, elements_box,
+                          parameters, translator, allocators);
+        per_level_packets(median, last, right,
+                          values_count - median_count, subtree_counts, next_subtree_counts,
+                          elements, elements_box,
+                          parameters, translator, allocators);
     }
 
-    subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count)
+    inline static
+    subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count, parameters_type const& parameters)
     {
+        (void)parameters;
+
         subtree_elements_counts res(1, 1);
 
-        std::size_t smax = m_parameters.get_max_elements();
-        for ( ; smax < elements_count ; smax *= m_parameters.get_max_elements() )
+        std::size_t smax = parameters.get_max_elements();
+        for ( ; smax < elements_count ; smax *= parameters.get_max_elements() )
             res.maxc = smax;
 
-        res.minc = m_parameters.get_min_elements() * (res.maxc / m_parameters.get_max_elements());
+        res.minc = parameters.get_min_elements() * (res.maxc / parameters.get_max_elements());
 
         return res;
     }
 
+    inline static
     std::size_t calculate_nodes_count(std::size_t count,
                                       subtree_elements_counts const& subtree_counts)
     {
@@ -288,6 +313,7 @@ private:
         return n;
     }
 
+    inline static
     std::size_t calculate_median_count(std::size_t count,
                                        subtree_elements_counts const& subtree_counts)
     {
@@ -327,10 +353,6 @@ private:
 
         return median_count;
     }
-
-    parameters_type const& m_parameters;
-    Translator const& m_translator;
-    Allocators & m_allocators;
 };
 
 }}}}} // namespace boost::geometry::index::detail::rtree
