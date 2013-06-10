@@ -256,8 +256,15 @@ private:
             // the end, move to the next level
             internal_element el = per_level(first, last, hint_box, values_count, next_subtree_counts,
                                             parameters, translator, allocators);
+
+            // in case if push_back() do throw here
+            // and even if this is not probable (previously reserved memory, nonthrowing pairs copy)
+            // this case is also tested by exceptions test.
+            node_auto_ptr auto_remover(el.second, allocators);
             // this container should have memory allocated, reserve() called outside
             elements.push_back(el);                                                 // MAY THROW (A?,C) - however in normal conditions shouldn't
+            auto_remover.release();
+
             geometry::expand(elements_box, el.first);
             return;
         }
