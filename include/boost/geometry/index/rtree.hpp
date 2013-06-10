@@ -240,10 +240,9 @@ public:
         : m_members(getter, equal, parameters, allocator)
     {
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-        typedef detail::rtree::packer<value_type, options_type, translator_type, box_type, allocators_type> packer;
-
-        packer p(m_members.parameters(), m_members.translator(), m_members.allocators());
-        m_members.root = p.pack(first, last);
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        m_members.root = pack::apply(first, last,
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
 #else
 
         BOOST_TRY
@@ -282,10 +281,9 @@ public:
         : m_members(getter, equal, parameters, allocator)
     {
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-        typedef detail::rtree::packer<value_type, options_type, translator_type, box_type, allocators_type> packer;
-
-        packer p(m_members.parameters(), m_members.translator(), m_members.allocators());
-        m_members.root = p.pack(::boost::begin(rng), ::boost::end(rng));
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng),
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
 #else
         BOOST_TRY
         {
