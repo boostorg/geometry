@@ -229,7 +229,7 @@ private:
     {
         std::size_t values_count = last - first;
 
-        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count );
+        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count, "invalid min counter" );
 
         // only one packet
         if ( values_count <= subtree_counts.maxc )
