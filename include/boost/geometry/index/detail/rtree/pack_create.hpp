@@ -123,6 +123,7 @@ class pack
 
     typedef typename Allocators::node_pointer node_pointer;
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef typename Allocators::size_type size_type;
 
     typedef typename traits::point_type<Box>::type point_type;
     typedef typename traits::coordinate_type<point_type>::type coordinate_type;
@@ -141,7 +142,7 @@ class pack
 public:
     // Arbitrary iterators
     template <typename InIt> inline static
-    node_pointer apply(InIt first, InIt last,
+    node_pointer apply(InIt first, InIt last, size_type & values_count, size_type & leafs_level,
                        parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
         typedef typename std::iterator_traits<InIt>::difference_type diff_type;
@@ -153,7 +154,7 @@ public:
         typedef std::pair<point_type, InIt> entry_type;
         std::vector<entry_type> entries;
 
-        std::size_t values_count = static_cast<std::size_t>(diff);
+        values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);
         
         Box hint_box;
@@ -167,9 +168,10 @@ public:
             entries.push_back(std::make_pair(pt, first));
         }
 
-        subtree_elements_counts subtree_counts = calculate_subtree_elements_counts(values_count, parameters);
+        subtree_elements_counts subtree_counts = calculate_subtree_elements_counts(values_count, parameters, leafs_level);
         internal_element el = per_level(entries.begin(), entries.end(), hint_box, values_count, subtree_counts,
                                         parameters, translator, allocators);
+
         return el.second;
     }
 
@@ -290,14 +292,15 @@ private:
     }
 
     inline static
-    subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count, parameters_type const& parameters)
+    subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count, parameters_type const& parameters, size_type & leafs_level)
     {
         (void)parameters;
 
         subtree_elements_counts res(1, 1);
+        leafs_level = 0;
 
         std::size_t smax = parameters.get_max_elements();
-        for ( ; smax < elements_count ; smax *= parameters.get_max_elements() )
+        for ( ; smax < elements_count ; smax *= parameters.get_max_elements(), ++leafs_level )
             res.maxc = smax;
 
         res.minc = parameters.get_min_elements() * (res.maxc / parameters.get_max_elements());

@@ -241,8 +241,11 @@ public:
     {
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
-        m_members.root = pack::apply(first, last,
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(first, last, vc, ll,
                                      m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
 #else
 
         BOOST_TRY
@@ -282,8 +285,11 @@ public:
     {
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
-        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng),
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
                                      m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
 #else
         BOOST_TRY
         {
