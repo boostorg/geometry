@@ -139,8 +139,8 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 
         BOOST_CHECK_THROW( Tree tree(input.begin(), input.end(), parameters), throwing_varray_exception );
 
-        BOOST_CHECK_EQUAL(throwing_nodes_stats::internal_nodes_count(), 0);
-        BOOST_CHECK_EQUAL(throwing_nodes_stats::leafs_count(), 0);
+        BOOST_CHECK_EQUAL(throwing_nodes_stats::internal_nodes_count(), 0u);
+        BOOST_CHECK_EQUAL(throwing_nodes_stats::leafs_count(), 0u);
     }
     
     for ( size_t i = 0 ; i < 50 ; i += 2 )
