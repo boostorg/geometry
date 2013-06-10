@@ -122,6 +122,7 @@ class pack
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
 
     typedef typename traits::point_type<Box>::type point_type;
     typedef typename traits::coordinate_type<point_type>::type coordinate_type;
@@ -184,8 +185,7 @@ private:
     internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t values_count, subtree_elements_counts const& subtree_counts,
                                parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        BOOST_ASSERT(first < last);
-        BOOST_ASSERT(last - first == values_count);
+        BOOST_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count);
 
         if ( subtree_counts.maxc <= 1 )
         {
@@ -195,7 +195,9 @@ private:
 
             // create new leaf node
             node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
+            node_auto_ptr auto_remover(n, allocators);
             leaf & l = rtree::get<leaf>(*n);
+
             // reserve space for values
             rtree::elements(l).reserve(values_count);                                                       // MAY THROW (A)
             // calculate values box and copy values
@@ -203,9 +205,11 @@ private:
             geometry::assign_inverse(elements_box);
             for ( ; first != last ; ++first )
             {
-                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (C)
+                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
                 geometry::expand(elements_box, translator(*(first->second)));
             }
+
+            auto_remover.release();
             return internal_element(elements_box, n);
         }
 
@@ -216,7 +220,9 @@ private:
 
         // create new internal node
         node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);                  // MAY THROW (A)
+        node_auto_ptr auto_remover(n, allocators);
         internal_node & in = rtree::get<internal_node>(*n);
+
         // reserve space for values
         std::size_t nodes_count = calculate_nodes_count(values_count, subtree_counts);
         rtree::elements(in).reserve(nodes_count);                                                           // MAY THROW (A)
@@ -228,6 +234,7 @@ private:
                           rtree::elements(in), elements_box,
                           parameters, translator, allocators);
 
+        auto_remover.release();
         return internal_element(elements_box, n);
     }
 
@@ -239,8 +246,7 @@ private:
                            internal_elements & elements, Box & elements_box,
                            parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        BOOST_ASSERT(first < last);
-        BOOST_ASSERT(last - first == values_count);
+        BOOST_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count);
 
         BOOST_ASSERT_MSG( subtree_counts.minc <= values_count, "too small number of elements");
 
@@ -251,7 +257,7 @@ private:
             internal_element el = per_level(first, last, hint_box, values_count, next_subtree_counts,
                                             parameters, translator, allocators);
             // this container should have memory allocated, reserve() called outside
-            elements.push_back(el);                                                                         // SHOULDN'T THROW (C)
+            elements.push_back(el);                                                 // MAY THROW (A?,C) - however in normal conditions shouldn't
             geometry::expand(elements_box, el.first);
             return;
         }
