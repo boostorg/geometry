@@ -622,6 +622,36 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 
             glutPostRedisplay();
         }
+        else if ( current_line == "bulk" )
+        {
+            vect.clear();
+
+            for ( size_t i = 0 ; i < 35 ; ++i )
+            {
+                float x = ( rand() % 100 );
+                float y = ( rand() % 100 );
+                float w = ( rand() % 2 ) + 1;
+                float h = ( rand() % 2 ) + 1;
+
+                B b(P(x - w, y - h),P(x + w, y + h));
+                vect.push_back(b);
+
+                std::cout << "inserted: ";
+                bgi::detail::utilities::print_indexable(std::cout, b);
+                std::cout << '\n';
+            }
+
+            RTree t2(vect);
+            t = boost::move(t2);
+
+            std::cout << ( bgi::detail::rtree::utilities::are_boxes_ok(t) ? "boxes OK\n" : "WRONG BOXES!\n" );
+            std::cout << ( bgi::detail::rtree::utilities::are_levels_ok(t) ? "levels OK\n" : "WRONG LEVELS!\n" );
+            std::cout << "\n";
+
+            search_valid = false;
+
+            glutPostRedisplay();
+        }
         else
         {
             if ( current_line == "knn" )

@@ -659,98 +659,98 @@ int test_main(int, char* [])
 {
     BOOST_CHECK(counting_value::count() == 0);
 
-    test_ctor_ndc<int, 10>();
+    test_ctor_ndc<size_t, 10>();
     test_ctor_ndc<value_ndc, 10>();
     test_ctor_ndc<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_ctor_ndc<shptr_value, 10>();
     test_ctor_ndc<copy_movable, 10>();
 
-    test_ctor_nc<int, 10>(5);
+    test_ctor_nc<size_t, 10>(5);
     test_ctor_nc<value_nc, 10>(5);
     test_ctor_nc<counting_value, 10>(5);
     BOOST_CHECK(counting_value::count() == 0);
     test_ctor_nc<shptr_value, 10>(5);
     test_ctor_nc<copy_movable, 10>(5);
 
-    test_ctor_nd<int, 10>(5, 1);
+    test_ctor_nd<size_t, 10>(5, 1);
     test_ctor_nd<value_nd, 10>(5, value_nd(1));
     test_ctor_nd<counting_value, 10>(5, counting_value(1));
     BOOST_CHECK(counting_value::count() == 0);
     test_ctor_nd<shptr_value, 10>(5, shptr_value(1));
     test_ctor_nd<copy_movable, 10>(5, produce());
 
-    test_resize_nc<int, 10>(5);
+    test_resize_nc<size_t, 10>(5);
     test_resize_nc<value_nc, 10>(5);
     test_resize_nc<counting_value, 10>(5);
     BOOST_CHECK(counting_value::count() == 0);
     test_resize_nc<shptr_value, 10>(5);
     test_resize_nc<copy_movable, 10>(5);
 
-    test_resize_nd<int, 10>(5, 1);
+    test_resize_nd<size_t, 10>(5, 1);
     test_resize_nd<value_nd, 10>(5, value_nd(1));
     test_resize_nd<counting_value, 10>(5, counting_value(1));
     BOOST_CHECK(counting_value::count() == 0);
     test_resize_nd<shptr_value, 10>(5, shptr_value(1));
     test_resize_nd<copy_movable, 10>(5, produce());
 
-    test_push_back_nd<int, 10>();
+    test_push_back_nd<size_t, 10>();
     test_push_back_nd<value_nd, 10>();
     test_push_back_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_push_back_nd<shptr_value, 10>();
     test_push_back_nd<copy_movable, 10>();
 
-    test_pop_back_nd<int, 10>();
+    test_pop_back_nd<size_t, 10>();
     test_pop_back_nd<value_nd, 10>();
     test_pop_back_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_pop_back_nd<shptr_value, 10>();
     test_pop_back_nd<copy_movable, 10>();
 
-    test_copy_and_assign_nd<int, 10>(1);
+    test_copy_and_assign_nd<size_t, 10>(1);
     test_copy_and_assign_nd<value_nd, 10>(value_nd(1));
     test_copy_and_assign_nd<counting_value, 10>(counting_value(1));
     BOOST_CHECK(counting_value::count() == 0);
     test_copy_and_assign_nd<shptr_value, 10>(shptr_value(1));
     test_copy_and_assign_nd<copy_movable, 10>(produce());
 
-    test_iterators_nd<int, 10>();
+    test_iterators_nd<size_t, 10>();
     test_iterators_nd<value_nd, 10>();
     test_iterators_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_iterators_nd<shptr_value, 10>();
     test_iterators_nd<copy_movable, 10>();
 
-    test_erase_nd<int, 10>();
+    test_erase_nd<size_t, 10>();
     test_erase_nd<value_nd, 10>();
     test_erase_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_erase_nd<shptr_value, 10>();
     test_erase_nd<copy_movable, 10>();
 
-    test_insert_nd<int, 10>(50);
+    test_insert_nd<size_t, 10>(50);
     test_insert_nd<value_nd, 10>(value_nd(50));
     test_insert_nd<counting_value, 10>(counting_value(50));
     BOOST_CHECK(counting_value::count() == 0);
     test_insert_nd<shptr_value, 10>(shptr_value(50));
     test_insert_nd<copy_movable, 10>(produce());
 
-    test_capacity_0_nd<int>();
+    test_capacity_0_nd<size_t>();
     test_capacity_0_nd<value_nd>();
     test_capacity_0_nd<counting_value>();
     BOOST_CHECK(counting_value::count() == 0);
     test_capacity_0_nd<shptr_value>();
     test_capacity_0_nd<copy_movable>();
 
-    test_exceptions_nd<int, 10>();
+    test_exceptions_nd<size_t, 10>();
     test_exceptions_nd<value_nd, 10>();
     test_exceptions_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
     test_exceptions_nd<shptr_value, 10>();
     test_exceptions_nd<copy_movable, 10>();
 
-    test_swap_and_move_nd<int, 10>();
+    test_swap_and_move_nd<size_t, 10>();
     test_swap_and_move_nd<value_nd, 10>();
     test_swap_and_move_nd<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
@@ -763,7 +763,7 @@ int test_main(int, char* [])
     test_emplace_2p<counting_value, 10>();
     BOOST_CHECK(counting_value::count() == 0);
 
-    test_sv_elem<int, 10>(50);
+    test_sv_elem<size_t, 10>(50);
     test_sv_elem<value_nd, 10>(value_nd(50));
     test_sv_elem<counting_value, 10>(counting_value(50));
     BOOST_CHECK(counting_value::count() == 0);
