@@ -173,7 +173,7 @@ private:
     internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t count, subtree_elements_counts const& subtree_counts)
     {
         // remove it later
-        BOOST_ASSERT(first <= last); BOOST_ASSERT(last - first == count);
+        BOOST_ASSERT(first <= last); BOOST_ASSERT(last - first == typename std::iterator_traits<EIt>::difference_type(count));
 
         if ( subtree_counts.maxc <= 1 )
         {
