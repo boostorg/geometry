@@ -23,8 +23,8 @@ __rtree__ is a tree data structure used for spatial searching. It was proposed b
 Antonin Guttman in 1984 [footnote Guttman, A. (1984). /R-Trees: A Dynamic Index Structure for Spatial Searching/]
 as an expansion of B-tree for multi-dimensional data. It may be used to store points or volumetric data in order to
 perform a spatial query. This query may for example return objects that are inside some area or are close to some point in space
-[footnote Cheung, K.; Fu, A. (1998). /Enhanced Nearest Neighbour Search on the R-tree/]. It's possible to insert new objects or
-to remove the ones already stored.
+[footnote Cheung, K.; Fu, A. (1998). /Enhanced Nearest Neighbour Search on the R-tree/].
+It's possible to insert new objects or to remove the ones already stored.
 
 The __rtree__ structure is presented on the image below. Each __rtree__'s node store a box describing the space occupied by
 its children nodes. At the bottom of the structure, there are leaf-nodes which contains values
@@ -36,18 +36,34 @@ The __rtree__ is a self-balanced data structure. The key part of balancing algor
 [footnote Greene, D. (1989). /An implementation and performance analysis of spatial data access methods/]
 [footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/].
 Each algorithm produces different splits so the internal structure of a tree may be different for each one of them.
-In general more complex algorithms analyses elements better and produces less overlapping nodes. In the searching process less nodes must be traversed
+In general, more complex algorithms analyses elements better and produces less overlapping nodes. In the searching process less nodes must be traversed
 in order to find desired objects. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
 and vice versa. The performance of the R-tree depends on balancing algorithm, parameters and data inserted into the container.
-Example structures of trees created by use of three different algorithms and operations time are presented below. Data used in benchmark was random,
-non-overlapping boxes.
+
+Additionally there are also algorithms creating R-tree containing some, possibly big, number of objects. This technique is called bulk loading and is
+done by use of packing algorithm
+[footnote Leutenegger, Scott T.; Edgington, Jeffrey M.; Lopez, Mario A. (1997). /STR: A Simple and Efficient Algorithm for R-Tree Packing/]
+[footnote Garcia, Yvan J.; Lopez, Mario A.; Leutenegger, Scott T. (1997). /A Greedy Algorithm for Bulk Loading R-trees/].
+This method is faster and results in R-trees with better internal structure. This means that the query performance is increased.
+
+The examples of structures of trees created by use of different algorithms and exemplary operations times are presented below.
+Data used in benchmark was random 2-dimensional boxes. Trees was created for Max=16, Min=8.
 
 [table
-[[]                         [linear algorithm] [quadratic algorithm] [R*-tree]]
-[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]]]
-[[*1M Values inserts*]      [1.65s] [2.51s] [4.96s]]
-[[*100k spatial queries*]   [0.87s] [0.25s] [0.09s]]
-[[*100k knn queries*]       [3.25s] [1.41s] [0.51s]]
+[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [Packing algorithm]]
+[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [[$img/index/rtree/bulk.png]]]
+[[*1M Values inserts*]      [1.76s] [2.47s] [8.39s] [1.67s]]
+[[*100k spatial queries*]   [2.21] [0.51s] [0.12s] [0.07s]]
+[[*100k knn queries*]       [3.25s] [1.41s] [0.51s] [?]]
+]
+
+The performance of the R-tree for different values of Max and Min parameters is presented in the table below.
+The configuration of the machine used for testing is: /Intel(R) Core(TM) i7 870 @ 2.93GHz, 8GB RAM, MS Windows 7 x64/.
+
+[table
+[[]              [building] [querying]]
+[[*t(Max)*]      [[$img/index/rtree/build_max.png]] [[$img/index/rtree/query_max.png]]]
+[[*t(Min)*]      [[$img/index/rtree/build_min.png]] [[$img/index/rtree/query_min.png]]]
 ]
 
 [heading Implementation details]
