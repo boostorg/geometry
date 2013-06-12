@@ -88,8 +88,8 @@ private:
             geometry::expand(box_exp, indexable);
 
             // calculate content and content diff
-            content_type content = index::detail::content(ch_i.first);
-            content_type content_diff = index::detail::content(box_exp) - content;
+            content_type content = index::detail::content(box_exp);
+            content_type content_diff = content - index::detail::content(ch_i.first);
 
             content_type overlap = 0;
             content_type overlap_exp = 0;
