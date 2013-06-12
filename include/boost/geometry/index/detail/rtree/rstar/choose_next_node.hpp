@@ -148,10 +148,11 @@ private:
             sorted_children[i] = boost::make_tuple(i, content_diff, content);
         }
 
-        // sort by content_diff
-        std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
+        BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "there is not enough children");
 
-        BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "there are not enough children");
+        // sort by content_diff
+        //std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
+        std::partial_sort(sorted_children.begin(), sorted_children.begin() + overlap_cost_threshold, sorted_children.end(), content_diff_less);
 
         // for overlap_cost_threshold child nodes find the one with smallest overlap value
         size_t choosen_index = 0;
