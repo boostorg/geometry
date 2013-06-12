@@ -239,26 +239,12 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
         size_type vc = 0, ll = 0;
         m_members.root = pack::apply(first, last, vc, ll,
                                      m_members.parameters(), m_members.translator(), m_members.allocators());
         m_members.values_count = vc;
         m_members.leafs_level = ll;
-#else
-
-        BOOST_TRY
-        {
-            this->insert(first, last);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
-#endif
     }
 
     /*!
@@ -283,25 +269,12 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
         typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
         size_type vc = 0, ll = 0;
         m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
                                      m_members.parameters(), m_members.translator(), m_members.allocators());
         m_members.values_count = vc;
         m_members.leafs_level = ll;
-#else
-        BOOST_TRY
-        {
-            this->insert(rng);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
-#endif
     }
 
     /*!
