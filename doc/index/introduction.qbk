@@ -40,7 +40,7 @@ In general, more complex algorithms analyses elements better and produces less o
 in order to find desired objects. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
 and vice versa. The performance of the R-tree depends on balancing algorithm, parameters and data inserted into the container.
 
-Additionally there are also algorithms creating R-tree containing some, possibly big, number of objects. This technique is called bulk loading and is
+Additionally there are also algorithms creating R-tree containing some, number of objects. This technique is called bulk loading and is
 done by use of packing algorithm
 [footnote Leutenegger, Scott T.; Edgington, Jeffrey M.; Lopez, Mario A. (1997). /STR: A Simple and Efficient Algorithm for R-Tree Packing/]
 [footnote Garcia, Yvan J.; Lopez, Mario A.; Leutenegger, Scott T. (1997). /A Greedy Algorithm for Bulk Loading R-trees/].
@@ -50,13 +50,13 @@ The examples of structures of trees created by use of different algorithms and e
 Data used in benchmark was random 2-dimensional boxes. Trees was created for Max=16, Min=8.
 
 [table
-[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [Packing algorithm]]
-[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [[$img/index/rtree/bulk.png]]]
-[[*1M Values inserts*]      [1.76s] [2.47s] [8.39s] [1.67s]]
-[[*100k spatial queries*]   [2.21] [0.51s] [0.12s] [0.07s]]
-[[*100k knn queries*]       [3.25s] [1.41s] [0.51s] [?]]
+[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [/Packing algorithm/]]
+[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [/[$img/index/rtree/bulk.png]/]]
+[[*1M Values inserts*]      [1.76s] [2.47s] [8.39s] [/1.67s/]]
+[[*100k spatial queries*]   [2.21] [0.51s] [0.12s] [/0.07s/]]
+[[*100k knn queries*]       [3.25s] [1.41s] [0.51s] [/?/]]
 ]
-
+[/
 The performance of the R-tree for different values of Max and Min parameters is presented in the table below.
 The configuration of the machine used for testing is: /Intel(R) Core(TM) i7 870 @ 2.93GHz, 8GB RAM, MS Windows 7 x64/.
 
@@ -65,15 +65,15 @@ The configuration of the machine used for testing is: /Intel(R) Core(TM) i7 870 
 [[*t(Max)*]      [[$img/index/rtree/build_max.png]] [[$img/index/rtree/query_max.png]]]
 [[*t(Min)*]      [[$img/index/rtree/build_min.png]] [[$img/index/rtree/query_min.png]]]
 ]
-
+/]
 [heading Implementation details]
 
 Key features of this implementation of the __rtree__ are:
 
 * capable to store arbitrary __value__ type,
 * three different balancing algorithms - linear, quadratic or rstar,
-* bulk loading capability,
-* parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters,
+* parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters, in compile-time
+  version nodes elements are stored in static-size containers,
 * advanced queries - e.g. search for 5 nearest values to some point and intersecting some region but not within the other one,
 * C++11 conformant: move semantics, stateful allocators,
 * capable to store __value__ type with no default constructor,
@@ -81,8 +81,9 @@ Key features of this implementation of the __rtree__ are:
 
 [heading Planned features]
 
-Below you can find features that probably will be added in the future:
+Below you can find features that will (or probably will) be added in the future releases:
 
+* bulk loading (implemented, planned for release in Boost 1.55)
 * iterative queries - query iterators / type-erased query iterators (implemented as experimental feature)
 * path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (implemented as experimental feature),
 * persistent storage.
