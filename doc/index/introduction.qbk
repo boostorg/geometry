@@ -71,11 +71,21 @@ The configuration of the machine used for testing is: /Intel(R) Core(TM) i7 870 
 Key features of this implementation of the __rtree__ are:
 
 * capable to store arbitrary __value__ type,
-* three different creation algorithms - linear, quadratic or rstar,
+* three different balancing algorithms - linear, quadratic or rstar,
+* bulk loading capability,
 * parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters,
 * advanced queries - e.g. search for 5 nearest values to some point and intersecting some region but not within the other one,
 * C++11 conformant: move semantics, stateful allocators,
-* capable to store __value__ type with no default constructor.
+* capable to store __value__ type with no default constructor,
+* in-memory storage (shared memory by use of Boost.Interprocess allocator).
+
+[heading Planned features]
+
+Below you can find features that probably will be added in the future:
+
+* iterative queries - query iterators / type-erased query iterators (implemented as experimental feature)
+* path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (implemented as experimental feature),
+* persistent storage.
 
 [heading Dependencies]
 
