@@ -81,8 +81,9 @@ private:
 
         // create container of children sorted by content enlargement needed to include the new value
         typedef boost::tuple<size_t, content_type, content_type> child_contents;
-        typename rtree::container_from_elements_type<children_type, child_contents>::type
-            children_contents(children_count);
+
+        typename rtree::container_from_elements_type<children_type, child_contents>::type children_contents;
+        children_contents.resize(children_count);
 
         for ( size_t i = 0 ; i < children_count ; ++i )
         {
