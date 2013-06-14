@@ -56,9 +56,7 @@
 #include <boost/geometry/index/detail/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/detail/rtree/kmeans/kmeans.hpp>
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/detail/rtree/pack_create.hpp>
-#endif
 
 #include <boost/geometry/index/inserter.hpp>
 
