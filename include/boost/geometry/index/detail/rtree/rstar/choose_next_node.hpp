@@ -91,9 +91,8 @@ private:
             content_type content = index::detail::content(box_exp);
             content_type content_diff = content - index::detail::content(ch_i.first);
 
-            content_type overlap = 0;
-            content_type overlap_exp = 0;
-
+            content_type overlap_diff = 0;
+            
             // calculate overlap
             for ( size_t j = 0 ; j < children_count ; ++j )
             {
@@ -101,12 +100,13 @@ private:
                 {
                     child_type const& ch_j = children[j];
 
-                    overlap += index::detail::intersection_content(ch_i.first, ch_j.first);
-                    overlap_exp += index::detail::intersection_content(box_exp, ch_j.first);
+                    content_type overlap_exp = index::detail::intersection_content(box_exp, ch_j.first);
+                    if ( overlap_exp < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < overlap_exp )
+                    {
+                        overlap_diff += overlap_exp - index::detail::intersection_content(ch_i.first, ch_j.first);
+                    }
                 }
             }
-
-            content_type overlap_diff = overlap_exp - overlap;
 
             // update result
             if ( overlap_diff < smallest_overlap_diff ||
@@ -170,8 +170,7 @@ private:
             // calculate expanded box of child node ch_i
             geometry::expand(box_exp, indexable);
 
-            content_type overlap = 0;
-            content_type overlap_exp = 0;
+            content_type overlap_diff = 0;
 
             // calculate overlap
             for ( size_t j = 0 ; j < children_count ; ++j )
@@ -180,12 +179,13 @@ private:
                 {
                     child_type const& ch_j = children[j];
 
-                    overlap += index::detail::intersection_content(ch_i.first, ch_j.first);
-                    overlap_exp += index::detail::intersection_content(box_exp, ch_j.first);
+                    content_type overlap_exp = index::detail::intersection_content(box_exp, ch_j.first);
+                    if ( overlap_exp < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < overlap_exp )
+                    {
+                        overlap_diff += overlap_exp - index::detail::intersection_content(ch_i.first, ch_j.first);
+                    }
                 }
             }
-
-            content_type overlap_diff = overlap_exp - overlap;
 
             // update result
             if ( overlap_diff < smallest_overlap_diff )
