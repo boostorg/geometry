@@ -32,10 +32,8 @@ namespace linear {
 
 // TODO: Implement separate version for Points
 
-// [DONE] What if width calculated inside find_greatest_normalized_separation::apply() is near 0?
-// [DONE] What epsilon should be taken to calculation and what would be the value of resulting separation?
-
-// from void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
+// The following struct/method was adapted for the preliminary version of the R-tree. Then it was called:
+// void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
 template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
 struct find_greatest_normalized_separation
@@ -104,12 +102,7 @@ struct find_greatest_normalized_separation
         }
 
         coordinate_type const width = highest_high - lowest_low;
-
-        // TODO: awulkiew - following separation calculation has two flaws:
-        // 1. [DONE] for floating point numbers width should be compared witn some EPS
-        // 2. [DONE] separation calculation won't work for unsigned numbers
-        //    but there should be possible to calculate negative value (cast to some floating point type?)
-
+        
         separation = difference(highest_low, lowest_high, is_coordinate_type_unsigned());
         // BOOST_ASSERT(0 <= width);
         if ( std::numeric_limits<coordinate_type>::epsilon() < width )

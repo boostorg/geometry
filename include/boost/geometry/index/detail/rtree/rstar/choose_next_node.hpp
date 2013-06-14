@@ -52,11 +52,13 @@ public:
         // children are leafs
         if ( node_relative_level <= 1 )
         {
-            if ( 0 < parameters.get_overlap_cost_threshold() &&
+            /*if ( 0 < parameters.get_overlap_cost_threshold() &&
                  parameters.get_overlap_cost_threshold() < children.size() )
                 return choose_by_nearly_minimum_overlap_cost(children, indexable, parameters.get_overlap_cost_threshold());
             else
-                return choose_by_minimum_overlap_cost(children, indexable);
+                return choose_by_minimum_overlap_cost(children, indexable);*/
+
+            return choose_by_minimum_overlap_cost(children, indexable, parameters.get_overlap_cost_threshold());
         }
         // children are internal nodes
         else
@@ -68,9 +70,73 @@ public:
 private:
     template <typename Indexable>
     static inline size_t choose_by_minimum_overlap_cost(children_type const& children,
-                                                        Indexable const& indexable)
+                                                        Indexable const& indexable,
+                                                        size_t overlap_cost_threshold)
     {
-        size_t children_count = children.size();
+        const size_t children_count = children.size();
+
+        content_type min_content_diff = (std::numeric_limits<content_type>::max)();
+        content_type min_content = (std::numeric_limits<content_type>::max)();
+        size_t choosen_index = 0;
+
+        // create container of children sorted by content enlargement needed to include the new value
+        typedef boost::tuple<size_t, content_type, content_type> child_contents;
+        typename rtree::container_from_elements_type<children_type, child_contents>::type
+            children_contents(children_count);
+
+        for ( size_t i = 0 ; i < children_count ; ++i )
+        {
+            child_type const& ch_i = children[i];
+
+            // expanded child node's box
+            Box box_exp(ch_i.first);
+            geometry::expand(box_exp, indexable);
+
+            // areas difference
+            content_type content = index::detail::content(box_exp);
+            content_type content_diff = content - index::detail::content(ch_i.first);
+
+            children_contents[i] = boost::make_tuple(i, content_diff, content);
+
+            if ( content_diff < min_content_diff ||
+                 (content_diff == min_content_diff && content < min_content) )
+            {
+                min_content_diff = content_diff;
+                min_content = content;
+                choosen_index = i;
+            }
+        }
+
+        // is this assumption ok? if min_content_diff == 0 there is no overlap increase?
+
+        if ( min_content_diff < -std::numeric_limits<double>::epsilon() || std::numeric_limits<double>::epsilon() < min_content_diff )
+        {
+            if ( 0 < overlap_cost_threshold && overlap_cost_threshold < children.size() )
+            {
+                // calculate nearly minimum overlap cost
+
+                // sort by content_diff
+                std::partial_sort(children_contents.begin(), children_contents.begin() + overlap_cost_threshold, children_contents.end(), content_diff_less);
+                choosen_index = choose_by_minimum_overlap_cost_sorted_by_content(children, indexable, children_count, overlap_cost_threshold, children_contents);
+            }
+            else
+            {
+                // calculate minimum overlap cost
+
+                choosen_index = choose_by_minimum_overlap_cost_unsorted_by_content(children, indexable, children_count, children_contents);
+            }
+        }
+
+        return choosen_index;
+    }
+
+    template <typename Indexable, typename ChildrenContents>
+    static inline size_t choose_by_minimum_overlap_cost_unsorted_by_content(children_type const& children,
+                                                                            Indexable const& indexable,
+                                                                            size_t children_count,
+                                                                            ChildrenContents const& children_contents)
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(children_contents.size() == children_count, "unexpected number of elements");
 
         // choose index with smallest overlap change value, or content change or smallest content
         size_t choosen_index = 0;
@@ -87,12 +153,8 @@ private:
             // calculate expanded box of child node ch_i
             geometry::expand(box_exp, indexable);
 
-            // calculate content and content diff
-            content_type content = index::detail::content(box_exp);
-            content_type content_diff = content - index::detail::content(ch_i.first);
-
             content_type overlap_diff = 0;
-            
+
             // calculate overlap
             for ( size_t j = 0 ; j < children_count ; ++j )
             {
@@ -108,11 +170,14 @@ private:
                 }
             }
 
+            content_type content = boost::get<2>(children_contents[i]);
+            content_type content_diff = boost::get<1>(children_contents[i]);
+
             // update result
             if ( overlap_diff < smallest_overlap_diff ||
-                 ( overlap_diff == smallest_overlap_diff && ( content_diff < smallest_content_diff ||
-                   ( content_diff == smallest_content_diff && content < smallest_content ) )
-                 ) )
+                ( overlap_diff == smallest_overlap_diff && ( content_diff < smallest_content_diff ||
+                ( content_diff == smallest_content_diff && content < smallest_content ) )
+                ) )
             {
                 smallest_overlap_diff = overlap_diff;
                 smallest_content_diff = content_diff;
@@ -123,36 +188,16 @@ private:
 
         return choosen_index;
     }
-
-    template <typename Indexable>
-    static inline size_t choose_by_nearly_minimum_overlap_cost(children_type const& children,
-                                                               Indexable const& indexable,
-                                                               size_t overlap_cost_threshold)
+    
+    template <typename Indexable, typename ChildrenContents>
+    static inline size_t choose_by_minimum_overlap_cost_sorted_by_content(children_type const& children,
+                                                                          Indexable const& indexable,
+                                                                          size_t children_count,
+                                                                          size_t overlap_cost_threshold,
+                                                                          ChildrenContents const& children_contents)
     {
-        const size_t children_count = children.size();
-
-        // create container of children sorted by content enlargement needed to include the new value
-        std::vector< boost::tuple<size_t, content_type, content_type> > sorted_children(children_count);
-        for ( size_t i = 0 ; i < children_count ; ++i )
-        {
-            child_type const& ch_i = children[i];
-
-            // expanded child node's box
-            Box box_exp(ch_i.first);
-            geometry::expand(box_exp, indexable);
-
-            // areas difference
-            content_type content = index::detail::content(box_exp);
-            content_type content_diff = content - index::detail::content(ch_i.first);
-
-            sorted_children[i] = boost::make_tuple(i, content_diff, content);
-        }
-
-        BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "there is not enough children");
-
-        // sort by content_diff
-        //std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
-        std::partial_sort(sorted_children.begin(), sorted_children.begin() + overlap_cost_threshold, sorted_children.end(), content_diff_less);
+        BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold < children_count, "unexpected value");
+        BOOST_GEOMETRY_INDEX_ASSERT(children_count == children_contents.size(), "unexpected number of elements");
 
         // for overlap_cost_threshold child nodes find the one with smallest overlap value
         size_t choosen_index = 0;
@@ -161,7 +206,7 @@ private:
         // for each node
         for (size_t i = 0 ; i < overlap_cost_threshold ; ++i )
         {
-            size_t child_index = boost::get<0>(sorted_children[i]);
+            size_t child_index = boost::get<0>(children_contents[i]);
 
             typedef typename children_type::value_type child_type;
             child_type const& ch_i = children[child_index];
@@ -197,6 +242,138 @@ private:
 
         return choosen_index;
     }
+
+    //template <typename Indexable>
+    //static inline size_t choose_by_minimum_overlap_cost(children_type const& children,
+    //                                                    Indexable const& indexable)
+    //{
+    //    size_t children_count = children.size();
+
+    //    // choose index with smallest overlap change value, or content change or smallest content
+    //    size_t choosen_index = 0;
+    //    content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
+    //    content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
+    //    content_type smallest_content = (std::numeric_limits<content_type>::max)();
+
+    //    // for each child node
+    //    for (size_t i = 0 ; i < children_count ; ++i )
+    //    {
+    //        child_type const& ch_i = children[i];
+
+    //        Box box_exp(ch_i.first);
+    //        // calculate expanded box of child node ch_i
+    //        geometry::expand(box_exp, indexable);
+
+    //        // calculate content and content diff
+    //        content_type content = index::detail::content(box_exp);
+    //        content_type content_diff = content - index::detail::content(ch_i.first);
+
+    //        content_type overlap_diff = 0;
+    //        
+    //        // calculate overlap
+    //        for ( size_t j = 0 ; j < children_count ; ++j )
+    //        {
+    //            if ( i != j )
+    //            {
+    //                child_type const& ch_j = children[j];
+
+    //                content_type overlap_exp = index::detail::intersection_content(box_exp, ch_j.first);
+    //                if ( overlap_exp < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < overlap_exp )
+    //                {
+    //                    overlap_diff += overlap_exp - index::detail::intersection_content(ch_i.first, ch_j.first);
+    //                }
+    //            }
+    //        }
+
+    //        // update result
+    //        if ( overlap_diff < smallest_overlap_diff ||
+    //             ( overlap_diff == smallest_overlap_diff && ( content_diff < smallest_content_diff ||
+    //               ( content_diff == smallest_content_diff && content < smallest_content ) )
+    //             ) )
+    //        {
+    //            smallest_overlap_diff = overlap_diff;
+    //            smallest_content_diff = content_diff;
+    //            smallest_content = content;
+    //            choosen_index = i;
+    //        }
+    //    }
+
+    //    return choosen_index;
+    //}
+
+    //template <typename Indexable>
+    //static inline size_t choose_by_nearly_minimum_overlap_cost(children_type const& children,
+    //                                                           Indexable const& indexable,
+    //                                                           size_t overlap_cost_threshold)
+    //{
+    //    const size_t children_count = children.size();
+
+    //    // create container of children sorted by content enlargement needed to include the new value
+    //    std::vector< boost::tuple<size_t, content_type, content_type> > sorted_children(children_count);
+    //    for ( size_t i = 0 ; i < children_count ; ++i )
+    //    {
+    //        child_type const& ch_i = children[i];
+
+    //        // expanded child node's box
+    //        Box box_exp(ch_i.first);
+    //        geometry::expand(box_exp, indexable);
+
+    //        // areas difference
+    //        content_type content = index::detail::content(box_exp);
+    //        content_type content_diff = content - index::detail::content(ch_i.first);
+
+    //        sorted_children[i] = boost::make_tuple(i, content_diff, content);
+    //    }
+
+    //    BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "there is not enough children");
+
+    //    // sort by content_diff
+    //    //std::sort(sorted_children.begin(), sorted_children.end(), content_diff_less);
+    //    std::partial_sort(sorted_children.begin(), sorted_children.begin() + overlap_cost_threshold, sorted_children.end(), content_diff_less);
+
+    //    // for overlap_cost_threshold child nodes find the one with smallest overlap value
+    //    size_t choosen_index = 0;
+    //    content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
+
+    //    // for each node
+    //    for (size_t i = 0 ; i < overlap_cost_threshold ; ++i )
+    //    {
+    //        size_t child_index = boost::get<0>(sorted_children[i]);
+
+    //        typedef typename children_type::value_type child_type;
+    //        child_type const& ch_i = children[child_index];
+
+    //        Box box_exp(ch_i.first);
+    //        // calculate expanded box of child node ch_i
+    //        geometry::expand(box_exp, indexable);
+
+    //        content_type overlap_diff = 0;
+
+    //        // calculate overlap
+    //        for ( size_t j = 0 ; j < children_count ; ++j )
+    //        {
+    //            if ( child_index != j )
+    //            {
+    //                child_type const& ch_j = children[j];
+
+    //                content_type overlap_exp = index::detail::intersection_content(box_exp, ch_j.first);
+    //                if ( overlap_exp < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < overlap_exp )
+    //                {
+    //                    overlap_diff += overlap_exp - index::detail::intersection_content(ch_i.first, ch_j.first);
+    //                }
+    //            }
+    //        }
+
+    //        // update result
+    //        if ( overlap_diff < smallest_overlap_diff )
+    //        {
+    //            smallest_overlap_diff = overlap_diff;
+    //            choosen_index = child_index;
+    //        }
+    //    }
+
+    //    return choosen_index;
+    //}
 
     static inline bool content_diff_less(boost::tuple<size_t, content_type, content_type> const& p1, boost::tuple<size_t, content_type, content_type> const& p2)
     {
