@@ -83,6 +83,7 @@ Key features of this implementation of the __rtree__ are:
 
 Below you can find features that will (or probably will) be added in the future releases:
 
+* rstar optimization - significant improvement (implemented, planned for release in Boost 1.55)
 * bulk loading (implemented, planned for release in Boost 1.55)
 * iterative queries - query iterators / type-erased query iterators (implemented as experimental feature)
 * path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (implemented as experimental feature),
