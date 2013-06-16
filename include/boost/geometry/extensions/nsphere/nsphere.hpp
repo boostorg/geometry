@@ -33,5 +33,6 @@
 #include <boost/geometry/extensions/nsphere/algorithms/envelope.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/num_points.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/within.hpp>
+#include <boost/geometry/extensions/nsphere/algorithms/disjoint.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_HPP
