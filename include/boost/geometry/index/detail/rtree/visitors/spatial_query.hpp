@@ -59,7 +59,7 @@ struct spatial_query
             // if value meets predicates
             if ( index::detail::predicates_check<index::detail::value_tag, 0, predicates_len>(pred, *it, tr(*it)) )
             {
-                out_iter = *it;
+                *out_iter = *it;
                 ++out_iter;
 
                 ++found_count;
