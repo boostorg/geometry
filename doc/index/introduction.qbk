@@ -47,25 +47,27 @@ done by use of packing algorithm
 This method is faster and results in R-trees with better internal structure. This means that the query performance is increased.
 
 The examples of structures of trees created by use of different algorithms and exemplary operations times are presented below.
-Data used in benchmark was random 2-dimensional boxes. Trees was created for Max=16, Min=8.
 
 [table
-[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [/Packing algorithm/]]
-[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [/[$img/index/rtree/bulk.png]/]]
-[[*1M Values inserts*]      [1.76s] [2.47s] [8.39s] [/1.67s/]]
-[[*100k spatial queries*]   [2.21] [0.51s] [0.12s] [/0.07s/]]
-[[*100k knn queries*]       [3.25s] [1.41s] [0.51s] [/?/]]
+[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [Packing algorithm (trunk)]]
+[[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [[$img/index/rtree/bulk.png]]]
+[[*1M Values inserts*]      [1.76s] [2.47s] [6.19s] [1.67s]]
+[[*100k spatial queries*]   [2.21s] [0.51s] [0.12s] [0.07s]]
+[[*100k knn queries*]       [6.37s] [2.09s] [0.64s] [0.52]]
 ]
-[/
-The performance of the R-tree for different values of Max and Min parameters is presented in the table below.
+
+The performance of the R-tree for different values of Max parameter and Min=0.5*Max is presented in the table below.
 The configuration of the machine used for testing is: /Intel(R) Core(TM) i7 870 @ 2.93GHz, 8GB RAM, MS Windows 7 x64/.
+In the two upper figures you can see the performance of the __rtree__ storing random, relatively small, non-overlapping, 2d boxes.
+In the lower ones, the performance of the __rtree__ also storing random, 2d boxes, but this time quite big and possibly overlapping.
+As you can see, the __rtree__ performance is different in both cases.
 
 [table
-[[]              [building] [querying]]
-[[*t(Max)*]      [[$img/index/rtree/build_max.png]] [[$img/index/rtree/query_max.png]]]
-[[*t(Min)*]      [[$img/index/rtree/build_min.png]] [[$img/index/rtree/query_min.png]]]
+[[]                  [building] [querying]]
+[[*non overlapping*] [[$img/index/rtree/build_non_ovl.png]] [[$img/index/rtree/query_non_ovl.png]]]
+[[*overlapping*]      [[$img/index/rtree/build_ovl.png]] [[$img/index/rtree/query_ovl.png]]]
 ]
-/]
+
 [heading Implementation details]
 
 Key features of this implementation of the __rtree__ are:
@@ -83,7 +85,7 @@ Key features of this implementation of the __rtree__ are:
 
 Below you can find features that will (or probably will) be added in the future releases:
 
-* rstar optimization - significant improvement (implemented, planned for release in Boost 1.55)
+* rstar optimization (implemented, planned for release in Boost 1.55)
 * bulk loading (implemented, planned for release in Boost 1.55)
 * iterative queries - query iterators / type-erased query iterators (implemented as experimental feature)
 * path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (implemented as experimental feature),
