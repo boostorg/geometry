@@ -92,10 +92,10 @@ Below you can find features that will (or probably will) be added in the future 
 * persistent storage.
 [/
 * 'reversed' predicates - e.g. by use of operator~() - predicates applied to passed Geometry instead of Value
-* optimization of predicates check - if some number of predicates requires performing some boolean operation, e.g. intersects(bounds, g), do it once
 * other geometries as Values, e.g. NSpheres. Rings would probably require using move semantics instead of copying
 * bounding tree - rtree variation capable to use other Geometries as bounds, e.g. NSpheres, Rings/convex polygons/ (moving required), Capsules, Elipses, Variants etc.
 * moving instead of copying + optimizations for movable/nonthrowing/trivialy copied elements
+* passing more than one nearest/path predicate - "returned value is one of k1 nearest values to p1 and ... and one of kN nearest values to pN"
 /]
 
 [heading Dependencies]
