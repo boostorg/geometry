@@ -76,22 +76,22 @@ Key features of this implementation of the __rtree__ are:
 * three different balancing algorithms - linear, quadratic or rstar,
 * parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters, in compile-time
   version nodes elements are stored in static-size containers,
-* advanced queries - e.g. search for 5 nearest values to some point and intersecting some region but not within the other one,
+* advanced queries - e.g. search for 5 nearest Values to some point and intersecting some Geometry but not within the other one,
 * C++11 conformant: move semantics, stateful allocators,
 * capable to store __value__ type with no default constructor,
 * in-memory storage (shared memory by use of Boost.Interprocess allocator).
 
-[heading Planned features]
+[heading Planned and experimental features]
 
 Below you can find features that will (or probably will) be added in the future releases:
 
-* rstar optimization (implemented, planned for release in Boost 1.55)
-* bulk loading (implemented, planned for release in Boost 1.55)
-* iterative queries - query iterators / type-erased query iterators (implemented as experimental feature)
-* path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (implemented as experimental feature),
+* rstar optimization (planned for release in Boost 1.55),
+* bulk loading (planned for release in Boost 1.55),
+* iterative queries - query iterators / type-erased query iterators (experimental),
+* path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (experimental),
+* 'reversed' spatial predicates - e.g. allows searching not only for Values within some Geometry but also those which contain some Geometry (experimental),
 * persistent storage.
 [/
-* 'reversed' predicates - e.g. by use of operator~() - predicates applied to passed Geometry instead of Value
 * other geometries as Values, e.g. NSpheres. Rings would probably require using move semantics instead of copying
 * bounding tree - rtree variation capable to use other Geometries as bounds, e.g. NSpheres, Rings/convex polygons/ (moving required), Capsules, Elipses, Variants etc.
 * moving instead of copying + optimizations for movable/nonthrowing/trivialy copied elements
