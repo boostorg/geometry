@@ -702,6 +702,12 @@ void intersects(Rtree const& tree, std::vector<Value> const& input, Box const& q
     spatial_query(tree, bgi::intersects(qbox), expected_output);
     spatial_query(tree, !bgi::disjoint(qbox), expected_output);
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    spatial_query(tree, ~bgi::intersects(qbox), expected_output);
+    spatial_query(tree, !~bgi::disjoint(qbox), expected_output);
+    spatial_query(tree, ~!bgi::disjoint(qbox), expected_output);
+#endif
+
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
@@ -725,6 +731,12 @@ void disjoint(Rtree const& tree, std::vector<Value> const& input, Box const& qbo
     spatial_query(tree, bgi::disjoint(qbox), expected_output);
     spatial_query(tree, !bgi::intersects(qbox), expected_output);
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    spatial_query(tree, ~bgi::disjoint(qbox), expected_output);
+    spatial_query(tree, !~bgi::intersects(qbox), expected_output);
+    spatial_query(tree, ~!bgi::intersects(qbox), expected_output);
+#endif
+
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
     bg::convert(qbox, qring);
@@ -745,6 +757,16 @@ void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& q
             expected_output.push_back(v);
 
     spatial_query(tree, bgi::covered_by(qbox), expected_output);
+
+// TODO - run this only for Boxes
+//#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+//    expected_output.clear();
+//    BOOST_FOREACH(Value const& v, input)
+//        if ( bg::covered_by(qbox, tree.indexable_get()(v)) )
+//            expected_output.push_back(v);
+//
+//    spatial_query(tree, ~bgi::covered_by(qbox), expected_output);
+//#endif
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
@@ -768,6 +790,10 @@ struct overlaps_impl
                 expected_output.push_back(v);
 
         spatial_query(tree, bgi::overlaps(qbox), expected_output);
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+        spatial_query(tree, ~bgi::overlaps(qbox), expected_output);
+#endif
 
         /*typedef bg::traits::point_type<Box>::type P;
         bg::model::ring<P> qring;
@@ -840,6 +866,16 @@ void within(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
             expected_output.push_back(v);
 
     spatial_query(tree, bgi::within(qbox), expected_output);
+
+// TODO - run this only for Boxes
+//#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+//    expected_output.clear();
+//    BOOST_FOREACH(Value const& v, input)
+//        if ( bg::within(qbox, tree.indexable_get()(v)) )
+//            expected_output.push_back(v);
+//
+//    spatial_query(tree, ~bgi::within(qbox), expected_output);
+//#endif
 
     /*typedef bg::traits::point_type<Box>::type P;
     bg::model::ring<P> qring;
