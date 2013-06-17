@@ -45,10 +45,11 @@ bgi::query(spatial_index, bgi::covered_by(box), std::back_inserter(result));
 
 \param g            The Geometry object.
 */
-template <typename Geometry>
-inline detail::covered_by<Geometry> covered_by(Geometry const& g)
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::covered_by_tag, false, false>
+covered_by(Geometry const& g)
 {
-    return detail::covered_by<Geometry>(g);
+    return detail::spatial_predicate<Geometry, detail::covered_by_tag, false, false>(g);
 }
 
 /*!
@@ -69,10 +70,11 @@ bgi::query(spatial_index, bgi::disjoint(box), std::back_inserter(result));
 
 \param g            The Geometry object.
 */
-template <typename Geometry>
-inline detail::disjoint<Geometry> disjoint(Geometry const& g)
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::disjoint_tag, false, false>
+disjoint(Geometry const& g)
 {
-    return detail::disjoint<Geometry>(g);
+    return detail::spatial_predicate<Geometry, detail::disjoint_tag, false, false>(g);
 }
 
 /*!
@@ -95,10 +97,11 @@ bgi::query(spatial_index, bgi::intersects(polygon), std::back_inserter(result));
 
 \param g            The Geometry object.
 */
-template <typename Geometry>
-inline detail::intersects<Geometry> intersects(Geometry const& g)
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::intersects_tag, false, false>
+intersects(Geometry const& g)
 {
-    return detail::intersects<Geometry>(g);
+    return detail::spatial_predicate<Geometry, detail::intersects_tag, false, false>(g);
 }
 
 /*!
@@ -119,13 +122,14 @@ bgi::query(spatial_index, bgi::overlaps(box), std::back_inserter(result));
 
 \param g            The Geometry object.
 */
-template <typename Geometry>
-inline detail::overlaps<Geometry> overlaps(Geometry const& g)
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::overlaps_tag, false, false>
+overlaps(Geometry const& g)
 {
-    return detail::overlaps<Geometry>(g);
+    return detail::spatial_predicate<Geometry, detail::overlaps_tag, false, false>(g);
 }
 
-//*!
+///*!
 //\brief Generate \c touches() predicate.
 //
 //Generate a predicate defining Value and Geometry relationship.
@@ -138,10 +142,11 @@ inline detail::overlaps<Geometry> overlaps(Geometry const& g)
 //
 //\param g            The Geometry object.
 //*/
-//template <typename Geometry>
-//inline detail::touches<Geometry> touches(Geometry const& g)
+//template <typename Geometry> inline
+//detail::spatial_predicate<Geometry, detail::touches_tag, false, false>
+//touches(Geometry const& g)
 //{
-//    return detail::touches<Geometry>(g);
+//    return detail::spatial_predicate<Geometry, detail::touches_tag, false, false>(g);
 //}
 
 /*!
@@ -162,10 +167,11 @@ bgi::query(spatial_index, bgi::within(box), std::back_inserter(result));
 
 \param g            The Geometry object.
 */
-template <typename Geometry>
-inline detail::within<Geometry> within(Geometry const& g)
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::within_tag, false, false>
+within(Geometry const& g)
 {
-    return detail::within<Geometry>(g);
+    return detail::spatial_predicate<Geometry, detail::within_tag, false, false>(g);
 }
 
 /*!
@@ -201,8 +207,9 @@ std::back_inserter(result));
 
 \param pred             The unary predicate function or function object.
 */
-template <typename UnaryPredicate>
-inline detail::satisfies<UnaryPredicate> satisfies(UnaryPredicate const& pred)
+template <typename UnaryPredicate> inline
+detail::satisfies<UnaryPredicate>
+satisfies(UnaryPredicate const& pred)
 {
     return detail::satisfies<UnaryPredicate>(pred);
 }
@@ -285,89 +292,23 @@ operator!(not_satisfies<Fun> const& p)
     return satisfies<Fun>(p);
 }
 
-template <typename Geometry> inline
-not_covered_by<Geometry>
-operator!(covered_by<Geometry> const& p)
+template <typename Geometry, typename Tag, bool Negated, bool Reversed> inline
+spatial_predicate<Geometry, Tag, !Negated, Reversed>
+operator!(spatial_predicate<Geometry, Tag, Negated, Reversed> const& p)
 {
-    return not_covered_by<Geometry>(p.geometry);
+    return spatial_predicate<Geometry, Tag, !Negated, Reversed>(p.geometry);
 }
 
-template <typename Geometry> inline
-covered_by<Geometry>
-operator!(not_covered_by<Geometry> const& p)
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+template <typename Geometry, typename Tag, bool Negated, bool Reversed> inline
+spatial_predicate<Geometry, Tag, Negated, !Reversed>
+operator~(spatial_predicate<Geometry, Tag, Negated, Reversed> const& p)
 {
-    return covered_by<Geometry>(p.geometry);
+    return spatial_predicate<Geometry, Tag, Negated, !Reversed>(p.geometry);
 }
 
-template <typename Geometry> inline
-not_disjoint<Geometry>
-operator!(disjoint<Geometry> const& p)
-{
-    return not_disjoint<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-disjoint<Geometry>
-operator!(not_disjoint<Geometry> const& p)
-{
-    return disjoint<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-not_intersects<Geometry>
-operator!(intersects<Geometry> const& p)
-{
-    return not_intersects<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-intersects<Geometry>
-operator!(not_intersects<Geometry> const& p)
-{
-    return intersects<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-not_overlaps<Geometry>
-operator!(overlaps<Geometry> const& p)
-{
-    return not_overlaps<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-overlaps<Geometry>
-operator!(not_overlaps<Geometry> const& p)
-{
-    return overlaps<Geometry>(p.geometry);
-}
-
-//template <typename Geometry> inline
-//not_touches<Geometry>
-//operator!(touches<Geometry> const& p)
-//{
-//    return not_touches<Geometry>(p.geometry);
-//}
-//
-//template <typename Geometry> inline
-//touches<Geometry>
-//operator!(not_touches<Geometry> const& p)
-//{
-//    return touches<Geometry>(p.geometry);
-//}
-
-template <typename Geometry> inline
-not_within<Geometry>
-operator!(within<Geometry> const& p)
-{
-    return not_within<Geometry>(p.geometry);
-}
-
-template <typename Geometry> inline
-within<Geometry>
-operator!(not_within<Geometry> const& p)
-{
-    return within<Geometry>(p.geometry);
-}
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 // operator&& generators
 
