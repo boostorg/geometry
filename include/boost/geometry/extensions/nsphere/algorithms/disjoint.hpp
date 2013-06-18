@@ -132,7 +132,7 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
     static inline bool apply(Point const& p, NSphere const& s)
     {
         typedef typename coordinate_system<Point>::type p_cs;
-        typedef typename typename coordinate_system<NSphere>::type s_cs;
+        typedef typename coordinate_system<NSphere>::type s_cs;
         static const bool check_cs = ::boost::is_same<p_cs, cs::cartesian>::value && ::boost::is_same<s_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (p_cs, s_cs));
 
@@ -149,7 +149,7 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
     static inline bool apply(NSphere const& s, Box const& b)
     {
         typedef typename coordinate_system<Box>::type b_cs;
-        typedef typename typename coordinate_system<NSphere>::type s_cs;
+        typedef typename coordinate_system<NSphere>::type s_cs;
         static const bool check_cs = ::boost::is_same<b_cs, cs::cartesian>::value && ::boost::is_same<s_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (b_cs, s_cs));
 
@@ -165,15 +165,20 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
 {
     static inline bool apply(NSphere1 const& s1, NSphere2 const& s2)
     {
-        typedef typename typename coordinate_system<NSphere1>::type s1_cs;
-        typedef typename typename coordinate_system<NSphere2>::type s2_cs;
+        typedef typename coordinate_system<NSphere1>::type s1_cs;
+        typedef typename coordinate_system<NSphere2>::type s2_cs;
         static const bool check_cs = ::boost::is_same<s1_cs, cs::cartesian>::value && ::boost::is_same<s2_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (s1_cs, s2_cs));
 
-        return get_radius<0>(s1) + get_radius<0>(s2)
+        /*return get_radius<0>(s1) + get_radius<0>(s2)
                <   ::sqrt(geometry::detail::disjoint::points_or_spheres_comparable_distance_cartesian<
-                              Point, NSphere, 0, DimensionCount
-                          >::apply(p, s));
+                              NSphere1, NSphere2, 0, DimensionCount
+                          >::apply(s1, s2));*/
+
+        return get_radius<0>(s1) * get_radius<0>(s1) + 2 * get_radius<0>(s1) * get_radius<0>(s2) + get_radius<0>(s2) * get_radius<0>(s2)
+               <   geometry::detail::disjoint::points_or_spheres_comparable_distance_cartesian<
+                       NSphere1, NSphere2, 0, DimensionCount
+                   >::apply(s1, s2);
     }
 };
 

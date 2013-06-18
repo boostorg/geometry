@@ -13,6 +13,9 @@
 
 #include <boost/geometry/index/detail/indexable.hpp>
 
+// WARNING! comparable_margin() will work only if the same Geometries are compared
+// so it shouldn't be used in the case of Variants!
+
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Box>
@@ -90,11 +93,15 @@ struct default_margin_result
 //    }
 //};
 
+// TODO - test if this definition of margin is ok for Dimension > 2
+// Now it's sum of edges lengths
+// maybe margin_for_each_dimension should be used to get more or less hypersurface?
+
 template <typename Box, size_t CurrentDimension>
 struct simple_margin_for_each_dimension
 {
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
-    BOOST_STATIC_ASSERT(CurrentDimension <= detail::traits::dimension<Box>::value);
+    //BOOST_STATIC_ASSERT(CurrentDimension <= dimension<Box>::value);
 
     static inline typename default_margin_result<Box>::type apply(Box const& b)
     {
@@ -112,17 +119,49 @@ struct simple_margin_for_each_dimension<Box, 1>
     }
 };
 
-template <typename Box>
-typename default_margin_result<Box>::type comparable_margin(Box const& b)
+namespace dispatch {
+
+template <typename Geometry, typename Tag>
+struct comparable_margin
 {
-    //return detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
-    return detail::simple_margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (Geometry, Tag));
+};
+
+template <typename Geometry>
+struct comparable_margin<Geometry, point_tag>
+{
+    typedef typename default_margin_result<Geometry>::type result_type;
+
+    static inline result_type apply(Geometry const& g) { return 0; }
+};
+
+template <typename Box>
+struct comparable_margin<Box, box_tag>
+{
+    typedef typename default_margin_result<Box>::type result_type;
+
+    static inline result_type apply(Box const& g)
+    {
+        //return detail::margin_for_each_dimension<Box, dimension<Box>::value>::apply(g);
+        return detail::simple_margin_for_each_dimension<Box, dimension<Box>::value>::apply(g);
+    }
+};
+
+} // namespace dispatch
+
+template <typename Geometry>
+typename default_margin_result<Geometry>::type comparable_margin(Geometry const& g)
+{
+    return dispatch::comparable_margin<
+        Geometry,
+        typename tag<Geometry>::type
+    >::apply(g);
 }
 
 //template <typename Box>
 //typename default_margin_result<Box>::type margin(Box const& b)
 //{
-//    return 2 * detail::margin_for_each_dimension<Box, detail::traits::dimension<Box>::value>::apply(b);
+//    return 2 * detail::margin_for_each_dimension<Box, dimension<Box>::value>::apply(b);
 //}
 
 }}}} // namespace boost::geometry::index::detail
