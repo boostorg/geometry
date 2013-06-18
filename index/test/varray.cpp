@@ -36,7 +36,7 @@ template <typename T, size_t N>
 void test_ctor_ndc()
 {
     varray<T, N> s;
-    BOOST_CHECK_EQUAL(s.size() , 0);
+    BOOST_CHECK_EQUAL(s.size(), 0u);
     BOOST_CHECK(s.capacity() == N);
 #ifndef BOOST_NO_EXCEPTIONS
     BOOST_CHECK_THROW( s.at(0), std::out_of_range );
