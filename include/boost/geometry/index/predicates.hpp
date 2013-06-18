@@ -27,6 +27,35 @@
 
 namespace boost { namespace geometry { namespace index {
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+/*!
+\brief Generate \c contains() predicate.
+
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if <tt>bg::within(Geometry, Indexable)</tt>
+returns true.
+
+\par Example
+\verbatim
+bgi::query(spatial_index, bgi::contains(box), std::back_inserter(result));
+\endverbatim
+
+\ingroup predicates
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::within_tag, false, true>
+contains(Geometry const& g)
+{
+    return detail::spatial_predicate<Geometry, detail::within_tag, false, true>(g);
+}
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
 /*!
 \brief Generate \c covered_by() predicate.
 
@@ -129,25 +158,29 @@ overlaps(Geometry const& g)
     return detail::spatial_predicate<Geometry, detail::overlaps_tag, false, false>(g);
 }
 
-///*!
-//\brief Generate \c touches() predicate.
-//
-//Generate a predicate defining Value and Geometry relationship.
-//Value will be returned by the query if <tt>bg::touches(Indexable, Geometry)</tt>
-//returns true.
-//
-//\ingroup predicates
-//
-//\tparam Geometry    The Geometry type.
-//
-//\param g            The Geometry object.
-//*/
-//template <typename Geometry> inline
-//detail::spatial_predicate<Geometry, detail::touches_tag, false, false>
-//touches(Geometry const& g)
-//{
-//    return detail::spatial_predicate<Geometry, detail::touches_tag, false, false>(g);
-//}
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+/*!
+\brief Generate \c touches() predicate.
+
+Generate a predicate defining Value and Geometry relationship.
+Value will be returned by the query if <tt>bg::touches(Indexable, Geometry)</tt>
+returns true.
+
+\ingroup predicates
+
+\tparam Geometry    The Geometry type.
+
+\param g            The Geometry object.
+*/
+template <typename Geometry> inline
+detail::spatial_predicate<Geometry, detail::touches_tag, false, false>
+touches(Geometry const& g)
+{
+    return detail::spatial_predicate<Geometry, detail::touches_tag, false, false>(g);
+}
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 /*!
 \brief Generate \c within() predicate.
