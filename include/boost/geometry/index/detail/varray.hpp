@@ -1529,7 +1529,7 @@ private:
         this->clear();
 
         ::memcpy(this->data(), other.data(), sizeof(Value) * other.m_size);
-        boost::swap(m_size, other.m_size);
+        std::swap(m_size, other.m_size);
     }
 
     // @par Throws
@@ -1577,7 +1577,7 @@ private:
         ::memcpy(this->data(), other.data(), sizeof(Value) * other.size());
         ::memcpy(other.data(), temp_ptr, sizeof(Value) * this->size());
 
-        boost::swap(m_size, other.m_size);
+        std::swap(m_size, other.m_size);
     }
 
     // @par Throws
@@ -1597,7 +1597,7 @@ private:
             swap_dispatch_impl(this->begin(), this->end(), other.begin(), other.end(), use_memop_in_swap_and_move()); // may throw
         else
             swap_dispatch_impl(other.begin(), other.end(), this->begin(), this->end(), use_memop_in_swap_and_move()); // may throw
-        boost::swap(m_size, other.m_size);
+        std::swap(m_size, other.m_size);
     }
 
     // @par Throws
