@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Indexable>
@@ -35,7 +33,7 @@ struct content_box
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {
         return content_box<Box, CurrentDimension - 1>::apply(b) *
-            ( detail::get<max_corner, CurrentDimension - 1>(b) - detail::get<min_corner, CurrentDimension - 1>(b) );
+            ( get<max_corner, CurrentDimension - 1>(b) - get<min_corner, CurrentDimension - 1>(b) );
     }
 };
 
@@ -44,7 +42,7 @@ struct content_box<Box, 1>
 {
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {
-        return detail::get<max_corner, 0>(b) - detail::get<min_corner, 0>(b);
+        return get<max_corner, 0>(b) - get<min_corner, 0>(b);
     }
 };
 

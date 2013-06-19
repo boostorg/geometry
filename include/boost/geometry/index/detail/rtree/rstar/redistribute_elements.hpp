@@ -25,8 +25,14 @@ namespace detail { namespace rtree {
 
 namespace rstar {
 
-template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
+template <typename Element, typename Translator, typename Tag, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less
+{
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+};
+
+template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
+class element_axis_corner_less<Element, Translator, box_tag, Corner, AxisIndex>
 {
 public:
     element_axis_corner_less(Translator const& tr)
@@ -35,8 +41,26 @@ public:
 
     bool operator()(Element const& e1, Element const& e2) const
     {
-        return index::detail::get<Corner, AxisIndex>(rtree::element_indexable(e1, m_tr))
-            < index::detail::get<Corner, AxisIndex>(rtree::element_indexable(e2, m_tr));
+        return geometry::get<Corner, AxisIndex>(rtree::element_indexable(e1, m_tr))
+            < geometry::get<Corner, AxisIndex>(rtree::element_indexable(e2, m_tr));
+    }
+
+private:
+    Translator const& m_tr;
+};
+
+template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
+class element_axis_corner_less<Element, Translator, point_tag, Corner, AxisIndex>
+{
+public:
+    element_axis_corner_less(Translator const& tr)
+        : m_tr(tr)
+    {}
+
+    bool operator()(Element const& e1, Element const& e2) const
+    {
+        return geometry::get<AxisIndex>(rtree::element_indexable(e1, m_tr))
+            < geometry::get<AxisIndex>(rtree::element_indexable(e2, m_tr));
     }
 
 private:
@@ -59,6 +83,8 @@ struct choose_split_axis_and_index_for_corner
                              Translator const& translator)
     {
         typedef typename Elements::value_type element_type;
+        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename tag<indexable_type>::type indexable_tag;
 
         BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == parameters.get_max_elements() + 1, "wrong number of elements");
 
@@ -66,7 +92,7 @@ struct choose_split_axis_and_index_for_corner
         Elements elements_copy(elements);                                                                       // MAY THROW, STRONG (alloc, copy)
         
         // sort elements
-        element_axis_corner_less<element_type, Translator, Corner, AxisIndex> elements_less(translator);
+        element_axis_corner_less<element_type, Translator, indexable_tag, Corner, AxisIndex> elements_less(translator);
         std::sort(elements_copy.begin(), elements_copy.end(), elements_less);                                   // MAY THROW, BASIC (copy)
 
         // init outputs
@@ -106,7 +132,7 @@ struct choose_split_axis_and_index_for_corner
 template <typename Parameters, typename Box, size_t AxisIndex, typename ElementIndexableTag>
 struct choose_split_axis_and_index_for_axis
 {
-    //BOOST_STATIC_ASSERT(0);
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (ElementIndexableTag));
 };
 
 template <typename Parameters, typename Box, size_t AxisIndex>
@@ -227,7 +253,7 @@ struct choose_split_axis_and_index
             Parameters,
             Box,
             Dimension - 1,
-            typename index::detail::traits::tag<element_indexable_type>::type
+            typename tag<element_indexable_type>::type
         >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, parameters, translator); // MAY THROW, STRONG
 
         if ( sum_of_margins < smallest_sum_of_margins )
@@ -267,7 +293,7 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
             Parameters,
             Box,
             0,
-            typename index::detail::traits::tag<element_indexable_type>::type
+            typename tag<element_indexable_type>::type
         >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, parameters, translator); // MAY THROW
     }
 };
@@ -289,7 +315,10 @@ struct partial_sort
             BOOST_GEOMETRY_INDEX_ASSERT(axis == Dimension - 1, "unexpected axis value");
 
             typedef typename Elements::value_type element_type;
-            element_axis_corner_less<element_type, Translator, Corner, Dimension - 1> less(tr);
+            typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+            typedef typename tag<indexable_type>::type indexable_tag;
+
+            element_axis_corner_less<element_type, Translator, indexable_tag, Corner, Dimension - 1> less(tr);
             std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);            // MAY THROW, BASIC (copy)
         }
     }
@@ -307,7 +336,10 @@ struct partial_sort<Corner, 1>
         BOOST_GEOMETRY_INDEX_ASSERT(axis == 0, "unexpected axis value");
 
         typedef typename Elements::value_type element_type;
-        element_axis_corner_less<element_type, Translator, Corner, 0> less(tr);
+        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+        typedef typename tag<indexable_type>::type indexable_tag;
+
+        element_axis_corner_less<element_type, Translator, indexable_tag, Corner, 0> less(tr);
         std::partial_sort(elements.begin(), elements.begin() + index, elements.end(), less);                // MAY THROW, BASIC (copy)
     }
 };
@@ -323,7 +355,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
     typedef typename Options::parameters_type parameters_type;
 
-    static const size_t dimension = index::detail::traits::dimension<Box>::value;
+    static const size_t dimension = dimension<Box>::value;
 
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
@@ -353,7 +385,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         rstar::choose_split_axis_and_index<
             typename Options::parameters_type,
             Box,
-            index::detail::traits::dimension<Box>::value
+            dimension
         >::apply(elements1,
                  split_axis, split_corner, split_index,
                  smallest_sum_of_margins, smallest_overlap, smallest_content,
@@ -361,7 +393,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
         // TODO: awulkiew - get rid of following static_casts?
 
-        BOOST_GEOMETRY_INDEX_ASSERT(split_axis < index::detail::traits::dimension<Box>::value, "unexpected value");
+        BOOST_GEOMETRY_INDEX_ASSERT(split_axis < dimension, "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(split_corner == static_cast<size_t>(min_corner) || split_corner == static_cast<size_t>(max_corner), "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= split_index && split_index <= parameters.get_max_elements() - parameters.get_min_elements() + 1, "unexpected value");
         

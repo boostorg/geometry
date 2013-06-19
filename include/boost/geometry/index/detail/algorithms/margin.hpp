@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_MARGIN_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 // WARNING! comparable_margin() will work only if the same Geometries are compared
 // so it shouldn't be used in the case of Variants!
 
