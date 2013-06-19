@@ -27,6 +27,23 @@ typedef bg::model::point<double, 2, bg::cs::cartesian> P;
 typedef bg::model::box<P> B;
 typedef bg::model::linestring<P> LS;
 typedef bg::model::segment<P> S;
+typedef B V;
+//typedef P V;
+
+template <typename V>
+struct generate_value {};
+
+template <>
+struct generate_value<B>
+{
+    static inline B apply(float x, float y) { return B(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f)); }
+};
+
+template <>
+struct generate_value<P>
+{
+    static inline P apply(float x, float y) { return P(x, y); }
+};
 
 template <typename I1, typename I2, typename O>
 void mycopy(I1 first, I2 last, O o)
@@ -62,7 +79,7 @@ int main()
 
     float max_val = static_cast<float>(values_count / 2);
     std::vector< std::pair<float, float> > coords;
-    std::vector<B> values;
+    std::vector<V> values;
 
     //randomize values
     {
@@ -79,20 +96,20 @@ int main()
             float x = rnd();
             float y = rnd();
             coords.push_back(std::make_pair(x, y));
-            values.push_back(B(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f)));
+            values.push_back(generate_value<V>::apply(x, y));
         }
         std::cout << "randomized\n";
     }
 
-    //typedef bgi::rtree<B, bgi::linear<100, 50> > RT;
-    //typedef bgi::rtree<B, bgi::quadratic<8, 3> > RT;
-    typedef bgi::rtree<B, bgi::rstar<8, 3> > RT;
+    //typedef bgi::rtree<V, bgi::linear<16, 4> > RT;
+    //typedef bgi::rtree<V, bgi::quadratic<16, 4> > RT;
+    typedef bgi::rtree<V, bgi::rstar<16, 4> > RT;
 
     std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
 
     for (;;)
     {
-        std::vector<B> result;
+        std::vector<V> result;
         result.reserve(100);
         B result_one;
 
@@ -220,14 +237,14 @@ int main()
                     &&
                     !bgi::within(B(P(x2 - 10, y2 - 10), P(x2 + 10, y2 + 10)))
                     &&
-                    !bgi::overlaps(B(P(x3 - 10, y3 - 10), P(x3 + 10, y3 + 10)))
+                    !bgi::covered_by(B(P(x3 - 10, y3 - 10), P(x3 + 10, y3 + 10)))
                     ,
                     std::back_inserter(result)
                     );
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
-            std::cout << time << " - query(i && !w && !o) " << queries_count << " found " << temp << '\n';
+            std::cout << time << " - query(i && !w && !c) " << queries_count << " found " << temp << '\n';
         }
 
         result.clear();
@@ -366,9 +383,8 @@ int main()
             {
                 float x = coords[i].first;
                 float y = coords[i].second;
-                B b(P(x - 0.5f, y - 0.5f), P(x + 0.5f, y + 0.5f));
-
-                t.remove(b);
+                
+                t.remove(generate_value<V>::apply(x, y));
             }
             dur_t time = clock_t::now() - start;
             std::cout << time << " - remove " << values_count / 10 << '\n';

@@ -337,36 +337,38 @@ void query_multi_poly()
 
 void search()
 {
+    namespace d = bgi::detail;
+
     if ( query_mode == qm_knn )
         query_knn();
     else if ( query_mode == qm_c )
-        query< bgi::detail::covered_by<B> >();
+        query< d::spatial_predicate<B, d::covered_by_tag, false> >();
     else if ( query_mode == qm_d )
-        query< bgi::detail::disjoint<B> >();
+        query< d::spatial_predicate<B, d::disjoint_tag, false> >();
     else if ( query_mode == qm_i )
-        query< bgi::detail::intersects<B> >();
+        query< d::spatial_predicate<B, d::intersects_tag, false> >();
     else if ( query_mode == qm_o )
-        query< bgi::detail::overlaps<B> >();
+        query< d::spatial_predicate<B, d::overlaps_tag, false> >();
     else if ( query_mode == qm_w )
-        query< bgi::detail::within<B> >();
+        query< d::spatial_predicate<B, d::within_tag, false> >();
     else if ( query_mode == qm_nc )
-        query< bgi::detail::not_covered_by<B> >();
+        query< d::spatial_predicate<B, d::covered_by_tag, true> >();
     else if ( query_mode == qm_nd )
-        query< bgi::detail::not_disjoint<B> >();
+        query< d::spatial_predicate<B, d::disjoint_tag, true> >();
     else if ( query_mode == qm_ni )
-        query< bgi::detail::not_intersects<B> >();
+        query< d::spatial_predicate<B, d::intersects_tag, true> >();
     else if ( query_mode == qm_no )
-        query< bgi::detail::not_overlaps<B> >();
+        query< d::spatial_predicate<B, d::overlaps_tag, true> >();
     else if ( query_mode == qm_nw )
-        query< bgi::detail::not_within<B> >();
+        query< d::spatial_predicate<B, d::within_tag, true> >();
     else if ( query_mode == qm_all )
-        query< bgi::detail::intersects<B> >();
+        query< d::spatial_predicate<B, d::intersects_tag, false> >();
     else if ( query_mode == qm_ri )
-        query_ring< bgi::detail::intersects<R> >();
+        query_ring< d::spatial_predicate<R, d::intersects_tag, false> >();
     else if ( query_mode == qm_pi )
-        query_poly< bgi::detail::intersects<Poly> >();
+        query_poly< d::spatial_predicate<Poly, d::intersects_tag, false> >();
     else if ( query_mode == qm_mpi )
-        query_multi_poly< bgi::detail::intersects<MPoly> >();
+        query_multi_poly< d::spatial_predicate<MPoly, d::intersects_tag, false> >();
     else if ( query_mode == qm_path )
         query_path();
 

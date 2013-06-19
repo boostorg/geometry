@@ -579,7 +579,7 @@ value_outside()
     typedef typename Rtree::value_type V;
     typedef typename Rtree::indexable_type I;
 
-    return value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
+    return value_outside_impl<V, bg::dimension<I>::value>::apply();
 }
 
 template<typename Rtree, typename Elements, typename Box>
@@ -588,7 +588,7 @@ void rtree(Rtree & tree, Elements & input, Box & qbox)
     typedef typename Rtree::indexable_type I;
 
     generate::input<
-        bgi::detail::traits::dimension<I>::value
+        bg::dimension<I>::value
     >::apply(input, qbox);
 
     tree.insert(input.begin(), input.end());
@@ -772,7 +772,7 @@ template <typename Rtree, typename Value, typename Box>
 void contains(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     contains_impl<
-        typename bgi::detail::traits::tag<
+        typename bg::tag<
             typename Rtree::indexable_type
         >::type
     >::apply(tree, input, qbox);
@@ -838,7 +838,7 @@ template <typename Rtree, typename Value, typename Box>
 void covers(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     covers_impl<
-        typename bgi::detail::traits::tag<
+        typename bg::tag<
             typename Rtree::indexable_type
         >::type
     >::apply(tree, input, qbox);
@@ -882,7 +882,7 @@ template <typename Rtree, typename Value, typename Box>
 void overlaps(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     overlaps_impl<
-        typename bgi::detail::traits::tag<
+        typename bg::tag<
             typename Rtree::indexable_type
         >::type
     >::apply(tree, input, qbox);
@@ -1425,7 +1425,7 @@ void queries(Rtree const& tree, std::vector<Value> const& input, Box const& qbox
     basictest::covers(tree, input, qbox);
 #endif
 
-    typedef typename bgi::detail::traits::point_type<Box>::type P;
+    typedef typename bg::point_type<Box>::type P;
     P pt;
     bg::centroid(qbox, pt);
 
