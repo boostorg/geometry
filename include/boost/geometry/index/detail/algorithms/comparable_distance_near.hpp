@@ -41,8 +41,8 @@ struct sum_for_indexable_dimension<Point, BoxIndexable, box_tag, comparable_dist
 
     inline static result_type apply(Point const& pt, BoxIndexable const& i)
     {
-        typedef typename index::detail::traits::coordinate_type<Point>::type point_coord_t;
-        typedef typename index::detail::traits::coordinate_type<BoxIndexable>::type indexable_coord_t;
+        typedef typename coordinate_type<Point>::type point_coord_t;
+        typedef typename coordinate_type<BoxIndexable>::type indexable_coord_t;
 
         point_coord_t pt_c = geometry::get<DimensionIndex>(pt);
         indexable_coord_t ind_c_min = geometry::get<geometry::min_corner, DimensionIndex>(i);
@@ -66,9 +66,9 @@ comparable_distance_near(Point const& pt, Indexable const& i)
     return detail::sum_for_indexable<
         Point,
         Indexable,
-        typename index::detail::traits::tag<Indexable>::type,
+        typename tag<Indexable>::type,
         detail::comparable_distance_near_tag,
-        index::detail::traits::dimension<Indexable>::value
+        dimension<Indexable>::value
     >::apply(pt, i);
 }
 

@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 namespace utilities {
@@ -26,7 +24,7 @@ struct gl_draw_point
 template <typename Point>
 struct gl_draw_point<Point, 2>
 {
-    static inline void apply(Point const& p, typename index::detail::traits::coordinate_type<Point>::type z)
+    static inline void apply(Point const& p, typename coordinate_type<Point>::type z)
     {
         glBegin(GL_POINT);
         glVertex3f(geometry::get<0>(p), geometry::get<1>(p), z);
@@ -41,7 +39,7 @@ struct gl_draw_box
 template <typename Box>
 struct gl_draw_box<Box, 2>
 {
-    static inline void apply(Box const& b, typename index::detail::traits::coordinate_type<Box>::type z)
+    static inline void apply(Box const& b, typename coordinate_type<Box>::type z)
     {
         glBegin(GL_LINE_LOOP);
         glVertex3f(geometry::get<min_corner, 0>(b), geometry::get<min_corner, 1>(b), z);
@@ -60,9 +58,9 @@ struct gl_draw_indexable
 template <typename Indexable>
 struct gl_draw_indexable<Indexable, box_tag>
 {
-    static const size_t dimension = index::detail::traits::dimension<Indexable>::value;
+    static const size_t dimension = dimension<Indexable>::value;
 
-    static inline void apply(Indexable const& i, typename index::detail::traits::coordinate_type<Indexable>::type z)
+    static inline void apply(Indexable const& i, typename coordinate_type<Indexable>::type z)
     {
         gl_draw_box<Indexable, dimension>::apply(i, z);
     }
@@ -71,9 +69,9 @@ struct gl_draw_indexable<Indexable, box_tag>
 template <typename Indexable>
 struct gl_draw_indexable<Indexable, point_tag>
 {
-    static const size_t dimension = index::detail::traits::dimension<Indexable>::value;
+    static const size_t dimension = dimension<Indexable>::value;
 
-    static inline void apply(Indexable const& i, typename index::detail::traits::coordinate_type<Indexable>::type z)
+    static inline void apply(Indexable const& i, typename coordinate_type<Indexable>::type z)
     {
         gl_draw_point<Indexable, dimension>::apply(i, z);
     }
@@ -82,11 +80,11 @@ struct gl_draw_indexable<Indexable, point_tag>
 } // namespace dispatch
 
 template <typename Indexable> inline
-void gl_draw_indexable(Indexable const& i, typename index::detail::traits::coordinate_type<Indexable>::type z)
+void gl_draw_indexable(Indexable const& i, typename coordinate_type<Indexable>::type z)
 {
     dispatch::gl_draw_indexable<
         Indexable,
-        typename index::detail::traits::tag<Indexable>::type
+        typename tag<Indexable>::type
     >::apply(i, z);
 }
 
@@ -105,7 +103,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
     inline gl_draw(Translator const& t,
                    size_t level_first = 0,
                    size_t level_last = (std::numeric_limits<size_t>::max)(),
-                   typename index::detail::traits::coordinate_type<Box>::type z_coord_level_multiplier = 1
+                   typename coordinate_type<Box>::type z_coord_level_multiplier = 1
     )
         : tr(t)
         , level_f(level_first)
@@ -182,7 +180,7 @@ struct gl_draw : public rtree::visitor<Value, typename Options::parameters_type,
     Translator const& tr;
     size_t level_f;
     size_t level_l;
-    typename index::detail::traits::coordinate_type<Box>::type z_mul;
+    typename coordinate_type<Box>::type z_mul;
 
     size_t level;
 };
@@ -193,7 +191,7 @@ template <typename Rtree> inline
 void gl_draw(Rtree const& tree,
              size_t level_first = 0,
              size_t level_last = (std::numeric_limits<size_t>::max)(),
-             typename index::detail::traits::coordinate_type<
+             typename coordinate_type<
                     typename Rtree::bounds_type
                 >::type z_coord_level_multiplier = 1
              )

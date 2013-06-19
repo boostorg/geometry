@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SEGMENT_INTERSECTION_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SEGMENT_INTERSECTION_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 //template <typename Indexable, typename Point>
@@ -20,8 +18,8 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 //{
 //    typedef typename select_most_precise<
 //        typename select_most_precise<
-//        typename traits::coordinate_type<Indexable>::type,
-//        typename traits::coordinate_type<Point>::type
+//        typename coordinate_type<Indexable>::type,
+//        typename coordinate_type<Point>::type
 //        >::type,
 //        float // TODO - use bigger type, calculated from the size of coordinate types
 //    >::type type;
@@ -36,9 +34,9 @@ namespace dispatch {
 template <typename Box, typename Point, size_t I>
 struct box_segment_intersection_dim
 {
-    BOOST_STATIC_ASSERT(I < traits::dimension<Box>::value);
-    BOOST_STATIC_ASSERT(I < traits::dimension<Point>::value);
-    BOOST_STATIC_ASSERT(traits::dimension<Point>::value == traits::dimension<Box>::value);
+    BOOST_STATIC_ASSERT(I < dimension<Box>::value);
+    BOOST_STATIC_ASSERT(I < dimension<Point>::value);
+    BOOST_STATIC_ASSERT(dimension<Point>::value == dimension<Box>::value);
 
     // WARNING! - RelativeDistance must be IEEE float for this to work
 
@@ -47,8 +45,8 @@ struct box_segment_intersection_dim
                              RelativeDistance & t_near, RelativeDistance & t_far)
     {
         RelativeDistance ray_d = geometry::get<I>(p1) - geometry::get<I>(p0);
-        RelativeDistance tn = ( detail::get<min_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
-        RelativeDistance tf = ( detail::get<max_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
+        RelativeDistance tn = ( geometry::get<min_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
+        RelativeDistance tf = ( geometry::get<max_corner, I>(b) - geometry::get<I>(p0) ) / ray_d;
         if ( tf < tn )
             ::std::swap(tn, tf);
 
@@ -105,7 +103,7 @@ struct segment_intersection<Indexable, Point, point_tag>
 template <typename Indexable, typename Point>
 struct segment_intersection<Indexable, Point, box_tag>
 {
-    typedef dispatch::box_segment_intersection<Indexable, Point, detail::traits::dimension<Indexable>::value> impl;
+    typedef dispatch::box_segment_intersection<Indexable, Point, dimension<Indexable>::value> impl;
 
     template <typename RelativeDistance>
     static inline bool apply(Indexable const& b, Point const& p0, Point const& p1, RelativeDistance & relative_distance)
@@ -134,7 +132,7 @@ bool segment_intersection(Indexable const& b,
 
     return dispatch::segment_intersection<
             Indexable, Point,
-            typename detail::traits::tag<Indexable>::type
+            typename tag<Indexable>::type
         >::apply(b, p0, p1, relative_distance);
 }
 

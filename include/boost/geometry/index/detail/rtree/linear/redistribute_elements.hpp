@@ -26,31 +26,55 @@ namespace detail { namespace rtree {
 
 namespace linear {
 
+template <typename R, typename T>
+inline R difference_dispatch(T const& from, T const& to, ::boost::mpl::bool_<false> const& /*is_unsigned*/)
+{
+    return to - from;
+}
+
+template <typename R, typename T>
+inline R difference_dispatch(T const& from, T const& to, ::boost::mpl::bool_<true> const& /*is_unsigned*/)
+{
+    return from <= to ? R(to - from) : -R(from - to);
+}
+
+template <typename R, typename T>
+inline R difference(T const& from, T const& to)
+{
+    BOOST_MPL_ASSERT_MSG(!boost::is_unsigned<R>::value, RESULT_CANT_BE_UNSIGNED, (R));
+
+    typedef ::boost::mpl::bool_<
+        boost::is_unsigned<T>::value
+    > is_unsigned;
+
+    return difference_dispatch<R>(from, to, is_unsigned());
+}
+
 // TODO: awulkiew - there are loops inside find_greatest_normalized_separation::apply()
 // iteration is done for each DimensionIndex.
 // Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be choosen.
 
-// TODO: Implement separate version for Points
-
 // The following struct/method was adapted for the preliminary version of the R-tree. Then it was called:
 // void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
 
-template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
+template <typename Elements, typename Parameters, typename Translator, typename Tag, size_t DimensionIndex>
 struct find_greatest_normalized_separation
+{
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+};
+
+template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
+struct find_greatest_normalized_separation<Elements, Parameters, Translator, box_tag, DimensionIndex>
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
     typedef typename boost::mpl::if_c<
         boost::is_integral<coordinate_type>::value,
         double,
         coordinate_type
     >::type separation_type;
-
-    typedef ::boost::mpl::bool_<
-        boost::is_unsigned<coordinate_type>::value
-    > is_coordinate_type_unsigned;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
@@ -64,15 +88,15 @@ struct find_greatest_normalized_separation
         BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
 
         // find the lowest low, highest high
-        coordinate_type lowest_low = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
-        coordinate_type highest_high = index::detail::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type lowest_low = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type highest_high = geometry::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[0], translator));
         // and the lowest high
         coordinate_type lowest_high = highest_high;
         size_t lowest_high_index = 0;
         for ( size_t i = 1 ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
-            coordinate_type max_coord = index::detail::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type max_coord = geometry::get<max_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
 
             if ( max_coord < lowest_high )
             {
@@ -89,10 +113,10 @@ struct find_greatest_normalized_separation
 
         // find the highest low
         size_t highest_low_index = lowest_high_index == 0 ? 1 : 0;
-        coordinate_type highest_low = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], translator));
+        coordinate_type highest_low = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[highest_low_index], translator));
         for ( size_t i = highest_low_index ; i < elements_count ; ++i )
         {
-            coordinate_type min_coord = index::detail::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
+            coordinate_type min_coord = geometry::get<min_corner, DimensionIndex>(rtree::element_indexable(elements[i], translator));
             if ( highest_low < min_coord &&
                  i != lowest_high_index )
             {
@@ -103,7 +127,8 @@ struct find_greatest_normalized_separation
 
         coordinate_type const width = highest_high - lowest_low;
         
-        separation = difference(highest_low, lowest_high, is_coordinate_type_unsigned());
+        // highest_low - lowest_high
+        separation = difference<separation_type>(lowest_high, highest_low);
         // BOOST_ASSERT(0 <= width);
         if ( std::numeric_limits<coordinate_type>::epsilon() < width )
             separation /= width;
@@ -113,21 +138,60 @@ struct find_greatest_normalized_separation
 
         BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
+};
 
-    static inline separation_type difference(coordinate_type const& highest_low,
-                                             coordinate_type const& lowest_high,
-                                             ::boost::mpl::bool_<false> const& /*is_unsigned*/)
-    {
-        return (highest_low - lowest_high);
-    }
+// Version for points doesn't calculate normalized separation since it would always be equal to 1
+// It returns two seeds most distant to each other, separation is equal to distance
+template <typename Elements, typename Parameters, typename Translator, size_t DimensionIndex>
+struct find_greatest_normalized_separation<Elements, Parameters, Translator, point_tag, DimensionIndex>
+{
+    typedef typename Elements::value_type element_type;
+    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
-    static inline separation_type difference(coordinate_type const& highest_low,
-                                             coordinate_type const& lowest_high,
-                                             ::boost::mpl::bool_<true> const& /*is_unsigned*/)
+    typedef coordinate_type separation_type;
+
+    static inline void apply(Elements const& elements,
+                             Parameters const& parameters,
+                             Translator const& translator,
+                             separation_type & separation,
+                             size_t & seed1,
+                             size_t & seed2)
     {
-        return lowest_high <= highest_low ?
-            separation_type(highest_low - lowest_high) :
-            -separation_type(lowest_high - highest_low);
+        const size_t elements_count = parameters.get_max_elements() + 1;
+        BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "unexpected number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
+
+        // find the lowest low, highest high
+        coordinate_type lowest = geometry::get<DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        coordinate_type highest = geometry::get<DimensionIndex>(rtree::element_indexable(elements[0], translator));
+        size_t lowest_index = 0;
+        size_t highest_index = 0;
+        for ( size_t i = 1 ; i < elements_count ; ++i )
+        {
+            coordinate_type coord = geometry::get<DimensionIndex>(rtree::element_indexable(elements[i], translator));
+
+            if ( coord < lowest )
+            {
+                lowest = coord;
+                lowest_index = i;
+            }
+
+            if ( highest < coord )
+            {
+                highest = coord;
+                highest_index = i;
+            }
+        }
+
+        separation = highest - lowest;
+        seed1 = lowest_index;
+        seed2 = highest_index;
+
+        if ( lowest_index == highest_index )
+            seed2 = (lowest_index + 1) % elements_count; // % is just in case since if this is true lowest_index is 0
+
+        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 };
 
@@ -138,9 +202,13 @@ struct pick_seeds_impl
 
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
-    typedef find_greatest_normalized_separation<Elements, Parameters, Translator, Dimension - 1> find_norm_sep;
+    typedef find_greatest_normalized_separation<
+        Elements, Parameters, Translator,
+        typename tag<indexable_type>::type, Dimension - 1
+    > find_norm_sep;
+
     typedef typename find_norm_sep::separation_type separation_type;
 
     static inline void apply(Elements const& elements,
@@ -171,9 +239,13 @@ struct pick_seeds_impl<Elements, Parameters, Translator, 1>
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
-    typedef find_greatest_normalized_separation<Elements, Parameters, Translator, 0> find_norm_sep;
+    typedef find_greatest_normalized_separation<
+        Elements, Parameters, Translator,
+        typename tag<indexable_type>::type, 0
+    > find_norm_sep;
+
     typedef typename find_norm_sep::separation_type separation_type;
 
     static inline void apply(Elements const& elements,
@@ -194,9 +266,9 @@ struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
-    static const size_t dimension = index::detail::traits::dimension<indexable_type>::value;
+    static const size_t dimension = dimension<indexable_type>::value;
 
     typedef pick_seeds_impl<Elements, Parameters, Translator, dimension> impl;
     typedef typename impl::separation_type separation_type;
@@ -237,7 +309,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+        typedef typename coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::detail::default_content_result<Box>::type content_type;
 
         elements_type & elements1 = rtree::elements(n);

@@ -26,11 +26,11 @@ struct path_intersection
 template <typename Indexable, typename Segment>
 struct path_intersection<Indexable, Segment, box_tag, segment_tag>
 {
-    typedef typename default_distance_result<typename ::boost::geometry::traits::point_type<Segment>::type>::type comparable_distance_type;
+    typedef typename default_distance_result<typename point_type<Segment>::type>::type comparable_distance_type;
 
     static inline bool apply(Indexable const& b, Segment const& segment, comparable_distance_type & comparable_distance)
     {
-        typedef typename ::boost::geometry::traits::point_type<Segment>::type point_type;
+        typedef typename point_type<Segment>::type point_type;
         point_type p1, p2;
         geometry::detail::assign_point_from_index<0>(segment, p1);
         geometry::detail::assign_point_from_index<1>(segment, p2);
@@ -90,8 +90,8 @@ struct default_path_intersection_distance_type
 {
     typedef typename dispatch::path_intersection<
         Indexable, SegmentOrLinestring,
-        typename detail::traits::tag<Indexable>::type,
-        typename detail::traits::tag<SegmentOrLinestring>::type
+        typename tag<Indexable>::type,
+        typename tag<SegmentOrLinestring>::type
     >::comparable_distance_type type;
 };
 
@@ -104,8 +104,8 @@ bool path_intersection(Indexable const& b,
 
     return dispatch::path_intersection<
             Indexable, SegmentOrLinestring,
-            typename detail::traits::tag<Indexable>::type,
-            typename detail::traits::tag<SegmentOrLinestring>::type
+            typename tag<Indexable>::type,
+            typename tag<SegmentOrLinestring>::type
         >::apply(b, path, comparable_distance);
 }
 

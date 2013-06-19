@@ -29,7 +29,6 @@
 #include <boost/geometry/index/indexable.hpp>
 #include <boost/geometry/index/equal_to.hpp>
 
-#include <boost/geometry/index/detail/indexable.hpp>
 #include <boost/geometry/index/detail/translator.hpp>
 
 #include <boost/geometry/index/predicates.hpp>
@@ -143,7 +142,14 @@ public:
     >::type indexable_type;
 
     /*! \brief The Box type used by the R-tree. */
-    typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
+    typedef geometry::model::box<
+                geometry::model::point<
+                    typename coordinate_type<indexable_type>::type,
+                    dimension<indexable_type>::value,
+                    typename coordinate_system<indexable_type>::type
+                >
+            >
+    bounds_type;
 
 private:
 
