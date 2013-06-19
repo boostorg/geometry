@@ -35,7 +35,6 @@
 #include <boost/geometry/extensions/nsphere/algorithms/within.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/disjoint.hpp>
 
-#include <boost/geometry/extensions/nsphere/index/detail/indexable.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/content.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/is_valid.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/margin.hpp>
