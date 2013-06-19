@@ -19,7 +19,7 @@ template <typename NSphere, size_t Dimension>
 struct comparable_margin_nsphere
 {
     BOOST_STATIC_ASSERT(1 < Dimension);
-    BOOST_STATIC_ASSERT(Dimension <= detail::traits::dimension<NSphere>::value);
+    //BOOST_STATIC_ASSERT(Dimension <= dimension<NSphere>::value);
 
     static inline typename default_margin_result<NSphere>::type apply(NSphere const& s)
     {

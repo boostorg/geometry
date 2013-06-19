@@ -65,7 +65,7 @@ struct content<Indexable, nsphere_tag>
 {
     static typename default_content_result<Indexable>::type apply(Indexable const& i)
     {
-        return dispatch::content_nsphere<Indexable, detail::traits::dimension<Indexable>::value>::apply(i);
+        return dispatch::content_nsphere<Indexable, dimension<Indexable>::value>::apply(i);
     }
 };
 
