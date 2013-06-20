@@ -10,9 +10,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/extensions/nsphere/core/access.hpp>
-#include <boost/geometry/extensions/nsphere/geometries/concepts/nsphere_concept.hpp>
-#include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
+#include <boost/geometry/extensions/nsphere/nsphere.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/core/cs.hpp>

@@ -18,6 +18,9 @@ test-suite boost-geometry-extensions-nsphere
     [ run point_type.cpp ]
     [ run within.cpp ]
 
+    [ run nsphere_in_box.cpp ]
+    [ run point_in_nsphere.cpp ]
+
     [ run disjoint.cpp ]
     [ run index_content.cpp ]
     [ run index_margin.cpp ]

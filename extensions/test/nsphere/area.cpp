@@ -12,8 +12,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/nsphere/algorithms/area.hpp>
-#include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>
+#include <boost/geometry/extensions/nsphere/nsphere.hpp>
 
 
 template <typename P, typename T>
@@ -21,9 +20,9 @@ void test_area_circle()
 {
     bg::model::nsphere<P, T> c;
 
-    bg::set<0>(c.center(), 0);
-    bg::set<1>(c.center(), 0);
-    c.radius(2);
+    bg::set<0>(c, 0);
+    bg::set<1>(c, 0);
+    bg::set_radius<0>(c, 2);
 
     double d = bg::area(c);
     BOOST_CHECK_CLOSE(d, 4 * 3.1415926535897932384626433832795, 0.001);
