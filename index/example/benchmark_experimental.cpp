@@ -45,6 +45,16 @@ struct generate_value<P>
     static inline P apply(float x, float y) { return P(x, y); }
 };
 
+//#include <boost/geometry/extensions/nsphere/nsphere.hpp>
+//typedef bg::model::nsphere<P, double> NS;
+//typedef NS V;
+//
+//template <>
+//struct generate_value<NS>
+//{
+//    static inline NS apply(float x, float y) { return NS(P(x, y), 0.5); }
+//};
+
 template <typename I1, typename I2, typename O>
 void mycopy(I1 first, I2 last, O o)
 {
@@ -101,9 +111,9 @@ int main()
         std::cout << "randomized\n";
     }
 
-    //typedef bgi::rtree<V, bgi::linear<16, 4> > RT;
+    typedef bgi::rtree<V, bgi::linear<16, 4> > RT;
     //typedef bgi::rtree<V, bgi::quadratic<16, 4> > RT;
-    typedef bgi::rtree<V, bgi::rstar<16, 4> > RT;
+    //typedef bgi::rtree<V, bgi::rstar<16, 4> > RT;
 
     std::cout << "sizeof rtree: " << sizeof(RT) << std::endl;
 
