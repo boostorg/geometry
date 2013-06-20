@@ -47,6 +47,8 @@ public:
                                parameters_type const& parameters,
                                size_t node_relative_level)
     {
+        ::boost::ignore_unused_variable_warning(parameters);
+
         children_type & children = rtree::elements(n);
         
         // children are leafs
@@ -63,8 +65,6 @@ public:
         // children are internal nodes
         else
             return choose_by_minimum_content_cost(children, indexable);
-
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
     }
 
 private:

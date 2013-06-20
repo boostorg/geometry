@@ -36,6 +36,8 @@
 #include <boost/geometry/index/detail/assert.hpp>
 #include <boost/geometry/index/detail/varray_detail.hpp>
 
+#include <boost/concept_check.hpp>
+
 /*!
 \defgroup varray_non_member varray non-member functions
 */
@@ -69,8 +71,9 @@ struct checker
     static inline void check_capacity(Varray const& v, size_type s)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(s <= v.capacity(), "size too big");
-        // unused params
-        (void)v; (void)s;
+
+        ::boost::ignore_unused_variable_warning(v);
+        ::boost::ignore_unused_variable_warning(s);
     }
 
     static inline void throw_out_of_bounds(Varray const& v, size_type i)
@@ -81,31 +84,40 @@ struct checker
 //#else // BOOST_NO_EXCEPTIONS
 //        BOOST_GEOMETRY_INDEX_ASSERT(i < v.size(), "index out of bounds");
 //#endif // BOOST_NO_EXCEPTIONS
-        (void)v; (void)i;
+
+        ::boost::ignore_unused_variable_warning(v);
+        ::boost::ignore_unused_variable_warning(i);
     }
 
     static inline void check_index(Varray const& v, size_type i)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(i < v.size(), "index out of bounds");
-        (void)v; (void)i;
+
+        ::boost::ignore_unused_variable_warning(v);
+        ::boost::ignore_unused_variable_warning(i);
     }
 
     static inline void check_not_empty(Varray const& v)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(!v.empty(), "the container is empty");
-        (void)v;
+        
+        ::boost::ignore_unused_variable_warning(v);
     }
 
     static inline void check_iterator_end_neq(Varray const& v, const_iterator position)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(v.begin() <= position && position < v.end(), "iterator out of bounds");
-        (void)v; (void)position;
+
+        ::boost::ignore_unused_variable_warning(v);
+        ::boost::ignore_unused_variable_warning(position);
     }
 
     static inline void check_iterator_end_eq(Varray const& v, const_iterator position)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(v.begin() <= position && position <= v.end(), "iterator out of bounds");
-        (void)v; (void)position;
+
+        ::boost::ignore_unused_variable_warning(v);
+        ::boost::ignore_unused_variable_warning(position);
     }
 };
 

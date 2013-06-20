@@ -136,7 +136,7 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, box
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 };
 
@@ -191,7 +191,7 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, poi
         if ( lowest_index == highest_index )
             seed2 = (lowest_index + 1) % elements_count; // % is just in case since if this is true lowest_index is 0
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 };
 
