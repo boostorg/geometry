@@ -20,7 +20,7 @@ namespace boost { namespace geometry
 
 
 /// Convenience 2D (circle) or 3D (sphere) n-sphere identifying tag
-struct nsphere_tag {};
+struct nsphere_tag : single_tag, areal_tag{};
 
 
 

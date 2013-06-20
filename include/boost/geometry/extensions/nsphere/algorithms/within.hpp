@@ -151,9 +151,11 @@ template <typename P, typename Circle>
 struct within<P, Circle, point_tag, nsphere_tag>
 {
     template <typename Strategy>
-    static inline bool apply(P const& p, Circle const& c, Strategy const&)
+    static inline bool apply(P const& p, Circle const& c, Strategy const& strategy)
     {
-        return detail::within::point_in_circle(p, c);
+        ::boost::ignore_unused_variable_warning(strategy);
+        return strategy.apply(p, c);
+        //return detail::within::point_in_circle(p, c);
     }
 };
 
