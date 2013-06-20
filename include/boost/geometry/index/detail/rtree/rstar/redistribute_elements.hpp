@@ -125,7 +125,7 @@ struct choose_split_axis_and_index_for_corner
             }
         }
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 };
 

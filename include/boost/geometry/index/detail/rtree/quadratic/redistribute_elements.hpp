@@ -72,7 +72,7 @@ struct pick_seeds
             }
         }
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 };
 
