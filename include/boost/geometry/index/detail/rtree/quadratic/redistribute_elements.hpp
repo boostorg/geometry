@@ -57,7 +57,8 @@ struct pick_seeds
                 indexable_type const& ind2 = rtree::element_indexable(elements[j], tr);
 
                 box_type enlarged_box;
-                geometry::convert(ind1, enlarged_box);
+                //geometry::convert(ind1, enlarged_box);
+                detail::bounds(ind1, enlarged_box);
                 geometry::expand(enlarged_box, ind2);
 
                 content_type free_content = (index::detail::content(enlarged_box) - index::detail::content(ind1)) - index::detail::content(ind2);
@@ -132,8 +133,10 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
-            geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-            geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+            //geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            detail::bounds(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            //geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+            detail::bounds(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
             // remove seeds
             if (seed1 < seed2)

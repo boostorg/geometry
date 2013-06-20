@@ -32,6 +32,8 @@
 
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
+#include <boost/geometry/index/detail/algorithms/bounds.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -49,7 +51,7 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
         return result;
     }
 
-    geometry::convert(element_indexable(*first, tr), result);
+    detail::bounds(element_indexable(*first, tr), result);
     ++first;
 
     for ( ; first != last ; ++first )

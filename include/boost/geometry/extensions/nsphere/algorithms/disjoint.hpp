@@ -16,9 +16,12 @@
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_DISJOINT_HPP
 
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_same.hpp>
+
+#include <boost/geometry/extensions/nsphere/views/center_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -26,48 +29,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
-
-template
-<
-    typename PoS1, typename PoS2,
-    std::size_t Dimension, std::size_t DimensionCount
->
-struct points_or_spheres_comparable_distance_cartesian
-{
-    typedef typename boost::mpl::if_<
-        ::boost::is_same<typename tag<PoS1>::type, point_tag>, PoS1, typename point_type<PoS1>::type
-    >::type point1_type;
-
-    typedef typename boost::mpl::if_<
-        ::boost::is_same<typename tag<PoS2>::type, point_tag>, PoS2, typename point_type<PoS2>::type
-    >::type point2_type;
-
-    typedef typename geometry::select_most_precise<
-        typename coordinate_type<point1_type>::type, typename coordinate_type<point2_type>::type
-    >::type coordinate_type;
-
-    typedef typename geometry::default_distance_result<
-        point1_type, point2_type
-    >::type result_type;
-
-    static inline result_type apply(PoS1 const& g1, PoS2 const& g2)
-    {
-        coordinate_type tmp = get<Dimension>(g1) - get<Dimension>(g2);
-        
-        return tmp * tmp + points_or_spheres_comparable_distance_cartesian<
-                               PoS1, PoS2, Dimension + 1, DimensionCount
-                           >::apply(g1, g2);
-    }
-};
-
-template <typename PoS1, typename PoS2, std::size_t DimensionCount>
-struct points_or_spheres_comparable_distance_cartesian<PoS1, PoS2, DimensionCount, DimensionCount>
-{
-    static inline int apply(PoS1 const& , PoS2 const& )
-    {
-        return 0;
-    }
-};
 
 // Arvo's algorithm implemented
 // TODO - implement the method mentioned in the article below and compare performance
@@ -137,9 +98,7 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
         BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (p_cs, s_cs));
 
         return get_radius<0>(s) * get_radius<0>(s)
-               <   geometry::detail::disjoint::points_or_spheres_comparable_distance_cartesian<
-                       Point, NSphere, 0, DimensionCount
-                   >::apply(p, s);
+               <   geometry::comparable_distance(p, center_view<const NSphere>(s));
     }
 };
 
@@ -171,14 +130,10 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
         BOOST_MPL_ASSERT_MSG(check_cs, NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS, (s1_cs, s2_cs));
 
         /*return get_radius<0>(s1) + get_radius<0>(s2)
-               <   ::sqrt(geometry::detail::disjoint::points_or_spheres_comparable_distance_cartesian<
-                              NSphere1, NSphere2, 0, DimensionCount
-                          >::apply(s1, s2));*/
+               <   ::sqrt(geometry::comparable_distance(center_view<NSphere>(s1), center_view<NSphere>(s2)));*/
 
         return get_radius<0>(s1) * get_radius<0>(s1) + 2 * get_radius<0>(s1) * get_radius<0>(s2) + get_radius<0>(s2) * get_radius<0>(s2)
-               <   geometry::detail::disjoint::points_or_spheres_comparable_distance_cartesian<
-                       NSphere1, NSphere2, 0, DimensionCount
-                   >::apply(s1, s2);
+               <   geometry::comparable_distance(center_view<const NSphere1>(s1), center_view<const NSphere2>(s2));
     }
 };
 
