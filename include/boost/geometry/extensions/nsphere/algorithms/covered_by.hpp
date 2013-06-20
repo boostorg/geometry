@@ -19,6 +19,7 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/extensions/nsphere/strategies/cartesian/nsphere_in_box.hpp>
+#include <boost/geometry/extensions/nsphere/strategies/cartesian/point_in_nsphere.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,6 +41,17 @@ struct covered_by<NSphere, Box, nsphere_tag, box_tag>
     }
 };
 
+template <typename Point, typename NSphere>
+struct covered_by<Point, NSphere, point_tag, nsphere_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point, NSphere const& nsphere, Strategy const& strategy)
+    {
+        assert_dimension_equal<Point, NSphere>();
+        boost::ignore_unused_variable_warning(strategy);
+        return strategy.apply(point, nsphere);
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
