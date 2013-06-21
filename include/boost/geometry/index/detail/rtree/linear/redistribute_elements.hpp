@@ -268,7 +268,7 @@ struct pick_seeds
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
-    static const size_t dimension = dimension<indexable_type>::value;
+    static const size_t dimension = geometry::dimension<indexable_type>::value;
 
     typedef pick_seeds_impl<Elements, Parameters, Translator, dimension> impl;
     typedef typename impl::separation_type separation_type;

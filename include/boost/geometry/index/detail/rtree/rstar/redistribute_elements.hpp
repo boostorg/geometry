@@ -355,7 +355,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
     typedef typename Options::parameters_type parameters_type;
 
-    static const size_t dimension = dimension<Box>::value;
+    static const size_t dimension = geometry::dimension<Box>::value;
 
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
