@@ -50,7 +50,19 @@ inline R difference(T const& from, T const& to)
     return difference_dispatch<R>(from, to, is_unsigned());
 }
 
-// TODO: awulkiew - there are loops inside find_greatest_normalized_separation::apply()
+// TODO: awulkiew
+// In general, all aerial Indexables in the tree with box-like nodes will be analyzed as boxes
+// because they must fit into larger box. Therefore the algorithm could be the same for Bounds type.
+// E.g. if Bounds type is sphere, Indexables probably should be analyzed as spheres.
+// 1. View could be provided to 'see' all Indexables as Bounds type.
+//    Not ok in the case of big types like Ring, however it's possible that Rings won't be supported,
+//    only simple types. Even then if we consider storing Box inside the Sphere we must calculate
+//    the bounding sphere 2x for each box because there are 2 loops. For each calculation this means
+//    4-2d or 8-3d expansions or -, / and sqrt().
+// 2. Additional container could be used and reused if the Indexable type is other than the Bounds type.
+
+// TODO: awulkiew
+// there are loops inside find_greatest_normalized_separation::apply()
 // iteration is done for each DimensionIndex.
 // Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be choosen.
 
