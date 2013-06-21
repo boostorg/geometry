@@ -61,6 +61,10 @@ inline R difference(T const& from, T const& to)
 //    4-2d or 8-3d expansions or -, / and sqrt().
 // 2. Additional container could be used and reused if the Indexable type is other than the Bounds type.
 
+// IMPORTANT!
+// Still probably the best way would be providing specialized algorithms for each Indexable-Bounds pair!
+// Probably on pick_seeds algorithm level - For Bounds=Sphere seeds would be choosen differently
+
 // TODO: awulkiew
 // there are loops inside find_greatest_normalized_separation::apply()
 // iteration is done for each DimensionIndex.
