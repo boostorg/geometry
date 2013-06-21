@@ -341,8 +341,8 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
             elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
-            geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-            geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+            detail::bounds(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            detail::bounds(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
             // initialize areas
             content_type content1 = index::detail::content(box1);
@@ -424,7 +424,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
     }
 };
 
-}} // namespace detail::rtree::visitors
+}} // namespace detail::rtree
 
 }}} // namespace boost::geometry::index
 

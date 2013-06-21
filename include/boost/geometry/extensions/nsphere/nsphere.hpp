@@ -48,4 +48,6 @@
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/comparable_distance_near.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/bounds.hpp>
 
+#include <boost/geometry/extensions/nsphere/index/detail/rtree/linear/redistribute_elements.hpp>
+
 #endif // BOOST_GEOMETRY_EXTENSIONS_NSPHERE_HPP
