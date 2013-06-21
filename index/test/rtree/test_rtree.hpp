@@ -1203,7 +1203,7 @@ void copy_swap_move(Rtree const& tree, Box const& qbox)
 
     //TODO - test SWAP
 
-    BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(params)
+    ::boost::ignore_unused_variable_warning(params);
 }
 
 template <typename I, typename O>
