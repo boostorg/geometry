@@ -21,6 +21,9 @@ namespace boost { namespace geometry
 
 
 struct vector_tag {};
+struct quaternion_tag {};
+struct matrix_tag {};
+
 struct rotation_quaternion_tag {};
 struct rotation_matrix_tag {};
 
