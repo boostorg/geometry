@@ -33,6 +33,23 @@ struct coordinate_type<vector_tag, Vector>
 };
 
 template <typename G>
+struct coordinate_type<quaternion_tag, G>
+{
+    typedef typename traits::coordinate_type<
+        typename geometry::util::bare_type<G>::type
+    >::type type;
+};
+
+template <typename G>
+struct coordinate_type<matrix_tag, G>
+{
+    typedef typename traits::coordinate_type<
+        typename geometry::util::bare_type<G>::type
+    >::type type;
+};
+
+
+template <typename G>
 struct coordinate_type<rotation_quaternion_tag, G>
 {
     typedef typename traits::coordinate_type<

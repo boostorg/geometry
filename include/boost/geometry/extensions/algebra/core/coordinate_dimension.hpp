@@ -30,6 +30,17 @@ struct dimension<vector_tag, V>
 {};
 
 template <typename G>
+struct dimension<quaternion_tag, G>
+    : traits::dimension<typename geometry::util::bare_type<G>::type>
+{};
+
+template <typename G, std::size_t Index>
+struct indexed_dimension<matrix_tag, G, Index>
+    : traits::indexed_dimension<typename geometry::util::bare_type<G>::type, Index>
+{};
+
+
+template <typename G>
 struct dimension<rotation_quaternion_tag, G>
     : traits::dimension<typename geometry::util::bare_type<G>::type>
 {};
