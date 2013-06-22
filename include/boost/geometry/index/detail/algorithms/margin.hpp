@@ -130,7 +130,7 @@ struct comparable_margin<Geometry, point_tag>
 {
     typedef typename default_margin_result<Geometry>::type result_type;
 
-    static inline result_type apply(Geometry const& g) { return 0; }
+    static inline result_type apply(Geometry const& ) { return 0; }
 };
 
 template <typename Box>

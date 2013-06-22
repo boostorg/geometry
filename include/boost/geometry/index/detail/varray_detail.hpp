@@ -454,7 +454,7 @@ O move_if_noexcept(I first, I last, O dst)
 
 template <typename I>
 inline
-void uninitialized_fill_dispatch(I first, I last,
+void uninitialized_fill_dispatch(I /*first*/, I /*last*/,
                                  boost::true_type const& /*has_trivial_constructor*/,
                                  boost::true_type const& /*disable_trivial_init*/)
 {}
@@ -504,7 +504,7 @@ void uninitialized_fill(I first, I last, DisableTrivialInit const& disable_trivi
 
 template <typename I>
 inline
-void construct_dispatch(boost::mpl::bool_<true> const& /*dont_init*/, I pos)
+void construct_dispatch(boost::mpl::bool_<true> const& /*dont_init*/, I /*pos*/)
 {}
 
 template <typename I>

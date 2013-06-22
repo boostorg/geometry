@@ -378,7 +378,7 @@ struct predicate_check<spatial_predicate<Geometry, contains_tag, true>, bounds_t
     typedef spatial_predicate<Geometry, contains_tag, true> Pred;
 
     template <typename Value, typename Indexable>
-    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+    static inline bool apply(Pred const& , Value const&, Indexable const& )
     {
         return true;
     }
@@ -391,7 +391,7 @@ struct predicate_check<spatial_predicate<Geometry, covers_tag, true>, bounds_tag
     typedef spatial_predicate<Geometry, covers_tag, true> Pred;
 
     template <typename Value, typename Indexable>
-    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+    static inline bool apply(Pred const& , Value const&, Indexable const& )
     {
         return true;
     }
@@ -417,7 +417,7 @@ struct predicate_check<spatial_predicate<Geometry, overlaps_tag, true>, bounds_t
     typedef spatial_predicate<Geometry, overlaps_tag, true> Pred;
 
     template <typename Value, typename Indexable>
-    static inline bool apply(Pred const& p, Value const&, Indexable const& i)
+    static inline bool apply(Pred const& , Value const&, Indexable const& )
     {
         return true;
     }

@@ -31,7 +31,7 @@ struct comparable_margin_nsphere
 template <typename NSphere>
 struct comparable_margin_nsphere<NSphere, 1>
 {
-    static inline typename default_margin_result<NSphere>::type apply(NSphere const& s)
+    static inline typename default_margin_result<NSphere>::type apply(NSphere const& )
     {
         return 1;
     }
