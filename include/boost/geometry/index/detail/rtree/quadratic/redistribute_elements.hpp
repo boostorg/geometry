@@ -31,7 +31,7 @@ struct pick_seeds
 {
     typedef typename Elements::value_type element_type;
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+    typedef typename coordinate_type<indexable_type>::type coordinate_type;
     typedef Box box_type;
     typedef typename index::detail::default_content_result<box_type>::type content_type;
 
@@ -57,7 +57,8 @@ struct pick_seeds
                 indexable_type const& ind2 = rtree::element_indexable(elements[j], tr);
 
                 box_type enlarged_box;
-                geometry::convert(ind1, enlarged_box);
+                //geometry::convert(ind1, enlarged_box);
+                detail::bounds(ind1, enlarged_box);
                 geometry::expand(enlarged_box, ind2);
 
                 content_type free_content = (index::detail::content(enlarged_box) - index::detail::content(ind1)) - index::detail::content(ind2);
@@ -71,7 +72,7 @@ struct pick_seeds
             }
         }
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 };
 
@@ -100,7 +101,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename index::detail::traits::coordinate_type<indexable_type>::type coordinate_type;
+        typedef typename coordinate_type<indexable_type>::type coordinate_type;
 
         elements_type & elements1 = rtree::elements(n);
         elements_type & elements2 = rtree::elements(second_node);
@@ -132,8 +133,10 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
-            geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
-            geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+            //geometry::convert(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            detail::bounds(rtree::element_indexable(elements_copy[seed1], translator), box1);
+            //geometry::convert(rtree::element_indexable(elements_copy[seed2], translator), box2);
+            detail::bounds(rtree::element_indexable(elements_copy[seed2], translator), box2);
 
             // remove seeds
             if (seed1 < seed2)
@@ -187,8 +190,9 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                                       content_increase1, content_increase2);
 
                     if ( content_increase1 < content_increase2 ||
-                         ( content_increase1 == content_increase2 && content1 < content2 ) ||
-                         ( content1 == content2 && elements1_count <= elements2_count ) )
+                         ( content_increase1 == content_increase2 && ( content1 < content2 ||
+                           ( content1 == content2 && elements1_count <= elements2_count ) )
+                         ) )
                     {
                         insert_into_group1 = true;
                     }

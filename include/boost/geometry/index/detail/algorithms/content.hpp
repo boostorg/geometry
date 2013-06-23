@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// n-dimensional box's content (hypervolume) - 2d area, 3d volume, ...
+// n-dimensional content (hypervolume) - 2d area, 3d volume, ...
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
@@ -11,15 +11,13 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Indexable>
 struct default_content_result
 {
     typedef typename select_most_precise<
-        typename detail::traits::coordinate_type<Indexable>::type,
+        typename coordinate_type<Indexable>::type,
         long double
     >::type type;
 };
@@ -27,31 +25,31 @@ struct default_content_result
 namespace dispatch {
 
 template <typename Box, size_t CurrentDimension>
-struct content_for_each_dimension
+struct content_box
 {
     BOOST_STATIC_ASSERT(0 < CurrentDimension);
-    BOOST_STATIC_ASSERT(CurrentDimension <= traits::dimension<Box>::value);
+    //BOOST_STATIC_ASSERT(CurrentDimension <= traits::dimension<Box>::value);
 
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {
-        return content_for_each_dimension<Box, CurrentDimension - 1>::apply(b) *
-            ( detail::get<max_corner, CurrentDimension - 1>(b) - detail::get<min_corner, CurrentDimension - 1>(b) );
+        return content_box<Box, CurrentDimension - 1>::apply(b) *
+            ( get<max_corner, CurrentDimension - 1>(b) - get<min_corner, CurrentDimension - 1>(b) );
     }
 };
 
 template <typename Box>
-struct content_for_each_dimension<Box, 1>
+struct content_box<Box, 1>
 {
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {
-        return detail::get<max_corner, 0>(b) - detail::get<min_corner, 0>(b);
+        return get<max_corner, 0>(b) - get<min_corner, 0>(b);
     }
 };
 
 template <typename Indexable, typename Tag>
 struct content
 {
-    // TODO: awulkiew - static assert?
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_INDEXABLE_AND_TAG, (Indexable, Tag));
 };
 
 template <typename Indexable>
@@ -68,7 +66,7 @@ struct content<Indexable, box_tag>
 {
     static typename default_content_result<Indexable>::type apply(Indexable const& b)
     {
-        return dispatch::content_for_each_dimension<Indexable, detail::traits::dimension<Indexable>::value>::apply(b);
+        return dispatch::content_box<Indexable, dimension<Indexable>::value>::apply(b);
     }
 };
 
@@ -78,7 +76,7 @@ template <typename Indexable>
 typename default_content_result<Indexable>::type content(Indexable const& b)
 {
     return dispatch::content<Indexable,
-                             typename detail::traits::tag<Indexable>::type
+                             typename tag<Indexable>::type
                             >::apply(b);
 }
 

@@ -118,7 +118,7 @@ public:
         }
         BOOST_CATCH_END
 
-        BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(parameters)
+        ::boost::ignore_unused_variable_warning(parameters);
     }
 
 private:

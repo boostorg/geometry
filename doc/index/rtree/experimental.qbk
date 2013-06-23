@@ -22,13 +22,13 @@ including spatial index.
 It is possible to define how distance to the non-point `__value__` should be calculated. To do this one may pass
 a relation object instead of a Point to the nearest predicate, as follows:
 
- /* caluclate distance to the Indexables' nearest points */
+ /* calculate distance to the Indexables' nearest points */
  rtree.query(index::nearest(index::to_nearest(pt), k), std::back_inserter(returned_values)); // same as default
 
- /* caluclate distance to the Indexables' centroid */
+ /* calculate distance to the Indexables' centroid */
  rtree.query(index::nearest(index::to_centroid(pt), k), std::back_inserter(returned_values));
 
- /* caluclate distance to the Indexables' furthest points */
+ /* calculate distance to the Indexables' furthest points */
  rtree.query(index::nearest(index::to_furthest(pt), k), std::back_inserter(returned_values));
 
 [heading Path query]
@@ -68,14 +68,14 @@ an expression or use C++11 `auto` or `decltype`.
  const_query_iterator last = rtree.qend(index::nearest(pt, 5));
  // ...
  for ( ; first != last ; ++first )
-     *first; // do domething with Value
+     *first; // do something with Value
  
  /* C++11 */
  auto first = rtree.qbegin(index::nearest(pt, 5));
  auto last = rtree.qend(index::nearest(pt, 5));
  // ...
  for ( ; first != last ; ++first )
-     *first; // do domething with Value
+     *first; // do something with Value
 
 `qend()` method is overloaded to return a different, lighter type of iterator which may be compared
 with query iterator to check if the querying was finished. But since it has different type than the one returned by
@@ -99,13 +99,13 @@ iterators have the same type.
  end_iterator last = rtree.qend();
  // ...
  for ( ; first != last ; ++first )
-     *first; // do domething with Value
+     *first; // do something with Value
  
  /* C++11 */
  auto first = rtree.qbegin(index::nearest(pt, 5));
  auto last = rtree.qend();
  // ...
  for ( ; first != last ; ++first )
-     *first; // do domething with Value
+     *first; // do something with Value
 
 [endsect] [/ Experimental features /]

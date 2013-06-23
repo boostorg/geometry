@@ -122,6 +122,12 @@ public:
         container::resize(s);
     }
 
+    inline void reserve(size_type s)
+    {
+        throwing_varray_settings::throw_if_required();
+        container::reserve(s);
+    }
+
     void push_back(Element const& v)
     {
         throwing_varray_settings::throw_if_required();

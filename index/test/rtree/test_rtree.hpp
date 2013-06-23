@@ -16,14 +16,13 @@
 
 #include <geometry_index_test_common.hpp>
 
-#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
 // TEST
 //#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 //#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 #include <boost/geometry/index/rtree.hpp>
 
-#include <boost/geometry/index/detail/rtree/visitors/are_levels_ok.hpp>
-#include <boost/geometry/index/detail/rtree/visitors/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_boxes_ok.hpp>
 
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>
@@ -580,7 +579,7 @@ value_outside()
     typedef typename Rtree::value_type V;
     typedef typename Rtree::indexable_type I;
 
-    return value_outside_impl<V, bgi::detail::traits::dimension<I>::value>::apply();
+    return value_outside_impl<V, bg::dimension<I>::value>::apply();
 }
 
 template<typename Rtree, typename Elements, typename Box>
@@ -589,7 +588,7 @@ void rtree(Rtree & tree, Elements & input, Box & qbox)
     typedef typename Rtree::indexable_type I;
 
     generate::input<
-        bgi::detail::traits::dimension<I>::value
+        bg::dimension<I>::value
     >::apply(input, qbox);
 
     tree.insert(input.begin(), input.end());
@@ -651,9 +650,9 @@ void exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 c
 template <typename Rtree, typename Value, typename Predicates>
 void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> const& expected_output)
 {
-    BOOST_CHECK( bgi::detail::rtree::are_levels_ok(rtree) );
+    BOOST_CHECK( bgi::detail::rtree::utilities::are_levels_ok(rtree) );
     if ( !rtree.empty() )
-        BOOST_CHECK( bgi::detail::rtree::are_boxes_ok(rtree) );
+        BOOST_CHECK( bgi::detail::rtree::utilities::are_boxes_ok(rtree) );
 
     std::vector<Value> output;
     size_t n = rtree.query(pred, std::back_inserter(output));
@@ -735,6 +734,51 @@ void disjoint(Rtree const& tree, std::vector<Value> const& input, Box const& qbo
     spatial_query(tree, bgi::disjoint(qpoly), expected_output);*/
 }
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+template <typename Tag>
+struct contains_impl
+{
+    template <typename Rtree, typename Value, typename Box>
+    static void apply(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+    {
+        std::vector<Value> expected_output;
+
+        BOOST_FOREACH(Value const& v, input)
+            if ( bg::within(qbox, tree.indexable_get()(v)) )
+                expected_output.push_back(v);
+
+        spatial_query(tree, bgi::contains(qbox), expected_output);
+
+        /*typedef bg::traits::point_type<Box>::type P;
+        bg::model::ring<P> qring;
+        bg::convert(qbox, qring);
+        spatial_query(tree, bgi::contains(qring), expected_output);
+        bg::model::polygon<P> qpoly;
+        bg::convert(qbox, qpoly);
+        spatial_query(tree, bgi::contains(qpoly), expected_output);*/
+    }
+};
+
+template <>
+struct contains_impl<bg::point_tag>
+{
+    template <typename Rtree, typename Value, typename Box>
+    static void apply(Rtree const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
+    {}
+};
+
+template <typename Rtree, typename Value, typename Box>
+void contains(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+{
+    contains_impl<
+        typename bg::tag<
+            typename Rtree::indexable_type
+        >::type
+    >::apply(tree, input, qbox);
+}
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 template <typename Rtree, typename Value, typename Box>
 void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
@@ -755,6 +799,52 @@ void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& q
     bg::convert(qbox, qpoly);
     spatial_query(tree, bgi::covered_by(qpoly), expected_output);*/
 }
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+template <typename Tag>
+struct covers_impl
+{
+    template <typename Rtree, typename Value, typename Box>
+    static void apply(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+    {
+        std::vector<Value> expected_output;
+
+        BOOST_FOREACH(Value const& v, input)
+            if ( bg::covered_by(qbox, tree.indexable_get()(v)) )
+                expected_output.push_back(v);
+
+        spatial_query(tree, bgi::covers(qbox), expected_output);
+
+        /*typedef bg::traits::point_type<Box>::type P;
+        bg::model::ring<P> qring;
+        bg::convert(qbox, qring);
+        spatial_query(tree, bgi::covers(qring), expected_output);
+        bg::model::polygon<P> qpoly;
+        bg::convert(qbox, qpoly);
+        spatial_query(tree, bgi::covers(qpoly), expected_output);*/
+    }
+};
+
+template <>
+struct covers_impl<bg::point_tag>
+{
+    template <typename Rtree, typename Value, typename Box>
+    static void apply(Rtree const& /*tree*/, std::vector<Value> const& /*input*/, Box const& /*qbox*/)
+    {}
+};
+
+template <typename Rtree, typename Value, typename Box>
+void covers(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
+{
+    covers_impl<
+        typename bg::tag<
+            typename Rtree::indexable_type
+        >::type
+    >::apply(tree, input, qbox);
+}
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 template <typename Tag>
 struct overlaps_impl
@@ -792,7 +882,7 @@ template <typename Rtree, typename Value, typename Box>
 void overlaps(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
     overlaps_impl<
-        typename bgi::detail::traits::tag<
+        typename bg::tag<
             typename Rtree::indexable_type
         >::type
     >::apply(tree, input, qbox);
@@ -1113,7 +1203,7 @@ void copy_swap_move(Rtree const& tree, Box const& qbox)
 
     //TODO - test SWAP
 
-    BOOST_GEOMETRY_INDEX_DETAIL_USE_PARAM(params)
+    ::boost::ignore_unused_variable_warning(params);
 }
 
 template <typename I, typename O>
@@ -1154,14 +1244,14 @@ void create_insert(Rtree const& tree, std::vector<Value> const& input, Box const
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        exactly_the_same_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(input, tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
         BOOST_CHECK(tree.size() == t.size());
         std::vector<Value> output;
         t.query(bgi::intersects(qbox), std::back_inserter(output));
-        exactly_the_same_outputs(t, output, expected_output);
+        compare_outputs(t, output, expected_output);
     }
     {
         Rtree t(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
@@ -1330,8 +1420,12 @@ void queries(Rtree const& tree, std::vector<Value> const& input, Box const& qbox
     basictest::overlaps(tree, input, qbox);
     //basictest::touches(tree, input, qbox);
     basictest::within(tree, input, qbox);
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    basictest::contains(tree, input, qbox);
+    basictest::covers(tree, input, qbox);
+#endif
 
-    typedef typename bgi::detail::traits::point_type<Box>::type P;
+    typedef typename bg::point_type<Box>::type P;
     P pt;
     bg::centroid(qbox, pt);
 
@@ -1361,7 +1455,7 @@ void test_rtree_queries(Parameters const& parameters, Allocator const& allocator
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1384,7 +1478,7 @@ void test_rtree_modifiers(Parameters const& parameters, Allocator const& allocat
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree tree(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1421,7 +1515,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1464,7 +1558,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
 
     Tree t(parameters, I(), E(), allocator);
     std::vector<Value> input;
@@ -1495,7 +1589,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     typedef bgi::equal_to<Value> E;
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
-    typedef typename Tree::box_type B;
+    typedef typename Tree::bounds_type B;
     typedef typename bg::traits::point_type<B>::type P;
 
     B b;

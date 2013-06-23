@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_IS_VALID_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_IS_VALID_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 namespace dispatch {
@@ -21,14 +19,14 @@ template <typename Box, size_t Dimension>
 struct is_valid_box
 {
     BOOST_MPL_ASSERT_MSG(
-        (0 < Dimension && Dimension <= detail::traits::dimension<Box>::value),
+        (0 < Dimension && Dimension <= dimension<Box>::value),
         INVALID_DIMENSION_PARAMETER,
         (is_valid_box));
 
     static inline bool apply(Box const& b)
     {
         return is_valid_box<Box, Dimension - 1>::apply(b) &&
-            ( detail::get<min_corner, Dimension - 1>(b) <= detail::get<max_corner, Dimension - 1>(b) );
+            ( get<min_corner, Dimension - 1>(b) <= get<max_corner, Dimension - 1>(b) );
     }
 };
 
@@ -37,7 +35,7 @@ struct is_valid_box<Box, 1>
 {
     static inline bool apply(Box const& b)
     {
-        return detail::get<min_corner, 0>(b) <= detail::get<max_corner, 0>(b);
+        return get<min_corner, 0>(b) <= get<max_corner, 0>(b);
     }
 };
 
@@ -64,7 +62,7 @@ struct is_valid<Indexable, box_tag>
 {
     static inline bool apply(Indexable const& b)
     {
-        return dispatch::is_valid_box<Indexable, detail::traits::dimension<Indexable>::value>::apply(b);
+        return dispatch::is_valid_box<Indexable, dimension<Indexable>::value>::apply(b);
     }
 };
 
@@ -73,7 +71,7 @@ struct is_valid<Indexable, box_tag>
 template <typename Indexable>
 inline bool is_valid(Indexable const& b)
 {
-    return dispatch::is_valid<Indexable, typename detail::traits::tag<Indexable>::type>::apply(b);
+    return dispatch::is_valid<Indexable, typename tag<Indexable>::type>::apply(b);
 }
 
 }}}} // namespace boost::geometry::index::detail

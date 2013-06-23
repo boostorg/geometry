@@ -59,7 +59,9 @@ std::string qbk_escaped(std::string const& s)
 
 
 
-void quickbook_template_parameter_list(std::vector<parameter> const& parameters, std::ostream& out)
+void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
+                std::string const& related_name,
+                std::ostream& out)
 {
     if (!parameters.empty())
     {
@@ -67,6 +69,10 @@ void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
         bool first = true;
         BOOST_FOREACH(parameter const& p, parameters)
         {
+            if (p.fulltype.empty())
+            {
+                std::cerr << "Warning: template parameter " << p.name << " has no type in " << related_name << std::endl;
+            }
             out << (first ? "" : ", ") << p.fulltype;
             first = false;
         }
@@ -78,7 +84,7 @@ void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
 void quickbook_synopsis(function const& f, std::ostream& out)
 {
     out << "``";
-    quickbook_template_parameter_list(f.template_parameters, out);
+    quickbook_template_parameter_list(f.template_parameters, f.name, out);
 
     switch(f.type)
     {
@@ -516,7 +522,7 @@ void quickbook_output(class_or_struct const& cos, configuration const& config, s
     quickbook_markup(cos.qbk_markup, markup_before, markup_synopsis, out);
     out << "[heading Synopsis]" << std::endl
         << "``";
-    quickbook_template_parameter_list(cos.template_parameters, out);
+    quickbook_template_parameter_list(cos.template_parameters, cos.name, out);
     out << (cos.is_class ? "class" : "struct")
         << " " << short_name << std::endl;
 

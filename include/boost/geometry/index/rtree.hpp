@@ -29,7 +29,6 @@
 #include <boost/geometry/index/indexable.hpp>
 #include <boost/geometry/index/equal_to.hpp>
 
-#include <boost/geometry/index/detail/indexable.hpp>
 #include <boost/geometry/index/detail/translator.hpp>
 
 #include <boost/geometry/index/predicates.hpp>
@@ -56,7 +55,11 @@
 #include <boost/geometry/index/detail/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/detail/rtree/kmeans/kmeans.hpp>
 
+#include <boost/geometry/index/detail/rtree/pack_create.hpp>
+
 #include <boost/geometry/index/inserter.hpp>
+
+#include <boost/geometry/index/detail/rtree/utilities/view.hpp>
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
@@ -139,11 +142,17 @@ public:
     >::type indexable_type;
 
     /*! \brief The Box type used by the R-tree. */
-    typedef typename index::detail::default_box_type<indexable_type>::type bounds_type;
+    typedef geometry::model::box<
+                geometry::model::point<
+                    typename coordinate_type<indexable_type>::type,
+                    dimension<indexable_type>::value,
+                    typename coordinate_system<indexable_type>::type
+                >
+            >
+    bounds_type;
 
-#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
-#endif
+
     typedef detail::translator<IndexableGetter, EqualTo> translator_type;
 
     typedef bounds_type box_type;
@@ -157,6 +166,8 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+
+    friend class detail::rtree::utilities::view<rtree>;
 
 public:
 
@@ -232,16 +243,12 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        BOOST_TRY
-        {
-            this->insert(first, last);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(first, last, vc, ll,
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
     }
 
     /*!
@@ -266,16 +273,12 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        BOOST_TRY
-        {
-            this->insert(rng);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
     }
 
     /*!
@@ -972,9 +975,8 @@ public:
         return m_members.allocators().allocator();
     }
 
-#if !defined(BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE)
 private:
-#endif
+
     /*!
     \brief Returns the translator object.
 
@@ -1007,21 +1009,6 @@ private:
     }
 
     /*!
-    \brief Returns the number of stored objects. Same as size().
-
-    This function is not a part of the 'official' interface.
-
-    \return     The number of stored objects.
-
-    \par Throws
-    Nothing.
-    */
-    inline size_type values_count() const
-    {
-        return m_members.values_count;
-    }
-
-    /*!
     \brief Returns the depth of the R-tree.
 
     This function is not a part of the 'official' interface.
@@ -1037,6 +1024,7 @@ private:
     }
 
 private:
+
     /*!
     \pre Root node must exist - m_root != 0.
 

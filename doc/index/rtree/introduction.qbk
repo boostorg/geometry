@@ -16,7 +16,7 @@ as an expansion of B-tree for multi-dimensional data. It may be used to store po
 perform a spatial query later. This query may return objects that are inside some area or are close to some point in space
 [footnote Cheung, K.; Fu, A. (1998). /Enhanced Nearest Neighbour Search on the R-tree/].
 
-The __rtree__ structure is presented on the image below. Each __rtree__'s node store a box descring the space occupied by
+The __rtree__ structure is presented on the image below. Each __rtree__'s node store a box describing the space occupied by
 its children nodes. At the bottom of the structure, there are leaf-nodes which contains values
 (geometric objects representations). 
 
@@ -27,7 +27,7 @@ The __rtree__ is a self-balanced data structure. The key part of balancing algor
 [footnote Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). /The R*-tree: an efficient and robust access method for points and rectangles/].
 Each algorithm produces different splits so the internal structure of a tree may be different for each one of them.
 In general more complex algorithms analyses elements better and produces less overlapping nodes. In the searching process less nodes must be traversed
-in order to find desired obejcts. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
+in order to find desired objects. On the other hand more complex analysis takes more time. In general faster inserting will result in slower searching
 and vice versa. The performance of the R-tree depends on balancing algorithm, parameters and data inserted into the container.
 Example structures of trees created by use of three different algorithms and operations time are presented below. Data used in benchmark was random,
 non-overlapping boxes.

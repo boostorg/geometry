@@ -8,13 +8,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_BOXES_OK_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_BOXES_OK_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_BOXES_OK_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_BOXES_OK_HPP
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/index/detail/rtree/node/node.hpp>
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace utilities {
 
 namespace visitors {
 
@@ -116,29 +116,25 @@ private:
 
 } // namespace visitors
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE
-#error "To use are_boxes_ok BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_DEBUG_INTERFACE should be defined before including the rtree"
-#endif
-
-template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
-bool are_boxes_ok(index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
-                  bool exact_match = true)
+template <typename Rtree> inline
+bool are_boxes_ok(Rtree const& tree, bool exact_match = true)
 {
-    typedef index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> rt;
+    typedef utilities::view<Rtree> RTV;
+    RTV rtv(tree);
 
-    detail::rtree::visitors::are_boxes_ok<
-        typename rt::value_type,
-        typename rt::options_type,
-        typename rt::translator_type,
-        typename rt::box_type,
-        typename rt::allocators_type
-    > v(tree.translator(), exact_match);
+    visitors::are_boxes_ok<
+        typename RTV::value_type,
+        typename RTV::options_type,
+        typename RTV::translator_type,
+        typename RTV::box_type,
+        typename RTV::allocators_type
+    > v(rtv.translator(), exact_match);
     
-    tree.apply_visitor(v);
+    rtv.apply_visitor(v);
 
     return v.result;
 }
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::utilities
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ARE_BOXES_OK_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_ARE_BOXES_OK_HPP
