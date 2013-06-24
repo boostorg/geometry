@@ -48,6 +48,9 @@
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/comparable_distance_near.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/algorithms/bounds.hpp>
 
+#include <boost/geometry/index/detail/exception.hpp> // needed by the following
+#include <boost/geometry/index/detail/rtree/options.hpp> // needed by the following
+#include <boost/geometry/index/detail/translator.hpp> // needed by the following
 #include <boost/geometry/extensions/nsphere/index/detail/rtree/linear/redistribute_elements.hpp>
 #include <boost/geometry/extensions/nsphere/index/detail/rtree/rstar/redistribute_elements.hpp>
 
