@@ -81,8 +81,7 @@ public:
     inline spatial_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
         : m_visitor(t, p)
     {
-        detail::rtree::apply_visitor(m_visitor, *root);
-        m_visitor.increment();
+        m_visitor.initialize(root);
     }
 
     reference operator*() const
@@ -162,8 +161,7 @@ public:
     inline distance_query_iterator(node_pointer root, Translator const& t, Predicates const& p)
         : m_visitor(t, p)
     {
-        detail::rtree::apply_visitor(m_visitor, *root);
-        m_visitor.increment();
+        m_visitor.initialize(root);
     }
 
     reference operator*() const
