@@ -275,9 +275,9 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        char t = 'i';
+        // change to elements_type::size_type or size_type?
         size_t s = elements.size();
-        m_archive << t << s;
+        m_archive << s;
 
         for (typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
@@ -290,11 +290,12 @@ public:
     inline void operator()(leaf const& l)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
+        typedef typename elements_type::size_type elements_size;
         elements_type const& elements = rtree::elements(l);
 
-        char t = 'l';
+        // change to elements_type::size_type or size_type?
         size_t s = elements.size();
-        m_archive << t << s;
+        m_archive << s;
 
         for (typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
@@ -327,21 +328,26 @@ class load
 
 public:
     template <typename Archive> inline static
-    node_pointer apply(Archive & ar, unsigned int version, parameters_type const& parameters, Translator const& translator, Allocators & allocators)
+    node_pointer apply(Archive & ar, unsigned int version, size_type leafs_level, size_type & values_count, parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        char t;
-        ar >> t;
+        values_count = 0;
+        return raw_apply(ar, version, leafs_level, values_count, parameters, translator, allocators);
+    }
 
-        if ( t == 'n' )
-            return node_pointer(0);
+private:
+    template <typename Archive> inline static
+    node_pointer raw_apply(Archive & ar, unsigned int version, size_type leafs_level, size_type & values_count, parameters_type const& parameters, Translator const& translator, Allocators & allocators, size_type current_level = 0)
+    {
+        //BOOST_GEOMETRY_INDEX_ASSERT(current_level <= leafs_level, "invalid parameter");
 
+        // change to elements_type::size_type or size_type?
         size_t elements_count;
         ar >> elements_count;
 
         if ( elements_count < parameters.get_min_elements() || parameters.get_max_elements() < elements_count )
             BOOST_THROW_EXCEPTION(std::runtime_error("rtree loading error"));
 
-        if ( t == 'i' )
+        if ( current_level < leafs_level )
         {
             node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);              // MAY THROW (A)
             node_auto_ptr auto_remover(n, allocators);    
@@ -349,6 +355,7 @@ public:
 
             typedef typename rtree::elements_type<internal_node>::type elements_type;
             typedef typename elements_type::value_type element_type;
+            typedef typename elements_type::size_type elements_size;
             elements_type & elements = rtree::elements(in);
 
             elements.reserve(elements_count);                                                               // MAY THROW (A)
@@ -357,15 +364,17 @@ public:
             {
                 typedef typename elements_type::value_type::first_type box_type;
                 box_type b = serialization_load<box_type>(ar);
-                node_pointer n = apply(ar, version, parameters, translator, allocators); // recursive call
+                node_pointer n = raw_apply(ar, version, leafs_level, values_count, parameters, translator, allocators, current_level+1); // recursive call
                 elements.push_back(element_type(b, n));
             }
 
             auto_remover.release();
             return n;
         }
-        else if ( t == 'l' )
+        else
         {
+            BOOST_GEOMETRY_INDEX_ASSERT(current_level == leafs_level, "unexpected value");
+
             node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
             node_auto_ptr auto_remover(n, allocators);
             leaf & l = rtree::get<leaf>(*n);
@@ -373,6 +382,8 @@ public:
             typedef typename rtree::elements_type<leaf>::type elements_type;
             typedef typename elements_type::value_type element_type;
             elements_type & elements = rtree::elements(l);
+
+            values_count += elements_count;
 
             elements.reserve(elements_count);                                                               // MAY THROW (A)
 
@@ -385,9 +396,6 @@ public:
             auto_remover.release();
             return n;
         }
-        
-        BOOST_THROW_EXCEPTION(std::runtime_error("rtree loading error"));
-        //return node_pointer(0);
     }
 };
 

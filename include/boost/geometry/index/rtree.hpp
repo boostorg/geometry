@@ -1226,17 +1226,15 @@ private:
     {
         detail::serialization_save(m_members.parameters(), ar);
 
-        ar << m_members.values_count; // might be removed
-        ar << m_members.leafs_level;  // might be removed
-        if ( m_members.root )
+        ar << m_members.values_count;
+        ar << m_members.leafs_level;
+
+        if ( m_members.values_count )
         {
+            BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "root shouldn't be null_ptr");
+
             detail::rtree::visitors::save<Archive, Value, options_type, translator_type, box_type, allocators_type> save_v(ar, version);
             detail::rtree::apply_visitor(save_v, *m_members.root);
-        }
-        else
-        {
-            char t = 'n';
-            ar << t;
         }
     }
 
@@ -1246,11 +1244,21 @@ private:
         parameters_type params = detail::serialization_load<parameters_type>(ar);
         
         size_type values_count, leafs_level;
-        ar >> values_count; // might be removed
-        ar >> leafs_level; // might be removed
+        ar >> values_count;
+        ar >> leafs_level;
 
-        node_pointer n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
-            ::apply(ar, version, params, m_members.translator(), m_members.allocators());                                        // MAY THROW
+        node_pointer n(0);
+        if ( 0 < values_count )
+        {
+            size_type loaded_values_count = 0;
+            n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
+                ::apply(ar, version, leafs_level, loaded_values_count, params, m_members.translator(), m_members.allocators());                                        // MAY THROW
+
+            node_auto_ptr remover(n, m_members.allocators());
+            if ( loaded_values_count != values_count )
+                BOOST_THROW_EXCEPTION(std::runtime_error("unexpected number of values")); // TODO change exception type
+            remover.release();
+        }
 
         m_members.parameters() = params;
         m_members.values_count = values_count;
