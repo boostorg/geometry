@@ -62,10 +62,14 @@
 #include <boost/geometry/index/detail/rtree/utilities/view.hpp>
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+// query iterators
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+// type-erased iterators
 #include <boost/geometry/index/detail/type_erased_iterators.hpp>
 #endif
+// serialization
+#include <boost/geometry/index/detail/serialization.hpp>
 #endif
 
 // TODO change the name to bounding_tree
@@ -166,6 +170,7 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+    typedef detail::rtree::node_auto_ptr<value_type, options_type, translator_type, box_type, allocators_type> node_auto_ptr;
 
     friend class detail::rtree::utilities::view<rtree>;
 
@@ -1155,6 +1160,7 @@ private:
             dst.m_members.parameters() = src.m_members.parameters();
         }
 
+        // TODO use node_auto_ptr
         if ( dst.m_members.root )
         {
             detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
@@ -1210,6 +1216,53 @@ private:
 
         return distance_v.finish();
     }
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void save(Archive & ar, unsigned int version) const
+    {
+        detail::serialization_save(m_members.parameters(), ar);
+
+        ar << m_members.values_count; // might be removed
+        ar << m_members.leafs_level;  // might be removed
+        if ( m_members.root )
+        {
+            detail::rtree::visitors::save<Archive, Value, options_type, translator_type, box_type, allocators_type> save_v(ar, version);
+            detail::rtree::apply_visitor(save_v, *m_members.root);
+        }
+        else
+        {
+            char t = 'n';
+            ar << t;
+        }
+    }
+
+    template<class Archive>
+    void load(Archive & ar, unsigned int version)
+    {
+        parameters_type params = detail::serialization_load<parameters_type>(ar);
+        
+        size_type values_count, leafs_level;
+        ar >> values_count; // might be removed
+        ar >> leafs_level; // might be removed
+
+        node_pointer n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
+            ::apply(ar, version, params, m_members.translator(), m_members.allocators());                                        // MAY THROW
+
+        m_members.parameters() = params;
+        m_members.values_count = values_count;
+        m_members.leafs_level = leafs_level;
+
+        node_auto_ptr remover(m_members.root, m_members.allocators());
+        m_members.root = n;
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
     struct members_holder
         : public translator_type
