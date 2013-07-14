@@ -16,6 +16,8 @@
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 #include <boost/foreach.hpp>
@@ -76,7 +78,6 @@ int main()
 
     std::cout << "vector and tree created in: " << t.elapsed() << std::endl;
 
-    std::cout << "before save" << std::endl;
     print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
     std::cout << boost::get<0>(s) << std::endl;
     BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
@@ -88,20 +89,22 @@ int main()
         boost::archive::binary_oarchive oa(ofs);
         t.restart();
         oa << vect;
-        std::cout << "vector saved in: " << t.elapsed() << std::endl;
+        std::cout << "vector saved to bin in: " << t.elapsed() << std::endl;
     }
     {
         std::ofstream ofs("serialized_tree.bin", std::ios::binary | std::ios::trunc);
         boost::archive::binary_oarchive oa(ofs);
         t.restart();
         oa << tree;
-        std::cout << "tree saved in: " << t.elapsed() << std::endl;
+        std::cout << "tree saved to bin in: " << t.elapsed() << std::endl;
     }
-
-    std::cout << "after save" << std::endl;
-    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
-    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
-        std::cout << bg::wkt<V>(v) << std::endl;
+    {
+        std::ofstream ofs("serialized_tree.xml", std::ios::trunc);
+        boost::archive::xml_oarchive oa(ofs);
+        t.restart();
+        oa << boost::serialization::make_nvp("rtree", tree);
+        std::cout << "tree saved to xml in: " << t.elapsed() << std::endl;
+    }
 
     t.restart();
     vect.clear();
@@ -111,25 +114,20 @@ int main()
     tree.clear();
     std::cout << "tree cleared in: " << t.elapsed() << std::endl;
 
-    // levels number is 1 because of error in statistics()
-    std::cout << "before load" << std::endl;
-    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
-    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
-        std::cout << bg::wkt<V>(v) << std::endl;
-
     // load
+
     {
         std::ifstream ifs("serialized_vector.bin", std::ios::binary);
         boost::archive::binary_iarchive ia(ifs);
         t.restart();
         ia >> vect;
-        std::cout << "vector loaded in: " << t.elapsed() << std::endl;
+        std::cout << "vector loaded from bin in: " << t.elapsed() << std::endl;
         t.restart();
         RT tmp(vect, tree.parameters());
         tree = boost::move(tmp);
         std::cout << "tree rebuilt from vector in: " << t.elapsed() << std::endl;
     }
-
+    
     t.restart();
     tree.clear();
     std::cout << "tree cleared in: " << t.elapsed() << std::endl;
@@ -139,14 +137,30 @@ int main()
         boost::archive::binary_iarchive ia(ifs);
         t.restart();
         ia >> tree;
-        std::cout << "tree loaded in: " << t.elapsed() << std::endl;
+        std::cout << "tree loaded from bin in: " << t.elapsed() << std::endl;
     }
 
-    std::cout << "after load" << std::endl;
+    std::cout << "loaded from bin" << std::endl;
     print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
     BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
         std::cout << bg::wkt<V>(v) << std::endl;
 
+    t.restart();
+    tree.clear();
+    std::cout << "tree cleared in: " << t.elapsed() << std::endl;
+
+    {
+        std::ifstream ifs("serialized_tree.xml");
+        boost::archive::xml_iarchive ia(ifs);
+        t.restart();
+        ia >> boost::serialization::make_nvp("rtree", tree);
+        std::cout << "tree loaded from xml in: " << t.elapsed() << std::endl;
+    }
+
+    std::cout << "loaded from xml" << std::endl;
+    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
+    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
+        std::cout << bg::wkt<V>(v) << std::endl;
 
     return 0;
 }
