@@ -1224,10 +1224,12 @@ private:
     template<class Archive>
     void save(Archive & ar, unsigned int version) const
     {
-        detail::serialization_save(m_members.parameters(), ar);
+        namespace bs = boost::serialization;
 
-        ar << m_members.values_count;
-        ar << m_members.leafs_level;
+        detail::serialization_save(m_members.parameters(), "parameters", ar);
+
+        ar << bs::make_nvp("values_count", m_members.values_count);
+        ar << bs::make_nvp("leafs_level", m_members.leafs_level);
 
         if ( m_members.values_count )
         {
@@ -1241,11 +1243,13 @@ private:
     template<class Archive>
     void load(Archive & ar, unsigned int version)
     {
-        parameters_type params = detail::serialization_load<parameters_type>(ar);
+        namespace bs = boost::serialization;
+
+        parameters_type params = detail::serialization_load<parameters_type>("parameters", ar);
         
         size_type values_count, leafs_level;
-        ar >> values_count;
-        ar >> leafs_level;
+        ar >> bs::make_nvp("values_count", values_count);
+        ar >> bs::make_nvp("leafs_level", leafs_level);
 
         node_pointer n(0);
         if ( 0 < values_count )
