@@ -7,51 +7,146 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// WARNING! This code is not fully functional!
-
 #include <iostream>
 #include <fstream>
 
 #define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 #include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/statistics.hpp>
 
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <boost/foreach.hpp>
+#include <boost/timer.hpp>
 
-namespace boost { namespace serialization {
+template <typename T, size_t I = 0, size_t S = boost::tuples::length<T>::value>
+struct print_tuple
+{
+    template <typename Os>
+    static inline Os & apply(Os & os, T const& t)
+    {
+        os << boost::get<I>(t) << ", ";
+        return print_tuple<T, I+1>::apply(os, t);
+    }
+};
 
-
-
-}} // namespace boost::serialization
+template <typename T, size_t S>
+struct print_tuple<T, S, S>
+{
+    template <typename Os>
+    static inline Os & apply(Os & os, T const&)
+    {
+        return os;
+    }
+};
 
 int main()
 {
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
+    typedef boost::tuple<std::size_t, std::size_t, std::size_t, std::size_t, std::size_t, std::size_t> S;
+
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
-    typedef bgi::rtree<B, bgi::linear<16, 4> > RT;
-    //typedef bgi::rtree<B, bgi::quadratic<8, 3> > RT;
-    //typedef bgi::rtree<B, bgi::rstar<8, 3> > RT;
+    typedef B V;
+    //typedef bgi::rtree<V, bgi::linear<16> > RT;
+    //typedef bgi::rtree<V, bgi::quadratic<8, 3> > RT;
+    //typedef bgi::rtree<V, bgi::rstar<8, 3> > RT;
+    typedef bgi::rtree<V, bgi::dynamic_linear > RT;
 
-    RT tree;
+    //RT tree;
+    RT tree(bgi::dynamic_linear(16));
+    std::vector<V> vect;
+
+    boost::timer t;
 
     //insert values
     {
-        for ( double x = 0 ; x < 100 ; x += 10 )
-            for ( double y = 0 ; y < 100 ; y += 10 )
-                tree.insert(B(P(x, y), P(x+1, y+1)));
+        for ( double x = 0 ; x < 1000 ; x += 1 )
+            for ( double y = 0 ; y < 1000 ; y += 1 )
+                vect.push_back(B(P(x, y), P(x+0.5, y+0.5)));
+        RT tmp(vect, tree.parameters());
+        tree = boost::move(tmp);
     }
+    B q(P(5, 5), P(6, 6));
+    S s;
+
+    std::cout << "vector and tree created in: " << t.elapsed() << std::endl;
+
+    std::cout << "before save" << std::endl;
+    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
+    std::cout << boost::get<0>(s) << std::endl;
+    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
+        std::cout << bg::wkt<V>(v) << std::endl;
 
     // save
     {
-        std::ofstream ofs("filename", std::ios::binary);
+        std::ofstream ofs("serialized_vector.bin", std::ios::binary | std::ios::trunc);
         boost::archive::binary_oarchive oa(ofs);
-        oa << tree;
+        t.restart();
+        oa << vect;
+        std::cout << "vector saved in: " << t.elapsed() << std::endl;
     }
+    {
+        std::ofstream ofs("serialized_tree.bin", std::ios::binary | std::ios::trunc);
+        boost::archive::binary_oarchive oa(ofs);
+        t.restart();
+        oa << tree;
+        std::cout << "tree saved in: " << t.elapsed() << std::endl;
+    }
+
+    std::cout << "after save" << std::endl;
+    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
+    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
+        std::cout << bg::wkt<V>(v) << std::endl;
+
+    t.restart();
+    vect.clear();
+    std::cout << "vector cleared in: " << t.elapsed() << std::endl;
+
+    t.restart();
+    tree.clear();
+    std::cout << "tree cleared in: " << t.elapsed() << std::endl;
+
+    // levels number is 1 because of error in statistics()
+    std::cout << "before load" << std::endl;
+    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
+    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
+        std::cout << bg::wkt<V>(v) << std::endl;
+
+    // load
+    {
+        std::ifstream ifs("serialized_vector.bin", std::ios::binary);
+        boost::archive::binary_iarchive ia(ifs);
+        t.restart();
+        ia >> vect;
+        std::cout << "vector loaded in: " << t.elapsed() << std::endl;
+        t.restart();
+        RT tmp(vect, tree.parameters());
+        tree = boost::move(tmp);
+        std::cout << "tree rebuilt from vector in: " << t.elapsed() << std::endl;
+    }
+
+    t.restart();
+    tree.clear();
+    std::cout << "tree cleared in: " << t.elapsed() << std::endl;
+
+    {
+        std::ifstream ifs("serialized_tree.bin", std::ios::binary);
+        boost::archive::binary_iarchive ia(ifs);
+        t.restart();
+        ia >> tree;
+        std::cout << "tree loaded in: " << t.elapsed() << std::endl;
+    }
+
+    std::cout << "after load" << std::endl;
+    print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
+    BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
+        std::cout << bg::wkt<V>(v) << std::endl;
+
 
     return 0;
 }
