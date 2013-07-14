@@ -99,7 +99,11 @@ public :
     typedef PointDistanceStrategy distance_strategy_type;
     // typedef typename strategy::distance::services::comparable_type<PointDistanceStrategy>::type distance_strategy_type;
 
-    typedef typename strategy::distance::services::return_type<distance_strategy_type>::type return_type;
+    typedef typename strategy::distance::services::return_type
+                     <
+                         distance_strategy_type,
+                         Point, Point
+                     >::type return_type;
 
 private :
     typedef detail::douglas_peucker_point<Point> dp_point_type;
@@ -197,7 +201,11 @@ public :
 
         // Get points, recursively, including them if they are further away
         // than the specified distance
-        typedef typename strategy::distance::services::return_type<distance_strategy_type>::type return_type;
+        typedef typename strategy::distance::services::return_type
+                         <
+                             distance_strategy_type,
+                             dp_point_type, dp_point_type
+                         >::type return_type;
 
         consider(boost::begin(ref_candidates), boost::end(ref_candidates), max_distance, n, strategy);
 
@@ -222,6 +230,17 @@ public :
 };
 
 }} // namespace strategy::simplify
+
+
+namespace traits {
+
+template <typename P>
+struct point_type<strategy::simplify::detail::douglas_peucker_point<P> >
+{
+    typedef P type;
+};
+
+} // namespace traits
 
 
 }} // namespace boost::geometry
