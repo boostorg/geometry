@@ -33,12 +33,21 @@
 template <typename P1, typename P2>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
-    typedef bg::strategy::distance::vincenty<P1, P2> vincenty_type;
+    // Set radius type, but for integer coordinates we want to have floating point radius type
+    typedef typename bg::promote_floating_point
+        <
+            typename bg::coordinate_type<P1>::type
+        >::type rtype;
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<vincenty_type>) );
+    typedef bg::strategy::distance::vincenty<rtype> vincenty_type;
+
+    BOOST_CONCEPT_ASSERT(
+        (
+            bg::concept::PointDistanceStrategy<vincenty_type, P1, P2>)
+        );
 
     vincenty_type vincenty;
-    typedef typename bg::strategy::distance::services::return_type<vincenty_type>::type return_type;
+    typedef typename bg::strategy::distance::services::return_type<vincenty_type, P1, P2>::type return_type;
 
 
     P1 p1, p2;
