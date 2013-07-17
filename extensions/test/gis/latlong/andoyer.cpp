@@ -33,12 +33,22 @@
 template <typename P1, typename P2>
 void test_andoyer(double lon1, double lat1, double lon2, double lat2, double expected_km)
 {
-    typedef bg::strategy::distance::andoyer<P1, P2> andoyer_type;
+    // Set radius type, but for integer coordinates we want to have floating point radius type
+    typedef typename bg::promote_floating_point
+        <
+            typename bg::coordinate_type<P1>::type
+        >::type rtype;
 
-    BOOST_CONCEPT_ASSERT( (bg::concept::PointDistanceStrategy<andoyer_type>) );
+    typedef bg::strategy::distance::andoyer<rtype> andoyer_type;
+
+    BOOST_CONCEPT_ASSERT
+        ( 
+            (bg::concept::PointDistanceStrategy<andoyer_type, P1, P2>) 
+        );
 
     andoyer_type andoyer;
-    typedef typename bg::strategy::distance::services::return_type<andoyer_type>::type return_type;
+    typedef typename bg::strategy::distance
+        ::services::return_type<andoyer_type, P1, P2>::type return_type;
 
 
     P1 p1, p2;
