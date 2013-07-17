@@ -35,8 +35,6 @@ struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geog
 {
     typedef cross_track
         <
-            Point,
-            PointOfSegment,
             void,
             typename boost::mpl::if_
                 <
