@@ -63,6 +63,8 @@ public :
           >
     {};
 
+    typedef RadiusType radius_type;
+
     inline andoyer()
         : m_ellipsoid()
     {}

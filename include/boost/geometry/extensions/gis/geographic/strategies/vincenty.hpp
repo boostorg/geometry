@@ -33,7 +33,8 @@ namespace strategy { namespace distance
 /*!
 \brief Distance calculation formulae on latlong coordinates, after Vincenty, 1975
 \ingroup distance
-\tparam RadiusType type of radius (of the Earth)
+\tparam Point1 \tparam_first_point
+\tparam Point2 \tparam_second_point
 \tparam CalculationType \tparam_calculation
 \author See http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
 \author Adapted from various implementations to get it close to the original document
@@ -62,6 +63,8 @@ public :
                   >::type
           >
     {};
+
+    typedef RadiusType radius_type;
 
     inline vincenty()
     {}
@@ -247,4 +250,3 @@ struct result_from_distance<vincenty<RadiusType, CalculationType>, P1, P2 >
 
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
-
