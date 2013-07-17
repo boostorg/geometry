@@ -39,23 +39,23 @@ void test_distance(
             typename bg::coordinate_type<Point>::type const&expected,
             typename bg::coordinate_type<Point>::type const&tolerance)
 {
-    typedef bg::strategy::distance::cross_track
+    typedef typename bg::strategy::distance::services::default_strategy
         <
-            Point,
-            Point
-        > strategy_type;
+            bg::segment_tag, Point, Point
+        >::type strategy_type;
+
     typedef typename bg::strategy::distance::services::return_type
         <
-            strategy_type
+            strategy_type, Point, Point
         >::type return_type;
 
 
+#if !defined(BOOST_MSVC)
     BOOST_CONCEPT_ASSERT
         (
-            (bg::concept::PointSegmentDistanceStrategy<strategy_type>)
+            (bg::concept::PointSegmentDistanceStrategy<strategy_type, Point, Point>)
         );
-
-    //typedef bg::strategy::distance::andoyer<Point, Point> andoyer_type;
+#endif
 
     Point p1, p2, p3;
     bg::assign_values(p1, lon1, lat1);
