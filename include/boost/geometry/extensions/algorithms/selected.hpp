@@ -147,7 +147,7 @@ struct close_to_segment
                 <
                     segment_tag, P, PS
                 >::type strategy_type;
-            typedef typename strategy::distance::services::return_type<strategy_type>::type return_type;
+            typedef typename strategy::distance::services::return_type<strategy_type, P, PS>::type return_type;
 
             strategy_type strategy;
             return_type result = strategy.apply(selection_point, seg1, seg2);
