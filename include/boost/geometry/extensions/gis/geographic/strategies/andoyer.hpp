@@ -30,6 +30,7 @@ namespace strategy { namespace distance
 /*!
 \brief Point-point distance approximation taking flattening into account
 \ingroup distance
+\tparam RadiusType Type of specified radius of the Earth
 \tparam CalculationType \tparam_calculation
 \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
 \note Although not so well-known, the approximation is very good: in all cases the results
@@ -154,14 +155,14 @@ namespace services
 {
 
 template <typename RadiusType, typename CalculationType>
-struct tag<strategy::distance::andoyer<RadiusType, CalculationType> >
+struct tag<andoyer<RadiusType, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
 };
 
 
 template <typename RadiusType, typename CalculationType, typename P1, typename P2>
-struct return_type<strategy::distance::andoyer<RadiusType, CalculationType>, P1, P2>
+struct return_type<andoyer<RadiusType, CalculationType>, P1, P2>
     : andoyer<RadiusType, CalculationType>::template calculation_type<P1, P2>
 {};
 
@@ -197,7 +198,7 @@ struct result_from_distance<andoyer<RadiusType, CalculationType>, P1, P2>
 template <typename Point1, typename Point2>
 struct default_strategy<point_tag, Point1, Point2, geographic_tag, geographic_tag>
 {
-    typedef strategy::distance::andoyer<double> type;
+    typedef strategy::distance::andoyer<typename select_coordinate_type<Point1, Point2>::type> type;
 };
 
 
