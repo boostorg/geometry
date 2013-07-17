@@ -152,7 +152,7 @@ struct map_policy
         strategy_type strategy;
 
         distance_result_type min_dist = strategy::distance::services
-            ::result_from_distance<strategy_type>::apply(strategy, 100);
+            ::result_from_distance<strategy_type, Point, Point>::apply(strategy, 100);
 
         for (vector_iterator_type it = boost::begin(range);
             it != boost::end(range);
@@ -325,7 +325,7 @@ struct fuzzy_policy
         // 2c: for all candidates get closest one
         strategy_type strategy;
         distance_result_type min_dist = strategy::distance::services
-            ::result_from_distance<strategy_type>::apply(strategy, 100);
+            ::result_from_distance<strategy_type, Point, Point>::apply(strategy, 100);
 
         for (vector_iterator_type it = boost::begin(range);
             it != boost::end(range);
