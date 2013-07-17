@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_HPP
 
 
+#include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
@@ -96,9 +97,13 @@ public :
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        BOOST_CONCEPT_ASSERT(
-            (concept::PointDistanceStrategy<Strategy, Point, PointOfSegment>)
-        );
+
+#if !defined(BOOST_MSVC)
+        BOOST_CONCEPT_ASSERT
+            (
+                (concept::PointDistanceStrategy<Strategy, Point, PointOfSegment>)
+            );
+#endif
 
         typedef typename return_type<Point, PointOfSegment>::type return_type;
 
