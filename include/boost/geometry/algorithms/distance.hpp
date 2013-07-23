@@ -288,7 +288,7 @@ struct distance
 >
     : distance<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
 {
-    typedef typename return_type
+    typedef typename strategy::distance::services::return_type
                      <
                          Strategy,
                          typename point_type<Geometry2>::type,
