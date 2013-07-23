@@ -45,7 +45,7 @@ private :
     struct checker
     {
         template <typename ApplyMethod>
-        static void apply(ApplyMethod const&)
+        static void apply(ApplyMethod)
         {
             namespace ft = boost::function_types;
             typedef typename ft::parameter_types
