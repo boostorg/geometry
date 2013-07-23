@@ -155,7 +155,14 @@ struct pythagoras
     static inline typename calculation_type<P1, P2>::type
     apply(P1 const& p1, P2 const& p2)
     {
-        return sqrt(comparable::pythagoras<CalculationType>::apply(p1, p2));
+        // The cast is necessary for MSVC which considers sqrt __int64 as an ambiguous call
+        return std::sqrt
+            (
+                 boost::numeric_cast<typename calculation_type<P1, P2>::type>
+                    (
+                        comparable::pythagoras<CalculationType>::apply(p1, p2)
+                    )
+            );
     }
 };
 
