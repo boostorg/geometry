@@ -43,7 +43,7 @@ private :
     struct checker
     {
         template <typename ApplyMethod>
-        static void apply(ApplyMethod const&)
+        static void apply(ApplyMethod)
         {
             // 1: inspect and define both arguments of apply
             typedef typename parameter_type_of
@@ -123,7 +123,7 @@ private :
     struct checker
     {
         template <typename ApplyMethod>
-        static void apply(ApplyMethod const&)
+        static void apply(ApplyMethod)
         {
             typedef typename parameter_type_of
                 <
