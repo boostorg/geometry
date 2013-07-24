@@ -55,7 +55,7 @@ inline bool point_in_circle(P const& p, C const& c)
         <
             point_tag, P, point_type
         >::type strategy_type;
-    typedef typename services::return_type<strategy_type>::type return_type;
+    typedef typename services::return_type<strategy_type, P, point_type>::type return_type;
 
     strategy_type strategy;
 
@@ -63,7 +63,7 @@ inline bool point_in_circle(P const& p, C const& c)
     return_type const r = geometry::distance(p, center, strategy);
     return_type const rad = services::result_from_distance
         <
-            strategy_type
+            strategy_type, P, point_type
         >::apply(strategy, get_radius<0>(c));
 
     return r < rad;
