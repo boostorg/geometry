@@ -32,9 +32,9 @@ template<> struct cs_tag<cart_shifted5> { typedef cartesian_tag type; };
 
 // 3: sample implementation of a shift 
 //    to convert coordinate system "cart" to "cart_shirted5"
-template <typename P1, typename P2>
 struct shift
 {
+    template <typename P1, typename P2>
     inline bool apply(P1 const& p1, P2& p2) const
     {
         namespace bg = boost::geometry;
@@ -52,7 +52,7 @@ namespace boost { namespace geometry  { namespace strategy { namespace transform
 template <typename P1, typename P2>
 struct default_strategy<cartesian_tag, cartesian_tag, cart, cart_shifted5, 2, 2, P1, P2>
 {
-    typedef shift<P1, P2> type;
+    typedef shift type;
 };
 
 }}}}} // namespaces
