@@ -14,6 +14,26 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.55]
+[/=================]
+
+[*Additional functionality]
+
+* Added centroid for segment type
+
+[*Documentation]
+
+[*Bugfixes]
+
+[*Solved tickets]
+
+[*Internal changes]
+
+* Distance-strategy TODO
+* Transform-strategy TODO
+
+
+[/=================]
 [heading Boost 1.54]
 [/=================]
 
