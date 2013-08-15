@@ -89,6 +89,11 @@ public :
         return m_ellipsoid;
     }
 
+    inline RadiusType radius() const
+    {
+        // For now return the major axis. It is used in distance_cross_track, from point-to-line
+        return m_ellipsoid.a();
+    }
 
 private :
     geometry::detail::ellipsoid<RadiusType> m_ellipsoid;
@@ -227,7 +232,7 @@ template <typename RadiusType, typename CalculationType, typename P1, typename P
 struct result_from_distance<vincenty<RadiusType, CalculationType>, P1, P2 >
 {
     template <typename T>
-    static inline typename return_type<vincenty<RadiusType, CalculationType>, P1, P2>::type 
+    static inline typename return_type<vincenty<RadiusType, CalculationType>, P1, P2>::type
         apply(vincenty<RadiusType, CalculationType> const& , T const& value)
     {
         return value;

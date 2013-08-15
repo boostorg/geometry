@@ -169,11 +169,11 @@ private :
     Strategy m_strategy;
 
     /// Calculate course (bearing) between two points. Might be moved to a "course formula" ...
-    template <typename Point>
-    inline typename return_type<Point, Point>::type
-    course(Point const& p1, Point const& p2) const
+    template <typename Point1, typename Point2>
+    inline typename return_type<Point1, Point2>::type
+    course(Point1 const& p1, Point2 const& p2) const
     {
-        typedef typename return_type<Point, Point>::type return_type;
+        typedef typename return_type<Point1, Point2>::type return_type;
 
         // http://williams.best.vwh.net/avform.htm#Crs
         return_type dlon = get_as_radian<0>(p2) - get_as_radian<0>(p1);
@@ -206,9 +206,17 @@ struct return_type<cross_track<CalculationType, Strategy>, P, PS>
 {};
 
 
-template 
+template <typename CalculationType, typename Strategy>
+struct comparable_type<cross_track<CalculationType, Strategy> >
+{
+    // There is no shortcut, so the strategy itself is its comparable type
+    typedef cross_track<CalculationType, Strategy>  type;
+};
+
+
+template
 <
-    typename CalculationType, 
+    typename CalculationType,
     typename Strategy
 >
 struct get_comparable<cross_track<CalculationType, Strategy> >
@@ -225,9 +233,9 @@ public :
 };
 
 
-template 
+template
 <
-    typename CalculationType, 
+    typename CalculationType,
     typename Strategy,
     typename P, typename PS
 >
@@ -246,7 +254,7 @@ public :
 
 template
 <
-    typename CalculationType, 
+    typename CalculationType,
     typename Strategy
 >
 struct strategy_point_point<cross_track<CalculationType, Strategy> >
@@ -263,8 +271,8 @@ TODO:  spherical polar coordinate system requires "get_as_radian_equatorial<>"
 template <typename Point, typename PointOfSegment, typename Strategy>
 struct default_strategy
     <
-        segment_tag, Point, PointOfSegment, 
-        spherical_polar_tag, spherical_polar_tag, 
+        segment_tag, Point, PointOfSegment,
+        spherical_polar_tag, spherical_polar_tag,
         Strategy
     >
 {
@@ -288,8 +296,8 @@ struct default_strategy
 template <typename Point, typename PointOfSegment, typename Strategy>
 struct default_strategy
     <
-        segment_tag, Point, PointOfSegment, 
-        spherical_equatorial_tag, spherical_equatorial_tag, 
+        segment_tag, Point, PointOfSegment,
+        spherical_equatorial_tag, spherical_equatorial_tag,
         Strategy
     >
 {

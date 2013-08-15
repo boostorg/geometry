@@ -41,38 +41,44 @@ int test_main(int, char* [])
     transform(amsterdam, amsterdam_rad);
     transform(paris, paris_rad);
 
-    double d1 = 0.001 * distance(paris, amsterdam);
-    double d2 = 0.001 * distance(paris_rad, amsterdam_rad);
+    // Distance paris-amsterdam is about 430 km
+    double expected = 429.984 * 1000.0;
+    double tolerance = 0.001;
 
-    double d3 = 0.001 * distance(paris, amsterdam_rad);
-    double d4 = 0.001 * distance(paris_rad, amsterdam);
-    std::cout << "Distances: " << d1 << " == " << d2 << " == " << d3 << " == " << d4 << std::endl;
+    // Combinations deg-deg, rad-rad, deg-rad, rad-de
+    BOOST_CHECK_CLOSE(distance(paris, amsterdam), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris_rad, amsterdam_rad), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris, amsterdam_rad), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris_rad, amsterdam), expected, tolerance);
 
-    double d5 = 0.001 * distance(paris, amsterdam, vincenty<bg::model::ll::point<bg::degree>, bg::model::ll::point<bg::degree> >());
-    double d6 = 0.001 * distance(paris_rad, amsterdam_rad, vincenty<bg::model::ll::point<bg::radian>, bg::model::ll::point<bg::radian> >());
-    double d7 = 0.001 * distance(paris, amsterdam_rad, vincenty<bg::model::ll::point<bg::degree>, bg::model::ll::point<bg::radian> >());
-    double d8 = 0.001 * bg::distance(paris_rad, amsterdam, vincenty<bg::model::ll::point<bg::radian>, bg::model::ll::point<bg::degree> >());
-    std::cout << "Distances: " << d5 << " == " << d6 << " == " << d7 << " == " << d8 << std::endl;
+    // With specified strategy
+    vincenty<double> the_strategy;
+    BOOST_CHECK_CLOSE(distance(paris, amsterdam, the_strategy), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris_rad, amsterdam_rad, the_strategy), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris, amsterdam_rad, the_strategy), expected, tolerance);
+    BOOST_CHECK_CLOSE(bg::distance(paris_rad, amsterdam, the_strategy), expected, tolerance);
 
+
+    // Distance point-linestring, linestring-point...
     bg::model::ll::point<bg::degree> barcelona(
         bg::latitude<>(bg::dms<bg::north>(41, 23)),
         bg::longitude<>(bg::dms<bg::east>(2, 11))
         );
 
-    // Now declare a line in latlong and calculate the distance, this MUST reverse...
     bg::model::linestring<bg::model::ll::point<bg::degree> > ab;
     ab.push_back(amsterdam);
     ab.push_back(barcelona);
 
-    double d9 = 0.001 * distance(ab, paris);
-    double d10 = 0.001 * distance(paris, ab);
-    double d11 = 0.001 * distance(paris, ab, vincenty<bg::model::ll::point<bg::degree>, bg::model::ll::point<bg::degree> >());
-    double d12 = 0.001 * distance(ab, paris, vincenty<bg::model::ll::point<bg::degree>, bg::model::ll::point<bg::degree> >());
-    std::cout << "Distances: " << d9 << " == " << d10 << " == " << d11 << " == " << d12 << std::endl;
+    // Distance paris to line amsteram-barcelona is about 113 km
+    expected = 113.168 * 1000.0;
 
-    // TODO: solve this case, it is reversed -> strategy should be reversed as well
-    // For this, first implement that linestring can have other coor.sys then point type...
-    //double d13 = 0.001 * distance(ab, paris_rad, vincenty<ll::point<bg::degree>, ll::point<bg::radian> >());
+    BOOST_CHECK_CLOSE(distance(ab, paris), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris, ab), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(paris, ab, the_strategy), expected, tolerance);
+    BOOST_CHECK_CLOSE(distance(ab, paris, the_strategy), expected, tolerance);
+
+    // line-type in degrees, point-type in radians (supported since new distance-strategy approach)
+    BOOST_CHECK_CLOSE(distance(ab, paris_rad, the_strategy), expected, tolerance);
 
     return 0;
 }
