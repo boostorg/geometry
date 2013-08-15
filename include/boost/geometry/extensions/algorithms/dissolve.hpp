@@ -67,7 +67,7 @@ public :
     typedef detail::overlay::backtrack_state state_type;
 
     template <typename Operation, typename Rings, typename Turns>
-    static inline void apply(std::size_t size_at_start, 
+    static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& ,
@@ -77,7 +77,7 @@ public :
                 )
     {
         state.m_good = false;
-        
+
         // Make bad output clean
         rings.resize(size_at_start);
         ring.clear();
@@ -132,7 +132,7 @@ struct dissolve_ring_or_polygon
 
             typedef detail::overlay::traverse
                 <
-                    false, false, 
+                    false, false,
                     Geometry, Geometry,
                     backtrack_for_dissolve<Geometry>
                 > traverser;
@@ -178,7 +178,7 @@ struct dissolve_ring_or_polygon
                 }
             }
 
-            detail::overlay::assign_parents(geometry, rings, selected);
+            detail::overlay::assign_parents(geometry, rings, selected, true);
             return detail::overlay::add_rings<GeometryOut>(selected, geometry, rings, out);
 
         }
