@@ -27,10 +27,13 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/8969 8969] boost::geometry::model::point single argument constructor should be explicit
+
 [*Internal changes]
 
 * Distance-strategy TODO
 * Transform-strategy TODO
+* Cleanup, removed old MSVC2005 project files, let all tests pass green (also in extensions)
 
 
 [/=================]
