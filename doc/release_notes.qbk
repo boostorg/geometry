@@ -28,6 +28,7 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/8969 8969] boost::geometry::model::point single argument constructor should be explicit
+* [@https://svn.boost.org/trac/boost/ticket/8825 8825] Patch adding member variable documentation to doxygen_xml2qbk
 
 [*Internal changes]
 
