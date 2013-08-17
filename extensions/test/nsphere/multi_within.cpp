@@ -49,5 +49,8 @@ int test_main( int , char* [] )
     // Multipolygon in circle
     BOOST_CHECK_EQUAL(bg::within(multi_polygon, circle), true);
 
+    multi_polygon.front().outer().insert(multi_polygon.front().outer().begin() + 1, gl_point(10, 10));
+    BOOST_CHECK_EQUAL(bg::within(multi_polygon, circle), false);
+
     return 0;
 }

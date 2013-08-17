@@ -15,6 +15,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_STRATEGIES_CARTESIAN_POINT_IN_NSPHERE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_STRATEGIES_CARTESIAN_POINT_IN_NSPHERE_HPP
 
+#include <cassert>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -23,9 +24,9 @@
 
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
 
-namespace boost { namespace geometry { namespace strategy 
+namespace boost { namespace geometry { namespace strategy
 {
- 
+
 namespace within
 {
 
@@ -67,6 +68,20 @@ struct point_in_nsphere
 };
 
 
+// For many geometry-in-nsphere, we do not have a strategy yet... but a default strategy should exist
+struct nsphere_dummy
+{
+    template <typename A, typename B>
+    static bool apply(A const& a, B const& b)
+    {
+        // Assertion if called
+        assert(false);
+        return false;
+    }
+};
+
+
+
 } // namespace within
 
 
@@ -79,13 +94,25 @@ namespace within { namespace services
 template <typename Point, typename NSphere>
 struct default_strategy
     <
-        point_tag, nsphere_tag, 
-        point_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        point_tag, nsphere_tag,
+        point_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         Point, NSphere
     >
 {
-    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_within_comparable_distance> type; 
+    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_within_comparable_distance> type;
+};
+
+template <typename AnyTag, typename AnyGeometry, typename NSphere>
+struct default_strategy
+    <
+        AnyTag, nsphere_tag,
+        AnyTag, areal_tag,
+        cartesian_tag, cartesian_tag,
+        AnyGeometry, NSphere
+    >
+{
+    typedef within::nsphere_dummy type;
 };
 
 
@@ -99,13 +126,13 @@ namespace covered_by { namespace services
 template <typename Point, typename NSphere>
 struct default_strategy
     <
-        point_tag, nsphere_tag, 
-        point_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        point_tag, nsphere_tag,
+        point_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         Point, NSphere
     >
 {
-    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_covered_by_comparable_distance> type; 
+    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_covered_by_comparable_distance> type;
 };
 
 

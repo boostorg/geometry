@@ -36,17 +36,20 @@ void test_circle(std::string const& wkt_geometry, bool expected)
         << " detected: " << detected);
 }
 
-
-
-
 template <typename P>
 void test_circles()
 {
     test_circle<P>("POINT(2 1)", true);
     test_circle<P>("POINT(12 1)", false);
 
-    //test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2)", true);
-    //test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2,10 10)", false);
+    test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2)", true);
+    test_circle<bg::model::linestring<P> >("LINESTRING(1 1,2 1,2 2,10 10)", false);
+
+    test_circle<bg::model::polygon<P> >("POLYGON((1 1,2 1,2 2,1 1))", true);
+    test_circle<bg::model::polygon<P> >("POLYGON((1 1,2 1,2 2,10 10,1 1))", false);
+
+    test_circle<bg::model::box<P> >("BOX(1 1,2 2)", true);
+    test_circle<bg::model::box<P> >("BOX(1 1,10 10)", false);
 }
 
 
