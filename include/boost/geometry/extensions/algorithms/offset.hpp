@@ -44,6 +44,11 @@ struct offset_range
             linestring_tag
         >
 {
+    typedef geometry::detail::buffer::buffer_range
+        <
+            RangeOut,
+            linestring_tag
+        > super;
     template
     <
         typename Collection,
@@ -60,13 +65,13 @@ struct offset_range
         collection.start_new_ring();
         if (reverse)
         {
-            iterate(collection, boost::rbegin(range), boost::rend(range),
+            super::iterate(collection, boost::rbegin(range), boost::rend(range),
                 buffer_side_left,
                 distance_strategy, join_strategy, end_strategy);
         }
         else
         {
-            iterate(collection, boost::begin(range), boost::end(range),
+            super::iterate(collection, boost::begin(range), boost::end(range),
                 buffer_side_left,
                 distance_strategy, join_strategy, end_strategy);
         }
