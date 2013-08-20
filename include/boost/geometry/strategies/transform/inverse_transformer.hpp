@@ -31,7 +31,7 @@ namespace strategy { namespace transform
 {
 
 /*!
-\brief Transformation strategy to do an inverse ransformation in Cartesian system
+\brief Transformation strategy to do an inverse transformation in a Cartesian coordinate system
 \ingroup strategies
  */
 template

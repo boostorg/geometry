@@ -42,7 +42,7 @@ namespace strategy { namespace distance
 /*!
 \brief Strategy functor for distance point to segment calculation
 \ingroup strategies
-\details Class which calculates the distance of a point to a segment, using latlong points
+\details Class which calculates the distance of a point to a segment, for points on a sphere or globe
 \see http://williams.best.vwh.net/avform.htm
 \tparam CalculationType \tparam_calculation
 \tparam Strategy underlying point-point distance strategy, defaults to haversine

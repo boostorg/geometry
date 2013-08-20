@@ -32,7 +32,7 @@ namespace strategy { namespace transform
 {
 
 /*!
-\brief Transformation strategy to do map from one to another Cartesian system
+\brief Transformation strategy to map from one to another Cartesian coordinate system
 \ingroup strategies
 \tparam Mirror if true map is mirrored upside-down (in most cases pixels
     are from top to bottom, while map is from bottom to top)

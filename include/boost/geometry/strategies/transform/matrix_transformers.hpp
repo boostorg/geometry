@@ -359,7 +359,7 @@ public :
 
 
 /*!
-\brief Strategy of rotate transformation in Cartesian system.
+\brief Strategy for rotate transformation in Cartesian coordinate system.
 \details Rotate rotates a geometry of specified angle about a fixed point (e.g. origin).
 \see http://en.wikipedia.org/wiki/Rotation_%28mathematics%29
 \ingroup strategies
