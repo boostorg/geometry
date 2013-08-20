@@ -201,12 +201,6 @@ public :
 
         // Get points, recursively, including them if they are further away
         // than the specified distance
-        typedef typename strategy::distance::services::return_type
-                         <
-                             distance_strategy_type,
-                             dp_point_type, dp_point_type
-                         >::type return_type;
-
         consider(boost::begin(ref_candidates), boost::end(ref_candidates), max_distance, n, strategy);
 
         // Copy included elements to the output

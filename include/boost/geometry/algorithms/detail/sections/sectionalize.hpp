@@ -367,8 +367,6 @@ struct sectionalize_range
     static inline void apply(Range const& range, Sections& sections,
                 ring_identifier ring_id)
     {
-        typedef model::referring_segment<Point const> segment_type;
-
         cview_type cview(range);
         view_type view(cview);
 

@@ -151,9 +151,7 @@ private :
             , sum_a2(calculation_type())
             , sum_x(calculation_type())
             , sum_y(calculation_type())
-        {
-            typedef calculation_type ct;
-        }
+        {}
     };
 
 public :
