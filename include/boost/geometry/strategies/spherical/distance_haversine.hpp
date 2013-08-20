@@ -100,8 +100,7 @@ private :
 \brief Distance calculation for spherical coordinates
 on a perfect sphere using haversine
 \ingroup strategies
-\tparam Point1 \tparam_first_point
-\tparam Point2 \tparam_second_point
+\tparam RadiusType \tparam_radius
 \tparam CalculationType \tparam_calculation
 \author Adapted from: http://williams.best.vwh.net/avform.htm
 \see http://en.wikipedia.org/wiki/Great-circle_distance

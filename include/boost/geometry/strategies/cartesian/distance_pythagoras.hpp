@@ -115,8 +115,6 @@ public :
 /*!
 \brief Strategy to calculate the distance between two points
 \ingroup strategies
-\tparam Point1 \tparam_first_point
-\tparam Point2 \tparam_second_point
 \tparam CalculationType \tparam_calculation
 
 \qbk{
@@ -131,8 +129,10 @@ template
 <
     typename CalculationType = void
 >
-struct pythagoras
+class pythagoras
 {
+public :
+
     template <typename P1, typename P2>
     struct calculation_type
         : util::calculation_type::geometric::binary

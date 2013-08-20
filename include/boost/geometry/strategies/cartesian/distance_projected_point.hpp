@@ -50,8 +50,6 @@ namespace strategy { namespace distance
 \ingroup strategies
 \details Calculates distance using projected-point method, and (optionally) Pythagoras
 \author Adapted from: http://geometryalgorithms.com/Archive/algorithm_0102/algorithm_0102.htm
-\tparam Point \tparam_point
-\tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \tparam Strategy underlying point-point distance strategy
 \par Concepts for Strategy:

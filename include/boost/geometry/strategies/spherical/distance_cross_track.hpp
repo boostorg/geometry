@@ -44,8 +44,6 @@ namespace strategy { namespace distance
 \ingroup strategies
 \details Class which calculates the distance of a point to a segment, using latlong points
 \see http://williams.best.vwh.net/avform.htm
-\tparam Point point type
-\tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \tparam Strategy underlying point-point distance strategy, defaults to haversine
 

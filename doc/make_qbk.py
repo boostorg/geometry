@@ -36,6 +36,7 @@ cmd = cmd + " > generated/%s.qbk"
 
 def call_doxygen():
     os.chdir("doxy");
+    os.system("rm -f doxygen_output/xml/*.xml")
     os.system(doxygen_cmd)
     os.chdir("..")
 
