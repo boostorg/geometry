@@ -29,11 +29,14 @@
 
 * [@https://svn.boost.org/trac/boost/ticket/8969 8969] boost::geometry::model::point single argument constructor should be explicit
 * [@https://svn.boost.org/trac/boost/ticket/8825 8825] Patch adding member variable documentation to doxygen_xml2qbk
+* [@https://svn.boost.org/trac/boost/ticket/8364 8364] Invalid input exception, caused by spikes in previous steps, fixed
+* [@https://svn.boost.org/trac/boost/ticket/8365 8365] Invalid input exception, caused by spikes in previous steps, fixed
 
 [*Internal changes]
 
 * Distance-strategy TODO
 * Transform-strategy TODO
+* Spikes (could be generated in difference) in integer-based overlays are now avoided during generation
 * Cleanup, removed old MSVC2005 project files, let all tests pass green (also in extensions)
 
 

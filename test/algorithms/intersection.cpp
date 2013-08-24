@@ -182,9 +182,11 @@ void test_areal()
 
     //std::cout << typeid(ct).name() << std::endl;
 
+    // Pointcount for ttmath/double (both 5) or float (4)
+    // double returns 5 (since method append_no_dups_or_spikes)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
-        1, if_typed_tt<ct>(5, 4), 
+        1, if_typed<ct, float>(4, 5), 
         0.6649875, 
         if_typed<ct, float>(1.0, 0.01)); 
         

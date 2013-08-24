@@ -258,8 +258,8 @@ void test_all()
     {
         test_one<polygon, polygon, polygon>("buffer_mp2", 
             buffer_mp2[0], buffer_mp2[1],
-            1, 92, 12.09857,
-            1, 157, 24.19787);
+            1, 91, 12.09857,
+            1, 156, 24.19787);
     }
 
     /*** TODO: self-tangencies for difference

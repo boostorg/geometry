@@ -282,9 +282,9 @@ void test_areal()
 
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, if_typed<ct, double>(22, 23), 4.60853);
+                1, 0, if_typed<ct, double>(21, 23), 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, if_typed<ct, double>(22, 23), 4.60853);
+                1, 0, if_typed<ct, double>(21, 23), 4.60853);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 17, 16.571);
@@ -352,7 +352,7 @@ void test_areal()
         // Contains robustness issue for collinear-opposite. 
         // In double it delivers a polygon and a hole
         test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                    1, 1, 218, 36.7535642);
+                    1, 1, 217, 36.7535642);
     }
     else if (boost::is_same<ct, float>::type::value)
     {

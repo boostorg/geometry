@@ -216,16 +216,26 @@ inline T sqr(T const& value)
     return value * value;
 }
 
-
 /*!
 \brief Short utility to workaround gcc/clang problem that abs is converting to integer
 \ingroup utility
 */
 template<typename T>
-inline T abs(const T& t)
+inline T abs(T const& value)
 {
     using std::abs;
-    return abs(t);
+    return abs(value);
+}
+
+/*!
+\brief Short utility to calculate the sign of a number: -1 (negative), 0 (zero), 1 (positive)
+\ingroup utility
+*/
+template <typename T>
+static inline int sign(T const& val) 
+{
+    T const zero = T();
+    return val > zero ? 1 : val < zero ? -1 : 0;
 }
 
 
