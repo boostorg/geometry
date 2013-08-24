@@ -21,6 +21,7 @@ test-suite boost-geometry-algorithms
     [ run convert.cpp ]
     [ run covered_by.cpp ]
     [ run difference.cpp ]
+    [ run difference_spike.cpp ]
     [ run disjoint.cpp ]
     [ run distance.cpp ]
     [ run envelope.cpp ]
