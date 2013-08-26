@@ -15,12 +15,7 @@
 #include <iostream>
 #include <string>
 
-#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 #define TEST_ISOVIST
-
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-
 
 #include <algorithms/test_union.hpp>
 #include <algorithms/test_overlay.hpp>
@@ -423,10 +418,6 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

@@ -7,20 +7,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// #define TEST_ISOVIST
-
-//#define HAVE_TTMATH
-
-//#define BOOST_GEOMETRY_CHECK_WITH_POSTGIS
-
-//#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
-//#define BOOST_GEOMETRY_DEBUG_INTERSECTION
-//#define BOOST_GEOMETRY_DEBUG_TRAVERSE
-//#define BOOST_GEOMETRY_DEBUG_FOLLOW
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-
-
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -34,9 +20,6 @@
 #include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
-
-//#include <boost/geometry/extensions/gis/io/wkb/read_wkb.hpp>
-//#include <boost/geometry/extensions/gis/io/wkb/utility.hpp>
 
 #include <algorithms/test_difference.hpp>
 #include <algorithms/test_overlay.hpp>

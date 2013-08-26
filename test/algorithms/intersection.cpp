@@ -15,16 +15,7 @@
 #include <iostream>
 #include <string>
 
-#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 #define TEST_ISOVIST
-
-//#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
-//#define BOOST_GEOMETRY_DEBUG_INTERSECTION
-//#define BOOST_GEOMETRY_DEBUG_TRAVERSE
-//#define BOOST_GEOMETRY_DEBUG_FOLLOW
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
