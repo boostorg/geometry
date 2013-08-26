@@ -166,6 +166,9 @@ void test_areal()
         3, 0, 1.5);
 
     typedef typename bg::coordinate_type<Polygon>::type ct;
+    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
+    bool const open = bg::closure<Polygon>::value == bg::open;
+
 
 #ifdef TEST_ISOVIST
 #ifdef _MSC_VER
@@ -182,16 +185,18 @@ void test_areal()
 
     //std::cout << typeid(ct).name() << std::endl;
 
-    // Pointcount for ttmath/double (both 5) or float (4)
-    // double returns 5 (since method append_no_dups_or_spikes)
-    /***
-      TODO it now returns sometimes 4, sometimes 5 for double. Depending on clockwise/closed too. Fix this.
-    test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
-        ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
-        1, if_typed_tt<ct>(5, 4), 
-        0.6649875, 
-        if_typed<ct, float>(1.0, 0.01)); 
-    ***/
+    if (! ccw && open)
+    {
+        // Pointcount for ttmath/double (both 5) or float (4)
+        // double returns 5 (since method append_no_dups_or_spikes)
+        // but not for ccw/open. Those cases has to be adapted once, anyway, 
+        // because for open always one point too much is generated...
+        test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
+            ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
+            1, if_typed<ct, float>(4, 5), 
+            0.6649875, 
+            if_typed<ct, float>(1.0, 0.01)); 
+    }
         
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
