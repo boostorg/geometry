@@ -218,13 +218,14 @@ inline T sqr(T const& value)
 
 /*!
 \brief Short utility to workaround gcc/clang problem that abs is converting to integer
+       and that older versions of MSVC does not support abs of long long...
 \ingroup utility
 */
 template<typename T>
 inline T abs(T const& value)
 {
-    using std::abs;
-    return abs(value);
+    T const zero = T();
+    return value < zero ? -value : value;
 }
 
 /*!
@@ -232,10 +233,10 @@ inline T abs(T const& value)
 \ingroup utility
 */
 template <typename T>
-static inline int sign(T const& val) 
+static inline int sign(T const& value) 
 {
     T const zero = T();
-    return val > zero ? 1 : val < zero ? -1 : 0;
+    return value > zero ? 1 : value < zero ? -1 : 0;
 }
 
 
