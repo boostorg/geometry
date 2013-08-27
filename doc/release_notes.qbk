@@ -27,10 +27,11 @@
 
 [*Solved tickets]
 
-* [@https://svn.boost.org/trac/boost/ticket/8969 8969] boost::geometry::model::point single argument constructor should be explicit
-* [@https://svn.boost.org/trac/boost/ticket/8825 8825] Patch adding member variable documentation to doxygen_xml2qbk
+* [@https://svn.boost.org/trac/boost/ticket/6958 6958] Intersection generates self-intersection. Caused by spikes, fixed
 * [@https://svn.boost.org/trac/boost/ticket/8364 8364] Invalid input exception, caused by spikes in previous steps, fixed
 * [@https://svn.boost.org/trac/boost/ticket/8365 8365] Invalid input exception, caused by spikes in previous steps, fixed
+* [@https://svn.boost.org/trac/boost/ticket/8969 8969] boost::geometry::model::point single argument constructor should be explicit
+* [@https://svn.boost.org/trac/boost/ticket/8825 8825] Patch adding member variable documentation to doxygen_xml2qbk
 
 [*Internal changes]
 
