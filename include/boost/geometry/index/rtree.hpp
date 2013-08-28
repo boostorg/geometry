@@ -771,7 +771,8 @@ public:
         value_type, const_reference, const_pointer, difference_type
     >::type const_query_iterator;
 
-    typedef index::detail::rtree::query_iterator<value_type, allocators_type> const_query_iterator_alt;
+    typedef index::detail::rtree::query_iterator_poly<value_type, allocators_type> const_query_iterator_alt;
+    typedef index::detail::rtree::query_iterator_te<value_type, allocators_type> const_query_iterator_alt2;
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 

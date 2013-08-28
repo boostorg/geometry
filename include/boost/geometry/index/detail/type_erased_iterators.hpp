@@ -23,7 +23,8 @@ struct single_pass_iterator_concept :
         ::boost::type_erasure::equality_comparable<T>,
         ::boost::type_erasure::dereferenceable<Reference, T>,
         ::boost::type_erasure::assignable<T>,
-        ::boost::type_erasure::incrementable<T>
+        ::boost::type_erasure::incrementable<T>,
+        ::boost::type_erasure::relaxed // default ctor
     >
 {};
 
