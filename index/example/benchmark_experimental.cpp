@@ -259,6 +259,38 @@ int main()
             dur_t time = clock_t::now() - start;
             std::cout << time << " - type-erased2 qbegin(B) qend() " << queries_count << " found " << temp << '\n';
         }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator_alt2 first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator_alt2 last = t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased3 qbegin(B) qend(B) " << queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator_alt2 first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator_alt2 last = t.qend();
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased3 qbegin(B) qend() " << queries_count << " found " << temp << '\n';
+        }
 #endif
 #endif
 
@@ -388,6 +420,38 @@ int main()
             }
             dur_t time = clock_t::now() - start;
             std::cout << time << " - type-erased2 qbegin(nearest(P, " << neighbours_count << ")) qend() " << nearest_queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator_alt2 first = t.qbegin(bgi::nearest(P(x, y), neighbours_count));
+                RT::const_query_iterator_alt2 last = t.qend(bgi::nearest(P(x, y), neighbours_count));
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased3 qbegin(nearest(P, " << neighbours_count << ")) qend(n) " << nearest_queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < nearest_queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator_alt2 first = t.qbegin(bgi::nearest(P(x, y), neighbours_count));
+                RT::const_query_iterator_alt2 last = t.qend();
+                std::copy(first, last, std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - type-erased3 qbegin(nearest(P, " << neighbours_count << ")) qend() " << nearest_queries_count << " found " << temp << '\n';
         }
 #endif
 
