@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 
-#include <boost/scoped_ptr.hpp>
-
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
 
 template <typename Value, typename Allocators>
@@ -253,7 +251,7 @@ template <typename Value, typename Allocators>
 class query_iterator_poly
 {
     typedef query_iterator_base<Value, Allocators> iterator_base;
-    typedef boost::scoped_ptr<iterator_base> iterator_ptr;
+    typedef std::auto_ptr<iterator_base> iterator_ptr;
 
 public:
     typedef std::input_iterator_tag iterator_category;
@@ -277,11 +275,36 @@ public:
         : m_ptr(o.m_ptr.get() ? o.m_ptr->clone() : 0)
     {}
 
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS_MOVE
     query_iterator_poly & operator=(query_iterator_poly const& o)
     {
         m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
         return *this;
     }
+#else
+private:
+    BOOST_COPYABLE_AND_MOVABLE(query_iterator_poly)
+public:
+    query_iterator_poly & operator=(BOOST_COPY_ASSIGN_REF(query_iterator_poly) o)
+    {
+        m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        return *this;
+    }
+    query_iterator_poly(BOOST_RV_REF(query_iterator_poly) o)
+        : m_ptr(o.m_ptr.get())
+    {
+        o.m_ptr.release();
+    }
+    query_iterator_poly & operator=(BOOST_RV_REF(query_iterator_poly) o)
+    {
+        if ( this != boost::addressof(o) )
+        {
+            m_ptr.reset(o.m_ptr.get());
+            o.m_ptr.get().release();
+        }
+        return *this;
+    }
+#endif
 
     reference operator*() const
     {
@@ -405,6 +428,32 @@ public:
 
     query_iterator_te(end_query_iterator<Value, Allocators> const& /*it*/)
     {}
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS_MOVE
+private:
+    BOOST_COPYABLE_AND_MOVABLE(query_iterator_te)
+public:
+    query_iterator_te(query_iterator_te const& o)
+        : m_iterator(o.m_iterator)
+    {}
+
+    query_iterator_te & operator=(BOOST_COPY_ASSIGN_REF(query_iterator_te) o)
+    {
+        m_iterator = o.m_iterator;
+        return *this;
+    }
+    query_iterator_te(BOOST_RV_REF(query_iterator_te) o)
+        : m_iterator(boost::move(o.m_iterator))
+    {}
+    query_iterator_te & operator=(BOOST_RV_REF(query_iterator_te) o)
+    {
+        if ( this != boost::addressof(o) )
+        {
+            m_iterator = boost::move(o.m_iterator);
+        }
+        return *this;
+    }
+#endif
 
     reference operator*() const
     {
