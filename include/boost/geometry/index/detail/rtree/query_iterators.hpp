@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 
+#include <boost/scoped_ptr.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -50,14 +52,9 @@ struct end_query_iterator
         return *this;
     }
 
-    friend bool operator==(end_query_iterator l, end_query_iterator r)
+    friend bool operator==(end_query_iterator const& /*l*/, end_query_iterator const& /*r*/)
     {
         return true;
-    }
-
-    friend bool operator!=(end_query_iterator l, end_query_iterator r)
-    {
-        return false;
     }
 };
 
@@ -112,29 +109,14 @@ public:
         return l.m_visitor == r.m_visitor;
     }
 
-    friend bool operator==(spatial_query_iterator const& l, end_query_iterator<Value, Allocators>)
+    friend bool operator==(spatial_query_iterator const& l, end_query_iterator<Value, Allocators> const& /*r*/)
     {
         return l.m_visitor.is_end();
     }
 
-    friend bool operator==(end_query_iterator<Value, Allocators>, spatial_query_iterator const& r)
+    friend bool operator==(end_query_iterator<Value, Allocators> const& /*l*/, spatial_query_iterator const& r)
     {
         return r.m_visitor.is_end();
-    }
-
-    friend bool operator!=(spatial_query_iterator const& l, spatial_query_iterator const& r)
-    {
-        return !(l.m_visitor == r.m_visitor);
-    }
-
-    friend bool operator!=(spatial_query_iterator const& l, end_query_iterator<Value, Allocators>)
-    {
-        return !l.m_visitor.is_end();
-    }
-
-    friend bool operator!=(end_query_iterator<Value, Allocators>, spatial_query_iterator const& r)
-    {
-        return !r.m_visitor.is_end();
     }
     
 private:
@@ -192,33 +174,156 @@ public:
         return l.m_visitor == r.m_visitor;
     }
 
-    friend bool operator==(distance_query_iterator const& l, end_query_iterator<Value, Allocators>)
+    friend bool operator==(distance_query_iterator const& l, end_query_iterator<Value, Allocators> const& /*r*/)
     {
         return l.m_visitor.is_end();
     }
 
-    friend bool operator==(end_query_iterator<Value, Allocators>, distance_query_iterator const& r)
+    friend bool operator==(end_query_iterator<Value, Allocators> const& /*l*/, distance_query_iterator const& r)
     {
         return r.m_visitor.is_end();
     }
 
-    friend bool operator!=(distance_query_iterator const& l, distance_query_iterator const& r)
-    {
-        return !(l.m_visitor == r.m_visitor);
-    }
+private:
+    visitor_type m_visitor;
+};
 
-    friend bool operator!=(distance_query_iterator const& l, end_query_iterator<Value, Allocators>)
-    {
-        return !l.m_visitor.is_end();
-    }
+template <typename L, typename R>
+inline bool operator!=(L const& l, R const& r)
+{
+    return !(l == r);
+}
 
-    friend bool operator!=(end_query_iterator<Value, Allocators>, distance_query_iterator const& r)
+// type-erased iterators
+
+template <typename Value, typename Allocators>
+class query_iterator_base
+{
+public:
+    typedef std::input_iterator_tag iterator_category;
+    typedef Value value_type;
+    typedef typename Allocators::const_reference reference;
+    typedef typename Allocators::difference_type difference_type;
+    typedef typename Allocators::const_pointer pointer;
+
+    virtual ~query_iterator_base() {}
+
+    virtual query_iterator_base * clone() const = 0;
+    
+    virtual bool is_end() const = 0;
+    virtual reference dereference() const = 0;
+    virtual void increment() = 0;
+    virtual bool equals(query_iterator_base const&) const = 0;
+};
+
+template <typename Value, typename Allocators, typename Iterator>
+class query_iterator_wrapper
+    : public query_iterator_base<Value, Allocators>
+{
+    typedef query_iterator_base<Value, Allocators> base_t;
+
+public:
+    typedef std::input_iterator_tag iterator_category;
+    typedef Value value_type;
+    typedef typename Allocators::const_reference reference;
+    typedef typename Allocators::difference_type difference_type;
+    typedef typename Allocators::const_pointer pointer;
+
+    explicit query_iterator_wrapper(Iterator const& it) : m_iterator(it) {}
+
+    virtual base_t * clone() const { return new query_iterator_wrapper(m_iterator); }
+
+    virtual bool is_end() const { return m_iterator == end_query_iterator<Value, Allocators>(); }
+    virtual reference dereference() const { return *m_iterator; }
+    virtual void increment() { ++m_iterator; }
+    virtual bool equals(query_iterator_base const& r) const
     {
-        return !r.m_visitor.is_end();
+        const query_iterator_wrapper * p = dynamic_cast<const query_iterator_wrapper *>(boost::addressof(r));
+        BOOST_ASSERT_MSG(p, "those iterators can't be compared");
+        return m_iterator == p->m_iterator;
     }
 
 private:
-    visitor_type m_visitor;
+    Iterator m_iterator;
+};
+
+template <typename Value, typename Allocators>
+class query_iterator
+{
+    typedef query_iterator_base<Value, Allocators> iterator_base;
+    typedef boost::scoped_ptr<iterator_base> iterator_ptr;
+
+public:
+    typedef std::input_iterator_tag iterator_category;
+    typedef Value value_type;
+    typedef typename Allocators::const_reference reference;
+    typedef typename Allocators::difference_type difference_type;
+    typedef typename Allocators::const_pointer pointer;
+
+    query_iterator() {}
+
+    template <typename It>
+    query_iterator(It const& it)
+        : m_ptr(static_cast<iterator_base*>(
+                    new query_iterator_wrapper<Value, Allocators, It>(it) ))
+    {}
+
+    query_iterator(end_query_iterator<Value, Allocators> const& /*it*/)
+    {}
+
+    query_iterator(query_iterator const& o)
+        : m_ptr(o.m_ptr.get() ? o.m_ptr->clone() : 0)
+    {}
+
+    query_iterator & operator=(query_iterator const& o)
+    {
+        m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        return *this;
+    }
+
+    reference operator*() const
+    {
+        return m_ptr->dereference();
+    }
+
+    const value_type * operator->() const
+    {
+        return boost::addressof(m_ptr->dereference());
+    }
+
+    query_iterator & operator++()
+    {
+        m_ptr->increment();
+        return *this;
+    }
+
+    query_iterator operator++(int)
+    {
+        distance_query_iterator temp = *this;
+        this->operator++();
+        return temp;
+    }
+
+    friend bool operator==(query_iterator const& l, query_iterator const& r)
+    {
+        if ( l.m_ptr.get() )
+        {
+            if ( r.m_ptr.get() )
+                return l.m_ptr->equals(*r.m_ptr);
+            else
+                return l.m_ptr->is_end();
+        }
+        else
+        {
+            if ( r.m_ptr.get() )
+                return r.m_ptr->is_end();
+            else
+                return true;
+        }
+    }
+
+private:
+    iterator_ptr m_ptr;
 };
 
 }} // namespace detail::rtree

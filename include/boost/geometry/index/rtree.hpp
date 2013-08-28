@@ -771,6 +771,8 @@ public:
         value_type, const_reference, const_pointer, difference_type
     >::type const_query_iterator;
 
+    typedef index::detail::rtree::query_iterator<value_type, allocators_type> const_query_iterator_alt;
+
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
 
     template <typename Predicates>
