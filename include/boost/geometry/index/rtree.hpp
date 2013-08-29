@@ -61,13 +61,9 @@
 
 #include <boost/geometry/index/detail/rtree/utilities/view.hpp>
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-// query iterators
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
-// type-erased iterators
-#include <boost/geometry/index/detail/type_erased_iterators.hpp>
-#endif
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 // serialization
 #include <boost/geometry/index/detail/serialization.hpp>
 #endif
@@ -188,6 +184,9 @@ public:
     typedef typename allocators_type::difference_type difference_type;
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocators_type::size_type size_type;
+
+    /*! \brief The type-erased const query iterator. */
+    typedef index::detail::rtree::iterators::query_iterator<value_type, allocators_type> const_query_iterator;
 
 public:
 
@@ -731,6 +730,7 @@ public:
 
     \par Throws
     If Value copy constructor or copy assignment throws.
+    If predicates copy throws.
 
     \warning
     Only one \c nearest() perdicate may be passed to the query. Passing more of them results in compile-time error.
@@ -753,34 +753,50 @@ public:
         return query_dispatch(predicates, out_it, boost::mpl::bool_<is_distance_predicate>());
     }
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    /*!
+    \brief Returns the query iterator pointing at the begin of the query range.
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+    This method returns the iterator which may be used to perform iterative queries. For the information
+    about the predicates which may be passed to this method see query().
+    
+    The type of the returned iterator depends on the type of passed Predicates but the iterator of this type
+    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator
+    returned by this method you may get the type e.g. by using C++11 decltype or Boost.Typeof library.
+    This iterator may be compared with iterators returned by both versions of qend() method.
 
-    // BEWARE!
-    // Don't use this type-erased iterator after assigning values returned by qbegin(Pred) and qend()
-    // e.g. don't pass them into the std::copy() or compare them like this:
-    // const_query_iterator i1 = qbegin(...);
-    // const_query_iterator i2 = qend();
-    // i1 == i2; // BAM!
-    // now this will cause undefined behaviour.
-    // using native types is ok:
-    // qbegin(...) == qend();
+    \par Example
+    \verbatim
+    // Store the result in the container using std::copy() - it requires both iterators of the same type
+    std::copy(tree.qbegin(bgi::intersects(box)), tree.qend(bgi::intersects(box)), std::back_inserter(result));
 
-    typedef typename index::detail::single_pass_iterator_type<
-        value_type, const_reference, const_pointer, difference_type
-    >::type const_query_iterator;
+    // Store the result in the container using std::copy() and type-erased iterators
+    Rtree::const_query_iterator first = tree.qbegin(bgi::intersects(box));
+    Rtree::const_query_iterator last = tree.qend();
+    std::copy(first, last, std::back_inserter(result));
 
-    typedef index::detail::rtree::query_iterator_poly<value_type, allocators_type> const_query_iterator_alt;
-    typedef index::detail::rtree::query_iterator_te<value_type, allocators_type> const_query_iterator_alt2;
+    // Boost.Typeof
+    typedef BOOST_TYPEOF(tree.qbegin(bgi::nearest(pt, 10000))) Iter;
+    for ( Iter it = tree.qbegin(bgi::nearest(pt, 10000)) ; it != tree.qend() ; ++it )
+    {
+        // do something with value
+        if ( has_enough_nearest_values() )
+            break;
+    }
+    \endverbatim
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+    \par Throws
+    If predicates copy throws.
+    If allocation throws.
 
+    \param predicates   Predicates.
+    
+    \return             The iterator pointing at the begin of the query range.
+    */
     template <typename Predicates>
     typename boost::mpl::if_c<
         detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        detail::rtree::distance_query_iterator<
+        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        detail::rtree::iterators::distance_query_iterator<
             value_type, options_type, translator_type, box_type, allocators_type, Predicates,
             detail::predicates_find_distance<Predicates>::value
         >
@@ -792,8 +808,8 @@ public:
 
         typedef typename boost::mpl::if_c<
             detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-            detail::rtree::distance_query_iterator<
+            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::iterators::distance_query_iterator<
                 value_type, options_type, translator_type, box_type, allocators_type, Predicates,
                 detail::predicates_find_distance<Predicates>::value
             >
@@ -805,11 +821,37 @@ public:
         return iterator_type(m_members.root, m_members.translator(), predicates);
     }
 
+    /*!
+    \brief Returns the query iterator pointing at the end of the query range.
+
+    This method returns the iterator which may be used to perform iterative queries. For the information
+    about the predicates which may be passed to this method see query().
+    
+    The type of the returned iterator depends on the type of passed Predicates but the iterator of this type
+    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator
+    returned by this method you may get the type e.g. by using C++11 decltype or Boost.Typeof library.
+
+    The type of the iterator returned by this method is the same as the one returned by qbegin() to which
+    the same predicates were passed.
+
+    \par Example
+    \verbatim
+    // Store the result in the container using std::copy() - it requires both iterators of the same type
+    std::copy(tree.qbegin(bgi::intersects(box)), tree.qend(bgi::intersects(box)), std::back_inserter(result));
+    \endverbatim
+
+    \par Throws
+    If predicates copy throws.
+
+    \param predicates   Predicates.
+    
+    \return             The iterator pointing at the end of the query range.
+    */
     template <typename Predicates>
     typename boost::mpl::if_c<
         detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-        detail::rtree::distance_query_iterator<
+        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        detail::rtree::iterators::distance_query_iterator<
             value_type, options_type, translator_type, box_type, allocators_type, Predicates,
             detail::predicates_find_distance<Predicates>::value
         >
@@ -821,8 +863,8 @@ public:
 
         typedef typename boost::mpl::if_c<
             detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
-            detail::rtree::distance_query_iterator<
+            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::iterators::distance_query_iterator<
                 value_type, options_type, translator_type, box_type, allocators_type, Predicates,
                 detail::predicates_find_distance<Predicates>::value
             >
@@ -831,13 +873,46 @@ public:
         return iterator_type(m_members.translator(), predicates);
     }
 
-    detail::rtree::end_query_iterator<value_type, allocators_type>
+    /*!
+    \brief Returns the query iterator pointing at the end of the query range.
+
+    This method returns the iterator which may be compared with the iterator returned by qbegin() in order to
+    check if the query has ended.
+    
+    The type of the returned iterator is different than the type returned by qbegin() but the iterator of this type
+    may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator returned by this
+    method, which most certainly will be faster than the type-erased iterator, you may get the type
+    e.g. by using C++11 decltype or Boost.Typeof library.
+
+    The type of the iterator returned by this method is dfferent than the type returned by qbegin().
+
+    \par Example
+    \verbatim
+    // Store the result in the container using std::copy() and type-erased iterators
+    Rtree::const_query_iterator first = tree.qbegin(bgi::intersects(box));
+    Rtree::const_query_iterator last = tree.qend();
+    std::copy(first, last, std::back_inserter(result));
+
+    // Boost.Typeof
+    typedef BOOST_TYPEOF(tree.qbegin(bgi::nearest(pt, 10000))) Iter;
+    for ( Iter it = tree.qbegin(bgi::nearest(pt, 10000)) ; it != tree.qend() ; ++it )
+    {
+        // do something with value
+        if ( has_enough_nearest_values() )
+            break;
+    }
+    \endverbatim
+
+    \par Throws
+    Nothing
+    
+    \return             The iterator pointing at the end of the query range.
+    */
+    detail::rtree::iterators::end_query_iterator<value_type, allocators_type>
     qend() const
     {
-        return detail::rtree::end_query_iterator<value_type, allocators_type>();
+        return detail::rtree::iterators::end_query_iterator<value_type, allocators_type>();
     }
-
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
     /*!
     \brief Returns the number of stored values.

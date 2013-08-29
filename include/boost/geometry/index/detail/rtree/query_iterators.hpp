@@ -11,7 +11,10 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+//#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_TYPE_ERASURE
+#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
+
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template <typename Value, typename Allocators>
 struct end_query_iterator
@@ -190,11 +193,11 @@ inline bool operator!=(L const& l, R const& r)
     return !(l == r);
 }
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::iterators
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_TYPE_ERASURE
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template <typename Value, typename Allocators>
 class query_iterator_base
@@ -248,7 +251,7 @@ private:
 };
 
 template <typename Value, typename Allocators>
-class query_iterator_poly
+class query_iterator
 {
     typedef query_iterator_base<Value, Allocators> iterator_base;
     typedef std::auto_ptr<iterator_base> iterator_ptr;
@@ -260,42 +263,42 @@ public:
     typedef typename Allocators::difference_type difference_type;
     typedef typename Allocators::const_pointer pointer;
 
-    query_iterator_poly() {}
+    query_iterator() {}
 
     template <typename It>
-    query_iterator_poly(It const& it)
+    query_iterator(It const& it)
         : m_ptr(static_cast<iterator_base*>(
                     new query_iterator_wrapper<Value, Allocators, It>(it) ))
     {}
 
-    query_iterator_poly(end_query_iterator<Value, Allocators> const& /*it*/)
+    query_iterator(end_query_iterator<Value, Allocators> const& /*it*/)
     {}
 
-    query_iterator_poly(query_iterator_poly const& o)
+    query_iterator(query_iterator const& o)
         : m_ptr(o.m_ptr.get() ? o.m_ptr->clone() : 0)
     {}
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS_MOVE
-    query_iterator_poly & operator=(query_iterator_poly const& o)
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
+    query_iterator & operator=(query_iterator const& o)
     {
         m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
         return *this;
     }
-#else
+#else // !BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 private:
-    BOOST_COPYABLE_AND_MOVABLE(query_iterator_poly)
+    BOOST_COPYABLE_AND_MOVABLE(query_iterator)
 public:
-    query_iterator_poly & operator=(BOOST_COPY_ASSIGN_REF(query_iterator_poly) o)
+    query_iterator & operator=(BOOST_COPY_ASSIGN_REF(query_iterator) o)
     {
         m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
         return *this;
     }
-    query_iterator_poly(BOOST_RV_REF(query_iterator_poly) o)
+    query_iterator(BOOST_RV_REF(query_iterator) o)
         : m_ptr(o.m_ptr.get())
     {
         o.m_ptr.release();
     }
-    query_iterator_poly & operator=(BOOST_RV_REF(query_iterator_poly) o)
+    query_iterator & operator=(BOOST_RV_REF(query_iterator) o)
     {
         if ( this != boost::addressof(o) )
         {
@@ -304,7 +307,7 @@ public:
         }
         return *this;
     }
-#endif
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 
     reference operator*() const
     {
@@ -316,20 +319,20 @@ public:
         return boost::addressof(m_ptr->dereference());
     }
 
-    query_iterator_poly & operator++()
+    query_iterator & operator++()
     {
         m_ptr->increment();
         return *this;
     }
 
-    query_iterator_poly operator++(int)
+    query_iterator operator++(int)
     {
-        query_iterator_poly temp = *this;
+        query_iterator temp = *this;
         this->operator++();
         return temp;
     }
 
-    friend bool operator==(query_iterator_poly const& l, query_iterator_poly const& r)
+    friend bool operator==(query_iterator const& l, query_iterator const& r)
     {
         if ( l.m_ptr.get() )
         {
@@ -351,13 +354,15 @@ private:
     iterator_ptr m_ptr;
 };
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::iterators
+
+#else // BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_TYPE_ERASURE
 
 #include <boost/type_erasure/any.hpp>
 #include <boost/type_erasure/operators.hpp>
 #include <boost/type_erasure/is_empty.hpp>
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template<typename T, typename Value, typename Allocators>
 struct single_pass_iterator_concept :
@@ -382,7 +387,7 @@ struct single_pass_iterator_type
     > type;
 };
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::iterators
 
 namespace boost { namespace type_erasure {
 
@@ -395,17 +400,17 @@ struct concept_interface<
 {
     typedef Value value_type;
     typedef typename Allocators::const_reference reference;
-    typedef typename Allocators::const_pointer;
+    typedef typename Allocators::const_pointer pointer;
     typedef typename Allocators::difference_type difference_type;
     typedef ::std::input_iterator_tag iterator_category;
 };
 
 }} // boost::type_erasure
 
-namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template <typename Value, typename Allocators>
-class query_iterator_te
+class query_iterator
 {
 public:
     typedef std::input_iterator_tag iterator_category;
@@ -419,33 +424,32 @@ private:
 
 public:
 
-    query_iterator_te() {}
+    query_iterator() {}
 
     template <typename It>
-    query_iterator_te(It const& it)
+    query_iterator(It const& it)
         : m_iterator(it)
     {}
 
-    query_iterator_te(end_query_iterator<Value, Allocators> const& /*it*/)
+    query_iterator(end_query_iterator<Value, Allocators> const& /*it*/)
     {}
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS_MOVE
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 private:
-    BOOST_COPYABLE_AND_MOVABLE(query_iterator_te)
+    BOOST_COPYABLE_AND_MOVABLE(query_iterator)
 public:
-    query_iterator_te(query_iterator_te const& o)
+    query_iterator(query_iterator const& o)
         : m_iterator(o.m_iterator)
     {}
-
-    query_iterator_te & operator=(BOOST_COPY_ASSIGN_REF(query_iterator_te) o)
+    query_iterator & operator=(BOOST_COPY_ASSIGN_REF(query_iterator) o)
     {
         m_iterator = o.m_iterator;
         return *this;
     }
-    query_iterator_te(BOOST_RV_REF(query_iterator_te) o)
+    query_iterator(BOOST_RV_REF(query_iterator) o)
         : m_iterator(boost::move(o.m_iterator))
     {}
-    query_iterator_te & operator=(BOOST_RV_REF(query_iterator_te) o)
+    query_iterator & operator=(BOOST_RV_REF(query_iterator) o)
     {
         if ( this != boost::addressof(o) )
         {
@@ -453,7 +457,7 @@ public:
         }
         return *this;
     }
-#endif
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 
     reference operator*() const
     {
@@ -465,20 +469,20 @@ public:
         return boost::addressof(*m_iterator);
     }
 
-    query_iterator_te & operator++()
+    query_iterator & operator++()
     {
         ++m_iterator;
         return *this;
     }
 
-    query_iterator_te operator++(int)
+    query_iterator operator++(int)
     {
-        query_iterator_te temp = *this;
+        query_iterator temp = *this;
         ++m_iterator;
         return temp;
     }
 
-    friend bool operator==(query_iterator_te const& l, query_iterator_te const& r)
+    friend bool operator==(query_iterator const& l, query_iterator const& r)
     {
         if ( !::boost::type_erasure::is_empty(l.m_iterator) )
         {
@@ -500,8 +504,8 @@ private:
     iterator_type m_iterator;
 };
 
-}}}}} // namespace boost::geometry::index::detail::rtree
+}}}}}} // namespace boost::geometry::index::detail::rtree::iterators
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_TYPE_ERASURE
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
