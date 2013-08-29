@@ -12,7 +12,7 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 
 //#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_TYPE_ERASURE
-#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
+//#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
@@ -284,6 +284,22 @@ public:
         m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
         return *this;
     }
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    query_iterator(query_iterator && o)
+        : m_ptr(o.m_ptr.get())
+    {
+        o.m_ptr.release();
+    }
+    query_iterator & operator=(query_iterator && o)
+    {
+        if ( this != boost::addressof(o) )
+        {
+            m_ptr.reset(o.m_ptr.get());
+            o.m_ptr.release();
+        }
+        return *this;
+    }
+#endif
 #else // !BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 private:
     BOOST_COPYABLE_AND_MOVABLE(query_iterator)
@@ -303,7 +319,7 @@ public:
         if ( this != boost::addressof(o) )
         {
             m_ptr.reset(o.m_ptr.get());
-            o.m_ptr.get().release();
+            o.m_ptr.release();
         }
         return *this;
     }
