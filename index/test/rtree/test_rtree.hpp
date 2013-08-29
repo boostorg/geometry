@@ -18,7 +18,7 @@
 
 // TEST
 //#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-//#define BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
+
 #include <boost/geometry/index/rtree.hpp>
 
 #include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
@@ -668,13 +668,11 @@ void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> con
 
     exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(pred));
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     std::vector<Value> output3;
     std::copy(rtree.qbegin(pred), rtree.qend(pred), std::back_inserter(output3));
 
     compare_outputs(rtree, output3, expected_output);
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
     {
         typedef typename Rtree::const_query_iterator QI;
         QI first = rtree.qbegin(pred);
@@ -682,9 +680,11 @@ void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> con
         std::vector<Value> output4;
         std::copy(first, last, std::back_inserter(output4));
         compare_outputs(rtree, output4, expected_output);
+        QI last2 = rtree.qend();
+        output4.clear();
+        std::copy(first, last2, std::back_inserter(output4));
+        compare_outputs(rtree, output4, expected_output);
     }
-#endif
-#endif
 }
 
 // rtree specific queries tests
@@ -1039,13 +1039,11 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
 
     exactly_the_same_outputs(rtree, output, output2);
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     std::vector<Value> output3;
     std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(bgi::nearest(pt, k)), std::back_inserter(output3));
 
     compare_nearest_outputs(rtree, output3, expected_output, pt, greatest_distance);
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_ENABLE_TYPE_ERASED_ITERATORS
     {
         typedef typename Rtree::const_query_iterator QI;
         QI first = rtree.qbegin(bgi::nearest(pt, k));
@@ -1053,9 +1051,11 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
         std::vector<Value> output4;
         std::copy(first, last, std::back_inserter(output4));
         compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
+        QI last2 = rtree.qend();
+        output4.clear();
+        std::copy(first, last, std::back_inserter(output4));
+        compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
     }
-#endif
-#endif
 }
 
 // rtree nearest not found
