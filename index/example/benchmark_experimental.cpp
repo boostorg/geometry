@@ -71,10 +71,10 @@ int main()
 #ifndef BOOST_GEOMETRY_INDEX_BENCHMARK_DEBUG
     size_t values_count = 1000000;
     size_t queries_count = 100000;
-    size_t nearest_queries_count = 10000;
+    size_t nearest_queries_count = 20000;
     unsigned neighbours_count = 10;
     size_t path_queries_count = 2000;
-    size_t path_queries_count2 = 10000;
+    size_t path_queries_count2 = 20000;
     unsigned path_values_count = 10;
 #else
     size_t values_count = 1000;
@@ -174,6 +174,21 @@ int main()
             std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
         }
 
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                boost::copy(t | bgi::adaptors::queried(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                    std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - range queried(B) " << queries_count << " found " << temp << '\n';
+        }
 
         {
             clock_t::time_point start = clock_t::now();
@@ -186,7 +201,7 @@ int main()
                 std::copy(
                     t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
                     t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
-                    std::back_inserter(result));
+                           std::back_inserter(result));
                 temp += result.size();
             }
             dur_t time = clock_t::now() - start;
@@ -208,6 +223,24 @@ int main()
             }
             dur_t time = clock_t::now() - start;
             std::cout << time << " - qbegin(B) qend() " << queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                boost::copy(
+                    std::make_pair(
+                        t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10)))),
+                        t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))))
+                    ), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - range qbegin(B) qend(B)" << queries_count << " found " << temp << '\n';
         }
 
         {
@@ -241,6 +274,38 @@ int main()
             }
             dur_t time = clock_t::now() - start;
             std::cout << time << " - type-erased qbegin(B) qend() " << queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator last = t.qend(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                boost::copy(std::make_pair(first, last), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - range type-erased qbegin(B) qend(B) " << queries_count << " found " << temp << '\n';
+        }
+        {
+            clock_t::time_point start = clock_t::now();
+            size_t temp = 0;
+            for (size_t i = 0 ; i < queries_count ; ++i )
+            {
+                float x = coords[i].first;
+                float y = coords[i].second;
+                result.clear();
+                RT::const_query_iterator first = t.qbegin(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))));
+                RT::const_query_iterator last = t.qend();
+                boost::copy(std::make_pair(first, last), std::back_inserter(result));
+                temp += result.size();
+            }
+            dur_t time = clock_t::now() - start;
+            std::cout << time << " - range type-erased qbegin(B) qend() " << queries_count << " found " << temp << '\n';
         }
 
         {
