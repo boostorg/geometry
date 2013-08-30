@@ -16,9 +16,6 @@
 
 #include <geometry_index_test_common.hpp>
 
-// TEST
-//#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
 #include <boost/geometry/index/rtree.hpp>
 
 #include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
@@ -734,8 +731,6 @@ void disjoint(Rtree const& tree, std::vector<Value> const& input, Box const& qbo
     spatial_query(tree, bgi::disjoint(qpoly), expected_output);*/
 }
 
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
 template <typename Tag>
 struct contains_impl
 {
@@ -778,8 +773,6 @@ void contains(Rtree const& tree, std::vector<Value> const& input, Box const& qbo
     >::apply(tree, input, qbox);
 }
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
 template <typename Rtree, typename Value, typename Box>
 void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
 {
@@ -799,8 +792,6 @@ void covered_by(Rtree const& tree, std::vector<Value> const& input, Box const& q
     bg::convert(qbox, qpoly);
     spatial_query(tree, bgi::covered_by(qpoly), expected_output);*/
 }
-
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 template <typename Tag>
 struct covers_impl
@@ -843,8 +834,6 @@ void covers(Rtree const& tree, std::vector<Value> const& input, Box const& qbox)
         >::type
     >::apply(tree, input, qbox);
 }
-
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
 template <typename Tag>
 struct overlaps_impl
@@ -1420,10 +1409,8 @@ void queries(Rtree const& tree, std::vector<Value> const& input, Box const& qbox
     basictest::overlaps(tree, input, qbox);
     //basictest::touches(tree, input, qbox);
     basictest::within(tree, input, qbox);
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     basictest::contains(tree, input, qbox);
     basictest::covers(tree, input, qbox);
-#endif
 
     typedef typename bg::point_type<Box>::type P;
     P pt;
