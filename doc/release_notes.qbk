@@ -25,6 +25,8 @@
 
 [*Bugfixes]
 
+* In some cases .back() or .clear() was called, violating the usage of Concepts. Fixed for the reported cases
+
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/6958 6958] Intersection generates self-intersection. Caused by spike, fixed
