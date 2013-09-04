@@ -57,8 +57,8 @@ basic queries may be found in tables below. The query region and result `Value`s
 ]
 
 [table
-[[intersects(Ring)] [intersects(Polygon)] [intersects(MultiPolygon)]]
-[[[$img/index/rtree/intersects_ring.png]] [[$img/index/rtree/intersects_poly.png]] [[$img/index/rtree/intersects_mpoly.png]]]
+[[intersects(Ring)] [intersects(Polygon)] [intersects(MultiPolygon)] [intersects(Segment)] [intersects(Linestring)]]
+[[[$img/index/rtree/intersects_ring.png]] [[$img/index/rtree/intersects_poly.png]] [[$img/index/rtree/intersects_mpoly.png]] [[$img/index/rtree/intersects_segment.png]] [[$img/index/rtree/intersects_linestring.png]]]
 ]
 
 To use a spatial predicate one may use one of the functions defined in `boost::geometry::index` namespace.
@@ -80,8 +80,7 @@ All spatial predicates may be negated, e.g.:
 [h5 Nearest neighbours queries]
 
 Nearest neighbours queries returns `__value__`s which are closest to some point in space.
-Additionally it is possible to define how the distance to the `Value` should be calculated.
-The example of knn query is presented below. 5 `__value__`s nearest to some point are orange.
+The example of knn query is presented below. 5 `__value__`s nearest to the point are orange.
 
 [$img/index/rtree/knn.png]
 
