@@ -98,13 +98,18 @@ Predefined algorithms with run-time parameters are:
  \li \c boost::geometry::index::dynamic_quadratic,
  \li \c boost::geometry::index::dynamic_rstar.
 
-\par Translator
-The Translator translates from Value to Indexable each time r-tree requires it. Which means that this
-operation is done for each Value access. Therefore the Translator should return the Indexable by
-const reference instead of a value. Default translator can translate all types adapted to Point
+\par IndexableGetter
+The object of IndexableGetter type translates from Value to Indexable each time r-tree requires it. Which means that this
+operation is done for each Value access. Therefore the IndexableGetter should return the Indexable by
+const reference instead of a value. Default one can translate all types adapted to Point
 or Box concepts (called Indexables). It also handles <tt>std::pair<Indexable, T></tt> and
 <tt>boost::tuple<Indexable, ...></tt>. For example, if <tt>std::pair<Box, int></tt> is stored in the
-container, the default translator translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
+container, the default IndexableGetter translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
+
+\par EqualTo
+The object of EqualTo type compares Values and returns <tt>true</tt> if they're equal. It's similar to <tt>std::equal_to<></tt>.
+The default EqualTo returns the result of <tt>boost::geometry::equals()</tt> for types adapted to some Geometry concept
+defined in Boost.Geometry and the result of operator= for other types. Components of Pairs and Tuples are compared left-to-right.
 
 \tparam Value           The type of objects stored in the container.
 \tparam Parameters      Compile-time parameters.
