@@ -63,9 +63,11 @@ basic queries may be found in tables below. The query region and result `Value`s
 
 To use a spatial predicate one may use one of the functions defined in `boost::geometry::index` namespace.
 
- rt.query(index::intersects(box), std::back_inserter(result));
+ rt.query(index::contains(box), std::back_inserter(result));
  rt.query(index::covered_by(box), std::back_inserter(result));
+ rt.query(index::covers(box), std::back_inserter(result));
  rt.query(index::disjont(box), std::back_inserter(result));
+ rt.query(index::intersects(box), std::back_inserter(result));
  rt.query(index::overlaps(box), std::back_inserter(result));
  rt.query(index::within(box), std::back_inserter(result));
 
