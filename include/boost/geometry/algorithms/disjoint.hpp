@@ -183,7 +183,7 @@ struct disjoint_segment_box
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
-        return ! strategy::intersection::detail::segment_box_intersection<point_type, Box>::apply(p0, p1, box);
+        return ! detail::disjoint::segment_box_intersection<point_type, Box>::apply(p0, p1, box);
     }
 };
 
@@ -201,7 +201,8 @@ struct disjoint_linestring_box
         if ( count == 0 )
             return false;
         else if ( count == 1 )
-            return geometry::intersects(*::boost::begin(linestring), box);
+            return detail::disjoint::point_box<point_type, Box, 0, dimension<point_type>::value>
+                   ::apply(*::boost::begin(linestring), box);
         else
         {
             const_iterator it0 = ::boost::begin(linestring);
@@ -210,7 +211,7 @@ struct disjoint_linestring_box
 
             for ( ; it1 != last ; ++it0, ++it1 )
             {
-                if ( strategy::intersection::detail::segment_box_intersection<point_type, Box>::apply(*it0, *it1, box) )
+                if ( detail::disjoint::segment_box_intersection<point_type, Box>::apply(*it0, *it1, box) )
                     return false;
             }
             return true;
