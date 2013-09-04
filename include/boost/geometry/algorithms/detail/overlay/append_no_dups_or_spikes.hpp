@@ -33,22 +33,25 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point)
         << std::endl;
 #endif
 
-    geometry::append(range, point);
+    traits::push_back<Range>::apply(range, point);
+
     // If a point is equal, or forming a spike, remove the pen-ultimate point because this one caused the spike.
     // If so, the now-new-pen-ultimate point can again cause a spike (possibly at a corner). So keep doing this.
     // Besides spikes it will also avoid duplicates.
     while(boost::size(range) >= 3 
             && point_is_spike_or_equal(point, *(boost::end(range) - 3), *(boost::end(range) - 2)))
     {
-        // There is not yet a concept for this in Boost.Geometry or Boost.Range
-        range.erase(boost::end(range) - 2);
+        // Use the Concept/traits, so resize and append again
+        traits::resize<Range>::apply(range, boost::size(range) - 2);
+        traits::push_back<Range>::apply(range, point);
     }
 
     // There might still be one duplicate not catched by the condition above
     if (boost::size(range) == 2
         && geometry::detail::equals::equals_point_point(*boost::begin(range), point))
     {
-        range.erase(boost::begin(range));
+        traits::clear<Range>::apply(range);
+        traits::push_back<Range>::apply(range, point);
     }
 }
 
