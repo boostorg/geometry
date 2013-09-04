@@ -174,9 +174,9 @@ struct box_box<Box1, Box2, DimensionCount, DimensionCount>
 template <typename Point, typename Box, size_t I>
 struct segment_box_intersection_dim
 {
-    BOOST_STATIC_ASSERT(I < dimension<Box>::value);
-    BOOST_STATIC_ASSERT(I < dimension<Point>::value);
-    BOOST_STATIC_ASSERT(dimension<Point>::value == dimension<Box>::value);
+    //BOOST_STATIC_ASSERT(I < dimension<Box>::value);
+    //BOOST_STATIC_ASSERT(I < dimension<Point>::value);
+    //BOOST_STATIC_ASSERT(dimension<Point>::value == dimension<Box>::value);
 
     typedef typename coordinate_type<Point>::type point_coordinate;
 
@@ -194,7 +194,7 @@ struct segment_box_intersection_dim
         BOOST_STATIC_ASSERT(!boost::is_unsigned<point_coordinate>::value);
         point_coordinate ray_d = geometry::get<I>(p1) - geometry::get<I>(p0);
         RelativeDistance tn, tf;
-        if ( ::std::abs(ray_d) < ::std::numeric_limits<point_coordinate>::epsilon() )
+        if ( is_zero(ray_d) )
         {
             tn = dist_div_by_zero<RelativeDistance>(geometry::get<min_corner, I>(b) - geometry::get<I>(p0));
             tf = dist_div_by_zero<RelativeDistance>(geometry::get<max_corner, I>(b) - geometry::get<I>(p0));
@@ -219,12 +219,19 @@ struct segment_box_intersection_dim
     template <typename R, typename T> static inline
     R dist_div_by_zero(T const& val)
     {
-        if ( ::std::abs(val) < ::std::numeric_limits<T>::epsilon() )
+        if ( is_zero(val) )
             return 0;
         else if ( val < 0 )
-            return -::std::numeric_limits<R>::max();
+            return -(::std::numeric_limits<R>::max)();
         else
-            return ::std::numeric_limits<R>::max();
+            return (::std::numeric_limits<R>::max)();
+    }
+
+    template <typename T> static inline
+    bool is_zero(T const& val)
+    {
+        // ray_d == 0 is here because eps of rational<int> is 0 which isn't < than 0
+        return val == 0 || math::abs(val) < ::std::numeric_limits<T>::epsilon();
     }
 };
 
@@ -275,9 +282,9 @@ struct segment_box_intersection
         relative_distance_type t_near = -(::std::numeric_limits<relative_distance_type>::max)();
         relative_distance_type t_far = (::std::numeric_limits<relative_distance_type>::max)();
 
-        return impl::apply(p0, p1, b, t_near, t_far);
-
         // relative_distance = 0 < t_near ? t_near : 0;
+
+        return impl::apply(p0, p1, b, t_near, t_far);
     }
 };
 
