@@ -49,7 +49,7 @@ This method is faster and results in R-trees with better internal structure. Thi
 The examples of structures of trees created by use of different algorithms and exemplary operations times are presented below.
 
 [table
-[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [Packing algorithm (trunk)]]
+[[]                         [Linear algorithm] [Quadratic algorithm] [R*-tree] [Packing algorithm]]
 [[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [[$img/index/rtree/bulk.png]]]
 [[*1M Values inserts*]      [1.76s] [2.47s] [6.19s] [1.67s]]
 [[*100k spatial queries*]   [2.21s] [0.51s] [0.12s] [0.07s]]
@@ -74,9 +74,11 @@ Key features of this implementation of the __rtree__ are:
 
 * capable to store arbitrary __value__ type,
 * three different balancing algorithms - linear, quadratic or rstar,
+* creation using packing algorithm,
 * parameters (including maximal and minimal number of elements) may be passed as compile- or run-time parameters, in compile-time
   version nodes elements are stored in static-size containers,
 * advanced queries - e.g. search for 5 nearest Values to some point and intersecting some Geometry but not within the other one,
+* iterative queries - by use of iterators,
 * C++11 conformant: move semantics, stateful allocators,
 * capable to store __value__ type with no default constructor,
 * in-memory storage (shared memory by use of Boost.Interprocess allocator).
@@ -85,13 +87,17 @@ Key features of this implementation of the __rtree__ are:
 
 Below you can find features that will (or probably will) be added in the future releases:
 
+[/ Done
 * rstar optimization (planned for release in Boost 1.55),
 * bulk loading (planned for release in Boost 1.55),
-* iterative queries - query iterators / type-erased query iterators (experimental),
-* path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (experimental),
-* persistent storage.
-[/
 * 'reversed' spatial predicates or additional spatial predicates like contains(),
+* iterative queries - query iterators / type-erased query iterators,
+/]
+* path/ray query predicate - search for Values along Segment or LineString, closest to the starting point (experimental),
+* user-defined distance calculation in nearest() predicate,
+* serialization (experimental),
+* persistent storage.
+[/ Maybe
 * other geometries as Values, e.g. NSpheres. Rings would probably require using move semantics instead of copying
 * bounding tree - rtree variation capable to use other Geometries as bounds, e.g. NSpheres, Rings/convex polygons/ (moving required), Capsules, Elipses, Variants etc.
 * moving instead of copying + optimizations for movable/nonthrowing/trivialy copied elements
