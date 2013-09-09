@@ -190,7 +190,7 @@ public:
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocators_type::size_type size_type;
 
-    /*! \brief The type-erased const query iterator. */
+    /*! \brief Type of const query iterator. */
     typedef index::detail::rtree::iterators::query_iterator<value_type, allocators_type> const_query_iterator;
 
 public:
@@ -772,6 +772,68 @@ public:
     This method returns the iterator which may be used to perform iterative queries. For the information
     about the predicates which may be passed to this method see query().
     
+    \par Example
+    \verbatim
+    
+    for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
+          it != tree.qend() ; ++it )
+    {
+        // do something with value
+        if ( has_enough_nearest_values() )
+            break;
+    }
+    \endverbatim
+
+    \par Throws
+    If predicates copy throws.
+    If allocation throws.
+
+    \param predicates   Predicates.
+    
+    \return             The iterator pointing at the begin of the query range.
+    */
+    template <typename Predicates>
+    const_query_iterator qbegin(Predicates const& predicates) const
+    {
+        return const_query_iterator(qbegin_(predicates));
+    }
+
+    /*!
+    \brief Returns the query iterator pointing at the end of the query range.
+
+    This method returns the iterator which may be used to check if the query has ended.
+    
+    \par Example
+    \verbatim
+    
+    for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
+          it != tree.qend() ; ++it )
+    {
+        // do something with value
+        if ( has_enough_nearest_values() )
+            break;
+    }
+    \endverbatim
+
+    \par Throws
+    Nothing
+    
+    \return             The iterator pointing at the end of the query range.
+    */
+    const_query_iterator qend() const
+    {
+        return const_query_iterator();
+    }
+
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+private:
+#endif
+    /*!
+    \brief Returns the query iterator pointing at the begin of the query range.
+
+    This method returns the iterator which may be used to perform iterative queries. For the information
+    about the predicates which may be passed to this method see query().
+    
     The type of the returned iterator depends on the type of passed Predicates but the iterator of this type
     may be assigned to the variable of const_query_iterator type. If you'd like to use the type of the iterator
     returned by this method you may get the type e.g. by using C++11 decltype or Boost.Typeof library.
@@ -814,7 +876,7 @@ public:
             detail::predicates_find_distance<Predicates>::value
         >
     >::type
-    qbegin(Predicates const& predicates) const
+    qbegin_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
@@ -869,7 +931,7 @@ public:
             detail::predicates_find_distance<Predicates>::value
         >
     >::type
-    qend(Predicates const& predicates) const
+    qend_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
@@ -922,10 +984,12 @@ public:
     \return             The iterator pointing at the end of the query range.
     */
     detail::rtree::iterators::end_query_iterator<value_type, allocators_type>
-    qend() const
+    qend_() const
     {
         return detail::rtree::iterators::end_query_iterator<value_type, allocators_type>();
     }
+
+public:
 
     /*!
     \brief Returns the number of stored values.
@@ -1617,6 +1681,75 @@ query(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
       OutIter out_it)
 {
     return tree.query(predicates, out_it);
+}
+
+/*!
+\brief Returns the query iterator pointing at the begin of the query range.
+
+This method returns the iterator which may be used to perform iterative queries. For the information
+about the predicates which may be passed to this method see query().
+    
+\par Example
+\verbatim
+    
+for ( Rtree::const_query_iterator it = qbegin(tree, bgi::nearest(pt, 10000)) ;
+        it != qend(tree) ; ++it )
+{
+    // do something with value
+    if ( has_enough_nearest_values() )
+        break;
+}
+\endverbatim
+
+\par Throws
+If predicates copy throws.
+If allocation throws.
+
+\ingroup rtree_functions
+
+\param tree         The rtree.
+\param predicates   Predicates.
+    
+\return             The iterator pointing at the begin of the query range.
+*/
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+          typename Predicates> inline
+typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_query_iterator
+qbegin(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree,
+       Predicates const& predicates)
+{
+    return tree.qbegin(predicates);
+}
+
+/*!
+\brief Returns the query iterator pointing at the end of the query range.
+
+This method returns the iterator which may be used to check if the query has ended.
+    
+\par Example
+\verbatim
+    
+for ( Rtree::const_query_iterator it = qbegin(tree, bgi::nearest(pt, 10000)) ;
+      it != qend(tree) ; ++it )
+{
+    // do something with value
+    if ( has_enough_nearest_values() )
+        break;
+}
+\endverbatim
+
+\par Throws
+Nothing
+
+\ingroup rtree_functions
+    
+\return             The iterator pointing at the end of the query range.
+*/
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_query_iterator
+qend(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+{
+    return tree.qend();
 }
 
 /*!

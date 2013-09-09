@@ -20,6 +20,10 @@
 [*Additional functionality]
 
 * Added centroid for segment type
+* Added intersects() and disjoints() for Segment-Box and Linestring-Box
+* Added rtree creation using packing algorithm
+* Added contains() and covers() spatial query predicates
+* Added iterative queries
 
 [*Documentation]
 
@@ -43,7 +47,7 @@
 * Transform-strategy TODO
 * Spikes (could be generated in difference) in integer-based overlays are now avoided during generation
 * Cleanup, removed old MSVC2005 project files, let all tests pass green (also in extensions)
-
+* R*-tree balancing algorithm optimized
 
 [/=================]
 [heading Boost 1.54]

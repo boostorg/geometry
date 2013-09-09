@@ -642,6 +642,14 @@ void exactly_the_same_outputs(Rtree const& rtree, Range1 const& output, Range2 c
     }
 }
 
+// alternative version of std::copy taking iterators of differnet types
+template <typename First, typename Last, typename Out>
+void copy_alt(First first, Last last, Out out)
+{
+    for ( ; first != last ; ++first, ++out )
+        *out = *first;
+}
+
 // spatial query
 
 template <typename Rtree, typename Value, typename Predicates>
@@ -666,22 +674,25 @@ void spatial_query(Rtree & rtree, Predicates const& pred, std::vector<Value> con
     exactly_the_same_outputs(rtree, output, rtree | bgi::adaptors::queried(pred));
 
     std::vector<Value> output3;
-    std::copy(rtree.qbegin(pred), rtree.qend(pred), std::back_inserter(output3));
+    std::copy(rtree.qbegin(pred), rtree.qend(), std::back_inserter(output3));
 
     compare_outputs(rtree, output3, expected_output);
 
+    std::vector<Value> output4;
+    std::copy(qbegin(rtree, pred), qend(rtree), std::back_inserter(output4));
+
+    exactly_the_same_outputs(rtree, output3, output4);
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     {
-        typedef typename Rtree::const_query_iterator QI;
-        QI first = rtree.qbegin(pred);
-        QI last = rtree.qend(pred);
         std::vector<Value> output4;
-        std::copy(first, last, std::back_inserter(output4));
+        std::copy(rtree.qbegin_(pred), rtree.qend_(pred), std::back_inserter(output4));
         compare_outputs(rtree, output4, expected_output);
-        QI last2 = rtree.qend();
         output4.clear();
-        std::copy(first, last2, std::back_inserter(output4));
+        copy_alt(rtree.qbegin_(pred), rtree.qend_(), std::back_inserter(output4));
         compare_outputs(rtree, output4, expected_output);
     }
+#endif
 }
 
 // rtree specific queries tests
@@ -1029,22 +1040,20 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
     exactly_the_same_outputs(rtree, output, output2);
 
     std::vector<Value> output3;
-    std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(bgi::nearest(pt, k)), std::back_inserter(output3));
+    std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(), std::back_inserter(output3));
 
     compare_nearest_outputs(rtree, output3, expected_output, pt, greatest_distance);
 
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     {
-        typedef typename Rtree::const_query_iterator QI;
-        QI first = rtree.qbegin(bgi::nearest(pt, k));
-        QI last = rtree.qend(bgi::nearest(pt, k));
         std::vector<Value> output4;
-        std::copy(first, last, std::back_inserter(output4));
+        std::copy(rtree.qbegin_(bgi::nearest(pt, k)), rtree.qend_(bgi::nearest(pt, k)), std::back_inserter(output4));
         compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
-        QI last2 = rtree.qend();
         output4.clear();
-        std::copy(first, last, std::back_inserter(output4));
+        copy_alt(rtree.qbegin_(bgi::nearest(pt, k)), rtree.qend_(), std::back_inserter(output4));
         compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
     }
+#endif
 }
 
 // rtree nearest not found
