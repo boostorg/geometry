@@ -773,8 +773,7 @@ public:
     about the predicates which may be passed to this method see query().
     
     \par Example
-    \verbatim
-    
+    \verbatim    
     for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
           it != tree.qend() ; ++it )
     {
@@ -804,8 +803,7 @@ public:
     This method returns the iterator which may be used to check if the query has ended.
     
     \par Example
-    \verbatim
-    
+    \verbatim    
     for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
           it != tree.qend() ; ++it )
     {
