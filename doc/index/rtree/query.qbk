@@ -175,7 +175,7 @@ Of course it's possible to connect different types of predicates together.
 
 [h4 Breaking or pausing the query]
 
-By use of query iterators, the query may be paused and resumed if needed, e.g. when the query takes too long,
+The query performed using query iterators may be paused and resumed if needed, e.g. when the query takes too long,
 or stopped at some point, e.g when all interesting values were gathered.
 
  for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
