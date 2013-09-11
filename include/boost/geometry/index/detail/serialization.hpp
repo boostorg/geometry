@@ -17,6 +17,14 @@
 // TODO
 // how about using the unsigned type capable of storing Max in compile-time versions?
 
+// TODO
+// - add wrappers for Point and Box and implement serialize for those wrappers instead of
+//   raw geometries
+//   PROBLEM: after implementing this, how Values would be set?
+// - store the name of the parameters to know how to load and detect errors
+// - in the header, once store info about the Indexable and Bounds types (geometry type, point CS, Dim, etc.)
+//   each geometry save without this info
+
 // TODO - move to index/detail/serialization.hpp
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -67,7 +75,7 @@ void serialization_save(T const& t, const char * name, Archive & ar)
     
 }}}}
 
-// TODO - move to index/serialization.hpp
+// TODO - move to index/serialization/rtree.hpp
 namespace boost { namespace serialization {
 
 // boost::geometry::index::linear
@@ -75,16 +83,16 @@ namespace boost { namespace serialization {
 template<class Archive, size_t Max, size_t Min>
 void save_construct_data(Archive & ar, const boost::geometry::index::linear<Max, Min> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements(), min = params->get_min_elements();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
 }
 template<class Archive, size_t Max, size_t Min>
 void load_construct_data(Archive & ar, boost::geometry::index::linear<Max, Min> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
     if ( max != params->get_max_elements() || min != params->get_min_elements() )
         // TODO change exception type
         BOOST_THROW_EXCEPTION(std::runtime_error("parameters not compatible"));
@@ -98,16 +106,16 @@ template<class Archive, size_t Max, size_t Min> void serialize(Archive &, boost:
 template<class Archive, size_t Max, size_t Min>
 void save_construct_data(Archive & ar, const boost::geometry::index::quadratic<Max, Min> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements(), min = params->get_min_elements();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
 }
 template<class Archive, size_t Max, size_t Min>
 void load_construct_data(Archive & ar, boost::geometry::index::quadratic<Max, Min> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
     if ( max != params->get_max_elements() || min != params->get_min_elements() )
         // TODO change exception type
         BOOST_THROW_EXCEPTION(std::runtime_error("parameters not compatible"));
@@ -121,19 +129,23 @@ template<class Archive, size_t Max, size_t Min> void serialize(Archive &, boost:
 template<class Archive, size_t Max, size_t Min, size_t RE, size_t OCT>
 void save_construct_data(Archive & ar, const boost::geometry::index::rstar<Max, Min, RE, OCT> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements()
          , min = params->get_min_elements()
          , re = params->get_reinserted_elements()
          , oct = params->get_overlap_cost_threshold();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min) << bs::make_nvp("re", re) << bs::make_nvp("oct", oct);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("re", re);
+    ar << boost::serialization::make_nvp("oct", oct);
 }
 template<class Archive, size_t Max, size_t Min, size_t RE, size_t OCT>
 void load_construct_data(Archive & ar, boost::geometry::index::rstar<Max, Min, RE, OCT> * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min, re, oct;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min) >> bs::make_nvp("re", re) >> bs::make_nvp("oct", oct);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("re", re);
+    ar >> boost::serialization::make_nvp("oct", oct);
     if ( max != params->get_max_elements() || min != params->get_min_elements() ||
          re != params->get_reinserted_elements() || oct != params->get_overlap_cost_threshold() )
         // TODO change exception type
@@ -149,16 +161,16 @@ void serialize(Archive &, boost::geometry::index::rstar<Max, Min, RE, OCT> &, un
 template<class Archive>
 inline void save_construct_data(Archive & ar, const boost::geometry::index::dynamic_linear * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements(), min = params->get_min_elements();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
 }
 template<class Archive>
 inline void load_construct_data(Archive & ar, boost::geometry::index::dynamic_linear * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
     ::new(params)boost::geometry::index::dynamic_linear(max, min);
 }
 template<class Archive> void serialize(Archive &, boost::geometry::index::dynamic_linear &, unsigned int) {}
@@ -168,16 +180,16 @@ template<class Archive> void serialize(Archive &, boost::geometry::index::dynami
 template<class Archive>
 inline void save_construct_data(Archive & ar, const boost::geometry::index::dynamic_quadratic * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements(), min = params->get_min_elements();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
 }
 template<class Archive>
 inline void load_construct_data(Archive & ar, boost::geometry::index::dynamic_quadratic * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
     ::new(params)boost::geometry::index::dynamic_quadratic(max, min);
 }
 template<class Archive> void serialize(Archive &, boost::geometry::index::dynamic_quadratic &, unsigned int) {}
@@ -187,19 +199,23 @@ template<class Archive> void serialize(Archive &, boost::geometry::index::dynami
 template<class Archive>
 inline void save_construct_data(Archive & ar, const boost::geometry::index::dynamic_rstar * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max = params->get_max_elements()
          , min = params->get_min_elements()
          , re = params->get_reinserted_elements()
          , oct = params->get_overlap_cost_threshold();
-    ar << bs::make_nvp("max", max) << bs::make_nvp("min", min) << bs::make_nvp("re", re) << bs::make_nvp("oct", oct);
+    ar << boost::serialization::make_nvp("max", max);
+    ar << boost::serialization::make_nvp("min", min);
+    ar << boost::serialization::make_nvp("re", re);
+    ar << boost::serialization::make_nvp("oct", oct);
 }
 template<class Archive>
 inline void load_construct_data(Archive & ar, boost::geometry::index::dynamic_rstar * params, unsigned int )
 {
-    namespace bs = boost::serialization;
     size_t max, min, re, oct;
-    ar >> bs::make_nvp("max", max) >> bs::make_nvp("min", min) >> bs::make_nvp("re", re) >> bs::make_nvp("oct", oct);
+    ar >> boost::serialization::make_nvp("max", max);
+    ar >> boost::serialization::make_nvp("min", min);
+    ar >> boost::serialization::make_nvp("re", re);
+    ar >> boost::serialization::make_nvp("oct", oct);
     ::new(params)boost::geometry::index::dynamic_rstar(max, min, re, oct);
 }
 template<class Archive> void serialize(Archive &, boost::geometry::index::dynamic_rstar &, unsigned int) {}
@@ -215,18 +231,16 @@ struct serialize_point
     template <typename Archive>
     static inline void save(Archive & ar, P const& p, unsigned int version)
     {
-        namespace bs = boost::serialization;
         typename coordinate_type<P>::type c = get<I>(p);
-        ar << bs::make_nvp("c", c);
+        ar << boost::serialization::make_nvp("c", c);
         serialize_point<P, I+1, D>::save(ar, p, version);
     }
 
     template <typename Archive>
     static inline void load(Archive & ar, P & p, unsigned int version)
     {
-        namespace bs = boost::serialization;
         typename traits::coordinate_type<P>::type c;
-        ar >> bs::make_nvp("c", c);
+        ar >> boost::serialization::make_nvp("c", c);
         set<I>(p, c);
         serialize_point<P, I+1, D>::load(ar, p, version);
     }
@@ -260,9 +274,8 @@ inline void serialize(Archive & ar, boost::geometry::model::point<T, D, C> & o, 
 template<class Archive, typename P>
 inline void serialize(Archive & ar, boost::geometry::model::box<P> & b, const unsigned int)
 {
-    namespace bs = boost::serialization;
-    ar & bs::make_nvp("min", b.min_corner());
-    ar & bs::make_nvp("max", b.max_corner());
+    ar & boost::serialization::make_nvp("min", b.min_corner());
+    ar & boost::serialization::make_nvp("max", b.max_corner());
 }
 
 }} // boost::serialization
@@ -287,14 +300,12 @@ public:
 
     inline void operator()(internal_node const& n)
     {
-        namespace bs = boost::serialization;
-
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
         // change to elements_type::size_type or size_type?
         size_t s = elements.size();
-        m_archive << bs::make_nvp("s", s);
+        m_archive << boost::serialization::make_nvp("s", s);
 
         for (typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
@@ -306,15 +317,13 @@ public:
 
     inline void operator()(leaf const& l)
     {
-        namespace bs = boost::serialization;
-
         typedef typename rtree::elements_type<leaf>::type elements_type;
         typedef typename elements_type::size_type elements_size;
         elements_type const& elements = rtree::elements(l);
 
         // change to elements_type::size_type or size_type?
         size_t s = elements.size();
-        m_archive << bs::make_nvp("s", s);
+        m_archive << boost::serialization::make_nvp("s", s);
 
         for (typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
         {
@@ -357,13 +366,11 @@ private:
     template <typename Archive> inline static
     node_pointer raw_apply(Archive & ar, unsigned int version, size_type leafs_level, size_type & values_count, parameters_type const& parameters, Translator const& translator, Allocators & allocators, size_type current_level = 0)
     {
-        namespace bs = boost::serialization;
-
         //BOOST_GEOMETRY_INDEX_ASSERT(current_level <= leafs_level, "invalid parameter");
 
         // change to elements_type::size_type or size_type?
         size_t elements_count;
-        ar >> bs::make_nvp("s", elements_count);
+        ar >> boost::serialization::make_nvp("s", elements_count);
 
         if ( elements_count < parameters.get_min_elements() || parameters.get_max_elements() < elements_count )
             BOOST_THROW_EXCEPTION(std::runtime_error("rtree loading error"));
@@ -421,5 +428,154 @@ private:
 };
 
 }}}}} // boost::geometry::index::detail::rtree
+
+// TODO - move to index/detail/rtree/private_view.hpp
+namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree {
+
+template <typename Rtree>
+class const_private_view
+{
+public:
+    typedef typename Rtree::size_type size_type;
+
+    typedef typename Rtree::translator_type translator_type;
+    typedef typename Rtree::value_type value_type;
+    typedef typename Rtree::options_type options_type;
+    typedef typename Rtree::box_type box_type;
+    typedef typename Rtree::allocators_type allocators_type;    
+
+    const_private_view(Rtree const& rt) : m_rtree(rt) {}
+
+    typedef typename Rtree::members_holder members_holder;
+
+    members_holder const& members() const { return m_rtree.m_members; }
+
+private:
+    const_private_view(const_private_view const&);
+    const_private_view & operator=(const_private_view const&);
+
+    Rtree const& m_rtree;
+};
+
+template <typename Rtree>
+class private_view
+{
+public:
+    typedef typename Rtree::size_type size_type;
+
+    typedef typename Rtree::translator_type translator_type;
+    typedef typename Rtree::value_type value_type;
+    typedef typename Rtree::options_type options_type;
+    typedef typename Rtree::box_type box_type;
+    typedef typename Rtree::allocators_type allocators_type;    
+
+    private_view(Rtree & rt) : m_rtree(rt) {}
+
+    typedef typename Rtree::members_holder members_holder;
+
+    members_holder & members() { return m_rtree.m_members; }
+    members_holder const& members() const { return m_rtree.m_members; }
+
+private:
+    private_view(private_view const&);
+    private_view & operator=(private_view const&);
+
+    Rtree & m_rtree;
+};
+
+}}}}} // namespace boost::geometry::index::detail::rtree
+
+// TODO - move to index/serialization/rtree.hpp
+namespace boost { namespace serialization {
+
+template<class Archive, typename V, typename P, typename I, typename E, typename A>
+void save(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> const& rt, unsigned int version)
+{
+    namespace detail = boost::geometry::index::detail;
+
+    typedef boost::geometry::index::rtree<V, P, I, E, A> rtree;
+    typedef detail::rtree::const_private_view<rtree> view;
+    typedef typename view::translator_type translator_type;
+    typedef typename view::value_type value_type;
+    typedef typename view::options_type options_type;
+    typedef typename view::box_type box_type;
+    typedef typename view::allocators_type allocators_type;
+
+    view tree(rt);
+
+    detail::serialization_save(tree.members().parameters(), "parameters", ar);
+
+    ar << boost::serialization::make_nvp("values_count", tree.members().values_count);
+    ar << boost::serialization::make_nvp("leafs_level", tree.members().leafs_level);
+
+    if ( tree.members().values_count )
+    {
+        BOOST_GEOMETRY_INDEX_ASSERT(tree.members().root, "root shouldn't be null_ptr");
+
+        detail::rtree::visitors::save<Archive, value_type, options_type, translator_type, box_type, allocators_type> save_v(ar, version);
+        detail::rtree::apply_visitor(save_v, *tree.members().root);
+    }
+}
+
+template<class Archive, typename V, typename P, typename I, typename E, typename A>
+void load(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> & rt, unsigned int version)
+{
+    namespace detail = boost::geometry::index::detail;
+
+    typedef boost::geometry::index::rtree<V, P, I, E, A> rtree;
+    typedef detail::rtree::private_view<rtree> view;
+    typedef typename view::size_type size_type;
+    typedef typename view::translator_type translator_type;
+    typedef typename view::value_type value_type;
+    typedef typename view::options_type options_type;
+    typedef typename view::box_type box_type;
+    typedef typename view::allocators_type allocators_type;
+
+    typedef typename options_type::parameters_type parameters_type;
+    typedef typename allocators_type::node_pointer node_pointer;
+    typedef detail::rtree::node_auto_ptr<value_type, options_type, translator_type, box_type, allocators_type> node_auto_ptr;
+
+    view tree(rt);
+
+    parameters_type params = detail::serialization_load<parameters_type>("parameters", ar);
+
+    size_type values_count, leafs_level;
+    ar >> boost::serialization::make_nvp("values_count", values_count);
+    ar >> boost::serialization::make_nvp("leafs_level", leafs_level);
+
+    node_pointer n(0);
+    if ( 0 < values_count )
+    {
+        size_type loaded_values_count = 0;
+        n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
+            ::apply(ar, version, leafs_level, loaded_values_count, params, tree.members().translator(), tree.members().allocators());                                        // MAY THROW
+
+        node_auto_ptr remover(n, tree.members().allocators());
+        if ( loaded_values_count != values_count )
+            BOOST_THROW_EXCEPTION(std::runtime_error("unexpected number of values")); // TODO change exception type
+        remover.release();
+    }
+
+    tree.members().parameters() = params;
+    tree.members().values_count = values_count;
+    tree.members().leafs_level = leafs_level;
+
+    node_auto_ptr remover(tree.members().root, tree.members().allocators());
+    tree.members().root = n;
+}
+
+template<class Archive, typename V, typename P, typename I, typename E, typename A> inline
+void serialize(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> & rt, unsigned int version)
+{
+    split_free(ar, rt, version);
+}
+
+template<class Archive, typename V, typename P, typename I, typename E, typename A> inline
+void serialize(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> const& rt, unsigned int version)
+{
+    split_free(ar, rt, version);
+}
+
+}} // boost::serialization
 
 #endif // BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP

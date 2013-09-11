@@ -174,6 +174,10 @@ private:
     typedef detail::rtree::node_auto_ptr<value_type, options_type, translator_type, box_type, allocators_type> node_auto_ptr;
 
     friend class detail::rtree::utilities::view<rtree>;
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+    friend class detail::rtree::private_view<rtree>;
+    friend class detail::rtree::const_private_view<rtree>;
+#endif
 
 public:
 
@@ -1369,65 +1373,6 @@ private:
 
         return distance_v.finish();
     }
-
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-
-    friend class boost::serialization::access;
-
-    template<class Archive>
-    void save(Archive & ar, unsigned int version) const
-    {
-        namespace bs = boost::serialization;
-
-        detail::serialization_save(m_members.parameters(), "parameters", ar);
-
-        ar << bs::make_nvp("values_count", m_members.values_count);
-        ar << bs::make_nvp("leafs_level", m_members.leafs_level);
-
-        if ( m_members.values_count )
-        {
-            BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "root shouldn't be null_ptr");
-
-            detail::rtree::visitors::save<Archive, Value, options_type, translator_type, box_type, allocators_type> save_v(ar, version);
-            detail::rtree::apply_visitor(save_v, *m_members.root);
-        }
-    }
-
-    template<class Archive>
-    void load(Archive & ar, unsigned int version)
-    {
-        namespace bs = boost::serialization;
-
-        parameters_type params = detail::serialization_load<parameters_type>("parameters", ar);
-        
-        size_type values_count, leafs_level;
-        ar >> bs::make_nvp("values_count", values_count);
-        ar >> bs::make_nvp("leafs_level", leafs_level);
-
-        node_pointer n(0);
-        if ( 0 < values_count )
-        {
-            size_type loaded_values_count = 0;
-            n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
-                ::apply(ar, version, leafs_level, loaded_values_count, params, m_members.translator(), m_members.allocators());                                        // MAY THROW
-
-            node_auto_ptr remover(n, m_members.allocators());
-            if ( loaded_values_count != values_count )
-                BOOST_THROW_EXCEPTION(std::runtime_error("unexpected number of values")); // TODO change exception type
-            remover.release();
-        }
-
-        m_members.parameters() = params;
-        m_members.values_count = values_count;
-        m_members.leafs_level = leafs_level;
-
-        node_auto_ptr remover(m_members.root, m_members.allocators());
-        m_members.root = n;
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
-
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 
     struct members_holder
         : public translator_type
