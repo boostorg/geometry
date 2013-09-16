@@ -53,7 +53,7 @@ The examples of structures of trees created by use of different algorithms and e
 [[*Example structure*]      [[$img/index/rtree/linear.png]] [[$img/index/rtree/quadratic.png]] [[$img/index/rtree/rstar.png]] [[$img/index/rtree/bulk.png]]]
 [[*1M Values inserts*]      [1.76s] [2.47s] [6.19s] [1.67s]]
 [[*100k spatial queries*]   [2.21s] [0.51s] [0.12s] [0.07s]]
-[[*100k knn queries*]       [6.37s] [2.09s] [0.64s] [0.52]]
+[[*100k knn queries*]       [6.37s] [2.09s] [0.64s] [0.52s]]
 ]
 
 The performance of the R-tree for different values of Max parameter and Min=0.5*Max is presented in the table below.
