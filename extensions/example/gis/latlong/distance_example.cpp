@@ -82,17 +82,17 @@ int main()
     std::cout << "Distance " << city1_name << "-" << city2_name << ": " << std::endl;
     std::cout << "haversine:              " << 0.001 * distance(city1, city2) << " km" << std::endl;
     std::cout << "haversine rad:          " << 0.001 * distance(city1_rad, city2_rad) << " km" << std::endl;
-    std::cout << "haversine other radius: " << distance(city1, city2, strategy::distance::haversine<latlon_point>(6371.0) ) << " km" << std::endl;
-    std::cout << "andoyer:                " << 0.001 * distance(city1, city2, strategy::distance::andoyer<latlon_point>() ) << " km" << std::endl;
-    std::cout << "vincenty:               " << 0.001 * distance(city1, city2, strategy::distance::vincenty<latlon_point>() ) << " km" << std::endl;
-    std::cout << "vincenty rad:           " << 0.001 * distance(city1_rad, city2_rad, strategy::distance::vincenty<model::ll::point<radian> >() ) << " km" << std::endl;
+    std::cout << "haversine other radius: " << distance(city1, city2, strategy::distance::haversine<double>(6371.0) ) << " km" << std::endl;
+    std::cout << "andoyer:                " << 0.001 * distance(city1, city2, strategy::distance::andoyer<double>() ) << " km" << std::endl;
+    std::cout << "vincenty:               " << 0.001 * distance(city1, city2, strategy::distance::vincenty<double>() ) << " km" << std::endl;
+    std::cout << "vincenty rad:           " << 0.001 * distance(city1_rad, city2_rad, strategy::distance::vincenty<double>() ) << " km" << std::endl;
     std::cout << "Projected, pythagoras:  " << 0.001 * distance(city1_prj, city2_prj) << " km" << std::endl;
 
     std::cout << std::endl;
     std::cout << "Distance " << city1_name << "-" << city3_name << ": " << std::endl;
-    std::cout << "andoyer:                " << 0.001 * distance(city1, city3, strategy::distance::andoyer<latlon_point>()) << " km" << std::endl;
+    std::cout << "andoyer:                " << 0.001 * distance(city1, city3, strategy::distance::andoyer<double>()) << " km" << std::endl;
     std::cout << "Distance " << city2_name << "-" << city3_name << ": " << std::endl;
-    std::cout << "andoyer:                " << 0.001 * distance(city2, city3, strategy::distance::andoyer<latlon_point>()) << " km" << std::endl;
+    std::cout << "andoyer:                " << 0.001 * distance(city2, city3, strategy::distance::andoyer<double>()) << " km" << std::endl;
 
     // ------------------------------------------------------------------------------------------
     // Distances to segments
@@ -119,7 +119,7 @@ int main()
     // Compilation
     // ------------------------------------------------------------------------------------------
     // Next line does not compile because Vincenty cannot work on xy-points
-    //std::cout << "vincenty on xy:         " << 0.001 * distance(city1_prj, city2_prj, formulae::distance::vincenty<>() ) << " km" << std::endl;
+    //std::cout << "vincenty on xy:         " << 0.001 * distance(city1_prj, city2_prj, formulae::distance::vincenty<double>() ) << " km" << std::endl;
 
     // Next line does not compile because you cannot (yet) assign degree to radian directly
     //ll::point<radian> a_rad2 = city1;
@@ -137,7 +137,7 @@ int main()
     append(line1, city1);
     append(line1, city2);
     std::cout << "length: " << length(line1) << std::endl;
-    std::cout << "length using Vincenty: " << length(line1, strategy::distance::vincenty<latlon_point>()) << std::endl;
+    std::cout << "length using Vincenty: " << length(line1, strategy::distance::vincenty<double>()) << std::endl;
 
     model::linestring<xy_point> line2;
     append(line2, city1_prj);

@@ -89,13 +89,13 @@ int main()
         << " km" << std::endl;
 
     std::cout << "Distance Paris-Lima, Vincenty "
-        << 0.001 * distance(paris, lima, strategy::distance::vincenty<latlon_point>())
+        << 0.001 * distance(paris, lima, strategy::distance::vincenty<double>())
         << " km" << std::endl;
 
     // Using great circle (=haversine), this is less precise because earth is not a sphere
     double const average_earth_radius = 6372795.0;
     std::cout << "Distance Paris-Lima, great circle "
-        << 0.001 * distance(paris, lima, strategy::distance::haversine<latlon_point>(average_earth_radius))
+        << 0.001 * distance(paris, lima, strategy::distance::haversine<double>(average_earth_radius))
         << " km" << std::endl;
 
     // Convert a latlong point to radians. This might be convenient, although algorithms
