@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 {
     // Note, file location: trunk/libs/geometry/example/data
     // update path below if necessary
-    std::string const data = "../../../example/data/world.wkt";
+    std::string const data = "../../../../example/data/world.wkt";
     try
     {
         p05_example(1, data, "p05_world_1.svg");

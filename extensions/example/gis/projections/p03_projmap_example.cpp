@@ -101,10 +101,8 @@ void read_wkt_and_project_and_write_svg(std::string const& wkt_filename,
     typedef boost::geometry::model::d2::point_xy<int> svg_point;
     boost::geometry::strategy::transform::map_transformer
         <
-            point_xy,
-            svg_point,
-            true,
-            true
+            double, 2, 2,
+            true, true
         > svg_transformer(bbox, 800, 600);
 
     // Create the background
@@ -132,7 +130,7 @@ int main(int argc, char** argv)
         // Note, file location: trunk/libs/geometry/example/data
         // update path below if necessary
         read_wkt_and_project_and_write_svg(
-            "../../../example/data/world.wkt",
+            "../../../../example/data/world.wkt",
             "+proj=moll +ellps=clrk66",
             "world.svg");
     }

@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         // Note, file location: trunk/libs/geometry/example/data
         // update path below if necessary
         read_wkt_and_project_and_map_svg(
-            "../../../example/data/world.wkt",
+            "../../../../example/data/world.wkt",
             "world4.svg");
     }
     catch(std::exception const& e)
