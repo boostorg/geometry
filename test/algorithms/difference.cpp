@@ -278,7 +278,7 @@ void test_all()
         
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 13, 16815.6,
+        1, if_typed<ct, float>(14, 13), 16815.6,
         1, 4, 3200.4,
         0.01);
 
@@ -309,13 +309,20 @@ void test_all()
     // Boost.Geometry gives results depending on FP-type, and compiler, and operating system.
     // For double, it is zero (skipped). On gcc/Linux, for float either.
     // Because we cannot predict this, we only test for MSVC
-    test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
-        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-            if_typed_tt<ct>(1, 0), -1, 
-            if_typed_tt<ct>(0.0000000000001105367, 0.0), 
-        1, -1, 3577.40960816756,
-        0.01
-        );
+    if (boost::is_same<ct, double>::value
+#if defined(HAVE_TTMATH)
+        || boost::is_same<ct, ttmath_big>::value
+#endif
+        )
+    {
+        test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
+            ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+                if_typed_tt<ct>(1, 0), -1, 
+                if_typed_tt<ct>(0.0000000000001105367, 0.0), 
+            1, -1, 3577.40960816756,
+            0.01
+            );
+    }
 #endif
 
     // Other combi's

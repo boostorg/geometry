@@ -143,7 +143,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        1, 0, 11, 9.0098387);
+        1, 0, if_typed<ct, float>(9, 11), 9.0098387);
 
     test_one<Polygon, Polygon, Polygon>("wrapped_a",
         wrapped[0], wrapped[1],
@@ -224,7 +224,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, 0, 
-        if_typed<ct, double>(5, if_typed_tt<ct>(8, 7)), 
+        if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)), 
         14729.07145);
         
 
@@ -249,7 +249,7 @@ void test_areal()
         isovist1[0], isovist1[1],
         1,
         0,
-        if_typed<ct, float>(71, if_typed<ct, double>(70, 73)),
+        if_typed<ct, float>(72, if_typed<ct, double>(70, 73)),
         313.36036462, 0.1);
 
     // SQL Server gives: 313.360374193241
@@ -282,12 +282,12 @@ void test_areal()
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
-                1, 0, 17, 16.571);
+                1, 0, if_typed<ct, float>(18, 17), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
-                1, 0, 17, 16.571);
+                1, 0, if_typed<ct, float>(18, 17), 16.571);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
-                1, 0, 13, 13.6569);
+                1, 0, if_typed<ct, float>(14, 13), 13.6569);
 
     bool test_rt_i_rev = true;
 #ifndef _MSC_VER
@@ -337,10 +337,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
                 1, 0, if_typed_tt<ct>(16, 14), 15.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
-                1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+                1, 0, if_typed_tt<ct>(16, if_typed<ct, float>(15, 14)), 15.6569);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
-                1, 0, 91, 22.815);
+                1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     if (boost::is_same<ct, double>::type::value)
     {
