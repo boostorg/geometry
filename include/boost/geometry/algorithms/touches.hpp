@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,8 +19,8 @@
 #include <deque>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
@@ -164,7 +165,8 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
     detail::get_turns::no_interrupt_policy policy;
     boost::geometry::get_turns
             <
-                false, false,
+                detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                 detail::overlay::assign_null_policy
             >(geometry1, geometry2, turns, policy);
 
