@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -101,11 +102,22 @@ private :
     Strategy const& m_strategy;
     mutable bool* m_clustered;
 
-    inline bool consider_relative_order(Indexed const& left,
-                    Indexed const& right) const
+    typedef model::point
+        <
+            typename geometry::robust_type
+                <
+                    typename select_coordinate_type<Geometry1, Geometry2>::type
+                >::type,
+            geometry::dimension<Geometry1>::value,
+            typename geometry::coordinate_system<Geometry1>::type
+        > robust_point_type;
+
+    inline void get_situation_map(Indexed const& left, Indexed const& right, 
+                              robust_point_type& pi_rob, robust_point_type& pj_rob, 
+                              robust_point_type& ri_rob, robust_point_type& rj_rob, 
+                              robust_point_type& si_rob, robust_point_type& sj_rob) const
     {
-        typedef typename geometry::point_type<Geometry1>::type point_type;
-        point_type pi, pj, ri, rj, si, sj;
+        typename geometry::point_type<Geometry1>::type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
@@ -116,11 +128,19 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
+        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj, 
+                                    pi_rob, pj_rob, ri_rob, rj_rob, si_rob, sj_rob);
+    }
 
+    inline bool consider_relative_order(Indexed const& left,
+                    Indexed const& right) const
+    {
+        robust_point_type pi, pj, ri, rj, si, sj;
+        get_situation_map(left, right, pi, pj, ri, rj, si, sj);
         int const order = get_relative_order
             <
-                point_type
-            >::apply(pi, pj,ri, rj, si, sj);
+                robust_point_type
+            >::apply(pi, pj, ri, rj, si, sj);
         //debug("r/o", order == -1);
         return order == -1;
     }

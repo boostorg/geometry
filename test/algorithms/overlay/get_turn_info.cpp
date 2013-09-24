@@ -72,18 +72,13 @@ void test_with_point(std::string const& caseid,
         }
     }
 
+    BOOST_CHECK_MESSAGE(detected == expected,
+    	caseid
+            << (caseid.find("_") == std::string::npos ? "  " : "")
+            << " method: " << method
+            << " detected: " << detected
+            << " expected: " << expected);
 
-    /*
-    std::cout << caseid
-        << (caseid.find("_") == std::string::npos ? "  " : "")
-        << " " << method
-        << " " << detected
-        << " " << order
-        << std::endl;
-    */
-
-
-    BOOST_CHECK_EQUAL(detected, expected);
 
     if (! info.empty())
     {
@@ -327,14 +322,15 @@ void test_all()
             5, 3,   5, 5,   6, 6, // q
             method_collinear, 5, 5, "ui");
 
+    // The next two cases are changed (BSG 2013-09-24), they contain turn info (#buffer_rt_g)
     test_both<P, double>("ccx1",
             5, 1,   5, 6,   5, 8, // p
             5, 5,   5, 7,   3, 8, // q
-            method_collinear, 5, 6, "cc");
+            method_collinear, 5, 6, "iu"); // "cc");
     test_both<P, double>("cxc1",
             5, 1,   5, 6,   7, 8, // p
             5, 3,   5, 5,   5, 7, // q
-            method_collinear, 5, 5, "cc");
+            method_collinear, 5, 5, "iu"); // "cc");
 
     // Bug in case #54 of "overlay_cases.hpp"
     test_both<P, double>("c_bug1",

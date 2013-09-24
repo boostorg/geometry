@@ -252,34 +252,14 @@ struct segments_direction
 
 private :
 
-    static inline bool is_left
-        (
-            coordinate_type const& ux, 
-            coordinate_type const& uy,
-            coordinate_type const& vx,
-            coordinate_type const& vy
-        )
-    {
-        // This is a "side calculation" as in the strategies, but here terms are precalculated
-        // We might merge this with side, offering a pre-calculated term (in fact already done using cross-product)
-        // Waiting for implementing spherical...
-
-        rtype const zero = rtype();
-        return geometry::detail::determinant<rtype>(ux, uy, vx, vy) > zero;
-    }
-
     template <std::size_t I>
     static inline return_type calculate_side(side_info const& sides,
                 coordinate_type const& dx1, coordinate_type const& dy1,
                 S1 const& s1, S2 const& s2,
                 char how, int how_a, int how_b)
     {
-        coordinate_type dpx = get<I, 0>(s2) - get<0, 0>(s1);
-        coordinate_type dpy = get<I, 1>(s2) - get<0, 1>(s1);
-
-        return is_left(dx1, dy1, dpx, dpy)
-            ? return_type(sides, how, how_a, how_b, -1, 1)
-            : return_type(sides, how, how_a, how_b, 1, -1);
+        int const dir = sides.get<1, I>() == 1 ? 1 : -1;
+        return return_type(sides, how, how_a, how_b, -dir, dir);
     }
 
     template <std::size_t I>
@@ -288,12 +268,8 @@ private :
                 S1 const& s1, S2 const& s2,
                 char how, int how_a, int how_b)
     {
-        coordinate_type dpx = get<I, 0>(s2) - get<0, 0>(s1);
-        coordinate_type dpy = get<I, 1>(s2) - get<0, 1>(s1);
-
-        return is_left(dx1, dy1, dpx, dpy)
-            ? return_type(sides, how, how_a, how_b, 1, 1)
-            : return_type(sides, how, how_a, how_b, -1, -1);
+        int const dir = sides.get<1, I>() == 1 ? 1 : -1;
+        return return_type(sides, how, how_a, how_b, dir, dir);
     }
 
 
@@ -304,10 +280,7 @@ private :
                 int how_a, int how_b)
     {
         // Calculate ARROW of b segment w.r.t. s1
-        coordinate_type dpx = get<1, 0>(s2) - get<0, 0>(s1);
-        coordinate_type dpy = get<1, 1>(s2) - get<0, 1>(s1);
-
-        int dir = is_left(dx1, dy1, dpx, dpy) ? 1 : -1;
+        int dir = sides.get<1, 1>() == 1 ? 1 : -1;
 
         // From other perspective, then reverse
         bool const is_a = which == 'A';
@@ -330,14 +303,10 @@ private :
                 coordinate_type const& dx, coordinate_type const& dy,
                 S1 const& s1, S2 const& s2)
     {
-        coordinate_type dpx = get<1, 0>(s2) - get<0, 0>(s1);
-        coordinate_type dpy = get<1, 1>(s2) - get<0, 1>(s1);
-
         // Ending at the middle, one ARRIVES, the other one is NEUTRAL
-        // (because it both "arrives"  and "departs"  there
-        return is_left(dx, dy, dpx, dpy)
-            ? return_type(sides, 'm', 1, 0, 1, 1)
-            : return_type(sides, 'm', 1, 0, -1, -1);
+        // (because it both "arrives"  and "departs" there)
+        int const dir = sides.get<1, 1>() == 1 ? 1 : -1;
+        return return_type(sides, 'm', 1, 0, dir, dir);
     }
 
 
@@ -345,12 +314,8 @@ private :
                 coordinate_type const& dx, coordinate_type const& dy,
                 S1 const& s1, S2 const& s2)
     {
-        coordinate_type dpx = get<1, 0>(s1) - get<0, 0>(s2);
-        coordinate_type dpy = get<1, 1>(s1) - get<0, 1>(s2);
-
-        return is_left(dx, dy, dpx, dpy)
-            ? return_type(sides, 'm', 0, 1, 1, 1)
-            : return_type(sides, 'm', 0, 1, -1, -1);
+        int const dir = sides.get<0, 1>() == 1 ? 1 : -1;
+        return return_type(sides, 'm', 0, 1, dir, dir);
     }
 
 };

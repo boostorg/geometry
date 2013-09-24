@@ -95,6 +95,7 @@ inline bool has_self_intersections(Geometry const& geometry)
             for (int i = 0; i < 2; i++)
             {
                 std::cout << " " << operation_char(info.operations[i].operation);
+                std::cout << " " << info.operations[i].seg_id;
             }
             std::cout << " " << geometry::dsv(info.point) << std::endl;
 #endif

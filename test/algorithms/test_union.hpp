@@ -100,8 +100,19 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
                 );
     }
 
-    BOOST_CHECK_EQUAL(clip.size(), expected_count);
-    BOOST_CHECK_EQUAL(holes, expected_hole_count);
+    BOOST_CHECK_MESSAGE(clip.size() == expected_count,
+            "union: " << caseid
+            << " #clips expected: " << expected_count
+            << " detected: " << clip.size()
+            << " type: " << (type_for_assert_message<G1, G2>())
+            );
+    BOOST_CHECK_MESSAGE(holes == expected_hole_count,
+            "union: " << caseid
+            << " #clips expected: " << expected_hole_count
+            << " detected: " << holes
+            << " type: " << (type_for_assert_message<G1, G2>())
+            );
+
     BOOST_CHECK_CLOSE(area, expected_area, percentage);
 
 #if defined(TEST_WITH_SVG)

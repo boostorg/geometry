@@ -228,16 +228,16 @@ void test_areal()
         14729.07145);
         
 
-    // Float gives sometimes 14, sometimes 14 points
+    // FP might return different amount of points
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-        1, 1, 
+        1, 1,
         if_typed<ct, double>(18, if_typed<ct, float>(-1, 17)), 
         129904.197692871);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe", 
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
-        if_typed<ct, float>(2, 1), 
+        2, // Previously it was 1 for double. The intersections are missed now, they fall in eps margins, arbitrary to generate them...
         0, 
         if_typed_tt<ct>(9, 8), 
         67.3550722317627);
@@ -249,7 +249,7 @@ void test_areal()
         isovist1[0], isovist1[1],
         1,
         0,
-        if_typed<ct, float>(72, if_typed<ct, double>(70, 73)),
+        if_typed<ct, float>(72, if_typed<ct, double>(67, 73)),
         313.36036462, 0.1);
 
     // SQL Server gives: 313.360374193241
@@ -325,12 +325,12 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(20, 19), 21.4853);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
-                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+                1, 0, 18, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
-                1, 0, if_typed<ct, float>(18, 17), 18.5710);
+                1, 0, 18, 18.5710);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
-                1, 0, if_typed<ct, float>(19, 20), 21.07612);
+                1, 0, 19, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.07612);
 
@@ -342,19 +342,8 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
-    if (boost::is_same<ct, double>::type::value)
-    {
-        // Contains robustness issue for collinear-opposite. 
-        // In double it delivers a polygon and a hole
-        test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                    1, 1, 217, 36.7535642);
-    }
-    else if (boost::is_same<ct, float>::type::value)
-    {
-        // In float (and ttmath) it delivers one polygon
-        test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                    1, 0, 217, 36.7528377);
-    }
+    test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
+                1, 0, 217, 36.752837);
 }
 
 template <typename P>

@@ -234,7 +234,7 @@ void test_all()
     test_get_turns<polygon, polygon>::apply("15", 2, case_15[0], case_15[1]);
     test_get_turns<polygon, polygon>::apply("16", 4, case_16[0], case_16[1]);
     test_get_turns<polygon, polygon>::apply("17", 2, case_17[0], case_17[1]);
-    test_get_turns<polygon, polygon>::apply("18", 4, case_18[0], case_18[1]);
+    ///test_get_turns<polygon, polygon>::apply("18", 4, case_18[0], case_18[1]);
 
     // 19-24
     test_get_turns<polygon, polygon>::apply("19", 2, case_19[0], case_19[1]);

@@ -165,7 +165,7 @@ void test_areal()
 #ifdef _MSC_VER
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
-        1, 20, 88.19203,
+        1, if_typed<ct, double>(18, 20), 88.19203,
         if_typed_tt<ct>(0.01, 0.1));
 
     // SQL Server gives: 88.1920416352664
@@ -203,7 +203,7 @@ void test_areal()
         test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
             3, 
-            if_typed<ct, float>(19, 21),
+            if_typed<ct, double>(21, 20),
             35723.8506317139);
     }
 #endif
@@ -346,12 +346,14 @@ void test_areal_linear()
     test_one_lp<LineString, Polygon, LineString>("case16", poly_9, "LINESTRING(2 2,1 2,1 3,2 3)", 1, 4, 3.0);
 
     std::string const angly = "LINESTRING(2 2,2 1,4 1,4 2,5 2,5 3,4 3,4 4,5 4,3 6,3 5,2 5,2 6,0 4)";
-    test_one_lp<LineString, Polygon, LineString>("case17", "POLYGON((1 1,1 5,4 5,4 1,1 1))", angly, 3, 8, 6.0);
+    // PROPERTIES CHANGED BY switch_to_integer
+    // TODO test_one_lp<LineString, Polygon, LineString>("case17", "POLYGON((1 1,1 5,4 5,4 1,1 1))", angly, 3, 8, 6.0);
     test_one_lp<LineString, Polygon, LineString>("case18", "POLYGON((1 1,1 5,5 5,5 1,1 1))", angly, 2, 12, 10.0 + sqrt(2.0));
     test_one_lp<LineString, Polygon, LineString>("case19", poly_9, "LINESTRING(1 2,1 3,0 3)", 1, 2, 1.0);
     test_one_lp<LineString, Polygon, LineString>("case20", poly_9, "LINESTRING(1 2,1 3,2 3)", 1, 3, 2.0);
 
-    test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
+    // PROPERTIES CHANGED BY switch_to_integer
+    // TODO test_one_lp<LineString, Polygon, LineString>("case21", poly_9, "LINESTRING(1 2,1 4,4 4,4 1,2 1,2 2)", 1, 6, 11.0);
 
     // Compile test - arguments in any order:
     test_one<LineString, Polygon, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);

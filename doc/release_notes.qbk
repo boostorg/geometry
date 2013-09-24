@@ -30,6 +30,8 @@
 [*Bugfixes]
 
 * In some cases .back() or .clear() was called, violating the usage of Concepts. Fixed for the reported cases
+* Use consistent side information in cart_intersect and get_turn_info and handle_tangencies and enrich_intersection_info. This
+  is done by switching to integer (if necessary) for the specific 6 points only, zooming in on the 4 or 3 segments
 
 [*Solved tickets]
 
