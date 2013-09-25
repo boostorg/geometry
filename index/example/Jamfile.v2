@@ -18,7 +18,7 @@ import os ;
 
 project boost-geometry-index-example
     : requirements
-        <implicit-dependency>/boost//headers
+        <source>/boost//headers
     ;
 
 local GLUT_ROOT = [ os.environ GLUT_ROOT ] ;
