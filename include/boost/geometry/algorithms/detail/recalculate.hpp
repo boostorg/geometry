@@ -50,7 +50,7 @@ struct recalculate_point
     static inline void apply(Point1& point1, Point2 const& point2, Strategy const& strategy)
     {
         std::size_t const dim = Dimension - 1;
-        geometry::set<dim>(point1, strategy.apply<dim>(geometry::get<dim>(point2)));
+        geometry::set<dim>(point1, strategy.template apply<dim>(geometry::get<dim>(point2)));
         recalculate_point<dim>::apply(point1, point2, strategy);
     }
 };
