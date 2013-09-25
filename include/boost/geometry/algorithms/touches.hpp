@@ -29,6 +29,7 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace touches 
 {
 
@@ -83,6 +84,7 @@ inline bool has_only_turns(Turns const& turns)
 }
 
 }}
+#endif // DOXYGEN_NO_DETAIL
 
 /*!
 \brief \brief_check{has at least one touching point (self-tangency)}
