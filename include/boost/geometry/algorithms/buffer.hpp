@@ -17,7 +17,9 @@
 #include <cstddef>
 
 #include <boost/numeric/conversion/cast.hpp>
-
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -103,6 +105,57 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 // of a set of geometries are often lateron combined using a "dissolve" operation.
 // Two points close to each other get a combined kidney shaped buffer then.
 
+
+template <typename Geometry>
+struct devarianted_buffer
+{
+    template <typename Distance, typename GeometryOut>
+    static inline void apply(Geometry const& geometry,
+                             Distance const& distance,
+                             Distance const& chord_length,
+                             GeometryOut& out)
+    {
+        buffer<Geometry, GeometryOut>::apply(geometry, distance, chord_length, out);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct devarianted_buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Distance, typename GeometryOut>
+    struct visitor: boost::static_visitor<void>
+    {
+        Distance const& m_distance;
+        Distance const& m_chord_length;
+        GeometryOut& m_out;
+
+        visitor(Distance const& distance,
+                Distance const& chord_length,
+                GeometryOut& out)
+        : m_distance(distance),
+          m_chord_length(chord_length),
+          m_out(out)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry) const
+        {
+            devarianted_buffer<Geometry>::apply(geometry, m_distance, m_chord_length, m_out);
+        }
+    };
+
+    template <typename Distance, typename GeometryOut>
+    static inline void apply(
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+        Distance const& distance,
+        Distance const& chord_length,
+        GeometryOut& out
+    )
+    {
+        boost::apply_visitor(visitor<Distance, GeometryOut>(distance, chord_length, out), geometry);
+    }
+};
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -129,11 +182,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
     concept::check<Input const>();
     concept::check<Output>();
 
-    dispatch::buffer
-        <
-            Input,
-            Output
-        >::apply(geometry_in, distance, chord_length, geometry_out);
+    dispatch::devarianted_buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
 }
 
 /*!
@@ -157,11 +206,7 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 
     Output geometry_out;
 
-    dispatch::buffer
-        <
-            Input,
-            Output
-        >::apply(geometry, distance, chord_length, geometry_out);
+    dispatch::devarianted_buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
 
     return geometry_out;
 }
