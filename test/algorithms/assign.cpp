@@ -21,30 +21,31 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/variant/variant.hpp>
 #include <test_common/test_point.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 
-template <typename Linestring>
-void check_linestring_2d(Linestring const& line)
+template <typename Geometry>
+void check_geometry(Geometry const& geometry, std::string const& expected)
 {
-    BOOST_CHECK((boost::size(line) == 3));
-    BOOST_CHECK((bg::num_points(line) == 3));
+    std::ostringstream out;
+    out << bg::wkt(geometry);
+    BOOST_CHECK_EQUAL(out.str(), expected);
+}
 
-    typedef typename bg::point_type<Linestring>::type point_type;
-    point_type const& p0 = line[0];
-    BOOST_CHECK(bg::get<0>(p0) == 1);
-    BOOST_CHECK(bg::get<1>(p0) == 2);
+template <typename Geometry, typename Points>
+void check_assign_points(Points const& points, std::string const& expected)
+{
+    Geometry geometry;
+    bg::assign_points(geometry, points);
+    check_geometry(geometry, "LINESTRING(1 2,3 4,5 6)");
 
-    point_type const& p1 = line[1];
-    BOOST_CHECK(bg::get<0>(p1) == 3);
-    BOOST_CHECK(bg::get<1>(p1) == 4);
-
-    point_type const& p2 = line[2];
-    BOOST_CHECK(bg::get<0>(p2) == 5);
-    BOOST_CHECK(bg::get<1>(p2) == 6);
+    boost::variant<Geometry> v;
+    bg::assign_points(v, points);
 }
 
 template <typename Point>
@@ -54,24 +55,21 @@ void test_assign_linestring_2d()
 
     // Test assignment of plain array (note that this is only possible if adapted c-array is included!)
     const double coors[3][2] = { {1, 2}, {3, 4}, {5, 6} };
-    bg::assign_points(line, coors);
-    check_linestring_2d(line);
+    check_assign_points<bg::model::linestring<Point> >(coors, "LINESTRING(1 2,3 4,5 6)");
 
     // Test assignment of point array
     Point points[3];
     bg::assign_values(points[0], 1, 2);
     bg::assign_values(points[1], 3, 4);
     bg::assign_values(points[2], 5, 6);
-    bg::assign_points(line, points);
-    check_linestring_2d(line);
+    check_assign_points<bg::model::linestring<Point> >(points, "LINESTRING(1 2,3 4,5 6)");
 
     // Test assignment of array with different point-type (tuple adaption should be included)
     boost::tuple<float, float> tuples[3];
     tuples[0] = boost::make_tuple(1, 2);
     tuples[1] = boost::make_tuple(3, 4);
     tuples[2] = boost::make_tuple(5, 6);
-    bg::assign_points(line, tuples);
-    check_linestring_2d(line);
+    check_assign_points<bg::model::linestring<Point> >(tuples, "LINESTRING(1 2,3 4,5 6)");
 }
 
 namespace detail
@@ -113,26 +111,18 @@ void test_assign_box_2d()
     detail::test_assign_box_or_segment_2d<bg::model::box<Point> >();
 }
 
-
 template <typename Point>
 void test_assign_point_3d()
 {
     Point p;
     bg::assign_values(p, 1, 2, 3);
-    BOOST_CHECK(bg::get<0>(p) == 1);
-    BOOST_CHECK(bg::get<1>(p) == 2);
-    BOOST_CHECK(bg::get<2>(p) == 3);
+    check_geometry(p, "POINT(1 2 3)");
 
     bg::assign_value(p, 123);
-    BOOST_CHECK(bg::get<0>(p) == 123);
-    BOOST_CHECK(bg::get<1>(p) == 123);
-    BOOST_CHECK(bg::get<2>(p) == 123);
+    check_geometry(p, "POINT(123 123 123)");
 
     bg::assign_zero(p);
-    BOOST_CHECK(bg::get<0>(p) == 0);
-    BOOST_CHECK(bg::get<1>(p) == 0);
-    BOOST_CHECK(bg::get<2>(p) == 0);
-
+    check_geometry(p, "POINT(0 0 0)");
 }
 
 template <typename P>
@@ -169,10 +159,6 @@ void test_assign_conversion()
 
     }
 
-
-    //std::cout << bg::wkt(b) << std::endl;
-    //std::cout << bg::wkt(ring) << std::endl;
-
     typename boost::range_const_iterator<ring_type>::type it = ring.begin();
     BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
     BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
@@ -208,16 +194,13 @@ void test_assign_point_2d()
 {
     Point p;
     bg::assign_values(p, 1, 2);
-    BOOST_CHECK(bg::get<0>(p) == 1);
-    BOOST_CHECK(bg::get<1>(p) == 2);
+    check_geometry(p, "POINT(1 2)");
 
     bg::assign_value(p, 123);
-    BOOST_CHECK(bg::get<0>(p) == 123);
-    BOOST_CHECK(bg::get<1>(p) == 123);
+    check_geometry(p, "POINT(123 123)");
 
     bg::assign_zero(p);
-    BOOST_CHECK(bg::get<0>(p) == 0);
-    BOOST_CHECK(bg::get<1>(p) == 0);
+    check_geometry(p, "POINT(0 0)");
 }
 
 
