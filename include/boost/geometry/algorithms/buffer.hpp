@@ -92,7 +92,7 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 {
     template <typename Distance>
     static inline void apply(BoxIn const& box_in, Distance const& distance,
-                Distance const& , BoxIn& box_out)
+                Distance const& , BoxOut& box_out)
     {
         detail::buffer::buffer_box(box_in, distance, box_out);
     }
