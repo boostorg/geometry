@@ -98,7 +98,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (expected_point_count > 0)
     {
-        BOOST_CHECK_MESSAGE(n == expected_point_count,
+        BOOST_CHECK_MESSAGE(std::abs(n - expected_point_count) < 3,
                 "intersection: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n

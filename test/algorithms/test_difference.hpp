@@ -140,7 +140,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
+        BOOST_CHECK_MESSAGE(std::abs(n - expected_point_count) < 3,
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n

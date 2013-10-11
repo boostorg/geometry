@@ -37,7 +37,7 @@
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
-        std::size_t expected_count, std::size_t expected_hole_count,
+        std::size_t expected_count, int expected_hole_count,
         int expected_point_count, double expected_area,
         double percentage)
 {
@@ -92,7 +92,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(n == std::size_t(expected_point_count),
+        BOOST_CHECK_MESSAGE(std::abs(int(n) - expected_point_count) < 3,
                 "union: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n
@@ -106,9 +106,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << " detected: " << clip.size()
             << " type: " << (type_for_assert_message<G1, G2>())
             );
-    BOOST_CHECK_MESSAGE(holes == expected_hole_count,
+    BOOST_CHECK_MESSAGE(expected_hole_count < 0 || holes == std::size_t(expected_hole_count),
             "union: " << caseid
-            << " #clips expected: " << expected_hole_count
+            << " #holes expected: " << expected_hole_count
             << " detected: " << holes
             << " type: " << (type_for_assert_message<G1, G2>())
             );
