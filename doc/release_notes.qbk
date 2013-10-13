@@ -14,6 +14,14 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.56]
+[/=================]
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/9245 9245] Check for process errors in make_qbk.py
+
+[/=================]
 [heading Boost 1.55]
 [/=================]
 
