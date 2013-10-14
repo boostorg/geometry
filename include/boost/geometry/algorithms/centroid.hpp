@@ -19,6 +19,9 @@
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -34,6 +37,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
@@ -307,6 +311,103 @@ struct centroid<Polygon, polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy {
+
+template <typename Geometry>
+struct centroid
+{
+    template <typename Point, typename Strategy>
+    static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
+    {
+        dispatch::centroid<Geometry>::apply(geometry, out, strategy);
+    }
+
+    template <typename Point>
+    static inline void apply(Geometry const& geometry, Point& out, default_strategy)
+    {
+        typedef typename strategy::centroid::services::default_strategy
+        <
+            typename cs_tag<Geometry>::type,
+            typename tag_cast
+                <
+                    typename tag<Geometry>::type,
+                    pointlike_tag,
+                    linear_tag,
+                    areal_tag
+                >::type,
+            dimension<Geometry>::type::value,
+            Point,
+            Geometry
+        >::type strategy_type;
+
+        dispatch::centroid<Geometry>::apply(geometry, out, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace check_input {
+
+template <typename Geometry>
+struct centroid
+{
+    template <typename Point, typename Strategy>
+    static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
+    {
+        concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
+        resolve_strategy::centroid<Geometry>::apply(geometry, out, strategy);
+    }
+};
+
+} // namespace check_input
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct centroid
+{
+    template <typename Point, typename Strategy>
+    static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
+    {
+        check_input::centroid<Geometry>::apply(geometry, out, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Point, typename Strategy>
+    struct visitor: boost::static_visitor<void>
+    {
+        Point& m_out;
+        Strategy const& m_strategy;
+
+        visitor(Point& out, Strategy const& strategy)
+        : m_out(out), m_strategy(strategy)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry) const
+        {
+            return check_input::centroid<Geometry>::apply(geometry, m_out, m_strategy);
+        }
+    };
+
+    template <typename Point, typename Strategy>
+    static inline void 
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          Point& out,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(visitor<Point, Strategy>(out, strategy), geometry);
+    }
+};
+
+};
+
+
 /*!
 \brief \brief_calc{centroid} \brief_strategy
 \ingroup centroid
@@ -328,15 +429,7 @@ template<typename Geometry, typename Point, typename Strategy>
 inline void centroid(Geometry const& geometry, Point& c,
         Strategy const& strategy)
 {
-    //BOOST_CONCEPT_ASSERT( (geometry::concept::CentroidStrategy<Strategy>) );
-
-    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
-
-    typedef typename point_type<Geometry>::type point_type;
-
-    // Call dispatch apply method. That one returns true if centroid
-    // should be taken from state.
-    dispatch::centroid<Geometry>::apply(geometry, c, strategy);
+    resolve_variant::centroid<Geometry>::apply(geometry, c, strategy);
 }
 
 
@@ -359,24 +452,7 @@ inline void centroid(Geometry const& geometry, Point& c,
 template<typename Geometry, typename Point>
 inline void centroid(Geometry const& geometry, Point& c)
 {
-    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
-
-    typedef typename strategy::centroid::services::default_strategy
-        <
-            typename cs_tag<Geometry>::type,
-            typename tag_cast
-                <
-                    typename tag<Geometry>::type,
-                    pointlike_tag,
-                    linear_tag,
-                    areal_tag
-                >::type,
-            dimension<Geometry>::type::value,
-            Point,
-            Geometry
-        >::type strategy_type;
-
-    centroid(geometry, c, strategy_type());
+    centroid(geometry, c, default_strategy());
 }
 
 
@@ -394,8 +470,6 @@ inline void centroid(Geometry const& geometry, Point& c)
 template<typename Point, typename Geometry>
 inline Point return_centroid(Geometry const& geometry)
 {
-    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
-
     Point c;
     centroid(geometry, c);
     return c;
@@ -419,10 +493,6 @@ inline Point return_centroid(Geometry const& geometry)
 template<typename Point, typename Geometry, typename Strategy>
 inline Point return_centroid(Geometry const& geometry, Strategy const& strategy)
 {
-    //BOOST_CONCEPT_ASSERT( (geometry::concept::CentroidStrategy<Strategy>) );
-
-    concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
-
     Point c;
     centroid(geometry, c, strategy);
     return c;
