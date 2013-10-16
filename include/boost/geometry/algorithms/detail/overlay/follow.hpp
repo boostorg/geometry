@@ -186,7 +186,7 @@ struct action_selector<overlay_intersection>
         {
             *out++ = current_piece;
         }
-        current_piece.clear();
+
         //traits::clear<LineStringOut>::apply(current_piece);
         geometry::clear(current_piece);
     }
@@ -398,7 +398,7 @@ public :
         }
 
         // Output the last one, if applicable
-        if (current_piece.size() > 1)
+        if (::boost::size(current_piece) > 1)
         {
             *out++ = current_piece;
         }
