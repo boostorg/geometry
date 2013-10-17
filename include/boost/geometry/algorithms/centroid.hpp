@@ -347,7 +347,7 @@ struct centroid
 } // namespace resolve_strategy
 
 
-namespace check_input {
+namespace resolve_variant {
 
 template <typename Geometry>
 struct centroid
@@ -357,21 +357,6 @@ struct centroid
     {
         concept::check_concepts_and_equal_dimensions<Point, Geometry const>();
         resolve_strategy::centroid<Geometry>::apply(geometry, out, strategy);
-    }
-};
-
-} // namespace check_input
-
-
-namespace resolve_variant {
-
-template <typename Geometry>
-struct centroid
-{
-    template <typename Point, typename Strategy>
-    static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
-    {
-        check_input::centroid<Geometry>::apply(geometry, out, strategy);
     }
 };
 
@@ -391,7 +376,7 @@ struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry const& geometry) const
         {
-            return check_input::centroid<Geometry>::apply(geometry, m_out, m_strategy);
+            centroid<Geometry>::apply(geometry, m_out, m_strategy);
         }
     };
 
@@ -401,11 +386,11 @@ struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
           Point& out,
           Strategy const& strategy)
     {
-        return boost::apply_visitor(visitor<Point, Strategy>(out, strategy), geometry);
+        boost::apply_visitor(visitor<Point, Strategy>(out, strategy), geometry);
     }
 };
 
-};
+} // namespace resolve_variant
 
 
 /*!
