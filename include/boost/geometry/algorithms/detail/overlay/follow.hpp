@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
 
 
 namespace boost { namespace geometry
@@ -187,7 +188,6 @@ struct action_selector<overlay_intersection>
             *out++ = current_piece;
         }
 
-        //traits::clear<LineStringOut>::apply(current_piece);
         geometry::clear(current_piece);
     }
 
