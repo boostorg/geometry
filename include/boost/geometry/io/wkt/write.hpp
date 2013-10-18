@@ -145,7 +145,9 @@ struct wkt_range
         }
 
         // optionally, close range to ring by repeating the first point
-        if (force_closed && geometry::disjoint(*begin, *(end - 1)))
+        if (force_closed 
+            && boost::size(range) > 1
+            && geometry::disjoint(*begin, *(end - 1)))
         {
             os << ",";
             stream_type::apply(os, *begin);
