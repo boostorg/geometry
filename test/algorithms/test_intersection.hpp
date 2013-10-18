@@ -37,7 +37,7 @@
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
         G1 const& g1, G2 const& g2,
-        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
+        std::size_t expected_count = 0, int expected_point_count = 0,
         double expected_length_or_area = 0,
         double percentage = 0.0001,
         bool debug = false)
@@ -73,7 +73,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
-    std::size_t n = 0;
+    int n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end();
             ++it)
@@ -98,7 +98,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (expected_point_count > 0)
     {
-        BOOST_CHECK_MESSAGE(std::abs(n - expected_point_count) < 3,
+        BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
                 "intersection: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n
@@ -173,7 +173,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 template <typename OutputType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
+        std::size_t expected_count = 0, int expected_point_count = 0,
         double expected_length_or_area = 0,
         double percentage = 0.0001,
         bool debug = false)
@@ -197,7 +197,7 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
 template <typename OutputType, typename Areal, typename Linear>
 void test_one_lp(std::string const& caseid,
         std::string const& wkt_areal, std::string const& wkt_linear,
-        std::size_t expected_count = 0, std::size_t expected_point_count = 0,
+        std::size_t expected_count = 0, int expected_point_count = 0,
         double expected_length = 0,
         double percentage = 0.0001,
         bool debug1 = false, bool debug2 = false)

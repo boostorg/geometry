@@ -101,7 +101,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 
     typename bg::default_area_result<G1>::type area = 0;
-    std::size_t n = 0;
+    int n = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end();
             ++it)
@@ -140,7 +140,7 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(std::abs(n - expected_point_count) < 3,
+        BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n

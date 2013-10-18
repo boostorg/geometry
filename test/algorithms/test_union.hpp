@@ -46,7 +46,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     bg::union_(g1, g2, clip);
 
     typename bg::default_area_result<G1>::type area = 0;
-    std::size_t n = 0;
+    int n = 0;
     std::size_t holes = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end(); ++it)
@@ -92,7 +92,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
     if (expected_point_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(std::abs(int(n) - expected_point_count) < 3,
+        BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
                 "union: " << caseid
                 << " #points expected: " << expected_point_count
                 << " detected: " << n
