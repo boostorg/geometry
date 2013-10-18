@@ -123,18 +123,23 @@ struct clear<Polygon, polygon_tag>
     : detail::clear::polygon_clear<Polygon>
 {};
 
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
 
 template <typename Geometry>
-struct devarianted_clear
+struct clear
 {
     static inline void apply(Geometry& geometry)
     {
-        clear<Geometry>::apply(geometry);
+        dispatch::clear<Geometry>::apply(geometry);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_clear<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct clear<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     struct visitor: static_visitor<void>
     {
@@ -151,9 +156,7 @@ struct devarianted_clear<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
+} // namespace resolve_variant
 
 
 /*!
@@ -174,7 +177,7 @@ inline void clear(Geometry& geometry)
 {
     concept::check<Geometry>();
 
-    dispatch::devarianted_clear<Geometry>::apply(geometry);
+    resolve_variant::clear<Geometry>::apply(geometry);
 }
 
 

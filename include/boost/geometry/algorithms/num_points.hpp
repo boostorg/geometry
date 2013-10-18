@@ -141,18 +141,24 @@ struct num_points<Geometry, polygon_tag>
         : detail::num_points::polygon_count
 {};
 
+} // namespace dispatch
+#endif
+
+
+namespace resolve_variant {
+
 template <typename Geometry>
-struct devarianted_num_points
+struct num_points
 {
     static inline std::size_t apply(Geometry const& geometry,
                                     bool add_for_open)
     {
-        return num_points<Geometry>::apply(geometry, add_for_open);
+        return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     struct visitor: boost::static_visitor<std::size_t>
     {
@@ -163,7 +169,7 @@ struct devarianted_num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         typename std::size_t operator()(Geometry const& geometry) const
         {
-            return dispatch::num_points<Geometry>::apply(geometry, m_add_for_open);
+            return num_points<Geometry>::apply(geometry, m_add_for_open);
         }
     };
 
@@ -175,9 +181,7 @@ struct devarianted_num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-
-} // namespace dispatch
-#endif
+} // namespace resolve_variant
 
 
 /*!
@@ -196,7 +200,7 @@ inline std::size_t num_points(Geometry const& geometry, bool add_for_open = fals
 {
     concept::check<Geometry const>();
 
-    return dispatch::devarianted_num_points<Geometry>::apply(geometry, add_for_open);
+    return resolve_variant::num_points<Geometry>::apply(geometry, add_for_open);
 }
 
 #if defined(_MSC_VER)

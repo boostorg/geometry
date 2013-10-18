@@ -105,9 +105,14 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 // of a set of geometries are often lateron combined using a "dissolve" operation.
 // Two points close to each other get a combined kidney shaped buffer then.
 
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
 
 template <typename Geometry>
-struct devarianted_buffer
+struct buffer
 {
     template <typename Distance, typename GeometryOut>
     static inline void apply(Geometry const& geometry,
@@ -115,12 +120,12 @@ struct devarianted_buffer
                              Distance const& chord_length,
                              GeometryOut& out)
     {
-        buffer<Geometry, GeometryOut>::apply(geometry, distance, chord_length, out);
+        dispatch::buffer<Geometry, GeometryOut>::apply(geometry, distance, chord_length, out);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename Distance, typename GeometryOut>
     struct visitor: boost::static_visitor<void>
@@ -140,7 +145,7 @@ struct devarianted_buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry const& geometry) const
         {
-            devarianted_buffer<Geometry>::apply(geometry, m_distance, m_chord_length, m_out);
+            buffer<Geometry>::apply(geometry, m_distance, m_chord_length, m_out);
         }
     };
 
@@ -156,8 +161,7 @@ struct devarianted_buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
+} // namespace resolve_variant
 
 
 /*!
@@ -182,7 +186,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
     concept::check<Input const>();
     concept::check<Output>();
 
-    dispatch::devarianted_buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
+    resolve_variant::buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
 }
 
 /*!
@@ -206,7 +210,7 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 
     Output geometry_out;
 
-    dispatch::devarianted_buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
+    resolve_variant::buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
 
     return geometry_out;
 }

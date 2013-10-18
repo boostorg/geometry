@@ -194,8 +194,14 @@ struct append<Geometry, RangeOrPoint, point_tag>
     : splitted_dispatch::append_point<typename tag<Geometry>::type, Geometry, RangeOrPoint>
 {};
 
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
+
 template <typename Geometry>
-struct devarianted_append
+struct append
 {
     template <typename RangeOrPoint>
     static inline void apply(Geometry& geometry,
@@ -204,16 +210,16 @@ struct devarianted_append
                              int multi_index)
     {
         concept::check<Geometry>();
-        append<Geometry, RangeOrPoint>::apply(geometry,
-                                              range_or_point,
-                                              ring_index,
-                                              multi_index);
+        dispatch::append<Geometry, RangeOrPoint>::apply(geometry,
+                                                        range_or_point,
+                                                        ring_index,
+                                                        multi_index);
     }
 };
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename RangeOrPoint>
     struct visitor: boost::static_visitor<void>
@@ -233,11 +239,10 @@ struct devarianted_append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry& geometry) const
         {
-            concept::check<Geometry>();
-            append<Geometry, RangeOrPoint>::apply(geometry,
-                                                  m_range_or_point,
-                                                  m_ring_index,
-                                                  m_multi_index);
+            append<Geometry>::apply(geometry,
+                                    m_range_or_point,
+                                    m_ring_index,
+                                    m_multi_index);
         }
     };
 
@@ -258,9 +263,7 @@ struct devarianted_append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
+} // namespace resolve_variant;
 
 
 /*!
@@ -281,8 +284,8 @@ template <typename Geometry, typename RangeOrPoint>
 inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
                    int ring_index = -1, int multi_index = 0)
 {
-    dispatch::devarianted_append<Geometry>
-            ::apply(geometry, range_or_point, ring_index, multi_index);
+    resolve_variant::append<Geometry>
+                   ::apply(geometry, range_or_point, ring_index, multi_index);
 }
 
 

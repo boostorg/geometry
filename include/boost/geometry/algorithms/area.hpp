@@ -176,19 +176,25 @@ struct area<Polygon, polygon_tag> : detail::calculate_polygon_sum
 };
 
 
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_variant {
+
 template <typename Geometry>
-struct devarianted_area
+struct area
 {
     template <typename Strategy>
     static inline typename Strategy::return_type apply(Geometry const& geometry,
                                                        Strategy const& strategy)
     {
-        return area<Geometry>::apply(geometry, strategy);
+        return dispatch::area<Geometry>::apply(geometry, strategy);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename Strategy>
     struct visitor: boost::static_visitor<typename Strategy::return_type>
@@ -200,7 +206,7 @@ struct devarianted_area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         typename Strategy::return_type operator()(Geometry const& geometry) const
         {
-            return devarianted_area<Geometry>::apply(geometry, m_strategy);
+            return area<Geometry>::apply(geometry, m_strategy);
         }
     };
 
@@ -213,10 +219,7 @@ struct devarianted_area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
+} // namespace resolve_variant
 
 
 /*!
@@ -245,6 +248,8 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
 {
     concept::check<Geometry const>();
 
+    // TODO put this into a resolve_strategy stage
+    //      (and take the return type from resolve_variant)
     typedef typename point_type<Geometry>::type point_type;
     typedef typename strategy::area::services::default_strategy
         <
@@ -254,7 +259,7 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
 
     // detail::throw_on_empty_input(geometry);
         
-    return dispatch::devarianted_area<Geometry>::apply(geometry, strategy_type());
+    return resolve_variant::area<Geometry>::apply(geometry, strategy_type());
 }
 
 /*!
@@ -289,7 +294,7 @@ inline typename Strategy::return_type area(
 
     // detail::throw_on_empty_input(geometry);
     
-    return dispatch::devarianted_area<Geometry>::apply(geometry, strategy);
+    return resolve_variant::area<Geometry>::apply(geometry, strategy);
 }
 
 
