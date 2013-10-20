@@ -323,14 +323,15 @@ void test_all()
             method_collinear, 5, 5, "ui");
 
     // The next two cases are changed (BSG 2013-09-24), they contain turn info (#buffer_rt_g)
+    // In new approach they are changed back (BSG 2013-10-20)
     test_both<P, double>("ccx1",
             5, 1,   5, 6,   5, 8, // p
             5, 5,   5, 7,   3, 8, // q
-            method_collinear, 5, 6, "iu"); // "cc");
+            method_collinear, 5, 6, "cc"); // "iu");
     test_both<P, double>("cxc1",
             5, 1,   5, 6,   7, 8, // p
             5, 3,   5, 5,   5, 7, // q
-            method_collinear, 5, 5, "iu"); // "cc");
+            method_collinear, 5, 5, "cc"); // "iu");
 
     // Bug in case #54 of "overlay_cases.hpp"
     test_both<P, double>("c_bug1",

@@ -15,8 +15,6 @@
 #include <iostream>
 #include <string>
 
-#define TEST_ISOVIST
-
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
@@ -161,20 +159,13 @@ void test_areal()
     bool const open = bg::closure<Polygon>::value == bg::open;
 
 
-#ifdef TEST_ISOVIST
-#ifdef _MSC_VER
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
-        1, if_typed<ct, double>(18, 20), 88.19203,
+        1, 19, 88.19203,
         if_typed_tt<ct>(0.01, 0.1));
 
     // SQL Server gives: 88.1920416352664
     // PostGIS gives:    88.19203677911
-
-#endif
-#endif
-
-    //std::cout << typeid(ct).name() << std::endl;
 
     if (! ccw && open)
     {

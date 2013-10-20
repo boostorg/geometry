@@ -29,6 +29,10 @@
 
 #include <boost/geometry/strategies/side_info.hpp>
 
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+#  include <boost/geometry/io/wkt/write.hpp>
+#endif
+
 
 namespace boost { namespace geometry
 {
@@ -70,18 +74,6 @@ inline typename geometry::point_type<Segment>::type get_from_index(
 }
 #endif
 
-/***
-template <typename T>
-inline std::string rdebug(T const& value)
-{
-    if (math::equals(value, 0)) return "'0'";
-    if (math::equals(value, 1)) return "'1'";
-    if (value < 0) return "<0";
-    if (value > 1) return ">1";
-    return "<0..1>";
-}
-***/
-
 /*!
     \see http://mathworld.wolfram.com/Line-LineIntersection.html
  */
@@ -105,7 +97,7 @@ struct relate_cartesian_segments
     static inline void debug_segments(std::string const& header, segment_type1 const& a, segment_type2 const& b)
     {
         std::cout << "Robustness issue: " << header << std::endl;
-        std::cout 
+        std::cout
             << "A: " << wkt(a) << std::endl
             << "B: " << wkt(b) << std::endl
             ;
@@ -129,13 +121,26 @@ struct relate_cartesian_segments
             coordinate_type const& dx_b, coordinate_type const& dy_b)
     {
         typedef side::side_by_triangle<coordinate_type> side;
+        side_info sides;
 
         coordinate_type const zero = 0;
         bool const a_is_point = math::equals(dx_a, zero) && math::equals(dy_a, zero);
         bool const b_is_point = math::equals(dx_b, zero) && math::equals(dy_b, zero);
 
-        // Get sides of a relative to b, and b relative to a
-        side_info sides;
+        if(a_is_point && b_is_point)
+        {
+            if(math::equals(get<1,0>(a), get<1,0>(b)) && math::equals(get<1,1>(a), get<1,1>(b)))
+            {
+                 Policy::degenerate(a, true);
+            }
+            else
+            {
+                return Policy::disjoint();
+            }
+        }
+
+        bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b) >= math::abs(dy_a) + math::abs(dy_b);
+
         sides.set<0>
             (
                 side::apply(detail::get_from_index<0>(b)
@@ -154,42 +159,19 @@ struct relate_cartesian_segments
                     , detail::get_from_index<1>(a)
                     , detail::get_from_index<1>(b))
             );
-        return apply(a, b, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
-    }
-
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
-            side_info& sides, bool a_is_point, bool b_is_point)
-    {
-        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
-        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
-        return apply(a, b, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
-    }
-
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
-            coordinate_type const& dx_a, coordinate_type const& dy_a,
-            coordinate_type const& dx_b, coordinate_type const& dy_b,
-            side_info& sides, bool a_is_point, bool b_is_point)
-    {
-        if(a_is_point && b_is_point)
-        {
-            if(math::equals(get<1,0>(a), get<1,0>(b)) && math::equals(get<1,1>(a), get<1,1>(b)))
-            {
-                 Policy::degenerate(a, true);
-            }
-            else
-            {
-                return Policy::disjoint();                
-            }
-        }
 
         bool collinear = sides.collinear();
+
+        robustness_verify_collinear(a, b, a_is_point, b_is_point, sides, collinear);
+        robustness_verify_meeting(a, b, sides, collinear, collinear_use_first);
 
         if (sides.same<0>() || sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
-            return Policy::disjoint();
+            if (robustness_verify_same_side(a, b, sides))
+            {
+                return Policy::disjoint();
+            }
         }
 
         // Degenerate cases: segments of single point, lying on other segment, are not disjoint
@@ -235,13 +217,18 @@ struct relate_cartesian_segments
                 {
                     return Policy::disjoint();
                 }
+
+                if (robustness_verify_disjoint_at_one_collinear(a, b, sides))
+                {
+                    return Policy::disjoint();
+                }
+
             }
         }
 
         if(collinear)
         {
-            // Use dimension 0 for collinear cases if differences in x exceeds differences in y
-            if (math::abs(dx_a) + math::abs(dx_b) >= math::abs(dy_a) + math::abs(dy_b))
+            if (collinear_use_first)
             {
                 return relate_collinear<0>(a, b);
             }
@@ -318,6 +305,312 @@ private :
     }
 
     template <std::size_t Dimension>
+    static inline bool analyse_equal(segment_type1 const& a, segment_type2 const& b)
+    {
+        coordinate_type const a_1 = geometry::get<0, Dimension>(a);
+        coordinate_type const a_2 = geometry::get<1, Dimension>(a);
+        coordinate_type const b_1 = geometry::get<0, Dimension>(b);
+        coordinate_type const b_2 = geometry::get<1, Dimension>(b);
+        return math::equals(a_1, b_1)
+            || math::equals(a_2, b_1)
+            || math::equals(a_1, b_2)
+            || math::equals(a_2, b_2)
+            ;
+    }
+
+    static inline void robustness_verify_collinear(
+                segment_type1 const& a, segment_type2 const& b,
+                bool a_is_point, bool b_is_point,
+                side_info& sides,
+                bool& collinear)
+    {
+        bool only_0_collinear = sides.zero<0>() && ! b_is_point && ! sides.zero<1>();
+        bool only_1_collinear = sides.zero<1>() && ! a_is_point && ! sides.zero<0>();
+        if (only_0_collinear || only_1_collinear)
+        {
+            typename geometry::point_type<segment_type1>::type a0 = detail::get_from_index<0>(a);
+            typename geometry::point_type<segment_type1>::type a1 = detail::get_from_index<1>(a);
+            typename geometry::point_type<segment_type2>::type b0 = detail::get_from_index<0>(b);
+            typename geometry::point_type<segment_type2>::type b1 = detail::get_from_index<1>(b);
+            bool ae = false, be = false;
+
+            // If one of the segments is collinear, the other is probably so too.
+            side_info check;
+            coordinate_type factor = 1;
+            int iteration = 0;
+            bool collinear_consistent = false;
+            do
+            {
+                typedef side::side_by_triangle<coordinate_type> side;
+
+                // We have a robustness issue. We keep increasing epsilon until we have a consistent set
+                coordinate_type const two = 2;
+                factor *= two;
+                coordinate_type epsilon = math::relaxed_epsilon<coordinate_type>(factor);
+                check.set<0>
+                    (
+                        side::apply_with_epsilon(b0, b1, a0, epsilon),
+                        side::apply_with_epsilon(b0, b1, a1, epsilon)
+                    );
+                check.set<1>
+                    (
+                        side::apply_with_epsilon(a0, a1, b0, epsilon),
+                        side::apply_with_epsilon(a0, a1, b1, epsilon)
+                    );
+                ae = point_equals_with_epsilon(a0, a1, epsilon);
+                be = point_equals_with_epsilon(b0, b1, epsilon);
+
+                collinear_consistent = true;
+                if (   (check.zero<0>() && ! be && ! check.zero<1>())
+                    || (check.zero<1>() && ! ae && ! check.zero<0>())
+                   )
+                {
+                    collinear_consistent = false;
+                }
+
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                std::cout
+                    << "*** collinear_consistent: "
+                    << iteration << std::boolalpha
+                    << " consistent: " << collinear_consistent
+                    << " equals: " << ae << "," << be
+                    << " epsilon: " << epsilon
+                    << "  ";
+                check.debug();
+#endif
+
+
+            } while (! collinear_consistent && iteration++ < 10);
+
+            sides = check;
+            collinear = sides.collinear();
+        }
+    }
+
+    static inline void robustness_verify_meeting(
+                segment_type1 const& a, segment_type2 const& b,
+                side_info& sides,
+                bool& collinear, bool& collinear_use_first)
+    {
+        if (sides.meeting())
+        {
+            // If two segments meet each other at their segment-points, two sides are zero,
+            // the other two are not (unless collinear but we don't mean those here).
+            // However, in near-epsilon ranges it can happen that two sides are zero
+            // but they do not meet at their segment-points.
+            // In that case they are nearly collinear and handled as such.
+
+            if (! point_equals
+                    (
+                        select(sides.zero_index<0>(), a),
+                        select(sides.zero_index<1>(), b)
+                    )
+                )
+            {
+
+                typename geometry::point_type<segment_type1>::type a0 = detail::get_from_index<0>(a);
+                typename geometry::point_type<segment_type1>::type a1 = detail::get_from_index<1>(a);
+                typename geometry::point_type<segment_type2>::type b0 = detail::get_from_index<0>(b);
+                typename geometry::point_type<segment_type2>::type b1 = detail::get_from_index<1>(b);
+
+                side_info check;
+                coordinate_type factor = 1;
+                coordinate_type epsilon = math::relaxed_epsilon<coordinate_type>(factor);
+                int iteration = 1;
+                bool points_meet = false;
+                bool meeting_consistent = false;
+                do
+                {
+                    typedef side::side_by_triangle<coordinate_type> side;
+
+                    // We have a robustness issue. We keep increasing epsilon until we have a consistent set
+                    coordinate_type const two = 2;
+                    factor *= two;
+                    epsilon = math::relaxed_epsilon<coordinate_type>(factor);
+                    check.set<0>
+                        (
+                            side::apply_with_epsilon(b0, b1, a0, epsilon),
+                            side::apply_with_epsilon(b0, b1, a1, epsilon)
+                        );
+                    check.set<1>
+                        (
+                            side::apply_with_epsilon(a0, a1, b0, epsilon),
+                            side::apply_with_epsilon(a0, a1, b1, epsilon)
+                        );
+
+                    meeting_consistent = true;
+                    if (check.meeting())
+                    {
+                        points_meet = point_equals_with_epsilon
+                                (
+                                    select(check.zero_index<0>(), a),
+                                    select(check.zero_index<1>(), b),
+                                    epsilon
+                                );
+                        if (! points_meet)
+                        {
+                            meeting_consistent = false;
+
+                        }
+                    }
+
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                    std::cout
+                        << "*** meeting_consistent: "
+                        << iteration << std::boolalpha
+                        << " consistent: " << meeting_consistent
+                        << " epsilon: " << epsilon
+                        << "  ";
+                    check.debug();
+#endif
+
+
+                } while (! meeting_consistent && iteration++ < 10);
+
+
+                sides = check;
+
+                if (! sides.meeting()
+                     && ((sides.zero<0>() && !sides.zero<1>())
+                            || (! sides.zero<0>() && sides.zero<1>())
+                        )
+                    )
+                {
+                    // Set sides to zero
+                    sides.set<0>(0,0);
+                    sides.set<1>(0,0);
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                    std::cout << "ADAPTED New side info: " << std::endl;
+                    sides.debug();
+#endif
+                }
+
+                collinear = sides.collinear();
+
+                if (collinear_use_first && analyse_equal<0>(a, b))
+                {
+                    collinear_use_first = false;
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                    std::cout << "Use [1] to check collinearity" << std::endl;
+#endif
+                }
+                else if (! collinear_use_first && analyse_equal<1>(a, b))
+                {
+                    collinear_use_first = true;
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                    std::cout << "Use [0] to check collinearity" << std::endl;
+#endif
+                }
+            }
+        }
+    }
+
+    // Verifies and if necessary correct missed touch because of robustness
+    // This is the case at multi_polygon_buffer unittest #rt_m
+    static inline bool robustness_verify_same_side(
+                segment_type1 const& a, segment_type2 const& b,
+                side_info& sides)
+    {
+        int corrected = 0;
+        if (sides.one_touching<0>())
+        {
+            if (point_equals(
+                        select(sides.zero_index<0>(), a),
+                        select(0, b)
+                    ))
+            {
+                sides.correct_to_zero<1, 0>();
+                corrected = 1;
+            }
+            if (point_equals
+                    (
+                        select(sides.zero_index<0>(), a),
+                        select(1, b)
+                    ))
+            {
+                sides.correct_to_zero<1, 1>();
+                corrected = 2;
+            }
+        }
+        else if (sides.one_touching<1>())
+        {
+            if (point_equals(
+                        select(sides.zero_index<1>(), b),
+                        select(0, a)
+                    ))
+            {
+                sides.correct_to_zero<0, 0>();
+                corrected = 3;
+            }
+            if (point_equals
+                    (
+                        select(sides.zero_index<1>(), b),
+                        select(1, a)
+                    ))
+            {
+                sides.correct_to_zero<0, 1>();
+                corrected = 4;
+            }
+        }
+
+        return corrected == 0;
+    }
+
+    static inline bool robustness_verify_disjoint_at_one_collinear(
+                segment_type1 const& a, segment_type2 const& b,
+                side_info const& sides)
+    {
+        if (sides.one_of_all_zero())
+        {
+            if (verify_disjoint<0>(a, b) || verify_disjoint<1>(a, b))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template <typename Segment>
+    static inline typename point_type<Segment>::type select(int index, Segment const& segment)
+    {
+        return index == 0
+            ? detail::get_from_index<0>(segment)
+            : detail::get_from_index<1>(segment)
+            ;
+    }
+
+    // We cannot use geometry::equals here. Besides that this will be changed
+    // to compare segment-coordinate-values directly (not necessary to retrieve point first)
+    template <typename Point1, typename Point2>
+    static inline bool point_equals(Point1 const& point1, Point2 const& point2)
+    {
+        return math::equals(get<0>(point1), get<0>(point2))
+            && math::equals(get<1>(point1), get<1>(point2))
+            ;
+    }
+
+    template <typename Point1, typename Point2, typename T>
+    static inline bool point_equals_with_epsilon(Point1 const& point1, Point2 const& point2, T const& epsilon)
+    {
+        // Check if difference is within espilon range (epsilon can be 0 for integer)
+        return math::abs(geometry::get<0>(point1) - geometry::get<0>(point2)) <= epsilon
+            && math::abs(geometry::get<1>(point1) - geometry::get<1>(point2)) <= epsilon
+            ;
+    }
+
+
+    // We cannot use geometry::equals here. Besides that this will be changed
+    // to compare segment-coordinate-values directly (not necessary to retrieve point first)
+    template <typename Point1, typename Point2>
+    static inline bool point_equality(Point1 const& point1, Point2 const& point2,
+                    bool& equals_0, bool& equals_1)
+    {
+        equals_0 = math::equals(get<0>(point1), get<0>(point2));
+        equals_1 = math::equals(get<1>(point1), get<1>(point2));
+        return equals_0 && equals_1;
+    }
+
+    template <std::size_t Dimension>
     static inline bool verify_disjoint(segment_type1 const& a,
                     segment_type2 const& b)
     {
@@ -336,8 +629,6 @@ private :
         bool a_swapped = false, b_swapped = false;
         detail::segment_arrange<Dimension>(a, a_1, a_2, a_swapped);
         detail::segment_arrange<Dimension>(b, b_1, b_2, b_swapped);
-
-        // TODO: these should be passed as integer too -> normal comparisons possible
         if (math::smaller(a_2, b_1) || math::larger(a_1, b_2))
         //if (a_2 < b_1 || a_1 > b_2)
         {

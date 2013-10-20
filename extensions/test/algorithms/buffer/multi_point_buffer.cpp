@@ -201,8 +201,8 @@ int test_main(int, char* [])
     //test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-#ifdef NDEBUG
-    // only in release mode
+
+#ifdef BOOST_GEOMETRY_BUFFER_TEST_GROWTH
     for (int i = 5; i <= 50; i++)
     {
         test_growth<bg::model::point<double, 2, bg::cs::cartesian> >(i, 20);

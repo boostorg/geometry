@@ -9,10 +9,7 @@
 
 // Adapted from: the attachment of ticket 9081
 
-#define BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
-#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
-//#define BOOST_GEOMETRY_DEBUG_INTERSECTION
-//#define CHECK_SELF_INTERSECTIONS
+#define CHECK_SELF_INTERSECTIONS
 
  #include <iomanip>
  #include <iostream>
@@ -78,13 +75,15 @@ inline void debug_with_svg(int index, char method, Geometry const& a, Geometry c
 
 int main()
 {
-    int num_orig=50;
-    int num_rounds=20000;
-    //int num_rounds=16000;
+    int num_orig = 50;
+    int num_rounds = 20000;
     srand(1234);
-    std::cout<<std::setprecision(16);
+    std::cout << std::setprecision(16);
     std::map<int, std::string> genesis;
     int pj;
+
+
+    std::string wkt1, wkt2, operation;
 
     try
     {
@@ -116,13 +115,22 @@ int main()
 
     for(int j=0;j<num_rounds;j++)
     {
-        std::cout << " " << j;
+        if (j % 100 == 0) { std::cout << " " << j; }
         pj = j;
         int a = rand() % poly_list.size();
         int b = rand() % poly_list.size();
-        multi_polygon mp_i,mp_d,mp_e;
+
         //debug_with_svg(j, 'i', poly_list[a], poly_list[b], genesis[a], genesis[b]);
+
+        { std::ostringstream out; out << boost::geometry::wkt(poly_list[a]); wkt1 = out.str(); }
+        { std::ostringstream out; out << boost::geometry::wkt(poly_list[b]); wkt2 = out.str(); }
+
+        multi_polygon mp_i, mp_u, mp_d, mp_e;
+        operation = "intersection";
         boost::geometry::intersection(poly_list[a],poly_list[b],mp_i);
+        operation = "intersection";
+        boost::geometry::union_(poly_list[a],poly_list[b],mp_u);
+        operation = "difference";
         boost::geometry::difference(poly_list[a],poly_list[b],mp_d);
         boost::geometry::difference(poly_list[b],poly_list[a],mp_e);
 #ifdef CHECK_SELF_INTERSECTIONS
@@ -132,10 +140,10 @@ int main()
         }
         catch(...)
         {
-            std::cout<<"FAILED TO INTERSECT " << j << std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[a])<<std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[b])<<std::endl;
-            std::cout<<boost::geometry::wkt(mp_i)<<std::endl;
+            std::cout << "FAILED TO INTERSECT " << j << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[a]) << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[b]) << std::endl;
+            std::cout << boost::geometry::wkt(mp_i) << std::endl;
             try
             {
                 boost::geometry::detail::overlay::has_self_intersections(mp_i);
@@ -152,10 +160,10 @@ int main()
         }
         catch(...)
         {
-            std::cout<<"FAILED TO SUBTRACT " << j << std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[a])<<std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[b])<<std::endl;
-            std::cout<<boost::geometry::wkt(mp_d)<<std::endl;
+            std::cout << "FAILED TO SUBTRACT " << j << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[a]) << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[b]) << std::endl;
+            std::cout << boost::geometry::wkt(mp_d) << std::endl;
             break;
         }
         try
@@ -164,29 +172,29 @@ int main()
         }
         catch(...)
         {
-            std::cout<<"FAILED TO SUBTRACT " << j << std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[b])<<std::endl;
-            std::cout<<boost::geometry::wkt(poly_list[a])<<std::endl;
-            std::cout<<boost::geometry::wkt(mp_e)<<std::endl;
+            std::cout << "FAILED TO SUBTRACT " << j << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[b]) << std::endl;
+            std::cout << boost::geometry::wkt(poly_list[a]) << std::endl;
+            std::cout << boost::geometry::wkt(mp_e) << std::endl;
             break;
         }
 #endif
         
-        if(boost::geometry::area(mp_i)>0) 
+        if(boost::geometry::area(mp_i) > 0) 
         {
             std::ostringstream out;
             out << "intersection(" << genesis[a] << " , " << genesis[b] << ")";
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_i);
         }
-        if(boost::geometry::area(mp_d)>0)
+        if(boost::geometry::area(mp_d) > 0)
         {
             std::ostringstream out;
             out << "difference(" << genesis[a] << " - " << genesis[b] << ")";
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_d);
         }
-        if(boost::geometry::area(mp_e)>0) 
+        if(boost::geometry::area(mp_e) > 0) 
         {
             std::ostringstream out;
             out << "difference(" << genesis[b] << ", " << genesis[a] << ")";
@@ -200,7 +208,11 @@ int main()
     }
     catch(std::exception const& e)
     {
-        std::cout << e.what() << " at " << pj << std::endl;
+        std::cout << e.what() 
+            << " in " << operation << " at " << pj << std::endl
+            << wkt1 << std::endl
+            << wkt2 << std::endl
+            << std::endl;
     }
     catch(...)
     {

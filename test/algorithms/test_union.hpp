@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -37,16 +37,21 @@
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
-        std::size_t expected_count, int expected_hole_count,
+        int expected_count, int expected_hole_count,
         int expected_point_count, double expected_area,
         double percentage)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     std::vector<OutputType> clip;
+
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+    std::cout << "*** UNION " << caseid << std::endl;
+#endif
+
     bg::union_(g1, g2, clip);
 
     typename bg::default_area_result<G1>::type area = 0;
-    int n = 0;
+    std::size_t n = 0;
     std::size_t holes = 0;
     for (typename std::vector<OutputType>::iterator it = clip.begin();
             it != clip.end(); ++it)
@@ -56,6 +61,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         n += bg::num_points(*it, true);
     }
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
@@ -78,35 +84,34 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
         BOOST_CHECK_CLOSE(area_inserted, expected_area, percentage);
     }
+#endif
 
 
 
-    /***
-    std::cout << "case: " << caseid
-        << " n: " << n
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+    std::cout << "*** case: " << caseid
         << " area: " << area
+        << " points: " << n
         << " polygons: " << boost::size(clip)
         << " holes: " << holes
         << std::endl;
-    ***/
+#endif
 
-    if (expected_point_count >= 0)
-    {
-        BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
-                "union: " << caseid
-                << " #points expected: " << expected_point_count
-                << " detected: " << n
-                << " type: " << (type_for_assert_message<G1, G2>())
-                );
-    }
+    BOOST_CHECK_MESSAGE(expected_point_count < 0 || std::abs(int(n) - expected_point_count) < 3,
+            "union: " << caseid
+            << " #points expected: " << expected_point_count
+            << " detected: " << n
+            << " type: " << (type_for_assert_message<G1, G2>())
+            );
 
-    BOOST_CHECK_MESSAGE(clip.size() == expected_count,
+    BOOST_CHECK_MESSAGE(expected_count < 0 || int(clip.size()) == expected_count,
             "union: " << caseid
             << " #clips expected: " << expected_count
             << " detected: " << clip.size()
             << " type: " << (type_for_assert_message<G1, G2>())
             );
-    BOOST_CHECK_MESSAGE(expected_hole_count < 0 || holes == std::size_t(expected_hole_count),
+
+    BOOST_CHECK_MESSAGE(expected_hole_count < 0 || int(holes) == expected_hole_count,
             "union: " << caseid
             << " #holes expected: " << expected_hole_count
             << " detected: " << holes
@@ -161,7 +166,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid, std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count, std::size_t expected_hole_count,
+        int expected_count, int expected_hole_count,
         int expected_point_count, double expected_area,
         double percentage = 0.001)
 {

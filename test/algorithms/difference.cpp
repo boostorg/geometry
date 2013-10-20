@@ -258,24 +258,19 @@ void test_all()
         1, 0, 13);
     ***/
 
-#ifdef _MSC_VER
-#ifdef TEST_ISOVIST
     test_one<polygon, polygon, polygon>("isovist",
         isovist1[0], isovist1[1],
-        if_typed_tt<ct>(4, 2), 0, 0.279121891701124,
-        if_typed_tt<ct>(4, 3), 0, if_typed_tt<ct>(224.889211358929, 223.777),
-        if_typed_tt<ct>(0.001, 0.2));
+        if_typed_tt<ct>(4, 2), -1, 0.279121,
+        4, -1, 224.8892,
+        if_typed_tt<ct>(0.001, 0.1));
 
     // SQL Server gives: 0.279121891701124 and 224.889211358929
     // PostGIS gives:    0.279121991127244 and 224.889205853156
-
-#endif
 
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
         2, -1, 8960.49049); 
-#endif
         
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],

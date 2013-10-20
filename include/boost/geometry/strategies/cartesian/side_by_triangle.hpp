@@ -65,7 +65,7 @@ public :
 
         return geometry::detail::determinant<promoted_type>
                 (
-                    dx, dy, 
+                    dx, dy,
                     dpx, dpy
                 );
 
@@ -99,8 +99,41 @@ public :
         promoted_type const s = side_value<coordinate_type, promoted_type>(p1, p2, p);
         promoted_type const zero = promoted_type();
 
-        return math::equals(s, zero) ? 0 
-            : s > zero ? 1 
+        return math::equals(s, zero) ? 0
+            : s > zero ? 1
+            : -1;
+    }
+
+    template <typename P1, typename P2, typename P, typename T>
+    static inline int apply_with_epsilon(P1 const& p1, P2 const& p2, P const& p, T const& epsilon)
+    {
+        typedef typename boost::mpl::if_c
+            <
+                boost::is_void<CalculationType>::type::value,
+                typename select_most_precise
+                    <
+                        typename select_most_precise
+                            <
+                                typename coordinate_type<P1>::type,
+                                typename coordinate_type<P2>::type
+                            >::type,
+                        typename coordinate_type<P>::type
+                    >::type,
+                CalculationType
+            >::type coordinate_type;
+
+        // Promote float->double, small int->int
+        typedef typename select_most_precise
+            <
+                coordinate_type,
+                double
+            >::type promoted_type;
+
+        promoted_type const s = side_value<coordinate_type, promoted_type>(p1, p2, p);
+        promoted_type const zero = promoted_type();
+
+        return math::abs(s - zero) < epsilon ? 0
+            : s > zero ? 1
             : -1;
     }
 };

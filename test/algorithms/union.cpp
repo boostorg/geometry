@@ -15,8 +15,6 @@
 #include <iostream>
 #include <string>
 
-#define TEST_ISOVIST
-
 #include <algorithms/test_union.hpp>
 #include <algorithms/test_overlay.hpp>
 
@@ -216,47 +214,42 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, 1, 16, 80456.4904910401);
-        
+
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 1, 13, 20016.4);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, 0, 
-        if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)), 
+        1, 0,
+        if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)),
         14729.07145);
-        
+
 
     // FP might return different amount of points
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1,
-        if_typed<ct, double>(18, if_typed<ct, float>(-1, 17)), 
+        if_typed<ct, double>(18, if_typed<ct, float>(-1, 17)),
         129904.197692871);
 
-    test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe", 
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
-        2, // Previously it was 1 for double. The intersections are missed now, they fall in eps margins, arbitrary to generate them...
-        0, 
-        if_typed_tt<ct>(9, 8), 
+        -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
+        0,
+        if_typed_tt<ct>(9, 8),
         67.3550722317627);
 
 
-#ifdef TEST_ISOVIST
-#ifdef _MSC_VER
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1,
         0,
-        if_typed<ct, float>(72, if_typed<ct, double>(67, 73)),
-        313.36036462, 0.1);
+        -1,
+        313.36036462, 0.01);
 
     // SQL Server gives: 313.360374193241
     // PostGIS gives:    313.360364623393
-
-#endif
-#endif
 
     // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
     // This ticket was actually reported for Boost.Polygon
@@ -301,7 +294,7 @@ void test_areal()
     if (test_rt_i_rev)
     {
         test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
-                1, 0, 13, 13.6569);
+                    1, 0, 13, 13.6569);
     }
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
