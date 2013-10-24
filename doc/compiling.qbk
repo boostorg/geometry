@@ -49,7 +49,8 @@ compilers:
   * gcc 4.2.1 [/reported by Trunk report May 8, 2011]
   * gcc 3.4.6 [/reported by Trunk report March 26, 2011]
 * clang
-  * clang x.x [/reported by Trunk report March 26, 2011]
+  * clang 3.3 [/reported by mloskot on October, 2013]
+  * clang 3.2 [/reported by Trunk report March 26, 2011]
 * darwin
   * darwin 4.0.1 [/reported by Trunk report March 26, 2011]
   * darwin 4.4 [/reported by Trunk report March 26, 2011]
