@@ -57,9 +57,6 @@ inline void test_remove_spikes(std::string const& id,
 {
     typedef typename bg::point_type<Geometry>::type point_type;
 
-    double a = bg::area(geometry);
-    double p = bg::perimeter(geometry);
-
     Geometry processed = geometry;
     bg::remove_spikes(processed);
 
