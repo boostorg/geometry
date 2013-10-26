@@ -10,6 +10,7 @@
 
 [/ TODO: this is a basic draft only, should NOT be built into final docs yet ]
 [/ TODO: discuss numerical stability per algorithm (at least for line intersection and point in polygon) ]
+[/ TODO: integrate with doxygen_d_robustness.hpp and http://geometrylibrary.geodan.nl/formal_review/robustness.html ]
 [/ TODO: interlink the interesting discussion from Boost.Polygon at 
 http://www.boost.org/doc/libs/release/libs/polygon/doc/voronoi_main.htm ]
 
