@@ -13,6 +13,7 @@
 [/ TODO: integrate with doxygen_d_robustness.hpp and http://geometrylibrary.geodan.nl/formal_review/robustness.html ]
 [/ TODO: interlink the interesting discussion from Boost.Polygon at 
 http://www.boost.org/doc/libs/release/libs/polygon/doc/voronoi_main.htm ]
+[/ TODO: discuss relation to EGC http://cs.nyu.edu/exact/intro/ ]
 
 [section Robustness]
 
