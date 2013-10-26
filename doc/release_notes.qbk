@@ -17,6 +17,10 @@
 [heading Boost 1.56]
 [/=================]
 
+[*Additional functionality]
+
+* added remove_spikes, algorithm to remove spikes from a ring, polygon or multi_polygon.
+
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/9245 9245] Check for process errors in make_qbk.py

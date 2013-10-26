@@ -12,7 +12,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_REMOVE_MARKED_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGORITHMS_REMOVE_MARKED_HPP
 
-
+// PROBABLY OBSOLETE
+// as mark_spikes is now replaced by remove_spikes
 
 #include <boost/range.hpp>
 
