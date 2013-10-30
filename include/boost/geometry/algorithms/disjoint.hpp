@@ -20,6 +20,9 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/static_assert.hpp>
 
@@ -319,6 +322,101 @@ struct disjoint<Linestring, Box, DimensionCount, linestring_tag, box_tag, Revers
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_variant {
+
+template <typename Geometry1, typename Geometry2>
+struct disjoint
+{
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        concept::check_concepts_and_equal_dimensions
+            <
+                Geometry1 const,
+                Geometry2 const
+            >();
+
+        return dispatch::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct disjoint<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry2 const& m_geometry2;
+
+        visitor(Geometry2 const& geometry2): m_geometry2(geometry2) {}
+
+        template <typename Geometry1>
+        bool operator()(Geometry1 const& geometry1) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(geometry1, m_geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry2), geometry1);
+    }
+};
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct disjoint<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry1 const& m_geometry1;
+
+        visitor(Geometry1 const& geometry1): m_geometry1(geometry1) {}
+
+        template <typename Geometry2>
+        bool operator()(Geometry2 const& geometry2) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(m_geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(Geometry1 const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry1), geometry2);
+    }
+};
+
+template <
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct disjoint<
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+>
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        template <typename Geometry1, typename Geometry2>
+        bool operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            return disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(), geometry1, geometry2);
+    }
+};
+
+} // namespace resolve_variant
+
+
 
 /*!
 \brief \brief_check2{are disjoint}
@@ -335,13 +433,7 @@ template <typename Geometry1, typename Geometry2>
 inline bool disjoint(Geometry1 const& geometry1,
             Geometry2 const& geometry2)
 {
-    concept::check_concepts_and_equal_dimensions
-        <
-            Geometry1 const,
-            Geometry2 const
-        >();
-
-    return dispatch::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return resolve_variant::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 

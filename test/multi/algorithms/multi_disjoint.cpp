@@ -7,22 +7,15 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
-#include <string>
 
+#include <algorithms/test_disjoint.hpp>
 
-#include <geometry_test_common.hpp>
-
-#include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/io/wkt/read.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/multi/algorithms/disjoint.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
@@ -37,26 +30,6 @@
 #include <test_common/test_point.hpp>
 
 #include <algorithms/test_relate.hpp>
-
-
-template <typename G1, typename G2>
-void test_disjoint(std::string const& id,
-            std::string const& wkt1,
-            std::string const& wkt2, bool expected)
-{
-    G1 g1;
-    bg::read_wkt(wkt1, g1);
-
-    G2 g2;
-    bg::read_wkt(wkt2, g2);
-
-    bool detected = bg::disjoint(g1, g2);
-    BOOST_CHECK_MESSAGE(detected == expected,
-        "disjoint: " << id
-        << " -> Expected: " << expected
-        << " detected: " << detected);
-}
-
 
 
 template <typename P>
