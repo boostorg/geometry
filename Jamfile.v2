@@ -17,5 +17,6 @@ project boost-geometry
 
 build-project test ;
 build-project example ;
+build-project doc/src/examples ;
 build-project extensions ;
 build-project index ;

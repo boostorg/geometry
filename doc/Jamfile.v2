@@ -11,9 +11,14 @@
 
 project geometry/doc ;
 
+# Build examples and programs for documentation
+#
+build-project src/examples ;
+
+# Build documentation
+#
 # Auto-index, experimental. Commented otherwise does not build without.
 #using auto-index ; 
-
 using quickbook ;
 
 path-constant here : . ;
@@ -43,3 +48,4 @@ boostbook geometry
 
 install pdfinstall : geometry/<format>pdf : <location>. <name>geometry.pdf <install-type>PDF ;
 explicit pdfinstall ;
+
