@@ -14,9 +14,11 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 
-#include <boost/range.hpp>
-
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/range.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -139,6 +141,50 @@ struct envelope<Polygon, polygon_tag>
 #endif
 
 
+namespace resolve_variant {
+
+template <typename Geometry>
+struct envelope
+{
+    template <typename Box>
+    static inline void apply(Geometry const& geometry, Box& box)
+    {
+        concept::check<Geometry const>();
+        concept::check<Box>();
+
+        dispatch::envelope<Geometry>::apply(geometry, box);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Box>
+    struct visitor: boost::static_visitor<void>
+    {
+        Box& m_box;
+
+        visitor(Box& box): m_box(box) {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry) const
+        {
+            envelope<Geometry>::apply(geometry, m_box);
+        }
+    };
+
+    template <typename Box>
+    static inline void 
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          Box& box)
+    {
+        boost::apply_visitor(visitor<Box>(box), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief \brief_calc{envelope}
 \ingroup envelope
@@ -157,10 +203,7 @@ struct envelope<Polygon, polygon_tag>
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
 {
-    concept::check<Geometry const>();
-    concept::check<Box>();
-
-    dispatch::envelope<Geometry>::apply(geometry, mbr);
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr);
 }
 
 
@@ -182,11 +225,8 @@ inline void envelope(Geometry const& geometry, Box& mbr)
 template<typename Box, typename Geometry>
 inline Box return_envelope(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-    concept::check<Box>();
-
     Box mbr;
-    dispatch::envelope<Geometry>::apply(geometry, mbr);
+    resolve_variant::envelope<Geometry>::apply(geometry, mbr);
     return mbr;
 }
 

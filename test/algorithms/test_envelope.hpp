@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_TEST_ENVELOPE_HPP
 
 
+#include <boost/variant/variant.hpp>
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -77,31 +79,17 @@ void test_envelope(std::string const& wkt,
                    const T& z1 = 0, const T& z2 = 0)
 {
     typedef bg::model::box<typename bg::point_type<Geometry>::type > box_type;
+    box_type b;
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
-    box_type b;
     bg::envelope(geometry, b);
+    check_result<box_type, bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
 
+    boost::variant<Geometry> v(geometry);
+    bg::envelope(v, b);
     check_result<box_type, bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
 }
-
-template <typename Geometry, typename T>
-void test_envelope_strategy(std::string const& wkt,
-                   const T& x1, const T& x2,
-                   const T& y1, const T& y2,
-                   const T& z1 = 0, const T& z2 = 0)
-{
-    typedef bg::model::box<typename bg::point_type<Geometry>::type > box_type;
-
-    Geometry geometry;
-    bg::read_wkt(wkt, geometry);
-    box_type b;
-    bg::envelope(geometry, b);
-
-    check_result<box_type, bg::dimension<Geometry>::type::value>::apply(b, x1, y1, z1, x2, y2, z2);
-}
-
 
 
 #endif
