@@ -12,7 +12,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define TEST_ARRAY
 
 #include <sstream>
 
@@ -150,6 +149,27 @@ void test_distance_segment()
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 }
 
+template <typename Point, typename Geometry, typename T>
+void test_distance_linear(std::string const& wkt_point, std::string const& wkt_geometry, T const& expected)
+{
+    Point p;
+    bg::read_wkt(wkt_point, p);
+
+    Geometry g;
+    bg::read_wkt(wkt_geometry, g);
+
+    typedef typename bg::default_distance_result<Point>::type return_type;
+    return_type d = bg::distance(p, g);
+
+    // For point-to-linestring (or point-to-polygon), both a point-strategy and a point-segment-strategy can be specified.
+    // Test this.
+    return_type ds1 = bg::distance(p, g, bg::strategy::distance::pythagoras<>());
+    return_type ds2 = bg::distance(p, g, bg::strategy::distance::projected_point<>());
+
+    BOOST_CHECK_CLOSE(d, return_type(expected), 0.001);
+    BOOST_CHECK_CLOSE(ds1, return_type(expected), 0.001);
+    BOOST_CHECK_CLOSE(ds2, return_type(expected), 0.001);
+}
 
 template <typename P>
 void test_distance_array_as_linestring()
@@ -232,6 +252,8 @@ void test_all()
     // test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+
+    test_distance_linear<P, bg::model::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
 }
 
