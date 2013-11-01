@@ -369,7 +369,7 @@ struct distance
           Linestring const& linestring,
           Strategy const& strategy)
     {
-        typedef typename Strategy::point_strategy_type pp_strategy_type;
+        typedef typename strategy::distance::services::strategy_point_point<Strategy>::type pp_strategy_type;
         return detail::distance::point_to_range
             <
                 Point, Linestring, closed, pp_strategy_type, Strategy
