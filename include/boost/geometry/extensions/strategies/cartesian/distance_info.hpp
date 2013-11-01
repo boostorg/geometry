@@ -55,11 +55,11 @@ struct distance_info_result
     inline distance_info_result()
         : on_segment(false)
         , within_geometry(false)
-        , fraction1(distance_type())
-        , fraction2(distance_type())
         , real_distance(distance_type())
         , projected_distance1(distance_type())
         , projected_distance2(distance_type())
+        , fraction1(distance_type())
+        , fraction2(distance_type())
     {}
 };
 
