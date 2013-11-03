@@ -33,6 +33,7 @@ test-suite boost-geometry-algorithms
     [ run make.cpp ]
     [ run overlaps.cpp ]
     [ run perimeter.cpp ]
+    [ run point_on_surface.cpp ]
     [ run remove_spikes.cpp ]
     [ run reverse.cpp ]
     [ run simplify.cpp ]
