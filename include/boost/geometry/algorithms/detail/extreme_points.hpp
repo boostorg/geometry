@@ -24,6 +24,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
+
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
     
 #include <boost/geometry/strategies/side.hpp>
 

@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2013 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -12,15 +13,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define TEST_WITH_SVG
-
 // Instead of having a separate (and nearly similar) unit test to test multipolygons,
 // we now include them here and compile them by default. Only undefining the next line
 // will avoid testing multi-geometries
 // #define BOOST_GEOMETRY_UNIT_TEST_MULTI
 
 // TODO: multis are not supported yet
-
 
 #include <geometry_test_common.hpp>
 
@@ -91,7 +89,8 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
 
         // To map the intermediate products:
         bg::model::linestring<point_type> top_points;
-        std::vector<bg::model::linestring<point_type> > top_intruders;
+        typedef bg::model::linestring<point_type> intruder_type;
+        std::vector<intruder_type> top_intruders;
         bg::extreme_points<1>(geometry, top_points, top_intruders);
 
 #ifdef BOOST_GEOMETRY_POINT_ON_SURFACE_COMPLETE
@@ -106,7 +105,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
 
         // Top (red/magenta)
         mapper.map(top_points, "stroke:rgb(255,0,0);stroke-width:2");
-        BOOST_FOREACH(auto const& intruder, top_intruders)
+        BOOST_FOREACH(intruder_type const& intruder, top_intruders)
         {
             mapper.map(intruder, "stroke:rgb(255,0,255);stroke-width:2");
         }
@@ -116,7 +115,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
         //// Right (blue/cyan)
         // (mostly commented, makes the picture less clear)
         //mapper.map(right_points, "stroke:rgb(0,0,255);stroke-width:2");
-        //BOOST_FOREACH(auto const& intruder, right_intruders)
+        //BOOST_FOREACH(intruder_type const& intruder, right_intruders)
         //{
         //    mapper.map(intruder, "stroke:rgb(0,255,255);stroke-width:2");
         //}
@@ -295,3 +294,4 @@ int test_main(int, char* [])
 
     return 0;
 }
+
