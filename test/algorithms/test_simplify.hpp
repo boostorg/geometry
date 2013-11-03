@@ -11,6 +11,8 @@
 
 // Test-functionality, shared between single and multi tests
 
+#include <iomanip>
+#include <sstream>
 #include <geometry_test_common.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
@@ -35,7 +37,7 @@ struct test_inserter<bg::linestring_tag, Geometry>
             std::back_inserter(simplified), distance);
 
         std::ostringstream out;
-        out << bg::wkt(simplified);
+        out << std::setprecision(16) << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 };
@@ -53,12 +55,12 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     {
         std::ostringstream out;
-        out << bg::wkt(simplified);
+        out << std::setprecision(16) << bg::wkt(simplified);
 
         BOOST_CHECK_MESSAGE(out.str() == expected,
             "simplify: " << bg::wkt(geometry)
             << " expected " << expected
-            << " got " << bg::wkt(simplified));
+            << " got " << out.str());
     }
 
     // Check using user-specified strategy
@@ -76,7 +78,7 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     {
         std::ostringstream out;
-        out << bg::wkt(simplified);
+        out << std::setprecision(16) << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 
