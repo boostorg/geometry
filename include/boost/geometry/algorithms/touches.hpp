@@ -19,6 +19,7 @@
 #include <deque>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
@@ -82,6 +83,40 @@ inline bool has_only_turns(Turns const& turns)
     }
     return has_touch;
 }
+
+template<typename Geometry>
+struct check_each_ring_for_within
+{
+    bool has_within;
+    Geometry const& m_geometry;
+
+    inline check_each_ring_for_within(Geometry const& g)
+        : has_within(false)
+        , m_geometry(g)
+    {}
+
+    template <typename Range>
+    inline void apply(Range const& range)
+    {
+        typename geometry::point_type<Range>::type p;
+        geometry::point_on_border(p, range);
+        if (geometry::within(p, m_geometry))
+        {
+            has_within = true;
+        }
+    }
+};
+
+
+template <typename FirstGeometry, typename SecondGeometry>
+inline bool rings_containing(FirstGeometry const& geometry1,
+                SecondGeometry const& geometry2)
+{
+    check_each_ring_for_within<FirstGeometry> checker(geometry1);
+    geometry::detail::for_each_range(geometry2, checker);
+    return checker.has_within;
+}
+
 
 }}
 #endif // DOXYGEN_NO_DETAIL
@@ -173,8 +208,8 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
             >(geometry1, geometry2, turns, policy);
 
     return detail::touches::has_only_turns(turns)
-        && ! geometry::detail::disjoint::rings_containing(geometry1, geometry2)
-        && ! geometry::detail::disjoint::rings_containing(geometry2, geometry1)
+        && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
+        && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
         ;
 }
 

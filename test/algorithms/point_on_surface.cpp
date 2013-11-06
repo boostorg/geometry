@@ -281,8 +281,9 @@ void test_all()
     test_geometry<polygon>("ticket_17", ticket_17[0],  0, 0);
     test_geometry<polygon>("ticket_5103", ticket_5103[0],  0, 0);
     test_geometry<polygon>("ticket_7462", ticket_7462[0],  0, 0);
-    test_geometry<polygon>("ticket_8180", ticket_8180[0],  0, 0);
-    test_geometry<polygon>("ticket_8180b", ticket_8180b[0],  0, 0);
+    test_geometry<polygon>("ticket_8310a", ticket_8310a[0],  0, 0);
+    test_geometry<polygon>("ticket_8310b", ticket_8310b[0],  0, 0);
+    test_geometry<polygon>("ticket_8310c", ticket_8310c[0],  0, 0);
     test_geometry<polygon>("ticket_8254", ticket_8254[0],  0, 0);
 }
 

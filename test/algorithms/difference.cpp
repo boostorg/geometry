@@ -321,6 +321,21 @@ void test_all()
     }
 #endif
 
+    // Ticket 8310, one should be completely subtracted from the other.
+    test_one<polygon, polygon, polygon>("ticket_8310a",
+        ticket_8310a[0], ticket_8310a[1],
+        1, 10, 10.11562724, 
+        0, 0, 0); 
+    test_one<polygon, polygon, polygon>("ticket_8310b",
+        ticket_8310b[0], ticket_8310b[1],
+        1, 10, 10.12655608,
+        0, 0, 0); 
+    test_one<polygon, polygon, polygon>("ticket_8310c",
+        ticket_8310c[0], ticket_8310c[1],
+        1, 10, 10.03103292,
+        0, 0, 0); 
+
+
     // Other combi's
     {
         test_one<polygon, polygon, ring>(

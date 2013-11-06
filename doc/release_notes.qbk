@@ -20,11 +20,13 @@
 [*Additional functionality]
 
 * added remove_spikes, algorithm to remove spikes from a ring, polygon or multi_polygon.
+* added point_on_surface, generating a point lying on the surface (interior) of the polygon
 
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/9245 9245] Check for process errors in make_qbk.py
 * [@https://svn.boost.org/trac/boost/ticket/9081 9081] Booleans create self-intersecting polygons from non-self-intersecting polygons
+* [@https://svn.boost.org/trac/boost/ticket/8310 8310] Wrong results with overlapping polygons (fixed using point_on_surface for disjoint)
 
 [/=================]
 [heading Boost 1.55]

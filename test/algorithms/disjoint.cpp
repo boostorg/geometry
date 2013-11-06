@@ -21,6 +21,8 @@
 
 #include <test_common/test_point.hpp>
 
+#include <algorithms/overlay/overlay_cases.hpp>
+
 #include <algorithms/test_relate.hpp>
 
 
@@ -65,6 +67,10 @@ void test_all()
     test_disjoint<ring, polygon>("disjoint_simplex_rp", disjoint_simplex[0], disjoint_simplex[1], true);
     test_disjoint<ring, ring>("disjoint_simplex_rr", disjoint_simplex[0], disjoint_simplex[1], true);
     test_disjoint<polygon, ring>("disjoint_simplex_pr", disjoint_simplex[0], disjoint_simplex[1], true);
+
+    test_disjoint<polygon, polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1], false);
+    test_disjoint<polygon, polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1], false);
+    test_disjoint<polygon, polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1], false);
 
     // Testing touch
     test_disjoint<polygon, polygon>("touch_simplex_pp", touch_simplex[0], touch_simplex[1], false);
