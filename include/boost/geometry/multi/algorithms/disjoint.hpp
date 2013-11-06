@@ -14,6 +14,7 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
+#include <boost/geometry/multi/algorithms/detail/extreme_points.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/geometries/concepts/check.hpp>

@@ -32,8 +32,10 @@
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -47,6 +49,38 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
+
+template<typename Geometry>
+struct check_each_ring_for_within
+{
+    bool has_within;
+    Geometry const& m_geometry;
+
+    inline check_each_ring_for_within(Geometry const& g)
+        : has_within(false)
+        , m_geometry(g)
+    {}
+
+    template <typename Range>
+    inline void apply(Range const& range)
+    {
+        if (geometry::within(geometry::return_point_on_surface(range), m_geometry))
+        {
+            has_within = true;
+        }
+    }
+};
+
+template <typename FirstGeometry, typename SecondGeometry>
+inline bool rings_containing(FirstGeometry const& geometry1,
+                SecondGeometry const& geometry2)
+{
+    check_each_ring_for_within<FirstGeometry> checker(geometry1);
+    geometry::detail::for_each_range(geometry2, checker);
+    return checker.has_within;
+}
+
+
 
 struct assign_disjoint_policy
 {
@@ -139,17 +173,8 @@ struct general_areal
         typedef typename geometry::point_type<Geometry1>::type point_type1;
         typedef typename geometry::point_type<Geometry2>::type point_type2;
 
-        if (geometry::within
-                (
-                    geometry::return_point_on_surface(geometry1),
-                    geometry2
-                )
-            || geometry::within
-                (
-                    geometry::return_point_on_surface(geometry2),
-                    geometry1
-                )
-            )
+        if (rings_containing(geometry1, geometry2)
+            || rings_containing(geometry2, geometry1))
         {
             return false;
         }
@@ -203,6 +228,7 @@ struct disjoint_linestring_box
         }
     }
 };
+
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
