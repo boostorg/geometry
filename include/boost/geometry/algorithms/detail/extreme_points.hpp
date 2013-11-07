@@ -57,9 +57,9 @@ inline void move_along_vector(PointType& point, PointType const& extreme, Coordi
     // Moves a point along the vector (point, extreme) in the direction of the extreme  point
     // This adapts the possibly uneven legs of the triangle (or trapezium-like shape) 
     //      _____extreme            _____
-    //     /     \                 /     \
-    //    /base   \         =>    /       \ point
-    //             \ point
+    //     /     \                 /     \                                    .
+    //    /base   \         =>    /       \ point                             .
+    //             \ point                                                    .
     //
     // For so-called intruders, it can be used to adapt both legs to the level of "base"
     // For the base, it can be used to adapt both legs to the level of the max-value of the intruders
@@ -244,7 +244,6 @@ struct extreme_points_on_ring
 
                     // we start at this intrusion until it is handled, and don't affect our initial left iterator
                     CirclingIterator left_intrusion_it = right;
-                    point_type local_top = *right;
                     typename boost::range_value<Intruders>::type intruder;
                     collect(ring, *right, intruder, left_intrusion_it, right);
 

@@ -206,11 +206,11 @@ inline void replace_extremes_for_self_tangencies(Extremes& extremes, Intruders& 
     // Self-tangencies use, as usual, the major part of code...
 
     //        ___ e
-    //       /|\ \          
-    //      / | \ \        
-    //     /  |  \ \       
-    //    /   |   \ \
-    //   / /\ |    \ \
+    //       /|\ \                                                            .
+    //      / | \ \                                                           .
+    //     /  |  \ \                                                          .
+    //    /   |   \ \                                                         .
+    //   / /\ |    \ \                                                        .
     //     i2    i1
 
     // The picture above shows the extreme (outside, "e") and two intruders ("i1","i2")
@@ -221,10 +221,10 @@ inline void replace_extremes_for_self_tangencies(Extremes& extremes, Intruders& 
     // It then looks like:
 
     //      b ___ e
-    //       /|\ \          
-    //      / | \ \        
-    //     /  |  \ \       
-    //    /   |   \ \
+    //       /|\ \                                                            .
+    //      / | \ \                                                           .
+    //     /  |  \ \                                                          .
+    //    /   |   \ \                                                         .
     //   a    c i1
 
     // Then intruders (here "i1" but there may be more) are sorted from left to right
