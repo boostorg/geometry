@@ -10,12 +10,12 @@
 #define BOOST_GEOMETRY_TEST_PERIMETER_HPP
 
 
+#include <boost/variant/variant.hpp>
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-
-
 #include <boost/geometry/io/wkt/read.hpp>
 
 
