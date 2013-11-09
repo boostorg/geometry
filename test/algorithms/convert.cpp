@@ -71,7 +71,8 @@ void test_mixed_point_types()
         >
         (
             "POLYGON((1 1,2 2,3 0,1 1))", 
-            "POLYGON((1 1,2 2,3 0))"
+            "POLYGON((1 1,2 2,3 0))",
+            3
         );
 
     test_mixed
@@ -81,7 +82,8 @@ void test_mixed_point_types()
         >
         (
             "POLYGON((1 1,2 2,3 0))", 
-            "POLYGON((1 1,2 2,3 0,1 1))"
+            "POLYGON((1 1,2 2,3 0,1 1))",
+            4
         );
 
     // Polygon
@@ -102,7 +104,8 @@ void test_mixed_point_types()
         >
         (
             "POLYGON((0 0,0 5,5 5,5 0,0 0),(1 1,3 2,2 4,1 1))", 
-            "POLYGON((0 0,5 0,5 5,0 5),(1 1,2 4,3 2))"
+            "POLYGON((0 0,5 0,5 5,0 5,0 0),(1 1,2 4,3 2,1 1))",
+            7 // WKT is closed, polygon is open
         );
     // (polygon uses ring, so other tests omitted here)
 
@@ -133,7 +136,8 @@ void test_mixed_point_types()
         >
         (
             "POLYGON((0 0,0 5,5 5,5 0,0 0),(1 1,3 2,2 4,1 1))", 
-            "POLYGON((0 0,0 5,5 5,5 0,0 0))"
+            "POLYGON((0 0,0 5,5 5,5 0,0 0))",
+            5
         );
 
     // point -> box
@@ -144,7 +148,8 @@ void test_mixed_point_types()
         >
         (
             "POINT(0 0)", 
-            "POLYGON((0 0,0 0,0 0,0 0,0 0))"
+            "POLYGON((0 0,0 0,0 0,0 0,0 0))",
+            4
         );
 
     // segment -> line
@@ -155,7 +160,8 @@ void test_mixed_point_types()
         >
         (
             "LINESTRING(0 0,1 1)", 
-            "LINESTRING(0 0,1 1)"
+            "LINESTRING(0 0,1 1)",
+            2
         );
 
     // box -> ring ( <- is NYI)
@@ -166,7 +172,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,0 2,2 2,2 0,0 0))"
+            "POLYGON((0 0,0 2,2 2,2 0,0 0))",
+            5
         );
 
     test_mixed
@@ -176,7 +183,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,2 0,2 2,0 2,0 0))"
+            "POLYGON((0 0,2 0,2 2,0 2,0 0))",
+            5
         );
 
     test_mixed
@@ -186,7 +194,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,0 2,2 2,2 0))"
+            "POLYGON((0 0,0 2,2 2,2 0))",
+            4
         );
 
     test_mixed
@@ -196,7 +205,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,2 0,2 2,0 2))"
+            "POLYGON((0 0,2 0,2 2,0 2))",
+            4
         );
 
     // box -> polygon ( <- is NYI)
@@ -207,7 +217,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,0 2,2 2,2 0,0 0))"
+            "POLYGON((0 0,0 2,2 2,2 0,0 0))",
+            5
         );
 
     test_mixed
@@ -217,7 +228,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,2 0,2 2,0 2,0 0))"
+            "POLYGON((0 0,2 0,2 2,0 2,0 0))",
+            5
         );
 
     test_mixed
@@ -227,7 +239,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,0 2,2 2,2 0))"
+            "POLYGON((0 0,0 2,2 2,2 0,0 0))",
+            4 // WKT is closed, polygon is open
         );
 
     test_mixed
@@ -237,7 +250,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,2 2)", 
-            "POLYGON((0 0,2 0,2 2,0 2))"
+            "POLYGON((0 0,2 0,2 2,0 2,0 0))",
+            4 // WKT is closed, polygon is open
         );
 }
 
@@ -270,7 +284,8 @@ void test_mixed_point_types_3d()
         >
         (
             "LINESTRING(1 2 3,4 5 6)", 
-            "LINESTRING(1 2 3,4 5 6)"
+            "LINESTRING(1 2 3,4 5 6)",
+            2
         );
 }
 

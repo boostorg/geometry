@@ -8,6 +8,7 @@
 #include <algorithms/test_convert.hpp>
 
 #include <boost/geometry/multi/algorithms/convert.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
@@ -41,7 +42,8 @@ void test_mixed_point_types()
         >
         (
             "POINT(1 1)", 
-            "MULTIPOINT((1 1))"
+            "MULTIPOINT((1 1))",
+            1
         );
     test_mixed
         <
@@ -50,7 +52,8 @@ void test_mixed_point_types()
         >
         (
             "LINESTRING(1 1,2 2)", 
-            "MULTILINESTRING((1 1,2 2))"
+            "MULTILINESTRING((1 1,2 2))",
+            2
         );
     test_mixed
         <
@@ -59,7 +62,8 @@ void test_mixed_point_types()
         >
         (
             "LINESTRING(1 1,2 2)", 
-            "MULTILINESTRING((1 1,2 2))"
+            "MULTILINESTRING((1 1,2 2))",
+            2
         );
     test_mixed
         <
@@ -68,7 +72,8 @@ void test_mixed_point_types()
         >
         (
             "BOX(0 0,1 1)", 
-            "MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))"
+            "MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))",
+            5
         );
     test_mixed
         <
@@ -77,7 +82,8 @@ void test_mixed_point_types()
         >
         (
             "POLYGON((0 0,0 1,1 1,1 0,0 0))", 
-            "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)))"
+            "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)))",
+            5
         );
 
     // Multi -> single: should not compile (because multi often have 0 or >1 elements)
