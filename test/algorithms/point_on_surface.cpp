@@ -16,9 +16,7 @@
 // Instead of having a separate (and nearly similar) unit test to test multipolygons,
 // we now include them here and compile them by default. Only undefining the next line
 // will avoid testing multi-geometries
-// #define BOOST_GEOMETRY_UNIT_TEST_MULTI
-
-// TODO: multis are not supported yet
+#define BOOST_GEOMETRY_UNIT_TEST_MULTI
 
 #include <geometry_test_common.hpp>
 
@@ -42,6 +40,7 @@
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
 #  include <boost/geometry/multi/algorithms/correct.hpp>
 #  include <boost/geometry/multi/algorithms/within.hpp>
+#  include <boost/geometry/multi/algorithms/detail/extreme_points.hpp>
 #  include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #  include <boost/geometry/multi/io/wkt/wkt.hpp>
 #endif
@@ -154,8 +153,25 @@ void test_all()
     test_geometry<polygon>("disjoint_simplex1", disjoint_simplex[1], 0, 0);
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
-    typedef bg::model::multi_polygon<polygon> multi_polygon;
-    test_geometry<multi_polygon>("mp_simplx", "multipolygon(((0 0,0 5,5 0, 0 0),(7 1,7 6,10 1,7 1)))", 0, 0);
+    {
+        typedef bg::model::multi_polygon<polygon> multi_polygon;
+        test_geometry<multi_polygon>("mp_simplex", "multipolygon(((0 0,0 5,5 0, 0 0)),((7 1,7 6,10 1,7 1)))", 0, 0);
+        // Wrapped polygon in two orders
+        test_geometry<multi_polygon>("mp_wrapped1", 
+                "multipolygon("
+                "((4 10,9 11,10 16,11 11,16 10,11 9,10 4,9 9,4 10))"
+                ","
+                "((0 10,10 20,20 10,10 0,0 10),(10 2,18 10,10 18,2 10,10 2))"
+                ")", 
+                0, 0);
+        test_geometry<multi_polygon>("mp_wrapped2", 
+                "multipolygon("
+                "((0 10,10 20,20 10,10 0,0 10),(10 2,18 10,10 18,2 10,10 2))"
+                ","
+                "((4 10,9 11,10 16,11 11,16 10,11 9,10 4,9 9,4 10))"
+                ")", 
+                0, 0);
+    }
 #endif
 
 
