@@ -37,7 +37,9 @@ struct test_inserter<bg::linestring_tag, Geometry>
             std::back_inserter(simplified), distance);
 
         std::ostringstream out;
-        out << std::setprecision(16) << bg::wkt(simplified);
+        // TODO: instead of comparing the full string (with more or less decimal digits),
+        // we should call something more robust to check the test for example geometry::equals
+        out << std::setprecision(12) << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 };
@@ -55,7 +57,7 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     {
         std::ostringstream out;
-        out << std::setprecision(16) << bg::wkt(simplified);
+        out << std::setprecision(12) << bg::wkt(simplified);
 
         BOOST_CHECK_MESSAGE(out.str() == expected,
             "simplify: " << bg::wkt(geometry)
@@ -78,7 +80,7 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     {
         std::ostringstream out;
-        out << std::setprecision(16) << bg::wkt(simplified);
+        out << std::setprecision(12) << bg::wkt(simplified);
         BOOST_CHECK_EQUAL(out.str(), expected);
     }
 
