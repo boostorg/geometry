@@ -20,6 +20,9 @@
 #include <boost/concept_check.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -35,8 +38,9 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
@@ -239,6 +243,195 @@ struct within<Point, Polygon, point_tag, polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy
+{
+
+struct within
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        concept::within::check
+            <
+                typename tag<Geometry1>::type,
+                typename tag<Geometry2>::type,
+                typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+                Strategy
+            >();
+
+        return dispatch::within<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry1>::type point_type1;
+        typedef typename point_type<Geometry2>::type point_type2;
+
+        typedef typename strategy::within::services::default_strategy
+            <
+                typename tag<Geometry1>::type,
+                typename tag<Geometry2>::type,
+                typename tag<Geometry1>::type,
+                typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+                typename tag_cast
+                    <
+                        typename cs_tag<point_type1>::type, spherical_tag
+                    >::type,
+                typename tag_cast
+                    <
+                        typename cs_tag<point_type2>::type, spherical_tag
+                    >::type,
+                Geometry1,
+                Geometry2
+            >::type strategy_type;
+
+        return apply(geometry1, geometry2, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace resolve_variant
+{
+
+template <typename Geometry1, typename Geometry2>
+struct within
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        concept::check<Geometry1 const>();
+        concept::check<Geometry2 const>();
+        assert_dimension_equal<Geometry1, Geometry2>();
+
+        return resolve_strategy::within::apply(geometry1,
+                                               geometry2,
+                                               strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct within<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    template <typename Strategy>
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry2 const& m_geometry2;
+        Strategy const& m_strategy;
+
+        visitor(Geometry2 const& geometry2, Strategy const& strategy):
+        m_geometry2(geometry2),
+        m_strategy(strategy)
+        {}
+
+        template <typename Geometry1>
+        bool operator()(Geometry1 const& geometry1) const
+        {
+            return within<Geometry1, Geometry2>::apply(geometry1,
+                                                       m_geometry2,
+                                                       m_strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(
+            visitor<Strategy>(geometry2, strategy),
+            geometry1
+        );
+    }
+};
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct within<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Strategy>
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry1 const& m_geometry1;
+        Strategy const& m_strategy;
+
+        visitor(Geometry1 const& geometry1, Strategy const& strategy):
+        m_geometry1(geometry1),
+        m_strategy(strategy)
+        {}
+
+        template <typename Geometry2>
+        bool operator()(Geometry2 const& geometry2) const
+        {
+            return within<Geometry1, Geometry2>::apply(m_geometry1,
+                                                       geometry2,
+                                                       m_strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline bool
+    apply(Geometry1 const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(
+            visitor<Strategy>(geometry1, strategy),
+            geometry2
+        );
+    }
+};
+
+template <
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct within<
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+>
+{
+    template <typename Strategy>
+    struct visitor: boost::static_visitor<bool>
+    {
+        Strategy const& m_strategy;
+
+        visitor(Strategy const& strategy): m_strategy(strategy) {}
+
+        template <typename Geometry1, typename Geometry2>
+        bool operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            return within<Geometry1, Geometry2>::apply(geometry1,
+                                                       geometry2,
+                                                       m_strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(
+            visitor<Strategy>(strategy),
+            geometry1, geometry2
+        );
+    }
+};
+
+}
+
+
 /*!
 \brief \brief_check12{is completely inside}
 \ingroup within
@@ -263,36 +456,11 @@ struct within<Point, Polygon, point_tag, polygon_tag>
 template<typename Geometry1, typename Geometry2>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-    assert_dimension_equal<Geometry1, Geometry2>();
-
-    typedef typename point_type<Geometry1>::type point_type1;
-    typedef typename point_type<Geometry2>::type point_type2;
-
-    typedef typename strategy::within::services::default_strategy
-        <
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
-            typename tag<Geometry1>::type,
-            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
-            typename tag_cast
-                <
-                    typename cs_tag<point_type1>::type, spherical_tag
-                >::type,
-            typename tag_cast
-                <
-                    typename cs_tag<point_type2>::type, spherical_tag
-                >::type,
-            Geometry1,
-            Geometry2
-        >::type strategy_type;
-
-    return dispatch::within
+    return resolve_variant::within
         <
             Geometry1,
             Geometry2
-        >::apply(geometry1, geometry2, strategy_type());
+        >::apply(geometry1, geometry2, default_strategy());
 }
 
 /*!
@@ -325,18 +493,7 @@ template<typename Geometry1, typename Geometry2, typename Strategy>
 inline bool within(Geometry1 const& geometry1, Geometry2 const& geometry2,
         Strategy const& strategy)
 {
-    concept::within::check
-        <
-            typename tag<Geometry1>::type, 
-            typename tag<Geometry2>::type, 
-            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
-            Strategy
-        >();
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-    assert_dimension_equal<Geometry1, Geometry2>();
-
-    return dispatch::within
+    return resolve_variant::within
         <
             Geometry1,
             Geometry2
