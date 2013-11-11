@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_TEST_PERIMETER_HPP
 
 
+#include <boost/typeof/typeof.hpp>
 #include <boost/variant/variant.hpp>
 
 #include <geometry_test_common.hpp>
@@ -22,7 +23,7 @@
 template <typename Geometry>
 void test_perimeter(Geometry const& geometry, long double expected_perimeter)
 {
-    typename bg::default_distance_result<Geometry>::type perimeter = bg::perimeter(geometry);
+    BOOST_AUTO(perimeter, bg::perimeter(geometry));
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::ostringstream out;
@@ -44,7 +45,10 @@ void test_geometry(std::string const& wkt, double expected_perimeter)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
+    boost::variant<Geometry> v(geometry);
+
     test_perimeter(geometry, expected_perimeter);
+    test_perimeter(v, expected_perimeter);
 }
 
 template <typename Geometry>

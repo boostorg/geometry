@@ -15,14 +15,20 @@
 #define BOOST_GEOMETRY_ALGORITHMS_PERIMETER_HPP
 
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/strategies/default_length_result.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/strategies/default_length_result.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/util/compress_variant.hpp>
+#include <boost/geometry/util/transform_variant.hpp>
 
 
 namespace boost { namespace geometry
@@ -78,6 +84,86 @@ struct perimeter<Polygon, polygon_tag> : detail::calculate_polygon_sum
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy {
+
+struct perimeter
+{
+    template <typename Geometry, typename Strategy>
+    static inline typename default_length_result<Geometry>::type
+    apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        return dispatch::perimeter<Geometry>::apply(geometry, strategy);
+    }
+
+    template <typename Geometry>
+    static inline typename default_length_result<Geometry>::type
+    apply(Geometry const& geometry, default_strategy)
+    {
+        typedef typename strategy::distance::services::default_strategy
+            <
+                point_tag,
+                typename point_type<Geometry>::type
+            >::type strategy_type;
+
+        return dispatch::perimeter<Geometry>::apply(geometry, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct perimeter
+{
+    typedef typename default_length_result<Geometry>::type result_type;
+
+    template <typename Strategy>
+    static inline result_type
+    apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        concept::check<Geometry const>();
+        return resolve_strategy::perimeter::apply(geometry, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    typedef typename compress_variant<
+        typename transform_variant<
+            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            default_length_result<boost::mpl::placeholders::_>
+        >::type
+    >:: type result_type;
+
+    template <typename Strategy>
+    struct visitor: boost::static_visitor<result_type>
+    {
+        Strategy const& m_strategy;
+
+        visitor(Strategy const& strategy): m_strategy(strategy) {}
+
+        template <typename Geometry>
+        result_type operator()(Geometry const& geometry) const
+        {
+            return perimeter<Geometry>::apply(geometry, m_strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline result_type
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief \brief_calc{perimeter}
 \ingroup perimeter
@@ -90,20 +176,11 @@ struct perimeter<Polygon, polygon_tag> : detail::calculate_polygon_sum
 \qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry>
-inline typename default_length_result<Geometry>::type perimeter(
+inline typename resolve_variant::perimeter<Geometry>::result_type perimeter(
         Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename strategy::distance::services::default_strategy
-        <
-            point_tag, point_type
-        >::type strategy_type;
-
     // detail::throw_on_empty_input(geometry);
-        
-    return dispatch::perimeter<Geometry>::apply(geometry, strategy_type());
+    return resolve_variant::perimeter<Geometry>::apply(geometry, default_strategy());
 }
 
 /*!
@@ -121,14 +198,11 @@ inline typename default_length_result<Geometry>::type perimeter(
 \qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry, typename Strategy>
-inline typename default_length_result<Geometry>::type perimeter(
+inline typename resolve_variant::perimeter<Geometry>::result_type perimeter(
         Geometry const& geometry, Strategy const& strategy)
 {
-    concept::check<Geometry const>();
-
     // detail::throw_on_empty_input(geometry);
-    
-    return dispatch::perimeter<Geometry>::apply(geometry, strategy);
+    return resolve_variant::perimeter<Geometry>::apply(geometry, strategy);
 }
 
 }} // namespace boost::geometry
