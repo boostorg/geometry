@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
