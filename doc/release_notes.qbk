@@ -28,6 +28,11 @@
 * [@https://svn.boost.org/trac/boost/ticket/9081 9081] Booleans create self-intersecting polygons from non-self-intersecting polygons
 * [@https://svn.boost.org/trac/boost/ticket/8310 8310] Wrong results with overlapping polygons (fixed using point_on_surface for disjoint)
 
+[*Bugfixes]
+
+* intersects(polygon) could return a self-intersection-point for its closing point, fixed
+
+
 [/=================]
 [heading Boost 1.55]
 [/=================]

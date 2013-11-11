@@ -152,7 +152,7 @@ class get_turns_in_sections
                     <
                         typename tag_cast
                             <
-                                typename geometry::point_type<Geometry1>::type, 
+                                typename geometry::tag<Geometry>::type, 
                                 areal_tag
                             >::type, 
                         areal_tag
