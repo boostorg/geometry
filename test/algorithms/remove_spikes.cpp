@@ -19,6 +19,8 @@
 // will avoid testing multi-geometries
 #define BOOST_GEOMETRY_UNIT_TEST_MULTI
 
+#include <boost/variant/variant.hpp>
+
 #include <geometry_test_common.hpp>
 
 // The include to test
@@ -52,37 +54,16 @@
 
 template <typename Geometry>
 inline void test_remove_spikes(std::string const& id,
-            Geometry const& geometry,
+            Geometry& geometry,
             double expected_area, double expected_perimeter)
 {
-    typedef typename bg::point_type<Geometry>::type point_type;
+    bg::remove_spikes(geometry);
 
-    Geometry processed = geometry;
-    bg::remove_spikes(processed);
-
-    double detected_area = bg::area(processed);
-    double detected_perimeter = bg::perimeter(processed);
+    double detected_area = bg::area(geometry);
+    double detected_perimeter = bg::perimeter(geometry);
 
     BOOST_CHECK_CLOSE(detected_area, expected_area, 0.01);
     BOOST_CHECK_CLOSE(detected_perimeter, expected_perimeter, 0.01);
-
-#if defined(TEST_WITH_SVG)
-    {
-        std::ostringstream filename;
-        filename << "remove_spikes_" << id;
-        if (! bg::closure<Geometry>::value)
-        {
-            filename << "_open";
-        }
-        filename << ".svg";
-        std::ofstream svg(filename.str().c_str());
-
-        bg::svg_mapper<typename bg::point_type<Geometry>::type> mapper(svg, 500, 500);
-        mapper.add(geometry);
-        mapper.map(geometry, "fill-opacity:0.3;opacity:0.6;fill:rgb(51,51,153);stroke:rgb(0,0,255);stroke-width:2");
-        mapper.map(processed, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:3");
-    }
-#endif
 }
 
 template <typename Geometry>
@@ -92,7 +73,29 @@ void test_geometry(std::string const& id, std::string const& wkt,
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     bg::correct(geometry);
+    boost::variant<Geometry> v(geometry);
+
+#if defined(TEST_WITH_SVG)
+    std::ostringstream filename;
+    filename << "remove_spikes_" << id;
+    if (! bg::closure<Geometry>::value)
+    {
+        filename << "_open";
+    }
+    filename << ".svg";
+    std::ofstream svg(filename.str().c_str());
+
+    bg::svg_mapper<typename bg::point_type<Geometry>::type> mapper(svg, 500, 500);
+    mapper.add(geometry);
+    mapper.map(geometry, "fill-opacity:0.3;opacity:0.6;fill:rgb(51,51,153);stroke:rgb(0,0,255);stroke-width:2");
+#endif
+
     test_remove_spikes(id, geometry, expected_area, expected_perimeter);
+    test_remove_spikes(id, v, expected_area, expected_perimeter);
+
+#if defined(TEST_WITH_SVG)
+    mapper.map(geometry, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:3");
+#endif
 }
 
 template <typename P, bool Clockwise, bool Closed>

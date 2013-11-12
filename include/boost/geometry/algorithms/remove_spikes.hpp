@@ -16,6 +16,9 @@
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -188,6 +191,39 @@ struct remove_spikes<Polygon, polygon_tag>
 #endif
 
 
+namespace resolve_variant {
+
+template <typename Geometry>
+struct remove_spikes
+{
+    static void apply(Geometry& geometry)
+    {
+        concept::check<Geometry>();
+        dispatch::remove_spikes<Geometry>::apply(geometry);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct remove_spikes<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<void>
+    {
+        template <typename Geometry>
+        void operator()(Geometry& geometry) const
+        {
+            remove_spikes<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline void apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
+    {
+        boost::apply_visitor(visitor(), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
     \ingroup remove_spikes
     \tparam Geometry geometry type
@@ -196,9 +232,7 @@ struct remove_spikes<Polygon, polygon_tag>
 template <typename Geometry>
 inline void remove_spikes(Geometry& geometry)
 {
-    concept::check<Geometry>();
-
-    dispatch::remove_spikes<Geometry>::apply(geometry);
+    resolve_variant::remove_spikes<Geometry>::apply(geometry);
 }
 
 
