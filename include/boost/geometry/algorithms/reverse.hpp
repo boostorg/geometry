@@ -18,6 +18,9 @@
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -100,6 +103,40 @@ struct reverse<Polygon, polygon_tag>
 #endif
 
 
+namespace resolve_variant
+{
+
+template <typename Geometry>
+struct reverse 
+{
+    static void apply(Geometry& geometry)
+    {
+        concept::check<Geometry>();
+        dispatch::reverse<Geometry>::apply(geometry);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct reverse<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<void>
+    {
+        template <typename Geometry>
+        void operator()(Geometry& geometry) const
+        {
+            reverse<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline void apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry)
+    {
+        boost::apply_visitor(visitor(), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief Reverses the points within a geometry
 \details Generic function to reverse a geometry. It resembles the std::reverse
@@ -114,9 +151,7 @@ struct reverse<Polygon, polygon_tag>
 template <typename Geometry>
 inline void reverse(Geometry& geometry)
 {
-    concept::check<Geometry>();
-
-    dispatch::reverse<Geometry>::apply(geometry);
+    resolve_variant::reverse<Geometry>::apply(geometry);
 }
 
 }} // namespace boost::geometry
