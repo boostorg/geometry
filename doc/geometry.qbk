@@ -141,5 +141,6 @@ Boost.Geometry contains contributions by:
 
 [include release_notes.qbk]
 
+[/ TODO: [include guidelines.qbk] /]
 [include about_documentation.qbk]
 [include acknowledgments.qbk]
