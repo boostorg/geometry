@@ -79,15 +79,16 @@ struct my_new_model
 [heading Code formatting and indentation]
 
 * The code is indented with spaces, 4 spaces per tab.
-* The preferered line length is 80 characters, with maximum length of 100.
+* The preferred line length is 80 characters, with maximum length of 100.
+  * The limit is relaxed for very long string literals (e.g. Well-Known Text with data used in tests and examples).
 * Member/base initialization list for constructors on the same line,
   if it's small (1-2 members) or 1 member/base per line with leading comma on the left:
 ```
 struct T
 {
     T(int a, int b)
-        : a(a)
-        , b(b)
+    : a(a)
+    , b(b)
     {}
 
     int a;
@@ -118,7 +119,6 @@ T* t;
 T* const t;
 T const* t;
 T const* const t;
-* Curly 
 ```
 * Braces enclosing block of code (if-else, loops) should be placed in separate lines
 ```
@@ -126,7 +126,7 @@ if (expr)
 {
 }
 ```
-* Parantheses around expressions should not be pre/post-fixed with spaces.
+* Parentheses around expressions should not be pre/post-fixed with spaces.
 
 [heading Naming conventions]
 
@@ -142,6 +142,20 @@ if (expr)
 * All non-public macro names should start with `BOOST_GEOMETRY_DETAIL_` (not used often yet, if at all).
 * All public names should reside in the `boost::geometry` namespace.
   Nested namespaces are also possible.
+* Avoid cryptic names and abbreviations for elements used in wider context (e.g. types, functions).
+  Short names are allowed if context of use is local, narrow and easily tracable
+  For example, use of `it` for `iterator` in body of a loop in function:
+```
+template <typename Range, typename Functor>
+static inline void apply(Range& range, Functor& f)
+{
+    for (typename boost::range_iterator<Range>::type it = boost::begin(range);
+         it != boost::end(range); ++it)
+    {
+        f(*it);
+    }
+}
+```
 
 [heading C++ use conventions]
 
@@ -157,7 +171,6 @@ if (expr)
 * There might be an overload for a strategy. The strategy takes, a.o. care of coordinate systems
 * The free `inline` function forwards to a dispatch struct, specialized for the geometry type (so for point, polygon, etc.)
 * They have an `static` (`inline`) function called apply
-* All template parameters are in the struct, so no member template functions there
 * The dispatch struct calls, or is derived from, an struct implemented in namespace detail
 * There the same: a `struct` with a `static` (`inline`) function called apply
 * This way the implementation structs are building blocks, they can be reused
@@ -186,27 +199,24 @@ struct foo_point
 namespace dispatch 
 {
 
-template <Tag, Geometry>
+template
+<
+    Geometry,
+    Tag = typename geometry::tag<Geometry>::type
+>
 struct foo
 {
 };
 
 // Specialization for POINT
-template <typename Point>
-struct foo<point_tag, Point>
-    : detail::foo::foo_point<Point> {};
-
-// Specialization for polygon
-template <typename Polygon>
-struct foo<polygon_tag, Polygon>
-    : detail::foo::foo_polygon<Polygon> {};
+...
 
 } // namespace dispatch
 
 template <typename Point>
 inline int foo(Point const& point)
 {
-    return dispatch<typename tag<Point>::type, Point>::apply(point);
+    return dispatch<Point>::apply(point);
 }
 
 }} // namespace boost::geometry
