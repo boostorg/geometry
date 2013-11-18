@@ -95,8 +95,9 @@ struct T
     int b;
 };
 ```
-* Template declaration with long template parameter list should be formatted
-  with one template parameter per line, all parameters indented:
+* Template declaration with long template parameter list shall be formatted
+  with one template parameter per line, all parameters indented,
+  but `<` and `>` brackets not indented:
 ```
 template
 <
@@ -107,9 +108,9 @@ template
 struct polygon
 {
     typedef typename boost::remove_const
-        <
-            typename traits::point_type<T>::type
-        >::type type
+    <
+        typename traits::point_type<T>::type
+    >::type type
 };
 ```
 * References and pointers should be formatted emphasizing type, not syntax:
