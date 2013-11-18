@@ -12,7 +12,9 @@
 
 import os, sys
 
-os.chdir(os.path.dirname(sys.argv[0]))
+script_dir = os.path.dirname(__file__)
+os.chdir(os.path.abspath(script_dir))
+print("Boost.Geometry is making .qbk files in %s" % os.getcwd())
 
 if 'DOXYGEN' in os.environ:
     doxygen_cmd = os.environ['DOXYGEN']
