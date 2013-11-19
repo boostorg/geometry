@@ -41,7 +41,6 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
-
 template <typename Geometry>
 static void test_self_intersection_points(std::string const& case_id,
             int expected_count,
@@ -242,6 +241,8 @@ void test_self_all()
     // Was caused by error in neighbouring (get_turns.cpp)
     std::string const ggl_list_2013_11_06_joan = "POLYGON((137.14632454923444 200.61927877947369,50 224, 323 497,255 169,137.14632454923444 200.61927877947369))";
     test_self_overlay<polygon>("ggl_list_2013_11_06_joan", 0, ggl_list_2013_11_06_joan);
+
+    test_self_overlay<polygon>("ggl_list_20131119_james", 0, ggl_list_20131119_james[0]);
 
     // Same case - but if this is a linestring. 
     // TODO: this does not compile yet, but it should return 1 intersection point at the "closing" point

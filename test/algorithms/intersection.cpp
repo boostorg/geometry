@@ -32,19 +32,9 @@
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
 
-static std::string pie_2_3_23_0[2] =
-{
-    "POLYGON((2500 2500,2855 3828,2500 3875,2500 2500))",
-    "POLYGON((2500 2500,2791 3586,2499 3625,2208 3586,2500 2500))"
-};
-
 template <typename Polygon>
 void test_areal()
 {
-    test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
-        pie_2_3_23_0[0], pie_2_3_23_0[1],
-        1, 4, 163292.679042133, 0.1);
-
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -154,6 +144,11 @@ void test_areal()
         crossed[0], crossed[1],
         3, 0, 1.5);
 
+    test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
+        pie_2_3_23_0[0], pie_2_3_23_0[1],
+        1, 4, 163292.679042133, 0.1);
+
+
     typedef typename bg::coordinate_type<Polygon>::type ct;
     bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
     bool const open = bg::closure<Polygon>::value == bg::open;
@@ -198,6 +193,10 @@ void test_areal()
             35723.8506317139);
     }
 #endif
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20131119_james",
+        ggl_list_20131119_james[0], ggl_list_20131119_james[1],
+        1, 4, 6.6125873045, 0.1);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, 0.01);
