@@ -174,6 +174,16 @@ public :
     {
         boost::ignore_unused_variable_warning(interrupt_policy);
 
+        if ((sec1.duplicate && (sec1.count + 1) < sec1.range_count)
+           || (sec2.duplicate && (sec2.count + 1) < sec2.range_count))
+        {
+            // Skip sections containig only duplicates.
+            // They are still important (can indicate non-disjointness)
+            // but they will be found processing adjacent sections.
+            // Do NOT skip if they are the ONLY section
+            return true;
+        }
+
         cview_type1 cview1(range_by_section(geometry1, sec1));
         cview_type2 cview2(range_by_section(geometry2, sec2));
         view_type1 view1(cview1);
