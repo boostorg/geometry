@@ -44,9 +44,6 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
-#define TEST_WITH_SVG
-
-
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif

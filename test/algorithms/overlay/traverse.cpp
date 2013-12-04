@@ -9,7 +9,6 @@
 
 #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 //#define BOOST_GEOMETRY_OVERLAY_NO_THROW
-//#define TEST_WITH_SVG
 //#define HAVE_TTMATH
 
 #include <iostream>

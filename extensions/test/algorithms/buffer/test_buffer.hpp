@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
 //#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-//#define TEST_WITH_SVG
 
 #include <fstream>
 #include <iomanip>

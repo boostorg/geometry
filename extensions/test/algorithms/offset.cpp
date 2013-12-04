@@ -10,8 +10,6 @@
 #include <iostream>
 #include <string>
 
-#define TEST_WITH_SVG
-
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
