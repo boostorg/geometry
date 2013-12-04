@@ -48,7 +48,7 @@ void test_sectionalize_part()
 
     typedef bg::detail::sectionalize::sectionalize_part
         <
-            Geometry, point_type, sections_type, 1, 10
+            point_type, 1
         > sectionalize_part;
 
     sections_type sections;
@@ -61,11 +61,11 @@ void test_sectionalize_part()
     bg::ring_identifier ring_id;
     int index = 0;
     int ndi = 0;
-    sectionalize_part::apply(sections, section, index, ndi, geometry, ring_id);
+    sectionalize_part::apply(sections, section, index, ndi, geometry, ring_id, 10);
     // There should not yet be anything generated, because it is only ONE point
 
     geometry.push_back(bg::make<point_type>(2, 2));
-    sectionalize_part::apply(sections, section, index, ndi, geometry, ring_id);
+    sectionalize_part::apply(sections, section, index, ndi, geometry, ring_id, 10);
 
 }
 

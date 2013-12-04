@@ -34,10 +34,12 @@ namespace detail { namespace sectionalize
 {
 
 
-template <typename MultiGeometry, typename Sections, std::size_t DimensionCount, typename Policy>
+template <std::size_t DimensionCount, typename Policy>
 struct sectionalize_multi
 {
-    static inline void apply(MultiGeometry const& multi, Sections& sections, ring_identifier ring_id)
+    template <typename MultiGeometry, typename Sections>
+    static inline void apply(MultiGeometry const& multi, Sections& sections,
+                ring_identifier ring_id, std::size_t max_count)
     {
         ring_id.multi_index = 0;
         for (typename boost::range_iterator<MultiGeometry const>::type
@@ -45,7 +47,7 @@ struct sectionalize_multi
             it != boost::end(multi);
             ++it, ++ring_id.multi_index)
         {
-            Policy::apply(*it, sections, ring_id);
+            Policy::apply(*it, sections, ring_id, max_count);
         }
     }
 };
@@ -64,23 +66,16 @@ template
 <
     typename MultiPolygon,
     bool Reverse,
-    typename Sections,
-    std::size_t DimensionCount,
-    std::size_t MaxCount
+    std::size_t DimensionCount
 >
-struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse, Sections, DimensionCount, MaxCount>
+struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse,  DimensionCount>
     : detail::sectionalize::sectionalize_multi
         <
-            MultiPolygon,
-            Sections,
             DimensionCount,
             detail::sectionalize::sectionalize_polygon
                 <
-                    typename boost::range_value<MultiPolygon>::type,
                     Reverse,
-                    Sections,
-                    DimensionCount,
-                    MaxCount
+                    DimensionCount
                 >
         >
 
