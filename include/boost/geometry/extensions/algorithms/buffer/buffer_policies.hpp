@@ -46,13 +46,14 @@ class backtrack_for_buffer
 public :
     typedef detail::overlay::backtrack_state state_type;
 
-    template <typename Operation, typename Rings, typename Turns, typename Geometry>
-    static inline void apply(std::size_t size_at_start, 
+    template <typename Operation, typename Rings, typename Turns, typename Geometry, typename RescalePolicy>
+    static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& reason,
                 Geometry const& ,
                 Geometry const& ,
+                RescalePolicy const& ,
                 state_type& state
                 )
     {

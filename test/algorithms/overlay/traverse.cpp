@@ -152,7 +152,7 @@ struct test_traverse
         std::vector<turn_info> turns;
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, turns, policy);
+        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, bg::detail::no_rescale_policy(), turns, policy);
         bg::enrich_intersection_points<Reverse1, Reverse2>(turns,
                     Direction == 1 ? bg::detail::overlay::operation_union
                     : bg::detail::overlay::operation_intersection,
@@ -167,7 +167,7 @@ struct test_traverse
             <
                 Reverse1, Reverse2,
                 G1, G2
-            >::apply(g1, g2, Direction, turns, v);
+            >::apply(g1, g2, Direction, bg::detail::no_rescale_policy(), turns, v);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),

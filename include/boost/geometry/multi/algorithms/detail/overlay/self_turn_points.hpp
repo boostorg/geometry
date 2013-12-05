@@ -27,23 +27,14 @@ namespace dispatch
 template
 <
     typename MultiPolygon,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct self_get_turn_points
     <
         multi_polygon_tag, MultiPolygon,
-        Turns,
-        TurnPolicy, InterruptPolicy
+        TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns
-        <
-            MultiPolygon,
-            Turns,
-            TurnPolicy,
-            InterruptPolicy
-        >
+    : detail::self_get_turn_points::get_turns<TurnPolicy>
 {};
 
 

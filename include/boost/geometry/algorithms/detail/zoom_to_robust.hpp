@@ -21,6 +21,8 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 namespace boost { namespace geometry
 {
 

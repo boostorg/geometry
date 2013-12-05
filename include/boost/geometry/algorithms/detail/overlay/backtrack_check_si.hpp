@@ -79,13 +79,14 @@ class backtrack_check_self_intersections
 public :
     typedef state state_type;
 
-    template <typename Operation, typename Rings, typename Turns>
+    template <typename Operation, typename Rings, typename Turns, typename RescalePolicy>
     static inline void apply(std::size_t size_at_start, 
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& ,
                 Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
+                RescalePolicy const& rescale_policy,
                 state_type& state
                 )
     {
@@ -95,8 +96,8 @@ public :
         if (! state.m_checked)
         {
             state.m_checked = true;
-            has_self_intersections(geometry1);
-            has_self_intersections(geometry2);
+            has_self_intersections(geometry1, rescale_policy);
+            has_self_intersections(geometry2, rescale_policy);
         }
 
         // Make bad output clean

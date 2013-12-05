@@ -55,17 +55,21 @@ template
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
+    typename RescalePolicy,
     typename InterruptPolicy
 >
 struct self_section_visitor
 {
     Geometry const& m_geometry;
+    RescalePolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
 
     inline self_section_visitor(Geometry const& g,
+            RescalePolicy const& rp,
             Turns& turns, InterruptPolicy& ip)
         : m_geometry(g)
+        , m_rescale_policy(rp)
         , m_turns(turns)
         , m_interrupt_policy(ip)
     {}
@@ -82,12 +86,12 @@ struct self_section_visitor
                         Geometry, Geometry,
                         false, false,
                         Section, Section,
-                        Turns, TurnPolicy,
-                        InterruptPolicy
+                        TurnPolicy
                     >::apply(
                             0, m_geometry, sec1,
                             0, m_geometry, sec2,
                             false,
+                            m_rescale_policy,
                             m_turns, m_interrupt_policy);
         }
         if (m_interrupt_policy.has_intersections)
@@ -103,17 +107,13 @@ struct self_section_visitor
 
 
 
-template
-<
-    typename Geometry,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
->
+template<typename TurnPolicy>
 struct get_turns
 {
+    template <typename Geometry, typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline bool apply(
             Geometry const& geometry,
+            RescalePolicy const& rescale_policy,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
@@ -132,15 +132,15 @@ struct get_turns
         self_section_visitor
             <
                 Geometry,
-                Turns, TurnPolicy, InterruptPolicy
-            > visitor(geometry, turns, interrupt_policy);
+                Turns, TurnPolicy, RescalePolicy, InterruptPolicy
+            > visitor(geometry, rescale_policy, turns, interrupt_policy);
 
         try
         {
             geometry::partition
                 <
-                    box_type, 
-                    detail::get_turns::get_section_box, 
+                    box_type,
+                    detail::get_turns::get_section_box,
                     detail::get_turns::ovelaps_section_box
                 >::apply(sec, visitor);
         }
@@ -166,9 +166,7 @@ template
 <
     typename GeometryTag,
     typename Geometry,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct self_get_turn_points
 {
@@ -178,44 +176,32 @@ struct self_get_turn_points
 template
 <
     typename Ring,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct self_get_turn_points
     <
         ring_tag, Ring,
-        Turns,
-        TurnPolicy,
-        InterruptPolicy
+        TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns
-        <
-            Ring,
-            Turns,
-            TurnPolicy,
-            InterruptPolicy
-        >
+    : detail::self_get_turn_points::get_turns<TurnPolicy>
 {};
 
 
 template
 <
     typename Box,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct self_get_turn_points
     <
         box_tag, Box,
-        Turns,
-        TurnPolicy,
-        InterruptPolicy
+        TurnPolicy
     >
 {
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline bool apply(
             Box const& ,
+            RescalePolicy const& ,
             Turns& ,
             InterruptPolicy& )
     {
@@ -227,24 +213,14 @@ struct self_get_turn_points
 template
 <
     typename Polygon,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct self_get_turn_points
     <
         polygon_tag, Polygon,
-        Turns,
-        TurnPolicy,
-        InterruptPolicy
+        TurnPolicy
     >
-    : detail::self_get_turn_points::get_turns
-        <
-            Polygon,
-            Turns,
-            TurnPolicy,
-            InterruptPolicy
-        >
+    : detail::self_get_turn_points::get_turns<TurnPolicy>
 {};
 
 
@@ -267,30 +243,24 @@ template
 <
     typename AssignPolicy,
     typename Geometry,
+    typename RescalePolicy,
     typename Turns,
     typename InterruptPolicy
 >
 inline void self_turns(Geometry const& geometry,
+            RescalePolicy const& rescale_policy,
             Turns& turns, InterruptPolicy& interrupt_policy)
 {
     concept::check<Geometry const>();
 
-    typedef detail::overlay::get_turn_info
-                        <
-                            typename point_type<Geometry>::type,
-                            typename point_type<Geometry>::type,
-                            typename boost::range_value<Turns>::type,
-                            detail::overlay::assign_null_policy
-                        > TurnPolicy;
+    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> TurnPolicy;
 
     dispatch::self_get_turn_points
             <
                 typename tag<Geometry>::type,
                 Geometry,
-                Turns,
-                TurnPolicy,
-                InterruptPolicy
-            >::apply(geometry, turns, interrupt_policy);
+                TurnPolicy
+            >::apply(geometry, rescale_policy, turns, interrupt_policy);
 }
 
 

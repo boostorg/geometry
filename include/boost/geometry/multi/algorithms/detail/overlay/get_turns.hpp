@@ -35,15 +35,15 @@ template
 <
     typename Multi, typename Box,
     bool Reverse, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns_multi_polygon_cs
 {
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
             int source_id1, Multi const& multi,
             int source_id2, Box const& box,
+            RescalePolicy const& rescale_policy,
             Turns& turns, InterruptPolicy& interrupt_policy)
     {
         typedef typename boost::range_iterator
@@ -61,9 +61,9 @@ struct get_turns_multi_polygon_cs
                 <
                     typename boost::range_value<Multi>::type, Box,
                     Reverse, ReverseBox,
-                    Turns, TurnPolicy, InterruptPolicy
+                    TurnPolicy
                 >::apply(source_id1, *it, source_id2, box,
-                            turns, interrupt_policy, i);
+                            rescale_policy, turns, interrupt_policy, i);
         }
     }
 };
@@ -82,24 +82,20 @@ template
     typename MultiPolygon,
     typename Box,
     bool ReverseMultiPolygon, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns
     <
         multi_polygon_tag, box_tag,
         MultiPolygon, Box,
         ReverseMultiPolygon, ReverseBox,
-        Turns,
-        TurnPolicy, InterruptPolicy
+        TurnPolicy
     >
     : detail::get_turns::get_turns_multi_polygon_cs
         <
             MultiPolygon, Box,
             ReverseMultiPolygon, ReverseBox,
-            Turns,
-            TurnPolicy, InterruptPolicy
+            TurnPolicy
         >
 {};
 

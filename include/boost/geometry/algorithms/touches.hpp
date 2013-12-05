@@ -146,9 +146,6 @@ inline bool touches(Geometry const& geometry)
 
     typedef detail::overlay::get_turn_info
         <
-            typename point_type<Geometry>::type,
-            typename point_type<Geometry>::type,
-            turn_info,
             detail::overlay::assign_null_policy
         > policy_type;
 
@@ -156,11 +153,8 @@ inline bool touches(Geometry const& geometry)
     detail::self_get_turn_points::no_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
-                Geometry,
-                std::deque<turn_info>,
-                policy_type,
-                detail::self_get_turn_points::no_interrupt_policy
-            >::apply(geometry, turns, policy);
+                policy_type
+            >::apply(geometry, detail::no_rescale_policy(), turns, policy);
 
     return detail::touches::has_only_turns(turns);
 }
@@ -192,9 +186,6 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
 
     typedef detail::overlay::get_turn_info
         <
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type,
-            turn_info,
             detail::overlay::assign_null_policy
         > policy_type;
 
@@ -205,7 +196,7 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
                 detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                 detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                 detail::overlay::assign_null_policy
-            >(geometry1, geometry2, turns, policy);
+            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
 
     return detail::touches::has_only_turns(turns)
         && ! geometry::detail::touches::rings_containing(geometry1, geometry2)

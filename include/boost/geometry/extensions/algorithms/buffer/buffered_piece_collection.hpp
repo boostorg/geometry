@@ -196,10 +196,11 @@ struct buffered_piece_collection
     typedef std::vector<buffer_turn_info<point_type> > turn_vector_type;
     typedef detail::overlay::get_turn_info
         <
-            point_type, point_type, buffer_turn_info<point_type>,
             turn_assign_for_buffer
         > turn_policy;
     turn_vector_type m_turns;
+
+    geometry::detail::no_rescale_policy m_rescale_policy;
 
 
     // To check clustered locations we keep track of segments being opposite somewhere
@@ -319,7 +320,7 @@ struct buffered_piece_collection
 
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
-                                    the_model, std::back_inserter(m_turns));
+                                    the_model, m_rescale_policy, std::back_inserter(m_turns));
             }
         }
     }
@@ -1322,7 +1323,7 @@ struct buffered_piece_collection
         traversed_rings.clear();
         traverser::apply(offsetted_rings, offsetted_rings,
                         detail::overlay::operation_union,
-                        m_turns, traversed_rings);
+                        m_rescale_policy, m_turns, traversed_rings);
     }
 
     template <typename GeometryOutput, typename OutputIterator>

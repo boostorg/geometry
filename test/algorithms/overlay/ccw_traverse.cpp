@@ -49,12 +49,13 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     std::vector<turn_info> turns;
 
     bg::detail::get_turns::no_interrupt_policy policy;
+    bg::detail::no_rescale_policy rescale_policy;
     bg::get_turns
         <
             rev<Geometry1>::value,
             rev<Geometry2>::value,
             bg::detail::overlay::calculate_distance_policy
-        >(g1, g2, turns, policy);
+        >(g1, g2, rescale_policy, turns, policy);
 
     bg::enrich_intersection_points<rev<Geometry1>::value, rev<Geometry2>::value >(turns, bg::detail::overlay::operation_intersection,
         g1, g2, side_strategy_type());
@@ -67,7 +68,7 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
         <
             rev<Geometry1>::value, rev<Geometry2>::value,
             Geometry1, Geometry2
-        >::apply(g1, g2, op, turns, v);
+        >::apply(g1, g2, op, rescale_policy, turns, v);
 
     typename bg::coordinate_type<Geometry1>::type result = 0.0;
     BOOST_FOREACH(ring_type& ring, v)

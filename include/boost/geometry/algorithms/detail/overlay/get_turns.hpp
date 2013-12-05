@@ -93,9 +93,7 @@ template
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2,
     typename Section1, typename Section2,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 class get_turns_in_sections
 {
@@ -165,10 +163,12 @@ class get_turns_in_sections
 
 public :
     // Returns true if terminated, false if interrupted
+    template <typename Turns, typename RescalePolicy, typename InterruptPolicy>
     static inline bool apply(
             int source_id1, Geometry1 const& geometry1, Section1 const& sec1,
             int source_id2, Geometry2 const& geometry2, Section2 const& sec2,
             bool skip_larger,
+            RescalePolicy const& rescale_policy,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
@@ -279,7 +279,7 @@ public :
                     std::size_t const size_before = boost::size(turns);
 
                     TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
-                            ti, std::back_inserter(turns));
+                            ti, rescale_policy, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
                     {
@@ -390,6 +390,7 @@ template
     bool Reverse1, bool Reverse2,
     typename Turns,
     typename TurnPolicy,
+    typename RescalePolicy,
     typename InterruptPolicy
 >
 struct section_visitor
@@ -398,14 +399,17 @@ struct section_visitor
     Geometry1 const& m_geometry1;
     int m_source_id2;
     Geometry2 const& m_geometry2;
+    RescalePolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
 
     section_visitor(int id1, Geometry1 const& g1,
             int id2, Geometry2 const& g2,
+            RescalePolicy const& rescale_policy,
             Turns& turns, InterruptPolicy& ip)
         : m_source_id1(id1), m_geometry1(g1)
         , m_source_id2(id2), m_geometry2(g2)
+        , m_rescale_policy(rescale_policy)
         , m_turns(turns)
         , m_interrupt_policy(ip)
     {}
@@ -421,13 +425,12 @@ struct section_visitor
                         Geometry2,
                         Reverse1, Reverse2,
                         Section, Section,
-                        Turns,
-                        TurnPolicy,
-                        InterruptPolicy
+                        TurnPolicy
                     >::apply(
                             m_source_id1, m_geometry1, sec1,
                             m_source_id2, m_geometry2, sec2,
                             false,
+                            m_rescale_policy,
                             m_turns, m_interrupt_policy);
         }
         return true;
@@ -439,18 +442,19 @@ template
 <
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 class get_turns_generic
 {
 
 public:
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
             int source_id1, Geometry1 const& geometry1,
             int source_id2, Geometry2 const& geometry2,
-            Turns& turns, InterruptPolicy& interrupt_policy)
+            RescalePolicy const& rescale_policy,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy)
     {
         // First create monotonic sections...
         typedef typename boost::range_value<Turns>::type ip_type;
@@ -468,8 +472,8 @@ public:
             <
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                Turns, TurnPolicy, InterruptPolicy
-            > visitor(source_id1, geometry1, source_id2, geometry2, turns, interrupt_policy);
+                Turns, TurnPolicy, RescalePolicy, InterruptPolicy
+            > visitor(source_id1, geometry1, source_id2, geometry2, rescale_policy, turns, interrupt_policy);
 
         geometry::partition
             <
@@ -484,13 +488,10 @@ template
 <
     typename Range, typename Box,
     bool ReverseRange, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns_cs
 {
-    typedef typename boost::range_value<Turns>::type turn_info;
     typedef typename geometry::point_type<Range>::type point_type;
     typedef typename geometry::point_type<Box>::type box_point_type;
 
@@ -512,13 +513,16 @@ struct get_turns_cs
         >::type iterator_type;
 
 
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
                 int source_id1, Range const& range,
                 int source_id2, Box const& box,
+                RescalePolicy const& rescale_policy,
                 Turns& turns,
                 InterruptPolicy& interrupt_policy,
                 int multi_index = -1, int ring_index = -1)
     {
+        typedef typename boost::range_value<Turns>::type turn_info;
         if (boost::size(range) <= 1)
         {
             return;
@@ -578,6 +582,7 @@ struct get_turns_cs
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
+                        rescale_policy,
                         turns, interrupt_policy);
                 // Future performance enhancement: 
                 // return if told by the interrupt policy 
@@ -606,6 +611,7 @@ private:
         else return 0;
     }
 
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void get_turns_with_box(segment_identifier const& seg_id, int source_id2,
             // Points from a range:
             point_type const& rp0,
@@ -616,6 +622,7 @@ private:
             box_point_type const& bp1,
             box_point_type const& bp2,
             box_point_type const& bp3,
+            RescalePolicy const& rescale_policy,
             // Output
             Turns& turns,
             InterruptPolicy& interrupt_policy)
@@ -633,19 +640,19 @@ private:
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                ti, std::back_inserter(turns));
+                ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                ti, std::back_inserter(turns));
+                ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                ti, std::back_inserter(turns));
+                ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                ti, std::back_inserter(turns));
+                ti, rescale_policy, std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)
         {
@@ -661,15 +668,15 @@ template
 <
     typename Polygon, typename Box,
     bool Reverse, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns_polygon_cs
 {
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
             int source_id1, Polygon const& polygon,
             int source_id2, Box const& box,
+            RescalePolicy const& rescale_policy,
             Turns& turns, InterruptPolicy& interrupt_policy,
             int multi_index = -1)
     {
@@ -679,14 +686,14 @@ struct get_turns_polygon_cs
             <
                 ring_type, Box,
                 Reverse, ReverseBox,
-                Turns,
-                TurnPolicy,
-                InterruptPolicy
+                TurnPolicy
             > intersector_type;
 
         intersector_type::apply(
                 source_id1, geometry::exterior_ring(polygon),
-                source_id2, box, turns, interrupt_policy,
+                source_id2, box,
+                rescale_policy,
+                turns, interrupt_policy,
                 multi_index, -1);
 
         int i = 0;
@@ -698,7 +705,9 @@ struct get_turns_polygon_cs
         {
             intersector_type::apply(
                     source_id1, *it,
-                    source_id2, box, turns, interrupt_policy,
+                    source_id2, box,
+                    rescale_policy,
+                    turns, interrupt_policy,
                     multi_index, i);
         }
 
@@ -720,18 +729,14 @@ template
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns
     : detail::get_turns::get_turns_generic
         <
             Geometry1, Geometry2,
             Reverse1, Reverse2,
-            Turns,
-            TurnPolicy,
-            InterruptPolicy
+            TurnPolicy
         >
 {};
 
@@ -740,23 +745,19 @@ template
 <
     typename Polygon, typename Box,
     bool ReversePolygon, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns
     <
         polygon_tag, box_tag,
         Polygon, Box,
         ReversePolygon, ReverseBox,
-        Turns,
-        TurnPolicy,
-        InterruptPolicy
+        TurnPolicy
     > : detail::get_turns::get_turns_polygon_cs
             <
                 Polygon, Box,
                 ReversePolygon, ReverseBox,
-                Turns, TurnPolicy, InterruptPolicy
+                TurnPolicy
             >
 {};
 
@@ -765,22 +766,18 @@ template
 <
     typename Ring, typename Box,
     bool ReverseRing, bool ReverseBox,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns
     <
         ring_tag, box_tag,
         Ring, Box,
         ReverseRing, ReverseBox,
-        Turns,
-        TurnPolicy,
-        InterruptPolicy
+        TurnPolicy
     > : detail::get_turns::get_turns_cs
             <
                 Ring, Box, ReverseRing, ReverseBox,
-                Turns, TurnPolicy, InterruptPolicy
+                TurnPolicy
             >
 
 {};
@@ -791,25 +788,26 @@ template
     typename GeometryTag1, typename GeometryTag2,
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2,
-    typename Turns,
-    typename TurnPolicy,
-    typename InterruptPolicy
+    typename TurnPolicy
 >
 struct get_turns_reversed
 {
+    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
     static inline void apply(
             int source_id1, Geometry1 const& g1,
             int source_id2, Geometry2 const& g2,
-            Turns& turns, InterruptPolicy& interrupt_policy)
+            RescalePolicy const& rescale_policy,
+            Turns& turns,
+            InterruptPolicy& interrupt_policy)
     {
         get_turns
             <
                 GeometryTag2, GeometryTag1,
                 Geometry2, Geometry1,
                 Reverse2, Reverse1,
-                Turns, TurnPolicy,
-                InterruptPolicy
-            >::apply(source_id2, g2, source_id1, g1, turns, interrupt_policy);
+                TurnPolicy
+            >::apply(source_id2, g2, source_id1, g1, rescale_policy, 
+                    turns, interrupt_policy);
     }
 };
 
@@ -837,11 +835,13 @@ template
     typename AssignPolicy,
     typename Geometry1,
     typename Geometry2,
+    typename RescalePolicy,
     typename Turns,
     typename InterruptPolicy
 >
 inline void get_turns(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
 {
@@ -855,13 +855,7 @@ inline void get_turns(Geometry1 const& geometry1,
     //        typename boost::range_value<Turns>::type
     //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
-    typedef detail::overlay::get_turn_info
-        <
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type,
-            typename boost::range_value<Turns>::type,
-            AssignPolicy
-        > TurnPolicy;
+    typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
 
     boost::mpl::if_c
         <
@@ -872,8 +866,7 @@ inline void get_turns(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                Turns, TurnPolicy,
-                InterruptPolicy
+                TurnPolicy
             >,
             dispatch::get_turns
             <
@@ -881,12 +874,12 @@ inline void get_turns(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                Turns, TurnPolicy,
-                InterruptPolicy
+                TurnPolicy
             >
         >::type::apply(
             0, geometry1,
             1, geometry2,
+            rescale_policy,
             turns, interrupt_policy);
 }
 

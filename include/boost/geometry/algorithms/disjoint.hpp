@@ -36,6 +36,7 @@
 #include <boost/geometry/algorithms/point_on_surface.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -122,7 +123,7 @@ struct disjoint_linear
             <
                 false, false, 
                 assign_disjoint_policy
-            >(geometry1, geometry2, turns, policy);
+            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
         if (policy.has_intersections)
         {
             return false;

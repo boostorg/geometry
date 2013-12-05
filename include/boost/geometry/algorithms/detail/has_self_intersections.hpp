@@ -16,6 +16,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
@@ -56,15 +57,16 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Geometry>
-inline bool has_self_intersections(Geometry const& geometry)
+template <typename Geometry, typename RescalePolicy>
+inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const& rescale_policy)
 {
     typedef typename point_type<Geometry>::type point_type;
     typedef detail::overlay::turn_info<point_type> turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
-    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, turns, policy);
-    
+
+    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, rescale_policy, turns, policy);
+
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;
 #endif    
@@ -107,6 +109,13 @@ inline bool has_self_intersections(Geometry const& geometry)
 
     }
     return false;
+}
+
+// For backward compatibility
+template <typename Geometry>
+inline bool has_self_intersections(Geometry const& geometry)
+{
+    return has_self_intersections(geometry, detail::no_rescale_policy());
 }
 
 

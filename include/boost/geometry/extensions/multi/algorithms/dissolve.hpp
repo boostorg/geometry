@@ -34,8 +34,8 @@ namespace detail { namespace dissolve
 template <typename Multi, typename GeometryOut>
 struct dissolve_multi
 {
-    template <typename OutputIterator>
-    static inline OutputIterator apply(Multi const& multi, OutputIterator out)
+    template <typename RescalePolicy, typename OutputIterator>
+    static inline OutputIterator apply(Multi const& multi, RescalePolicy const& rescale_policy, OutputIterator out)
     {
         typedef typename boost::range_value<Multi>::type polygon_type;
         typedef typename boost::range_iterator<Multi const>::type iterator_type;
@@ -50,13 +50,13 @@ struct dissolve_multi
                 <
                     polygon_type,
                     GeometryOut
-                >::apply(*it, std::back_inserter(step1));
+                >::apply(*it, rescale_policy, std::back_inserter(step1));
         }
 
         // Step 2: remove mutual overlap
         {
             std::vector<GeometryOut> step2; // TODO avoid this, output to "out", if possible
-            detail::dissolver::dissolver_generic<detail::dissolver::plusmin_policy>::apply(step1, step2);
+            detail::dissolver::dissolver_generic<detail::dissolver::plusmin_policy>::apply(step1, rescale_policy, step2);
             for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
                 it != step2.end(); ++it)
             {

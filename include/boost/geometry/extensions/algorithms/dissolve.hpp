@@ -66,13 +66,14 @@ class backtrack_for_dissolve
 public :
     typedef detail::overlay::backtrack_state state_type;
 
-    template <typename Operation, typename Rings, typename Turns>
+    template <typename Operation, typename Rings, typename Turns, typename RescalePolicy>
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& ,
                 Geometry const& ,
                 Geometry const& ,
+                RescalePolicy const& ,
                 state_type& state
                 )
     {
@@ -94,8 +95,9 @@ public :
 template <typename Geometry, typename GeometryOut>
 struct dissolve_ring_or_polygon
 {
-    template <typename OutputIterator>
+    template <typename RescalePolicy, typename OutputIterator>
     static inline OutputIterator apply(Geometry const& geometry,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
         // Get the self-intersection points, including turns
@@ -109,7 +111,7 @@ struct dissolve_ring_or_polygon
         geometry::self_turns
             <
                 detail::overlay::calculate_distance_policy
-            >(geometry, turns, policy);
+            >(geometry, rescale_policy, turns, policy);
 
         // The dissolve process is not necessary if there are no turns at all
 
@@ -141,6 +143,7 @@ struct dissolve_ring_or_polygon
             // Traverse the polygons twice for union...
             traverser::apply(geometry, geometry,
                             detail::overlay::operation_union,
+                            rescale_policy,
                             turns, rings);
 
             clear_visit_info(turns);
@@ -154,6 +157,7 @@ struct dissolve_ring_or_polygon
             // ... and for intersection
             traverser::apply(geometry, geometry,
                             detail::overlay::operation_intersection,
+                            rescale_policy,
                             turns, rings);
 
             std::map<ring_identifier, int> map;
@@ -260,7 +264,7 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator
         typename tag<GeometryOut>::type,
         Geometry,
         GeometryOut
-    >::apply(geometry, out);
+    >::apply(geometry, detail::no_rescale_policy(), out);
 }
 
 
@@ -283,7 +287,7 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection)
         typename tag<geometry_out>::type,
         Geometry,
         geometry_out
-    >::apply(geometry, std::back_inserter(output_collection));
+    >::apply(geometry, detail::no_rescale_policy(), std::back_inserter(output_collection));
 }
 
 

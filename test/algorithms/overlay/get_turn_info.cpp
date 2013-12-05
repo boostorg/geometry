@@ -49,10 +49,9 @@ void test_with_point(std::string const& caseid,
     tp_vector info;
     bg::detail::overlay::get_turn_info
         <
-            P, P, turn_info,
             bg::detail::overlay::assign_null_policy
         >::apply(pi, pj, pk, qi, qj, qk,
-        model, std::back_inserter(info));
+        model, bg::detail::no_rescale_policy(), std::back_inserter(info));
 
 
     if (info.size() == 0)

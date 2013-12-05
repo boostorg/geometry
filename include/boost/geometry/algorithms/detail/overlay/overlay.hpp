@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
@@ -190,6 +191,8 @@ struct overlay
         boost::timer timer;
 #endif
 
+		detail::no_rescale_policy rescale_policy;
+
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
 #endif
@@ -198,7 +201,7 @@ std::cout << "get turns" << std::endl;
             <
                 Reverse1, Reverse2,
                 detail::overlay::calculate_distance_policy
-            >(geometry1, geometry2, turn_points, policy);
+            >(geometry1, geometry2, rescale_policy, turn_points, policy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "get_turns: " << timer.elapsed() << std::endl;
@@ -233,6 +236,7 @@ std::cout << "traverse" << std::endl;
                     Direction == overlay_union
                         ? geometry::detail::overlay::operation_union
                         : geometry::detail::overlay::operation_intersection,
+                    rescale_policy,
                     turn_points, rings
                 );
 

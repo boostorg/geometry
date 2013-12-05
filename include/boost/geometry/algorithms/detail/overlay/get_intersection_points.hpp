@@ -14,6 +14,7 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -47,11 +48,12 @@ struct get_turn_without_info
 
 
 
-    template <typename OutputIterator>
+    template <typename RescalePolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& ,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -118,9 +120,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1, Geometry2,
                 false, false,
-                Turns, TurnPolicy,
-                //segment_intersection_strategy_type,
-                detail::get_turns::no_interrupt_policy
+                TurnPolicy
             >,
             dispatch::get_turns
             <
@@ -128,13 +128,12 @@ inline void get_intersection_points(Geometry1 const& geometry1,
                 typename tag<Geometry2>::type,
                 Geometry1, Geometry2,
                 false, false,
-                Turns, TurnPolicy,
-                //segment_intersection_strategy_type,
-                detail::get_turns::no_interrupt_policy
+                TurnPolicy
             >
         >::type::apply(
             0, geometry1,
             1, geometry2,
+            detail::no_rescale_policy(),
             turns, interrupt_policy);
 }
 

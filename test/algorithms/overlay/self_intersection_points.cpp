@@ -61,7 +61,7 @@ static void test_self_intersection_points(std::string const& case_id,
     bg::self_turns
         <
             bg::detail::overlay::assign_null_policy
-        >(geometry, turns, policy);
+        >(geometry, bg::detail::no_rescale_policy(), turns, policy);
 
 
     typedef typename bg::coordinate_type<Geometry>::type ct;

@@ -28,6 +28,8 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
+
 #include <boost/geometry/views/segment_view.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
@@ -120,7 +122,7 @@ struct intersection_of_linestring_with_areal
 {
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
         template <typename Turn, typename Operation>
-        static inline void debug_follow(Turn const& turn, Operation op, 
+        static inline void debug_follow(Turn const& turn, Operation op,
                     int index)
         {
             std::cout << index
@@ -168,11 +170,11 @@ struct intersection_of_linestring_with_areal
                 false,
                 (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
                 detail::overlay::calculate_distance_policy
-            >(linestring, areal, turns, policy);
+            >(linestring, areal, detail::no_rescale_policy(), turns, policy);
 
         if (turns.empty())
         {
-            // No intersection points, it is either completely 
+            // No intersection points, it is either completely
             // inside (interior + borders)
             // or completely outside
 
@@ -468,7 +470,7 @@ struct intersection_insert
         geometry::get_turns
             <
                 false, false, detail::overlay::assign_null_policy
-            >(geometry1, geometry2, turns, policy);
+            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
         for (typename std::vector<turn_info>::const_iterator it
             = turns.begin(); it != turns.end(); ++it)
         {

@@ -99,9 +99,11 @@ class plusmin_policy
     <
         typename Geometry1,
         typename Geometry2,
+        typename RescalePolicy,
         typename OutputCollection
     >
-    static inline bool check_negative(Geometry1 a, Geometry2 b,
+    static inline bool check_negative(Geometry1 a, Geometry2 b, // pass-by-value
+                    RescalePolicy const& rescale_policy,
                     OutputCollection& output_collection)
     {
         // Precondition: a = positive, b = negative
@@ -132,7 +134,7 @@ class plusmin_policy
             <
                 false, false,
                 overlay::assign_null_policy
-            >(a, b, turns, policy);
+            >(a, b, rescale_policy, turns, policy);
 
         if (! policy.has_intersections)
         {
@@ -175,9 +177,11 @@ public :
     <
         typename Geometry1,
         typename Geometry2,
+        typename RescalePolicy,
         typename OutputCollection
     >
     static inline bool apply(Geometry1 const& a, Geometry2 const& b,
+                    RescalePolicy const& rescale_policy,
                     OutputCollection& output_collection)
     {
         typedef typename geometry::coordinate_type<Geometry2>::type coordinate_type;
@@ -204,11 +208,11 @@ public :
         }
         else if (area_a > zero && area_b < zero)
         {
-            return check_negative(a, b, output_collection);
+            return check_negative(a, b, rescale_policy, output_collection);
         }
         else if (area_a < zero && area_b > zero)
         {
-            return check_negative(b, a, output_collection);
+            return check_negative(b, a, rescale_policy, output_collection);
         }
 
         // both negative (?) TODO
@@ -297,12 +301,14 @@ struct dissolver_generic
     <
         typename Element,
         typename Geometry1, typename Geometry2,
+        typename RescalePolicy,
         typename OutputCollection
     >
     static inline bool call_policy(
             Element const& element1, Element const& element2,
-            Geometry1 const& geometry1, Geometry2 const& geometry2
-                , OutputCollection& output_collection)
+            Geometry1 const& geometry1, Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy,
+            OutputCollection& output_collection)
     {
         if (! geometry::disjoint(geometry1, geometry2))
         {
@@ -312,7 +318,7 @@ struct dissolver_generic
                 << std::endl;
             */
             return CombinePolicy::apply(geometry1, geometry2,
-                            output_collection);
+                            rescale_policy, output_collection);
         }
         return false;
     }
@@ -324,12 +330,14 @@ struct dissolver_generic
         typename HelperVector,
         typename IndexVector,
         typename InputRange,
+        typename RescalePolicy,
         typename OutputCollection,
         typename Box
     >
     static inline bool divide_and_conquer(HelperVector& helper_vector
                 , IndexVector& index_vector
                 , InputRange const& input_range
+                , RescalePolicy const& rescale_policy
                 , OutputCollection& output_collection
                 , Box const& total_box
                 , bool& changed
@@ -376,9 +384,9 @@ struct dissolver_generic
 
             // 3: recursively call function (possibly divide in other dimension)
             divide_and_conquer<1 - Dimension>(helper_vector,
-                lower_list, input_range, output_collection, lower_box, changed, iteration + 1);
+                lower_list, input_range, rescale_policy, output_collection, lower_box, changed, iteration + 1);
             divide_and_conquer<1 - Dimension>(helper_vector,
-                upper_list, input_range, output_collection, upper_box, changed, iteration + 1);
+                upper_list, input_range, rescale_policy, output_collection, upper_box, changed, iteration + 1);
             return changed;
         }
 
@@ -411,6 +419,7 @@ struct dissolver_generic
                                 element1, element2,
                                 get_geometry::apply(input_range, element1.index),
                                 get_geometry::apply(input_range, element2.index),
+                                rescale_policy,
                                 output_collection
                             )
                         )
@@ -420,6 +429,7 @@ struct dissolver_generic
                                 element1, element2,
                                 get_geometry::apply(input_range, element1.index),
                                 get_geometry::apply(output_collection, element2.index),
+                                rescale_policy,
                                 output_collection
                             )
                         )
@@ -429,6 +439,7 @@ struct dissolver_generic
                                 element1, element2,
                                 get_geometry::apply(output_collection, element1.index),
                                 get_geometry::apply(input_range, element2.index),
+                                rescale_policy,
                                 output_collection
                             )
                         )
@@ -438,6 +449,7 @@ struct dissolver_generic
                                 element1, element2,
                                 get_geometry::apply(output_collection, element1.index),
                                 get_geometry::apply(output_collection, element2.index),
+                                rescale_policy,
                                 output_collection
                             )
                         )
@@ -476,9 +488,11 @@ struct dissolver_generic
     template
     <
         typename InputRange,
+        typename RescalePolicy,
         typename OutputCollection
     >
     static inline void apply(InputRange const& input_range
+                , RescalePolicy const& rescale_policy
                 , OutputCollection& output_collection
                 )
     {
@@ -518,7 +532,7 @@ struct dissolver_generic
 
         bool changed = false;
         while(divide_and_conquer<1>
-            (helper_vector, index_vector, input_range, unioned_collection, total_box, changed) && n < 5)
+            (helper_vector, index_vector, input_range, rescale_policy, unioned_collection, total_box, changed) && n < 5)
         {
             // Remove everything which is already dissolved.
             helper_vector.erase

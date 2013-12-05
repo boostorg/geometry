@@ -19,6 +19,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 
 
@@ -60,20 +61,14 @@ inline bool intersects(Geometry const& geometry)
 
     typedef detail::overlay::get_turn_info
         <
-            typename point_type<Geometry>::type,
-            typename point_type<Geometry>::type,
-            turn_info,
             detail::overlay::assign_null_policy
         > TurnPolicy;
 
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
-                Geometry,
-                std::deque<turn_info>,
-                TurnPolicy,
-                detail::disjoint::disjoint_interrupt_policy
-            >::apply(geometry, turns, policy);
+                TurnPolicy
+            >::apply(geometry, detail::no_rescale_policy(), turns, policy);
     return policy.has_intersections;
 }
 

@@ -925,33 +925,25 @@ struct assign_null_policy
         It also defines if a certain class of points
         (degenerate, non-turns) should be included.
  */
-template
-<
-    typename Point1,
-    typename Point2,
-    typename TurnInfo,
-    typename AssignPolicy
->
+template<typename AssignPolicy>
 struct get_turn_info
 {
-    typedef strategy_intersection
-        <
-            typename cs_tag<typename TurnInfo::point_type>::type,
-            Point1,
-            Point2,
-            typename TurnInfo::point_type
-        > si;
-
-    typedef typename si::segment_intersection_strategy_type strategy;
-
     // Intersect pi-pj with qi-qj
     // The points pk and qk are used do determine more information
     // about the turn (turn left/right)
-    template <typename OutputIterator>
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename TurnInfo,
+        typename RescalePolicy,
+        typename OutputIterator
+    >
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& tp_model,
+                RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -960,6 +952,16 @@ struct get_turn_info
         segment_type2 q1(qi, qj), q2(qj, qk);
 
         side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+
+        typedef strategy_intersection
+            <
+                typename cs_tag<typename TurnInfo::point_type>::type,
+                Point1,
+                Point2,
+                typename TurnInfo::point_type
+            > si;
+
+        typedef typename si::segment_intersection_strategy_type strategy;
 
         typename strategy::return_type result = strategy::apply(p1, q1);
 

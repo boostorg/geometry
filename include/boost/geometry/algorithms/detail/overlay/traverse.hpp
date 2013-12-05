@@ -230,10 +230,11 @@ template
 class traverse
 {
 public :
-    template <typename Turns, typename Rings>
+    template <typename RescalePolicy, typename Turns, typename Rings>
     static inline void apply(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 detail::overlay::operation_type operation,
+                RescalePolicy const& rescale_policy,
                 Turns& turns, Rings& rings)
     {
         typedef typename boost::range_value<Rings>::type ring_type;
@@ -294,7 +295,7 @@ public :
                                     size_at_start, 
                                     rings, current_output, turns, *current_iit,
                                     "No next IP",
-                                    geometry1, geometry2, state);
+                                    geometry1, geometry2, rescale_policy, state);
                             }
 
                             if (! detail::overlay::select_next_ip(
@@ -307,7 +308,7 @@ public :
                                     size_at_start, 
                                     rings, current_output, turns, *iit,
                                     "Dead end at start",
-                                    geometry1, geometry2, state);
+                                    geometry1, geometry2, rescale_policy, state);
                             }
                             else
                             {
@@ -329,7 +330,7 @@ public :
                                             size_at_start, 
                                             rings,  current_output, turns, *iit,
                                             "Visit again",
-                                            geometry1, geometry2, state);
+                                            geometry1, geometry2, rescale_policy, state);
                                     }
                                     else
                                     {
@@ -363,7 +364,7 @@ public :
                                                 size_at_start, 
                                                 rings,  current_output, turns, *iit,
                                                 "Dead end",
-                                                geometry1, geometry2, state);
+                                                geometry1, geometry2, rescale_policy, state);
                                         }
                                         else
                                         {
@@ -379,7 +380,7 @@ public :
                                                 size_at_start, 
                                                 rings,  current_output, turns, *iit,
                                                 "Endless loop",
-                                                geometry1, geometry2, state);
+                                                geometry1, geometry2, rescale_policy, state);
                                         }
                                     }
                                 }
