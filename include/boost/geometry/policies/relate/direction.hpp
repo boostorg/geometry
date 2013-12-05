@@ -254,8 +254,8 @@ private :
 
     template <std::size_t I>
     static inline return_type calculate_side(side_info const& sides,
-                coordinate_type const& dx1, coordinate_type const& dy1,
-                S1 const& s1, S2 const& s2,
+                coordinate_type const& , coordinate_type const& ,
+                S1 const& , S2 const& ,
                 char how, int how_a, int how_b)
     {
         int const dir = sides.get<1, I>() == 1 ? 1 : -1;
@@ -264,8 +264,8 @@ private :
 
     template <std::size_t I>
     static inline return_type angle(side_info const& sides,
-                coordinate_type const& dx1, coordinate_type const& dy1,
-                S1 const& s1, S2 const& s2,
+                coordinate_type const& , coordinate_type const& ,
+                S1 const& , S2 const& ,
                 char how, int how_a, int how_b)
     {
         int const dir = sides.get<1, I>() == 1 ? 1 : -1;
@@ -274,8 +274,8 @@ private :
 
 
     static inline return_type starts_from_middle(side_info const& sides,
-                coordinate_type const& dx1, coordinate_type const& dy1,
-                S1 const& s1, S2 const& s2,
+                coordinate_type const& , coordinate_type const& ,
+                S1 const& , S2 const& ,
                 char which,
                 int how_a, int how_b)
     {
@@ -300,8 +300,8 @@ private :
 
     // To be harmonized
     static inline return_type a_ends_at_middle(side_info const& sides,
-                coordinate_type const& dx, coordinate_type const& dy,
-                S1 const& s1, S2 const& s2)
+                coordinate_type const& , coordinate_type const& ,
+                S1 const& , S2 const& )
     {
         // Ending at the middle, one ARRIVES, the other one is NEUTRAL
         // (because it both "arrives"  and "departs" there)
@@ -311,8 +311,8 @@ private :
 
 
     static inline return_type b_ends_at_middle(side_info const& sides,
-                coordinate_type const& dx, coordinate_type const& dy,
-                S1 const& s1, S2 const& s2)
+                coordinate_type const& , coordinate_type const& ,
+                S1 const& , S2 const& )
     {
         int const dir = sides.get<0, 1>() == 1 ? 1 : -1;
         return return_type(sides, 'm', 0, 1, dir, dir);

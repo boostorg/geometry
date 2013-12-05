@@ -144,8 +144,8 @@ struct touch_interior : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& ,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -264,8 +264,8 @@ struct touch : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -461,8 +461,8 @@ struct equal : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& , Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& ,
@@ -593,8 +593,8 @@ struct collinear : public base_turn_handler
         typename SidePolicy
     >
     static inline void apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& , Point1 const& , Point1 const& ,
+                Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
@@ -715,8 +715,8 @@ private :
         typename Point,
         typename IntersectionInfo
     >
-    static inline bool set_tp(Point const& ri, Point const& rj, Point const& rk, int side_rk_r,
-                bool const handle_robustness, Point const& si, Point const& sj, int side_rk_s,
+    static inline bool set_tp(Point const& , Point const& , Point const& , int side_rk_r,
+                bool const handle_robustness, Point const& , Point const& , int side_rk_s,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
         if (handle_robustness)
