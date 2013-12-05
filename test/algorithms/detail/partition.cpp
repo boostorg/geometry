@@ -95,7 +95,7 @@ template <typename Box>
 void test_boxes(std::string const& wkt_box_list, double expected_area, int expected_count)
 {
     std::vector<std::string> wkt_boxes;
-    
+
     boost::split(wkt_boxes, wkt_box_list, boost::is_any_of(";"), boost::token_compress_on);
 
     typedef box_item<Box> sample;
@@ -119,7 +119,7 @@ void test_boxes(std::string const& wkt_box_list, double expected_area, int expec
 
 
 
-struct point_item 
+struct point_item
 {
     point_item()
         : id(0)
@@ -156,7 +156,7 @@ struct point_visitor
 {
     int count;
 
-    point_visitor() 
+    point_visitor()
         : count(0)
     {}
 
@@ -179,10 +179,10 @@ void test_points(std::string const& wkt1, std::string const& wkt2, int expected_
     bg::read_wkt(wkt2, mp2);
 
     int id = 1;
-    BOOST_FOREACH(point_item& p, mp1) 
+    BOOST_FOREACH(point_item& p, mp1)
     { p.id = id++; }
     id = 1;
-    BOOST_FOREACH(point_item& p, mp2) 
+    BOOST_FOREACH(point_item& p, mp2)
     { p.id = id++; }
 
     point_visitor visitor;
@@ -203,18 +203,18 @@ void test_all()
 
     test_boxes<box>(
         // 1           2             3               4             5             6             7
-        "box(0 0,1 1); box(0 0,2 2); box(9 9,10 10); box(8 8,9 9); box(4 4,6 6); box(2 4,6 8); box(7 1,8 2)", 
-        5, // Area(Intersection(1,2)) + A(I(5,6)) 
+        "box(0 0,1 1); box(0 0,2 2); box(9 9,10 10); box(8 8,9 9); box(4 4,6 6); box(2 4,6 8); box(7 1,8 2)",
+        5, // Area(Intersection(1,2)) + A(I(5,6))
         3);
 
     test_boxes<box>(
-        "box(0 0,10 10); box(4 4,6 6); box(3 3,7 7)", 
+        "box(0 0,10 10); box(4 4,6 6); box(3 3,7 7)",
             4 + 16 + 4,  // A(I(1,2)) + A(I(1,3)) + A(I(2,3))
             3);
 
     test_boxes<box>(
-        "box(0 2,10 3); box(3 1,4 5); box(7 1,8 5)", 
-            1 + 1,  // A(I(1,2)) + A(I(1,3)) 
+        "box(0 2,10 3); box(3 1,4 5); box(7 1,8 5)",
+            1 + 1,  // A(I(1,2)) + A(I(1,3))
             2);
 
     test_points("multipoint((1 1))", "multipoint((1 1))", 1);
@@ -234,7 +234,7 @@ struct svg_visitor
     {}
 
     template <typename Box>
-    inline void apply(Box const& box, int level) 
+    inline void apply(Box const& box, int level)
     {
         /*
         std::string color("rgb(64,64,64)");
@@ -320,7 +320,7 @@ void test_many_points(int seed, int size, int count)
     bg::svg_mapper<point_item> mapper(svg, 800, 800);
 
     {
-        point_item p; 
+        point_item p;
         p.x = -1; p.y = -1; mapper.add(p);
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
@@ -422,7 +422,7 @@ void test_many_boxes(int seed, int size, int count)
     bg::svg_mapper<point_item> mapper(svg, 800, 800);
 
     {
-        point_item p; 
+        point_item p;
         p.x = -1; p.y = -1; mapper.add(p);
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }

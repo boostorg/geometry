@@ -1,4 +1,4 @@
-// Generic Geometry2 Library 
+// Generic Geometry2 Library
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.

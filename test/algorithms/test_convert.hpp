@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -44,7 +44,7 @@ void check_mixed(Geometry1 const& geometry1, std::string const& expected, int ex
 
     std::size_t n = bg::num_points(geometry2);
     BOOST_CHECK_MESSAGE(expected_point_count < 0 || int(n) == expected_point_count,
-            "convert: " 
+            "convert: "
             << " #points expected: " << expected_point_count
             << " detected: " << n
             << " expected wkt: " << expected

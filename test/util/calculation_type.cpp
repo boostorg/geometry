@@ -172,7 +172,7 @@ int test_main(int, char* [])
     typedef model::point<boost::long_long_type, 2, cs::cartesian> ll;
     typedef model::point<user_defined, 2, cs::cartesian> u;
 
-    // Calculation type "void" so 
+    // Calculation type "void" so
     test<f, f, double, int, double>();
     test<d, d, double, int, double>();
     test<f, d, double, int, double>();

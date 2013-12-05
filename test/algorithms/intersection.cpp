@@ -166,15 +166,15 @@ void test_areal()
     {
         // Pointcount for ttmath/double (both 5) or float (4)
         // double returns 5 (since method append_no_dups_or_spikes)
-        // but not for ccw/open. Those cases has to be adapted once, anyway, 
+        // but not for ccw/open. Those cases has to be adapted once, anyway,
         // because for open always one point too much is generated...
         test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
             ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
-            1, if_typed<ct, float>(4, 5), 
-            0.6649875, 
-            if_typed<ct, float>(1.0, 0.01)); 
+            1, if_typed<ct, float>(4, 5),
+            0.6649875,
+            if_typed<ct, float>(1.0, 0.01));
     }
-        
+
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 4, 0.4, 0.01);
@@ -188,7 +188,7 @@ void test_areal()
     {
         test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-            3, 
+            3,
             if_typed<ct, double>(21, 20),
             35723.8506317139);
     }
@@ -325,7 +325,7 @@ void test_areal_linear()
     test_one_lp<LineString, Polygon, LineString>("case4", "POLYGON((0 0,0 4,2 4,2 0,0 0))", "LINESTRING(1 1,3 2,1 3)", 2, 4, sqrt(5.0));
 
     test_one_lp<LineString, Polygon, LineString>("case5", poly_simplex, "LINESTRING(0 1,3 4)", 1, 2, sqrt(2.0));
-    test_one_lp<LineString, Polygon, LineString>("case6", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", "LINESTRING(1 1,10 3)", 4, 8, 
+    test_one_lp<LineString, Polygon, LineString>("case6", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", "LINESTRING(1 1,10 3)", 4, 8,
             // Pieces are 1 x 2/9:
             4.0 * sqrt(1.0 + 4.0/81.0));
     test_one_lp<LineString, Polygon, LineString>("case7", poly_simplex, "LINESTRING(1.5 1.5,2.5 2.5)", 1, 2, sqrt(2.0));

@@ -63,7 +63,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
     point_type point;
     bg::point_on_surface(geometry, point);
 
-    BOOST_CHECK_MESSAGE(bg::within(point, geometry), 
+    BOOST_CHECK_MESSAGE(bg::within(point, geometry),
         case_id << " generated point_on_surface (dim 1) is not within geometry");
 
 #ifdef BOOST_GEOMETRY_POINT_ON_SURFACE_COMPLETE
@@ -71,7 +71,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
     point_type right_point;
     bg::detail::point_on_surface::calculate_point_on_surface<0>(geometry, right_point);
 
-    BOOST_CHECK_MESSAGE(bg::within(right_point, geometry), 
+    BOOST_CHECK_MESSAGE(bg::within(right_point, geometry),
         case_id << " generated point_on_surface (dim 0) is not within geometry");
 
     point_type returned_point = bg::return_point_on_surface(geometry);
@@ -129,7 +129,7 @@ template <typename Point>
 void test_all()
 {
     typedef bg::model::polygon<Point> polygon;
- 
+
     // Specific test-cases for point-on-surface:
     test_geometry<polygon>("ice", "polygon((5 0,0 5,1 6,2 5,4 8,6 5,7 6,8 5,9 6,10 5,5 0))", 0, 0);
     test_geometry<polygon>("intruding", "polygon((5 0,0 5,1 6,2 5,4 8,6 5,7 6,8 5,9 6,10 5,7 2,4 7,6 1,5 0))", 0, 0);
@@ -157,19 +157,19 @@ void test_all()
         typedef bg::model::multi_polygon<polygon> multi_polygon;
         test_geometry<multi_polygon>("mp_simplex", "multipolygon(((0 0,0 5,5 0, 0 0)),((7 1,7 6,10 1,7 1)))", 0, 0);
         // Wrapped polygon in two orders
-        test_geometry<multi_polygon>("mp_wrapped1", 
+        test_geometry<multi_polygon>("mp_wrapped1",
                 "multipolygon("
                 "((4 10,9 11,10 16,11 11,16 10,11 9,10 4,9 9,4 10))"
                 ","
                 "((0 10,10 20,20 10,10 0,0 10),(10 2,18 10,10 18,2 10,10 2))"
-                ")", 
+                ")",
                 0, 0);
-        test_geometry<multi_polygon>("mp_wrapped2", 
+        test_geometry<multi_polygon>("mp_wrapped2",
                 "multipolygon("
                 "((0 10,10 20,20 10,10 0,0 10),(10 2,18 10,10 18,2 10,10 2))"
                 ","
                 "((4 10,9 11,10 16,11 11,16 10,11 9,10 4,9 9,4 10))"
-                ")", 
+                ")",
                 0, 0);
     }
 #endif

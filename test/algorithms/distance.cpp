@@ -289,7 +289,7 @@ void test_large_integers()
         BOOST_AUTO(idist, bg::distance(ia, ib));
         BOOST_AUTO(ddist, bg::distance(da, db));
 
-        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1, 
+        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1,
                 "within<a double> different from within<an int>");
     }
     // Point-segment
@@ -308,7 +308,7 @@ void test_large_integers()
         BOOST_AUTO(idist, bg::distance(ia, ib));
         BOOST_AUTO(ddist, bg::distance(da, db));
 
-        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1, 
+        BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1,
                 "within<a double> different from within<an int>");
     }
 }

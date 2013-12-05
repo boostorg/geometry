@@ -72,10 +72,10 @@ void test_spikes_in_ticket_8365()
         "MULTIPOLYGON(((5388 1560,4650 1722,3912 1884,4650 1398)),((2442 3186,1704 3348,966 2700,1704 3024)))",
         if_typed<ct, int>(1, 2),
         if_typed<ct, int>(17, 21),
-        if_typed<ct, int>(7974930.5, 7975207.6047877), // SQL Server: 
+        if_typed<ct, int>(7974930.5, 7975207.6047877), // SQL Server:
         2,
         9,
-        if_typed<ct, int>(199.0, 197.1047877)); // SQL Server: 
+        if_typed<ct, int>(199.0, 197.1047877)); // SQL Server:
 }
 
 

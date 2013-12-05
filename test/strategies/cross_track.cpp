@@ -29,19 +29,19 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 
-// This test is GIS oriented. 
+// This test is GIS oriented.
 
 
 template <typename Point, typename LatitudePolicy>
 void test_distance(
-            typename bg::coordinate_type<Point>::type const& lon1, 
+            typename bg::coordinate_type<Point>::type const& lon1,
             typename bg::coordinate_type<Point>::type const& lat1,
-            typename bg::coordinate_type<Point>::type const& lon2, 
+            typename bg::coordinate_type<Point>::type const& lon2,
             typename bg::coordinate_type<Point>::type const& lat2,
-            typename bg::coordinate_type<Point>::type const& lon3, 
+            typename bg::coordinate_type<Point>::type const& lon3,
             typename bg::coordinate_type<Point>::type const& lat3,
-            typename bg::coordinate_type<Point>::type const& radius, 
-            typename bg::coordinate_type<Point>::type const& expected, 
+            typename bg::coordinate_type<Point>::type const& radius,
+            typename bg::coordinate_type<Point>::type const& expected,
             typename bg::coordinate_type<Point>::type const& tolerance)
 {
     typedef bg::strategy::distance::cross_track
@@ -130,7 +130,7 @@ void test_all()
 {
     typename bg::coordinate_type<Point>::type const average_earth_radius = 6372795.0;
 
-    // distance (Paris <-> Amsterdam/Barcelona), 
+    // distance (Paris <-> Amsterdam/Barcelona),
     // with coordinates rounded as below ~87 km
     // is equal to distance (Paris <-> Barcelona/Amsterdam)
     typename bg::coordinate_type<Point>::type const p_to_ab = 86.798321 * 1000.0;

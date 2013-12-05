@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -84,7 +84,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         }
 
         // instead of specialization we check it run-time here
-        length_or_area += is_line 
+        length_or_area += is_line
             ? bg::length(*it)
             : bg::area(*it);
 
@@ -227,7 +227,7 @@ void test_point_output(std::string const& wkt1, std::string const& wkt2, unsigne
     Geometry1 g1;
     bg::read_wkt(wkt1, g1);
     bg::correct(g1);
-        
+
     Geometry2 g2;
     bg::read_wkt(wkt2, g2);
     bg::correct(g2);

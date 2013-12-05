@@ -313,7 +313,7 @@ void test_large_integers()
 
     bg::sectionalize<false>(int_poly, int_sections);
     bg::sectionalize<false>(double_poly, double_sections);
-    
+
     bool equally_sized = int_sections.size() == double_sections.size();
     BOOST_CHECK(equally_sized);
     if (! equally_sized)

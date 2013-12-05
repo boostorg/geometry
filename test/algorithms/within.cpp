@@ -211,15 +211,15 @@ void test_strategy()
     point_type p(3, 3);
     box_type b(point_type(0, 0), point_type(5, 5));
 
-    bool r = bg::within(p, b, 
+    bool r = bg::within(p, b,
         bg::strategy::within::point_in_box<point_type, box_type>());
     BOOST_CHECK_EQUAL(r, true);
 
-    r = bg::within(b, b, 
+    r = bg::within(b, b,
         bg::strategy::within::box_in_box<box_type, box_type>());
     BOOST_CHECK_EQUAL(r, false);
 
-    r = bg::within(p, b, 
+    r = bg::within(p, b,
         bg::strategy::within::point_in_box_by_side<point_type, box_type>());
     BOOST_CHECK_EQUAL(r, true);
 }

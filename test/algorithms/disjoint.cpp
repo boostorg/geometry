@@ -117,12 +117,12 @@ void test_all()
 
 
     // Problem described by Volker/Albert 2012-06-01
-    test_disjoint<polygon, box>("volker_albert_1", 
-        "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))", 
+    test_disjoint<polygon, box>("volker_albert_1",
+        "POLYGON((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240))",
         "BOX(1941 2066, 2055 2166)", false);
 
-    test_disjoint<polygon, box>("volker_albert_2", 
-        "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))", 
+    test_disjoint<polygon, box>("volker_albert_2",
+        "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))",
         "BOX(1941 2066, 2055 2166)", false);
 
     // Degenerate linestrings
@@ -140,7 +140,7 @@ void test_all()
 
     // Linestrings making angles normally ignored
     {
-        // These (non-disjoint) cases 
+        // These (non-disjoint) cases
         // correspond to the test "segment_intersection_collinear"
 
         // Collinear ('a')
@@ -165,7 +165,7 @@ void test_all()
         //           |
         //           |
         // a1--------b1----->a2
-        test_disjoint<ls, ls>("case_s", "linestring(0 0,4 0)", "linestring(2 0,2 2)", false); 
+        test_disjoint<ls, ls>("case_s", "linestring(0 0,4 0)", "linestring(2 0,2 2)", false);
 
         // Collinear, but disjoint
         test_disjoint<ls, ls>("c-d", "linestring(2 0,6 0)", "linestring(7 0,8 0)", true);
@@ -174,7 +174,7 @@ void test_all()
         test_disjoint<ls, ls>("c-d", "linestring(2 0,6 0)", "linestring(2 1,6 1)", true);
 
         // Error still there until 1.48 (reported "error", was reported to disjoint, so that's why it did no harm)
-        test_disjoint<ls, ls>("case_recursive_boxes_1", 
+        test_disjoint<ls, ls>("case_recursive_boxes_1",
             "linestring(10 7,10 6)", "linestring(10 10,10 9)", true);
 
     }

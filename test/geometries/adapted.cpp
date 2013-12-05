@@ -31,7 +31,7 @@
 
     BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(std::vector)
     BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(std::deque)
-  
+
 #elif defined(BOOST_GEOMETRY_TEST_MULTI_POINT)
 
     #include <boost/geometry/multi/geometries/register/multi_point.hpp>
@@ -39,7 +39,7 @@
 
     BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED(std::vector)
     BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED(std::deque)
-  
+
 #else
 
     #include <boost/geometry/geometries/register/linestring.hpp>
@@ -47,7 +47,7 @@
 
     BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
-  
+
 #endif
 
 

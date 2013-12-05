@@ -252,8 +252,8 @@ int test_main(int, char* [])
         <
             bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >,
             bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> >,
-            double, 
-            geographic_policy 
+            double,
+            geographic_policy
         >();
 
     return 0;

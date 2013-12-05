@@ -41,7 +41,7 @@ inline void debug_with_svg(int index, char method, Geometry const& a, Geometry c
     try
     {
         switch(method)
-        {   
+        {
             case 'i': boost::geometry::intersection(a, b, output); break;
             case 'u': boost::geometry::union_(a, b, output); break;
             case 'd': boost::geometry::difference(a, b, output); break;
@@ -153,7 +153,7 @@ int main()
             }
             break;
         }
-        
+
         try
         {
             boost::geometry::detail::overlay::has_self_intersections(mp_d);
@@ -179,8 +179,8 @@ int main()
             break;
         }
 #endif
-        
-        if(boost::geometry::area(mp_i) > 0) 
+
+        if(boost::geometry::area(mp_i) > 0)
         {
             std::ostringstream out;
             out << "intersection(" << genesis[a] << " , " << genesis[b] << ")";
@@ -194,7 +194,7 @@ int main()
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_d);
         }
-        if(boost::geometry::area(mp_e) > 0) 
+        if(boost::geometry::area(mp_e) > 0)
         {
             std::ostringstream out;
             out << "difference(" << genesis[b] << ", " << genesis[a] << ")";
@@ -208,7 +208,7 @@ int main()
     }
     catch(std::exception const& e)
     {
-        std::cout << e.what() 
+        std::cout << e.what()
             << " in " << operation << " at " << pj << std::endl
             << wkt1 << std::endl
             << wkt2 << std::endl

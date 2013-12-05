@@ -106,7 +106,7 @@ template <> struct string_from_type<int>
     { static std::string name() { return "t"; }  };
 #endif
 
-#if defined(BOOST_RATIONAL_HPP) 
+#if defined(BOOST_RATIONAL_HPP)
 template <typename T> struct string_from_type<boost::rational<T> >
 { static std::string name() { return "r"; }  };
 #endif
@@ -172,7 +172,7 @@ struct mathematical_policy
     {
         return 90 - value;
     }
-    
+
 };
 
 

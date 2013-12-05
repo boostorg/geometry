@@ -33,7 +33,7 @@ void test_all()
     // Touching at corner
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((100 100,100 200,200 200, 200 100,100 100))",
             true
         );
@@ -41,7 +41,7 @@ void test_all()
     // Intersecting at corner
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,101 101,100 0,0 0))", 
+            "POLYGON((0 0,0 100,101 101,100 0,0 0))",
             "POLYGON((100 100,100 200,200 200, 200 100,100 100))",
             false
         );
@@ -49,7 +49,7 @@ void test_all()
     // Touching at side (interior of a segment)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((200 0,100 50,200 100,200 0))",
             true
         );
@@ -57,7 +57,7 @@ void test_all()
     // Touching at side (partly collinear)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((200 20,100 20,100 80,200 80,200 20))",
             true
         );
@@ -65,7 +65,7 @@ void test_all()
     // Completely equal
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             false
         );
@@ -73,7 +73,7 @@ void test_all()
     // Spatially equal
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((0 0,0 100,100 100,100 80,100 20,100 0,0 0))",
             false
         );
@@ -81,16 +81,16 @@ void test_all()
     // Spatially equal (without equal segments)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((0 0,0 50,0 100,50 100,100 100,100 50,100 0,50 0,0 0))",
             false
         );
-    
+
 
     // Touching at side (opposite equal)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((200 0,100 0,100 100,200 100,200 0))",
             true
         );
@@ -98,14 +98,14 @@ void test_all()
     // Touching at side (opposite equal - but with real "equal" turning point)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 80,100 20,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 80,100 20,100 0,0 0))",
             "POLYGON((200 0,100 0,100 20,100 80,100 100,200 100,200 0))",
             true
         );
     // First partly collinear to side, than overlapping
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((200 20,100 20,100 50,50 50,50 80,100 80,200 80,200 20))",
             false
         );
@@ -113,7 +113,7 @@ void test_all()
     // Touching interior (= no touch)
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
             "POLYGON((20 20,20 80,100 50,20 20))",
             false
         );
@@ -121,7 +121,7 @@ void test_all()
     // Fitting in hole
     test_touches<polygon, polygon>
         (
-            "POLYGON((0 0,0 100,100 100,100 0,0 0),(40 40,60 40,60 60,40 60,40 40))", 
+            "POLYGON((0 0,0 100,100 100,100 0,0 0),(40 40,60 40,60 60,40 60,40 40))",
             "POLYGON((40 40,40 60,60 60,60 40,40 40))",
             true
         );

@@ -296,7 +296,7 @@ void test_areal()
         // TODO: this case has to be fixed for gcc/float on non-Windows
         test_rt_i_rev = false;
     }
-    
+
 #endif
     if (test_rt_i_rev)
     {

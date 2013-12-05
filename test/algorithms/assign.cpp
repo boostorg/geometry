@@ -148,7 +148,7 @@ void test_assign_conversion()
     bg::set<bg::min_corner, 1>(b, 2);
     bg::set<bg::max_corner, 0>(b, 3);
     bg::set<bg::max_corner, 1>(b, 4);
-	
+
     ring_type ring;
     bg::assign(ring, b);
 

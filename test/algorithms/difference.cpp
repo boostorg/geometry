@@ -44,7 +44,7 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case4", "LINESTRING(1 1,3 2,1 3)", "POLYGON((0 0,0 4,2 4,2 0,0 0))", 1, 3, sqrt(5.0));
 
     test_one_lp<LineString, LineString, Polygon>("case5", "LINESTRING(0 1,3 4)", poly_simplex, 2, 4, 2.0 * sqrt(2.0));
-    test_one_lp<LineString, LineString, Polygon>("case6", "LINESTRING(1 1,10 3)", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", 5, 10, 
+    test_one_lp<LineString, LineString, Polygon>("case6", "LINESTRING(1 1,10 3)", "POLYGON((2 0,2 4,3 4,3 1,4 1,4 3,5 3,5 1,6 1,6 3,7 3,7 1,8 1,8 3,9 3,9 0,2 0))", 5, 10,
             // Pieces are 1 x 2/9:
             5.0 * sqrt(1.0 + 4.0/81.0));
 
@@ -233,14 +233,14 @@ void test_all()
         1, 5, 1,
         1, 5, 1);
 
-    test_one<polygon, polygon, polygon>("buffer_mp1", 
+    test_one<polygon, polygon, polygon>("buffer_mp1",
         buffer_mp1[0], buffer_mp1[1],
         1, 61, 10.2717,
         1, 61, 10.2717);
 
     if (boost::is_same<ct, double>::value)
     {
-        test_one<polygon, polygon, polygon>("buffer_mp2", 
+        test_one<polygon, polygon, polygon>("buffer_mp2",
             buffer_mp2[0], buffer_mp2[1],
             1, 91, 12.09857,
             1, 155, 24.19714);
@@ -270,8 +270,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
         1, -1, 71495.3331,
-        2, -1, 8960.49049); 
-        
+        2, -1, 8960.49049);
+
     test_one<polygon, polygon, polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, if_typed<ct, float>(14, 13), 16815.6,
@@ -290,13 +290,13 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         1, -1, 2.8570121719168924,
-        1, -1, 64.498061986388564); 
+        1, -1, 64.498061986388564);
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3370866.2295081965,
-        1, 5, 384.2295081964694, 0.01); 
-             
+        1, 5, 384.2295081964694, 0.01);
+
 #ifdef _MSC_VER
     // 2011-07-02
     // Interesting FP-precision case.
@@ -313,8 +313,8 @@ void test_all()
     {
         test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
             ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-                if_typed_tt<ct>(1, 0), -1, 
-                if_typed_tt<ct>(0.0000000000001105367, 0.0), 
+                if_typed_tt<ct>(1, 0), -1,
+                if_typed_tt<ct>(0.0000000000001105367, 0.0),
             1, -1, 3577.40960816756,
             0.01
             );
@@ -324,16 +324,16 @@ void test_all()
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",
         ticket_8310a[0], ticket_8310a[1],
-        1, 10, 10.11562724, 
-        0, 0, 0); 
+        1, 10, 10.11562724,
+        0, 0, 0);
     test_one<polygon, polygon, polygon>("ticket_8310b",
         ticket_8310b[0], ticket_8310b[1],
         1, 10, 10.12655608,
-        0, 0, 0); 
+        0, 0, 0);
     test_one<polygon, polygon, polygon>("ticket_8310c",
         ticket_8310c[0], ticket_8310c[1],
         1, 10, 10.03103292,
-        0, 0, 0); 
+        0, 0, 0);
 
 
     // Other combi's
@@ -380,8 +380,8 @@ void test_all()
                         'MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))',0) as  p,
                   geometry::STGeomFromText(
                         'POLYGON((2 2,2 4,4 4,4 2,2 2))',0) as q)
-                  
-                select 
+
+                select
                     p.STDifference(q).STArea(),p.STDifference(q).STNumGeometries(),p.STDifference(q) as p_min_q,
                     q.STDifference(p).STArea(),q.STDifference(p).STNumGeometries(),q.STDifference(p) as q_min_p,
                     p.STSymDifference(q).STArea(),q.STSymDifference(p) as p_xor_q
@@ -492,7 +492,7 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3370866.2295081965,
-        1, 5, 384, 0.01); 
+        1, 5, 384, 0.01);
 }
 
 
