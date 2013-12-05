@@ -21,10 +21,10 @@
 #include <boost/geometry/strategies/within.hpp>
 
 
-namespace boost { namespace geometry { namespace strategy 
+namespace boost { namespace geometry { namespace strategy
 {
-    
-   
+
+
 namespace within
 {
 
@@ -69,9 +69,9 @@ struct relate_box_box_loop
         assert_dimension_equal<Box1, Box2>();
 
         if (! SubStrategy::apply(
-                    get<min_corner, Dimension>(b_contained), 
-                    get<max_corner, Dimension>(b_contained), 
-                    get<min_corner, Dimension>(b_containing), 
+                    get<min_corner, Dimension>(b_contained),
+                    get<max_corner, Dimension>(b_contained),
+                    get<min_corner, Dimension>(b_containing),
                     get<max_corner, Dimension>(b_containing)
                 )
             )
@@ -115,7 +115,7 @@ struct box_in_box
     {
         return relate_box_box_loop
             <
-                SubStrategy, 
+                SubStrategy,
                 Box1, Box2, 0, dimension<Box1>::type::value
             >::apply(box1, box2);
     }
@@ -134,9 +134,9 @@ namespace within { namespace services
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
-        box_tag, box_tag, 
-        box_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        box_tag, box_tag,
+        box_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         BoxContained, BoxContaining
     >
 {
@@ -152,9 +152,9 @@ namespace covered_by { namespace services
 template <typename BoxContained, typename BoxContaining>
 struct default_strategy
     <
-        box_tag, box_tag, 
-        box_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        box_tag, box_tag,
+        box_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         BoxContained, BoxContaining
     >
 {

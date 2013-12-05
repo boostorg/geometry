@@ -230,7 +230,7 @@ public:
         // For the left boundary it is important that multiple points
         // are sorted from bottom to top. Therefore the less predicate
         // does not take the x-only template parameter (this fixes ticket #6019.
-        // For the right boundary it is not necessary (though also not harmful), 
+        // For the right boundary it is not necessary (though also not harmful),
         // because points are sorted from bottom to top in a later stage.
         // For symmetry and to get often more balanced lower/upper halves
         // we keep it.

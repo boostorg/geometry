@@ -111,7 +111,7 @@ A mathematically equivalent formula, which is less subject
     to rounding error for short distances is:
     d=2*asin(sqrt((sin((lat1-lat2) / 2))^2
     + cos(lat1)*cos(lat2)*(sin((lon1-lon2) / 2))^2))
-    
+
 
 \qbk{
 [heading See also]
@@ -276,7 +276,7 @@ public :
 };
 
 
-// Register it as the default for point-types 
+// Register it as the default for point-types
 // in a spherical equatorial coordinate system
 template <typename Point1, typename Point2>
 struct default_strategy<point_tag, Point1, Point2, spherical_equatorial_tag, spherical_equatorial_tag>

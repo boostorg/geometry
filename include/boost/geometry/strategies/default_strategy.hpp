@@ -22,7 +22,7 @@ namespace boost { namespace geometry
 // functions to the multi-stage resolving process. It's resolved into an actual
 // strategy type during the resolve_strategy stage, possibly depending on the
 // input geometry type(s). This typically happens after the resolve_variant
-// stage, as it needs to be based on concrete geometry types - as opposed to 
+// stage, as it needs to be based on concrete geometry types - as opposed to
 // variant geometry types.
 
 struct default_strategy {};

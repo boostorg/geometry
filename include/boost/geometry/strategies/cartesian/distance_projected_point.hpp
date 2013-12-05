@@ -112,7 +112,7 @@ public :
         // For convenience
         typedef fp_point_type fp_vector_type;
 
-        /* 
+        /*
             Algorithm [p1: (x1,y1), p2: (x2,y2), p: (px,py)]
             VECTOR v(x2 - x1, y2 - y1)
             VECTOR w(px - x1, py - y1)
