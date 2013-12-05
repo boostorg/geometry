@@ -57,7 +57,7 @@ struct linear_tag {};
 struct areal_tag {};
 
 // Subset of areal types (polygon, multi_polygon, ring)
-struct polygonal_tag : areal_tag {}; 
+struct polygonal_tag : areal_tag {};
 
 /// For volume types (also box (?), polyhedron)
 struct volumetric_tag {};

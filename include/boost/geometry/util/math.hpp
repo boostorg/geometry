@@ -85,7 +85,7 @@ struct smaller<Type, true>
 };
 
 
-template <typename Type, bool IsFloatingPoint> 
+template <typename Type, bool IsFloatingPoint>
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
 
 
@@ -158,7 +158,7 @@ inline bool equals_with_epsilon(T1 const& a, T2 const& b)
     typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::equals_with_epsilon
         <
-            select_type, 
+            select_type,
             boost::is_floating_point<select_type>::type::value
         >::apply(a, b);
 }
@@ -233,7 +233,7 @@ inline T abs(T const& value)
 \ingroup utility
 */
 template <typename T>
-static inline int sign(T const& value) 
+static inline int sign(T const& value)
 {
     T const zero = T();
     return value > zero ? 1 : value < zero ? -1 : 0;

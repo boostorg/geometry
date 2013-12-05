@@ -28,7 +28,7 @@ namespace boost { namespace geometry
     both the multi_tag and the pointlike_tag. Often behaviour can be shared
     between different geometry types. A tag, found by the metafunction tag,
     can be casted to a more basic tag, and then dispatched by that tag.
-\ingroup core    
+\ingroup core
 \tparam Tag The tag to be casted to one of the base tags
 \tparam BaseTag First base tag
 \tparam BaseTag2 Optional second base tag

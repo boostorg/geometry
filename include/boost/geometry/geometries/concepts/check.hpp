@@ -57,7 +57,7 @@ class check
 namespace dispatch
 {
 
-template 
+template
 <
     typename Geometry,
     typename GeometryTag = typename geometry::tag<Geometry>::type,

@@ -32,10 +32,10 @@ namespace boost { namespace geometry
 \brief Enumerates options for defining if polygons are open or closed
 \ingroup enum
 \details The enumeration closure_selector describes options for if a polygon is
-    open or closed. In a closed polygon the very first point (per ring) should 
+    open or closed. In a closed polygon the very first point (per ring) should
     be equal to the very last point.
-    The specific closing property of a polygon type is defined by the closure 
-    metafunction. The closure metafunction defines a value, which is one of the 
+    The specific closing property of a polygon type is defined by the closure
+    metafunction. The closure metafunction defines a value, which is one of the
     values enumerated in the closure_selector
 
 \qbk{
@@ -45,12 +45,12 @@ namespace boost { namespace geometry
 */
 enum closure_selector
 {
-    /// Rings are open: first point and last point are different, algorithms 
+    /// Rings are open: first point and last point are different, algorithms
     /// close them explicitly on the fly
     open = 0,
     /// Rings are closed: first point and last point must be the same
     closed = 1,
-    /// (Not yet implemented): algorithms first figure out if ring must be 
+    /// (Not yet implemented): algorithms first figure out if ring must be
     /// closed on the fly
     closure_undertermined = -1
 };
@@ -128,14 +128,14 @@ template <typename Box>
 struct closure<segment_tag, Box> : public core_detail::closure::closed {};
 
 template <typename LineString>
-struct closure<linestring_tag, LineString> 
+struct closure<linestring_tag, LineString>
     : public core_detail::closure::closed {};
 
 
 template <typename Ring>
 struct closure<ring_tag, Ring>
 {
-    static const closure_selector value 
+    static const closure_selector value
         = geometry::traits::closure<Ring>::value;
 };
 
@@ -156,7 +156,7 @@ struct closure<polygon_tag, Polygon>
 
 
 /*!
-\brief \brief_meta{value, closure (clockwise\, counterclockwise), 
+\brief \brief_meta{value, closure (clockwise\, counterclockwise),
     \meta_geometry_type}
 \tparam Geometry \tparam_geometry
 \ingroup core

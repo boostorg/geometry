@@ -29,10 +29,10 @@ namespace boost { namespace geometry
 /*!
 \brief Enumerates options for the order of points within polygons
 \ingroup enum
-\details The enumeration order_selector describes options for the order of 
-    points within a polygon. Polygons can be ordered either clockwise or 
-    counterclockwise. The specific order of a polygon type is defined by the 
-    point_order metafunction. The point_order metafunction defines a value, 
+\details The enumeration order_selector describes options for the order of
+    points within a polygon. Polygons can be ordered either clockwise or
+    counterclockwise. The specific order of a polygon type is defined by the
+    point_order metafunction. The point_order metafunction defines a value,
     which is one of the values enumerated in the order_selector
 
 \qbk{
@@ -120,7 +120,7 @@ struct point_order<linestring_tag, LineString>
 template <typename Ring>
 struct point_order<ring_tag, Ring>
 {
-    static const order_selector value 
+    static const order_selector value
         = geometry::traits::point_order<Ring>::value;
 };
 
@@ -140,7 +140,7 @@ struct point_order<polygon_tag, Polygon>
 
 
 /*!
-\brief \brief_meta{value, point order (clockwise\, counterclockwise), 
+\brief \brief_meta{value, point order (clockwise\, counterclockwise),
     \meta_geometry_type}
 \tparam Geometry \tparam_geometry
 \ingroup core

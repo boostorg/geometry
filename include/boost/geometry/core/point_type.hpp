@@ -108,7 +108,7 @@ struct point_type<polygon_tag, Polygon>
 
 /*!
 \brief \brief_meta{type, point_type, \meta_geometry_type}
-\tparam Geometry \tparam_geometry 
+\tparam Geometry \tparam_geometry
 \ingroup core
 
 \qbk{[include reference/core/point_type.qbk]}
