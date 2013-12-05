@@ -31,7 +31,7 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace touches 
+namespace detail { namespace touches
 {
 
 template <typename Turn>
@@ -57,15 +57,15 @@ inline bool has_only_turns(Turns const& turns)
 
         switch(it->method)
         {
-            case detail::overlay::method_crosses: 
+            case detail::overlay::method_crosses:
                 return false;
-            case detail::overlay::method_equal: 
+            case detail::overlay::method_equal:
                 // Segment spatially equal means: at the right side
                 // the polygon internally overlaps. So return false.
                 return false;
-            case detail::overlay::method_touch: 
-            case detail::overlay::method_touch_interior: 
-            case detail::overlay::method_collinear: 
+            case detail::overlay::method_touch:
+            case detail::overlay::method_touch_interior:
+            case detail::overlay::method_collinear:
                 if (ok_for_touch(*it))
                 {
                     has_touch = true;

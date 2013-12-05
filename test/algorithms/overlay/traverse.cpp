@@ -280,7 +280,7 @@ struct test_traverse
                         out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
                          << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
                     }
-                    
+
                     out << std::endl;
 
                     /*out
@@ -880,7 +880,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("geos_4",
             1, 2304.41633605957,
             geos_4[0], geos_4[1]);
-	
+
     if (! is_float)
     {
 
@@ -894,47 +894,47 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 #endif
 
         // Calculate intersection/union of two triangles. Robustness case.
-        // ttmath can form a very small intersection triangle 
+        // ttmath can form a very small intersection triangle
         // (which is even not accomplished by SQL Server/PostGIS)
         std::string const caseid = "ggl_list_20110820_christophe";
-        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid,
             expected_count, expected,
             ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
-        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
-            1, 67.3550722317627, 
+        test_traverse<polygon, polygon, operation_union>::apply(caseid,
+            1, 67.3550722317627,
             ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1]);
 */
     }
 
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_f", 
-        1, 4.60853, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_f",
+        1, 4.60853,
         buffer_rt_f[0], buffer_rt_f[1]);
-    test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f", 
-        1, 0.0002943725152286, 
+    test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f",
+        1, 0.0002943725152286,
         buffer_rt_f[0], buffer_rt_f[1], 0.01);
 
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g", 
-        1, 16.571, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g",
+        1, 16.571,
         buffer_rt_g[0], buffer_rt_g[1]);
 
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes1", 
-        1, 20, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes1",
+        1, 20,
         buffer_rt_g_boxes[0], buffer_rt_g_boxes[1]);
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes2", 
-        1, 24, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes2",
+        1, 24,
         buffer_rt_g_boxes[0], buffer_rt_g_boxes[2]);
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes3", 
-        1, 28, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes3",
+        1, 28,
         buffer_rt_g_boxes[0], buffer_rt_g_boxes[3]);
 
-    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes43", 
-        1, 30, 
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g_boxes43",
+        1, 30,
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
 
 
     if (boost::is_same<T, double>::value)
     {
-        test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2", 
+        test_traverse<polygon, polygon, operation_union>::apply("buffer_mp2",
                 1, 36.7535642, buffer_mp2[0], buffer_mp2[1], 0.01);
     }
     test_traverse<polygon, polygon, operation_union>::apply("collinear_opposite_rr",
@@ -954,18 +954,18 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     {
         // NOTE: currently throws (normally)
         std::string caseid = "ggl_list_20120229_volker";
-        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
-            1, 99, 
+        test_traverse<polygon, polygon, operation_union>::apply(caseid,
+            1, 99,
             ggl_list_20120229_volker[0], ggl_list_20120229_volker[1]);
-        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
-            1, 99, 
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid,
+            1, 99,
             ggl_list_20120229_volker[0], ggl_list_20120229_volker[1]);
         caseid = "ggl_list_20120229_volker_2";
-        test_traverse<polygon, polygon, operation_union>::apply(caseid, 
-            1, 99, 
+        test_traverse<polygon, polygon, operation_union>::apply(caseid,
+            1, 99,
             ggl_list_20120229_volker[2], ggl_list_20120229_volker[1]);
-        test_traverse<polygon, polygon, operation_intersection>::apply(caseid, 
-            1, 99, 
+        test_traverse<polygon, polygon, operation_intersection>::apply(caseid,
+            1, 99,
             ggl_list_20120229_volker[2], ggl_list_20120229_volker[1]);
     }
 #endif

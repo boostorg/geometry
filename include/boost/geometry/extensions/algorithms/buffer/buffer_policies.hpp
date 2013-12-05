@@ -66,7 +66,7 @@ g_backtrack_warning_count++;
 
         // TODO this is a copy of dissolve, check this for buffer
         state.m_good = false;
-        
+
         // Make bad output clean
         rings.resize(size_at_start);
         ring.clear();
@@ -116,9 +116,9 @@ template <typename Point>
 struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_operation<Point> >
 {
     bool is_opposite;
-    
+
     intersection_location_type location;
-    
+
     int priority;
     int count_within, count_on_helper, count_on_offsetted, count_on_corner;
     int count_on_occupied;
@@ -128,7 +128,7 @@ struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_o
 #endif
 
     std::set<int> piece_indices_to_skip;
-    
+
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     std::string debug_string;
 #endif

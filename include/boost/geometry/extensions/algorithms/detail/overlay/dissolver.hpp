@@ -157,7 +157,6 @@ class plusmin_policy
             detail::inserter::insert(a, output_collection);
         }
 
-
         // Make negative output negative again
         typedef typename boost::range_iterator<OutputCollection>::type iterator_type;
         for(iterator_type it = boost::begin(difference);

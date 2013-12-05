@@ -133,7 +133,7 @@ struct test_get_turns
 template<typename G1, typename G2>
 struct test_get_turns
 {
-    inline static void apply(std::string const& id, std::size_t expected_count, 
+    inline static void apply(std::string const& id, std::size_t expected_count,
                 std::string const& wkt1, std::string const& wkt2,
                 double precision = 0.001)
     {

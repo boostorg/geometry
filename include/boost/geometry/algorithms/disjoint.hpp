@@ -91,7 +91,7 @@ struct assign_disjoint_policy
     static bool const include_opposite = true;
 
     // We don't assign extra info:
-    template 
+    template
     <
         typename Info,
         typename Point1,
@@ -103,7 +103,7 @@ struct assign_disjoint_policy
                 IntersectionInfo const&, DirInfo const&)
     {}
 };
-   
+
 
 template <typename Geometry1, typename Geometry2>
 struct disjoint_linear
@@ -121,7 +121,7 @@ struct disjoint_linear
         disjoint_interrupt_policy policy;
         geometry::get_turns
             <
-                false, false, 
+                false, false,
                 assign_disjoint_policy
             >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
         if (policy.has_intersections)
@@ -204,7 +204,7 @@ struct disjoint_linestring_box
     static inline bool apply(Linestring const& linestring, Box const& box)
     {
         typedef typename ::boost::range_value<Linestring>::type point_type;
-        typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;        
+        typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;
         typedef typename ::boost::range_size<Linestring>::type size_type;
 
         const size_type count = ::boost::size(linestring);

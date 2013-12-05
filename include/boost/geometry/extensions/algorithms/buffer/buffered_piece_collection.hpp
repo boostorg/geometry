@@ -57,8 +57,8 @@ namespace detail { namespace buffer
 
 enum segment_relation_code
 {
-    segment_relation_on_left, 
-    segment_relation_on_right, 
+    segment_relation_on_left,
+    segment_relation_on_right,
     segment_relation_within,
     segment_relation_disjoint
 };
@@ -139,10 +139,10 @@ public :
         promoted_type const dpx = x - sx1;
         promoted_type const dpy = y - sy1;
 
-        promoted_type const s 
+        promoted_type const s
             = geometry::detail::determinant<promoted_type>
                 (
-                    dx, dy, 
+                    dx, dy,
                     dpx, dpy
                 );
 
@@ -150,7 +150,7 @@ public :
         promoted_type const relaxed_epsilon = std::numeric_limits<double>::epsilon() * 5.0;
 
         return math::abs(s) < relaxed_epsilon ? 0
-            : s > zero ? 1 
+            : s > zero ? 1
             : -1;
     }
 };
@@ -222,7 +222,7 @@ struct buffered_piece_collection
         {
             // Erase discarded turns (location not OK) and the turns
             // only used to detect oppositeness.
-            return turn.location != location_ok 
+            return turn.location != location_ok
                 || turn.opposite();
         }
     };
@@ -298,8 +298,8 @@ struct buffered_piece_collection
         the_model.operations[0].seg_id = piece1.first_seg_id;
 
         iterator it1 = it1_first;
-        for (iterator prev1 = it1++; 
-                it1 != it1_last; 
+        for (iterator prev1 = it1++;
+                it1 != it1_last;
                 prev1 = it1++, the_model.operations[0].seg_id.segment_index++)
         {
             the_model.operations[1].piece_index = piece2.index;
@@ -308,7 +308,7 @@ struct buffered_piece_collection
             iterator next1 = next_point(ring1, it1);
 
             iterator it2 = it2_first;
-            for (iterator prev2 = it2++; 
+            for (iterator prev2 = it2++;
                     it2 != it2_last;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
@@ -370,10 +370,10 @@ struct buffered_piece_collection
         buffer_occupation_info& info = m_occupation_map.find_or_insert(point, mapped_point);
         info.turn_indices.insert(turn_index);
         info.seg_ids.insert(operation.seg_id);
-        add_incoming_and_outgoing_angles(mapped_point, point, 
-                    offsetted_rings[operation.seg_id.multi_index], 
+        add_incoming_and_outgoing_angles(mapped_point, point,
+                    offsetted_rings[operation.seg_id.multi_index],
                     turn_index, operation_index,
-                    operation.seg_id, 
+                    operation.seg_id,
                     info);
     }
 
@@ -439,8 +439,8 @@ struct buffered_piece_collection
         {
             // The piece is a full (pseudo) circle. There are no helper segments. We only check if it is the turn is inside the generated circle,
             // or on the border.
-            int const side_wrt_circle = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point, 
-                            boost::begin(ring) + seg_id.segment_index, 
+            int const side_wrt_circle = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+                            boost::begin(ring) + seg_id.segment_index,
                             boost::begin(ring) + pc.last_segment_index,
                             seg_id, on_segment_seg_id);
             switch (side_wrt_circle)
@@ -458,8 +458,8 @@ struct buffered_piece_collection
             return;
         }
 
-        int const side_offsetted = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point, 
-                        boost::begin(ring) + seg_id.segment_index, 
+        int const side_offsetted = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+                        boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
                         seg_id, on_segment_seg_id);
         if (side_offsetted == 1)
@@ -902,7 +902,7 @@ struct buffered_piece_collection
             map[turn.operations[1].seg_id].intersecting_ids.insert(turn.operations[0].seg_id);
         }
 
-        // Pass 2: 
+        // Pass 2:
         // Verify all segments crossing with more than one segment, and if they intersect each other,
         // add that pair
         for (typename map_type::const_iterator mit = map.begin(); mit != map.end(); ++mit)
@@ -978,7 +978,7 @@ struct buffered_piece_collection
     template <typename Turn>
     inline bool classify_turn_inside(Turn const& turn) const
     {
-        return turn.count_within > 0 
+        return turn.count_within > 0
             || turn.count_on_multi > 0
             || turn.count_on_helper > 0
             || turn.count_on_occupied > 0
@@ -1033,7 +1033,7 @@ struct buffered_piece_collection
     static inline void split_uu_turns(Turns& turns)
     {
         Turns added;
-        
+
         for (typename boost::range_iterator<Turns>::type it = boost::begin(turns);
             it != boost::end(turns); ++it)
         {
@@ -1107,7 +1107,7 @@ struct buffered_piece_collection
             //    std::cout << "double UU" << std::endl;
             //}
             //std::cout << std::setprecision(16) << geometry::wkt(it->point)
-   //             << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index 
+   //             << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
    //             << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
             //    << " " << method_char(it->method)
             //    << ":" << operation_char(it->operations[0].operation)
@@ -1167,14 +1167,14 @@ struct buffered_piece_collection
         return m_pieces.back();
     }
 
-    inline void add_piece(piece_type type, point_type const& p1, point_type const& p2, 
+    inline void add_piece(piece_type type, point_type const& p1, point_type const& p2,
             point_type const& b1, point_type const& b2)
     {
         // If the last type was a join, the segment_id of next segment should be decreased by one.
-        bool const last_type_join = ! m_pieces.empty() 
+        bool const last_type_join = ! m_pieces.empty()
                 && m_pieces.back().first_seg_id.multi_index == current_segment_id.multi_index
                 && (
-                        m_pieces.back().type == buffered_join 
+                        m_pieces.back().type == buffered_join
                         || m_pieces.back().type == buffered_round_end
                     );
 
@@ -1288,7 +1288,7 @@ struct buffered_piece_collection
             }
         }
     }
-                    
+
     inline void discard_turns()
     {
         m_turns.erase
@@ -1315,7 +1315,7 @@ struct buffered_piece_collection
     {
         typedef detail::overlay::traverse
             <
-                false, false, 
+                false, false,
                 buffered_ring_collection<buffered_ring<Ring> >, buffered_ring_collection<buffered_ring<Ring > >,
                 backtrack_for_buffer
             > traverser;

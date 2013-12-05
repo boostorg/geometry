@@ -90,7 +90,7 @@ static void test_self_intersection_points(std::string const& case_id,
             try
             {
                 boost::geometry::detail::overlay::has_self_intersections(geometry);
-                BOOST_CHECK_MESSAGE(false, "Case " << case_id << " there are no self-intersections detected!"); 
+                BOOST_CHECK_MESSAGE(false, "Case " << case_id << " there are no self-intersections detected!");
             }
             catch(...)
             {
@@ -107,7 +107,7 @@ static void test_self_intersection_points(std::string const& case_id,
             }
             catch(...)
             {
-                BOOST_CHECK_MESSAGE(false, "Case " << case_id << " there are self-intersections detected!"); 
+                BOOST_CHECK_MESSAGE(false, "Case " << case_id << " there are self-intersections detected!");
             }
         }
     }
@@ -162,7 +162,7 @@ void test_self_all()
             "POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))");
 
     // TODO: clean-up and visualize testcases
-        
+
     // Self intersecting
     test_self_overlay<polygon>("2", 2,
             "POLYGON((1 2,1 1,2 1,2 2.25,3 2.25,3 0,0 0,0 3,3 3,2.75 2,1 2))");
@@ -230,7 +230,7 @@ void test_self_all()
     //   ----s-C------
     // C=closing point, s=similar point, lying a little south-west. This causes a c/c (continue) intersection point.
     // Was caused by error in neighbouring (get_turns.cpp)
-    std::string const ticket_9081_20873 = 
+    std::string const ticket_9081_20873 =
         "POLYGON((0.5246796698528305436  0.56288112949742163948,"
                  "0.52467966985283021053 0.56288112949742141744,"
                                                                    "0.51150490059304598578 0.55384245388529118603,0.51053725440836283944 0.56288079068493779289,"
@@ -244,7 +244,7 @@ void test_self_all()
 
     test_self_overlay<polygon>("ggl_list_20131119_james", 0, ggl_list_20131119_james[0]);
 
-    // Same case - but if this is a linestring. 
+    // Same case - but if this is a linestring.
     // TODO: this does not compile yet, but it should return 1 intersection point at the "closing" point
     // std::string const ggl_list_2013_11_06_joan_linestring = "LINESTRING(137.14632454923444 200.61927877947369,50 224, 323 497,255 169,137.14632454923444 200.61927877947369)";
     // test_self_overlay<linestring>("ggl_list_2013_11_06_joan_linestring", 1, ggl_list_2013_11_06_joan_linestring);

@@ -112,10 +112,10 @@ struct robust_type<CoordinateType, boost::true_type>
 template <typename IsFloatingPoint>
 struct zoom_to_robust
 {
-    template 
+    template
     <
-        typename Geometry1, typename Geometry2, typename Geometry3, 
-        typename Geometry4, typename Geometry5, typename Geometry6, 
+        typename Geometry1, typename Geometry2, typename Geometry3,
+        typename Geometry4, typename Geometry5, typename Geometry6,
         typename GeometryOut
     >
     static inline void apply(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g3,
@@ -136,10 +136,10 @@ struct zoom_to_robust
 template <>
 struct zoom_to_robust<boost::true_type>
 {
-    template 
+    template
     <
-        typename Geometry1, typename Geometry2, typename Geometry3, 
-        typename Geometry4, typename Geometry5, typename Geometry6, 
+        typename Geometry1, typename Geometry2, typename Geometry3,
+        typename Geometry4, typename Geometry5, typename Geometry6,
         typename GeometryOut
     >
     static inline void apply(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g3,
@@ -206,7 +206,7 @@ inline void zoom_to_robust(Geometry1 const& g1a, Geometry1 const& g1b, Geometry2
 
     point1_type min_point1;
     point2_type min_point2;
-            
+
     // Get the envelop of inputs
     model::box<point1_type> env;
     envelope(g1a, env);
@@ -226,10 +226,10 @@ inline void zoom_to_robust(Geometry1 const& g1a, Geometry1 const& g1b, Geometry2
     recalculate(g2b, g1b, strategy);
 }
 
-template 
+template
 <
-    typename Geometry1, typename Geometry2, typename Geometry3, 
-    typename Geometry4, typename Geometry5, typename Geometry6, 
+    typename Geometry1, typename Geometry2, typename Geometry3,
+    typename Geometry4, typename Geometry5, typename Geometry6,
     typename GeometryOut
 >
 void zoom_to_robust(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g3,
@@ -238,7 +238,7 @@ void zoom_to_robust(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g
           GeometryOut& og4, GeometryOut& og5, GeometryOut& og6)
 {
     // Make FP robust (so dispatch to true), so float and double
-    // Other types as int, boost::rational, or ttmath are considered to be already robust 
+    // Other types as int, boost::rational, or ttmath are considered to be already robust
     dispatch::zoom_to_robust
         <
             typename boost::is_floating_point
@@ -247,6 +247,7 @@ void zoom_to_robust(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g
                 >::type
         >::apply(g1, g2, g3, g4, g5, g6, og1, og2, og3, og4, og5, og6);
 }
+
 
 }} // namespace boost::geometry
 

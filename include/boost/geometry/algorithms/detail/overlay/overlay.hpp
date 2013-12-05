@@ -117,8 +117,8 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
-#pragma warning(push)  
-#pragma warning(disable : 4127)  
+#pragma warning(push)
+#pragma warning(disable : 4127)
 #endif
 
     // Union: return either of them
@@ -132,7 +132,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     }
 
 #if defined(_MSC_VER)
-#pragma warning(pop)  
+#pragma warning(pop)
 #endif
 
 
