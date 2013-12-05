@@ -34,7 +34,7 @@ std::string qbk_escaped(std::string const& s)
         {
             case '[' : counter++; break;
             case ']' : counter--; break;
-            case '\\' : 
+            case '\\' :
                 {
                     result += s[i];
                     if (i + 1 < len)
@@ -44,7 +44,7 @@ std::string qbk_escaped(std::string const& s)
                     i++;
                     continue;
                 }
-            case '_' : 
+            case '_' :
                 if (counter == 0)
                 {
                     result += "\\u005f";
@@ -104,7 +104,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
             // do nothing
             break;
     }
-    
+
     // Output the parameters
     // Because we want to be able to skip, we cannot use the argstring
     {
@@ -113,7 +113,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
         {
             if (! p.skip)
             {
-                out 
+                out
                     << (first ? "(" : ", ")
                     << p.fulltype << (p.fulltype.empty() ? "" : " ")
                     << p.name
@@ -132,7 +132,7 @@ void quickbook_synopsis(function const& f, std::ostream& out)
         }
     }
 
-    out << "``" 
+    out << "``"
         << std::endl
         << std::endl;
 }
@@ -157,7 +157,7 @@ void quickbook_synopsis(enumeration const& e, std::ostream& out)
     {
         out << "};";
     }
-    out << "``" 
+    out << "``"
         << std::endl
         << std::endl;
 }
@@ -221,8 +221,8 @@ void quickbook_header(std::string const& location,
 }
 
 
-void quickbook_markup(std::vector<markup> const& qbk_markup, 
-            markup_order_type order, markup_type type, 
+void quickbook_markup(std::vector<markup> const& qbk_markup,
+            markup_order_type order, markup_type type,
             std::ostream& out)
 {
     bool has_output = false;
@@ -357,7 +357,7 @@ void quickbook_output(function const& f, configuration const& config, std::ostre
         << std::endl;
 
     quickbook_output_indexterm(f.name, out);
-        
+
     out << qbk_escaped(f.brief_description) << std::endl;
     out << std::endl;
 
@@ -478,7 +478,7 @@ void quickbook_output(enumeration const& e, configuration const& config, std::os
     out << std::endl;
 }
 
-void quickbook_output_function(std::vector<function> const& functions, 
+void quickbook_output_function(std::vector<function> const& functions,
                                 function_type type,
                                 std::string const& title,
                                 configuration const& config, std::ostream& out)
@@ -734,7 +734,7 @@ void quickbook_output_functions(std::vector<function> const& functions,
     BOOST_FOREACH(function const& f, functions)
     {
         if ( (display_all || f.type == type) && (f.is_const || f.is_static) && !f.brief_description.empty() )
-            show_modifiers = true;        
+            show_modifiers = true;
     }
 
     out << "[table\n"
@@ -833,7 +833,7 @@ void inline_str_with_links(std::string const& str, std::ostream & out)
                     first = false;
                 }
                 out << str[i];
-            }            
+            }
         }
         else
         {
@@ -863,7 +863,7 @@ void inline_str_with_links(std::string const& str, std::ostream & out)
 void quickbook_template_parameter_list_alt(std::vector<parameter> const& parameters, std::ostream& out)
 {
     std::string next_param;
-    
+
     if ( 2 < parameters.size() )
         next_param = std::string("`,`\n") + "         ";
     else
@@ -981,7 +981,7 @@ void quickbook_synopsis_alt(class_or_struct const& cos, configuration const& con
         else
             out << short_name.substr(last_scope + 2) << "`" << std::endl;
     }
-    
+
     if (! cos.base_classes.empty())
     {
         out << "`      : ";
@@ -1080,7 +1080,7 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
             out << "[section " << replace_brackets(ss.str()) << "]" << std::endl;
 
             quickbook_output_indexterm(f.name, out);
-            
+
             // Brief description
             out << f.brief_description << std::endl;
             out << std::endl;
@@ -1174,7 +1174,7 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
                 out << "[heading Returns]" << std::endl;
                 out << f.return_description << std::endl;
             }
-            
+
             // Additional paragraphs, note, warning
             output_paragraphs_note_warning(f, out);
 
@@ -1276,7 +1276,7 @@ void quickbook_output_alt(documentation const& doc, configuration const& config,
     {
         out << "[endsect]" << std::endl
             << std::endl;
-    }    
+    }
 }
 
 void quickbook_output_alt(class_or_struct const& cos, configuration const& config, std::ostream& out)

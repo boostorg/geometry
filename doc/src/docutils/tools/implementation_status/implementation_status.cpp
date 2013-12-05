@@ -38,7 +38,7 @@ struct compile_bjam
     static inline bool apply(int type1, int type2)
     {
         std::ostringstream command;
-        // For debugging: 
+        // For debugging:
         command << "bjam -a tmp > tmp/t" << type1 << "_" << type2 << ".out";
         //command << "bjam -a tmp > tmp/t.out";
         int failed = system(command.str().c_str());
@@ -72,8 +72,8 @@ struct compile_msvc
         }
 
         command << "implementation_status.hpp tmp/t.cpp > tmp/t" //.out";
-            // For debugging: 
-            << type1 << "_" << type2 << ".out"; 
+            // For debugging:
+            << type1 << "_" << type2 << ".out";
 
         int failed = system(command.str().c_str());
         return failed == 0;
@@ -110,15 +110,15 @@ inline std::string typedef_string(int type, bool clockwise, bool open)
             out << "bg::model::ring<P, "
                 << bool_string(clockwise) << ", " << bool_string(open) << ">";
             break;
-        case polygon : 
+        case polygon :
             out << "bg::model::polygon<P, "
                 << bool_string(clockwise) << ", " << bool_string(open) << ">";
             break;
         case multi_point : return "bg::model::multi_point<P>";
-        case multi_linestring : 
+        case multi_linestring :
             out << "bg::model::multi_linestring<bg::model::linestring<P> >";
             break;
-        case multi_polygon : 
+        case multi_polygon :
             out << "bg::model::multi_polygon<bg::model::polygon<P, "
                 << bool_string(clockwise) << ", " << bool_string(open) << "> >";
             break;
@@ -134,7 +134,7 @@ inline std::string wkt_string(int type)
         case linestring : return "LINESTRING(1 1,2 2)";
         case segment : return "LINESTRING(1 1,2 2)";
         case box : return "POLYGON((1 1,2 2)";
-        case polygon : 
+        case polygon :
         case ring :
             return "POLYGON((0 0,0 1,1 1,0 0))";
         case multi_point : return "MULTIPOINT((1 1),(2 2))";
@@ -151,7 +151,7 @@ inline std::string geometry_string(int type)
         case point : return "Point";
         case linestring : return "Linestring";
         case box : return "Box";
-        case polygon : return "Polygon"; 
+        case polygon : return "Polygon";
         case ring : return "Ring";
         case segment : return "Segment";
         case multi_point : return "MultiPoint";
@@ -176,9 +176,9 @@ int report_library(CompilePolicy& compile_policy,
         {
             out << "_" << geometry_string(type2);
         }
-        out 
+        out
             << "_" << algo.name
-            << "_" << bool_string(clockwise) 
+            << "_" << bool_string(clockwise)
             << "_" << bool_string(open)
             << "_" << boost::replace_all_copy
                         (
@@ -206,21 +206,21 @@ int report_library(CompilePolicy& compile_policy,
             << "  " << typedef_string(type, clockwise, open) << " geometry;" << std::endl
             << "  bg::read_wkt(\"" << wkt_string(type) << "\", geometry);" << std::endl;
 
-        
+
         if (algo.arity > 1)
         {
-            out 
+            out
                 << "  " << typedef_string(type2, clockwise, open) << " geometry2;" << std::endl
                 << "  bg::read_wkt(\"" << wkt_string(type2) << "\", geometry2);" << std::endl;
         }
 
         switch(algo.arity)
         {
-            case 1 : 
-                out << "  bg::" << algo.name << "(geometry);" << std::endl; 
+            case 1 :
+                out << "  bg::" << algo.name << "(geometry);" << std::endl;
                 break;
-            case 2 : 
-                out << "  bg::" << algo.name << "(geometry, geometry2);" << std::endl; 
+            case 2 :
+                out << "  bg::" << algo.name << "(geometry, geometry2);" << std::endl;
                 break;
         }
 

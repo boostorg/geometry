@@ -19,12 +19,12 @@ enum markup_type { markup_default, markup_synopsis };
 enum markup_order_type { markup_any, markup_before, markup_after };
 
 // TODO: rename, not all are functions
-enum function_type 
-{ 
-    function_unknown, 
-    function_define, 
-    function_constructor_destructor, 
-    function_member, 
+enum function_type
+{
+    function_unknown,
+    function_define,
+    function_constructor_destructor,
+    function_member,
     function_free,
 };
 
@@ -32,7 +32,7 @@ struct base_element
 {
     std::string name;
     std::string brief_description;
-    
+
     bool skip;
 
     std::string id;
@@ -153,7 +153,7 @@ struct enumeration : public element
 struct base_class
 {
     std::string name;
-    std::string derivation; // "prot" element 
+    std::string derivation; // "prot" element
     std::string virtuality; // "virt" element
 };
 
@@ -176,10 +176,10 @@ struct documentation
     std::string group_title;
 
     // Only one expected (no grouping)
-    class_or_struct cos; 
+    class_or_struct cos;
 
     // There can be many of them (in groups):
-    std::vector<function> functions; 
+    std::vector<function> functions;
     std::vector<function> defines;
     std::vector<enumeration> enumerations;
 };
