@@ -19,7 +19,7 @@
 
 typedef boost::geometry::model::linestring
     <
-        boost::tuple<float, float> 
+        boost::tuple<float, float>
     > linestring_type;
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
@@ -31,10 +31,10 @@ int main()
     std::deque<linestring_type> lines(2);
     boost::geometry::read_wkt("LINESTRING(0 0,1 1)", lines[0]);
     boost::geometry::read_wkt("LINESTRING(2 2,3 3)", lines[1]);
-    
+
     // Usage of Boost.Geometry
     std::cout << "LENGTH: "  << boost::geometry::length(lines) << std::endl;
-    
+
     return 0;
 }
 

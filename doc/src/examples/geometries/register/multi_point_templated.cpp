@@ -27,10 +27,10 @@ int main()
     std::deque<boost::tuple<float, float> > multi_point;
     multi_point.push_back(boost::tuple<float, float>(1, 1));
     multi_point.push_back(boost::tuple<float, float>(3, 2));
-    
+
     // Usage of Boost.Geometry
     std::cout << "WKT: "  << boost::geometry::wkt(multi_point) << std::endl;
-    
+
     return 0;
 }
 

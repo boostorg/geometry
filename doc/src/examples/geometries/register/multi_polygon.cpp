@@ -19,7 +19,7 @@
 
 typedef boost::geometry::model::polygon
     <
-        boost::tuple<float, float> 
+        boost::tuple<float, float>
     > polygon_type;
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
@@ -31,10 +31,10 @@ int main()
     std::vector<polygon_type> polygons(2);
     boost::geometry::read_wkt("POLYGON((0 0,0 1,1 1,1 0,0 0))", polygons[0]);
     boost::geometry::read_wkt("POLYGON((3 0,3 1,4 1,4 0,3 0))", polygons[1]);
-    
+
     // Usage of Boost.Geometry
     std::cout << "AREA: "  << boost::geometry::area(polygons) << std::endl;
-    
+
     return 0;
 }
 

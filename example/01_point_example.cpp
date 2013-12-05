@@ -70,7 +70,7 @@ int main()
     double d1 = distance(pt1, pt2);
     double d2 = distance(pt3, pt4);
     double d3 = distance(pt5, pt6);
-    std::cout << "Distances: " 
+    std::cout << "Distances: "
         << d1 << " and " << d2 << " and " << d3 << std::endl;
 
     // (in case you didn't note, distances can be calculated

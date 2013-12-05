@@ -27,10 +27,10 @@ int main()
     std::deque<point_type> multi_point;
     multi_point.push_back(point_type(1, 1));
     multi_point.push_back(point_type(3, 2));
-    
+
     // Usage of Boost.Geometry
     std::cout << "WKT: "  << boost::geometry::wkt(multi_point) << std::endl;
-    
+
     return 0;
 }
 
