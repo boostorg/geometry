@@ -21,7 +21,7 @@
 /*!
 \brief \brief_macro{multi_linestring}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING, multi_linestring} The 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING, multi_linestring} The
     multi_linestring may contain template parameters, which must be specified then.
 \param MultiLineString \param_macro_type{multi_linestring}
 
@@ -40,7 +40,7 @@ namespace boost { namespace geometry { namespace traits {  \
 /*!
 \brief \brief_macro{templated multi_linestring}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING_TEMPLATED, templated multi_linestring} 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_LINESTRING_TEMPLATED, templated multi_linestring}
     \details_macro_templated{multi_linestring, linestring}
 \param MultiLineString \param_macro_type{multi_linestring (without template parameters)}
 

@@ -21,7 +21,7 @@
 #include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/extreme_points.hpp>
-    
+
 
 
 namespace boost { namespace geometry

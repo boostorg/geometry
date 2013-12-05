@@ -55,7 +55,7 @@ public :
     {
         Geometry* mls = 0;
         traits::clear<Geometry>::apply(*mls);
-        traits::resize<Geometry>::apply(*mls, 0); 
+        traits::resize<Geometry>::apply(*mls, 0);
         linestring_type* ls = 0;
         traits::push_back<Geometry>::apply(*mls, *ls);
     }

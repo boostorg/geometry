@@ -78,7 +78,7 @@ template <typename Multi1, typename Multi2, std::size_t DimensionCount>
 struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>
     : detail::conversion::multi_to_multi
         <
-            Multi1, 
+            Multi1,
             Multi2,
             convert
                 <
@@ -101,7 +101,7 @@ template <typename Single, typename Multi, typename SingleTag, std::size_t Dimen
 struct convert<Single, Multi, SingleTag, multi_tag, DimensionCount, false>
     : detail::conversion::single_to_multi
         <
-            Single, 
+            Single,
             Multi,
             convert
                 <

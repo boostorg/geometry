@@ -21,7 +21,7 @@
 /*!
 \brief \brief_macro{multi_polygon}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POLYGON, multi_polygon} The 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POLYGON, multi_polygon} The
     multi_polygon may contain template parameters, which must be specified then.
 \param MultiPolygon \param_macro_type{multi_polygon}
 
@@ -40,7 +40,7 @@ namespace boost { namespace geometry { namespace traits {  \
 /*!
 \brief \brief_macro{templated multi_polygon}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POLYGON_TEMPLATED, templated multi_polygon} 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POLYGON_TEMPLATED, templated multi_polygon}
     \details_macro_templated{multi_polygon, polygon}
 \param MultiPolygon \param_macro_type{multi_polygon (without template parameters)}
 

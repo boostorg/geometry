@@ -21,7 +21,7 @@
 /*!
 \brief \brief_macro{multi_point}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POINT, multi_point} The 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POINT, multi_point} The
     multi_point may contain template parameters, which must be specified then.
 \param MultiPoint \param_macro_type{multi_point}
 
@@ -40,7 +40,7 @@ namespace boost { namespace geometry { namespace traits {  \
 /*!
 \brief \brief_macro{templated multi_point}
 \ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED, templated multi_point} 
+\details \details_macro{BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED, templated multi_point}
     \details_macro_templated{multi_point, point}
 \param MultiPoint \param_macro_type{multi_point (without template parameters)}
 

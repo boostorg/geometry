@@ -59,7 +59,7 @@ struct multi_parser
 
             handle_close_parenthesis(it, tokens.end(), wkt);
         }
-        
+
         check_end(it, tokens.end(), wkt);
     }
 };
@@ -91,11 +91,11 @@ struct multi_point_parser
             // If first point definition starts with "(" then parse points as (x y)
             // otherwise as "x y"
             bool using_brackets = (it != tokens.end() && *it == "(");
-            
+
             while(it != tokens.end() && *it != ")")
             {
                 traits::resize<MultiGeometry>::apply(geometry, boost::size(geometry) + 1);
-                
+
                 if (using_brackets)
                 {
                     point_parser
@@ -110,17 +110,17 @@ struct multi_point_parser
                             typename boost::range_value<MultiGeometry>::type
                         >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
                 }
-                    
+
                 if (it != tokens.end() && *it == ",")
                 {
                     // Skip "," after point is parsed
                     ++it;
                 }
             }
-            
+
             handle_close_parenthesis(it, tokens.end(), wkt);
         }
-        
+
         check_end(it, tokens.end(), wkt);
     }
 };

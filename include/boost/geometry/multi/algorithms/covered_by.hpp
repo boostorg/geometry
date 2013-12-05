@@ -35,7 +35,7 @@ template <typename Point, typename MultiPolygon>
 struct covered_by<Point, MultiPolygon, point_tag, multi_polygon_tag>
 {
     template <typename Strategy>
-    static inline bool apply(Point const& point, 
+    static inline bool apply(Point const& point,
                 MultiPolygon const& multi_polygon, Strategy const& strategy)
     {
         return detail::within::geometry_multi_within_code
