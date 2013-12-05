@@ -129,9 +129,9 @@ struct segments_direction
     template <typename R>
     static inline return_type segments_intersect(side_info const& sides,
                     R const&,
-                    coordinate_type const& dx1, coordinate_type const& dy1,
-                    coordinate_type const& dx2, coordinate_type const& dy2,
-                    S1 const& s1, S2 const& s2)
+                    coordinate_type const& , coordinate_type const& ,
+                    coordinate_type const& , coordinate_type const& ,
+                    S1 const& , S2 const& )
     {
         bool const ra0 = sides.get<0,0>() == 0;
         bool const ra1 = sides.get<0,1>() == 0;
@@ -140,34 +140,34 @@ struct segments_direction
 
         return
             // opposite and same starting point (FROM)
-            ra0 && rb0 ? calculate_side<1>(sides, dx1, dy1, s1, s2, 'f', -1, -1)
+            ra0 && rb0 ? calculate_side<1>(sides, 'f', -1, -1)
 
             // opposite and point to each other (TO)
-            : ra1 && rb1 ? calculate_side<0>(sides, dx1, dy1, s1, s2, 't', 1, 1)
+            : ra1 && rb1 ? calculate_side<0>(sides, 't', 1, 1)
 
             // not opposite, forming an angle, first a then b,
             // directed either both left, or both right
             // Check side of B2 from A. This is not calculated before
-            : ra1 && rb0 ? angle<1>(sides, dx1, dy1, s1, s2, 'a', 1, -1)
+            : ra1 && rb0 ? angle<1>(sides, 'a', 1, -1)
 
             // not opposite, forming a angle, first b then a,
             // directed either both left, or both right
-            : ra0 && rb1 ? angle<0>(sides, dx1, dy1, s1, s2, 'a', -1, 1)
+            : ra0 && rb1 ? angle<0>(sides, 'a', -1, 1)
 
             // b starts from interior of a
-            : rb0 ? starts_from_middle(sides, dx1, dy1, s1, s2, 'B', 0, -1)
+            : rb0 ? starts_from_middle(sides, 'B', 0, -1)
 
             // a starts from interior of b (#39)
-            : ra0 ? starts_from_middle(sides, dx1, dy1, s1, s2, 'A', -1, 0)
+            : ra0 ? starts_from_middle(sides, 'A', -1, 0)
 
             // b ends at interior of a, calculate direction of A from IP
-            : rb1 ? b_ends_at_middle(sides, dx2, dy2, s1, s2)
+            : rb1 ? b_ends_at_middle(sides)
 
             // a ends at interior of b
-            : ra1 ? a_ends_at_middle(sides, dx1, dy1, s1, s2)
+            : ra1 ? a_ends_at_middle(sides)
 
             // normal intersection
-            : calculate_side<1>(sides, dx1, dy1, s1, s2, 'i', -1, -1)
+            : calculate_side<1>(sides, 'i', -1, -1)
             ;
     }
 
@@ -254,8 +254,6 @@ private :
 
     template <std::size_t I>
     static inline return_type calculate_side(side_info const& sides,
-                coordinate_type const& , coordinate_type const& ,
-                S1 const& , S2 const& ,
                 char how, int how_a, int how_b)
     {
         int const dir = sides.get<1, I>() == 1 ? 1 : -1;
@@ -264,8 +262,6 @@ private :
 
     template <std::size_t I>
     static inline return_type angle(side_info const& sides,
-                coordinate_type const& , coordinate_type const& ,
-                S1 const& , S2 const& ,
                 char how, int how_a, int how_b)
     {
         int const dir = sides.get<1, I>() == 1 ? 1 : -1;
@@ -274,8 +270,6 @@ private :
 
 
     static inline return_type starts_from_middle(side_info const& sides,
-                coordinate_type const& , coordinate_type const& ,
-                S1 const& , S2 const& ,
                 char which,
                 int how_a, int how_b)
     {
@@ -299,9 +293,7 @@ private :
 
 
     // To be harmonized
-    static inline return_type a_ends_at_middle(side_info const& sides,
-                coordinate_type const& , coordinate_type const& ,
-                S1 const& , S2 const& )
+    static inline return_type a_ends_at_middle(side_info const& sides)
     {
         // Ending at the middle, one ARRIVES, the other one is NEUTRAL
         // (because it both "arrives"  and "departs" there)
@@ -310,9 +302,7 @@ private :
     }
 
 
-    static inline return_type b_ends_at_middle(side_info const& sides,
-                coordinate_type const& , coordinate_type const& ,
-                S1 const& , S2 const& )
+    static inline return_type b_ends_at_middle(side_info const& sides)
     {
         int const dir = sides.get<0, 1>() == 1 ? 1 : -1;
         return return_type(sides, 'm', 0, 1, dir, dir);
