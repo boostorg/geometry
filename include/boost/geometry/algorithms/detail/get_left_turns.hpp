@@ -30,8 +30,8 @@ template <typename AngleInfo>
 inline void debug_left_turn(AngleInfo const& ai, AngleInfo const& previous)
 {
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-    std::cout << "Angle: " << (ai.incoming ? "i" : "o") 
-        << " " << si(ai.seg_id) 
+    std::cout << "Angle: " << (ai.incoming ? "i" : "o")
+        << " " << si(ai.seg_id)
         << " " << (math::r2d * (ai.angle) )
         << " turn: " << ai.turn_index << "[" << ai.operation_index << "]"
         ;
@@ -52,12 +52,12 @@ inline void debug_left_turn(std::string const& caption, AngleInfo const& ai, Ang
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
     std::cout << " " << caption
             << " turn: " << ai.turn_index << "[" << ai.operation_index << "]"
-            << " " << si(ai.seg_id) 
-            << " " << (ai.incoming ? "i" : "o") 
+            << " " << si(ai.seg_id)
+            << " " << (ai.incoming ? "i" : "o")
             << " " << (math::r2d * (ai.angle) )
             << " turn: " << previous.turn_index << "[" << previous.operation_index << "]"
-            << " " << si(previous.seg_id) 
-            << " " << (previous.incoming ? "i" : "o") 
+            << " " << si(previous.seg_id)
+            << " " << (previous.incoming ? "i" : "o")
             << " " << (math::r2d * (previous.angle) )
             ;
 
@@ -71,7 +71,7 @@ inline void debug_left_turn(std::string const& caption, AngleInfo const& ai, Ang
 
 
 template <typename Operation>
-inline bool include_operation(Operation const& op, 
+inline bool include_operation(Operation const& op,
                 segment_identifier const& outgoing_seg_id,
                 segment_identifier const& incoming_seg_id)
 {
@@ -157,7 +157,7 @@ inline bool prefer_by_other(Turns const& turns,
     }
 
     std::set<segment_identifier> segment_occuring_once;
-    for (std::map<segment_identifier, int>::const_iterator mit = map.begin(); 
+    for (std::map<segment_identifier, int>::const_iterator mit = map.begin();
         mit != map.end();++mit)
     {
         if (mit->second == 1)
@@ -261,7 +261,7 @@ inline void prefer_by_priority(Turns const& turns, std::set<int>& indices)
 }
 
 template <typename AngleInfo, typename Angles, typename Turns, typename TurnSegmentIndices>
-inline void calculate_left_turns(Angles const& angles, 
+inline void calculate_left_turns(Angles const& angles,
                 Turns& turns, TurnSegmentIndices const& turn_segment_indices,
                 std::set<int>& keep_indices)
 {
@@ -295,9 +295,9 @@ inline void calculate_left_turns(Angles const& angles,
 
             typename AngleInfo::angle_type eps = 0.00001;
             int b = 1;
-            for(std::size_t d = 0; 
-                    math::abs(prev->angle - back->angle) < eps 
-                        && ! back->incoming 
+            for(std::size_t d = 0;
+                    math::abs(prev->angle - back->angle) < eps
+                        && ! back->incoming
                         && d < n;
                 d++)
             {
@@ -309,8 +309,8 @@ inline void calculate_left_turns(Angles const& angles,
             int f = 1;
             circling_iterator forward = cit + 1;
             for(std::size_t d = 0;
-                    math::abs(cit->angle - forward->angle) < eps 
-                        && forward->incoming 
+                    math::abs(cit->angle - forward->angle) < eps
+                        && forward->incoming
                         && d < n;
                     d++)
             {

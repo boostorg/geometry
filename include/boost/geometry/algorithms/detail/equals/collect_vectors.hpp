@@ -75,9 +75,9 @@ struct collected_vector
 
     inline bool same_direction(collected_vector<T> const& other) const
     {
-        // For high precision arithmetic, we have to be 
+        // For high precision arithmetic, we have to be
         // more relaxed then using ==
-        // Because 2/sqrt( (0,0)<->(2,2) ) == 1/sqrt( (0,0)<->(1,1) ) 
+        // Because 2/sqrt( (0,0)<->(2,2) ) == 1/sqrt( (0,0)<->(1,1) )
         // is not always true (at least, it is not for ttmath)
         return math::equals_with_epsilon(dx, other.dx)
             && math::equals_with_epsilon(dy, other.dy);
@@ -150,7 +150,7 @@ struct range_collect_vectors
         }
 
         // If first one has same direction as last one, remove first one
-        if (boost::size(collection) > 1 
+        if (boost::size(collection) > 1
             && collection.front().same_direction(collection.back()))
         {
             collection.erase(collection.begin());

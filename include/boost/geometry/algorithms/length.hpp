@@ -269,7 +269,7 @@ length(Geometry const& geometry, Strategy const& strategy)
     concept::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
-    
+
     return resolve_variant::length<Geometry>::apply(geometry, strategy);
 }
 

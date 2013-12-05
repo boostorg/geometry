@@ -53,7 +53,7 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
-    
+
     return geometry::dispatch::intersection_insert
         <
             Geometry1, Geometry2,

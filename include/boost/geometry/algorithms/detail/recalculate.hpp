@@ -98,7 +98,7 @@ struct recalculate_indexed<0>
 namespace dispatch
 {
 
-template 
+template
 <
     typename Geometry1,
     typename Geometry2,

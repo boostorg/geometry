@@ -78,7 +78,7 @@ struct range_remove_spikes
         typedef typename boost::range_iterator<Range>::type iterator;
 
         std::deque<point_type> cleaned;
-        for (typename boost::range_iterator<Range const>::type it = boost::begin(range); 
+        for (typename boost::range_iterator<Range const>::type it = boost::begin(range);
             it != boost::end(range); ++it)
         {
             // Add point

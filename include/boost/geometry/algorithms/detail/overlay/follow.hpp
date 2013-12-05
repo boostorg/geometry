@@ -33,7 +33,7 @@ namespace detail { namespace overlay
 
 namespace following
 {
-    
+
 template <typename Turn, typename Operation>
 static inline bool is_entering(Turn const& /* TODO remove this parameter */, Operation const& op)
 {
@@ -45,17 +45,17 @@ static inline bool is_entering(Turn const& /* TODO remove this parameter */, Ope
         ;
 }
 
-template 
+template
 <
-    typename Turn, 
-    typename Operation, 
-    typename LineString, 
+    typename Turn,
+    typename Operation,
+    typename LineString,
     typename Polygon
 >
-static inline bool last_covered_by(Turn const& turn, Operation const& op, 
+static inline bool last_covered_by(Turn const& turn, Operation const& op,
                 LineString const& linestring, Polygon const& polygon)
 {
-    // Check any point between the this one and the first IP 
+    // Check any point between the this one and the first IP
     typedef typename geometry::point_type<LineString>::type point_type;
     point_type point_in_between;
     detail::point_on_border::midpoint_helper
@@ -68,20 +68,20 @@ static inline bool last_covered_by(Turn const& turn, Operation const& op,
 }
 
 
-template 
+template
 <
-    typename Turn, 
-    typename Operation, 
-    typename LineString, 
+    typename Turn,
+    typename Operation,
+    typename LineString,
     typename Polygon
 >
-static inline bool is_leaving(Turn const& turn, Operation const& op, 
-                bool entered, bool first, 
+static inline bool is_leaving(Turn const& turn, Operation const& op,
+                bool entered, bool first,
                 LineString const& linestring, Polygon const& polygon)
 {
     if (op.operation == operation_union)
     {
-        return entered 
+        return entered
             || turn.method == method_crosses
             || (first && last_covered_by(turn, op, linestring, polygon))
             ;
@@ -90,20 +90,20 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
 }
 
 
-template 
+template
 <
-    typename Turn, 
-    typename Operation, 
-    typename LineString, 
+    typename Turn,
+    typename Operation,
+    typename LineString,
     typename Polygon
 >
-static inline bool is_staying_inside(Turn const& turn, Operation const& op, 
-                bool entered, bool first, 
+static inline bool is_staying_inside(Turn const& turn, Operation const& op,
+                bool entered, bool first,
                 LineString const& linestring, Polygon const& polygon)
 {
     if (turn.method == method_crosses)
     {
-        // The normal case, this is completely covered with entering/leaving 
+        // The normal case, this is completely covered with entering/leaving
         // so stay out of this time consuming "covered_by"
         return false;
     }
@@ -116,11 +116,11 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
     return false;
 }
 
-template 
+template
 <
-    typename Turn, 
-    typename Operation, 
-    typename Linestring, 
+    typename Turn,
+    typename Operation,
+    typename Linestring,
     typename Polygon
 >
 static inline bool was_entered(Turn const& turn, Operation const& op, bool first,
@@ -148,14 +148,14 @@ struct action_selector<overlay_intersection>
 {
     template
     <
-        typename OutputIterator, 
-        typename LineStringOut, 
-        typename LineString, 
-        typename Point, 
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
         typename Operation
     >
     static inline void enter(LineStringOut& current_piece,
-                LineString const& , 
+                LineString const& ,
                 segment_identifier& segment_id,
                 int , Point const& point,
                 Operation const& operation, OutputIterator& )
@@ -167,10 +167,10 @@ struct action_selector<overlay_intersection>
 
     template
     <
-        typename OutputIterator, 
-        typename LineStringOut, 
-        typename LineString, 
-        typename Point, 
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
         typename Operation
     >
     static inline void leave(LineStringOut& current_piece,
@@ -212,28 +212,28 @@ struct action_selector<overlay_difference>
 
     template
     <
-        typename OutputIterator, 
-        typename LineStringOut, 
-        typename LineString, 
-        typename Point, 
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
         typename Operation
     >
-    static inline void enter(LineStringOut& current_piece, 
-                LineString const& linestring, 
-                segment_identifier& segment_id, 
-                int index, Point const& point, 
+    static inline void enter(LineStringOut& current_piece,
+                LineString const& linestring,
+                segment_identifier& segment_id,
+                int index, Point const& point,
                 Operation const& operation, OutputIterator& out)
     {
-        normal_action::leave(current_piece, linestring, segment_id, index, 
+        normal_action::leave(current_piece, linestring, segment_id, index,
                     point, operation, out);
     }
 
     template
     <
-        typename OutputIterator, 
-        typename LineStringOut, 
-        typename LineString, 
-        typename Point, 
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
         typename Operation
     >
     static inline void leave(LineStringOut& current_piece,
@@ -298,7 +298,7 @@ class follow
 
         inline bool use_operation(Turn const& left, Turn const& right) const
         {
-            // If they are the same, OK. 
+            // If they are the same, OK.
             return operation_order(left) < operation_order(right);
         }
 

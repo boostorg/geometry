@@ -51,7 +51,7 @@ namespace boost { namespace geometry
 // Silence warning C4127: conditional expression is constant
 // Silence warning C4512: assignment operator could not be generated
 #if defined(_MSC_VER)
-#pragma warning(push)  
+#pragma warning(push)
 #pragma warning(disable : 4127 4512)
 #endif
 
@@ -127,22 +127,22 @@ struct segment_to_range
     }
 };
 
-template 
+template
 <
-    typename Range1, 
-    typename Range2, 
+    typename Range1,
+    typename Range2,
     bool Reverse = false
 >
 struct range_to_range
 {
     typedef typename reversible_view
         <
-            Range1 const, 
+            Range1 const,
             Reverse ? iterate_reverse : iterate_forward
         >::type rview_type;
     typedef typename closeable_view
         <
-            rview_type const, 
+            rview_type const,
             geometry::closure<Range1>::value
         >::type view_type;
 
@@ -178,7 +178,7 @@ struct polygon_to_polygon
 {
     typedef range_to_range
         <
-            typename geometry::ring_type<Polygon1>::type, 
+            typename geometry::ring_type<Polygon1>::type,
             typename geometry::ring_type<Polygon2>::type,
             geometry::point_order<Polygon1>::value
                 != geometry::point_order<Polygon2>::value
@@ -188,7 +188,7 @@ struct polygon_to_polygon
     {
         // Clearing managed per ring, and in the resizing of interior rings
 
-        per_ring::apply(geometry::exterior_ring(source), 
+        per_ring::apply(geometry::exterior_ring(source),
             geometry::exterior_ring(destination));
 
         // Container should be resizeable
@@ -292,8 +292,8 @@ struct convert<Segment, LineString, segment_tag, linestring_tag, DimensionCount,
 template <typename Ring1, typename Ring2, std::size_t DimensionCount>
 struct convert<Ring1, Ring2, ring_tag, ring_tag, DimensionCount, false>
     : detail::conversion::range_to_range
-        <   
-            Ring1, 
+        <
+            Ring1,
             Ring2,
             geometry::point_order<Ring1>::value
                 != geometry::point_order<Ring2>::value
@@ -314,8 +314,8 @@ template <typename Box, typename Ring>
 struct convert<Box, Ring, box_tag, ring_tag, 2, false>
     : detail::conversion::box_to_range
         <
-            Box, 
-            Ring, 
+            Box,
+            Ring,
             geometry::closure<Ring>::value == closed,
             geometry::point_order<Ring>::value == counterclockwise
         >
@@ -438,8 +438,8 @@ struct convert<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 \brief Converts one geometry to another geometry
 \details The convert algorithm converts one geometry, e.g. a BOX, to another
 geometry, e.g. a RING. This only works if it is possible and applicable.
-If the point-order is different, or the closure is different between two 
-geometry types, it will be converted correctly by explicitly reversing the 
+If the point-order is different, or the closure is different between two
+geometry types, it will be converted correctly by explicitly reversing the
 points or closing or opening the polygon rings.
 \ingroup convert
 \tparam Geometry1 \tparam_geometry

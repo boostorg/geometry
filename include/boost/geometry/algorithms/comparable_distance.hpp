@@ -28,7 +28,7 @@ namespace boost { namespace geometry
 \details The free function comparable_distance does not necessarily calculate the distance,
     but it calculates a distance measure such that two distances are comparable to each other.
     For example: for the Cartesian coordinate system, Pythagoras is used but the square root
-    is not taken, which makes it faster and the results of two point pairs can still be 
+    is not taken, which makes it faster and the results of two point pairs can still be
     compared to each other.
 \tparam Geometry1 first geometry type
 \tparam Geometry2 second geometry type

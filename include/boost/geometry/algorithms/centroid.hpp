@@ -381,7 +381,7 @@ struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     };
 
     template <typename Point, typename Strategy>
-    static inline void 
+    static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
           Point& out,
           Strategy const& strategy)

@@ -34,7 +34,7 @@ struct calculate_distance_policy
     static bool const include_degenerate = false;
     static bool const include_opposite = false;
 
-    template 
+    template
     <
         typename Info,
         typename Point1,

@@ -258,7 +258,7 @@ inline typename default_area_result<Geometry>::type area(Geometry const& geometr
         >::type strategy_type;
 
     // detail::throw_on_empty_input(geometry);
-        
+
     return resolve_variant::area<Geometry>::apply(geometry, strategy_type());
 }
 
@@ -293,7 +293,7 @@ inline typename Strategy::return_type area(
     concept::check<Geometry const>();
 
     // detail::throw_on_empty_input(geometry);
-    
+
     return resolve_variant::area<Geometry>::apply(geometry, strategy);
 }
 

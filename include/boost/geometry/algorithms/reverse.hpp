@@ -107,7 +107,7 @@ namespace resolve_variant
 {
 
 template <typename Geometry>
-struct reverse 
+struct reverse
 {
     static void apply(Geometry& geometry)
     {

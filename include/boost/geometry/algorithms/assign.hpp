@@ -144,9 +144,9 @@ inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
 {
     concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
 
-    bool const same_point_order = 
+    bool const same_point_order =
             point_order<Geometry1>::value == point_order<Geometry2>::value;
-    bool const same_closure = 
+    bool const same_closure =
             closure<Geometry1>::value == closure<Geometry2>::value;
 
     BOOST_MPL_ASSERT_MSG

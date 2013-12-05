@@ -40,14 +40,14 @@ namespace dispatch
     struct select_rings<box_tag, Box>
     {
         template <typename Geometry, typename Map>
-        static inline void apply(Box const& box, Geometry const& , 
+        static inline void apply(Box const& box, Geometry const& ,
                 ring_identifier const& id, Map& map, bool midpoint)
         {
             map[id] = typename Map::mapped_type(box, midpoint);
         }
 
         template <typename Map>
-        static inline void apply(Box const& box, 
+        static inline void apply(Box const& box,
                 ring_identifier const& id, Map& map, bool midpoint)
         {
             map[id] = typename Map::mapped_type(box, midpoint);
@@ -68,7 +68,7 @@ namespace dispatch
         }
 
         template <typename Map>
-        static inline void apply(Ring const& ring, 
+        static inline void apply(Ring const& ring,
                     ring_identifier const& id, Map& map, bool midpoint)
         {
             if (boost::size(ring) > 0)
@@ -248,7 +248,7 @@ template
     typename IntersectionMap, typename SelectionMap
 >
 inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            IntersectionMap const& intersection_map, 
+            IntersectionMap const& intersection_map,
             SelectionMap& selection_map, bool midpoint)
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
@@ -271,16 +271,16 @@ template
     typename IntersectionMap, typename SelectionMap
 >
 inline void select_rings(Geometry const& geometry,
-            IntersectionMap const& intersection_map, 
+            IntersectionMap const& intersection_map,
             SelectionMap& selection_map, bool midpoint)
 {
     typedef typename geometry::tag<Geometry>::type tag;
 
     SelectionMap map_with_all;
-    dispatch::select_rings<tag, Geometry>::apply(geometry, 
+    dispatch::select_rings<tag, Geometry>::apply(geometry,
                 ring_identifier(0, -1, -1), map_with_all, midpoint);
 
-    update_selection_map<OverlayType>(geometry, geometry, intersection_map, 
+    update_selection_map<OverlayType>(geometry, geometry, intersection_map,
                 map_with_all, selection_map);
 }
 

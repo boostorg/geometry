@@ -53,7 +53,7 @@ struct specific_coordinate_first
         CoordinateType const lh = geometry::get<Dimension>(lhs);
         CoordinateType const rh = geometry::get<Dimension>(rhs);
 
-        // If both lhs and rhs equal m_value_to_be_first, 
+        // If both lhs and rhs equal m_value_to_be_first,
         // we should handle conform if lh < rh = FALSE
         // The first condition meets that, keep it first
         if (geometry::math::equals(rh, m_value_to_be_first))
@@ -148,7 +148,7 @@ inline void calculate_centroid(Point& point, Segments const& segments)
     if (segments.size() == 3)
     {
         // In almost all cases, the segments do have 3 values. In that case we use another
-        // centroid calculation, which should be slightly faster 
+        // centroid calculation, which should be slightly faster
         // and is more precise (case #geos_1_test_overlay => normal centroid is outside! TODO)
 
         typedef typename geometry::coordinate_type<Point>::type coordinate_type;
@@ -229,7 +229,7 @@ inline void replace_extremes_for_self_tangencies(Extremes& extremes, Intruders& 
 
     // Then intruders (here "i1" but there may be more) are sorted from left to right
     // Finally points "a","b" and "c" (in this order) are selected as a new triangle.
-    // This triangle will have a centroid which is inside (assumed that intruders left segment 
+    // This triangle will have a centroid which is inside (assumed that intruders left segment
     // is not equal to extremes left segment, but that polygon would be invalid)
 
     // Find highest non-self tangent intrusion, if any
@@ -264,7 +264,7 @@ inline void replace_extremes_for_self_tangencies(Extremes& extremes, Intruders& 
     // (alternatively we could use the last two points of extremes, and first point of last intruder...):
     //// ALTERNATIVE: std::copy(extremes.rbegin(), extremes.rbegin() + 2, std::back_inserter(triangle));
     //// ALTERNATIVE: triangle.push_back(intruders.back().front());
-    
+
     // Now replace extremes with this smaller subset, a triangle, such that centroid calculation will result in a point inside
     extremes = triangle;
 }

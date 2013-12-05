@@ -230,7 +230,7 @@ struct convex_hull<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     };
 
     template <typename OutputGeometry, typename Strategy>
-    static inline void 
+    static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
           OutputGeometry& out,
           Strategy const& strategy)

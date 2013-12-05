@@ -174,7 +174,7 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     };
 
     template <typename Box>
-    static inline void 
+    static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
           Box& box)
     {

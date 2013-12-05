@@ -66,10 +66,10 @@ namespace boost { namespace geometry
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
-#pragma warning(push)  
-#pragma warning(disable : 4127)  
+#pragma warning(push)
+#pragma warning(disable : 4127)
 #endif
-    
+
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace get_turns
@@ -150,12 +150,12 @@ class get_turns_in_sections
                     <
                         typename tag_cast
                             <
-                                typename geometry::tag<Geometry>::type, 
+                                typename geometry::tag<Geometry>::type,
                                 areal_tag
-                            >::type, 
+                            >::type,
                         areal_tag
                     >::value
-               && index1 == 0 
+               && index1 == 0
                && index2 >= n - 2
                 ;
     }
@@ -584,8 +584,8 @@ struct get_turns_cs
                         bp[0], bp[1], bp[2], bp[3],
                         rescale_policy,
                         turns, interrupt_policy);
-                // Future performance enhancement: 
-                // return if told by the interrupt policy 
+                // Future performance enhancement:
+                // return if told by the interrupt policy
             }
         }
     }
@@ -806,7 +806,7 @@ struct get_turns_reversed
                 Geometry2, Geometry1,
                 Reverse2, Reverse1,
                 TurnPolicy
-            >::apply(source_id2, g2, source_id1, g1, rescale_policy, 
+            >::apply(source_id2, g2, source_id1, g1, rescale_policy,
                     turns, interrupt_policy);
     }
 };
@@ -884,7 +884,7 @@ inline void get_turns(Geometry1 const& geometry1,
 }
 
 #if defined(_MSC_VER)
-#pragma warning(pop)  
+#pragma warning(pop)
 #endif
 
 }} // namespace boost::geometry

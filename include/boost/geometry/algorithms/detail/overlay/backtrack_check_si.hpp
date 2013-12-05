@@ -55,8 +55,8 @@ inline void clear_visit_info(Turns& turns)
 struct backtrack_state
 {
     bool m_good;
-    
-    inline backtrack_state() : m_good(true) {}         
+
+    inline backtrack_state() : m_good(true) {}
     inline void reset() { m_good = true; }
     inline bool good() const { return m_good; }
 };
@@ -80,7 +80,7 @@ public :
     typedef state state_type;
 
     template <typename Operation, typename Rings, typename Turns, typename RescalePolicy>
-    static inline void apply(std::size_t size_at_start, 
+    static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& ,
@@ -91,7 +91,7 @@ public :
                 )
     {
         state.m_good = false;
-        
+
         // Check self-intersections and throw exception if appropriate
         if (! state.m_checked)
         {
@@ -124,7 +124,7 @@ public :
     typedef backtrack_state state_type;
 
     template <typename Operation, typename Rings, typename Turns>
-    static inline void apply(std::size_t size_at_start, 
+    static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& reason,
@@ -134,7 +134,7 @@ public :
                 )
     {
         std::cout << " REJECT " << reason << std::endl;
-        
+
         state.m_good = false;
 
         rings.resize(size_at_start);

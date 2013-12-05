@@ -68,9 +68,9 @@ private :
             typename geometry::coordinate_system<Geometry1>::type
         > robust_point_type;
 
-    inline void get_situation_map(Indexed const& left, Indexed const& right, 
-                              robust_point_type& pi_rob, robust_point_type& pj_rob, 
-                              robust_point_type& ri_rob, robust_point_type& rj_rob, 
+    inline void get_situation_map(Indexed const& left, Indexed const& right,
+                              robust_point_type& pi_rob, robust_point_type& pj_rob,
+                              robust_point_type& ri_rob, robust_point_type& rj_rob,
                               robust_point_type& si_rob, robust_point_type& sj_rob) const
     {
         typename geometry::point_type<Geometry1>::type pi, pj, ri, rj, si, sj;
@@ -84,9 +84,9 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
-        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj, 
-                                 pi_rob, pj_rob, 
-                                 ri_rob, rj_rob, 
+        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj,
+                                 pi_rob, pj_rob,
+                                 ri_rob, rj_rob,
                                  si_rob, sj_rob);
     }
 

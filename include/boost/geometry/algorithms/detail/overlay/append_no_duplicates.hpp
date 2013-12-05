@@ -29,7 +29,7 @@ template <typename Range, typename Point>
 inline void append_no_duplicates(Range& range, Point const& point, bool force = false)
 {
     if (boost::size(range) == 0
-        || force 
+        || force
         || ! geometry::detail::equals::equals_point_point(*(boost::end(range)-1), point))
     {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION

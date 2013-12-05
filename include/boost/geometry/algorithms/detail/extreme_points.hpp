@@ -26,7 +26,7 @@
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
-    
+
 #include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -55,7 +55,7 @@ template <std::size_t Dimension, typename PointType, typename CoordinateType>
 inline void move_along_vector(PointType& point, PointType const& extreme, CoordinateType const& base_value)
 {
     // Moves a point along the vector (point, extreme) in the direction of the extreme  point
-    // This adapts the possibly uneven legs of the triangle (or trapezium-like shape) 
+    // This adapts the possibly uneven legs of the triangle (or trapezium-like shape)
     //      _____extreme            _____
     //     /     \                 /     \                                    .
     //    /base   \         =>    /       \ point                             .
@@ -78,7 +78,7 @@ inline void move_along_vector(PointType& point, PointType const& extreme, Coordi
     CoordinateType const diff = geometry::get<Dimension>(vector);
 
     // diff should never be zero
-    // because of the way our triangle/trapezium is build. 
+    // because of the way our triangle/trapezium is build.
     // We just return if it would be the case.
     if (geometry::math::equals(diff, 0))
     {
@@ -122,8 +122,8 @@ struct extreme_points_on_ring
 
     template <typename CirclingIterator, typename Points>
     static inline bool extend(CirclingIterator& it,
-            std::size_t n, 
-            coordinate_type max_coordinate_value, 
+            std::size_t n,
+            coordinate_type max_coordinate_value,
             Points& points, int direction)
     {
         std::size_t safe_index = 0;
@@ -146,8 +146,8 @@ struct extreme_points_on_ring
     // Overload without adding to poinst
     template <typename CirclingIterator>
     static inline bool extend(CirclingIterator& it,
-            std::size_t n, 
-            coordinate_type max_coordinate_value, 
+            std::size_t n,
+            coordinate_type max_coordinate_value,
             int direction)
     {
         std::size_t safe_index = 0;
@@ -166,7 +166,7 @@ struct extreme_points_on_ring
     }
 
     template <typename CirclingIterator>
-    static inline bool extent_both_sides(Ring const& ring, 
+    static inline bool extent_both_sides(Ring const& ring,
             point_type extreme,
             CirclingIterator& left,
             CirclingIterator& right)
@@ -187,9 +187,9 @@ struct extreme_points_on_ring
     }
 
     template <typename Collection, typename CirclingIterator>
-    static inline bool collect(Ring const& ring, 
+    static inline bool collect(Ring const& ring,
             point_type extreme,
-            Collection& points, 
+            Collection& points,
             CirclingIterator& left,
             CirclingIterator& right)
     {
@@ -221,11 +221,11 @@ struct extreme_points_on_ring
             return;
         }
         coordinate_type const min_value = geometry::get<Dimension>(*std::min_element(boost::begin(extremes), boost::end(extremes), compare<Dimension>()));
-            
+
         // Also select left/right (if Dimension=1)
         coordinate_type const other_min = geometry::get<1 - Dimension>(*std::min_element(boost::begin(extremes), boost::end(extremes), compare<1 - Dimension>()));
         coordinate_type const other_max = geometry::get<1 - Dimension>(*std::max_element(boost::begin(extremes), boost::end(extremes), compare<1 - Dimension>()));
-        
+
         std::size_t defensive_check_index = 0; // in case we skip over left/right check, collect modifies right too
         std::size_t const n = boost::size(ring);
         while (left != right && defensive_check_index < n)
@@ -325,7 +325,7 @@ struct extreme_points_on_ring
         {
             return false;
         }
-       
+
         int const index = std::distance(boost::begin(ring), max_it);
 //std::cout << "Extreme point lies at " << index << " having " << geometry::wkt(*max_it) << std::endl;
 
@@ -456,7 +456,7 @@ struct extreme_points<Box, 0, box_tag>
 
 
 /*!
-\brief Returns extreme points (for Edge=1 in dimension 1, so the top, 
+\brief Returns extreme points (for Edge=1 in dimension 1, so the top,
        for Edge=0 in dimension 0, the right side)
 \note We could specify a strategy (less/greater) to get bottom/left side too. However, until now we don't need that.
  */
@@ -465,7 +465,7 @@ inline bool extreme_points(Geometry const& geometry, Extremes& extremes, Intrude
 {
     concept::check<Geometry const>();
 
-    // Extremes is not required to follow a geometry concept (but it should support an output iterator), 
+    // Extremes is not required to follow a geometry concept (but it should support an output iterator),
     // but its elements should fulfil the point-concept
     concept::check<typename boost::range_value<Extremes>::type>();
 

@@ -39,7 +39,7 @@ inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 }
 
 // Divide collection into three subsets: lower, upper and oversized
-// (not-fitting) 
+// (not-fitting)
 // (lower == left or bottom, upper == right or top)
 template <typename OverlapsPolicy, typename InputCollection, typename Box>
 static inline void divide_into_subsets(Box const& lower_box,

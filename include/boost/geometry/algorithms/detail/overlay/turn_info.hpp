@@ -103,7 +103,7 @@ struct turn_info
     {
         return has12(type, type);
     }
-    
+
     inline bool has(operation_type type) const
     {
         return this->operations[0].operation == type

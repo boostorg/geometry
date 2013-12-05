@@ -40,7 +40,7 @@ namespace detail { namespace overlay
 
 template <typename Turn, typename Operation>
 #ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
-inline void debug_traverse(Turn const& turn, Operation op, 
+inline void debug_traverse(Turn const& turn, Operation op,
                 std::string const& header)
 {
     std::cout << header
@@ -109,7 +109,7 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
     // If there is no next IP on this segment
     if (info.enriched.next_ip_index < 0)
     {
-        if (info.enriched.travels_to_vertex_index < 0 
+        if (info.enriched.travels_to_vertex_index < 0
             || info.enriched.travels_to_ip_index < 0)
         {
             return false;
@@ -292,7 +292,7 @@ public :
                                         *iit, current_seg_id))
                             {
                                 Backtrack::apply(
-                                    size_at_start, 
+                                    size_at_start,
                                     rings, current_output, turns, *current_iit,
                                     "No next IP",
                                     geometry1, geometry2, rescale_policy, state);
@@ -305,7 +305,7 @@ public :
                                             current_iit))
                             {
                                 Backtrack::apply(
-                                    size_at_start, 
+                                    size_at_start,
                                     rings, current_output, turns, *iit,
                                     "Dead end at start",
                                     geometry1, geometry2, rescale_policy, state);
@@ -327,7 +327,7 @@ public :
                                         // It visits a visited node again, without passing the start node.
                                         // This makes it suspicious for endless loops
                                         Backtrack::apply(
-                                            size_at_start, 
+                                            size_at_start,
                                             rings,  current_output, turns, *iit,
                                             "Visit again",
                                             geometry1, geometry2, rescale_policy, state);
@@ -361,7 +361,7 @@ public :
                                             // Should not occur in self-intersecting polygons without spikes
                                             // Might occur in polygons with spikes
                                             Backtrack::apply(
-                                                size_at_start, 
+                                                size_at_start,
                                                 rings,  current_output, turns, *iit,
                                                 "Dead end",
                                                 geometry1, geometry2, rescale_policy, state);
@@ -377,7 +377,7 @@ public :
                                             // than turn points.
                                             // Turn points marked as "ii" can be visited twice.
                                             Backtrack::apply(
-                                                size_at_start, 
+                                                size_at_start,
                                                 rings,  current_output, turns, *iit,
                                                 "Endless loop",
                                                 geometry1, geometry2, rescale_policy, state);

@@ -227,7 +227,7 @@ struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         RangeOrPoint const& m_range_or_point;
         int m_ring_index;
         int m_multi_index;
-    
+
         visitor(RangeOrPoint const& range_or_point,
                 int ring_index,
                 int multi_index):
@@ -235,7 +235,7 @@ struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
             m_ring_index(ring_index),
             m_multi_index(multi_index)
         {}
-    
+
         template <typename Geometry>
         void operator()(Geometry& geometry) const
         {

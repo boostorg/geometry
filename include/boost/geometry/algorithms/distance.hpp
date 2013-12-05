@@ -472,7 +472,7 @@ struct distance
           Segment const& segment,
           Strategy const& strategy)
     {
-        
+
         typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
@@ -534,7 +534,7 @@ distance(Geometry1 const& geometry1,
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
-    
+
     detail::throw_on_empty_input(geometry1);
     detail::throw_on_empty_input(geometry2);
 

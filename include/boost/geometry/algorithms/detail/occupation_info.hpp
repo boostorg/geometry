@@ -44,7 +44,7 @@ public :
 
     inline relaxed_less()
     {
-        // TODO: adapt for ttmath, and maybe build the map in another way 
+        // TODO: adapt for ttmath, and maybe build the map in another way
         // (e.g. exact constellations of segment-id's), maybe adaptive.
         epsilon = std::numeric_limits<double>::epsilon() * 100.0;
     }
@@ -226,7 +226,7 @@ public :
 
 template <typename Point, typename Ring, typename Info>
 inline void add_incoming_and_outgoing_angles(Point const& map_point, Point const& intersection_point,
-                Ring const& ring, 
+                Ring const& ring,
                 int turn_index,
                 int operation_index,
                 segment_identifier seg_id,
@@ -266,8 +266,8 @@ inline void add_incoming_and_outgoing_angles(Point const& map_point, Point const
         // Don't upgrade the ID
         it = advance_circular(it, ring, seg_id);
     }
-    for (int defensive_check = 0; 
-        comparator.equals(intersection_point, *it) && defensive_check < n; 
+    for (int defensive_check = 0;
+        comparator.equals(intersection_point, *it) && defensive_check < n;
         defensive_check++)
     {
         it = advance_circular(it, ring, real_seg_id);
@@ -294,7 +294,7 @@ public :
         typename map_type::iterator it = map.find(point);
         if (it == boost::end(map))
         {
-            std::pair<typename map_type::iterator, bool> pair 
+            std::pair<typename map_type::iterator, bool> pair
                         = map.insert(std::make_pair(point, OccupationInfo()));
             it = pair.first;
         }

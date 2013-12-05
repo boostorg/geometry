@@ -38,7 +38,7 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point)
     // If a point is equal, or forming a spike, remove the pen-ultimate point because this one caused the spike.
     // If so, the now-new-pen-ultimate point can again cause a spike (possibly at a corner). So keep doing this.
     // Besides spikes it will also avoid duplicates.
-    while(boost::size(range) >= 3 
+    while(boost::size(range) >= 3
             && point_is_spike_or_equal(point, *(boost::end(range) - 3), *(boost::end(range) - 2)))
     {
         // Use the Concept/traits, so resize and append again

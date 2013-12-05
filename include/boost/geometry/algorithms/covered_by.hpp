@@ -120,8 +120,8 @@ struct covered_by
     {
         concept::within::check
             <
-                typename tag<Geometry1>::type, 
-                typename tag<Geometry2>::type, 
+                typename tag<Geometry1>::type,
+                typename tag<Geometry2>::type,
                 typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
                 Strategy
             >();
@@ -141,7 +141,7 @@ struct covered_by
     {
         typedef typename point_type<Geometry1>::type point_type1;
         typedef typename point_type<Geometry2>::type point_type2;
-    
+
         typedef typename strategy::covered_by::services::default_strategy
             <
                 typename tag<Geometry1>::type,
