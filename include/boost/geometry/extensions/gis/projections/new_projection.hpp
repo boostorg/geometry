@@ -17,7 +17,7 @@
 #include <boost/geometry/extensions/gis/projections/projection_point_type.hpp>
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 
-namespace boost { namespace geometry { namespace projections 
+namespace boost { namespace geometry { namespace projections
 {
 
 /*!

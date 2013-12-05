@@ -88,7 +88,7 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, nsp
         }
 
         coordinate_type const width = highest_high - lowest_low;
-        
+
         // highest_low - lowest_high
         separation = difference<separation_type>(lowest_high, highest_low);
         // BOOST_ASSERT(0 <= width);

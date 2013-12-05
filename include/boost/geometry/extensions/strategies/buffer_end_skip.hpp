@@ -40,7 +40,7 @@ class end_skip
 public :
 
     template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& , 
+    inline void apply(PointIn const& ,
                 PointIn const& ,
                 PointIn const& ,
                 PointIn const& ,

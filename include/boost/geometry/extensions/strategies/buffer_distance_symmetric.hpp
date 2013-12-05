@@ -36,7 +36,7 @@ public :
     {
         return m_distance;
     }
-    
+
     inline int factor() const
     {
         return 1;

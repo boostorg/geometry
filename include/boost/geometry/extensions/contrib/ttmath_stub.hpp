@@ -152,9 +152,9 @@ namespace detail
 
     template <>
     struct define_pi<ttmath_big>
-            : public define_pi<ttmath::Big<1,4> > 
+            : public define_pi<ttmath::Big<1,4> >
     {};
-    
+
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
     struct equals_with_epsilon<ttmath::Big<Exponent, Mantissa>, false>
     {
@@ -166,10 +166,10 @@ namespace detail
             return ttmath::Abs(a - b) <= epsilon * ttmath::Abs(a);
         }
     };
-    
+
     template <>
-    struct equals_with_epsilon<ttmath_big, false> 
-            : public equals_with_epsilon<ttmath::Big<1, 4>, false> 
+    struct equals_with_epsilon<ttmath_big, false>
+            : public equals_with_epsilon<ttmath::Big<1, 4>, false>
     {};
 
 } // detail

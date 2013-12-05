@@ -30,7 +30,7 @@ struct sum_for_indexable<Point, Indexable, nsphere_tag, comparable_distance_near
         result_type center_dist = ::sqrt( comparable_distance(pt, center_view<const Indexable>(i)) );
         result_type dist = get_radius<0>(i) < center_dist ? center_dist - get_radius<0>(i) : 0;
         return dist;
-        
+
         // return dist * dist to be conformant with comparable_distance?
         // CONSIDER returning negative value related to the distance or normalized distance to the center if dist < radius
     }

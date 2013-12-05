@@ -55,14 +55,14 @@ struct box_nsphere_comparable_distance_cartesian
         result_type r = 0;
 
         if( get<Dimension>(nsphere) < get<min_corner, Dimension>(box) )
-        { 
+        {
             coordinate_type tmp = get<min_corner, Dimension>(box) - get<Dimension>(nsphere);
-            r = tmp*tmp; 
+            r = tmp*tmp;
         }
         else if( get<max_corner, Dimension>(box) < get<Dimension>(nsphere) )
         {
             coordinate_type tmp = get<Dimension>(nsphere) - get<max_corner, Dimension>(box);
-            r = tmp*tmp; 
+            r = tmp*tmp;
         }
 
         return r + box_nsphere_comparable_distance_cartesian<

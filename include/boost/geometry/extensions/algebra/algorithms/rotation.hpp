@@ -45,7 +45,7 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
         typename traits::coordinate_type<Rotation>::type
     >::type cr_type;
 
-    typedef model::vector<cv_type, 3> vector_type;    
+    typedef model::vector<cv_type, 3> vector_type;
 
     inline static void apply(V1 const& v1, V2 const& v2, Rotation & r)
     {
@@ -92,7 +92,7 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
 
         cv_type txx = t*get<0>(axis)*get<0>(axis);
         cv_type tyy = t*get<1>(axis)*get<1>(axis);
-        cv_type tzz = t*get<2>(axis)*get<2>(axis);        
+        cv_type tzz = t*get<2>(axis)*get<2>(axis);
         cv_type txy = t*get<0>(axis)*get<1>(axis);
         cv_type sx = s*get<0>(axis);
         cv_type txz = t*get<0>(axis)*get<2>(axis);

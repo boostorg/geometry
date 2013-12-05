@@ -20,7 +20,7 @@ struct bounds_nsphere_box
 {
     static inline void apply(Geometry const& g, Bounds & b)
     {
-        set<min_corner, DimensionIndex>(b, get<DimensionIndex>(g) - get_radius<0>(g));        
+        set<min_corner, DimensionIndex>(b, get<DimensionIndex>(g) - get_radius<0>(g));
         set<max_corner, DimensionIndex>(b, get<DimensionIndex>(g) + get_radius<0>(g));
         bounds_nsphere_box<Geometry, Bounds, DimensionIndex+1, DimensionCount>::apply(g, b);
     }

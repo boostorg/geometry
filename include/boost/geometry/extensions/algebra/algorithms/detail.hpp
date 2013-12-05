@@ -131,10 +131,10 @@ inline static void normalize(S & s)
 
     T lsqr = dot<I, I, N>(s, s);
     if ( std::numeric_limits<T>::epsilon() < lsqr )
-        mul<I, N>(s, 1.0f / ::sqrt(lsqr));    
+        mul<I, N>(s, 1.0f / ::sqrt(lsqr));
 }
 
-// Square matrix * Vector of the same dimension 
+// Square matrix * Vector of the same dimension
 
 template <typename M, typename V, typename VD, std::size_t I, std::size_t N>
 struct matrix_mul_row_impl

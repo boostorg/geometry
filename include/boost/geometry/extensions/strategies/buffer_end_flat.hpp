@@ -54,7 +54,7 @@ class end_flat
 public :
 
     template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& penultimate_point, 
+    inline void apply(PointIn const& penultimate_point,
                 PointIn const& perp_left_point,
                 PointIn const& ultimate_point,
                 PointIn const& perp_right_point,

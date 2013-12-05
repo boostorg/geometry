@@ -38,7 +38,7 @@ namespace detail { namespace buffer
 
 struct buffered_ring_collection_tag : polygonal_tag, multi_tag
 {};
-    
+
 
 template <typename Ring>
 struct buffered_ring : public Ring
@@ -137,12 +137,12 @@ template <typename Ring>
 struct ring_type
 <
     detail::buffer::buffered_ring_collection_tag,
-    detail::buffer::buffered_ring_collection<Ring> 
+    detail::buffer::buffered_ring_collection<Ring>
 >
 {
     typedef Ring type;
 };
-    
+
 }
 
 namespace dispatch
@@ -214,14 +214,14 @@ struct copy_segments
 template <typename Point, typename MultiGeometry>
 struct within
 <
-    Point, 
-    MultiGeometry, 
-    point_tag, 
+    Point,
+    MultiGeometry,
+    point_tag,
     detail::buffer::buffered_ring_collection_tag
 >
 {
     template <typename Strategy>
-    static inline bool apply(Point const& point, 
+    static inline bool apply(Point const& point,
                 MultiGeometry const& multi, Strategy const& strategy)
     {
         return detail::within::geometry_multi_within_code

@@ -33,7 +33,7 @@
 #include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/convert.hpp>
 
-// experimental 
+// experimental
 #include <boost/geometry/extensions/algebra/algorithms/clear.hpp>
 #include <boost/geometry/extensions/algebra/algorithms/reverse.hpp>
 

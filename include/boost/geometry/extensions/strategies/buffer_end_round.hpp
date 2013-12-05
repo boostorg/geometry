@@ -65,7 +65,7 @@ class end_round
 
         promoted_type const diff = two_pi / promoted_type(point_buffer_count);
 
-        // For half circle: 
+        // For half circle:
         point_buffer_count /= 2;
         point_buffer_count++;
 
@@ -94,7 +94,7 @@ public :
     {}
 
     template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& penultimate_point, 
+    inline void apply(PointIn const& penultimate_point,
                 PointIn const& perp_left_point,
                 PointIn const& ultimate_point,
                 PointIn const& perp_right_point,

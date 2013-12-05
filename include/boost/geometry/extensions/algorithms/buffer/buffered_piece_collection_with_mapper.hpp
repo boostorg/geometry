@@ -25,9 +25,9 @@ namespace detail { namespace buffer
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
- 
+
 template <typename Ring>
-struct buffered_piece_collection_with_mapper 
+struct buffered_piece_collection_with_mapper
         : public buffered_piece_collection<Ring>
 {
 
@@ -36,7 +36,7 @@ struct buffered_piece_collection_with_mapper
     inline void map_opposite_locations(Mapper& mapper)
     {
         for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
-            boost::begin(m_occupation_map.map); 
+            boost::begin(m_occupation_map.map);
             it != boost::end(m_occupation_map.map); ++it)
         {
             mapper.map(it->first, it->second.occupied() ? "fill:rgb(255,0,255);" : "fill:rgb(0,192,0);", 7);
@@ -111,7 +111,7 @@ struct buffered_piece_collection_with_mapper
                     case inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
                 }
                 std::ostringstream out;
-                out << it->operations[0].piece_index << "/" << it->operations[1].piece_index 
+                out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
                     << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
                     << std::endl;
                 //out << " " <<  m_pieces[it->operations[0].piece_index].first_seg_id.segment_index
@@ -164,11 +164,11 @@ struct buffered_piece_collection_with_mapper
             {
                 buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
 
-                std::copy(boost::begin(ring) + seg_id.segment_index, 
-                        boost::begin(ring) + it->last_segment_index, 
+                std::copy(boost::begin(ring) + seg_id.segment_index,
+                        boost::begin(ring) + it->last_segment_index,
                         std::back_inserter(corner));
-                std::copy(boost::begin(it->helper_segments), 
-                        boost::end(it->helper_segments), 
+                std::copy(boost::begin(it->helper_segments),
+                        boost::end(it->helper_segments),
                         std::back_inserter(corner));
             }
 

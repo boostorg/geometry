@@ -22,9 +22,9 @@
 #include <boost/geometry/strategies/within.hpp>
 
 
-namespace boost { namespace geometry { namespace strategy 
+namespace boost { namespace geometry { namespace strategy
 {
- 
+
 namespace within
 {
 
@@ -68,13 +68,13 @@ struct relate_nsphere_box_loop
         if (! SubStrategy::apply(
                 get<Dimension>(sphere) - get_radius<0>(sphere),
                 get<Dimension>(sphere) + get_radius<0>(sphere),
-                get<min_corner, Dimension>(box), 
+                get<min_corner, Dimension>(box),
                 get<max_corner, Dimension>(box))
             )
         {
             return false;
         }
-        
+
         return relate_nsphere_box_loop
             <
                 SubStrategy,
@@ -109,12 +109,12 @@ template
 >
 struct nsphere_in_box
 {
-    static inline bool apply(NSphere const& nsphere, Box const& box) 
+    static inline bool apply(NSphere const& nsphere, Box const& box)
     {
         return relate_nsphere_box_loop
             <
                 SubStrategy,
-                NSphere, Box, 
+                NSphere, Box,
                 0, dimension<NSphere>::type::value
             >::apply(nsphere, box);
     }
@@ -133,13 +133,13 @@ namespace within { namespace services
 template <typename NSphere, typename Box>
 struct default_strategy
     <
-        nsphere_tag, box_tag, 
-        nsphere_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        nsphere_tag, box_tag,
+        nsphere_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         NSphere, Box
     >
 {
-    typedef within::nsphere_in_box<NSphere, Box, within::nsphere_within_range> type; 
+    typedef within::nsphere_in_box<NSphere, Box, within::nsphere_within_range> type;
 };
 
 
@@ -153,9 +153,9 @@ namespace covered_by { namespace services
 template <typename NSphere, typename Box>
 struct default_strategy
     <
-        nsphere_tag, box_tag, 
-        nsphere_tag, areal_tag, 
-        cartesian_tag, cartesian_tag, 
+        nsphere_tag, box_tag,
+        nsphere_tag, areal_tag,
+        cartesian_tag, cartesian_tag,
         NSphere, Box
     >
 {

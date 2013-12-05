@@ -164,7 +164,7 @@ public :
         multiply_value(v, b);
         add_point(result.projected_point1, v);
         result.projected_distance1 = apply_point_point(p, result.projected_point1);
-        result.real_distance 
+        result.real_distance
                     = c1 < zero ? apply_point_point(p, p1)
                     : c1 > c2 ? apply_point_point(p, p2)
                     : result.projected_distance1;

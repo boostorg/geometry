@@ -189,7 +189,7 @@ template <typename RadiusType, typename CalculationType, typename P1, typename P
 struct result_from_distance<andoyer<RadiusType, CalculationType>, P1, P2>
 {
     template <typename T>
-    static inline typename return_type<andoyer<RadiusType, CalculationType>, P1, P2>::type 
+    static inline typename return_type<andoyer<RadiusType, CalculationType>, P1, P2>::type
         apply(andoyer<RadiusType, CalculationType> const& , T const& value)
     {
         return value;

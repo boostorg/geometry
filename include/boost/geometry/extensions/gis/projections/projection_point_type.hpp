@@ -13,7 +13,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_PROJECTION_POINT_TYPE_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_PROJECTION_POINT_TYPE_HPP
 
-namespace boost { namespace geometry { namespace projections 
+namespace boost { namespace geometry { namespace projections
 {
 
 #ifndef DOXYGEN_NO_DETAIL

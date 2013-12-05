@@ -184,10 +184,10 @@ struct buffer_range
             // these points are necessary for all end-cap strategies
             // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
             output_point_type rp1, rp2;
-            generate_side(ultimate_point, penultimate_point, 
-                    side == buffer_side_left 
-                    ? buffer_side_right 
-                    : buffer_side_left, 
+            generate_side(ultimate_point, penultimate_point,
+                    side == buffer_side_left
+                    ? buffer_side_right
+                    : buffer_side_left,
                     distance, rp2, rp1);
 
             std::vector<output_point_type> range_out;
@@ -269,7 +269,7 @@ struct buffer_point
         std::vector<output_point_type> range_out;
         //RingOutput range_out;
 
-        generate_points(point, 
+        generate_points(point,
             distance.apply(point, point, buffer_side_left),
             range_out);
 
@@ -328,13 +328,13 @@ template
 struct buffer_inserter<ring_tag, RingInput, RingOutput>
     : public detail::buffer::buffer_range
         <
-            RingOutput, 
+            RingOutput,
             ring_tag
         >
 {
     typedef detail::buffer::buffer_range
         <
-            RingOutput, 
+            RingOutput,
             ring_tag
         > base;
 
@@ -366,13 +366,13 @@ template
 struct buffer_inserter<linestring_tag, Linestring, Polygon>
     : public detail::buffer::buffer_range
         <
-            typename ring_type<Polygon>::type, 
+            typename ring_type<Polygon>::type,
             linestring_tag
         >
 {
     typedef detail::buffer::buffer_range
         <
-            typename ring_type<Polygon>::type, 
+            typename ring_type<Polygon>::type,
             linestring_tag
         > base;
 
@@ -388,7 +388,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             base::iterate(collection, boost::begin(linestring), boost::end(linestring),
                     buffer_side_left,
                     distance, join_strategy, end_strategy);
-                
+
             base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
                     buffer_side_right,
                     distance, join_strategy, end_strategy, true);
@@ -472,8 +472,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     dispatch::buffer_inserter
         <
-            typename tag<GeometryInput>::type, 
-            GeometryInput, 
+            typename tag<GeometryInput>::type,
+            GeometryInput,
             GeometryOutput
         >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
 

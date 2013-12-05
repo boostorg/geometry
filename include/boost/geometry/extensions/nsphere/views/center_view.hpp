@@ -22,7 +22,7 @@ namespace boost { namespace geometry
 
 // Silence warning C4512: assignment operator could not be generated
 #if defined(_MSC_VER)
-#pragma warning(push)  
+#pragma warning(push)
 #pragma warning(disable : 4512)
 #endif
 
@@ -31,15 +31,15 @@ struct center_view
 {
     typedef typename geometry::point_type<NSphere>::type point_type;
     typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
-    
+
     explicit center_view(NSphere & nsphere)
         : m_nsphere(nsphere)
     {}
 
     template <std::size_t I> coordinate_type get() const { return geometry::get<I>(m_nsphere); }
     template <std::size_t I> void set(coordinate_type const& v) { geometry::set<I>(m_nsphere, v); }
-    
-private :    
+
+private :
     NSphere & m_nsphere;
 };
 

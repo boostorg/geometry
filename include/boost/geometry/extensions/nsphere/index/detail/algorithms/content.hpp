@@ -29,7 +29,7 @@ struct content_nsphere
     BOOST_STATIC_ASSERT(2 < Dimension);
 
     typedef typename detail::default_content_result<NSphere>::type result_type;
-    
+
     static inline result_type apply(NSphere const& s)
     {
         return (content_nsphere<NSphere, Dimension - 2>::apply(s)

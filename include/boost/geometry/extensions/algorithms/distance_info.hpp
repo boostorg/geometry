@@ -48,9 +48,9 @@ struct point_point
     template <typename Strategy, typename Result>
     static inline void apply(Point1 const& point1, Point2 const& point2, Strategy const& strategy, Result& result)
     {
-        result.real_distance 
-            = result.projected_distance1 
-            = result.projected_distance2 
+        result.real_distance
+            = result.projected_distance1
+            = result.projected_distance2
             = strategy.apply_point_point(point1, point2);
         // The projected point makes not really sense in point-point.
         // We just assign one on the other
@@ -162,7 +162,7 @@ struct distance_info
     static inline void apply(Point const& point, Segment const& segment,
                     Strategy const& strategy, Result& result)
     {
-       
+
         typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);

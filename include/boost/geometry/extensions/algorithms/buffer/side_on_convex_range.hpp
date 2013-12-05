@@ -35,7 +35,7 @@ struct collinear_point_on_segment_check
         coordinate_type const cs = geometry::get<D>(subject);
         coordinate_type const c1 = geometry::get<D>(p1);
         coordinate_type const c2 = geometry::get<D>(p2);
-        return c1 > c2 
+        return c1 > c2
             ? apply_sorted(cs, c2, c1)
             : apply_sorted(cs, c1, c2)
             ;
@@ -75,9 +75,9 @@ inline int side_on_convex_range(Point const& subject, Range const& range)
         int const side = SideStrategy::apply(subject, *prev, *it);
         switch(side)
         {
-            case 1 : 
+            case 1 :
                 return 1;
-            case 0 : 
+            case 0 :
                 // Check if it is really on the segment.
                 // If not, it is either on the left (because polygon is convex)
                 // or it is still on one of the other segments (if segments are collinear)
@@ -105,9 +105,9 @@ static inline int side_on_convex_range(Point const& subject,
         int side = SideStrategy::apply(subject, *prev, *it);
         switch(side)
         {
-            case 1 : 
+            case 1 :
                 return 1;
-            case 0 : 
+            case 0 :
                 // Check if it is REALLY on the segment.
                 // If not, it is either on the left (because polygon is convex)
                 // or it is still on one of the other segments (if segments are collinear)

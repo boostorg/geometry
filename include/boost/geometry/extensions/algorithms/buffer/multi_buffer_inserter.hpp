@@ -82,10 +82,10 @@ struct multi_buffer_inserter
                             <
                                 typename tag<Multi>::type
                             >::type,
-                typename boost::range_value<Multi const>::type, 
+                typename boost::range_value<Multi const>::type,
                 output_ring_type
             > policy;
-            
+
         for (typename boost::range_iterator<Multi const>::type
                 it = boost::begin(multi);
             it != boost::end(multi);

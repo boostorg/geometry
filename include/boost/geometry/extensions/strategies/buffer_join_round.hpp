@@ -76,7 +76,7 @@ struct join_round
 
         promoted_type two = 2.0;
         promoted_type steps = m_steps_per_circle;
-        int n = boost::numeric_cast<int>(steps * angle_diff 
+        int n = boost::numeric_cast<int>(steps * angle_diff
                     / (two * geometry::math::pi<promoted_type>()));
 
         if (n > 1000)
