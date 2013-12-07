@@ -129,7 +129,7 @@ template
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
-            bool check, double expected_area,
+            bool /*check*/, double expected_area,
             double distance_left, double distance_right,
             int expected_self_tangencies)
 {

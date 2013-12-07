@@ -50,7 +50,7 @@ public :
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
-                std::string const& reason,
+                std::string const& /*reason*/,
                 Geometry const& ,
                 Geometry const& ,
                 RescalePolicy const& ,

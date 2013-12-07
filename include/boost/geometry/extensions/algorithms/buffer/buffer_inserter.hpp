@@ -98,7 +98,7 @@ struct buffer_range
                 DistanceStrategy const& distance,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
-                bool close = false)
+                bool /*close*/ = false)
     {
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;

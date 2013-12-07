@@ -70,7 +70,7 @@ struct map_segment
 
 template <typename GeometryOut, typename Geometry>
 void test_dissolve(std::string const& caseid, Geometry const& geometry,
-        std::size_t expected_hole_count, std::size_t expected_point_count,
+        std::size_t /*expected_hole_count*/, std::size_t expected_point_count,
         double expected_length_or_area, double percentage)
 {
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
