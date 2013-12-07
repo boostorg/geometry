@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -46,124 +49,10 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
 namespace boost { namespace geometry
 {
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within
-{
-
-
-template
-<
-    typename Point,
-    typename Ring,
-    iterate_direction Direction,
-    closure_selector Closure,
-    typename Strategy
->
-struct point_in_ring
-{
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
-
-    static inline int apply(Point const& point, Ring const& ring,
-            Strategy const& strategy)
-    {
-        boost::ignore_unused_variable_warning(strategy);
-        if (int(boost::size(ring))
-                < core_detail::closure::minimum_ring_size<Closure>::value)
-        {
-            return -1;
-        }
-
-        typedef typename reversible_view<Ring const, Direction>::type rev_view_type;
-        typedef typename closeable_view
-            <
-                rev_view_type const, Closure
-            >::type cl_view_type;
-        typedef typename boost::range_iterator<cl_view_type const>::type iterator_type;
-
-        rev_view_type rev_view(ring);
-        cl_view_type view(rev_view);
-        typename Strategy::state_type state;
-        iterator_type it = boost::begin(view);
-        iterator_type end = boost::end(view);
-
-        bool stop = false;
-        for (iterator_type previous = it++;
-            it != end && ! stop;
-            ++previous, ++it)
-        {
-            if (! strategy.apply(point, *previous, *it, state))
-            {
-                stop = true;
-            }
-        }
-
-        return strategy.result(state);
-    }
-};
-
-
-// Polygon: in exterior ring, and if so, not within interior ring(s)
-template
-<
-    typename Point,
-    typename Polygon,
-    iterate_direction Direction,
-    closure_selector Closure,
-    typename Strategy
->
-struct point_in_polygon
-{
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
-
-    static inline int apply(Point const& point, Polygon const& poly,
-            Strategy const& strategy)
-    {
-        int const code = point_in_ring
-            <
-                Point,
-                typename ring_type<Polygon>::type,
-                Direction,
-                Closure,
-                Strategy
-            >::apply(point, exterior_ring(poly), strategy);
-
-        if (code == 1)
-        {
-            typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(poly);
-            for (BOOST_AUTO_TPL(it, boost::begin(rings));
-                it != boost::end(rings);
-                ++it)
-            {
-                int const interior_code = point_in_ring
-                    <
-                        Point,
-                        typename ring_type<Polygon>::type,
-                        Direction,
-                        Closure,
-                        Strategy
-                    >::apply(point, *it, strategy);
-
-                if (interior_code != -1)
-                {
-                    // If 0, return 0 (touch)
-                    // If 1 (inside hole) return -1 (outside polygon)
-                    // If -1 (outside hole) check other holes if any
-                    return -interior_code;
-                }
-            }
-        }
-        return code;
-    }
-};
-
-}} // namespace detail::within
-#endif // DOXYGEN_NO_DETAIL
-
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -211,14 +100,7 @@ struct within<Point, Ring, point_tag, ring_tag>
     template <typename Strategy>
     static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
-        return detail::within::point_in_ring
-            <
-                Point,
-                Ring,
-                order_as_direction<geometry::point_order<Ring>::value>::value,
-                geometry::closure<Ring>::value,
-                Strategy
-            >::apply(point, ring, strategy) == 1;
+        return detail::within::point_in_geometry(point, ring, strategy) == 1;
     }
 };
 
@@ -228,14 +110,7 @@ struct within<Point, Polygon, point_tag, polygon_tag>
     template <typename Strategy>
     static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
     {
-        return detail::within::point_in_polygon
-            <
-                Point,
-                Polygon,
-                order_as_direction<geometry::point_order<Polygon>::value>::value,
-                geometry::closure<Polygon>::value,
-                Strategy
-            >::apply(point, polygon, strategy) == 1;
+        return detail::within::point_in_geometry(point, polygon, strategy) == 1;
     }
 };
 
