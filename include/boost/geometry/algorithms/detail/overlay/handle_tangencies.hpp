@@ -77,7 +77,8 @@ private :
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
                               robust_point_type& si_rob, robust_point_type& sj_rob) const
     {
-        typename geometry::point_type<Geometry1>::type pi, pj, ri, rj, si, sj;
+        typedef typename geometry::point_type<Geometry1>::type point_type;
+        point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
