@@ -127,7 +127,7 @@ struct get_turns
             > sections_type;
 
         sections_type sec;
-        geometry::sectionalize<false>(geometry, sec);
+        geometry::sectionalize<false>(geometry, rescale_policy, false, sec);
 
         self_section_visitor
             <

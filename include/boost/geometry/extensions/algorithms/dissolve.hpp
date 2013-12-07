@@ -129,7 +129,7 @@ struct dissolve_ring_or_polygon
 
             enrich_intersection_points<false, false>(turns,
                         detail::overlay::operation_union,
-                        geometry, geometry,
+                        geometry, geometry, rescale_policy,
                         side_strategy_type());
 
             typedef detail::overlay::traverse
@@ -150,9 +150,8 @@ struct dissolve_ring_or_polygon
 
             enrich_intersection_points<false, false>(turns,
                         detail::overlay::operation_intersection,
-                        geometry, geometry,
+                        geometry, geometry, rescale_policy,
                         side_strategy_type());
-
 
             // ... and for intersection
             traverser::apply(geometry, geometry,

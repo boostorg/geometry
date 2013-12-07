@@ -76,7 +76,8 @@ template <>
 struct check_original<polygon_tag>
 {
     template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
+    static inline int apply(Point const& point, Geometry const& geometry,
+                            DistanceStrategy const& )
     {
         return geometry::covered_by(point, geometry) ? 1 : -1;
     }
@@ -1266,7 +1267,7 @@ struct buffered_piece_collection
         enrich_intersection_points<false, false>(m_turns,
                     detail::overlay::operation_union,
                     offsetted_rings, offsetted_rings,
-                    side_strategy_type());
+                    m_rescale_policy, side_strategy_type());
     }
 
     // Discards all rings which do have not-OK intersection points only.

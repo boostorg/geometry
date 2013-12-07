@@ -33,6 +33,7 @@ template
     typename TurnPoints,
     typename Indexed,
     typename Geometry1, typename Geometry2,
+    typename RescalePolicy,
     bool Reverse1, bool Reverse2,
     typename Strategy
 >
@@ -41,10 +42,12 @@ struct sort_in_cluster
     inline sort_in_cluster(TurnPoints const& turn_points
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
+            , RescalePolicy const& rescale_policy
             , Strategy const& strategy)
         : m_turn_points(turn_points)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
+        , m_rescale_policy(rescale_policy)
         , m_strategy(strategy)
     {}
 
@@ -53,6 +56,7 @@ private :
     TurnPoints const& m_turn_points;
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
+    RescalePolicy const& m_rescale_policy;
     Strategy const& m_strategy;
 
     typedef typename Indexed::type turn_operation_type;
@@ -643,12 +647,14 @@ template
     typename TurnPoints,
     typename Geometry1,
     typename Geometry2,
+    typename RescalePolicy,
     typename Strategy
 >
 inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
             TurnPoints& turn_points,
             operation_type for_operation,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
+            RescalePolicy& rescale_policy,
             Strategy const& strategy)
 {
     // First inspect and (possibly) discard rows
@@ -663,9 +669,10 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
+                        RescalePolicy,
                         Reverse1, Reverse2,
                         Strategy
-                    >(turn_points, geometry1, geometry2, strategy));
+                    >(turn_points, geometry1, geometry2, rescale_policy, strategy));
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
     typedef typename IndexType::type operations_type;

@@ -151,12 +151,13 @@ struct test_traverse
             > turn_info;
         std::vector<turn_info> turns;
 
+        bg::detail::no_rescale_policy rescale_policy;
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, bg::detail::no_rescale_policy(), turns, policy);
+        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, rescale_policy, turns, policy);
         bg::enrich_intersection_points<Reverse1, Reverse2>(turns,
                     Direction == 1 ? bg::detail::overlay::operation_union
                     : bg::detail::overlay::operation_intersection,
-            g1, g2, side_strategy_type());
+            g1, g2, rescale_policy, side_strategy_type());
 
         typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
         typedef std::vector<ring_type> out_vector;

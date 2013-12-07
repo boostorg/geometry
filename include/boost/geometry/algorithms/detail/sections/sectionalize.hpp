@@ -24,6 +24,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -107,14 +108,14 @@ struct sections : std::vector<section<Box, DimensionCount> >
 namespace detail { namespace sectionalize
 {
 
-template <typename Segment, std::size_t Dimension, std::size_t DimensionCount>
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct get_direction_loop
 {
-    typedef typename coordinate_type<Segment>::type coordinate_type;
-
+    template <typename Segment>
     static inline void apply(Segment const& seg,
                 int directions[DimensionCount])
     {
+        typedef typename coordinate_type<Segment>::type coordinate_type;
         coordinate_type const diff =
             geometry::get<1, Dimension>(seg) - geometry::get<0, Dimension>(seg);
 
@@ -123,14 +124,15 @@ struct get_direction_loop
 
         get_direction_loop
             <
-                Segment, Dimension + 1, DimensionCount
+                Dimension + 1, DimensionCount
             >::apply(seg, directions);
     }
 };
 
-template <typename Segment, std::size_t DimensionCount>
-struct get_direction_loop<Segment, DimensionCount, DimensionCount>
+template <std::size_t DimensionCount>
+struct get_direction_loop<DimensionCount, DimensionCount>
 {
+    template <typename Segment>
     static inline void apply(Segment const&, int [DimensionCount])
     {}
 };
@@ -182,13 +184,13 @@ struct compare_loop<T, DimensionCount, DimensionCount>
 };
 
 
-template <typename Segment, std::size_t Dimension, std::size_t DimensionCount>
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct check_duplicate_loop
 {
-    typedef typename coordinate_type<Segment>::type coordinate_type;
-
+    template <typename Segment>
     static inline bool apply(Segment const& seg)
     {
+        typedef typename coordinate_type<Segment>::type coordinate_type;
         if (! geometry::math::equals
                 (
                     geometry::get<0, Dimension>(seg),
@@ -201,14 +203,15 @@ struct check_duplicate_loop
 
         return check_duplicate_loop
             <
-                Segment, Dimension + 1, DimensionCount
+                Dimension + 1, DimensionCount
             >::apply(seg);
     }
 };
 
-template <typename Segment, std::size_t DimensionCount>
-struct check_duplicate_loop<Segment, DimensionCount, DimensionCount>
+template <std::size_t DimensionCount>
+struct check_duplicate_loop<DimensionCount, DimensionCount>
 {
+    template <typename Segment>
     static inline bool apply(Segment const&)
     {
         return true;
@@ -244,19 +247,25 @@ struct sectionalize_part
     template
     <
         typename Range,  // Can be closeable_view
+        typename RescalePolicy,
         typename Sections
     >
     static inline void apply(Sections& sections,
                 typename boost::range_value<Sections>::type& section,
                 int& index, int& ndi,
                 Range const& range,
+                RescalePolicy const& rescale_policy,
+                bool make_rescaled_boxes,
                 ring_identifier ring_id,
                 std::size_t max_count)
     {
-    typedef model::referring_segment<Point const> segment_type;
-    typedef typename boost::range_value<Sections>::type section_type;
+        boost::ignore_unused_variable_warning(rescale_policy);
+        boost::ignore_unused_variable_warning(make_rescaled_boxes);
 
-    typedef typename boost::range_iterator<Range const>::type iterator_type;
+        typedef model::referring_segment<Point const> segment_type;
+        typedef typename boost::range_value<Sections>::type section_type;
+
+        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         if (int(boost::size(range)) <= index)
         {
@@ -280,7 +289,7 @@ struct sectionalize_part
             int direction_classes[DimensionCount] = {0};
             get_direction_loop
                 <
-                    segment_type, 0, DimensionCount
+                    0, DimensionCount
                 >::apply(segment, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
@@ -294,7 +303,7 @@ struct sectionalize_part
                 // (DimensionCount might be < dimension<P>::value)
                 if (check_duplicate_loop
                     <
-                        segment_type, 0, geometry::dimension<Point>::type::value
+                        0, geometry::dimension<Point>::type::value
                     >::apply(segment)
                     )
                 {
@@ -362,9 +371,13 @@ struct sectionalize_range
     template
     <
         typename Range,
+        typename RescalePolicy,
         typename Sections
     >
-    static inline void apply(Range const& range, Sections& sections,
+    static inline void apply(Range const& range,
+                RescalePolicy const& rescale_policy,
+                bool make_rescaled_boxes,
+                Sections& sections,
                 ring_identifier ring_id, std::size_t max_count)
     {
     typedef typename closeable_view<Range const, Closure>::type cview_type;
@@ -397,7 +410,7 @@ struct sectionalize_range
         section_type section;
 
         sectionalize_part<Point, DimensionCount>
-                ::apply(sections, section, index, ndi, view, ring_id, max_count);
+                ::apply(sections, section, index, ndi, view, rescale_policy, make_rescaled_boxes, ring_id, max_count);
 
         // Add last section if applicable
         if (section.count > 0)
@@ -417,9 +430,13 @@ struct sectionalize_polygon
     template
     <
         typename Polygon,
+        typename RescalePolicy,
         typename Sections
     >
-    static inline void apply(Polygon const& poly, Sections& sections,
+    static inline void apply(Polygon const& poly,
+                RescalePolicy const& rescale_policy,
+                bool make_rescaled_boxes,
+                Sections& sections,
                 ring_identifier ring_id, std::size_t max_count)
     {
         typedef typename point_type<Polygon>::type point_type;
@@ -431,7 +448,7 @@ struct sectionalize_polygon
             > per_range;
 
         ring_id.ring_index = -1;
-        per_range::apply(exterior_ring(poly), sections, ring_id, max_count);
+        per_range::apply(exterior_ring(poly), rescale_policy, make_rescaled_boxes, sections, ring_id, max_count);
 
         ring_id.ring_index++;
         typename interior_return_type<Polygon const>::type rings
@@ -439,7 +456,7 @@ struct sectionalize_polygon
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
              ++it, ++ring_id.ring_index)
         {
-            per_range::apply(*it, sections, ring_id, max_count);
+            per_range::apply(*it, rescale_policy, make_rescaled_boxes, sections, ring_id, max_count);
         }
     }
 };
@@ -453,9 +470,13 @@ struct sectionalize_box
     template
     <
         typename Box,
+        typename RescalePolicy,
         typename Sections
     >
-    static inline void apply(Box const& box, Sections& sections,
+    static inline void apply(Box const& box,
+                RescalePolicy const& rescale_policy,
+                bool make_rescaled_boxes,
+                Sections& sections,
                 ring_identifier const& ring_id, std::size_t max_count)
     {
         typedef typename point_type<Box>::type point_type;
@@ -485,7 +506,8 @@ struct sectionalize_box
                 closed, false,
                 point_type,
                 DimensionCount
-            >::apply(points, sections, ring_id, max_count);
+            >::apply(points, rescale_policy, make_rescaled_boxes, sections,
+                     ring_id, max_count);
     }
 };
 
@@ -621,8 +643,10 @@ struct sectionalize<polygon_tag, Polygon, Reverse, DimensionCount>
     \param sections structure with sections
     \param source_index index to assign to the ring_identifiers
  */
-template<bool Reverse, typename Geometry, typename Sections>
+template<bool Reverse, typename Geometry, typename Sections, typename RescalePolicy>
 inline void sectionalize(Geometry const& geometry,
+                RescalePolicy const& rescale_policy,
+                bool make_rescaled_boxes,
                 Sections& sections,
                 int source_index = 0)
 {
@@ -640,10 +664,25 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             Sections::value
-        >::apply(geometry, sections, ring_id, 10);
+        >::apply(geometry, rescale_policy, make_rescaled_boxes, sections, ring_id, 10);
 
     detail::sectionalize::set_section_unique_ids(sections);
+    if (make_rescaled_boxes)
+    {
     detail::sectionalize::enlargeSections(sections);
+    }
+}
+
+
+// Backwards compatibility
+template<bool Reverse, typename Geometry, typename Sections>
+inline void sectionalize(Geometry const& geometry,
+                Sections& sections,
+                int source_index = 0)
+{
+    return sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
+                                 false, sections,
+                                 source_index);
 }
 
 

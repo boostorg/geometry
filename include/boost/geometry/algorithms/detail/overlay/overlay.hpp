@@ -216,6 +216,7 @@ std::cout << "enrich" << std::endl;
                     ? geometry::detail::overlay::operation_union
                     : geometry::detail::overlay::operation_intersection,
                     geometry1, geometry2,
+                    rescale_policy,
                     side_strategy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY

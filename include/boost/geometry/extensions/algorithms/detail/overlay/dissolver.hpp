@@ -304,7 +304,7 @@ struct dissolver_generic
         typename OutputCollection
     >
     static inline bool call_policy(
-            Element const& element1, Element const& element2,
+            Element const& , Element const& ,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RescalePolicy const& rescale_policy,
             OutputCollection& output_collection)

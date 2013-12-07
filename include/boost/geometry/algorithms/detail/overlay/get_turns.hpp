@@ -208,7 +208,7 @@ public :
         range1_iterator prev1, it1, end1;
 
         get_start_point_iterator(sec1, view1, prev1, it1, end1,
-                    index1, ndi1, dir1, sec2.bounding_box);
+                    index1, ndi1, dir1, sec2.bounding_box, rescale_policy);
 
         // We need a circular iterator because it might run through the closing point.
         // One circle is actually enough but this one is just convenient.
@@ -219,12 +219,12 @@ public :
         // section 2:    [--------------]
         // section 1: |----|---|---|---|---|
         for (prev1 = it1++, next1++;
-            it1 != end1 && ! exceeding<0>(dir1, *prev1, sec2.bounding_box);
+            it1 != end1 && ! exceeding<0>(dir1, *prev1, sec2.bounding_box, rescale_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
             ever_circling_iterator<range1_iterator> nd_next1(
                     begin_range_1, end_range_1, next1, true);
-            advance_to_non_duplicate_next(nd_next1, it1, sec1);
+            advance_to_non_duplicate_next(nd_next1, it1, sec1, rescale_policy);
 
             int index2 = sec2.begin_index;
             int ndi2 = sec2.non_duplicate_index;
@@ -232,12 +232,12 @@ public :
             range2_iterator prev2, it2, end2;
 
             get_start_point_iterator(sec2, view2, prev2, it2, end2,
-                        index2, ndi2, dir2, sec1.bounding_box);
+                        index2, ndi2, dir2, sec1.bounding_box, rescale_policy);
             ever_circling_iterator<range2_iterator> next2(begin_range_2, end_range_2, it2, true);
             next2++;
 
             for (prev2 = it2++, next2++;
-                it2 != end2 && ! exceeding<0>(dir2, *prev2, sec1.bounding_box);
+                it2 != end2 && ! exceeding<0>(dir2, *prev2, sec1.bounding_box, rescale_policy);
                 ++prev2, ++it2, ++index2, ++next2, ++ndi2)
             {
                 bool skip = same_source;
@@ -263,7 +263,7 @@ public :
                     // Move to the "non duplicate next"
                     ever_circling_iterator<range2_iterator> nd_next2(
                             begin_range_2, end_range_2, next2, true);
-                    advance_to_non_duplicate_next(nd_next2, it2, sec2);
+                    advance_to_non_duplicate_next(nd_next2, it2, sec2, rescale_policy);
 
                     typedef typename boost::range_value<Turns>::type turn_info;
 
@@ -304,24 +304,27 @@ private :
     typedef typename model::referring_segment<point2_type const> segment2_type;
 
 
-    template <size_t Dim, typename Point, typename Box>
-    static inline bool preceding(int dir, Point const& point, Box const& box)
+    template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
+    static inline bool preceding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
+        boost::ignore_unused_variable_warning(rescale_policy);
         return (dir == 1  && get<Dim>(point) < get<min_corner, Dim>(box))
             || (dir == -1 && get<Dim>(point) > get<max_corner, Dim>(box));
     }
 
-    template <size_t Dim, typename Point, typename Box>
-    static inline bool exceeding(int dir, Point const& point, Box const& box)
+    template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
+    static inline bool exceeding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
+        boost::ignore_unused_variable_warning(rescale_policy);
         return (dir == 1  && get<Dim>(point) > get<max_corner, Dim>(box))
             || (dir == -1 && get<Dim>(point) < get<min_corner, Dim>(box));
     }
 
-    template <typename Iterator, typename RangeIterator, typename Section>
+    template <typename Iterator, typename RangeIterator, typename Section, typename RescalePolicy>
     static inline void advance_to_non_duplicate_next(Iterator& next,
-            RangeIterator const& it, Section const& section)
+            RangeIterator const& it, Section const& section, RescalePolicy const& rescale_policy)
     {
+        boost::ignore_unused_variable_warning(rescale_policy);
         // To see where the next segments bend to, in case of touch/intersections
         // on end points, we need (in case of degenerate/duplicate points) an extra
         // iterator which moves to the REAL next point, so non duplicate.
@@ -343,14 +346,14 @@ private :
     // because of the logistics of "index" (the section-iterator automatically
     // skips to the begin-point, we loose the index or have to recalculate it)
     // So we mimic it here
-    template <typename Range, typename Section, typename Box>
+    template <typename Range, typename Section, typename Box, typename RescalePolicy>
     static inline void get_start_point_iterator(Section & section,
             Range const& range,
             typename boost::range_iterator<Range const>::type& it,
             typename boost::range_iterator<Range const>::type& prev,
             typename boost::range_iterator<Range const>::type& end,
             int& index, int& ndi,
-            int dir, Box const& other_bounding_box)
+            int dir, Box const& other_bounding_box, RescalePolicy const& rescale_policy)
     {
         it = boost::begin(range) + section.begin_index;
         end = boost::begin(range) + section.end_index + 1;
@@ -358,7 +361,7 @@ private :
         // Mimic section-iterator:
         // Skip to point such that section interects other box
         prev = it++;
-        for(; it != end && preceding<0>(dir, *it, other_bounding_box);
+        for(; it != end && preceding<0>(dir, *it, other_bounding_box, rescale_policy);
             prev = it++, index++, ndi++)
         {}
         // Go back one step because we want to start completely preceding
@@ -464,8 +467,8 @@ public:
 
         sections_type sec1, sec2;
 
-        geometry::sectionalize<Reverse1>(geometry1, sec1, 0);
-        geometry::sectionalize<Reverse2>(geometry2, sec2, 1);
+        geometry::sectionalize<Reverse1>(geometry1, rescale_policy, true, sec1, 0);
+        geometry::sectionalize<Reverse2>(geometry2, rescale_policy, true, sec2, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor
