@@ -73,9 +73,11 @@ void test_sectionalize_part()
 
 
 template <int DimensionCount, bool Reverse, typename G>
-void test_sectionalize(std::string const caseid, G const& g, std::size_t section_count,
+void test_sectionalize(std::string const& caseid, G const& g, std::size_t section_count,
         std::string const& index_check, std::string const& dir_check)
 {
+    boost::ignore_unused_variable_warning(caseid);
+
     typedef typename bg::point_type<G>::type point;
     typedef bg::model::box<point> box;
     typedef bg::sections<box, DimensionCount> sections;
