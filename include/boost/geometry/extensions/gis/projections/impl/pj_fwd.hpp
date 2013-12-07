@@ -35,12 +35,13 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_FWD_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_FWD_HPP
 
-#include <cmath>
-
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/adjlon.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
+
+#include <boost/math/constants/constants.hpp>
 
 /* general forward projection */
 
@@ -61,6 +62,7 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 
     double lp_lon = geometry::get_as_radian<0>(ll);
     double lp_lat = geometry::get_as_radian<1>(ll);
+    const double HALFPI = boost::math::constants::half_pi<double>();
     const double t = geometry::math::abs(lp_lat) - HALFPI;
 
     /* check for forward and latitude or longitude overange */
