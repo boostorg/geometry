@@ -194,6 +194,18 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+// TODO: later move it to multi/strategies/agnostic
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
 
 } // namespace services
 
@@ -221,6 +233,18 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+// TODO: later move it to multi/strategies/agnostic
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
 
 }}} // namespace strategy::covered_by::services
 #endif

@@ -23,6 +23,9 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#include <boost/geometry/multi/algorithms/covered_by.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,

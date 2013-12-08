@@ -34,6 +34,17 @@ void test_all()
     test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
 
+    // linestrings
+    typedef bg::model::linestring<P> ls;
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(3 3)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0,2 2,3 3)", true);
+
+    // multi_linestrings
+    typedef bg::model::multi_linestring<ls> mls;
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", false);
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", true);
+
     typedef bg::model::box<P> box_type;
 
     test_geometry<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", true);

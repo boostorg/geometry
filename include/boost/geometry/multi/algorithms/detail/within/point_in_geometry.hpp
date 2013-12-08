@@ -71,7 +71,10 @@ struct point_in_geometry_dispatch<G, multi_linestring_tag>
             pip = detail::within::point_in_geometry_dispatch<linestring_type>::apply(p, *it, s);
 
             if ( 0 <= pip )
+            {
+                ++it;
                 break;
+            }
         }
 
         // outside

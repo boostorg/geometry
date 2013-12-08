@@ -54,6 +54,16 @@ struct covered_by<Point, MultiPolygon, point_tag, multi_polygon_tag>
     }
 };
 
+template <typename Point, typename MultiLinestring>
+struct covered_by<Point, MultiLinestring, point_tag, multi_linestring_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point,
+                MultiLinestring const& multi_linestring, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, multi_linestring, strategy) >= 0;
+    }
+};
 
 } // namespace dispatch
 

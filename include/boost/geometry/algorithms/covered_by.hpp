@@ -94,6 +94,16 @@ struct covered_by<Point, Polygon, point_tag, polygon_tag>
     }
 };
 
+template <typename Point, typename Linestring>
+struct covered_by<Point, Linestring, point_tag, linestring_tag>
+{
+    template <typename Strategy> static inline
+    bool apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, linestring, strategy) >= 0;
+    }
+};
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 

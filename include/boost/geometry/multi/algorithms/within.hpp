@@ -26,6 +26,8 @@
 #include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/multi/geometries/concepts/check.hpp>
 
+#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -90,6 +92,17 @@ struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
                         typename boost::range_value<MultiPolygon>::type
                     >
             >::apply(point, multi_polygon, strategy) == 1;
+    }
+};
+
+template <typename Point, typename MultiLinestring>
+struct within<Point, MultiLinestring, point_tag, multi_linestring_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point,
+                MultiLinestring const& multi_linestring, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, multi_linestring, strategy) == 1;
     }
 };
 
