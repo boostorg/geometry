@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -82,17 +85,10 @@ struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
                 Point,
                 MultiPolygon,
                 Strategy,
-                detail::within::point_in_polygon
-                        <
-                            Point,
-                            typename boost::range_value<MultiPolygon>::type,
-                            order_as_direction
-                                <
-                                    geometry::point_order<MultiPolygon>::value
-                                >::value,
-                            geometry::closure<MultiPolygon>::value,
-                            Strategy
-                        >
+                detail::within::point_in_geometry_dispatch
+                    <
+                        typename boost::range_value<MultiPolygon>::type
+                    >
             >::apply(point, multi_polygon, strategy) == 1;
     }
 };
