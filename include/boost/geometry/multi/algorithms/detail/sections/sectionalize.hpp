@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -75,7 +78,7 @@ template
     bool Reverse,
     std::size_t DimensionCount
 >
-struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse,  DimensionCount>
+struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse, DimensionCount>
     : detail::sectionalize::sectionalize_multi
         <
             DimensionCount,
@@ -88,6 +91,25 @@ struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse,  DimensionCount>
 
 {};
 
+template
+<
+    typename MultiLinestring,
+    bool Reverse,
+    std::size_t DimensionCount
+>
+struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionCount>
+    : detail::sectionalize::sectionalize_multi
+        <
+            DimensionCount,
+            detail::sectionalize::sectionalize_range
+                <
+                    closed, false,
+                    typename point_type<MultiLinestring>::type,
+                    DimensionCount
+                >
+        >
+
+{};
 
 } // namespace dispatch
 #endif

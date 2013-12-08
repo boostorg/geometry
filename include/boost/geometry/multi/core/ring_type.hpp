@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -45,6 +48,21 @@ struct ring_return_type<multi_polygon_tag, MultiPolygon>
         >::type type;
 };
 
+template <typename MultiLinestring>
+struct ring_return_type<multi_linestring_tag, MultiLinestring>
+{
+    typedef typename ring_return_type
+        <
+            linestring_tag,
+            typename mpl::if_
+                <
+                    boost::is_const<MultiLinestring>,
+                    typename boost::range_value<MultiLinestring>::type const,
+                    typename boost::range_value<MultiLinestring>::type
+                >::type
+        >::type type;
+};
+
 
 template <typename MultiPolygon>
 struct ring_type<multi_polygon_tag, MultiPolygon>
@@ -52,6 +70,15 @@ struct ring_type<multi_polygon_tag, MultiPolygon>
     typedef typename boost::remove_reference
         <
             typename ring_return_type<multi_polygon_tag, MultiPolygon>::type
+        >::type type;
+};
+
+template <typename MultiLinestring>
+struct ring_type<multi_linestring_tag, MultiLinestring>
+{
+    typedef typename boost::remove_reference
+        <
+            typename ring_return_type<multi_linestring_tag, MultiLinestring>::type
         >::type type;
 };
 

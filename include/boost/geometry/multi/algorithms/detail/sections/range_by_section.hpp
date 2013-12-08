@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -79,6 +82,19 @@ struct range_by_section<multi_polygon_tag, MultiPolygon, Section>
        >
 {};
 
+template <typename MultiLinestring, typename Section>
+struct range_by_section<multi_linestring_tag, MultiLinestring, Section>
+    : detail::section::full_section_multi
+        <
+            MultiLinestring,
+            Section,
+            detail::section::full_section_range
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    Section
+                >
+       >
+{};
 
 } // namespace dispatch
 #endif

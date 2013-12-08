@@ -87,7 +87,19 @@ struct point_on_border<multi_polygon_tag, Point, Multi>
         >
 {};
 
-
+template<typename Point, typename Multi>
+struct point_on_border<multi_linestring_tag, Point, Multi>
+    : detail::point_on_border::point_on_multi
+        <
+            Point,
+            Multi,
+            detail::point_on_border::point_on_range
+                <
+                    Point,
+                    typename boost::range_value<Multi>::type
+                >
+        >
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
