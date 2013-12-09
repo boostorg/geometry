@@ -89,7 +89,71 @@ struct recalculate_indexed<0>
     }
 };
 
+struct range_to_range
+{
+    template
+    <
+        typename Range1,
+        typename Range2,
+        typename Strategy
+    >
+    static inline void apply(Range1& destination, Range2 const& source,
+            Strategy const& strategy)
+    {
+        typedef typename geometry::point_type<Range2>::type point_type;
+        typedef recalculate_point<geometry::dimension<point_type>::value> per_point;
+        geometry::clear(destination);
 
+        for (typename boost::range_iterator<Range2 const>::type it
+                = boost::begin(source);
+            it != boost::end(source);
+            ++it)
+        {
+            point_type p;
+            per_point::apply(p, *it, strategy);
+            geometry::append(destination, p);
+        }
+    }
+};
+
+struct polygon_to_polygon
+{
+    template
+    <
+        typename Polygon1,
+        typename Polygon2,
+        typename Strategy
+    >
+    static inline void apply(Polygon1& destination, Polygon2 const& source,
+            Strategy const& strategy)
+    {
+        typedef range_to_range per_ring;
+
+        per_ring::apply(geometry::exterior_ring(destination),
+            geometry::exterior_ring(source), strategy);
+
+        traits::resize
+            <
+                typename boost::remove_reference
+                <
+                    typename traits::interior_mutable_type<Polygon1>::type
+                >::type
+            >::apply(interior_rings(destination), num_interior_rings(source));
+
+        typename interior_return_type<Polygon1>::type rings_dest
+                    = interior_rings(destination);
+        typename interior_return_type<Polygon2 const>::type rings_source
+                    = interior_rings(source);
+
+        BOOST_AUTO_TPL(it_source, boost::begin(rings_source));
+        BOOST_AUTO_TPL(it_dest, boost::begin(rings_dest));
+
+        for ( ; it_source != boost::end(rings_source); ++it_source, ++it_dest)
+        {
+            per_ring::apply(*it_dest, *it_source, strategy);
+        }
+    }
+};
 
 }} // namespace detail::recalculate
 #endif // DOXYGEN_NO_DETAIL
@@ -129,6 +193,10 @@ struct recalculate<Segment1, Segment2, segment_tag, segment_tag>
     : detail::recalculate::recalculate_indexed<geometry::dimension<Segment1>::value>
 {};
 
+template <typename Polygon1, typename Polygon2>
+struct recalculate<Polygon1, Polygon2, polygon_tag, polygon_tag>
+    : detail::recalculate::polygon_to_polygon
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
