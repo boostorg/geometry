@@ -57,6 +57,17 @@ struct point_in_geometry_dispatch
     BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (T));
 };
 
+template <typename Box>
+struct point_in_geometry_dispatch<Box, box_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& pt, Box const& box, Strategy const& strategy)
+    {
+        // this is different Strategy concept than the one used for ranges
+        return strategy.apply(pt, box);
+    }
+};
+
 template <typename Linestring>
 struct point_in_geometry_dispatch<Linestring, linestring_tag>
 {
