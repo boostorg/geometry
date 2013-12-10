@@ -134,9 +134,56 @@ inline bool rings_containing(FirstGeometry const& geometry1,
     return checker.has_within;
 }
 
+template <typename Geometry1, typename Geometry2>
+struct generic_touches
+{
+    static inline
+    bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        typedef detail::overlay::turn_info
+            <
+                typename geometry::point_type<Geometry1>::type
+            > turn_info;
+
+        typedef detail::overlay::get_turn_info
+            <
+                detail::overlay::assign_null_policy
+            > policy_type;
+
+        std::deque<turn_info> turns;
+        detail::touches::generic_interrupt_policy policy;
+        boost::geometry::get_turns
+                <
+                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                    detail::overlay::assign_null_policy
+                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+
+        return policy.result
+            && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
+            && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
+            ;
+    }
+};
 
 }}
 #endif // DOXYGEN_NO_DETAIL
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch {
+
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type
+>
+struct touches
+    : detail::touches::generic_touches<Geometry1, Geometry2>
+{};
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
 
 /*!
 \brief \brief_check{has at least one touching point (self-tangency)}
@@ -195,32 +242,8 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-
-    typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry1>::type
-        > turn_info;
-
-    typedef detail::overlay::get_turn_info
-        <
-            detail::overlay::assign_null_policy
-        > policy_type;
-
-    std::deque<turn_info> turns;
-    detail::touches::generic_interrupt_policy policy;
-    boost::geometry::get_turns
-            <
-                detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                detail::overlay::assign_null_policy
-            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
-
-    return policy.result
-        && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
-        && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
-        ;
+    return dispatch::touches<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
-
 
 
 }} // namespace boost::geometry
