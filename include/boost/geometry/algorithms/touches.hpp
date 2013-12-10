@@ -34,55 +34,72 @@ namespace boost { namespace geometry
 namespace detail { namespace touches
 {
 
-template <typename Turn>
-inline bool ok_for_touch(Turn const& turn)
+struct generic_interrupt_policy
 {
-    return turn.both(detail::overlay::operation_union)
-        || turn.both(detail::overlay::operation_blocked)
-        || turn.combination(detail::overlay::operation_union, detail::overlay::operation_blocked)
-        ;
-}
+    static bool const enabled = true;
+    bool result;
 
-template <typename Turns>
-inline bool has_only_turns(Turns const& turns)
-{
-    bool has_touch = false;
-    typedef typename boost::range_iterator<Turns const>::type iterator_type;
-    for (iterator_type it = boost::begin(turns); it != boost::end(turns); ++it)
+    // dummy variable required by self_get_turn_points::get_turns
+    static bool const has_intersections = false;
+
+    inline generic_interrupt_policy()
+        : result(false)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
     {
-        if (it->has(detail::overlay::operation_intersection))
+        typedef typename boost::range_iterator<Range const>::type iterator;
+        for ( iterator it = boost::begin(range) ; it != boost::end(range) ; ++it )
         {
-            return false;
+            if ( it->has(overlay::operation_intersection) )
+            {
+                result = false;
+                return true;
+            }
+
+            switch(it->method)
+            {
+                case overlay::method_crosses:
+                    result = false;
+                    return true;
+                case overlay::method_equal:
+                    // Segment spatially equal means: at the right side
+                    // the polygon internally overlaps. So return false.
+                    result = false;
+                    return true;
+                case overlay::method_touch:
+                case overlay::method_touch_interior:
+                case overlay::method_collinear:
+                    if ( ok_for_touch(*it) )
+                    {
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                        return true;
+                    }
+                    break;
+                case overlay::method_none :
+                case overlay::method_disjoint :
+                case overlay::method_error :
+                    break;
+            }
         }
 
-        switch(it->method)
-        {
-            case detail::overlay::method_crosses:
-                return false;
-            case detail::overlay::method_equal:
-                // Segment spatially equal means: at the right side
-                // the polygon internally overlaps. So return false.
-                return false;
-            case detail::overlay::method_touch:
-            case detail::overlay::method_touch_interior:
-            case detail::overlay::method_collinear:
-                if (ok_for_touch(*it))
-                {
-                    has_touch = true;
-                }
-                else
-                {
-                    return false;
-                }
-                break;
-            case detail::overlay::method_none :
-            case detail::overlay::method_disjoint :
-            case detail::overlay::method_error :
-                break;
-        }
+        return false;
     }
-    return has_touch;
-}
+
+    template <typename Turn>
+    inline bool ok_for_touch(Turn const& turn)
+    {
+        return turn.both(overlay::operation_union)
+            || turn.both(overlay::operation_blocked)
+            || turn.combination(overlay::operation_union, overlay::operation_blocked)
+            ;
+    }
+};
 
 template<typename Geometry>
 struct check_each_ring_for_within
@@ -150,13 +167,13 @@ inline bool touches(Geometry const& geometry)
         > policy_type;
 
     std::deque<turn_info> turns;
-    detail::self_get_turn_points::no_interrupt_policy policy;
+    detail::touches::generic_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
                 policy_type
             >::apply(geometry, detail::no_rescale_policy(), turns, policy);
 
-    return detail::touches::has_only_turns(turns);
+    return policy.result;
 }
 
 
@@ -190,7 +207,7 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
         > policy_type;
 
     std::deque<turn_info> turns;
-    detail::get_turns::no_interrupt_policy policy;
+    detail::touches::generic_interrupt_policy policy;
     boost::geometry::get_turns
             <
                 detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
@@ -198,7 +215,7 @@ inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
                 detail::overlay::assign_null_policy
             >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
 
-    return detail::touches::has_only_turns(turns)
+    return policy.result
         && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
         && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
         ;
