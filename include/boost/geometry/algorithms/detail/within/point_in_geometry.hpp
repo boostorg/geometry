@@ -19,6 +19,11 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
+#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/strategies/concepts/within_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/within.hpp>
+
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -175,6 +180,33 @@ int point_in_geometry(P const& p, G const& g, Strategy const& strategy)
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
     return point_in_geometry_dispatch<G>::apply(p, g, strategy);
+}
+
+template <typename P, typename G> inline
+int point_in_geometry(P const& p, G const& g)
+{
+    typedef typename point_type<P>::type point_type1;
+    typedef typename point_type<G>::type point_type2;
+
+    typedef typename strategy::within::services::default_strategy
+        <
+            typename tag<P>::type,
+            typename tag<G>::type,
+            typename tag<P>::type,
+            typename tag_cast<typename tag<G>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            P,
+            G
+        >::type strategy_type;
+
+    return point_in_geometry(p, g, strategy_type());
 }
 
 }} // namespace detail::within

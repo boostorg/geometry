@@ -1,6 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
 // Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,6 +21,7 @@ template <typename P>
 void test_all()
 {
     typedef bg::model::polygon<P> polygon;
+    typedef bg::model::linestring<P> linestring;
 
     // Just a normal polygon
     test_self_touches<polygon>("POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))", false);
@@ -126,6 +131,17 @@ void test_all()
             true
         );
 
+    // Point-Polygon
+    test_touches<P, polygon>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
+    test_touches<P, polygon>("POINT(60 60)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
+    test_touches<P, polygon>("POINT(50 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
+    test_touches<P, polygon>("POINT(30 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
+
+    // Point-Linestring
+    test_touches<P, linestring>("POINT(0 0)", "LINESTRING(0 0, 2 2, 10 2)", true);
+    test_touches<P, linestring>("POINT(2 2)", "LINESTRING(0 0, 2 2, 10 2)", false);
+    test_touches<P, linestring>("POINT(1 1)", "LINESTRING(0 0, 2 2, 10 2)", false);
+    test_touches<P, linestring>("POINT(5 5)", "LINESTRING(0 0, 2 2, 10 2)", false);
 }
 
 

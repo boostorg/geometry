@@ -5,6 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -166,6 +169,16 @@ struct generic_touches
     }
 };
 
+template <typename Point, typename Geometry>
+struct point_geometry
+{
+    static inline
+    bool apply(Point const& point, Geometry const& geometry)
+    {
+        return detail::within::point_in_geometry(point, geometry) == 0;
+    }
+};
+
 }}
 #endif // DOXYGEN_NO_DETAIL
 
@@ -180,6 +193,11 @@ template
 >
 struct touches
     : detail::touches::generic_touches<Geometry1, Geometry2>
+{};
+
+template <typename Point, typename Geometry, typename Tag2>
+struct touches<Point, Geometry, point_tag, Tag2>
+    : detail::touches::point_geometry<Point, Geometry>
 {};
 
 } // namespace dispatch
