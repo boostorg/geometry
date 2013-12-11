@@ -44,8 +44,8 @@ void test_all()
 
     // multi_linestrings
     typedef bg::model::multi_linestring<ls> mls;
-    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", false);
-    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", true);
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", false);
 
     typedef bg::model::box<P> box_type;
 

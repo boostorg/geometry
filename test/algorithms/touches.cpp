@@ -22,6 +22,8 @@ void test_all()
 {
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
+    typedef bg::model::multi_polygon<polygon> mpolygon;
+    typedef bg::model::multi_linestring<linestring> mlinestring;
 
     // Just a normal polygon
     test_self_touches<polygon>("POLYGON((0 0,0 4,1.5 2.5,2.5 1.5,4 0,0 0))", false);
@@ -137,11 +139,18 @@ void test_all()
     test_touches<P, polygon>("POINT(50 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
     test_touches<P, polygon>("POINT(30 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
 
+    // Point-MultiPolygon
+    test_touches<P, mpolygon>("POINT(40 50)", "MULTIPOLYGON(((40 40,40 60,60 60,60 40,40 40)),((0 0,0 10,10 10,10 0)))", true);
+
     // Point-Linestring
     test_touches<P, linestring>("POINT(0 0)", "LINESTRING(0 0, 2 2, 10 2)", true);
     test_touches<P, linestring>("POINT(2 2)", "LINESTRING(0 0, 2 2, 10 2)", false);
     test_touches<P, linestring>("POINT(1 1)", "LINESTRING(0 0, 2 2, 10 2)", false);
     test_touches<P, linestring>("POINT(5 5)", "LINESTRING(0 0, 2 2, 10 2)", false);
+
+    // Point-MultiLinestring
+    test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(5 5, 6 6))", true);
+    test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(0 0, 6 6))", false);
 }
 
 

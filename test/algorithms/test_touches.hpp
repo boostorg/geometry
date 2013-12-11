@@ -25,6 +25,12 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
+
+#include <boost/geometry/multi/io/wkt/read.hpp>
+
 template <typename Geometry1, typename Geometry2>
 void test_touches(std::string const& wkt1,
         std::string const& wkt2, bool expected)

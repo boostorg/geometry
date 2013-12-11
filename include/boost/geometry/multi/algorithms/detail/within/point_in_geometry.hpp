@@ -99,7 +99,8 @@ struct point_in_geometry_dispatch<G, multi_linestring_tag>
                 ++boundaries;
         }
 
-        return boundaries % 2 ? 1 : 0;
+        // if the number of boundaries is odd, the point is on the boundary
+        return boundaries % 2 ? 0 : 1;
     }
 };
 
