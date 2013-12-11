@@ -203,8 +203,6 @@ struct linestring_linestring
 
             if ( s1 == 0 || s2 == 0 )
                 return false;
-            else if ( s1 == 1 && s2 == 1 )
-                return false;
             else
                 return detail::within::point_in_geometry(*boost::begin(geometry1), geometry2) >= 0
                     || detail::within::point_in_geometry(*boost::begin(geometry2), geometry1) >= 0;
