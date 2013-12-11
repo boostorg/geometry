@@ -168,6 +168,14 @@ void test_all()
 
     test_touches<linestring, linestring>("LINESTRING(0 0,10 0)", "LINESTRING(0 0,5 5,10 0)", true);
     test_touches<linestring, linestring>("LINESTRING(0 0,10 10)", "LINESTRING(0 0,0 5,10 5)", false);
+
+    test_touches<linestring, linestring>("LINESTRING(0 5,5 6,10 5)", "LINESTRING(0 7,5 6,10 7)", false);
+    test_touches<linestring, linestring>("LINESTRING(0 5,5 6,10 5)", "LINESTRING(10 7,5 6,0 7)", false);
+    test_touches<linestring, linestring>("LINESTRING(10 5,5 6,0 5)", "LINESTRING(0 7,5 6,10 7)", false);
+    test_touches<linestring, linestring>("LINESTRING(10 5,5 6,0 5)", "LINESTRING(10 7,5 6,0 7)", false);
+
+    test_touches<linestring, linestring>("LINESTRING(0 0,1 1,2 2)", "LINESTRING(2 0,2 2,1 2,1 1)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 2,1 1,0 0)", "LINESTRING(2 0,2 2,1 2,1 1)", true);
 }
 
 
