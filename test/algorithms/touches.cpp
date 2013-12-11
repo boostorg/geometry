@@ -151,6 +151,23 @@ void test_all()
     // Point-MultiLinestring
     test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(5 5, 6 6))", true);
     test_touches<P, mlinestring>("POINT(0 0)", "MULTILINESTRING((0 0, 2 2, 10 2),(0 0, 6 6))", false);
+
+    // Linestring-Linestring
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(0 0,0 2)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(2 0,2 2)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(0 2,0 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(2 2,2 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(0 0,0 2)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(2 0,2 2)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(0 2,0 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(2 2,2 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(1 0,1 1)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,2 0)", "LINESTRING(1 1,1 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(1 0,1 1)", true);
+    test_touches<linestring, linestring>("LINESTRING(2 0,0 0)", "LINESTRING(1 1,1 0)", true);
+
+    test_touches<linestring, linestring>("LINESTRING(0 0,10 0)", "LINESTRING(0 0,5 5,10 0)", true);
+    test_touches<linestring, linestring>("LINESTRING(0 0,10 10)", "LINESTRING(0 0,0 5,10 5)", false);
 }
 
 

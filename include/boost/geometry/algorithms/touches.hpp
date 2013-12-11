@@ -138,31 +138,38 @@ inline bool rings_containing(FirstGeometry const& geometry1,
 }
 
 template <typename Geometry1, typename Geometry2>
+std::pair<bool, bool> analyse_touches_turns(Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    typedef detail::overlay::turn_info
+        <
+            typename geometry::point_type<Geometry1>::type
+        > turn_info;
+
+    typedef detail::overlay::get_turn_info
+        <
+            detail::overlay::assign_null_policy
+        > policy_type;
+
+    std::deque<turn_info> turns;
+    detail::touches::generic_interrupt_policy policy;
+    boost::geometry::get_turns
+            <
+                detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                detail::overlay::assign_null_policy
+            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+
+    return std::make_pair(!turns.empty(), policy.result);
+}
+
+template <typename Geometry1, typename Geometry2>
 struct generic_touches
 {
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        typedef detail::overlay::turn_info
-            <
-                typename geometry::point_type<Geometry1>::type
-            > turn_info;
-
-        typedef detail::overlay::get_turn_info
-            <
-                detail::overlay::assign_null_policy
-            > policy_type;
-
-        std::deque<turn_info> turns;
-        detail::touches::generic_interrupt_policy policy;
-        boost::geometry::get_turns
-                <
-                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                    detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
-
-        return policy.result
+        std::pair<bool, bool> turns_state = analyse_touches_turns(geometry1, geometry2);
+        return turns_state.second
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
             && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
             ;
@@ -176,6 +183,32 @@ struct point_geometry
     bool apply(Point const& point, Geometry const& geometry)
     {
         return detail::within::point_in_geometry(point, geometry) == 0;
+    }
+};
+
+template <typename Geometry1, typename Geometry2>
+struct linestring_linestring
+{
+    static inline
+    bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        std::pair<bool, bool> turns_state = analyse_touches_turns(geometry1, geometry2);
+        // if there are turns
+        if ( turns_state.first )
+            return turns_state.second;
+        else
+        {
+            std::size_t s1 = boost::size(geometry1);
+            std::size_t s2 = boost::size(geometry2);
+
+            if ( s1 == 0 || s2 == 0 )
+                return false;
+            else if ( s1 == 1 && s2 == 1 )
+                return false;
+            else
+                return detail::within::point_in_geometry(*boost::begin(geometry1), geometry2) >= 0
+                    || detail::within::point_in_geometry(*boost::begin(geometry2), geometry1) >= 0;
+        }
     }
 };
 
@@ -198,6 +231,11 @@ struct touches
 template <typename Point, typename Geometry, typename Tag2>
 struct touches<Point, Geometry, point_tag, Tag2>
     : detail::touches::point_geometry<Point, Geometry>
+{};
+
+template <typename Linestring1, typename Linestring2>
+struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag>
+    : detail::touches::linestring_linestring<Linestring1, Linestring2>
 {};
 
 } // namespace dispatch
