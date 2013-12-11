@@ -178,6 +178,10 @@ void test_all()
     test_touches<linestring, linestring>("LINESTRING(2 2,1 1,0 0)", "LINESTRING(2 0,2 2,1 2,1 1)", true);
     test_touches<linestring, linestring>("LINESTRING(0 0,1 1,2 2)", "LINESTRING(1 1,1 2,2 2,2 0)", true);
     test_touches<linestring, linestring>("LINESTRING(2 2,1 1,0 0)", "LINESTRING(1 1,1 2,2 2,2 0)", true);
+
+    //Linestring-Polygon
+    //test_touches<linestring, polygon>("LINESTRING(10 0,15 5,10 10,5 15,5 10,0 10,5 15,5 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", true);
+    //test_touches<linestring, polygon>("LINESTRING(5 10,5 15,0 10,5 10,5 15,10 10,15 5,10 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", true);
 }
 
 

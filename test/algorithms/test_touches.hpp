@@ -25,9 +25,13 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
+#include <boost/geometry/multi/core/point_order.hpp>
+#include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
+
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
-#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
 
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
@@ -46,6 +50,14 @@ void test_touches(std::string const& wkt1,
     BOOST_CHECK_MESSAGE(detected == expected,
         "touches: " << wkt1
         << " with " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+
+    detected = bg::touches(geometry2, geometry1);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "touches: " << wkt2
+        << " with " << wkt1
         << " -> Expected: " << expected
         << " detected: " << detected);
 }

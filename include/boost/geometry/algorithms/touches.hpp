@@ -267,19 +267,35 @@ template
 <
     typename Geometry1, typename Geometry2,
     typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type
+    typename Tag2 = typename tag<Geometry2>::type,
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct touches
     : detail::touches::generic_touches<Geometry1, Geometry2>
 {};
 
+// If reversal is needed, perform it
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1, typename Tag2
+>
+struct touches<Geometry1, Geometry2, Tag1, Tag2, true>
+    : touches<Geometry2, Geometry1, Tag2, Tag1, false>
+{
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        return touches<Geometry2, Geometry1>::apply(g2, g1);
+    }
+};
+
 template <typename Point, typename Geometry, typename Tag2>
-struct touches<Point, Geometry, point_tag, Tag2>
+struct touches<Point, Geometry, point_tag, Tag2, false>
     : detail::touches::point_geometry<Point, Geometry>
 {};
 
 template <typename Linestring1, typename Linestring2>
-struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag>
+struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag, false>
     : detail::touches::linestring_linestring<Linestring1, Linestring2>
 {};
 
