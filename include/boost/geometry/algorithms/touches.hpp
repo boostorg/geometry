@@ -40,47 +40,57 @@ namespace detail { namespace touches
 struct generic_interrupt_policy
 {
     static bool const enabled = true;
-    bool result;
+    bool found_touch;
+    bool found_not_touch;
 
     // dummy variable required by self_get_turn_points::get_turns
     static bool const has_intersections = false;
 
+    inline bool result()
+    {
+        return found_touch && !found_not_touch;
+    }
+
     inline generic_interrupt_policy()
-        : result(false)
+        : found_touch(false), found_not_touch(false)
     {}
 
     template <typename Range>
     inline bool apply(Range const& range)
     {
+        // if already rejected (temp workaround?)
+        if ( found_not_touch )
+            return true;
+
         typedef typename boost::range_iterator<Range const>::type iterator;
         for ( iterator it = boost::begin(range) ; it != boost::end(range) ; ++it )
         {
             if ( it->has(overlay::operation_intersection) )
             {
-                result = false;
+                found_not_touch = true;
                 return true;
             }
 
             switch(it->method)
             {
                 case overlay::method_crosses:
-                    result = false;
+                    found_not_touch = true;
                     return true;
                 case overlay::method_equal:
                     // Segment spatially equal means: at the right side
                     // the polygon internally overlaps. So return false.
-                    result = false;
+                    found_not_touch = true;
                     return true;
                 case overlay::method_touch:
                 case overlay::method_touch_interior:
                 case overlay::method_collinear:
                     if ( ok_for_touch(*it) )
                     {
-                        result = true;
+                        found_touch = true;
                     }
                     else
                     {
-                        result = false;
+                        found_not_touch = true;
                         return true;
                     }
                     break;
@@ -187,7 +197,7 @@ struct generic_touches
                     detail::overlay::assign_null_policy
                 >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
 
-        return policy.result
+        return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
             && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
             ;
@@ -337,7 +347,7 @@ inline bool touches(Geometry const& geometry)
                 policy_type
             >::apply(geometry, detail::no_rescale_policy(), turns, policy);
 
-    return policy.result;
+    return policy.result();
 }
 
 
