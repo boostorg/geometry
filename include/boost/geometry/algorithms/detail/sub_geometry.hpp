@@ -40,10 +40,8 @@ struct index_type
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type,
           bool IsMulti = boost::is_base_of<multi_tag, Tag>::value>
-struct get_dispatch
-{
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (Geometry, Tag));
-};
+struct get_dispatch : not_implemented<Tag>
+{};
 
 template <typename Geometry, typename Tag>
 struct get_dispatch<Geometry, Tag, false>

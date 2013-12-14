@@ -56,11 +56,10 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
 // returns 0 if P is on the boundry of G
 // returns -1 if P is in the exterior of G
 
-template <typename G, typename T = typename geometry::tag<G>::type>
-struct point_in_geometry_dispatch
-{
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (T));
-};
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
+struct point_in_geometry_dispatch : not_implemented<Tag>
+{};
 
 template <typename Box>
 struct point_in_geometry_dispatch<Box, box_tag>
