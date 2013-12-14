@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+//#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 //#define BOOST_GEOMETRY_OVERLAY_NO_THROW
 //#define HAVE_TTMATH
 
@@ -151,7 +151,17 @@ struct test_traverse
             > turn_info;
         std::vector<turn_info> turns;
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename bg::point_type<G2>::type point_type;
+        typedef typename bg::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+#else
         bg::detail::no_rescale_policy rescale_policy;
+#endif
+
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, rescale_policy, turns, policy);
         bg::enrich_intersection_points<Reverse1, Reverse2>(turns,
@@ -168,7 +178,7 @@ struct test_traverse
             <
                 Reverse1, Reverse2,
                 G1, G2
-            >::apply(g1, g2, Direction, bg::detail::no_rescale_policy(), turns, v);
+            >::apply(g1, g2, Direction, rescale_policy, turns, v);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
@@ -773,9 +783,11 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             test_traverse<polygon, polygon, operation_intersection>::apply("hv6", 1, 1604.6318757402121, hv_6[0], hv_6[1], deviation);
             test_traverse<polygon, polygon, operation_union>::apply("hv6", 1, 1790.091872401327, hv_6[0], hv_6[1], deviation);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             // Case 2009-12-08, needing sorting on side in enrich_intersection_points
             test_traverse<polygon, polygon, operation_union>::apply("hv7", 1, 1624.5779453641017, hv_7[0], hv_7[1], deviation);
             test_traverse<polygon, polygon, operation_intersection>::apply("hv7", 1, 1623.6936420295772, hv_7[0], hv_7[1], deviation);
+#endif
         }
     }
 
@@ -813,6 +825,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
     // SNL (Subsidiestelsel Natuur & Landschap - verAANnen)
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     if (! is_float_on_non_msvc)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("snl-1",
@@ -825,6 +838,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             snl_1[0], snl_1[1],
             float_might_deviate_more);
     }
+#endif
 
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("isov",
@@ -836,6 +850,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     }
 
     // GEOS tests
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     if (! is_float)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("geos_1_test_overlay",
@@ -853,6 +868,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
                 1, 350.550662845485,
                 geos_2[0], geos_2[1]);
     }
+#endif
 
     if (! is_float && ! is_double)
     {
@@ -907,12 +923,14 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 */
     }
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_f",
         1, 4.60853,
         buffer_rt_f[0], buffer_rt_f[1]);
     test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f",
         1, 0.0002943725152286,
         buffer_rt_f[0], buffer_rt_f[1], 0.01);
+#endif
 
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g",
         1, 16.571,
@@ -932,6 +950,10 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         1, 30,
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+    test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_l",
+        1, 19.3995, buffer_rt_l[0], buffer_rt_l[1]);
+#endif
 
     if (boost::is_same<T, double>::value)
     {

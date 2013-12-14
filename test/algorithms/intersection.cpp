@@ -179,9 +179,11 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 4, 0.4, 0.01);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
+#endif
 
 #ifdef _MSC_VER // gcc/linux behaves differently
     if (! boost::is_same<ct, float>::value)
@@ -534,7 +536,9 @@ int test_main(int, char* [])
 
     test_exception<bg::model::d2::point_xy<double> >();
     test_pointer_version();
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
+#endif
 
     return 0;
 }

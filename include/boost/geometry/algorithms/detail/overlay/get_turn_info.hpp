@@ -16,6 +16,8 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -286,13 +288,17 @@ struct touch : public base_turn_handler
             int const side_pk_p  = side.pk_wrt_p1();
             int const side_qk_q  = side.qk_wrt_q1();
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             bool const both_continue = side_pk_p == 0 && side_qk_q == 0;
             bool const robustness_issue_in_continue = both_continue && side_pk_q2 != 0;
+#endif
 
             bool const q_turns_left = side_qk_q == 1;
             bool const block_q = side_qk_p1 == 0
                         && ! same(side_qi_p1, side_qk_q)
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                         && ! robustness_issue_in_continue
+#endif
                         ;
 
             // If Pk at same side as Qi/Qk
@@ -616,8 +622,10 @@ struct collinear : public base_turn_handler
             : side_q
             ;
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         int const side_pk = side.pk_wrt_q1();
         int const side_qk = side.qk_wrt_p1();
+#endif
 
         // See comments above,
         // resulting in a strange sort of mathematic rule here:
@@ -626,6 +634,7 @@ struct collinear : public base_turn_handler
 
         int const product = arrival * side_p_or_q;
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         // Robustness: side_p is supposed to be equal to side_pk (because p/q are collinear)
         // and side_q to side_qk
         bool const robustness_issue = side_pk != side_p || side_qk != side_q;
@@ -634,7 +643,10 @@ struct collinear : public base_turn_handler
         {
             handle_robustness(ti, arrival, side_p, side_q, side_pk, side_qk);
         }
-        else if(product == 0)
+        else
+#endif
+
+        if(product == 0)
         {
             both(ti, operation_continue);
         }
@@ -644,6 +656,7 @@ struct collinear : public base_turn_handler
         }
     }
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     static inline void handle_robustness(TurnInfo& ti, int arrival,
                     int side_p, int side_q, int side_pk, int side_qk)
     {
@@ -674,6 +687,7 @@ struct collinear : public base_turn_handler
 
         ui_else_iu(use_p_for_union, ti);
     }
+#endif
 
 };
 
@@ -716,9 +730,11 @@ private :
         typename IntersectionInfo
     >
     static inline bool set_tp(Point const& , Point const& , Point const& , int side_rk_r,
-                bool const handle_robustness, Point const& , Point const& , int side_rk_s,
+                bool const handle_robustness,
+                Point const& , Point const& , int side_rk_s,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         if (handle_robustness)
         {
             // For Robustness: also calculate rk w.r.t. the other line. Because they are collinear opposite, that direction should be the reverse of the first direction.
@@ -731,6 +747,10 @@ private :
                 side_rk_r = 0;
             }
         }
+#else
+        boost::ignore_unused_variable_warning(handle_robustness);
+        boost::ignore_unused_variable_warning(side_rk_s);
+#endif
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)
@@ -943,15 +963,53 @@ struct get_turn_info
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 TurnInfo const& tp_model,
-                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::robust_point_type
+            <
+                Point1, RescalePolicy
+            >::type robust_point_type;
+
+        robust_point_type pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob;
+        geometry::recalculate(pi_rob, pi, rescale_policy);
+        geometry::recalculate(pj_rob, pj, rescale_policy);
+        geometry::recalculate(pk_rob, pk, rescale_policy);
+        geometry::recalculate(qi_rob, qi, rescale_policy);
+        geometry::recalculate(qj_rob, qj, rescale_policy);
+        geometry::recalculate(qk_rob, qk, rescale_policy);
+
+        typedef geometry::strategy::side::side_by_triangle<> side;
+        side_info robust_sides;
+        robust_sides.set<0>(side::apply(qi_rob, qj_rob, pi_rob),
+                            side::apply(qi_rob, qj_rob, pj_rob));
+        robust_sides.set<1>(side::apply(pi_rob, pj_rob, qi_rob),
+                            side::apply(pi_rob, pj_rob, qj_rob));
+
+        bool const p_equals = detail::equals::equals_point_point(pi_rob, pj_rob);
+        bool const q_equals = detail::equals::equals_point_point(qi_rob, qj_rob);
+
+        if (detail::equals::equals_point_point(pj_rob, pk_rob)
+            || detail::equals::equals_point_point(qj_rob, qk_rob))
+        {
+            ///std::cout << "ERROR: dup vectors" << std::endl; - this might happen e.g. for a segment
+        }
+
+#endif
+
+
+
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
         segment_type1 p1(pi, pj), p2(pj, pk);
         segment_type2 q1(qi, qj), q2(qj, qk);
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        side_calculator<robust_point_type, robust_point_type> side_calc(pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob);
+#else
         side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+#endif
 
         typedef strategy_intersection
             <
@@ -963,7 +1021,14 @@ struct get_turn_info
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef model::referring_segment<robust_point_type const> robust_segment_type;
+        robust_segment_type rp1(pi_rob, pj_rob);
+        robust_segment_type rq1(qi_rob, qj_rob);
+        typename strategy::return_type result = strategy::apply(p1, q1, rp1, rq1, robust_sides, p_equals, q_equals);
+#else
         typename strategy::return_type result = strategy::apply(p1, q1);
+#endif
 
         char const method = result.template get<1>().how;
 

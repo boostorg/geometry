@@ -25,6 +25,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -264,7 +265,12 @@ struct sectionalize_part
 
         typedef model::referring_segment<Point const> segment_type;
         typedef typename boost::range_value<Sections>::type section_type;
-
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef model::segment
+            <
+                typename robust_point_type<Point, RescalePolicy>::type
+            > robust_segment_type;
+#endif
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         if (int(boost::size(range)) <= index)
@@ -285,12 +291,18 @@ struct sectionalize_part
             ++previous, ++it, index++)
         {
             segment_type segment(*previous, *it);
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+            robust_segment_type robust_segment;
+            geometry::recalculate(robust_segment, segment, rescale_policy);
+#else
+            segment_type const& robust_segment = segment;
+#endif
 
             int direction_classes[DimensionCount] = {0};
             get_direction_loop
                 <
                     0, DimensionCount
-                >::apply(segment, direction_classes);
+                >::apply(robust_segment, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
             // Those sections might be omitted, if wished, lateron
@@ -304,7 +316,7 @@ struct sectionalize_part
                 if (check_duplicate_loop
                     <
                         0, geometry::dimension<Point>::type::value
-                    >::apply(segment)
+                    >::apply(robust_segment)
                     )
                 {
                     duplicate = true;
@@ -345,10 +357,11 @@ struct sectionalize_part
                     <
                         int, 0, DimensionCount
                     >::apply(direction_classes, section.directions);
-                geometry::expand(section.bounding_box, *previous);
+
+                expand_box(*previous, rescale_policy, section);
             }
 
-            geometry::expand(section.bounding_box, *it);
+            expand_box(*it, rescale_policy, section);
             section.end_index = index + 1;
             section.count++;
             if (! duplicate)
@@ -356,6 +369,21 @@ struct sectionalize_part
                 ndi++;
             }
         }
+    }
+
+    template <typename InputPoint, typename RescalePolicy, typename Section>
+    static inline void expand_box(InputPoint const& point,
+                        RescalePolicy const& rescale_policy,
+                        Section& section)
+    {
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+                typename geometry::point_type<typename Section::box_type>::type robust_point;
+
+                geometry::recalculate(robust_point, point, rescale_policy);
+                geometry::expand(section.bounding_box, robust_point);
+#else
+                geometry::expand(section.bounding_box, point);
+#endif
     }
 };
 
@@ -525,7 +553,7 @@ inline void set_section_unique_ids(Sections& sections)
 }
 
 template <typename Sections>
-inline void enlargeSections(Sections& sections)
+inline void enlarge_sections(Sections& sections)
 {
     // Robustness issue. Increase sections a tiny bit such that all points are really within (and not on border)
     // Reason: turns might, rarely, be missed otherwise (case: "buffer_mp1")
@@ -667,13 +695,14 @@ inline void sectionalize(Geometry const& geometry,
         >::apply(geometry, rescale_policy, make_rescaled_boxes, sections, ring_id, 10);
 
     detail::sectionalize::set_section_unique_ids(sections);
-    if (make_rescaled_boxes)
+    if (! make_rescaled_boxes)
     {
-    detail::sectionalize::enlargeSections(sections);
+        detail::sectionalize::enlarge_sections(sections);
     }
 }
 
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST) || defined(BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE)
 // Backwards compatibility
 template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry,
@@ -684,6 +713,7 @@ inline void sectionalize(Geometry const& geometry,
                                  false, sections,
                                  source_index);
 }
+#endif
 
 
 }} // namespace boost::geometry

@@ -85,14 +85,17 @@ void test_spikes_in_ticket_8365()
 int test_main(int, char* [])
 {
     test_spikes_in_ticket_8364<bg::model::d2::point_xy<double>, true, true>();
-    test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, true, true>();
     test_spikes_in_ticket_8364<bg::model::d2::point_xy<double>, false, false>();
-    test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, false, false>();
-
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<double>, true, true>();
-    test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, true, true >();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<double>, false, false>();
+
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+    // TODO: integer does not need rescaling
+    test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, true, true>();
+    test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, false, false>();
+    test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, true, true >();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, false, false >();
+#endif
 
 #ifdef HAVE_TTMATH
     std::cout << "Testing TTMATH" << std::endl;

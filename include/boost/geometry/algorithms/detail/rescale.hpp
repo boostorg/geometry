@@ -21,8 +21,28 @@ namespace boost { namespace geometry
 // To be removed later, when we will initialize a real policy
 namespace detail
 {
-struct no_rescale_policy {};
-}
+
+struct no_rescale_policy
+{
+    // We don't rescale but return the reference. zero cost.
+    template <std::size_t Dimension, typename Value>
+    inline Value const& apply(Value const& value) const
+    {
+        return value;
+    }
+};
+
+} // namespace detail
+
+
+// By default, the robust type is the point type itself.
+// A policy can specialize this.
+template <typename Point, typename Policy>
+struct robust_point_type
+{
+    typedef Point type;
+};
+
 
 #endif
 

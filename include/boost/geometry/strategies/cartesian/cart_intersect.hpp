@@ -114,6 +114,19 @@ struct relate_cartesian_segments
         return apply(a, b, dx_a, dy_a, dx_b, dy_b);
     }
 
+    template <typename RobustSegment>
+    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
+            RobustSegment const& ra, RobustSegment const& rb,
+            side_info& sides,
+            bool a_is_point, bool b_is_point)
+    {
+        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
+        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
+        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
+        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
+        return apply(a, b, ra, rb, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
+    }
+
     // Relate segments a and b using precalculated differences.
     // This can save two or four subtractions in many cases
     static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
@@ -126,20 +139,6 @@ struct relate_cartesian_segments
         coordinate_type const zero = 0;
         bool const a_is_point = math::equals(dx_a, zero) && math::equals(dy_a, zero);
         bool const b_is_point = math::equals(dx_b, zero) && math::equals(dy_b, zero);
-
-        if(a_is_point && b_is_point)
-        {
-            if(math::equals(get<1,0>(a), get<1,0>(b)) && math::equals(get<1,1>(a), get<1,1>(b)))
-            {
-                 Policy::degenerate(a, true);
-            }
-            else
-            {
-                return Policy::disjoint();
-            }
-        }
-
-        bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b) >= math::abs(dy_a) + math::abs(dy_b);
 
         sides.set<0>
             (
@@ -160,15 +159,53 @@ struct relate_cartesian_segments
                     , detail::get_from_index<1>(b))
             );
 
+        return apply(a, b, a, b, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
+    }
+
+    // Relate segments a and b using precalculated differences.
+    // This can save two or four subtractions in many cases
+    template <typename RobustSegment>
+    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
+            RobustSegment const& , RobustSegment const& , // Will be used later
+            coordinate_type const& dx_a, coordinate_type const& dy_a,
+            coordinate_type const& dx_b, coordinate_type const& dy_b,
+            side_info& sides,
+            bool a_is_point, bool b_is_point)
+    {
+        typedef side::side_by_triangle<coordinate_type> side;
+
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        coordinate_type const zero = 0;
+#endif
+
+        if(a_is_point && b_is_point)
+        {
+            // TODO move this
+            if(math::equals(get<1,0>(a), get<1,0>(b)) && math::equals(get<1,1>(a), get<1,1>(b)))
+            {
+                 Policy::degenerate(a, true);
+            }
+            else
+            {
+                return Policy::disjoint();
+            }
+        }
+
+        bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b) >= math::abs(dy_a) + math::abs(dy_b);
+
         bool collinear = sides.collinear();
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         robustness_verify_collinear(a, b, a_is_point, b_is_point, sides, collinear);
         robustness_verify_meeting(a, b, sides, collinear, collinear_use_first);
+#endif
 
         if (sides.same<0>() || sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             if (robustness_verify_same_side(a, b, sides))
+#endif
             {
                 return Policy::disjoint();
             }
@@ -213,15 +250,21 @@ struct relate_cartesian_segments
             {
                 r = da / d;
 
-                if (! robustness_verify_r(a, b, r))
+                if (! robustness_verify_r(
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+                            a, b,
+#endif
+                            r))
                 {
                     return Policy::disjoint();
                 }
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                 if (robustness_verify_disjoint_at_one_collinear(a, b, sides))
                 {
                     return Policy::disjoint();
                 }
+#endif
 
             }
         }
@@ -251,19 +294,23 @@ private :
     // Also these three conditions might be of FP imprecision, the segments were actually (nearly) collinear
     template <typename T>
     static inline bool robustness_verify_r(
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                 segment_type1 const& a, segment_type2 const& b,
+#endif
                 T& r)
     {
         T const zero = 0;
         T const one = 1;
         if (r < zero || r > one)
         {
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             if (verify_disjoint<0>(a, b) || verify_disjoint<1>(a, b))
             {
                 // Can still be disjoint (even if not one is left or right from another)
                 // This is e.g. in case #snake4 of buffer test.
                 return false;
             }
+#endif
 
             //std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
             // sides.debug();
@@ -318,6 +365,7 @@ private :
             ;
     }
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     static inline void robustness_verify_collinear(
                 segment_type1 const& a, segment_type2 const& b,
                 bool a_is_point, bool b_is_point,
@@ -609,6 +657,7 @@ private :
         equals_1 = math::equals(get<1>(point1), get<1>(point2));
         return equals_0 && equals_1;
     }
+#endif
 
     template <std::size_t Dimension>
     static inline bool verify_disjoint(segment_type1 const& a,

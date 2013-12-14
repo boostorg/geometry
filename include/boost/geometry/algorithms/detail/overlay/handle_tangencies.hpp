@@ -15,6 +15,13 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
+#endif
+
+#if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#endif
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -89,10 +96,20 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
+
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        geometry::recalculate(pi_rob, pi, m_rescale_policy);
+        geometry::recalculate(pj_rob, pj, m_rescale_policy);
+        geometry::recalculate(ri_rob, ri, m_rescale_policy);
+        geometry::recalculate(rj_rob, rj, m_rescale_policy);
+        geometry::recalculate(si_rob, si, m_rescale_policy);
+        geometry::recalculate(sj_rob, sj, m_rescale_policy);
+#else
         geometry::zoom_to_robust(pi, pj, ri, rj, si, sj,
                                  pi_rob, pj_rob,
                                  ri_rob, rj_rob,
                                  si_rob, sj_rob);
+#endif
     }
 
     // Determine how p/r and p/s are located.
@@ -141,6 +158,8 @@ private :
     {
         if (skip) return;
 
+        std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
+
         robust_point_type pi, pj, ri, rj, si, sj;
         get_situation_map(left, right, pi, pj, ri, rj, si, sj);
 
@@ -154,7 +173,6 @@ private :
         int const side_si_r = m_strategy.apply(ri, rj, si);
         int const side_sj_r = m_strategy.apply(ri, rj, sj);
 
-        std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES_MORE
         std::cout << " Segment p:" << geometry::wkt(pi) << " .. " << geometry::wkt(pj) << std::endl;
         std::cout << " Segment r:" << geometry::wkt(ri) << " .. " << geometry::wkt(rj) << std::endl;

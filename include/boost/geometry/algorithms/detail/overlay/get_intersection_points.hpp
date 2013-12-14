@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -50,16 +51,16 @@ struct get_turn_without_info
 
     template <typename RescalePolicy, typename OutputIterator>
     static inline OutputIterator apply(
-                Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Point1 const& pi, Point1 const& pj, Point1 const& ,
+                Point2 const& qi, Point2 const& qj, Point2 const& ,
                 TurnInfo const& ,
-                RescalePolicy const& rescale_policy,
+                RescalePolicy const& ,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point1 const> segment_type2;
-        segment_type1 p1(pi, pj), p2(pj, pk);
-        segment_type2 q1(qi, qj), q2(qj, qk);
+        segment_type1 p1(pi, pj);
+        segment_type2 q1(qi, qj);
 
         //
         typename strategy::return_type result = strategy::apply(p1, q1);
@@ -111,6 +112,17 @@ inline void get_intersection_points(Geometry1 const& geometry1,
 
     detail::get_turns::no_interrupt_policy interrupt_policy;
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+    typedef typename geometry::point_type<Geometry1>::type point_type; // TODO
+    typedef typename geometry::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+#else
+    detail::no_rescale_policy rescale_policy;
+#endif
+
     boost::mpl::if_c
         <
             reverse_dispatch<Geometry1, Geometry2>::type::value,
@@ -133,7 +145,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
         >::type::apply(
             0, geometry1,
             1, geometry2,
-            detail::no_rescale_policy(),
+            rescale_policy,
             turns, interrupt_policy);
 }
 

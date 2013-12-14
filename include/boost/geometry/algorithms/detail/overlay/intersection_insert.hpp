@@ -160,9 +160,18 @@ struct intersection_of_linestring_with_areal
                 > follower;
 
         typedef typename point_type<LineStringOut>::type point_type;
-
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
         std::deque<turn_info> turns;
+
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = get_rescale_policy<rescale_policy_type>(linestring, areal);
+#else
+        detail::no_rescale_policy rescale_policy;
+#endif
 
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
@@ -170,7 +179,7 @@ struct intersection_of_linestring_with_areal
                 false,
                 (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
                 detail::overlay::calculate_distance_policy
-            >(linestring, areal, detail::no_rescale_policy(), turns, policy);
+            >(linestring, areal, rescale_policy, turns, policy);
 
         if (turns.empty())
         {
@@ -466,11 +475,21 @@ struct intersection_insert
         typedef detail::overlay::turn_info<PointOut> turn_info;
         std::vector<turn_info> turns;
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::rescale_policy_type<PointOut>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+#else
+        detail::no_rescale_policy rescale_policy;
+#endif
+
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
             <
                 false, false, detail::overlay::assign_null_policy
-            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+            >(geometry1, geometry2, rescale_policy, turns, policy);
         for (typename std::vector<turn_info>::const_iterator it
             = turns.begin(); it != turns.end(); ++it)
         {

@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
@@ -176,6 +177,7 @@ struct overlay
                 >(geometry1, geometry2, out);
         }
 
+        typedef typename geometry::coordinate_type<GeometryOut>::type coordinate_type;
         typedef typename geometry::point_type<GeometryOut>::type point_type;
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
         typedef std::deque<turn_info> container_type;
@@ -191,7 +193,21 @@ struct overlay
         boost::timer timer;
 #endif
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+
+#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+std::cout << "init rescale" << std::endl;
+#endif
+
+        typedef typename geometry::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+#else
 		detail::no_rescale_policy rescale_policy;
+#endif
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;

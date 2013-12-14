@@ -108,9 +108,11 @@ void test_areal()
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
         2, 10, 6.0); // Area from SQL Server
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
         2, 10, 0.0019812556);
+#endif
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>

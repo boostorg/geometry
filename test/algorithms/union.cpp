@@ -219,11 +219,13 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 1, 13, 20016.4);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, 0,
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)),
         14729.07145);
+#endif
 
 
     // FP might return different amount of points
@@ -262,8 +264,11 @@ void test_areal()
     // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
     // Because of the width of the polygon (400000 meter) this causes a substantial difference.
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+    // TODO: this probably does not fit correctly in integer-range
     test_one<Polygon, Polygon, Polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
                 1, 0, 25, 2515271327070.5);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
             1, 0, 5, 10.5000019595);
@@ -281,10 +286,12 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, if_typed<ct, float>(14, 13), 13.6569);
@@ -309,8 +316,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
                 1, 0, -1, 16.5711);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
                 1, 0, -1, 19.3995);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
                 1, 0, -1, 19.3995);
 

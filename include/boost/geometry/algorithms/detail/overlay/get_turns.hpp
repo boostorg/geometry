@@ -45,6 +45,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
@@ -307,24 +308,42 @@ private :
     template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
     static inline bool preceding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
-        return (dir == 1  && get<Dim>(point) < get<min_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(point) > get<max_corner, Dim>(box));
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typename robust_point_type<Point, RescalePolicy>::type robust_point;
+        geometry::recalculate(robust_point, point, rescale_policy);
+#else
+        Point const& robust_point = point;
+#endif
+
+        return (dir == 1  && get<Dim>(robust_point) < get<min_corner, Dim>(box))
+            || (dir == -1 && get<Dim>(robust_point) > get<max_corner, Dim>(box));
     }
 
     template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
     static inline bool exceeding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
-        return (dir == 1  && get<Dim>(point) > get<max_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(point) < get<min_corner, Dim>(box));
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typename robust_point_type<Point, RescalePolicy>::type robust_point;
+        geometry::recalculate(robust_point, point, rescale_policy);
+#else
+        Point const& robust_point = point;
+#endif
+        return (dir == 1  && get<Dim>(robust_point) > get<max_corner, Dim>(box))
+            || (dir == -1 && get<Dim>(robust_point) < get<min_corner, Dim>(box));
     }
 
     template <typename Iterator, typename RangeIterator, typename Section, typename RescalePolicy>
     static inline void advance_to_non_duplicate_next(Iterator& next,
             RangeIterator const& it, Section const& section, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename robust_point_type<point1_type, RescalePolicy>::type robust_point_type;
+        robust_point_type robust_point_from_it;
+        robust_point_type robust_point_from_next;
+        geometry::recalculate(robust_point_from_it, *it, rescale_policy);
+        geometry::recalculate(robust_point_from_next, *next, rescale_policy);
+#endif
+
         // To see where the next segments bend to, in case of touch/intersections
         // on end points, we need (in case of degenerate/duplicate points) an extra
         // iterator which moves to the REAL next point, so non duplicate.
@@ -335,10 +354,20 @@ private :
         // So advance to the "non duplicate next"
         // (the check is defensive, to avoid endless loops)
         std::size_t check = 0;
-        while(! detail::disjoint::disjoint_point_point(*it, *next)
+        while(! detail::disjoint::disjoint_point_point
+                (
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+                    robust_point_from_it, robust_point_from_next
+#else
+                    *it, *next
+#endif
+                )
             && check++ < section.range_count)
         {
             next++;
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+            geometry::recalculate(robust_point_from_next, *next, rescale_policy);
+#endif
         }
     }
 
@@ -462,7 +491,18 @@ public:
         // First create monotonic sections...
         typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
+
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef model::box
+            <
+                typename geometry::robust_point_type
+                <
+                    point_type, RescalePolicy
+                >::type
+            > box_type;
+#else
         typedef model::box<point_type> box_type;
+#endif
         typedef typename geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;

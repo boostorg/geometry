@@ -129,6 +129,7 @@ inline T1 if_typed_tt(T1 value_tt, T2 value)
 #if defined(HAVE_TTMATH)
     return boost::is_same<CoordinateType, ttmath_big>::type::value ? value_tt : value;
 #else
+    boost::ignore_unused_variable_warning(value_tt);
     return value;
 #endif
 }

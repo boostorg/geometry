@@ -17,5 +17,5 @@ test-suite boost-geometry-algorithms-overlay
     [ run relative_order.cpp ]
     [ run select_rings.cpp ]
     [ run self_intersection_points.cpp ]
-    [ run traverse.cpp ]
+    [ run traverse.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
      ;

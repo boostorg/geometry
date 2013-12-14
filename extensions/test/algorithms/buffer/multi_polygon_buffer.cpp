@@ -281,13 +281,18 @@ void test_all()
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_d", rt_d, 18.8726, 0.3);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_d", rt_d, 19.8823, 0.3);
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_e", rt_e, 14.1866, 0.3);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_e", rt_e, 15.1198, 0.3);
     // This does not add anything: test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_f", rt_f, 4.28937, 0.3);
+
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_f", rt_f, 4.60853, 0.3);
+#endif
 
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_g1", rt_g1, 24.719, 1.0);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_g1", rt_g1, 30.3137, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_g2", rt_g2, 18.5711, 1.0);
+#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_g3", rt_g3, 16.5711, 1.0);
 
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_h", rt_h, 47.6012, 1.0);
@@ -299,13 +304,17 @@ void test_all()
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_k", rt_k, 42.0092, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_k", rt_k, 48.0563, 1.0);
     // This does not add anything: test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_l", rt_l, 14.1074, 1.0);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_l", rt_l, 19.3995, 1.0);
+#endif
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_m1", rt_m1, 14.1074, 1.0);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_m1", rt_m1, 19.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_m2", rt_m2, 21.4853, 1.0);
 
     // This does not add anything: test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_n", rt_n,  14.1074, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_n", rt_n,  18.4853, 1.0);
+#endif
 
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("rt_o1", rt_o1, 17.536, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_o1", rt_o1, 20.9142, 1.0);
@@ -323,7 +332,10 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p7", rt_p7, 26.2279, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p8", rt_p8, 29.0563, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p9", rt_p9, 26.1421, 1.0);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p10", rt_p10, 23.3995, 1.0);
+#endif
+
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p11", rt_p11, 28.7426, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p12", rt_p12, 22.5711, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p13", rt_p13, 19.9142, 1.0);
@@ -340,10 +352,14 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_q1", rt_q1, 27, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_q2", rt_q2, 26.4853, 1.0);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_r", rt_r, 21.0761, 1.0);
+#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_s1", rt_s1, 20.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_s2", rt_s2, 24.6495, 1.0);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_t", rt_t, 15.6569, 1.0);
+#endif
 
 
 }

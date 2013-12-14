@@ -19,9 +19,11 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -80,6 +82,15 @@ struct rescale_strategy
 
 }} // namespace detail::zoom_to_robust
 #endif // DOXYGEN_NO_DETAIL
+
+
+// Define the IntPoint as a robust-point type
+template <typename Point, typename FpPoint, typename IntPoint, typename CalculationType>
+struct robust_point_type<Point, detail::zoom_to_robust::rescale_strategy<FpPoint, IntPoint, CalculationType> >
+{
+    typedef IntPoint type;
+};
+
 
 template <typename Box>
 inline typename coordinate_type<Box>::type get_max_size(Box const& box)
@@ -246,6 +257,105 @@ void zoom_to_robust(Geometry1 const& g1, Geometry2 const& g2, Geometry3 const& g
                     typename geometry::coordinate_type<Geometry1>::type
                 >::type
         >::apply(g1, g2, g3, g4, g5, g6, og1, og2, og3, og4, og5, og6);
+}
+
+// UTILITY METHODS (might be moved)
+
+template <typename Point, typename RobustPoint, typename Geometry, typename Factor>
+static inline void init_rescale_policy(Geometry const& geometry,
+        Point& min_point,
+        RobustPoint& min_robust_point,
+        Factor& factor)
+{
+    // Get bounding boxes
+    model::box<Point> env = geometry::return_envelope<model::box<Point> >(geometry);
+
+    // Scale this to integer-range
+    typename geometry::coordinate_type<Point>::type diff = get_max_size(env);
+    double range = 10000000.0; // Define a large range to get precise integer coordinates
+    factor = double(int(0.5 + range / double(diff)));
+    //factor = range / diff;
+
+    // Assign input/output minimal points
+    detail::assign_point_from_index<0>(env, min_point);
+    assign_values(min_robust_point, int(-range/2.0), int(-range/2.0));
+}
+
+template <typename Point, typename RobustPoint, typename Geometry1, typename Geometry2, typename Factor>
+static inline void init_rescale_policy(Geometry1 const& geometry1,
+        Geometry2 const& geometry2,
+        Point& min_point,
+        RobustPoint& min_robust_point,
+        Factor& factor)
+{
+    // Get bounding boxes
+    model::box<Point> env = geometry::return_envelope<model::box<Point> >(geometry1);
+    model::box<Point> env2 = geometry::return_envelope<model::box<Point> >(geometry2);
+    geometry::expand(env, env2);
+
+    // Scale this to integer-range
+    typename geometry::coordinate_type<Point>::type diff = get_max_size(env);
+    double range = 10000000.0; // Define a large range to get precise integer coordinates
+    factor = double(int(0.5 + range / double(diff)));
+    //factor = range / diff;
+
+    // Assign input/output minimal points
+    detail::assign_point_from_index<0>(env, min_point);
+    assign_values(min_robust_point, int(-range/2.0), int(-range/2.0));
+}
+
+template <typename Point>
+struct rescale_policy_type
+{
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    typedef model::point
+    <
+        typename geometry::robust_type<coordinate_type>::type,
+        geometry::dimension<Point>::value,
+        typename geometry::coordinate_system<Point>::type
+    > robust_point_type;
+
+    typedef detail::zoom_to_robust::rescale_strategy<Point, robust_point_type, double> type;
+};
+
+template <typename Policy, typename Geometry>
+inline Policy get_rescale_policy(Geometry const& geometry)
+{
+    typedef typename point_type<Geometry>::type point_type;
+    typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+    typedef model::point
+    <
+        typename geometry::robust_type<coordinate_type>::type,
+        geometry::dimension<point_type>::value,
+        typename geometry::coordinate_system<point_type>::type
+    > robust_point_type;
+
+    point_type min_point;
+    robust_point_type min_robust_point;
+    double factor;
+    init_rescale_policy(geometry, min_point, min_robust_point, factor);
+
+    return Policy(min_point, min_robust_point, factor);
+}
+
+template <typename Policy, typename Geometry1, typename Geometry2>
+inline Policy get_rescale_policy(Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    typedef typename point_type<Geometry1>::type point_type;
+    typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
+    typedef model::point
+    <
+        typename geometry::robust_type<coordinate_type>::type,
+        geometry::dimension<point_type>::value,
+        typename geometry::coordinate_system<point_type>::type
+    > robust_point_type;
+
+    point_type min_point;
+    robust_point_type min_robust_point;
+    double factor;
+    init_rescale_policy(geometry1, geometry2, min_point, min_robust_point, factor);
+
+    return Policy(min_point, min_robust_point, factor);
 }
 
 

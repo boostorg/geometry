@@ -23,6 +23,7 @@
 #include <boost/geometry/multi/core/ring_type.hpp>
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
+#include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
