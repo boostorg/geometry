@@ -23,10 +23,10 @@
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within {
+namespace detail_dispatch { namespace within {
 
 template <typename Geometry>
-struct point_in_geometry_dispatch<Geometry, multi_polygon_tag>
+struct point_in_geometry<Geometry, multi_polygon_tag>
 {
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
@@ -38,7 +38,7 @@ struct point_in_geometry_dispatch<Geometry, multi_polygon_tag>
         typedef typename boost::range_const_iterator<Geometry>::type iterator;
         for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
         {
-            int pip = detail::within::point_in_geometry_dispatch<polygon_type>::apply(point, *it, strategy);
+            int pip = point_in_geometry<polygon_type>::apply(point, *it, strategy);
 
             if ( 1 == pip ) // inside polygon
                 return 1;
@@ -56,7 +56,7 @@ struct point_in_geometry_dispatch<Geometry, multi_polygon_tag>
 };
 
 template <typename Geometry>
-struct point_in_geometry_dispatch<Geometry, multi_linestring_tag>
+struct point_in_geometry<Geometry, multi_linestring_tag>
 {
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
@@ -69,7 +69,7 @@ struct point_in_geometry_dispatch<Geometry, multi_linestring_tag>
         iterator it = boost::begin(geometry);
         for ( ; it != boost::end(geometry) ; ++it )
         {
-            pip = detail::within::point_in_geometry_dispatch<linestring_type>::apply(point, *it, strategy);
+            pip = point_in_geometry<linestring_type>::apply(point, *it, strategy);
 
             if ( 0 <= pip )
             {
@@ -104,7 +104,7 @@ struct point_in_geometry_dispatch<Geometry, multi_linestring_tag>
     }
 };
 
-}} // namespace detail::within
+}} // namespace detail_dispatch::within
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

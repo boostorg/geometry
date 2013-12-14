@@ -51,6 +51,10 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
     return strategy.result(state);
 }
 
+}} // namespace detail::within
+
+namespace detail_dispatch { namespace within {
+
 // checks the relation between a point P and geometry G
 // returns 1 if P is in the interior of G
 // returns 0 if P is on the boundry of G
@@ -58,11 +62,11 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
 
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
-struct point_in_geometry_dispatch : not_implemented<Tag>
+struct point_in_geometry : not_implemented<Tag>
 {};
 
 template <typename Box>
-struct point_in_geometry_dispatch<Box, box_tag>
+struct point_in_geometry<Box, box_tag>
 {
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Box const& box, Strategy const& strategy)
@@ -73,7 +77,7 @@ struct point_in_geometry_dispatch<Box, box_tag>
 };
 
 template <typename Linestring>
-struct point_in_geometry_dispatch<Linestring, linestring_tag>
+struct point_in_geometry<Linestring, linestring_tag>
 {
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
@@ -103,7 +107,7 @@ struct point_in_geometry_dispatch<Linestring, linestring_tag>
 };
 
 template <typename Ring>
-struct point_in_geometry_dispatch<Ring, ring_tag>
+struct point_in_geometry<Ring, ring_tag>
 {
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Ring const& ring, Strategy const& strategy)
@@ -127,19 +131,19 @@ struct point_in_geometry_dispatch<Ring, ring_tag>
         rev_view_type rev_view(ring);
         cl_view_type view(rev_view);
 
-        return point_in_range(point, view, strategy);
+        return detail::within::point_in_range(point, view, strategy);
     }
 };
 
 //// Polygon: in exterior ring, and if so, not within interior ring(s)
 template <typename Polygon>
-struct point_in_geometry_dispatch<Polygon, polygon_tag>
+struct point_in_geometry<Polygon, polygon_tag>
 {
     template <typename Point, typename Strategy>
     static inline int apply(Point const& point, Polygon const& polygon,
                             Strategy const& strategy)
     {
-        int const code = point_in_geometry_dispatch
+        int const code = point_in_geometry
             <
                 typename ring_type<Polygon>::type
             >::apply(point, exterior_ring(polygon), strategy);
@@ -152,7 +156,7 @@ struct point_in_geometry_dispatch<Polygon, polygon_tag>
                 it != boost::end(rings);
                 ++it)
             {
-                int const interior_code = point_in_geometry_dispatch
+                int const interior_code = point_in_geometry
                     <
                         typename ring_type<Polygon>::type
                     >::apply(point, *it, strategy);
@@ -170,6 +174,10 @@ struct point_in_geometry_dispatch<Polygon, polygon_tag>
     }
 };
 
+}} // namespace detail_dispatch::within
+
+namespace detail { namespace within {
+
 // 1 - in the interior
 // 0 - in the boundry
 // -1 - in the exterior
@@ -178,7 +186,7 @@ int point_in_geometry(Point const& point, Geometry const& geometry, Strategy con
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
-    return point_in_geometry_dispatch<Geometry>::apply(point, geometry, strategy);
+    return detail_dispatch::within::point_in_geometry<Geometry>::apply(point, geometry, strategy);
 }
 
 template <typename Point, typename Geometry> inline

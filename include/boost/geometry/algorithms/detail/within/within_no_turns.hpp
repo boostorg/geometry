@@ -23,7 +23,7 @@
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within {
+namespace detail_dispatch { namespace within {
 
 // returns true if G1 is within G2
 // this function should be called only if there are no intersection points
@@ -34,7 +34,7 @@ template <typename Geometry1,
           typename Geometry2,
           typename Tag1 = typename geometry::tag<Geometry1>::type,
           typename Tag2 = typename geometry::tag<Geometry2>::type>
-struct within_no_turns_dispatch
+struct within_no_turns
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -44,12 +44,12 @@ struct within_no_turns_dispatch
         if ( !geometry::point_on_border(p, geometry1) )
             return false;
 
-        return point_in_geometry(p, geometry2, strategy) >= 0;
+        return detail::within::point_in_geometry(p, geometry2, strategy) >= 0;
     }
 };
 
 template <typename Geometry1, typename Geometry2>
-struct within_no_turns_dispatch<Geometry1, Geometry2, ring_tag, polygon_tag>
+struct within_no_turns<Geometry1, Geometry2, ring_tag, polygon_tag>
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -60,7 +60,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, ring_tag, polygon_tag>
         if ( !geometry::point_on_border(p, geometry1) )
             return false;
         // check if one of ring points is outside the polygon
-        if ( point_in_geometry(p, geometry2, strategy) < 0 )
+        if ( detail::within::point_in_geometry(p, geometry2, strategy) < 0 )
             return false;
         // Now check if holes of G2 aren't inside G1
         typedef typename boost::range_const_iterator
@@ -74,7 +74,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, ring_tag, polygon_tag>
             point2_type p;
             if ( !geometry::point_on_border(p, *it) )
                 return false;
-            if ( point_in_geometry(p, geometry1, strategy) > 0 )
+            if ( detail::within::point_in_geometry(p, geometry1, strategy) > 0 )
                 return false;
         }
         return true;
@@ -82,7 +82,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, ring_tag, polygon_tag>
 };
 
 template <typename Geometry1, typename Geometry2>
-struct within_no_turns_dispatch<Geometry1, Geometry2, polygon_tag, polygon_tag>
+struct within_no_turns<Geometry1, Geometry2, polygon_tag, polygon_tag>
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -93,7 +93,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, polygon_tag, polygon_tag>
         if ( !geometry::point_on_border(p, geometry1) )
             return false;
         // check if one of ring points is outside the polygon
-        if ( point_in_geometry(p, geometry2, strategy) < 0 )
+        if ( detail::within::point_in_geometry(p, geometry2, strategy) < 0 )
             return false;
         // Now check if holes of G2 aren't inside G1
         typedef typename boost::range_const_iterator
@@ -108,7 +108,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, polygon_tag, polygon_tag>
             if ( !geometry::point_on_border(p2, *it) )
                 return false;
             // if the hole of G2 is inside G1
-            if ( point_in_geometry(p2, geometry1, strategy) > 0 )
+            if ( detail::within::point_in_geometry(p2, geometry1, strategy) > 0 )
             {
                 // if it's also inside one of the G1 holes, it's ok
                 bool ok = false;
@@ -120,7 +120,7 @@ struct within_no_turns_dispatch<Geometry1, Geometry2, polygon_tag, polygon_tag>
                       it1 != boost::end(geometry::interior_rings(geometry1)) ;
                       ++it1 )
                 {
-                    if ( point_in_geometry(p2, *it1, strategy) < 0 )
+                    if ( detail::within::point_in_geometry(p2, *it1, strategy) < 0 )
                     {
                         ok = true;
                         break;
@@ -142,17 +142,17 @@ template <typename Geometry1,
           typename Tag2 = typename geometry::tag<Geometry2>::type,
           bool IsMulti1 = boost::is_base_of<geometry::multi_tag, Tag1>::value,
           bool IsMulti2 = boost::is_base_of<geometry::multi_tag, Tag2>::value>
-struct within_no_turns_multi_dispatch
+struct within_no_turns_multi
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
     {
-        return within_no_turns_dispatch<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+        return within_no_turns<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
     }
 };
 
 template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, true, false>
+struct within_no_turns_multi<Geometry1, Geometry2, Tag1, Tag2, true, false>
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -162,7 +162,7 @@ struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, true, fa
         typedef typename boost::range_const_iterator<Geometry1>::type iterator;
         for ( iterator it = boost::begin(geometry1) ; it != boost::end(geometry1) ; ++it )
         {
-            if ( !within_no_turns_dispatch<subgeometry1, Geometry2>::apply(*it, geometry2, strategy) )
+            if ( !within_no_turns<subgeometry1, Geometry2>::apply(*it, geometry2, strategy) )
                 return false;
         }
         return true;
@@ -170,7 +170,7 @@ struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, true, fa
 };
 
 template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, false, true>
+struct within_no_turns_multi<Geometry1, Geometry2, Tag1, Tag2, false, true>
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -180,7 +180,7 @@ struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, false, t
         typedef typename boost::range_const_iterator<Geometry2>::type iterator;
         for ( iterator it = boost::begin(geometry2) ; it != boost::end(geometry2) ; ++it )
         {
-            if ( within_no_turns_dispatch<Geometry1, subgeometry2>::apply(geometry1, *it, strategy) )
+            if ( within_no_turns<Geometry1, subgeometry2>::apply(geometry1, *it, strategy) )
                 return true;
         }
         return false;
@@ -188,7 +188,7 @@ struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, false, t
 };
 
 template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, true, true>
+struct within_no_turns_multi<Geometry1, Geometry2, Tag1, Tag2, true, true>
 {
     template <typename Strategy> static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
@@ -198,17 +198,21 @@ struct within_no_turns_multi_dispatch<Geometry1, Geometry2, Tag1, Tag2, true, tr
         typedef typename boost::range_const_iterator<Geometry1>::type iterator;
         for ( iterator it = boost::begin(geometry1) ; it != boost::end(geometry1) ; ++it )
         {
-            if ( !within_no_turns_multi_dispatch<subgeometry1, Geometry2>::apply(*it, geometry2, strategy) )
+            if ( !within_no_turns_multi<subgeometry1, Geometry2>::apply(*it, geometry2, strategy) )
                 return false;
         }
         return true;
     }
 };
 
+}} // namespace detail_dispatch::within
+
+namespace detail { namespace within {
+
 template <typename Geometry1, typename Geometry2, typename Strategy> inline
 bool within_no_turns(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
 {
-    return within_no_turns_multi_dispatch<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+    return detail_dispatch::within::within_no_turns_multi<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
 }
 
 }} // namespace detail::within
