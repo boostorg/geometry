@@ -3,6 +3,10 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -43,21 +47,24 @@ struct covered_by<Point, MultiPolygon, point_tag, multi_polygon_tag>
                 Point,
                 MultiPolygon,
                 Strategy,
-                detail::within::point_in_polygon
-                        <
-                            Point,
-                            typename boost::range_value<MultiPolygon>::type,
-                            order_as_direction
-                                <
-                                    geometry::point_order<MultiPolygon>::value
-                                >::value,
-                            geometry::closure<MultiPolygon>::value,
-                            Strategy
-                        >
+                detail::within::point_in_geometry_dispatch
+                    <
+                        typename boost::range_value<MultiPolygon>::type
+                    >
             >::apply(point, multi_polygon, strategy) >= 0;
     }
 };
 
+template <typename Point, typename MultiLinestring>
+struct covered_by<Point, MultiLinestring, point_tag, multi_linestring_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point,
+                MultiLinestring const& multi_linestring, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, multi_linestring, strategy) >= 0;
+    }
+};
 
 } // namespace dispatch
 

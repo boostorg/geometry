@@ -1,6 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -194,6 +198,18 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+// TODO: later move it to multi/strategies/agnostic
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
 
 } // namespace services
 
@@ -221,6 +237,18 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
+
+// TODO: later move it to multi/strategies/agnostic
+template <typename Point, typename Geometry>
+struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+{
+    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
+};
 
 }}} // namespace strategy::covered_by::services
 #endif

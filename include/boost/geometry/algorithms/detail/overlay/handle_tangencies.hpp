@@ -329,7 +329,7 @@ private :
 
 
     inline bool consider_iu_iu(Indexed const& left, Indexed const& right,
-                    std::string const& header) const
+                    std::string const& header, bool redo = false) const
     {
         //debug_consider(0, left, right, header);
 
@@ -437,6 +437,13 @@ private :
         std::cout << " iu/iu unhandled" << std::endl;
         debug_consider(0, left, right, header, false, "unhandled", left.index < right.index);
 #endif
+        if (! redo)
+        {
+            // In some cases behaviour is not symmetrical. TODO: fix this properly
+            //   OR: alternatively we might consider calling all these functions one-way anyway
+            return ! consider_iu_iu(right, left, header, true);
+        }
+
         return left.index < right.index;
     }
 

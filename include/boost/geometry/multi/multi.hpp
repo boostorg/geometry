@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -48,6 +51,9 @@
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
+
+#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
+#include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>

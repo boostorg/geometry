@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -30,6 +31,7 @@
 
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
 
 namespace boost { namespace geometry
@@ -63,38 +65,6 @@ struct disjoint_interrupt_policy
     }
 };
 
-
-
-template
-<
-    typename Point1, typename Point2,
-    std::size_t Dimension, std::size_t DimensionCount
->
-struct point_point
-{
-    static inline bool apply(Point1 const& p1, Point2 const& p2)
-    {
-        if (! geometry::math::equals(get<Dimension>(p1), get<Dimension>(p2)))
-        {
-            return true;
-        }
-        return point_point
-            <
-                Point1, Point2,
-                Dimension + 1, DimensionCount
-            >::apply(p1, p2);
-    }
-};
-
-
-template <typename Point1, typename Point2, std::size_t DimensionCount>
-struct point_point<Point1, Point2, DimensionCount, DimensionCount>
-{
-    static inline bool apply(Point1 const& , Point2 const& )
-    {
-        return false;
-    }
-};
 
 
 template
@@ -318,43 +288,9 @@ inline bool disjoint_box_box(Box1 const& box1, Box2 const& box2)
 }
 
 
-
-/*!
-    \brief Internal utility function to detect of points are disjoint
-    \note To avoid circular references
- */
-template <typename Point1, typename Point2>
-inline bool disjoint_point_point(Point1 const& point1, Point2 const& point2)
-{
-    return point_point
-        <
-            Point1, Point2,
-            0, dimension<Point1>::type::value
-        >::apply(point1, point2);
-}
-
-
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
 
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace equals
-{
-
-/*!
-    \brief Internal utility function to detect of points are disjoint
-    \note To avoid circular references
- */
-template <typename Point1, typename Point2>
-inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
-{
-    return ! detail::disjoint::disjoint_point_point(point1, point2);
-}
-
-
-}} // namespace detail::equals
-#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 

@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -77,14 +80,7 @@ struct covered_by<Point, Ring, point_tag, ring_tag>
     template <typename Strategy>
     static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
-        return detail::within::point_in_ring
-            <
-                Point,
-                Ring,
-                order_as_direction<geometry::point_order<Ring>::value>::value,
-                geometry::closure<Ring>::value,
-                Strategy
-            >::apply(point, ring, strategy) >= 0;
+        return detail::within::point_in_geometry(point, ring, strategy) >= 0;
     }
 };
 
@@ -94,14 +90,17 @@ struct covered_by<Point, Polygon, point_tag, polygon_tag>
     template <typename Strategy>
     static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
     {
-        return detail::within::point_in_polygon
-        <
-            Point,
-            Polygon,
-            order_as_direction<geometry::point_order<Polygon>::value>::value,
-            geometry::closure<Polygon>::value,
-            Strategy
-        >::apply(point, polygon, strategy) >= 0;
+        return detail::within::point_in_geometry(point, polygon, strategy) >= 0;
+    }
+};
+
+template <typename Point, typename Linestring>
+struct covered_by<Point, Linestring, point_tag, linestring_tag>
+{
+    template <typename Strategy> static inline
+    bool apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, linestring, strategy) >= 0;
     }
 };
 

@@ -1,6 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-//
+
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -33,6 +35,17 @@ void test_all()
     // holes
     test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
+
+    // linestrings
+    typedef bg::model::linestring<P> ls;
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(3 3)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0,2 2,3 3)", true);
+
+    // multi_linestrings
+    typedef bg::model::multi_linestring<ls> mls;
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", false);
 
     typedef bg::model::box<P> box_type;
 

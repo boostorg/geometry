@@ -5,6 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2013.
+// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -41,6 +44,10 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+#include <boost/geometry/views/segment_view.hpp>
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
 
 namespace boost { namespace geometry
@@ -115,21 +122,20 @@ struct disjoint_linear
         typedef overlay::turn_info<point_type> turn_info;
         std::deque<turn_info> turns;
 
+        static const bool reverse1 = overlay::do_reverse<geometry::point_order<Geometry1>::value>::value; // should be false
+        static const bool reverse2 = overlay::do_reverse<geometry::point_order<Geometry2>::value>::value; // should be false
+
         // Specify two policies:
         // 1) Stop at any intersection
         // 2) In assignment, include also degenerate points (which are normally skipped)
         disjoint_interrupt_policy policy;
         geometry::get_turns
             <
-                false, false,
+                reverse1, reverse2,
                 assign_disjoint_policy
             >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
-        if (policy.has_intersections)
-        {
-            return false;
-        }
 
-        return true;
+        return !policy.has_intersections;
     }
 };
 
@@ -230,6 +236,59 @@ struct disjoint_linestring_box
     }
 };
 
+template<typename Point, typename Geometry>
+struct disjoint_point_linear
+{
+    static inline
+    bool apply(Point const& pt, Geometry const& g)
+    {
+        return !geometry::covered_by(pt, g);
+    }
+};
+
+// computes disjointness of segment and linestring
+template<typename Linestring, typename Segment>
+struct disjoint_linestring_segment
+{
+    static inline
+    bool apply(Linestring const& ls, Segment const& seg)
+    {
+        return disjoint_linear
+            <
+                Linestring, segment_view<Segment>
+            >::apply(ls, geometry::segment_view<Segment>(seg));
+    }
+};
+
+template<typename Geometry1, typename Geometry2>
+struct disjoint_linear_areal
+{
+    static inline
+    bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        // if there are intersections - return false
+        if ( !disjoint_linear<Geometry1, Geometry2>::apply(g1, g2) )
+            return false;
+
+        typedef typename point_type<Geometry1>::type point1_type;
+        point1_type p;
+        geometry::point_on_border(p, g1);
+        return !geometry::covered_by(p, g2);
+    }
+};
+
+template<typename Segment, typename Geometry>
+struct disjoint_segment_areal
+{
+    static inline
+    bool apply(Segment const& seg, Geometry const& g)
+    {
+        return disjoint_linear_areal
+            <
+                segment_view<Segment>, Geometry
+            >::apply(segment_view<Segment>(seg), g);
+    }
+};
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
@@ -312,11 +371,6 @@ struct disjoint<Segment1, Segment2, 2, segment_tag, segment_tag, Reverse>
     : detail::disjoint::disjoint_segment<Segment1, Segment2>
 {};
 
-template <typename Linestring, typename Segment, bool Reverse>
-struct disjoint<Linestring, Segment, 2, linestring_tag, segment_tag, Reverse>
-    : detail::disjoint::disjoint_linear<Linestring, Segment>
-{};
-
 template <typename Segment, typename Box, std::size_t DimensionCount, bool Reverse>
 struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, Reverse>
     : detail::disjoint::disjoint_segment_box<Segment, Box>
@@ -325,6 +379,72 @@ struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, Reverse>
 template <typename Linestring, typename Box, std::size_t DimensionCount, bool Reverse>
 struct disjoint<Linestring, Box, DimensionCount, linestring_tag, box_tag, Reverse>
     : detail::disjoint::disjoint_linestring_box<Linestring, Box>
+{};
+
+//template <typename Linestring, typename Segment, bool Reverse>
+//struct disjoint<Linestring, Segment, 2, linestring_tag, segment_tag, Reverse>
+//    : detail::disjoint::disjoint_linear<Linestring, Segment>
+//{};
+template<typename Linestring, typename Segment, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, Segment, DimensionCount, linestring_tag, segment_tag, Reverse>
+    : detail::disjoint::disjoint_linestring_segment<Linestring, Segment>
+{};
+
+template<typename Segment, typename Ring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Segment, Ring, DimensionCount, segment_tag, ring_tag, Reverse>
+    : detail::disjoint::disjoint_segment_areal<Segment, Ring>
+{};
+
+template<typename Polygon, typename Segment, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Polygon, Segment, DimensionCount, polygon_tag, segment_tag, Reverse>
+{
+    static inline
+    bool apply(Polygon const& g1, Segment const& g2)
+    {
+        return detail::disjoint::disjoint_segment_areal<Segment, Polygon>::apply(g2, g1);
+    }
+};
+
+template<typename Linestring, typename Polygon, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, Polygon, DimensionCount, linestring_tag, polygon_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<Linestring, Polygon>
+{};
+
+template<typename Linestring, typename Ring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, Ring, DimensionCount, linestring_tag, ring_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<Linestring, Ring>
+{};
+
+// move the following specializations to multi/algorithms/disjoint.hpp?
+
+template<typename MultiLinestring, typename Polygon, std::size_t DimensionCount, bool Reverse>
+struct disjoint<MultiLinestring, Polygon, DimensionCount, multi_linestring_tag, polygon_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<MultiLinestring, Polygon>
+{};
+
+template<typename MultiLinestring, typename Ring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<MultiLinestring, Ring, DimensionCount, multi_linestring_tag, ring_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<MultiLinestring, Ring>
+{};
+
+template<typename Linestring, typename MultiPolygon, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, MultiPolygon, DimensionCount, linestring_tag, multi_polygon_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<Linestring, MultiPolygon>
+{};
+
+template<typename MultiLinestring, typename MultiPolygon, std::size_t DimensionCount, bool Reverse>
+struct disjoint<MultiLinestring, MultiPolygon, DimensionCount, multi_linestring_tag, multi_polygon_tag, Reverse>
+    : public detail::disjoint::disjoint_linear_areal<MultiLinestring, MultiPolygon>
+{};
+
+template<typename Point, typename Linestring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Point, Linestring, DimensionCount, point_tag, linestring_tag, Reverse>
+    : public detail::disjoint::disjoint_point_linear<Point, Linestring>
+{};
+
+template<typename Point, typename MultiLinestring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Point, MultiLinestring, DimensionCount, point_tag, multi_linestring_tag, Reverse>
+    : public detail::disjoint::disjoint_point_linear<Point, MultiLinestring>
 {};
 
 } // namespace dispatch
