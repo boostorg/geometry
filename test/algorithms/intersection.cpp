@@ -89,9 +89,11 @@ void test_areal()
         intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
         1, 19, 17.25);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("intersect_holes_intersect_and_touch",
         intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
         1, 23, 17.25);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("intersect_holes_new_ring",
         intersect_holes_new_ring[0], intersect_holes_new_ring[1],

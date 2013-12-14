@@ -182,6 +182,12 @@ struct relate_cartesian_segments
         coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
         coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
 
+        typedef typename geometry::coordinate_type<RobustPoint>::type robust_coordinate_type;
+        robust_coordinate_type const robust_dx_a = get<0>(robust_a2) - get<0>(robust_a1);
+        robust_coordinate_type const robust_dx_b = get<0>(robust_b2) - get<0>(robust_b1);
+        robust_coordinate_type const robust_dy_a = get<1>(robust_a2) - get<1>(robust_a1);
+        robust_coordinate_type const robust_dy_b = get<1>(robust_b2) - get<1>(robust_b1);
+
         // r: ratio 0-1 where intersection divides A/B
         // (only calculated for non-collinear segments)
         promoted_type r;
@@ -190,13 +196,23 @@ struct relate_cartesian_segments
             // Calculate determinants - Cramers rule
             coordinate_type const wx = get<0, 0>(a) - get<0, 0>(b);
             coordinate_type const wy = get<0, 1>(a) - get<0, 1>(b);
+
             promoted_type const d = geometry::detail::determinant<promoted_type>(dx_a, dy_a, dx_b, dy_b);
             promoted_type const da = geometry::detail::determinant<promoted_type>(dx_b, dy_b, wx, wy);
 
-            coordinate_type const zero = coordinate_type();
-            if (math::equals(d, zero))
+            // Calculate them robustly as well, for various comparisons (TODO)
+            robust_coordinate_type const robust_d = geometry::detail::determinant<robust_coordinate_type>(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
+//            robust_coordinate_type const robust_wx1 = get<0>(robust_a1) - get<0>(robust_b1);
+//            robust_coordinate_type const robust_wy1 = get<1>(robust_a1) - get<1>(robust_b1);
+//            robust_coordinate_type const robust_wx2 = get<0>(robust_a2) - get<0>(robust_b2);
+//            robust_coordinate_type const robust_wy2 = get<1>(robust_a2) - get<1>(robust_b2);
+//            robust_coordinate_type const robust_da = geometry::detail::determinant<robust_coordinate_type>(robust_dx_b, robust_dy_b, robust_wx1, robust_wy1);
+//            robust_coordinate_type const robust_db = geometry::detail::determinant<robust_coordinate_type>(robust_dx_a, robust_dy_a, robust_wx2, robust_wy2);
+
+            if (robust_d == 0)
             {
-                // This is still a collinear case (because of FP imprecision this can occur here)
+                // This is still a collinear case (because of FP imprecision this could, in the past, occur here)
+                // Not it should NOT occur anymore
                 // sides.debug();
                 sides.set<0>(0,0);
                 sides.set<1>(0,0);
@@ -206,22 +222,19 @@ struct relate_cartesian_segments
             {
                 r = da / d;
 
-                if (! robustness_verify_r(
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-                            a, b,
-#endif
-                            r))
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+                verify_r(r);
+#else
+                if (! robustness_verify_r(a, b, r))
                 {
+                    // Also this should NOT occur anymore
                     return Policy::disjoint();
                 }
-
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                 if (robustness_verify_disjoint_at_one_collinear(a, b, sides))
                 {
                     return Policy::disjoint();
                 }
 #endif
-
             }
         }
 
@@ -247,28 +260,55 @@ struct relate_cartesian_segments
 
 private :
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+    template <typename T>
+    static inline void verify_r(T& r)
+    {
+        T const zero = 0;
+        T const one = 1;
+        if (r < zero || r > one)
+        {
+            // Note that even for ttmath r is occasionally > 1, e.g. 1.0000000000000000000000036191231203575
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+            debug_segments("correcting r", a, b);
+            std::cout << " --> r=" << r;
+            if (r > 1.00000000000001 || r < -0.00000000000001)
+            {
+                std::cout << " !!!";
+            }
+            std::cout << std::endl << std::endl;
+#endif
+
+            if (r > one)
+            {
+                r = one;
+            }
+            else if (r < zero)
+            {
+                r = zero;
+            }
+        }
+    }
+
+#else
 
     // Ratio should lie between 0 and 1
     // Also these three conditions might be of FP imprecision, the segments were actually (nearly) collinear
     template <typename T>
     static inline bool robustness_verify_r(
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                 segment_type1 const& a, segment_type2 const& b,
-#endif
                 T& r)
     {
         T const zero = 0;
         T const one = 1;
         if (r < zero || r > one)
         {
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             if (verify_disjoint<0>(a, b) || verify_disjoint<1>(a, b))
             {
                 // Can still be disjoint (even if not one is left or right from another)
                 // This is e.g. in case #snake4 of buffer test.
                 return false;
             }
-#endif
 
             //std::cout << "ROBUSTNESS: correction of r " << r << std::endl;
             // sides.debug();
@@ -308,6 +348,7 @@ private :
         }
         return true;
     }
+#endif
 
     template <std::size_t Dimension>
     static inline bool analyse_equal(segment_type1 const& a, segment_type2 const& b)
