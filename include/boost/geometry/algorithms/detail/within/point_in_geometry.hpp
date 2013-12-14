@@ -181,16 +181,16 @@ namespace detail { namespace within {
 // 1 - in the interior
 // 0 - in the boundry
 // -1 - in the exterior
-template <typename Point, typename Geometry, typename Strategy> inline
-int point_in_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
+template <typename Point, typename Geometry, typename Strategy>
+inline int point_in_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
     return detail_dispatch::within::point_in_geometry<Geometry>::apply(point, geometry, strategy);
 }
 
-template <typename Point, typename Geometry> inline
-int point_in_geometry(Point const& point, Geometry const& geometry)
+template <typename Point, typename Geometry>
+inline int point_in_geometry(Point const& point, Geometry const& geometry)
 {
     typedef typename point_type<Point>::type point_type1;
     typedef typename point_type<Geometry>::type point_type2;

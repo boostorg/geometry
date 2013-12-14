@@ -209,8 +209,8 @@ struct within_no_turns_multi<Geometry1, Geometry2, Tag1, Tag2, true, true>
 
 namespace detail { namespace within {
 
-template <typename Geometry1, typename Geometry2, typename Strategy> inline
-bool within_no_turns(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+template <typename Geometry1, typename Geometry2, typename Strategy>
+inline bool within_no_turns(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
 {
     return detail_dispatch::within::within_no_turns_multi<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
 }
