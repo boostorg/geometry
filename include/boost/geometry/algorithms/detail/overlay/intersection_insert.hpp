@@ -49,13 +49,36 @@ struct intersection_segment_segment_point
     template
     <
         typename Segment1, typename Segment2,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Segment1 const& segment1,
-            Segment2 const& segment2, OutputIterator out,
+            Segment2 const& segment2,
+            RescalePolicy const& rescale_policy,
+            OutputIterator out,
             Strategy const& )
     {
         typedef typename point_type<PointOut>::type point_type;
+
+        typedef typename geometry::robust_point_type
+            <
+                Segment1, RescalePolicy
+            >::type robust_point_type;
+
+        // TODO: rescale segment -> robust points
+        robust_point_type pi_rob, pj_rob, qi_rob, qj_rob;
+        {
+            // Workaround:
+            point_type pi, pj, qi, qj;
+            assign_point_from_index<0>(segment1, pi);
+            assign_point_from_index<1>(segment1, pj);
+            assign_point_from_index<0>(segment2, qi);
+            assign_point_from_index<1>(segment2, qj);
+            geometry::recalculate(pi_rob, pi, rescale_policy);
+            geometry::recalculate(pj_rob, pj, rescale_policy);
+            geometry::recalculate(qi_rob, qi, rescale_policy);
+            geometry::recalculate(qj_rob, qj, rescale_policy);
+        }
 
         // Get the intersection point (or two points)
         segment_intersection_points<point_type> is
@@ -67,7 +90,7 @@ struct intersection_segment_segment_point
                         Segment2,
                         segment_intersection_points<point_type>
                     >
-            >::apply(segment1, segment2);
+            >::apply(segment1, segment2, pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < is.count; i++)
         {
@@ -85,10 +108,13 @@ struct intersection_linestring_linestring_point
     template
     <
         typename Linestring1, typename Linestring2,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linestring1 const& linestring1,
-            Linestring2 const& linestring2, OutputIterator out,
+            Linestring2 const& linestring2,
+            RescalePolicy const& rescale_policy,
+            OutputIterator out,
             Strategy const& )
     {
         typedef typename point_type<PointOut>::type point_type;
@@ -96,7 +122,7 @@ struct intersection_linestring_linestring_point
         typedef detail::overlay::turn_info<point_type> turn_info;
         std::deque<turn_info> turns;
 
-        geometry::get_intersection_points(linestring1, linestring2, turns);
+        geometry::get_intersection_points(linestring1, linestring2, rescale_policy, turns);
 
         for (typename boost::range_iterator<std::deque<turn_info> const>::type
             it = boost::begin(turns); it != boost::end(turns); ++it)
@@ -140,9 +166,11 @@ struct intersection_of_linestring_with_areal
     template
     <
         typename LineString, typename Areal,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(LineString const& linestring, Areal const& areal,
+            RescalePolicy const& rescale_policy,
             OutputIterator out,
             Strategy const& )
     {
@@ -162,16 +190,6 @@ struct intersection_of_linestring_with_areal
         typedef typename point_type<LineStringOut>::type point_type;
         typedef detail::overlay::traversal_turn_info<point_type> turn_info;
         std::deque<turn_info> turns;
-
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        typedef typename geometry::rescale_policy_type<point_type>::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = get_rescale_policy<rescale_policy_type>(linestring, areal);
-#else
-        detail::no_rescale_policy rescale_policy;
-#endif
 
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
@@ -359,9 +377,11 @@ struct intersection_insert
         false, true, false
     >
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Linestring const& linestring,
-            Box const& box, OutputIterator out, Strategy const& )
+            Box const& box,
+            RescalePolicy const& ,
+            OutputIterator out, Strategy const& )
     {
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
@@ -435,9 +455,11 @@ struct intersection_insert
         false, true, false
     >
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Segment const& segment,
-            Box const& box, OutputIterator out, Strategy const& )
+            Box const& box,
+            RescalePolicy const& ,// TODO: propagate to clip_range_with_box
+            OutputIterator out, Strategy const& )
     {
         geometry::segment_view<Segment> range(segment);
 
@@ -467,23 +489,15 @@ struct intersection_insert
         Areal1, Areal2, false
     >
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, OutputIterator out, Strategy const& )
+            Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy,
+            OutputIterator out, Strategy const& )
     {
 
         typedef detail::overlay::turn_info<PointOut> turn_info;
         std::vector<turn_info> turns;
-
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        typedef typename geometry::rescale_policy_type<PointOut>::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
-#else
-        detail::no_rescale_policy rescale_policy;
-#endif
 
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
@@ -509,9 +523,11 @@ template
 >
 struct intersection_insert_reversed
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
-                Geometry2 const& g2, OutputIterator out,
+                Geometry2 const& g2,
+                RescalePolicy const& rescale_policy,
+                OutputIterator out,
                 Strategy const& strategy)
     {
         return intersection_insert
@@ -519,7 +535,7 @@ struct intersection_insert_reversed
                 Geometry2, Geometry1, GeometryOut,
                 OverlayType,
                 Reverse2, Reverse1, ReverseOut
-            >::apply(g2, g1, out, strategy);
+            >::apply(g2, g1, rescale_policy, out, strategy);
     }
 };
 
@@ -540,35 +556,37 @@ template
     bool ReverseSecond,
     overlay_type OverlayType,
     typename Geometry1, typename Geometry2,
+    typename RescalePolicy,
     typename OutputIterator,
     typename Strategy
 >
 inline OutputIterator insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
+            RescalePolicy rescale_policy,
             OutputIterator out,
             Strategy const& strategy)
 {
     return boost::mpl::if_c
+    <
+        geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
+        geometry::dispatch::intersection_insert_reversed
         <
-            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            geometry::dispatch::intersection_insert_reversed
-            <
-                Geometry1, Geometry2,
-                GeometryOut,
-                OverlayType,
-                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value,
-                overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
-            >,
-            geometry::dispatch::intersection_insert
-            <
-                Geometry1, Geometry2,
-                GeometryOut,
-                OverlayType,
-                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
-            >
-        >::type::apply(geometry1, geometry2, out, strategy);
+            Geometry1, Geometry2,
+            GeometryOut,
+            OverlayType,
+            overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+            overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value,
+            overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
+        >,
+        geometry::dispatch::intersection_insert
+        <
+            Geometry1, Geometry2,
+            GeometryOut,
+            OverlayType,
+            geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+            geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
+        >
+    >::type::apply(geometry1, geometry2, rescale_policy, out, strategy);
 }
 
 
@@ -607,10 +625,23 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::rescale_policy_type
+            <
+                typename geometry::point_type<Geometry1>::type // TODO from both
+            >::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+#else
+        detail::no_rescale_policy rescale_policy;
+#endif
+
     return detail::intersection::insert
         <
             GeometryOut, false, overlay_intersection
-        >(geometry1, geometry2, out, strategy);
+        >(geometry1, geometry2, rescale_policy, out, strategy);
 }
 
 

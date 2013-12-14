@@ -157,9 +157,10 @@ template
 >
 struct overlay
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& )
     {
@@ -193,22 +194,6 @@ struct overlay
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         boost::timer timer;
 #endif
-
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "init rescale" << std::endl;
-#endif
-
-        typedef typename geometry::rescale_policy_type<point_type>::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
-#else
-		detail::no_rescale_policy rescale_policy;
-#endif
-
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;

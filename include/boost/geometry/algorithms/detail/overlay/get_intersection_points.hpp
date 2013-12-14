@@ -54,7 +54,7 @@ struct get_turn_without_info
                 Point1 const& pi, Point1 const& pj, Point1 const& ,
                 Point2 const& qi, Point2 const& qj, Point2 const& ,
                 TurnInfo const& ,
-                RescalePolicy const& ,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -62,8 +62,19 @@ struct get_turn_without_info
         segment_type1 p1(pi, pj);
         segment_type2 q1(qi, qj);
 
-        //
-        typename strategy::return_type result = strategy::apply(p1, q1);
+        typedef typename geometry::robust_point_type
+            <
+                Point1, RescalePolicy
+            >::type robust_point_type;
+
+        robust_point_type pi_rob, pj_rob, qi_rob, qj_rob;
+        geometry::recalculate(pi_rob, pi, rescale_policy);
+        geometry::recalculate(pj_rob, pj, rescale_policy);
+        geometry::recalculate(qi_rob, qi, rescale_policy);
+        geometry::recalculate(qj_rob, qj, rescale_policy);
+        typename strategy::return_type result
+            = strategy::apply(p1, q1,
+                              pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < result.template get<0>().count; i++)
         {
@@ -87,10 +98,12 @@ template
 <
     typename Geometry1,
     typename Geometry2,
+    typename RescalePolicy,
     typename Turns
 >
 inline void get_intersection_points(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy,
             Turns& turns)
 {
     concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
@@ -111,17 +124,6 @@ inline void get_intersection_points(Geometry1 const& geometry1,
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     detail::get_turns::no_interrupt_policy interrupt_policy;
-
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-    typedef typename geometry::point_type<Geometry1>::type point_type; // TODO
-    typedef typename geometry::rescale_policy_type<point_type>::type
-        rescale_policy_type;
-
-    rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
-#else
-    detail::no_rescale_policy rescale_policy;
-#endif
 
     boost::mpl::if_c
         <

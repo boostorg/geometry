@@ -19,6 +19,7 @@
 
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -105,73 +106,22 @@ struct relate_cartesian_segments
 #endif
 
     // Relate segments a and b
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
-    {
-        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
-        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
-        return apply(a, b, dx_a, dy_a, dx_b, dy_b);
-    }
+//    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
+//    {
+//        // TODO: rescale this and then calculate
+//        return apply(a, b, ...);
+//    }
 
-    template <typename RobustSegment>
+    // The main entry-routine, calculating intersections of segments a / b
+    template <typename RobustPoint>
     static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
-            RobustSegment const& ra, RobustSegment const& rb,
-            side_info& sides,
-            bool a_is_point, bool b_is_point)
+            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
+            RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
-        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
-        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
-        return apply(a, b, ra, rb, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
-    }
+        using geometry::detail::equals::equals_point_point;
+        bool const a_is_point = equals_point_point(robust_a1, robust_a2);
+        bool const b_is_point = equals_point_point(robust_b1, robust_b2);
 
-    // Relate segments a and b using precalculated differences.
-    // This can save two or four subtractions in many cases
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
-            coordinate_type const& dx_a, coordinate_type const& dy_a,
-            coordinate_type const& dx_b, coordinate_type const& dy_b)
-    {
-        typedef side::side_by_triangle<coordinate_type> side;
-        side_info sides;
-
-        coordinate_type const zero = 0;
-        bool const a_is_point = math::equals(dx_a, zero) && math::equals(dy_a, zero);
-        bool const b_is_point = math::equals(dx_b, zero) && math::equals(dy_b, zero);
-
-        sides.set<0>
-            (
-                side::apply(detail::get_from_index<0>(b)
-                    , detail::get_from_index<1>(b)
-                    , detail::get_from_index<0>(a)),
-                side::apply(detail::get_from_index<0>(b)
-                    , detail::get_from_index<1>(b)
-                    , detail::get_from_index<1>(a))
-            );
-        sides.set<1>
-            (
-                side::apply(detail::get_from_index<0>(a)
-                    , detail::get_from_index<1>(a)
-                    , detail::get_from_index<0>(b)),
-                side::apply(detail::get_from_index<0>(a)
-                    , detail::get_from_index<1>(a)
-                    , detail::get_from_index<1>(b))
-            );
-
-        return apply(a, b, a, b, dx_a, dy_a, dx_b, dy_b, sides, a_is_point, b_is_point);
-    }
-
-    // Relate segments a and b using precalculated differences.
-    // This can save two or four subtractions in many cases
-    template <typename RobustSegment>
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
-            RobustSegment const& , RobustSegment const& , // Will be used later
-            coordinate_type const& dx_a, coordinate_type const& dy_a,
-            coordinate_type const& dx_b, coordinate_type const& dy_b,
-            side_info& sides,
-            bool a_is_point, bool b_is_point)
-    {
         typedef side::side_by_triangle<coordinate_type> side;
 
 #if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
@@ -180,18 +130,19 @@ struct relate_cartesian_segments
 
         if(a_is_point && b_is_point)
         {
-            // TODO move this
-            if(math::equals(get<1,0>(a), get<1,0>(b)) && math::equals(get<1,1>(a), get<1,1>(b)))
-            {
-                 Policy::degenerate(a, true);
-            }
-            else
-            {
-                return Policy::disjoint();
-            }
+            return equals_point_point(robust_a1, robust_b2)
+                ? Policy::degenerate(a, true)
+                : Policy::disjoint()
+                ;
         }
 
-        bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b) >= math::abs(dy_a) + math::abs(dy_b);
+        side_info sides;
+        sides.set<0>(side::apply(robust_b1, robust_b2, robust_a1),
+                     side::apply(robust_b1, robust_b2, robust_a2));
+        sides.set<1>(side::apply(robust_a1, robust_a2, robust_b1),
+                     side::apply(robust_a1, robust_a2, robust_b2));
+
+
 
         bool collinear = sides.collinear();
 
@@ -225,6 +176,11 @@ struct relate_cartesian_segments
             <
                 coordinate_type, double
             >::type promoted_type;
+
+        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
+        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
+        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
+        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
 
         // r: ratio 0-1 where intersection divides A/B
         // (only calculated for non-collinear segments)
@@ -271,6 +227,8 @@ struct relate_cartesian_segments
 
         if(collinear)
         {
+            bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b)
+                                    >= math::abs(dy_a) + math::abs(dy_b);
             if (collinear_use_first)
             {
                 return relate_collinear<0>(a, b);

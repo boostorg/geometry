@@ -120,15 +120,16 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
+        bg::detail::no_rescale_policy rescale_policy; // TODO
         std::vector<OutputType> inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
         if (sym)
         {
-            boost::copy(array_with_one_empty_geometry, bg::detail::sym_difference::sym_difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry, bg::detail::sym_difference::sym_difference_insert<OutputType>(g1, g2, rescale_policy, std::back_inserter(inserted)));
         }
         else
         {
-            boost::copy(array_with_one_empty_geometry, bg::detail::difference::difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry, bg::detail::difference::difference_insert<OutputType>(g1, g2, rescale_policy, std::back_inserter(inserted)));
         }
 
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);

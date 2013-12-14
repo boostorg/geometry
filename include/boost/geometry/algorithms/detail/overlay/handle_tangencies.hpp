@@ -136,11 +136,10 @@ private :
         segment_type r(ri, rj);
         segment_type s(si, sj);
 
-
         // Get the intersection point (or two points)
-        segment_intersection_points<point_type> pr = policy::apply(p, r);
-        segment_intersection_points<point_type> ps = policy::apply(p, s);
-        segment_intersection_points<point_type> rs = policy::apply(r, s);
+        segment_intersection_points<point_type> pr = policy::apply(p, r, pi, pj, ri, rj);
+        segment_intersection_points<point_type> ps = policy::apply(p, s, pi, pj, si, sj);
+        segment_intersection_points<point_type> rs = policy::apply(r, s, ri, rj, si, sj);
 
         // Check on overlap
         pr_overlap = pr.count == 2;

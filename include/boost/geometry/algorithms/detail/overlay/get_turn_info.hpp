@@ -980,21 +980,6 @@ struct get_turn_info
         geometry::recalculate(qj_rob, qj, rescale_policy);
         geometry::recalculate(qk_rob, qk, rescale_policy);
 
-        typedef geometry::strategy::side::side_by_triangle<> side;
-        side_info robust_sides;
-        robust_sides.set<0>(side::apply(qi_rob, qj_rob, pi_rob),
-                            side::apply(qi_rob, qj_rob, pj_rob));
-        robust_sides.set<1>(side::apply(pi_rob, pj_rob, qi_rob),
-                            side::apply(pi_rob, pj_rob, qj_rob));
-
-        bool const p_equals = detail::equals::equals_point_point(pi_rob, pj_rob);
-        bool const q_equals = detail::equals::equals_point_point(qi_rob, qj_rob);
-
-        if (detail::equals::equals_point_point(pj_rob, pk_rob)
-            || detail::equals::equals_point_point(qj_rob, qk_rob))
-        {
-            ///std::cout << "ERROR: dup vectors" << std::endl; - this might happen e.g. for a segment
-        }
 
 #endif
 
@@ -1002,8 +987,8 @@ struct get_turn_info
 
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
-        segment_type1 p1(pi, pj), p2(pj, pk);
-        segment_type2 q1(qi, qj), q2(qj, qk);
+        segment_type1 p1(pi, pj);
+        segment_type2 q1(qi, qj);
 
 #if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         side_calculator<robust_point_type, robust_point_type> side_calc(pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob);
@@ -1021,14 +1006,7 @@ struct get_turn_info
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        typedef model::referring_segment<robust_point_type const> robust_segment_type;
-        robust_segment_type rp1(pi_rob, pj_rob);
-        robust_segment_type rq1(qi_rob, qj_rob);
-        typename strategy::return_type result = strategy::apply(p1, q1, rp1, rq1, robust_sides, p_equals, q_equals);
-#else
-        typename strategy::return_type result = strategy::apply(p1, q1);
-#endif
+        typename strategy::return_type result = strategy::apply(p1, q1, pi_rob, pj_rob, qi_rob, qj_rob);
 
         char const method = result.template get<1>().how;
 

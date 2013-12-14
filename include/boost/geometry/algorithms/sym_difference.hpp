@@ -46,11 +46,14 @@ template
     typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
+    typename RescalePolicy,
     typename OutputIterator,
     typename Strategy
 >
 inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, OutputIterator out,
+            Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy,
+            OutputIterator out,
             Strategy const& strategy)
 {
     concept::check<Geometry1 const>();
@@ -64,7 +67,7 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             overlay_difference,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, true>::value
-        >::apply(geometry1, geometry2, out, strategy);
+        >::apply(geometry1, geometry2, rescale_policy, out, strategy);
     out = geometry::dispatch::intersection_insert
         <
             Geometry2, Geometry1,
@@ -73,7 +76,7 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
             geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value, true>::value,
             geometry::detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
-        >::apply(geometry2, geometry1, out, strategy);
+        >::apply(geometry2, geometry1, rescale_policy, out, strategy);
     return out;
 }
 
@@ -97,10 +100,12 @@ template
     typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
+    typename RescalePolicy,
     typename OutputIterator
 >
 inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
-            Geometry2 const& geometry2, OutputIterator out)
+            Geometry2 const& geometry2,
+            RescalePolicy const& rescale_policy, OutputIterator out)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
@@ -114,7 +119,7 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             typename geometry::point_type<GeometryOut>::type
         > strategy_type;
 
-    return sym_difference_insert<GeometryOut>(geometry1, geometry2, out, strategy_type());
+    return sym_difference_insert<GeometryOut>(geometry1, geometry2, rescale_policy, out, strategy_type());
 }
 
 }} // namespace detail::sym_difference
@@ -150,8 +155,22 @@ inline void sym_difference(Geometry1 const& geometry1,
     typedef typename boost::range_value<Collection>::type geometry_out;
     concept::check<geometry_out>();
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::rescale_policy_type
+            <
+                typename geometry::point_type<Geometry1>::type // TODO from both
+            >::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+#else
+        detail::no_rescale_policy rescale_policy;
+#endif
+
+
     detail::sym_difference::sym_difference_insert<geometry_out>(
-            geometry1, geometry2,
+            geometry1, geometry2, rescale_policy,
             std::back_inserter(output_collection));
 }
 
