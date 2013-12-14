@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 
+#include <boost/geometry/algorithms/detail/sub_geometry.hpp>
 
 namespace boost { namespace geometry
 {
@@ -37,7 +38,7 @@ namespace boost { namespace geometry
 namespace detail { namespace touches
 {
 
-struct generic_interrupt_policy
+struct areal_interrupt_policy
 {
     static bool const enabled = true;
     bool found_touch;
@@ -51,7 +52,7 @@ struct generic_interrupt_policy
         return found_touch && !found_not_touch;
     }
 
-    inline generic_interrupt_policy()
+    inline areal_interrupt_policy()
         : found_touch(false), found_not_touch(false)
     {}
 
@@ -114,6 +115,110 @@ struct generic_interrupt_policy
     }
 };
 
+template <typename Linear>
+struct linear_areal_interrupt_policy
+{
+    static bool const enabled = true;
+    bool found_touch;
+    bool found_not_touch;
+
+    Linear const& linear;
+
+    // dummy variable required by self_get_turn_points::get_turns
+    static bool const has_intersections = false;
+
+    inline bool result()
+    {
+        return found_touch && !found_not_touch;
+    }
+
+    inline linear_areal_interrupt_policy(Linear const& l)
+        : found_touch(false), found_not_touch(false), linear(l)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
+    {
+        // if already rejected (temp workaround?)
+        if ( found_not_touch )
+            return true;
+
+        typedef typename boost::range_iterator<Range const>::type iterator;
+        for ( iterator it = boost::begin(range) ; it != boost::end(range) ; ++it )
+        {
+            if ( it->operations[0].operation == overlay::operation_intersection )
+            {
+                if ( it->operations[1].operation == overlay::operation_union &&
+                     is_turn_on_last_point(*it) )
+                {
+                    found_touch = true;
+                    continue;
+                }
+                else
+                {
+                    found_not_touch = true;
+                    return true;
+                }
+            }
+
+            switch(it->method)
+            {
+                case overlay::method_crosses:
+                    found_not_touch = true;
+                    return true;
+                case overlay::method_equal:
+                case overlay::method_touch:
+                case overlay::method_touch_interior:
+                case overlay::method_collinear:
+                    if ( ok_for_touch(*it) )
+                    {
+                        found_touch = true;
+                    }
+                    else
+                    {
+                        found_not_touch = true;
+                        return true;
+                    }
+                    break;
+                case overlay::method_none :
+                case overlay::method_disjoint :
+                case overlay::method_error :
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    template <typename Turn>
+    inline bool ok_for_touch(Turn const& turn)
+    {
+        return turn.both(overlay::operation_union)
+            || turn.both(overlay::operation_blocked)
+            || turn.combination(overlay::operation_union, overlay::operation_blocked)
+
+            || turn.both(overlay::operation_continue)
+            || turn.combination(overlay::operation_union, overlay::operation_intersection)
+            ;
+    }
+
+    template <typename Turn>
+    inline bool is_turn_on_last_point(Turn const& turn)
+    {
+        typename sub_geometry::result_type<Linear const>::type
+            g = sub_geometry::get(linear, turn.operations[0].seg_id);
+
+        std::size_t s = boost::size(g);
+
+        if ( s == 0 )
+            return false; // shouldn't return here
+        else if ( s == 1 )
+            return equals::equals_point_point(turn.point, *boost::begin(g)); // nor here
+        else
+            return equals::equals_point_point(turn.point, *(boost::end(g)-1));
+    }
+};
+
 template <std::size_t Max>
 struct turns_count_interrupt_policy
 {
@@ -161,6 +266,8 @@ struct check_each_ring_for_within
     }
 };
 
+// TODO: currently this function checks if a point of at least one range from g2 is within g1
+//       shouldn't it check the opposite?
 
 template <typename FirstGeometry, typename SecondGeometry>
 inline bool rings_containing(FirstGeometry const& geometry1,
@@ -172,9 +279,8 @@ inline bool rings_containing(FirstGeometry const& geometry1,
 }
 
 template <typename Geometry1, typename Geometry2>
-struct generic_touches
+struct areal_areal
 {
-
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
@@ -189,7 +295,7 @@ struct generic_touches
             > policy_type;
 
         std::deque<turn_info> turns;
-        detail::touches::generic_interrupt_policy policy;
+        detail::touches::areal_interrupt_policy policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
@@ -199,8 +305,37 @@ struct generic_touches
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
-            && ! geometry::detail::touches::rings_containing(geometry2, geometry1)
-            ;
+            && ! geometry::detail::touches::rings_containing(geometry2, geometry1);
+    }
+};
+
+template <typename Geometry1, typename Geometry2>
+struct linear_areal
+{
+    static inline
+    bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        typedef detail::overlay::turn_info
+            <
+                typename geometry::point_type<Geometry1>::type
+            > turn_info;
+
+        typedef detail::overlay::get_turn_info
+            <
+                detail::overlay::assign_null_policy
+            > policy_type;
+
+        std::deque<turn_info> turns;
+        detail::touches::linear_areal_interrupt_policy<Geometry1> policy(geometry1);
+        boost::geometry::get_turns
+                <
+                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                    detail::overlay::assign_null_policy
+                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+
+        return policy.result()
+            && ! geometry::detail::touches::rings_containing(geometry2, geometry1);
     }
 };
 
@@ -281,7 +416,7 @@ template
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct touches
-    : detail::touches::generic_touches<Geometry1, Geometry2>
+    : detail::touches::areal_areal<Geometry1, Geometry2>
 {};
 
 // If reversal is needed, perform it
@@ -307,6 +442,11 @@ struct touches<Point, Geometry, point_tag, Tag2, false>
 template <typename Linestring1, typename Linestring2>
 struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag, false>
     : detail::touches::linestring_linestring<Linestring1, Linestring2>
+{};
+
+template <typename Linestring, typename Polygon>
+struct touches<Linestring, Polygon, linestring_tag, polygon_tag, false>
+    : detail::touches::linear_areal<Linestring, Polygon>
 {};
 
 } // namespace dispatch
@@ -341,7 +481,7 @@ inline bool touches(Geometry const& geometry)
         > policy_type;
 
     std::deque<turn_info> turns;
-    detail::touches::generic_interrupt_policy policy;
+    detail::touches::areal_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
                 policy_type
