@@ -209,6 +209,50 @@ struct copy_segments
         >
 {};
 
+// adapted from now refactored point_in_ring
+struct point_in_buffered_ring
+{
+    template
+    <
+        typename Point,
+        typename Ring,
+        typename Strategy
+    >
+    static inline int apply(Point const& point, Ring const& ring,
+            Strategy const& strategy)
+    {
+        boost::ignore_unused_variable_warning(strategy);
+
+        if (boost::size(ring) < 4u)
+        {
+            return -1;
+        }
+
+// TODO: if this code is, in the end, still used, adapt for open/ccw rings
+//       Currently it is apparently not used
+//        order_as_direction
+//            <
+//                geometry::point_order<MultiGeometry>::value
+//            >::value,
+//        geometry::closure<MultiGeometry>::value,
+
+        typedef typename boost::range_iterator<Ring const>::type iterator_type;
+        typename Strategy::state_type state;
+        iterator_type it = boost::begin(ring);
+
+        for (iterator_type previous = it++;
+            it != boost::end(ring);
+            ++previous, ++it)
+        {
+            if (! strategy.apply(point, *previous, *it, state))
+            {
+                break;
+            }
+        }
+
+        return strategy.result(state);
+    }
+};
 
 
 template <typename Point, typename MultiGeometry>
@@ -229,19 +273,7 @@ struct within
                 Point,
                 MultiGeometry,
                 Strategy,
-                detail::within::point_in_ring
-                        <
-                            Point,
-                            typename boost::range_value<MultiGeometry>::type,
-                            //iterate_forward,
-                            //closed,
-                            order_as_direction
-                                <
-                                    geometry::point_order<MultiGeometry>::value
-                                >::value,
-                            geometry::closure<MultiGeometry>::value,
-                            Strategy
-                        >
+                point_in_buffered_ring
             >::apply(point, multi, strategy) == 1;
     }
 };
