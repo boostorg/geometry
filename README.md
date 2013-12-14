@@ -1,4 +1,4 @@
-![Boost.Geometry](https://raw.github.com/boostorg/geometry/develop/doc/other/logo/logo_bkg.png)
+![Boost.Geometry](./doc/other/logo/logo_bkg.png)
 
 Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), defines concepts, primitives and algorithms for solving geometry problems.
 
