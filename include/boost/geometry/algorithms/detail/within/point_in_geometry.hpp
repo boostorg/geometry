@@ -66,10 +66,10 @@ template <typename Box>
 struct point_in_geometry_dispatch<Box, box_tag>
 {
     template <typename Point, typename Strategy> static inline
-    int apply(Point const& pt, Box const& box, Strategy const& strategy)
+    int apply(Point const& point, Box const& box, Strategy const& strategy)
     {
         // this is different Strategy concept than the one used for ranges
-        return strategy.apply(pt, box);
+        return strategy.apply(point, box);
     }
 };
 
@@ -77,26 +77,26 @@ template <typename Linestring>
 struct point_in_geometry_dispatch<Linestring, linestring_tag>
 {
     template <typename Point, typename Strategy> static inline
-    int apply(Point const& pt, Linestring const& ls, Strategy const& strategy)
+    int apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
     {
-        std::size_t count = boost::size(ls);
+        std::size_t count = boost::size(linestring);
         if ( 2 <= count )
         {
-            if ( 0 != detail::within::point_in_range(pt, ls, strategy) )
+            if ( 0 != detail::within::point_in_range(point, linestring, strategy) )
                 return -1;
 
             // if the linestring doesn't have a boundary
-            if ( detail::equals::equals_point_point(*boost::begin(ls), *(--boost::end(ls))) )
+            if ( detail::equals::equals_point_point(*boost::begin(linestring), *(--boost::end(linestring))) )
                 return 1;
             // else if the point is equal to the one of the terminal points
-            else if ( detail::equals::equals_point_point(pt, *boost::begin(ls))
-                   || detail::equals::equals_point_point(pt, *(--boost::end(ls))) )
+            else if ( detail::equals::equals_point_point(point, *boost::begin(linestring))
+                   || detail::equals::equals_point_point(point, *(--boost::end(linestring))) )
                 return 0;
             else
                 return 1;
         }
         else if ( 1 == count
-               && detail::equals::equals_point_point(pt, *boost::begin(ls)) )
+               && detail::equals::equals_point_point(point, *boost::begin(linestring)) )
             return 0;
 
         return -1;
@@ -137,18 +137,18 @@ template <typename Polygon>
 struct point_in_geometry_dispatch<Polygon, polygon_tag>
 {
     template <typename Point, typename Strategy>
-    static inline int apply(Point const& point, Polygon const& poly,
+    static inline int apply(Point const& point, Polygon const& polygon,
                             Strategy const& strategy)
     {
         int const code = point_in_geometry_dispatch
             <
                 typename ring_type<Polygon>::type
-            >::apply(point, exterior_ring(poly), strategy);
+            >::apply(point, exterior_ring(polygon), strategy);
 
         if (code == 1)
         {
             typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(poly);
+                        = interior_rings(polygon);
             for (BOOST_AUTO_TPL(it, boost::begin(rings));
                 it != boost::end(rings);
                 ++it)
@@ -174,26 +174,26 @@ struct point_in_geometry_dispatch<Polygon, polygon_tag>
 // 1 - in the interior
 // 0 - in the boundry
 // -1 - in the exterior
-template <typename P, typename G, typename Strategy> inline
-int point_in_geometry(P const& p, G const& g, Strategy const& strategy)
+template <typename Point, typename Geometry, typename Strategy> inline
+int point_in_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
 {
     BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
 
-    return point_in_geometry_dispatch<G>::apply(p, g, strategy);
+    return point_in_geometry_dispatch<Geometry>::apply(point, geometry, strategy);
 }
 
-template <typename P, typename G> inline
-int point_in_geometry(P const& p, G const& g)
+template <typename Point, typename Geometry> inline
+int point_in_geometry(Point const& point, Geometry const& geometry)
 {
-    typedef typename point_type<P>::type point_type1;
-    typedef typename point_type<G>::type point_type2;
+    typedef typename point_type<Point>::type point_type1;
+    typedef typename point_type<Geometry>::type point_type2;
 
     typedef typename strategy::within::services::default_strategy
         <
-            typename tag<P>::type,
-            typename tag<G>::type,
-            typename tag<P>::type,
-            typename tag_cast<typename tag<G>::type, areal_tag>::type,
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag<Point>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
             typename tag_cast
                 <
                     typename cs_tag<point_type1>::type, spherical_tag
@@ -202,11 +202,11 @@ int point_in_geometry(P const& p, G const& g)
                 <
                     typename cs_tag<point_type2>::type, spherical_tag
                 >::type,
-            P,
-            G
+            Point,
+            Geometry
         >::type strategy_type;
 
-    return point_in_geometry(p, g, strategy_type());
+    return point_in_geometry(point, geometry, strategy_type());
 }
 
 }} // namespace detail::within
