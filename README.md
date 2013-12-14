@@ -6,7 +6,7 @@ Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.co
 
 * **doc** - QuickBook documentation sources
 * **examples** - Boost.Geometry examples
-* **extensions** - examples and tests for the extensions
+* **_extensions_** - examples and tests for the extensions - _develop branch_
 * **include** - the sourcecode of Boost.Geometry
 * **index** - examples and tests for the Spatial Index
 * **test** - Boost.Geometry unit tests
