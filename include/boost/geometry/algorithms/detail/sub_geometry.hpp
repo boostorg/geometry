@@ -81,7 +81,13 @@ struct get<Geometry, polygon_tag, false>
 template <typename Geometry, typename Tag>
 struct get<Geometry, Tag, true>
 {
-    typedef typename boost::range_value<Geometry>::type sub_type;
+    typedef typename boost::range_value<Geometry>::type value_type;
+    typedef typename boost::mpl::if_c
+        <
+            boost::is_const<Geometry>::value,
+            typename boost::add_const<value_type>::type,
+            value_type
+        >::type sub_type;
     typedef detail_dispatch::sub_geometry::get<sub_type> get_type;
     typedef typename get_type::result_type result_type;
 

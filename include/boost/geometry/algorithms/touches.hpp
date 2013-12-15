@@ -408,25 +408,29 @@ struct linestring_linestring
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch {
 
+// TODO: Since CastedTags are used is Reverse needed?
+
 template
 <
     typename Geometry1, typename Geometry2,
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type,
+    typename CastedTag1 = typename tag_cast<Tag1, point_tag, linear_tag, areal_tag>::type,
+    typename CastedTag2 = typename tag_cast<Tag2, point_tag, linear_tag, areal_tag>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct touches
-    : detail::touches::areal_areal<Geometry1, Geometry2>
+struct touches : not_implemented<Tag1, Tag2>
 {};
 
 // If reversal is needed, perform it
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1, typename Tag2
+    typename Tag1, typename Tag2,
+    typename CastedTag1, typename CastedTag2
 >
-struct touches<Geometry1, Geometry2, Tag1, Tag2, true>
-    : touches<Geometry2, Geometry1, Tag2, Tag1, false>
+struct touches<Geometry1, Geometry2, Tag1, Tag2, CastedTag1, CastedTag2, true>
+    : touches<Geometry2, Geometry1, Tag2, Tag1, CastedTag2, CastedTag1, false>
 {
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
     {
@@ -434,19 +438,52 @@ struct touches<Geometry1, Geometry2, Tag1, Tag2, true>
     }
 };
 
-template <typename Point, typename Geometry, typename Tag2>
-struct touches<Point, Geometry, point_tag, Tag2, false>
+// touches(Pt, Pt), touches(Pt, MPt), touches(MPt, MPt)
+template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
+struct touches<Geometry1, Geometry2, Tag1, Tag2, point_tag, point_tag, false>
+    : detail::touches::point_geometry<Geometry1, Geometry2>
+{
+    static inline bool apply(Geometry1 const& , Geometry2 const& )
+    {
+        return false;
+    }
+};
+
+// touches(Point, Linear), touches(Point, Areal)
+template <typename Point, typename Geometry, typename Tag2, typename CastedTag2>
+struct touches<Point, Geometry, point_tag, Tag2, point_tag, CastedTag2, false>
     : detail::touches::point_geometry<Point, Geometry>
 {};
 
+// TODO: support touches(MPt, Linear/Areal)
+
+// touches(Linestring, Linestring)
 template <typename Linestring1, typename Linestring2>
-struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag, false>
+struct touches<Linestring1, Linestring2, linestring_tag, linestring_tag, linear_tag, linear_tag, false>
     : detail::touches::linestring_linestring<Linestring1, Linestring2>
 {};
 
-template <typename Linestring, typename Polygon>
-struct touches<Linestring, Polygon, linestring_tag, polygon_tag, false>
-    : detail::touches::linear_areal<Linestring, Polygon>
+// TODO: support touches(MLs, MLs) and touches(Ls, MLs)
+
+// touches(Linear, Areal)
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
+    : detail::touches::linear_areal<Linear, Areal>
+{};
+// e.g. for touches(Poly, MLs)
+template <typename Areal, typename Linear, typename Tag1, typename Tag2>
+struct touches<Areal, Linear, Tag1, Tag2, areal_tag, linear_tag, false>
+{
+    static inline bool apply(Areal const& areal, Linear const& linear)
+    {
+        return detail::touches::linear_areal<Linear, Areal>::apply(linear, areal);
+    }
+};
+
+// touches(Areal, Areal)
+template <typename Areal1, typename Areal2, typename Tag1, typename Tag2>
+struct touches<Areal1, Areal2, Tag1, Tag2, areal_tag, areal_tag, false>
+    : detail::touches::areal_areal<Areal1, Areal2>
 {};
 
 } // namespace dispatch
