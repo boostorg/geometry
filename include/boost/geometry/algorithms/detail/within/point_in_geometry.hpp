@@ -83,9 +83,9 @@ struct point_in_geometry<Linestring, linestring_tag>
     int apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
     {
         std::size_t count = boost::size(linestring);
-        if ( 2 <= count )
+        if ( count > 1 )
         {
-            if ( 0 != detail::within::point_in_range(point, linestring, strategy) )
+            if ( detail::within::point_in_range(point, linestring, strategy) != 0 )
                 return -1;
 
             // if the linestring doesn't have a boundary
@@ -98,9 +98,9 @@ struct point_in_geometry<Linestring, linestring_tag>
             else
                 return 1;
         }
-        else if ( 1 == count
-               && detail::equals::equals_point_point(point, *boost::begin(linestring)) )
-            return 0;
+//        else if ( count == 1
+//               && detail::equals::equals_point_point(point, *boost::begin(linestring)) )
+//            return 0;
 
         return -1;
     }

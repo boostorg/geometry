@@ -91,12 +91,17 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
 
             point_type const& front = *boost::begin(*it);
             point_type const& back = *(--boost::end(*it));
-            // is closed_ring
+
+            // is closed_ring - no boundary
             if ( detail::equals::equals_point_point(front, back) )
                 continue;
+
+            // is point on boundary
             if ( detail::equals::equals_point_point(point, front)
               || detail::equals::equals_point_point(point, back) )
+            {
                 ++boundaries;
+            }
         }
 
         // if the number of boundaries is odd, the point is on the boundary
