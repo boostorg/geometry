@@ -58,6 +58,9 @@ void test_all()
     test_geometry<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
 
+    test_geometry<box_type, box_type>("BOX(1 1,3 3)", "BOX(0 0,3 3)", true);
+    test_geometry<box_type, box_type>("BOX(3 1,3 3)", "BOX(0 0,3 3)", false);
+
     /*
     test_within_code<P, box_type>("POINT(1 1)", "BOX(0 0,2 2)", 1);
     test_within_code<P, box_type>("POINT(1 0)", "BOX(0 0,2 2)", 0);
@@ -223,12 +226,17 @@ void test_strategy()
     typedef bg::model::box<point_type> box_type;
     point_type p(3, 3);
     box_type b(point_type(0, 0), point_type(5, 5));
+    box_type b0(point_type(0, 0), point_type(5, 0));
 
     bool r = bg::within(p, b,
         bg::strategy::within::point_in_box<point_type, box_type>());
     BOOST_CHECK_EQUAL(r, true);
 
     r = bg::within(b, b,
+        bg::strategy::within::box_in_box<box_type, box_type>());
+    BOOST_CHECK_EQUAL(r, true);
+
+    r = bg::within(b0, b0,
         bg::strategy::within::box_in_box<box_type, box_type>());
     BOOST_CHECK_EQUAL(r, false);
 
