@@ -88,7 +88,8 @@ struct direction_type
 
     // New information
     side_info sides;
-    int arrival[2]; // 1=arrival, -1departure, 0=neutral; == how_a//how_b
+    // THIS IS EQUAL TO arrival_a, arrival_b - they probably can go now we have robust fractions
+    int arrival[2]; // 1=arrival, -1=departure, 0=neutral; == how_a//how_b
 
 
     // About arrival[0] (== arrival of a2 w.r.t. b) for COLLINEAR cases
@@ -126,11 +127,9 @@ struct segments_direction
     typedef typename select_most_precise<coordinate_type, double>::type rtype;
 
 
-    template <typename R>
+    template <typename SegmentIntersectionInfo>
     static inline return_type segments_intersect(side_info const& sides,
-                    R const&,
-                    coordinate_type const& , coordinate_type const& ,
-                    coordinate_type const& , coordinate_type const& ,
+                    SegmentIntersectionInfo const& ,
                     S1 const& , S2 const& )
     {
         bool const ra0 = sides.get<0,0>() == 0;
@@ -186,31 +185,62 @@ struct segments_direction
             : return_type(sides, arrival_a == 0 ? 't' : 'f', arrival_a, arrival_b, 0, 0, true);
     }
 
-    template <typename S>
-    static inline return_type collinear_interior_boundary_intersect(S const& , bool,
-                    int arrival_a, int arrival_b, bool opposite)
+    // TODO: segment_ratio
+    template <typename Ratio>
+    static inline bool on_segment(Ratio const& r)
+    {
+        static Ratio const zero(0, 1);
+        static Ratio const one(1, 1);
+        return r >= zero && r <= one;
+    }
+    template <typename Ratio>
+    static inline bool in_segment(Ratio const& r)
+    {
+        static Ratio const zero(0, 1);
+        static Ratio const one(1, 1);
+        return r > zero && r < one;
+    }
+
+    template <typename Ratio>
+    static inline int arrival_value(Ratio const& r_from, Ratio const& r_to)
+    {
+        //     a1--------->a2
+        // b1----->b2
+        // a departs: -1
+
+        // a1--------->a2
+        //         b1----->b2
+        // a arrives: 1
+
+        // a1--------->a2
+        //     b1----->b2
+        // both arrive there -> r-to = 1/1, or 0/1 (on_segment)
+
+        // First check the TO (for arrival), then FROM (for departure)
+        return in_segment(r_to) ? 1
+            : on_segment(r_to) ? 0
+            : on_segment(r_from) ? -1
+            : 0
+            ;
+    }
+
+    template <typename Segment1, typename Segment2, typename Ratio>
+    static inline return_type collinear_two_intersection_points(
+        Segment1 const& a, Segment2 const& b,
+        Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
+        Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a,
+        bool opposite)
     {
         return_type r('c', opposite);
-        r.arrival[0] = arrival_a;
-        r.arrival[1] = arrival_b;
+
+        // IMPORTANT: the order of conditions is different as in intersection_points.hpp
+        // We assign A in 0 and B in 1
+        r.arrival[0] = arrival_value(ra_from_wrt_b, ra_to_wrt_b);
+        r.arrival[1] = arrival_value(rb_from_wrt_a, rb_to_wrt_a);
         return r;
     }
 
-    static inline return_type collinear_a_in_b(S1 const& , bool opposite)
-    {
-        return_type r('c', opposite);
-        r.arrival[0] = 1;
-        r.arrival[1] = -1;
-        return r;
-    }
-    static inline return_type collinear_b_in_a(S2 const& , bool opposite)
-    {
-        return_type r('c', opposite);
-        r.arrival[0] = -1;
-        r.arrival[1] = 1;
-        return r;
-    }
-
+#if 0
     static inline return_type collinear_overlaps(
                     coordinate_type const& , coordinate_type const& ,
                     coordinate_type const& , coordinate_type const& ,
@@ -221,6 +251,7 @@ struct segments_direction
         r.arrival[1] = arrival_b;
         return r;
     }
+#endif
 
     static inline return_type segment_equal(S1 const& , bool opposite)
     {

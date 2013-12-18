@@ -79,9 +79,9 @@ template
     bool Reverse1, bool Reverse2,
     typename Strategy
 >
-struct sort_on_segment_and_distance
+struct sort_on_segment_and_ratio
 {
-    inline sort_on_segment_and_distance(TurnPoints const& turn_points
+    inline sort_on_segment_and_ratio(TurnPoints const& turn_points
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
             , Strategy const& strategy
@@ -157,9 +157,13 @@ public :
         if (sl == sr)
         {
             // Both left and right are located on the SAME segment.
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+            if (left.subject.fraction == right.subject.fraction)
+#else
             typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
             coordinate_type diff = geometry::math::abs(left.subject.enriched.distance - right.subject.enriched.distance);
             if (diff < geometry::math::relaxed_epsilon<coordinate_type>(10))
+#endif
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
@@ -173,13 +177,12 @@ public :
                 // Indicate that this is necessary.
                 *m_clustered = true;
 
-                return left.subject.enriched.distance < right.subject.enriched.distance;
+                return left.subject.fraction < right.subject.fraction;
             }
         }
         return sl == sr
-            ? left.subject.enriched.distance < right.subject.enriched.distance
+            ? left.subject.fraction < right.subject.fraction
             : sl < sr;
-
     }
 };
 
@@ -232,7 +235,7 @@ inline void enrich_sort(Container& operations,
     bool clustered = false;
     std::sort(boost::begin(operations),
                 boost::end(operations),
-                sort_on_segment_and_distance
+                sort_on_segment_and_ratio
                     <
                         TurnPoints,
                         IndexType,

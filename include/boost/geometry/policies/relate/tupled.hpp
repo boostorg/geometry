@@ -49,19 +49,15 @@ struct segments_tupled
     // Get the same type, but at least a double
     typedef typename select_most_precise<coordinate_type, double>::type rtype;
 
-    template <typename R>
+    template <typename SegmentIntersectionInfo>
     static inline return_type segments_intersect(side_info const& sides,
-                    R const& r,
-                    coordinate_type const& dx1, coordinate_type const& dy1,
-                    coordinate_type const& dx2, coordinate_type const& dy2,
+                    SegmentIntersectionInfo const& sinfo,
                     segment_type1 const& s1, segment_type2 const& s2)
     {
         return boost::make_tuple
             (
-                Policy1::segments_intersect(sides, r,
-                    dx1, dy1, dx2, dy2, s1, s2),
-                Policy2::segments_intersect(sides, r,
-                    dx1, dy1, dx2, dy2, s1, s2)
+                Policy1::segments_intersect(sides, sinfo, s1, s2),
+                Policy2::segments_intersect(sides, sinfo, s1, s2)
             );
     }
 
@@ -75,47 +71,16 @@ struct segments_tupled
             );
     }
 
-    template <typename S>
-    static inline return_type collinear_interior_boundary_intersect(S const& segment,
-                bool a_within_b,
-                int arrival_a, int arrival_b, bool opposite)
+    template <typename Segment1, typename Segment2, typename Ratio>
+    static inline return_type collinear_two_intersection_points(
+        Segment1 const& segment1, Segment2 const& segment2,
+        Ratio const& ra1, Ratio const& ra2, Ratio const& rb1, Ratio const& rb2,
+        bool opposite)
     {
         return boost::make_tuple
             (
-                Policy1::collinear_interior_boundary_intersect(segment, a_within_b, arrival_a, arrival_b, opposite),
-                Policy2::collinear_interior_boundary_intersect(segment, a_within_b, arrival_a, arrival_b, opposite)
-            );
-    }
-
-    static inline return_type collinear_a_in_b(segment_type1 const& segment,
-                bool opposite)
-    {
-        return boost::make_tuple
-            (
-                Policy1::collinear_a_in_b(segment, opposite),
-                Policy2::collinear_a_in_b(segment, opposite)
-            );
-    }
-    static inline return_type collinear_b_in_a(segment_type2 const& segment,
-                    bool opposite)
-    {
-        return boost::make_tuple
-            (
-                Policy1::collinear_b_in_a(segment, opposite),
-                Policy2::collinear_b_in_a(segment, opposite)
-            );
-    }
-
-
-    static inline return_type collinear_overlaps(
-                    coordinate_type const& x1, coordinate_type const& y1,
-                    coordinate_type const& x2, coordinate_type const& y2,
-                    int arrival_a, int arrival_b, bool opposite)
-    {
-        return boost::make_tuple
-            (
-                Policy1::collinear_overlaps(x1, y1, x2, y2, arrival_a, arrival_b, opposite),
-                Policy2::collinear_overlaps(x1, y1, x2, y2, arrival_a, arrival_b, opposite)
+                Policy1::collinear_two_intersection_points(segment1, segment2, ra1, ra2, rb1, rb2, opposite),
+                Policy2::collinear_two_intersection_points(segment1, segment2, ra1, ra2, rb1, rb2, opposite)
             );
     }
 

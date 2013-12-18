@@ -31,6 +31,8 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
+typedef boost::rational<boost::long_long_type> ratio_type;
+
 template <typename IntersectionPoints>
 static int check(IntersectionPoints const& is,
                 std::size_t index, double expected_x, double expected_y)
@@ -58,6 +60,8 @@ static void test_segment_intersection(std::string const& case_id,
                 int expected_x2 = -99, int expected_y2 = -99)
 
 {
+    boost::ignore_unused_variable_warning(case_id);
+
     typedef typename bg::coordinate_type<P>::type coordinate_type;
     typedef bg::model::referring_segment<const P> segment_type;
 
@@ -80,7 +84,7 @@ static void test_segment_intersection(std::string const& case_id,
                     segment_type,
                     bg::segment_intersection_points<P>
                 >
-        >::apply(s12, s34);
+        >::apply(s12, s34, p1, p2, p3, p4);
 
     // Get just a character for Left/Right/intersects/etc, purpose is more for debugging
     bg::policies::relate::direction_type dir
@@ -91,9 +95,9 @@ static void test_segment_intersection(std::string const& case_id,
                     segment_type,
                     segment_type
                 >
-        >::apply(s12, s34);
+        >::apply(s12, s34, p1, p2, p3, p4);
 
-    int expected_count =
+    std::size_t expected_count =
         check(is, 0, expected_x1, expected_y1)
         + check(is, 1, expected_x2, expected_y2);
 
@@ -102,6 +106,53 @@ static void test_segment_intersection(std::string const& case_id,
     BOOST_CHECK_EQUAL(dir.opposite, expected_opposite);
     BOOST_CHECK_EQUAL(dir.arrival[0], expected_arrival1);
     BOOST_CHECK_EQUAL(dir.arrival[1], expected_arrival2);
+}
+
+template <typename P>
+static void test_segment_ratio(std::string const& case_id,
+                int x1, int y1, int x2, int y2,
+                int x3, int y3, int x4, int y4,
+                ratio_type expected_a1, ratio_type expected_a2,
+                ratio_type expected_b1, ratio_type expected_b2,
+                int exp_ax1, int exp_ay1, int exp_ax2, int exp_ay2)
+
+{
+    boost::ignore_unused_variable_warning(case_id);
+
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
+    typedef bg::model::referring_segment<const P> segment_type;
+
+    P p1, p2, p3, p4;
+    bg::assign_values(p1, x1, y1);
+    bg::assign_values(p2, x2, y2);
+    bg::assign_values(p3, x3, y3);
+    bg::assign_values(p4, x4, y4);
+
+    segment_type s12(p1, p2);
+    segment_type s34(p3, p4);
+
+    // Get the intersection point (or two points)
+    bg::segment_intersection_points<P> is
+        = bg::strategy::intersection::relate_cartesian_segments
+        <
+            bg::policies::relate::segments_intersection_points
+                <
+                    segment_type,
+                    segment_type,
+                    bg::segment_intersection_points<P>
+                >
+        >::apply(s12, s34, p1, p2, p3, p4);
+
+    BOOST_CHECK_EQUAL(is.count, 2u);
+    BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
+    BOOST_CHECK_EQUAL(is.fractions[1].robust_ra, expected_a2);
+    BOOST_CHECK_EQUAL(is.fractions[0].robust_rb, expected_b1);
+    BOOST_CHECK_EQUAL(is.fractions[1].robust_rb, expected_b2);
+
+    BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[0]), exp_ax1);
+    BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[0]), exp_ay1);
+    BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[1]), exp_ax2);
+    BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[1]), exp_ay2);
 }
 
 
@@ -139,7 +190,7 @@ void test_all()
     test_segment_intersection<P>("n4",
         2, 0, 6, 0,
         3, 0, 5, 0,
-        'c', false, -1, 1,
+        'c', false, 0, 1, // VALUE ADAPTED! a did not depart or arrive in b
         3, 0, 5, 0);
 
     //       a1---------->a2
@@ -196,7 +247,7 @@ void test_all()
     test_segment_intersection<P>("o4",
         2, 0, 6, 0,
         5, 0, 3, 0,
-        'c', true, -1, 1,
+        'c', true, 0, 1, // VALUE ADAPTED see above
         3, 0, 5, 0);
 
     //       a1---------->a2
@@ -249,8 +300,191 @@ void test_all()
 
 }
 
+
+template <typename P>
+void test_ratios()
+{
+    // B inside A
+    //       a1------------>a2
+    //          b1--->b2
+    test_segment_ratio<P>("n4",
+        2, 0, 7, 0,
+        3, 0, 5, 0,
+        ratio_type(1, 5), ratio_type(3, 5), // IP located on 1/5, 3/5 w.r.t A
+        ratio_type(0, 1), ratio_type(1, 1), // IP located on 0, 1 w.r.t. B
+        // IP's are ordered as in A (currently)
+        3, 0, 5, 0);
+
+    //       a1------------>a2
+    //           b2<---b1
+    test_segment_ratio<P>("o4",
+        2, 0, 7, 0,
+        5, 0, 3, 0,
+        ratio_type(1, 5), ratio_type(3, 5),
+        ratio_type(1, 1), ratio_type(0, 1),
+        3, 0, 5, 0);
+
+    //       a2<------------a1
+    //           b2<---b1
+    test_segment_ratio<P>("o4b",
+        7, 0, 2, 0,
+        5, 0, 3, 0,
+        ratio_type(2, 5), ratio_type(4, 5),
+        ratio_type(0, 1), ratio_type(1, 1),
+        5, 0, 3, 0);
+
+    //       a2<------------a1
+    //          b1--->b2
+    test_segment_ratio<P>("o4c",
+        7, 0, 2, 0,
+        3, 0, 5, 0,
+        ratio_type(2, 5), ratio_type(4, 5),
+        ratio_type(1, 1), ratio_type(0, 1),
+        5, 0, 3, 0);
+
+    // Touch-interior
+    //       a1---------->a2
+    //       b1--->b2
+    test_segment_ratio<P>("n3",
+        2, 0, 7, 0,
+        2, 0, 4, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(0, 1), ratio_type(1, 1),
+        2, 0, 4, 0);
+
+    //    a2<-------------a1
+    //             b2<----b1
+    test_segment_ratio<P>("n3b",
+        7, 0, 2, 0,
+        7, 0, 5, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(0, 1), ratio_type(1, 1),
+        7, 0, 5, 0);
+
+
+    // A inside B
+    //          a1--->a2
+    //       b1------------>b2
+    test_segment_ratio<P>("rn4",
+        3, 0, 5, 0,
+        2, 0, 7, 0,
+        ratio_type(0, 1), ratio_type(1, 1),
+        ratio_type(1, 5), ratio_type(3, 5),
+        3, 0, 5, 0);
+
+    //           a2<---a1
+    //       b1------------>b2
+    test_segment_ratio<P>("ro4",
+        5, 0, 3, 0,
+        2, 0, 7, 0,
+        ratio_type(0, 1), ratio_type(1, 1),
+        ratio_type(3, 5), ratio_type(1, 5),
+        5, 0, 3, 0);
+
+    //           a2<---a1
+    //       b2<------------b1
+    test_segment_ratio<P>("ro4b",
+        5, 0, 3, 0,
+        7, 0, 2, 0,
+        ratio_type(0, 1), ratio_type(1, 1),
+        ratio_type(2, 5), ratio_type(4, 5),
+        5, 0, 3, 0);
+
+    //          a1--->a2
+    //       b2<------------b1
+    test_segment_ratio<P>("ro4c",
+        3, 0, 5, 0,
+        7, 0, 2, 0,
+        ratio_type(0, 1), ratio_type(1, 1),
+        ratio_type(4, 5), ratio_type(2, 5),
+        3, 0, 5, 0);
+
+    // B inside A, boundaries intersect
+    // We change the coordinates a bit (w.r.t. n3 above) to have it asymmetrical
+    //       a1---------->a2
+    //       b1--->b2
+    test_segment_ratio<P>("n3",
+        2, 0, 7, 0,
+        2, 0, 4, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(0, 1), ratio_type(1, 1),
+        2, 0, 4, 0);
+
+    //       a1---------->a2
+    //       b2<---b1
+    test_segment_ratio<P>("o3",
+        2, 0, 7, 0,
+        4, 0, 2, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(1, 1), ratio_type(0, 1),
+        2, 0, 4, 0);
+
+    //       a1---------->a2
+    //              b1--->b2
+    test_segment_ratio<P>("n5",
+        2, 0, 7, 0,
+        5, 0, 7, 0,
+        ratio_type(3, 5), ratio_type(1, 1),
+        ratio_type(0, 1), ratio_type(1, 1),
+        5, 0, 7, 0);
+
+    //       a1---------->a2
+    //              b2<---b1
+    test_segment_ratio<P>("o5",
+        2, 0, 7, 0,
+        7, 0, 5, 0,
+        ratio_type(3, 5), ratio_type(1, 1),
+        ratio_type(1, 1), ratio_type(0, 1),
+        5, 0, 7, 0);
+
+    // Generic (overlaps)
+    //       a1---------->a2
+    //    b1----->b2
+    test_segment_ratio<P>("n2",
+        2, 0, 7, 0,
+        1, 0, 4, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(1, 3), ratio_type(1, 1),
+        2, 0, 4, 0);
+
+    // Same, b reversed
+    test_segment_ratio<P>("n2_b",
+        2, 0, 7, 0,
+        4, 0, 1, 0,
+        ratio_type(0, 1), ratio_type(2, 5),
+        ratio_type(2, 3), ratio_type(0, 1),
+        2, 0, 4, 0);
+
+    // Same, both reversed
+    test_segment_ratio<P>("n2_c",
+        7, 0, 2, 0,
+        4, 0, 1, 0,
+        ratio_type(3, 5), ratio_type(1, 1),
+        ratio_type(0, 1), ratio_type(2, 3),
+        4, 0, 2, 0);
+
+    //       a1---------->a2
+    //                 b1----->b2
+    test_segment_ratio<P>("n6",
+        2, 0, 6, 0,
+        5, 0, 8, 0,
+        ratio_type(3, 4), ratio_type(1, 1),
+        ratio_type(0, 1), ratio_type(1, 3),
+        5, 0, 6, 0);
+
+    // Vertical one like in box_poly5 but in integer
+    test_segment_ratio<P>("box_poly5",
+        45, 25, 45, 15,
+        45, 22, 45, 19,
+        ratio_type(3, 10), ratio_type(6, 10),
+        ratio_type(0, 1), ratio_type(1, 1),
+        45, 22, 45, 19);
+}
+
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    // We don't rescale but use integer points as, by nature, robust points
+    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_ratios<bg::model::point<int, 2, bg::cs::cartesian> >();
     return 0;
 }

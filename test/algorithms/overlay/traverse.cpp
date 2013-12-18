@@ -236,7 +236,7 @@ struct test_traverse
 
             BOOST_FOREACH(turn_info const& turn, turns)
             {
-                int lineheight = 10;
+                int lineheight = 8;
                 mapper.map(turn.point, "fill:rgb(255,128,0);"
                         "stroke:rgb(0,0,0);stroke-width:1", 3);
 
@@ -252,7 +252,7 @@ struct test_traverse
                             boost::numeric_cast<int>(half
                                 + ten * bg::get<1>(turn.point))
                             );
-                std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:10px";
+                std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
 
                 if (turn.discarded)
                 {
@@ -272,6 +272,9 @@ struct test_traverse
                         << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                         << std::endl;
 
+                    out << "r: " << turn.operations[0].fraction
+                        << " ; " << turn.operations[1].fraction
+                        << std::endl;
                     if (turn.operations[0].enriched.next_ip_index != -1)
                     {
                         out << "ip: " << turn.operations[0].enriched.next_ip_index;
@@ -695,9 +698,12 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     test_traverse<polygon, polygon, operation_union>::apply("72",
         1, 10.65, case_72[0], case_72[1]);
 
-
-
     // other
+    test_traverse<polygon, polygon, operation_union>::apply("box_poly5",
+            2, 4.7191,
+            "POLYGON((1.5 1.5, 1.5 2.5, 4.5 2.5, 4.5 1.5, 1.5 1.5))",
+            "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2,3.7 1.6,3.4 2,4.1 2.5,4.5 2.5,4.5 2.3,5.0 2.3,5.0 2.1,4.5 2.1,4.5 1.9,4.0 1.9,4.5 1.2,4.9 0.8,2.9 0.7,2 1.3))");
+
     test_traverse<polygon, polygon, operation_intersection>::apply("collinear_overlaps",
         1, 24,
         collinear_overlaps[0], collinear_overlaps[1]);
@@ -783,11 +789,9 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             test_traverse<polygon, polygon, operation_intersection>::apply("hv6", 1, 1604.6318757402121, hv_6[0], hv_6[1], deviation);
             test_traverse<polygon, polygon, operation_union>::apply("hv6", 1, 1790.091872401327, hv_6[0], hv_6[1], deviation);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             // Case 2009-12-08, needing sorting on side in enrich_intersection_points
             test_traverse<polygon, polygon, operation_union>::apply("hv7", 1, 1624.5779453641017, hv_7[0], hv_7[1], deviation);
             test_traverse<polygon, polygon, operation_intersection>::apply("hv7", 1, 1623.6936420295772, hv_7[0], hv_7[1], deviation);
-#endif
         }
     }
 
@@ -923,14 +927,12 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 */
     }
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_f",
         1, 4.60853,
         buffer_rt_f[0], buffer_rt_f[1]);
     test_traverse<polygon, polygon, operation_intersection>::apply("buffer_rt_f",
         1, 0.0002943725152286,
         buffer_rt_f[0], buffer_rt_f[1], 0.01);
-#endif
 
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_g",
         1, 16.571,
@@ -950,10 +952,8 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         1, 30,
         buffer_rt_g_boxes[4], buffer_rt_g_boxes[3]);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_traverse<polygon, polygon, operation_union>::apply("buffer_rt_l",
         1, 19.3995, buffer_rt_l[0], buffer_rt_l[1]);
-#endif
 
     if (boost::is_same<T, double>::value)
     {

@@ -116,7 +116,7 @@ struct robust_type<CoordinateType, boost::false_type>
 template <typename CoordinateType>
 struct robust_type<CoordinateType, boost::true_type>
 {
-    typedef int type; // long long?
+    typedef boost::long_long_type type;
 };
 
 
@@ -173,7 +173,7 @@ struct zoom_to_robust<boost::true_type>
         // Scale this to integer-range
         typename geometry::coordinate_type<point1_type>::type diff = get_max_size(env);
         double range = 1000000000.0; // Define a large range to get precise integer coordinates
-        double factor = double(int(range / double(diff)));
+        double factor = double(boost::long_long_type(range / double(diff)));
 
         // Assign input/output minimal points
         point1_type min_point1;
@@ -181,7 +181,7 @@ struct zoom_to_robust<boost::true_type>
 
         typedef typename point_type<GeometryOut>::type point2_type;
         point2_type min_point2;
-        assign_values(min_point2, int(-range/2.0), int(-range/2.0));
+        assign_values(min_point2, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 
         detail::zoom_to_robust::rescale_strategy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
 
@@ -230,7 +230,7 @@ inline void zoom_to_robust(Geometry1 const& g1a, Geometry1 const& g1b, Geometry2
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point1);
-    assign_values(min_point2, int(-range/2.0), int(-range/2.0));
+    assign_values(min_point2, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 
     detail::zoom_to_robust::rescale_strategy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
     recalculate(g2a, g1a, strategy);
@@ -273,12 +273,12 @@ static inline void init_rescale_policy(Geometry const& geometry,
     // Scale this to integer-range
     typename geometry::coordinate_type<Point>::type diff = get_max_size(env);
     double range = 10000000.0; // Define a large range to get precise integer coordinates
-    factor = double(int(0.5 + range / double(diff)));
+    factor = double(boost::long_long_type(0.5 + range / double(diff)));
     //factor = range / diff;
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point, int(-range/2.0), int(-range/2.0));
+    assign_values(min_robust_point, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 }
 
 template <typename Point, typename RobustPoint, typename Geometry1, typename Geometry2, typename Factor>
@@ -296,12 +296,12 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     // Scale this to integer-range
     typename geometry::coordinate_type<Point>::type diff = get_max_size(env);
     double range = 10000000.0; // Define a large range to get precise integer coordinates
-    factor = double(int(0.5 + range / double(diff)));
+    factor = double(boost::long_long_type(0.5 + range / double(diff)));
     //factor = range / diff;
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point, int(-range/2.0), int(-range/2.0));
+    assign_values(min_robust_point, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 }
 
 template <typename Point>

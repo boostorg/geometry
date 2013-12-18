@@ -136,12 +136,12 @@ void test_all()
         1, 5, 1.0,
         1, 5, 1.0);
 
+    // The too small one might be discarded (depending on point-type / compiler)
+    // We check area only
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        2, -1, 8.7048386,
-        if_typed<ct, float>(1, 2), // The too small one is discarded for floating point
-        -1, 0.0098387);
-
+        -1, -1, 8.7048386,
+        -1, -1, 0.0098387);
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
@@ -258,11 +258,13 @@ void test_all()
         1, 0, 13);
     ***/
 
+    // Isovist - the # output polygons differ per compiler/pointtype, (very) small
+    // rings might be discarded. We check area only
     test_one<polygon, polygon, polygon>("isovist",
         isovist1[0], isovist1[1],
-        if_typed_tt<ct>(4, 2), -1, 0.279121,
-        4, -1, 224.8892,
-        if_typed_tt<ct>(0.001, 0.1));
+        -1, -1, 0.279121,
+        -1, -1, 224.8892,
+        0.001);
 
     // SQL Server gives: 0.279121891701124 and 224.889211358929
     // PostGIS gives:    0.279121991127244 and 224.889205853156

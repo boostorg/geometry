@@ -181,22 +181,15 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 4, 0.4, 0.01);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
-#endif
 
-#ifdef _MSC_VER // gcc/linux behaves differently
-    if (! boost::is_same<ct, float>::value)
-    {
-        test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
-            ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-            3,
-            if_typed<ct, double>(21, 20),
-            35723.8506317139);
-    }
-#endif
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        3,
+        if_typed<ct, double>(21, 20),
+        35723.8506317139);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20131119_james",
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
@@ -205,10 +198,8 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, 0.01);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
                 1, 4, 3.63593e-08, 0.01);

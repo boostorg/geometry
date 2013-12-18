@@ -219,14 +219,11 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 1, 13, 20016.4);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, 0,
         if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)),
         14729.07145);
-#endif
-
 
     // FP might return different amount of points
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
@@ -286,40 +283,23 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, if_typed<ct, float>(14, 13), 13.6569);
-
-    bool test_rt_i_rev = true;
-#ifndef _MSC_VER
-    if (boost::is_same<ct, float>::type::value)
-    {
-        // TODO: this case has to be fixed for gcc/float on non-Windows
-        test_rt_i_rev = false;
-    }
-
-#endif
-    if (test_rt_i_rev)
-    {
-        test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, 13, 13.6569);
-    }
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
                 1, 0, -1, 16.5711);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
                 1, 0, -1, 16.5711);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
                 1, 0, -1, 19.3995);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
                 1, 0, -1, 19.3995);
 

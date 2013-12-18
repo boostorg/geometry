@@ -12,6 +12,9 @@
 
 #include <algorithm>
 
+#include <boost/rational.hpp>
+
+
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
@@ -29,6 +32,7 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/strategies/intersection_result.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <boost/geometry/io/wkt/write.hpp>
@@ -47,6 +51,7 @@ namespace strategy { namespace intersection
 namespace detail
 {
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
 template <std::size_t Dimension, typename Segment, typename T>
 static inline void segment_arrange(Segment const& s, T& s_1, T& s_2, bool& swapped)
 {
@@ -71,9 +76,23 @@ inline typename geometry::point_type<Segment>::type get_from_index(
         >::apply(segment, point);
     return point;
 }
+#endif
+
+// this will go too
+template <std::size_t Dimension, typename Point, typename T>
+static inline void point_arrange(Point const& p1, Point const& p2, T& s_1, T& s_2, bool& swapped)
+{
+    s_1 = get<Dimension>(p1);
+    s_2 = get<Dimension>(p2);
+    if (s_1 > s_2)
+    {
+        std::swap(s_1, s_2);
+        swapped = true;
+    }
+}
 
 }
-#endif
+#endif // DOXYGEN_NO_DETAIL
 
 /*!
     \see http://mathworld.wolfram.com/Line-LineIntersection.html
@@ -104,6 +123,20 @@ struct relate_cartesian_segments
             ;
     }
 #endif
+
+    template <typename T, typename ResultType>
+    static inline void cramers_rule(T const& dx_a, T const& dy_a,
+        T const& dx_b, T const& dy_b, T const& wx, T const& wy,
+        // out:
+        ResultType& d, ResultType& da)
+    {
+        // Cramers rule
+        d = geometry::detail::determinant<ResultType>(dx_a, dy_a, dx_b, dy_b);
+        da = geometry::detail::determinant<ResultType>(dx_b, dy_b, wx, wy);
+        // Ratio is da/d , collinear if d == 0, intersecting if 0 <= r <= 1
+        // IntersectionPoint = (x1 + r * dx_a, y1 + r * dy_a)
+    }
+
 
     // Relate segments a and b
 //    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
@@ -142,8 +175,6 @@ struct relate_cartesian_segments
         sides.set<1>(side::apply(robust_a1, robust_a2, robust_b1),
                      side::apply(robust_a1, robust_a2, robust_b2));
 
-
-
         bool collinear = sides.collinear();
 
 #if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
@@ -176,13 +207,18 @@ struct relate_cartesian_segments
             <
                 coordinate_type, double
             >::type promoted_type;
+        typedef typename geometry::coordinate_type
+            <
+                RobustPoint
+            >::type robust_coordinate_type;
 
-        coordinate_type const dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        coordinate_type const dx_b = get<1, 0>(b) - get<0, 0>(b);
-        coordinate_type const dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        coordinate_type const dy_b = get<1, 1>(b) - get<0, 1>(b);
+        segment_intersection_info<coordinate_type, promoted_type, robust_coordinate_type> sinfo;
 
-        typedef typename geometry::coordinate_type<RobustPoint>::type robust_coordinate_type;
+        sinfo.dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
+        sinfo.dx_b = get<1, 0>(b) - get<0, 0>(b);
+        sinfo.dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
+        sinfo.dy_b = get<1, 1>(b) - get<0, 1>(b);
+
         robust_coordinate_type const robust_dx_a = get<0>(robust_a2) - get<0>(robust_a1);
         robust_coordinate_type const robust_dx_b = get<0>(robust_b2) - get<0>(robust_b1);
         robust_coordinate_type const robust_dy_a = get<1>(robust_a2) - get<1>(robust_a1);
@@ -190,26 +226,52 @@ struct relate_cartesian_segments
 
         // r: ratio 0-1 where intersection divides A/B
         // (only calculated for non-collinear segments)
-        promoted_type r;
         if (! collinear)
         {
             // Calculate determinants - Cramers rule
             coordinate_type const wx = get<0, 0>(a) - get<0, 0>(b);
             coordinate_type const wy = get<0, 1>(a) - get<0, 1>(b);
+#if 0
 
-            promoted_type const d = geometry::detail::determinant<promoted_type>(dx_a, dy_a, dx_b, dy_b);
-            promoted_type const da = geometry::detail::determinant<promoted_type>(dx_b, dy_b, wx, wy);
+            promoted_type const d = geometry::detail::determinant<promoted_type>(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b);
+            promoted_type const da = geometry::detail::determinant<promoted_type>(sinfo.dx_b, sinfo.dy_b, wx, wy);
 
-            // Calculate them robustly as well, for various comparisons (TODO)
-            robust_coordinate_type const robust_d = geometry::detail::determinant<robust_coordinate_type>(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
-//            robust_coordinate_type const robust_wx1 = get<0>(robust_a1) - get<0>(robust_b1);
-//            robust_coordinate_type const robust_wy1 = get<1>(robust_a1) - get<1>(robust_b1);
-//            robust_coordinate_type const robust_wx2 = get<0>(robust_a2) - get<0>(robust_b2);
-//            robust_coordinate_type const robust_wy2 = get<1>(robust_a2) - get<1>(robust_b2);
-//            robust_coordinate_type const robust_da = geometry::detail::determinant<robust_coordinate_type>(robust_dx_b, robust_dy_b, robust_wx1, robust_wy1);
-//            robust_coordinate_type const robust_db = geometry::detail::determinant<robust_coordinate_type>(robust_dx_a, robust_dy_a, robust_wx2, robust_wy2);
+            // Calculate them robustly as well, for various comparisons (TODO - conditionally)
+            robust_coordinate_type const robust_da0 = geometry::detail::determinant<robust_coordinate_type>
+                  (
+                    robust_dx_a, robust_dy_a,
+                    robust_dx_b, robust_dy_b
+                  );
+            robust_coordinate_type const robust_db0 = geometry::detail::determinant<robust_coordinate_type>
+                  (
+                    robust_dx_b, robust_dy_b,
+                    robust_dx_a, robust_dy_a
+                  );
 
-            if (robust_d == 0)
+            robust_coordinate_type const robust_wx1 = get<0>(robust_a1) - get<0>(robust_b1);
+            robust_coordinate_type const robust_wy1 = get<1>(robust_a1) - get<1>(robust_b1);
+            robust_coordinate_type const robust_wx2 = get<0>(robust_a2) - get<0>(robust_b2);
+            robust_coordinate_type const robust_wy2 = get<1>(robust_a2) - get<1>(robust_b2);
+            robust_coordinate_type const robust_da = geometry::detail::determinant<robust_coordinate_type>(robust_dx_b, robust_dy_b, robust_wx1, robust_wy1);
+            robust_coordinate_type const robust_db = geometry::detail::determinant<robust_coordinate_type>(robust_dx_a, robust_dy_a, robust_wx2, robust_wy2);
+#endif
+            promoted_type d, da;
+            cramers_rule(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b,
+                wx, wy, d, da);
+
+            robust_coordinate_type const robust_wx = get<0>(robust_a1) - get<0>(robust_b1);
+            robust_coordinate_type const robust_wy = get<1>(robust_a1) - get<1>(robust_b1);
+            robust_coordinate_type robust_da0, robust_da;
+            cramers_rule(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b,
+                robust_wx, robust_wy, robust_da0, robust_da);
+
+            robust_coordinate_type robust_db0, robust_db;
+            cramers_rule(robust_dx_b, robust_dy_b, robust_dx_a, robust_dy_a,
+                get<0>(robust_b1) - get<0>(robust_a1),
+                get<1>(robust_b1) - get<1>(robust_a1),
+                robust_db0, robust_db);
+
+            if (robust_da0 == 0)
             {
                 // This is still a collinear case (because of FP imprecision this could, in the past, occur here)
                 // Not it should NOT occur anymore
@@ -220,10 +282,36 @@ struct relate_cartesian_segments
             }
             else
             {
-                r = da / d;
+                sinfo.r = da / d;
+
+                sinfo.robust_ra = boost::rational<boost::long_long_type>(robust_da, robust_da0);
+                sinfo.robust_rb = boost::rational<boost::long_long_type>(robust_db, robust_db0);
+
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+                promoted_type db0, db;
+                cramers_rule(sinfo.dx_b, sinfo.dy_b, sinfo.dx_a, sinfo.dy_a,
+                    get<0, 0>(b) - get<0, 0>(a), // wx = d(x) between 2 segments
+                    get<0, 1>(b) - get<0, 1>(a), // wy = d(y) between 2 segments
+                    db0, db);
+                sinfo.rb = db0 != 0 ? db / db0 : -9999;
+
+//                std::cout << "CHECK: " << std::setprecision(16) << sinfo.r << " " << sinfo.rb
+//                    << " " << boost::rational_cast<double>(sinfo.robust_ra)
+//                    << " " << boost::rational_cast<double>(sinfo.robust_rb)
+//                    << std::endl;
+//                std::cout << "  robust: "
+//                        << double(sinfo.dx_b) / double(sinfo.dx_a)
+//                        << " " << double(sinfo.dy_b) / double(sinfo.dy_a)
+//                        << " " << double(wx) / double(wy)
+//                        << " " << double(robust_dx_b) / double(robust_dx_a)
+//                        << " " << double(robust_dy_b) / double(robust_dy_a)
+//                        << " " << double(robust_wx) / double(robust_wy)
+//                        << std::endl;
+
+#endif
 
 #if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-                verify_r(r);
+                verify_r(sinfo.r);
 #else
                 if (! robustness_verify_r(a, b, r))
                 {
@@ -240,22 +328,21 @@ struct relate_cartesian_segments
 
         if(collinear)
         {
-            bool collinear_use_first = math::abs(dx_a) + math::abs(dx_b)
-                                    >= math::abs(dy_a) + math::abs(dy_b);
+            bool collinear_use_first
+                    = geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b)
+                    >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
             if (collinear_use_first)
             {
-                return relate_collinear<0>(a, b);
+                return relate_collinear<0>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
             }
             else
             {
                 // Y direction contains larger segments (maybe dx is zero)
-                return relate_collinear<1>(a, b);
+                return relate_collinear<1>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
             }
         }
 
-        return Policy::segments_intersect(sides, r,
-            dx_a, dy_a, dx_b, dy_b,
-            a, b);
+        return Policy::segments_intersect(sides, sinfo, a, b);
     }
 
 private :
@@ -263,6 +350,7 @@ private :
 #if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     template <typename T>
     static inline void verify_r(T& r)
+    // If so (<0 or >1) we might use the robust fraction instead, or use it anyway
     {
         T const zero = 0;
         T const one = 1;
@@ -365,6 +453,7 @@ private :
     }
 
 #if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+all this stuff can be removed completely
     static inline void robustness_verify_collinear(
                 segment_type1 const& a, segment_type2 const& b,
                 bool a_is_point, bool b_is_point,
@@ -656,7 +745,6 @@ private :
         equals_1 = math::equals(get<1>(point1), get<1>(point2));
         return equals_0 && equals_1;
     }
-#endif
 
     template <std::size_t Dimension>
     static inline bool verify_disjoint(segment_type1 const& a,
@@ -668,29 +756,51 @@ private :
         detail::segment_arrange<Dimension>(b, b_1, b_2, b_swapped);
         return math::smaller(a_2, b_1) || math::larger(a_1, b_2);
     }
+#endif
 
-    template <std::size_t Dimension>
+    template <std::size_t Dimension, typename RobustPoint>
     static inline return_type relate_collinear(segment_type1 const& a,
-                                               segment_type2 const& b)
+            segment_type2 const& b,
+            RobustPoint const& robust_a1, RobustPoint const& robust_a2,
+            RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
-        coordinate_type a_1, a_2, b_1, b_2;
+        typedef typename geometry::coordinate_type
+            <
+                RobustPoint
+            >::type robust_coordinate_type;
+
+        // TEMP this will be removed, we will use only originals
+        robust_coordinate_type a_1, a_2, b_1, b_2;
         bool a_swapped = false, b_swapped = false;
-        detail::segment_arrange<Dimension>(a, a_1, a_2, a_swapped);
-        detail::segment_arrange<Dimension>(b, b_1, b_2, b_swapped);
-        if (math::smaller(a_2, b_1) || math::larger(a_1, b_2))
-        //if (a_2 < b_1 || a_1 > b_2)
+        detail::point_arrange<Dimension>(robust_a1, robust_a2, a_1, a_2, a_swapped);
+        detail::point_arrange<Dimension>(robust_b1, robust_b2, b_1, b_2, b_swapped);
+        // END TEMP
+
+        if (a_2 < b_1 || a_1 > b_2)
         {
+            // This will then be done below in relate_collinear
             return Policy::disjoint();
         }
-        return relate_collinear(a, b, a_1, a_2, b_1, b_2, a_swapped, b_swapped);
+        return relate_collinear(a, b,
+                                a_1, a_2, b_1, b_2,
+                                a_swapped, b_swapped,
+                                // original order:
+                                get<Dimension>(robust_a1),
+                                get<Dimension>(robust_a2),
+                                get<Dimension>(robust_b1),
+                                get<Dimension>(robust_b2));
     }
 
     /// Relate segments known collinear
+    template <typename RobustType>
     static inline return_type relate_collinear(segment_type1 const& a
             , segment_type2 const& b
-            , coordinate_type a_1, coordinate_type a_2
-            , coordinate_type b_1, coordinate_type b_2
-            , bool a_swapped, bool b_swapped)
+            , RobustType a_1, RobustType a_2
+            , RobustType b_1, RobustType b_2
+            , bool a_swapped, bool b_swapped
+            , RobustType oa_1, RobustType oa_2
+            , RobustType ob_1, RobustType ob_2
+            )
     {
         // All ca. 150 lines are about collinear rays
         // The intersections, if any, are always boundary points of the segments. No need to calculate anything.
@@ -717,197 +827,104 @@ private :
         bool const both_swapped = a_swapped && b_swapped;
 
         // Check if segments are equal or opposite equal...
-        bool const swapped_a1_eq_b1 = math::equals(a_1, b_1);
+        bool const swapped_a1_eq_b1 = math::equals(a_1, b_1); // This is now: a_1 == b_1 because types are robust
         bool const swapped_a2_eq_b2 = math::equals(a_2, b_2);
 
         if (swapped_a1_eq_b1 && swapped_a2_eq_b2)
         {
+            // TEMP this can be done using ratios only
             return Policy::segment_equal(a, opposite);
         }
 
-        bool const swapped_a2_eq_b1 = math::equals(a_2, b_1);
-        bool const swapped_a1_eq_b2 = math::equals(a_1, b_2);
+        typedef boost::rational<boost::long_long_type> ratio_type;
 
-        bool const a1_eq_b1 = both_swapped ? swapped_a2_eq_b2 : a_swapped ? swapped_a2_eq_b1 : b_swapped ? swapped_a1_eq_b2 : swapped_a1_eq_b1;
-        bool const a2_eq_b2 = both_swapped ? swapped_a1_eq_b1 : a_swapped ? swapped_a1_eq_b2 : b_swapped ? swapped_a2_eq_b1 : swapped_a2_eq_b2;
-
-        bool const a1_eq_b2 = both_swapped ? swapped_a2_eq_b1 : a_swapped ? swapped_a2_eq_b2 : b_swapped ? swapped_a1_eq_b1 : swapped_a1_eq_b2;
-        bool const a2_eq_b1 = both_swapped ? swapped_a1_eq_b2 : a_swapped ? swapped_a1_eq_b1 : b_swapped ? swapped_a2_eq_b2 : swapped_a2_eq_b1;
-
-
-
-
-        // The rest below will return one or two intersections.
-        // The delegated class can decide which is the intersection point, or two, build the Intersection Matrix (IM)
-        // For IM it is important to know which relates to which. So this information is given,
-        // without performance penalties to intersection calculation
-
-        bool const has_common_points = swapped_a1_eq_b1 || swapped_a1_eq_b2 || swapped_a2_eq_b1 || swapped_a2_eq_b2;
-
-
-        // "Touch" -> one intersection point -> one but not two common points
-        // -------->             A (or B)
-        //         <----------   B (or A)
-        //        a_2==b_1         (b_2==a_1 or a_2==b1)
-
-        // The check a_2/b_1 is necessary because it excludes cases like
-        // ------->
-        //     --->
-        // ... which are handled lateron
-
-        // Corresponds to 4 cases, of which the equal points are determined above
-        // #1: a1---->a2 b1--->b2   (a arrives at b's border)
-        // #2: a2<----a1 b2<---b1   (b arrives at a's border)
-        // #3: a1---->a2 b2<---b1   (both arrive at each others border)
-        // #4: a2<----a1 b1--->b2   (no arrival at all)
-        // Where the arranged forms have two forms:
-        //    a_1-----a_2/b_1-------b_2 or reverse (B left of A)
-        if ((swapped_a2_eq_b1 || swapped_a1_eq_b2) && ! swapped_a1_eq_b1 && ! swapped_a2_eq_b2)
         {
-            if (a2_eq_b1) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, -1);
-            if (a1_eq_b2) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, 0);
-            if (a2_eq_b2) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, 0);
-            if (a1_eq_b1) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, -1);
-        }
+            // TEMP - all below will use ratio's only like the rest
+            bool const swapped_a2_eq_b1 = math::equals(a_2, b_1);
+            bool const swapped_a1_eq_b2 = math::equals(a_1, b_2);
+
+            bool const a1_eq_b1 = both_swapped ? swapped_a2_eq_b2 : a_swapped ? swapped_a2_eq_b1 : b_swapped ? swapped_a1_eq_b2 : swapped_a1_eq_b1;
+            bool const a2_eq_b2 = both_swapped ? swapped_a1_eq_b1 : a_swapped ? swapped_a1_eq_b2 : b_swapped ? swapped_a2_eq_b1 : swapped_a2_eq_b2;
+
+            bool const a1_eq_b2 = both_swapped ? swapped_a2_eq_b1 : a_swapped ? swapped_a2_eq_b2 : b_swapped ? swapped_a1_eq_b1 : swapped_a1_eq_b2;
+            bool const a2_eq_b1 = both_swapped ? swapped_a1_eq_b2 : a_swapped ? swapped_a1_eq_b1 : b_swapped ? swapped_a2_eq_b2 : swapped_a2_eq_b1;
 
 
-        // "Touch/within" -> there are common points and also an intersection of interiors:
-        // Corresponds to many cases:
-        // #1a: a1------->a2  #1b:        a1-->a2
-        //          b1--->b2         b1------->b2
-        // #2a: a2<-------a1  #2b:        a2<--a1
-        //          b1--->b2         b1------->b2
-        // #3a: a1------->a2  #3b:        a1-->a2
-        //          b2<---b1         b2<-------b1
-        // #4a: a2<-------a1  #4b:        a2<--a1
-        //          b2<---b1         b2<-------b1
+            // The rest below will return one or two intersections.
+            // The delegated class can decide which is the intersection point, or two, build the Intersection Matrix (IM)
+            // For IM it is important to know which relates to which. So this information is given,
+            // without performance penalties to intersection calculation
 
-        // Note: next cases are similar and handled by the code
-        // #4c: a1--->a2
-        //      b1-------->b2
-        // #4d: a1-------->a2
-        //      b1-->b2
 
-        // For case 1-4: a_1 < (b_1 or b_2) < a_2, two intersections are equal to segment B
-        // For case 5-8: b_1 < (a_1 or a_2) < b_2, two intersections are equal to segment A
-        if (has_common_points)
-        {
-            // Either A is in B, or B is in A, or (in case of robustness/equals)
-            // both are true, see below
-            bool a_in_b = (b_1 < a_1 && a_1 < b_2) || (b_1 < a_2 && a_2 < b_2);
-            bool b_in_a = (a_1 < b_1 && b_1 < a_2) || (a_1 < b_2 && b_2 < a_2);
+            // "Touch" -> one intersection point -> one but not two common points
+            // -------->             A (or B)
+            //         <----------   B (or A)
+            //        a_2==b_1         (b_2==a_1 or a_2==b1)
 
-            if (a_in_b && b_in_a)
+            // The check a_2/b_1 is necessary because it excludes cases like
+            // ------->
+            //     --->
+            // ... which are handled lateron
+
+            // Corresponds to 4 cases, of which the equal points are determined above
+            // #1: a1---->a2 b1--->b2   (a arrives at b's border)
+            // #2: a2<----a1 b2<---b1   (b arrives at a's border)
+            // #3: a1---->a2 b2<---b1   (both arrive at each others border)
+            // #4: a2<----a1 b1--->b2   (no arrival at all)
+            // Where the arranged forms have two forms:
+            //    a_1-----a_2/b_1-------b_2 or reverse (B left of A)
+            if ((swapped_a2_eq_b1 || swapped_a1_eq_b2) && ! swapped_a1_eq_b1 && ! swapped_a2_eq_b2)
             {
-                // testcase "ggl_list_20110306_javier"
-                // In robustness it can occur that a point of A is inside B AND a point of B is inside A,
-                // still while has_common_points is true (so one point equals the other).
-                // If that is the case we select on length.
-                coordinate_type const length_a = geometry::math::abs(a_1 - a_2);
-                coordinate_type const length_b = geometry::math::abs(b_1 - b_2);
-                if (length_a > length_b)
-                {
-                    a_in_b = false;
-                }
-                else
-                {
-                    b_in_a = false;
-                }
+                if (a2_eq_b1) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, -1);
+                if (a1_eq_b2) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, 0);
+                if (a2_eq_b2) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, 0);
+                if (a1_eq_b1) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, -1);
             }
-
-            int const arrival_a = a_in_b ? 1 : -1;
-            if (a2_eq_b2) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, 0, 0, false);
-            if (a1_eq_b2) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, arrival_a, 0, true);
-            if (a2_eq_b1) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, 0, -arrival_a, true);
-            if (a1_eq_b1) return Policy::collinear_interior_boundary_intersect(a_in_b ? a : b, a_in_b, arrival_a, -arrival_a, false);
         }
 
+        // Calculate the ratios where a starts in b, b starts in a
+        //         a1--------->a2         (2..7)
+        //                b1----->b2      (5..8)
+        // length_a: 7-2=5
+        // length_b: 8-5=3
+        // b1 is located w.r.t. a at ratio: (5-2)/5=3/5 (on a)
+        // b2 is located w.r.t. a at ratio: (8-2)/5=6/5 (right of a)
+        // a1 is located w.r.t. b at ratio: (2-5)/3=-3/3 (left of b)
+        // a2 is located w.r.t. b at ratio: (7-5)/3=2/3 (on b)
+        // A arrives (a2 on b), B departs (b1 on a)
+
+        // If both are reversed:
+        //         a2<---------a1         (7..2)
+        //                b2<---->b1      (8..5)
+        // length_a: 2-7=-5
+        // length_b: 5-8=-3
+        // b1 is located w.r.t. a at ratio: (8-7)/-5=-1/5 (before a starts)
+        // b2 is located w.r.t. a at ratio: (5-7)/-5=2/5 (on a)
+        // a1 is located w.r.t. b at ratio: (7-8)/-3=1/3 (on b)
+        // a2 is located w.r.t. b at ratio: (2-8)/-3=6/3 (after b ends)
+
+        // If both one is reversed:
+        //         a1--------->a2         (2..7)
+        //                b2<---->b1      (8..5)
+        // length_a: 7-2=+5
+        // length_b: 5-8=-3
+        // b1 is located w.r.t. a at ratio: (8-2)/5=6/5 (after a ends)
+        // b2 is located w.r.t. a at ratio: (5-2)/5=3/5 (on a)
+        // a1 is located w.r.t. b at ratio: (2-8)/-3=6/3 (after b ends)
+        // a2 is located w.r.t. b at ratio: (7-8)/-3=1/3 (on b)
+        RobustType const length_a = oa_2 - oa_1; // no abs, see above
+        RobustType const length_b = ob_2 - ob_1;
+
+        ratio_type ra_from(oa_1 - ob_1, length_b);
+        ratio_type ra_to(oa_2 - ob_1, length_b);
+        ratio_type rb_from(ob_1 - oa_1, length_a);
+        ratio_type rb_to(ob_2 - oa_1, length_a);
 
 
-        // "Inside", a completely within b or b completely within a
-        // 2 cases:
-        // case 1:
-        //        a_1---a_2        -> take A's points as intersection points
-        //   b_1------------b_2
-        // case 2:
-        //   a_1------------a_2
-        //       b_1---b_2         -> take B's points
-        if (a_1 > b_1 && a_2 < b_2)
-        {
-            // A within B
-            return Policy::collinear_a_in_b(a, opposite);
-        }
-        if (b_1 > a_1 && b_2 < a_2)
-        {
-            // B within A
-            return Policy::collinear_b_in_a(b, opposite);
-        }
+        // We take the generic approach for all cases below,
+        // and that can also be extended for most cases above
+        return Policy::collinear_two_intersection_points(a, b, ra_from, ra_to, rb_from, rb_to, opposite);
 
-
-        /*
-
-        Now that all cases with equal,touch,inside,disjoint,
-        degenerate are handled the only thing left is an overlap
-
-        Either a1 is between b1,b2
-        or a2 is between b1,b2 (a2 arrives)
-
-        Next table gives an overview.
-        The IP's are ordered following the line A1->A2
-
-             |                                 |
-             |          a_2 in between         |       a_1 in between
-             |                                 |
-        -----+---------------------------------+--------------------------
-             |   a1--------->a2                |       a1--------->a2
-             |          b1----->b2             |   b1----->b2
-             |   (b1,a2), a arrives            |   (a1,b2), b arrives
-             |                                 |
-        -----+---------------------------------+--------------------------
-        a sw.|   a2<---------a1*               |       a2<---------a1*
-             |           b1----->b2            |   b1----->b2
-             |   (a1,b1), no arrival           |   (b2,a2), a and b arrive
-             |                                 |
-        -----+---------------------------------+--------------------------
-             |   a1--------->a2                |       a1--------->a2
-        b sw.|           b2<-----b1            |   b2<-----b1
-             |   (b2,a2), a and b arrive       |   (a1,b1), no arrival
-             |                                 |
-        -----+---------------------------------+--------------------------
-        a sw.|    a2<---------a1*              |       a2<---------a1*
-        b sw.|            b2<-----b1           |   b2<-----b1
-             |   (a1,b2), b arrives            |   (b1,a2), a arrives
-             |                                 |
-        -----+---------------------------------+--------------------------
-        * Note that a_1 < a_2, and a1 <> a_1; if a is swapped,
-          the picture might seem wrong but it (supposed to be) is right.
-        */
-
-        if (b_1 < a_2 && a_2 < b_2)
-        {
-            // Left column, from bottom to top
-            return
-                both_swapped ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
-                : b_swapped  ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
-                : a_swapped  ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
-                :              Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
-                ;
-        }
-        if (b_1 < a_1 && a_1 < b_2)
-        {
-            // Right column, from bottom to top
-            return
-                both_swapped ? Policy::collinear_overlaps(get<0, 0>(b), get<0, 1>(b), get<1, 0>(a), get<1, 1>(a),  1, -1, opposite)
-                : b_swapped  ? Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<0, 0>(b), get<0, 1>(b), -1, -1, opposite)
-                : a_swapped  ? Policy::collinear_overlaps(get<1, 0>(b), get<1, 1>(b), get<1, 0>(a), get<1, 1>(a),  1,  1, opposite)
-                :              Policy::collinear_overlaps(get<0, 0>(a), get<0, 1>(a), get<1, 0>(b), get<1, 1>(b), -1,  1, opposite)
-                ;
-        }
-        // Nothing should goes through. If any we have made an error
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-        debug_segments("unexpected behaviour", a, b);
-#endif
-        return Policy::error("Robustness issue, relate_cartesian_segments, unexpected behaviour");
     }
 };
 

@@ -135,12 +135,10 @@ void test_areal()
             2, 12, 7962.66, 1, 18, 2775258.93,
             0.001);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
             0.001);
-#endif
 
     /* TODO: fix
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",

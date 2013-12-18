@@ -19,6 +19,9 @@
 #define BOOST_GEOMETRY_RESCALE_TO_ROBUST
 #endif
 
+#define BOOST_GEOMETRY_CHECK_RATIO
+
+
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/tags.hpp>

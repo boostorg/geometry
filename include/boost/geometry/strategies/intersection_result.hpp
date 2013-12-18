@@ -15,6 +15,8 @@
 
 #include <cstddef>
 
+#include <boost/rational.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -118,6 +120,7 @@ struct de9im_segment : public de9im
     bool parallel;  // true if disjoint but parallel
     bool degenerate; // true for segment(s) of zero length
 
+    boost::rational<boost::long_long_type> fraction_a, fraction_b;
     double ra, rb; // temp
 
     inline de9im_segment()
@@ -154,17 +157,79 @@ struct de9im_segment : public de9im
 };
 
 
+struct fraction_type
+{
+    typedef boost::rational<boost::long_long_type> robust_type;
+    robust_type robust_ra;
+    robust_type robust_rb;
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+    double ra, rb;
+#endif
+    bool initialized;
+    inline fraction_type()
+        : initialized(false)
+    {}
 
+    template <typename Info>
+    inline void assign(Info const& info)
+    {
+        initialized = true;
+        robust_ra = info.robust_ra;
+        robust_rb = info.robust_rb;
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+        ra = info.r;
+        rb = info.rb;
+#endif
+    }
+
+    inline void assign(robust_type const& a, robust_type const& b)
+    {
+        initialized = true;
+        robust_ra = a;
+        robust_rb = b;
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+        ra = -9999;
+        rb = -9999;
+#endif
+    }
+
+};
+
+// Set in intersection_points.hpp, from segment_intersection_info
 template <typename Point>
 struct segment_intersection_points
 {
     std::size_t count;
+    // TODO: combine intersections and fractions in one struct
     Point intersections[2];
+    fraction_type fractions[2];
     typedef Point point_type;
+
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+    Point intersections_check[2];
+#endif
 
     segment_intersection_points()
         : count(0)
     {}
+};
+
+// All assigned in cart_intersect, passed to intersection_points
+template <typename CoordinateType, typename PromotedType, typename RobustType>
+struct segment_intersection_info
+{
+    typedef boost::rational<boost::long_long_type> robust_type;
+    CoordinateType dx_a, dy_a, dx_b, dy_b;
+    PromotedType r;
+    robust_type robust_ra;
+    robust_type robust_rb;
+//    RobustType robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b;
+//    RobustType robust_da0, robust_db0, robust_da, robust_db;
+
+    // TEMP to check calculations
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+    PromotedType rb;
+#endif
 };
 
 
