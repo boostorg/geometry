@@ -75,8 +75,8 @@ struct rescale_strategy
         return static_cast<output_ct>(result);
     }
 
-    FpPoint const& m_fp_min;
-    IntPoint const& m_int_min;
+    FpPoint m_fp_min;
+    IntPoint m_int_min;
     CalculationType m_multiplier;
 };
 
