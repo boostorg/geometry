@@ -72,7 +72,7 @@ struct recalculate_indexed
     static inline void apply(Geometry1& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
     {
         // Do it for both indices in one dimension
-        std::size_t const dim = Dimension - 1;
+        static std::size_t const dim = Dimension - 1;
         geometry::set<0, dim>(geometry1, strategy.template apply<dim>(geometry::get<0, dim>(geometry2)));
         geometry::set<1, dim>(geometry1, strategy.template apply<dim>(geometry::get<1, dim>(geometry2)));
         recalculate_indexed<dim>::apply(geometry1, geometry2, strategy);
@@ -169,14 +169,8 @@ template
     typename Tag1 = typename geometry::tag<Geometry1>::type,
     typename Tag2 = typename geometry::tag<Geometry2>::type
 >
-struct recalculate
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry1>)
-        );
-};
+struct recalculate : not_implemented<Tag1, Tag2>
+{};
 
 template <typename Point1, typename Point2>
 struct recalculate<Point1, Point2, point_tag, point_tag>
