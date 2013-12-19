@@ -61,16 +61,6 @@ struct segments_tupled
             );
     }
 
-    static inline return_type collinear_touch(coordinate_type const& x,
-                coordinate_type const& y, int arrival_a, int arrival_b)
-    {
-        return boost::make_tuple
-            (
-                Policy1::collinear_touch(x, y, arrival_a, arrival_b),
-                Policy2::collinear_touch(x, y, arrival_a, arrival_b)
-            );
-    }
-
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type collinear_two_intersection_points(
         Segment1 const& segment1, Segment2 const& segment2,

@@ -170,21 +170,6 @@ struct segments_direction
             ;
     }
 
-    static inline return_type collinear_touch(
-                coordinate_type const& ,
-                coordinate_type const& , int arrival_a, int arrival_b)
-    {
-        // Though this is 'collinear', we handle it as To/From/Angle because it is the same.
-        // It only does NOT have a direction.
-        side_info sides;
-        //int const arrive = how == 'T' ? 1 : -1;
-        bool opposite = arrival_a == arrival_b;
-        return
-            ! opposite
-            ? return_type(sides, 'a', arrival_a, arrival_b)
-            : return_type(sides, arrival_a == 0 ? 't' : 'f', arrival_a, arrival_b, 0, 0, true);
-    }
-
     // TODO: segment_ratio
     template <typename Ratio>
     static inline bool on_segment(Ratio const& r)
@@ -199,6 +184,13 @@ struct segments_direction
         static Ratio const zero(0, 1);
         static Ratio const one(1, 1);
         return r > zero && r < one;
+    }
+    template <typename Ratio>
+    static inline bool on_endpoint(Ratio const& r)
+    {
+        static Ratio const zero(0, 1);
+        static Ratio const one(1, 1);
+        return r == zero || r == one;
     }
 
     template <typename Ratio>
@@ -224,19 +216,75 @@ struct segments_direction
             ;
     }
 
+    template <typename Ratio>
+    static inline void analyze(Ratio const& r,
+        int& in_segment_count,
+        int& on_end_count,
+        int& outside_segment_count)
+    {
+        if (in_segment(r))
+        {
+            in_segment_count++;
+        }
+        else if (on_endpoint(r))
+        {
+            on_end_count++;
+        }
+        else
+        {
+            outside_segment_count++;
+        }
+    }
+
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type collinear_two_intersection_points(
-        Segment1 const& a, Segment2 const& b,
+        Segment1 const& , Segment2 const&,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
         Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a,
         bool opposite)
     {
         return_type r('c', opposite);
-
         // IMPORTANT: the order of conditions is different as in intersection_points.hpp
         // We assign A in 0 and B in 1
         r.arrival[0] = arrival_value(ra_from_wrt_b, ra_to_wrt_b);
         r.arrival[1] = arrival_value(rb_from_wrt_a, rb_to_wrt_a);
+
+        // Analyse them
+        int a_in_segment_count = 0;
+        int a_on_end_count = 0;
+        int a_outside_segment_count = 0;
+        int b_in_segment_count = 0;
+        int b_on_end_count = 0;
+        int b_outside_segment_count = 0;
+        analyze(ra_from_wrt_b,
+            a_in_segment_count, a_on_end_count, a_outside_segment_count);
+        analyze(ra_to_wrt_b,
+            a_in_segment_count, a_on_end_count, a_outside_segment_count);
+        analyze(rb_from_wrt_a,
+            b_in_segment_count, b_on_end_count, b_outside_segment_count);
+        analyze(rb_to_wrt_a,
+            b_in_segment_count, b_on_end_count, b_outside_segment_count);
+
+        if (a_on_end_count == 1
+            && b_on_end_count == 1
+            && a_outside_segment_count == 1
+            && b_outside_segment_count == 1)
+        {
+            // This is a collinear touch
+            // -------->             A (or B)
+            //         <----------   B (or A)
+            // We adapt the "how"
+            // TODO: how was to be refactored anyway,
+            if (! opposite)
+            {
+                r.how = 'a';
+            }
+            else
+            {
+                r.how = r.arrival[0] == 0 ? 't' : 'f';
+            }
+        }
+
         return r;
     }
 

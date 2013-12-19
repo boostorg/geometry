@@ -824,7 +824,6 @@ all this stuff can be removed completely
         // Handle "equal", in polygon neighbourhood comparisons a common case
 
         bool const opposite = a_swapped ^ b_swapped;
-        bool const both_swapped = a_swapped && b_swapped;
 
         // Check if segments are equal or opposite equal...
         bool const swapped_a1_eq_b1 = math::equals(a_1, b_1); // This is now: a_1 == b_1 because types are robust
@@ -837,50 +836,6 @@ all this stuff can be removed completely
         }
 
         typedef boost::rational<boost::long_long_type> ratio_type;
-
-        {
-            // TEMP - all below will use ratio's only like the rest
-            bool const swapped_a2_eq_b1 = math::equals(a_2, b_1);
-            bool const swapped_a1_eq_b2 = math::equals(a_1, b_2);
-
-            bool const a1_eq_b1 = both_swapped ? swapped_a2_eq_b2 : a_swapped ? swapped_a2_eq_b1 : b_swapped ? swapped_a1_eq_b2 : swapped_a1_eq_b1;
-            bool const a2_eq_b2 = both_swapped ? swapped_a1_eq_b1 : a_swapped ? swapped_a1_eq_b2 : b_swapped ? swapped_a2_eq_b1 : swapped_a2_eq_b2;
-
-            bool const a1_eq_b2 = both_swapped ? swapped_a2_eq_b1 : a_swapped ? swapped_a2_eq_b2 : b_swapped ? swapped_a1_eq_b1 : swapped_a1_eq_b2;
-            bool const a2_eq_b1 = both_swapped ? swapped_a1_eq_b2 : a_swapped ? swapped_a1_eq_b1 : b_swapped ? swapped_a2_eq_b2 : swapped_a2_eq_b1;
-
-
-            // The rest below will return one or two intersections.
-            // The delegated class can decide which is the intersection point, or two, build the Intersection Matrix (IM)
-            // For IM it is important to know which relates to which. So this information is given,
-            // without performance penalties to intersection calculation
-
-
-            // "Touch" -> one intersection point -> one but not two common points
-            // -------->             A (or B)
-            //         <----------   B (or A)
-            //        a_2==b_1         (b_2==a_1 or a_2==b1)
-
-            // The check a_2/b_1 is necessary because it excludes cases like
-            // ------->
-            //     --->
-            // ... which are handled lateron
-
-            // Corresponds to 4 cases, of which the equal points are determined above
-            // #1: a1---->a2 b1--->b2   (a arrives at b's border)
-            // #2: a2<----a1 b2<---b1   (b arrives at a's border)
-            // #3: a1---->a2 b2<---b1   (both arrive at each others border)
-            // #4: a2<----a1 b1--->b2   (no arrival at all)
-            // Where the arranged forms have two forms:
-            //    a_1-----a_2/b_1-------b_2 or reverse (B left of A)
-            if ((swapped_a2_eq_b1 || swapped_a1_eq_b2) && ! swapped_a1_eq_b1 && ! swapped_a2_eq_b2)
-            {
-                if (a2_eq_b1) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, -1);
-                if (a1_eq_b2) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, 0);
-                if (a2_eq_b2) return Policy::collinear_touch(get<1, 0>(a), get<1, 1>(a), 0, 0);
-                if (a1_eq_b1) return Policy::collinear_touch(get<0, 0>(a), get<0, 1>(a), -1, -1);
-            }
-        }
 
         // Calculate the ratios where a starts in b, b starts in a
         //         a1--------->a2         (2..7)

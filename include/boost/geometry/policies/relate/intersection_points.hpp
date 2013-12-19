@@ -81,26 +81,6 @@ struct segments_intersection_points
         return result;
     }
 
-    static inline return_type collinear_touch(coordinate_type const& x,
-                coordinate_type const& y, int arrival_a, int arrival_b)
-    {
-        return_type result;
-        result.count = 1;
-        set<0>(result.intersections[0], x);
-        set<1>(result.intersections[0], y);
-
-        // Arrivals are 0 or -1 (see cart_intersect)
-        // At 0 we assign it to 1 (end-point)
-        // At -1 we assign it to 0 (start-point)
-        // This looks flawed but it is the current logic
-        result.fractions[0].assign
-            (
-                robust_type(1 - math::abs(arrival_a), 1),
-                robust_type(1 - math::abs(arrival_b), 1)
-            );
-        return result;
-    }
-
     template <int Dim, typename Segment, typename Point>
     static inline void assign_point(Segment const& segment, Point& point)
     {
@@ -200,7 +180,7 @@ struct segments_intersection_points
         // If both are from b, and b is reversed w.r.t. a, we swap IP's
         // to align them w.r.t. a
         // get_turn_info still relies on some order (in some collinear cases)
-        if (on_a[0] > on_a[1])
+        if (index == 2 && on_a[0] > on_a[1])
         {
             std::swap(result.fractions[0], result.fractions[1]);
             std::swap(result.intersections[0], result.intersections[1]);
