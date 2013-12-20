@@ -290,8 +290,9 @@ void test_all()
         'e', true, 0, 0,
         2, 0, 6, 0);
 
-    //   a1---------->a2
-    //   b2<----------b1
+    // Disjoint (in vertical direction, picture still horizontal)
+    //   a2<---a1
+    //                      b2<---b1
     test_segment_intersection<P>("case_recursive_boxes_1",
         10, 7, 10, 6,
         10, 10, 10, 9,

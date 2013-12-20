@@ -76,7 +76,6 @@ inline typename geometry::point_type<Segment>::type get_from_index(
         >::apply(segment, point);
     return point;
 }
-#endif
 
 // this will go too
 template <std::size_t Dimension, typename Point, typename T>
@@ -90,6 +89,7 @@ static inline void point_arrange(Point const& p1, Point const& p2, T& s_1, T& s_
         swapped = true;
     }
 }
+#endif
 
 }
 #endif // DOXYGEN_NO_DETAIL
@@ -764,24 +764,6 @@ all this stuff can be removed completely
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
-        typedef typename geometry::coordinate_type
-            <
-                RobustPoint
-            >::type robust_coordinate_type;
-
-        // TEMP this will be removed, we will use only originals
-        robust_coordinate_type a_1, a_2, b_1, b_2;
-        bool a_swapped = false, b_swapped = false;
-        detail::point_arrange<Dimension>(robust_a1, robust_a2, a_1, a_2, a_swapped);
-        detail::point_arrange<Dimension>(robust_b1, robust_b2, b_1, b_2, b_swapped);
-        if (a_2 < b_1 || a_1 > b_2)
-        {
-            // This will then be done below in relate_collinear
-            // As soon as we refactor rational to segment_ratio
-            return Policy::disjoint();
-        }
-        // END TEMP
-
         return relate_collinear(a, b,
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
@@ -835,6 +817,16 @@ all this stuff can be removed completely
         ratio_type const ra_to(oa_2 - ob_1, length_b);
         ratio_type const rb_from(ob_1 - oa_1, length_a);
         ratio_type const rb_to(ob_2 - oa_1, length_a);
+
+        static ratio_type const zero(0, 1);
+        static ratio_type const one(1, 1);
+        bool const sanity_check_b_disjoint = ((rb_from < zero && rb_to < zero) || (rb_from > one && rb_to > one));
+        if ((ra_from < zero && ra_to < zero) || (ra_from > one && ra_to > one))
+        {
+            assert(sanity_check_b_disjoint); // this will go
+            return Policy::disjoint();
+        }
+        assert(! sanity_check_b_disjoint);
 
         return Policy::segments_collinear(a, b, ra_from, ra_to, rb_from, rb_to);
     }
