@@ -261,11 +261,8 @@ void test_areal()
     // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
     // Because of the width of the polygon (400000 meter) this causes a substantial difference.
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-    // TODO: this probably does not fit correctly in integer-range
     test_one<Polygon, Polygon, Polygon>("ticket_5103", ticket_5103[0], ticket_5103[1],
                 1, 0, 25, 2515271327070.5);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
             1, 0, 5, 10.5000019595);

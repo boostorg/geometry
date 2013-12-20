@@ -128,7 +128,7 @@ struct segments_direction
 
 
     template <typename SegmentIntersectionInfo>
-    static inline return_type segments_intersect(side_info const& sides,
+    static inline return_type segments_crosses(side_info const& sides,
                     SegmentIntersectionInfo const& ,
                     S1 const& , S2 const& )
     {
@@ -237,13 +237,20 @@ struct segments_direction
     }
 
     template <typename Segment1, typename Segment2, typename Ratio>
-    static inline return_type collinear_two_intersection_points(
+    static inline return_type segments_collinear(
         Segment1 const& , Segment2 const&,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
-        Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a,
-        bool opposite)
+        Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a)
     {
+        // If segments are opposite, the ratio of the FROM w.r.t. the other
+        // is larger than the ratio of the TO w.r.t. the other
+        bool const a_opposite = ra_from_wrt_b > ra_to_wrt_b;
+        bool const b_opposite = rb_from_wrt_a > rb_to_wrt_a;
+        assert(a_opposite == b_opposite); // TODO can be removed later
+        bool const opposite = a_opposite;
+
         return_type r('c', opposite);
+
         // IMPORTANT: the order of conditions is different as in intersection_points.hpp
         // We assign A in 0 and B in 1
         r.arrival[0] = arrival_value(ra_from_wrt_b, ra_to_wrt_b);
@@ -284,26 +291,13 @@ struct segments_direction
                 r.how = r.arrival[0] == 0 ? 't' : 'f';
             }
         }
+        else if (a_on_end_count == 2
+                 && b_on_end_count == 2)
+        {
+            r.how = 'e';
+        }
 
         return r;
-    }
-
-#if 0
-    static inline return_type collinear_overlaps(
-                    coordinate_type const& , coordinate_type const& ,
-                    coordinate_type const& , coordinate_type const& ,
-                    int arrival_a, int arrival_b, bool opposite)
-    {
-        return_type r('c', opposite);
-        r.arrival[0] = arrival_a;
-        r.arrival[1] = arrival_b;
-        return r;
-    }
-#endif
-
-    static inline return_type segment_equal(S1 const& , bool opposite)
-    {
-        return return_type('e', opposite);
     }
 
     static inline return_type degenerate(S1 const& , bool)

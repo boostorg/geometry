@@ -342,7 +342,7 @@ struct relate_cartesian_segments
             }
         }
 
-        return Policy::segments_intersect(sides, sinfo, a, b);
+        return Policy::segments_crosses(sides, sinfo, a, b);
     }
 
 private :
@@ -774,17 +774,15 @@ all this stuff can be removed completely
         bool a_swapped = false, b_swapped = false;
         detail::point_arrange<Dimension>(robust_a1, robust_a2, a_1, a_2, a_swapped);
         detail::point_arrange<Dimension>(robust_b1, robust_b2, b_1, b_2, b_swapped);
-        // END TEMP
-
         if (a_2 < b_1 || a_1 > b_2)
         {
             // This will then be done below in relate_collinear
+            // As soon as we refactor rational to segment_ratio
             return Policy::disjoint();
         }
+        // END TEMP
+
         return relate_collinear(a, b,
-                                a_1, a_2, b_1, b_2,
-                                a_swapped, b_swapped,
-                                // original order:
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
                                 get<Dimension>(robust_b1),
@@ -795,48 +793,10 @@ all this stuff can be removed completely
     template <typename RobustType>
     static inline return_type relate_collinear(segment_type1 const& a
             , segment_type2 const& b
-            , RobustType a_1, RobustType a_2
-            , RobustType b_1, RobustType b_2
-            , bool a_swapped, bool b_swapped
             , RobustType oa_1, RobustType oa_2
             , RobustType ob_1, RobustType ob_2
             )
     {
-        // All ca. 150 lines are about collinear rays
-        // The intersections, if any, are always boundary points of the segments. No need to calculate anything.
-        // However we want to find out HOW they intersect, there are many cases.
-        // Most sources only provide the intersection (above) or that there is a collinearity (but not the points)
-        // or some spare sources give the intersection points (calculated) but not how they align.
-        // This source tries to give everything and still be efficient.
-        // It is therefore (and because of the extensive clarification comments) rather long...
-
-        // \see http://mpa.itc.it/radim/g50history/CMP/4.2.1-CERL-beta-libes/file475.txt
-        // \see http://docs.codehaus.org/display/GEOTDOC/Point+Set+Theory+and+the+DE-9IM+Matrix
-        // \see http://mathworld.wolfram.com/Line-LineIntersection.html
-
-        // Because of collinearity the case is now one-dimensional and can be checked using intervals
-        // This function is called either horizontally or vertically
-        // We get then two intervals:
-        // a_1-------------a_2 where a_1 < a_2
-        // b_1-------------b_2 where b_1 < b_2
-        // In all figures below a_1/a_2 denotes arranged intervals, a1-a2 or a2-a1 are still unarranged
-
-        // Handle "equal", in polygon neighbourhood comparisons a common case
-
-        bool const opposite = a_swapped ^ b_swapped;
-
-        // Check if segments are equal or opposite equal...
-        bool const swapped_a1_eq_b1 = math::equals(a_1, b_1); // This is now: a_1 == b_1 because types are robust
-        bool const swapped_a2_eq_b2 = math::equals(a_2, b_2);
-
-        if (swapped_a1_eq_b1 && swapped_a2_eq_b2)
-        {
-            // TEMP this can be done using ratios only
-            return Policy::segment_equal(a, opposite);
-        }
-
-        typedef boost::rational<boost::long_long_type> ratio_type;
-
         // Calculate the ratios where a starts in b, b starts in a
         //         a1--------->a2         (2..7)
         //                b1----->b2      (5..8)
@@ -850,7 +810,7 @@ all this stuff can be removed completely
 
         // If both are reversed:
         //         a2<---------a1         (7..2)
-        //                b2<---->b1      (8..5)
+        //                b2<-----b1      (8..5)
         // length_a: 2-7=-5
         // length_b: 5-8=-3
         // b1 is located w.r.t. a at ratio: (8-7)/-5=-1/5 (before a starts)
@@ -860,7 +820,7 @@ all this stuff can be removed completely
 
         // If both one is reversed:
         //         a1--------->a2         (2..7)
-        //                b2<---->b1      (8..5)
+        //                b2<-----b1      (8..5)
         // length_a: 7-2=+5
         // length_b: 5-8=-3
         // b1 is located w.r.t. a at ratio: (8-2)/5=6/5 (after a ends)
@@ -870,16 +830,13 @@ all this stuff can be removed completely
         RobustType const length_a = oa_2 - oa_1; // no abs, see above
         RobustType const length_b = ob_2 - ob_1;
 
-        ratio_type ra_from(oa_1 - ob_1, length_b);
-        ratio_type ra_to(oa_2 - ob_1, length_b);
-        ratio_type rb_from(ob_1 - oa_1, length_a);
-        ratio_type rb_to(ob_2 - oa_1, length_a);
+        typedef boost::rational<boost::long_long_type> ratio_type;
+        ratio_type const ra_from(oa_1 - ob_1, length_b);
+        ratio_type const ra_to(oa_2 - ob_1, length_b);
+        ratio_type const rb_from(ob_1 - oa_1, length_a);
+        ratio_type const rb_to(ob_2 - oa_1, length_a);
 
-
-        // We take the generic approach for all cases below,
-        // and that can also be extended for most cases above
-        return Policy::collinear_two_intersection_points(a, b, ra_from, ra_to, rb_from, rb_to, opposite);
-
+        return Policy::segments_collinear(a, b, ra_from, ra_to, rb_from, rb_to);
     }
 };
 

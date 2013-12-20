@@ -45,7 +45,7 @@ struct segments_intersection_points
         >::type coordinate_type;
 
     template <typename SegmentIntersectionInfo>
-    static inline return_type segments_intersect(side_info const&,
+    static inline return_type segments_crosses(side_info const&,
                     SegmentIntersectionInfo const& sinfo,
                     S1 const& s1, S2 const& s2)
     {
@@ -112,11 +112,10 @@ struct segments_intersection_points
 
 
     template <typename Segment1, typename Segment2, typename Ratio>
-    static inline return_type collinear_two_intersection_points(
+    static inline return_type segments_collinear(
         Segment1 const& a, Segment2 const& b,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
-        Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a,
-        bool )
+        Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a)
     {
         return_type result;
         int index = 0, count_a = 0, count_b = 0;
@@ -187,26 +186,6 @@ struct segments_intersection_points
         }
 
         result.count = index;
-
-        return result;
-    }
-
-    // This will also be removed => collinear_two_intersection_points
-    static inline return_type segment_equal(S1 const& s, bool opposite)
-    {
-        return_type result;
-        result.count = 2;
-        set<0>(result.intersections[0], get<0, 0>(s));
-        set<1>(result.intersections[0], get<0, 1>(s));
-        set<0>(result.intersections[1], get<1, 0>(s));
-        set<1>(result.intersections[1], get<1, 1>(s));
-
-        robust_type const zero(0, 1);
-        robust_type const one(1, 1);
-        result.fractions[0].robust_ra = opposite ? one : zero;
-        result.fractions[0].robust_rb = opposite ? one : zero;
-        result.fractions[1].robust_ra = opposite ? zero : one;
-        result.fractions[1].robust_rb = opposite ? zero : one;
 
         return result;
     }

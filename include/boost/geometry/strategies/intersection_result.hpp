@@ -219,12 +219,10 @@ template <typename CoordinateType, typename PromotedType, typename RobustType>
 struct segment_intersection_info
 {
     typedef boost::rational<boost::long_long_type> robust_type;
-    CoordinateType dx_a, dy_a, dx_b, dy_b;
+    CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
     PromotedType r;
     robust_type robust_ra;
     robust_type robust_rb;
-//    RobustType robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b;
-//    RobustType robust_da0, robust_db0, robust_da, robust_db;
 
     // TEMP to check calculations
 #ifdef BOOST_GEOMETRY_CHECK_RATIO

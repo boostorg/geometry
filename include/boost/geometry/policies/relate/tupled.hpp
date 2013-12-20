@@ -50,37 +50,26 @@ struct segments_tupled
     typedef typename select_most_precise<coordinate_type, double>::type rtype;
 
     template <typename SegmentIntersectionInfo>
-    static inline return_type segments_intersect(side_info const& sides,
+    static inline return_type segments_crosses(side_info const& sides,
                     SegmentIntersectionInfo const& sinfo,
                     segment_type1 const& s1, segment_type2 const& s2)
     {
         return boost::make_tuple
             (
-                Policy1::segments_intersect(sides, sinfo, s1, s2),
-                Policy2::segments_intersect(sides, sinfo, s1, s2)
+                Policy1::segments_crosses(sides, sinfo, s1, s2),
+                Policy2::segments_crosses(sides, sinfo, s1, s2)
             );
     }
 
     template <typename Segment1, typename Segment2, typename Ratio>
-    static inline return_type collinear_two_intersection_points(
+    static inline return_type segments_collinear(
         Segment1 const& segment1, Segment2 const& segment2,
-        Ratio const& ra1, Ratio const& ra2, Ratio const& rb1, Ratio const& rb2,
-        bool opposite)
+        Ratio const& ra1, Ratio const& ra2, Ratio const& rb1, Ratio const& rb2)
     {
         return boost::make_tuple
             (
-                Policy1::collinear_two_intersection_points(segment1, segment2, ra1, ra2, rb1, rb2, opposite),
-                Policy2::collinear_two_intersection_points(segment1, segment2, ra1, ra2, rb1, rb2, opposite)
-            );
-    }
-
-    static inline return_type segment_equal(segment_type1 const& s,
-                bool opposite)
-    {
-        return boost::make_tuple
-            (
-                Policy1::segment_equal(s, opposite),
-                Policy2::segment_equal(s, opposite)
+                Policy1::segments_collinear(segment1, segment2, ra1, ra2, rb1, rb2),
+                Policy2::segments_collinear(segment1, segment2, ra1, ra2, rb1, rb2)
             );
     }
 
