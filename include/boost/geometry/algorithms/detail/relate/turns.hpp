@@ -12,12 +12,71 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 
+#include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
+
+template<typename P>
+struct distance_info
+{
+    typedef typename strategy::distance::services::return_type
+        <
+            typename strategy::distance::services::comparable_type
+                <
+                    typename strategy::distance::services::default_strategy
+                        <
+                            point_tag,
+                            P
+                        >::type
+                >::type,
+            P, P
+        >::type distance_type;
+
+    inline distance_info()
+        : distance(distance_type())
+    {}
+
+    distance_type distance; // distance-measurement from segment.first to IP
+};
+
+template <typename P>
+struct turn_operation_with_distance : public overlay::turn_operation
+{
+    distance_info<P> enriched;
+};
+
+template <typename Geometry1, typename Geometry2>
+struct get_turns
+{
+    typedef typename geometry::point_type<Geometry1>::type point1_type;
+
+    typedef overlay::turn_info
+        <
+            point1_type,
+            turn_operation_with_distance<point1_type>
+        > turn_info;
+
+    template <typename Turns>
+    static inline void apply(Turns & turns, Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        typedef //overlay::assign_null_policy
+                overlay::calculate_distance_policy assign_policy;
+
+        detail::get_turns::no_interrupt_policy interrupt_policy;
+
+        boost::geometry::get_turns
+                <
+                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                    assign_policy
+                >(geometry1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
+    }
+};
 
 struct operation_order_uibc
 {

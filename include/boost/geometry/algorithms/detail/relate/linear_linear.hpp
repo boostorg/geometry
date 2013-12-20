@@ -12,12 +12,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp> // later change to equal/point_point.hpp
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-#include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
-
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
+#include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 namespace boost { namespace geometry
@@ -26,168 +22,37 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-enum field { interior = 0, boundary = 1, exterior = 2 };
-
-// With DE9IM only Dimension < 10 is supported
-class result
+template <typename Range>
+inline typename boost::range_value<Range>::type const&
+front(Range const& rng)
 {
-public:
-    result()
-    {
-        set('F');
-    }
+    BOOST_ASSERT(!boost::empty(rng));
+    return *boost::begin(rng);
+}
 
-    result(const char * str)
-    {
-        ::memcpy(array, str, 9);
-    }
-
-    template <field F1, field F2>
-    char get() const
-    {
-        return array[F1 * 3 + F2];
-    }
-
-    template <field F1, field F2>
-    void set(char v)
-    {
-        array[F1 * 3 + F2] = v;
-    }
-
-    template <field F1, field F2>
-    void update_dimension(char v)
-    {
-        char * c = array + F1 * 3 + F2;
-        if ( v > *c || *c > '9')
-            *c = v;
-    }
-
-    template <field F1, field F2>
-    void update(char v)
-    {
-        char * c = array + F1 * 3 + F2;
-        if ( *c > '9')
-            *c = v;
-    }
-
-    void set(char v)
-    {
-        ::memset(array, v, 9);
-    }
-
-private:
-    char array[9];
-};
-
-template <typename Point1, typename Point2>
-struct point_point
+template <typename Range>
+inline typename boost::range_value<Range>::type &
+front(Range & rng)
 {
-    static inline result apply(Point1 const& point1, Point2 const& point2)
-    {
-        bool equal = detail::equals::equals_point_point(point1, point2);
+    BOOST_ASSERT(!boost::empty(rng));
+    return *boost::begin(rng);
+}
 
-        if ( equal )
-            return result("0FFFFFFFT");
-        else
-            return result("FF0FFF0FT");
-    }
-};
-
-template <typename Point, typename Geometry>
-struct point_geometry
+template <typename Range>
+inline typename boost::range_value<Range>::type const&
+back(Range const& rng)
 {
-    static inline result apply(Point const& point, Geometry const& geometry)
-    {
-        int pig = detail::within::point_in_geometry(point, geometry);
+    BOOST_ASSERT(!boost::empty(rng));
+    return *(--boost::end(rng));
+}
 
-        // TODO: ? - if geometry has interior and/or boundary
-        // e.g. isn't 1-point linestring or linear ring
-
-        if ( pig < 0 ) // not within
-            return result("FF0FFF??T");
-        else if ( pig == 0 )
-            return result("F0FFFF??T");
-        else // pig > 0 - within
-            return result("0FFFFF??T");
-    }
-};
-
-// transposed result of point_geometry
-template <typename Geometry, typename Point>
-struct geometry_point
+template <typename Range>
+inline typename boost::range_value<Range>::type &
+back(Range & rng)
 {
-    static inline result apply(Geometry const& geometry, Point const& point)
-    {
-        int pig = detail::within::point_in_geometry(point, geometry);
-
-        // TODO: ? - if geometry has interior and/or boundary
-        // e.g. isn't 1-point linestring or linear ring
-
-        if ( pig < 0 ) // not within
-            return result("FF?FF?0FT");
-        else if ( pig == 0 )
-            return result("FF?0F?FFT");
-        else // pig > 0 - within
-            return result("0F?FF?FFT");
-    }
-};
-
-template<typename P>
-struct distance_info
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            typename strategy::distance::services::comparable_type
-                <
-                    typename strategy::distance::services::default_strategy
-                        <
-                            point_tag,
-                            P
-                        >::type
-                >::type,
-            P, P
-        >::type distance_type;
-
-    inline distance_info()
-        : distance(distance_type())
-    {}
-
-    distance_type distance; // distance-measurement from segment.first to IP
-};
-
-template <typename P>
-struct turn_operation_with_distance : public overlay::turn_operation
-{
-    distance_info<P> enriched;
-};
-
-template <typename Geometry1, typename Geometry2>
-struct get_turns
-{
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-
-    typedef overlay::turn_info
-        <
-            point1_type,
-            turn_operation_with_distance<point1_type>
-        > turn_info;
-
-    template <typename Turns>
-    static inline void apply(Turns & turns, Geometry1 const& geometry1, Geometry2 const& geometry2)
-    {
-        typedef //overlay::assign_null_policy
-                overlay::calculate_distance_policy assign_policy;
-
-        detail::get_turns::no_interrupt_policy interrupt_policy;
-
-        boost::geometry::get_turns
-                <
-                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                    assign_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
-    }
-};
+    BOOST_ASSERT(!boost::empty(rng));
+    return *(--boost::end(rng));
+}
 
 // currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
@@ -195,22 +60,6 @@ struct linear_linear
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-
-    template <typename Range>
-    static inline typename boost::range_value<Range>::type const&
-    front(Range const& rng)
-    {
-        BOOST_ASSERT(!boost::empty(rng));
-        return *boost::begin(rng);
-    }
-
-    template <typename Range>
-    static inline typename boost::range_value<Range>::type const&
-    back(Range const& rng)
-    {
-        BOOST_ASSERT(!boost::empty(rng));
-        return *(--boost::end(rng));
-    }
 
     static inline result apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
@@ -239,7 +88,7 @@ struct linear_linear
 
         result res("FFFFFFFFF");
 
-        // TODO: implement generic function forking also for multilinestrings, also use it in point_in_geometry
+        // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
         bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
         bool has_boundary2 = ! detail::equals::equals_point_point(front(geometry2), back(geometry2));
 
@@ -268,13 +117,13 @@ struct linear_linear
 
         // get and analyse turns
 
-        std::deque<typename get_turns<Geometry1, Geometry2>::turn_info> turns;
+        std::deque<typename turns::get_turns<Geometry1, Geometry2>::turn_info> turns;
 
-        get_turns<Geometry1, Geometry2>::apply(turns, geometry2, geometry2);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry2, geometry2);
 
         // TODO: turns must be analysed this way only if it's possible to go out and in on the same point
         // for linear geometries union or intersection operation was detected
-        std::sort(turns.begin(), turns.end(), relate::turns::less_seg_dist_op<relate::turns::operation_order_uibc>());
+        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<turns::operation_order_uibc>());
 
         analyse_turns(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
 
