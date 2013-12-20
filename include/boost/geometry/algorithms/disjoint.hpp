@@ -37,7 +37,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
-#include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/rescale.hpp>
 
@@ -72,7 +71,7 @@ struct check_each_ring_for_within
     template <typename Range>
     inline void apply(Range const& range)
     {
-        if (geometry::within(geometry::return_point_on_surface(range), m_geometry))
+        if ( detail::within::within_point_geometry(geometry::return_point_on_surface(range), m_geometry) )
         {
             has_within = true;
         }

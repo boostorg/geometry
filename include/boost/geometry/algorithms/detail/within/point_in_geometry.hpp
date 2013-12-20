@@ -216,7 +216,23 @@ inline int point_in_geometry(Point const& point, Geometry const& geometry)
     return point_in_geometry(point, geometry, strategy_type());
 }
 
+template <typename Point, typename Geometry>
+inline bool within_point_geometry(Point const& point, Geometry const& geometry)
+{
+    return point_in_geometry(point, geometry) > 0;
+}
+
 }} // namespace detail::within
+
+namespace detail { namespace covered_by {
+
+template <typename Point, typename Geometry>
+inline bool covered_by_point_geometry(Point const& point, Geometry const& geometry)
+{
+    return point_in_geometry(point, geometry) >= 0;
+}
+
+}} // namespace detail::covered_by
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
