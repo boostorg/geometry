@@ -51,8 +51,96 @@
 
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+#include <deque>
+
 namespace boost { namespace geometry
 {
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace within {
+
+// currently works only for linestrings
+template <typename Geometry1, typename Geometry2>
+struct linear_linear
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& /*strategy*/)
+    {
+        // TODO within() should return FALSE if a length(geometry1) == 0 and is contained entirely within a boundary,
+        // also if geometry2 has length(geometry2) == 0, it should be considered as a point.
+
+        // TODO: currently only for linestrings
+        std::size_t s1 = boost::size(geometry1);
+        std::size_t s2 = boost::size(geometry2);
+        if ( s1 == 0 || s2 == 0 || s2 == 1 )
+            return false;
+        if ( s1 == 1 && s2 == 1 ) // within(Pt, Pt)
+            return false;
+        if ( s1 == 1 )
+            return point_in_geometry(*boost::begin(geometry1), geometry2) > 0;
+
+        typedef typename geometry::point_type<Geometry1>::type point1_type;
+        typedef detail::overlay::turn_info<point1_type> turn_info;
+
+        typedef detail::overlay::get_turn_info
+            <
+                detail::overlay::assign_null_policy
+            > policy_type;
+
+        std::deque<turn_info> turns;
+
+        detail::get_turns::no_interrupt_policy policy;
+        boost::geometry::get_turns
+                <
+                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false
+                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value, // should be false
+                    detail::overlay::assign_null_policy
+                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+
+        return analyse_turns(turns.begin(), turns.end())
+            // TODO: currently only for linestrings
+            && point_in_geometry(*boost::begin(geometry1), geometry2) >= 0
+            && point_in_geometry(*(boost::end(geometry1) - 1), geometry2) >= 0;
+    }
+
+    template <typename TurnIt>
+    static inline bool analyse_turns(TurnIt first, TurnIt last)
+    {
+        bool has_turns = false;
+        for ( TurnIt it = first ; it != last ; ++it )
+        {
+            switch ( it->method )
+            {
+                case overlay::method_crosses:
+                    return false;
+                case overlay::method_touch:
+                case overlay::method_touch_interior:
+                    if ( it->both(overlay::operation_continue)
+                      || it->both(overlay::operation_blocked) )
+                    {
+                        has_turns = true;
+                    }
+                    else
+                        return false;
+                case overlay::method_equal:
+                case overlay::method_collinear:
+                    has_turns = true;
+                    break;
+                case overlay::method_none :
+                case overlay::method_disjoint :
+                case overlay::method_error :
+                    break;
+            }
+        }
+
+        return has_turns;
+    }
+};
+
+}} // namespace detail::within
+#endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
@@ -121,6 +209,17 @@ struct within<Point, Linestring, point_tag, linestring_tag>
     bool apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
     {
         return detail::within::point_in_geometry(point, linestring, strategy) == 1;
+    }
+};
+
+template <typename Linestring1, typename Linestring2>
+struct within<Linestring1, Linestring2, linestring_tag, linestring_tag>
+{
+    template <typename Strategy> static inline
+    bool apply(Linestring1 const& linestring1, Linestring2 const& linestring2, Strategy const& strategy)
+    {
+        return detail::within::linear_linear<Linestring1, Linestring2>
+                ::apply(linestring1, linestring2, strategy);
     }
 };
 

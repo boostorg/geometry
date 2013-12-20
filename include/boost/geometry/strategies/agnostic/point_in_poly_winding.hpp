@@ -211,6 +211,12 @@ struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linest
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
+template <typename Linestring1, typename Linestring2>
+struct default_strategy<linestring_tag, linestring_tag, linestring_tag, linestring_tag, cartesian_tag, cartesian_tag, Linestring1, Linestring2>
+{
+    typedef strategy::within::winding<typename geometry::point_type<Linestring1>::type, typename geometry::point_type<Linestring2>::type> type;
+};
+
 } // namespace services
 
 #endif
