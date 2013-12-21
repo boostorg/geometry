@@ -170,29 +170,6 @@ struct segments_direction
             ;
     }
 
-    // TODO: segment_ratio
-    template <typename Ratio>
-    static inline bool on_segment(Ratio const& r)
-    {
-        static Ratio const zero(0, 1);
-        static Ratio const one(1, 1);
-        return r >= zero && r <= one;
-    }
-    template <typename Ratio>
-    static inline bool in_segment(Ratio const& r)
-    {
-        static Ratio const zero(0, 1);
-        static Ratio const one(1, 1);
-        return r > zero && r < one;
-    }
-    template <typename Ratio>
-    static inline bool on_endpoint(Ratio const& r)
-    {
-        static Ratio const zero(0, 1);
-        static Ratio const one(1, 1);
-        return r == zero || r == one;
-    }
-
     template <typename Ratio>
     static inline int arrival_value(Ratio const& r_from, Ratio const& r_to)
     {
@@ -209,9 +186,9 @@ struct segments_direction
         // both arrive there -> r-to = 1/1, or 0/1 (on_segment)
 
         // First check the TO (for arrival), then FROM (for departure)
-        return in_segment(r_to) ? 1
-            : on_segment(r_to) ? 0
-            : on_segment(r_from) ? -1
+        return r_to.in_segment() ? 1
+            : r_to.on_segment() ? 0
+            : r_from.on_segment() ? -1
             : 0
             ;
     }
@@ -222,13 +199,13 @@ struct segments_direction
         int& on_end_count,
         int& outside_segment_count)
     {
-        if (in_segment(r))
-        {
-            in_segment_count++;
-        }
-        else if (on_endpoint(r))
+        if (r.on_end())
         {
             on_end_count++;
+        }
+        else if (r.in_segment())
+        {
+            in_segment_count++;
         }
         else
         {
@@ -244,10 +221,7 @@ struct segments_direction
     {
         // If segments are opposite, the ratio of the FROM w.r.t. the other
         // is larger than the ratio of the TO w.r.t. the other
-        bool const a_opposite = ra_from_wrt_b > ra_to_wrt_b;
-        bool const b_opposite = rb_from_wrt_a > rb_to_wrt_a;
-        assert(a_opposite == b_opposite); // TODO can be removed later
-        bool const opposite = a_opposite;
+        bool const opposite = ra_to_wrt_b < ra_from_wrt_b;
 
         return_type r('c', opposite);
 

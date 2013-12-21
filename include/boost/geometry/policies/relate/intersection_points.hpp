@@ -18,6 +18,7 @@
 
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -37,7 +38,6 @@ struct segments_intersection_points
     typedef ReturnType return_type;
     typedef S1 segment_type1;
     typedef S2 segment_type2;
-    typedef boost::rational<boost::long_long_type> robust_type;
 
     typedef typename select_calculation_type
         <
@@ -81,36 +81,6 @@ struct segments_intersection_points
         return result;
     }
 
-    template <int Dim, typename Segment, typename Point>
-    static inline void assign_point(Segment const& segment, Point& point)
-    {
-        detail::assign_point_from_index<Dim>(segment, point);
-    }
-
-    // TODO: this is copied. Will be removed by using new class segment_ratio
-    static inline boost::rational<boost::long_long_type> zero()
-    {
-        static const boost::rational<boost::long_long_type> result(0, 1);
-        return result;
-    }
-    static inline boost::rational<boost::long_long_type> one()
-    {
-        static const boost::rational<boost::long_long_type> result(1, 1);
-        return result;
-    }
-    template <typename Ratio>
-    static inline bool on_segment(Ratio const& r)
-    {
-        return r >= zero() && r <= one();
-    }
-    template <typename Ratio>
-    static inline bool in_segment(Ratio const& r)
-    {
-        return r > zero() && r < one();
-    }
-    // END TODO
-
-
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type segments_collinear(
         Segment1 const& a, Segment2 const& b,
@@ -122,7 +92,7 @@ struct segments_intersection_points
         Ratio on_a[2];
 
         // IMPORTANT: the order of conditions is different as in direction.hpp
-        if (on_segment(ra_from_wrt_b))
+        if (ra_from_wrt_b.on_segment())
         {
             //     a1--------->a2
             // b1----->b2
@@ -130,13 +100,13 @@ struct segments_intersection_points
             // ra1 (relative to b) is between 0/1:
             // -> First point of A is intersection point
             assert(index < 2);
-            assign_point<0>(a, result.intersections[index]);
-            result.fractions[index].assign(zero(), ra_from_wrt_b);
-            on_a[index] = zero();
+            detail::assign_point_from_index<0>(a, result.intersections[index]);
+            result.fractions[index].assign(Ratio::zero(), ra_from_wrt_b);
+            on_a[index] = Ratio::zero();
             index++;
             count_a++;
         }
-        if (in_segment(rb_from_wrt_a))
+        if (rb_from_wrt_a.in_segment())
         {
             // We take the first intersection point of B
             // a1--------->a2
@@ -146,30 +116,30 @@ struct segments_intersection_points
             // b1----->b2      rb_from_wrt_a == 0/1 -> a already taken
 
             assert(index < 2);
-            assign_point<0>(b, result.intersections[index]);
-            result.fractions[index].assign(rb_from_wrt_a, zero());
+            detail::assign_point_from_index<0>(b, result.intersections[index]);
+            result.fractions[index].assign(rb_from_wrt_a, Ratio::zero());
             on_a[index] = rb_from_wrt_a;
             index++;
             count_b++;
         }
 
-        if (on_segment(ra_to_wrt_b))
+        if (ra_to_wrt_b.on_segment())
         {
             // Similarly, second IP (here a2)
             // a1--------->a2
             //         b1----->b2
             assert(index < 2);
-            assign_point<1>(a, result.intersections[index]);
-            result.fractions[index].assign(one(), ra_to_wrt_b);
-            on_a[index] = one();
+            detail::assign_point_from_index<1>(a, result.intersections[index]);
+            result.fractions[index].assign(Ratio::one(), ra_to_wrt_b);
+            on_a[index] = Ratio::one();
             index++;
             count_a++;
         }
-        if (in_segment(rb_to_wrt_a))
+        if (rb_to_wrt_a.in_segment())
         {
             assert(index < 2);
-            assign_point<1>(b, result.intersections[index]);
-            result.fractions[index].assign(rb_to_wrt_a, one());
+            detail::assign_point_from_index<1>(b, result.intersections[index]);
+            result.fractions[index].assign(rb_to_wrt_a, Ratio::one());
             on_a[index] = rb_to_wrt_a;
             index++;
             count_b++;
@@ -179,7 +149,7 @@ struct segments_intersection_points
         // If both are from b, and b is reversed w.r.t. a, we swap IP's
         // to align them w.r.t. a
         // get_turn_info still relies on some order (in some collinear cases)
-        if (index == 2 && on_a[0] > on_a[1])
+        if (index == 2 && on_a[1] < on_a[0])
         {
             std::swap(result.fractions[0], result.fractions[1]);
             std::swap(result.intersections[0], result.intersections[1]);

@@ -11,9 +11,9 @@
 
 
 #include <boost/array.hpp>
-#include <boost/rational.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
 namespace boost { namespace geometry
 {
@@ -60,7 +60,7 @@ struct turn_operation
     operation_type operation;
     segment_identifier seg_id;
     segment_identifier other_id;
-    boost::rational<boost::long_long_type> fraction;
+    geometry::segment_ratio<boost::long_long_type> fraction;
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
     double x, y;

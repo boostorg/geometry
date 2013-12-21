@@ -15,7 +15,7 @@
 
 #include <cstddef>
 
-#include <boost/rational.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
 
 namespace boost { namespace geometry
@@ -120,7 +120,6 @@ struct de9im_segment : public de9im
     bool parallel;  // true if disjoint but parallel
     bool degenerate; // true for segment(s) of zero length
 
-    boost::rational<boost::long_long_type> fraction_a, fraction_b;
     double ra, rb; // temp
 
     inline de9im_segment()
@@ -159,7 +158,8 @@ struct de9im_segment : public de9im
 
 struct fraction_type
 {
-    typedef boost::rational<boost::long_long_type> robust_type;
+    typedef geometry::segment_ratio<boost::long_long_type> robust_type;
+
     robust_type robust_ra;
     robust_type robust_rb;
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
@@ -218,7 +218,7 @@ struct segment_intersection_points
 template <typename CoordinateType, typename PromotedType, typename RobustType>
 struct segment_intersection_info
 {
-    typedef boost::rational<boost::long_long_type> robust_type;
+    typedef geometry::segment_ratio<boost::long_long_type> robust_type;
     CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
     PromotedType r;
     robust_type robust_ra;

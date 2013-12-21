@@ -31,7 +31,8 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-typedef boost::rational<boost::long_long_type> ratio_type;
+typedef boost::geometry::segment_ratio<boost::long_long_type> ratio_type;
+
 
 template <typename IntersectionPoints>
 static int check(IntersectionPoints const& is,

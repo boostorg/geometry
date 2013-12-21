@@ -12,9 +12,6 @@
 
 #include <algorithm>
 
-#include <boost/rational.hpp>
-
-
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
@@ -23,6 +20,7 @@
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -205,8 +203,8 @@ struct relate_cartesian_segments
             {
                 sinfo.r = da / d;
 
-                sinfo.robust_ra = boost::rational<boost::long_long_type>(robust_da, robust_da0);
-                sinfo.robust_rb = boost::rational<boost::long_long_type>(robust_db, robust_db0);
+                sinfo.robust_ra.assign(robust_da, robust_da0);
+                sinfo.robust_rb.assign(robust_db, robust_db0);
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
                 promoted_type db0, db;
@@ -340,16 +338,16 @@ private :
         RobustType const length_a = oa_2 - oa_1; // no abs, see above
         RobustType const length_b = ob_2 - ob_1;
 
-        typedef boost::rational<boost::long_long_type> ratio_type;
+        typedef geometry::segment_ratio<boost::long_long_type> ratio_type;
         ratio_type const ra_from(oa_1 - ob_1, length_b);
         ratio_type const ra_to(oa_2 - ob_1, length_b);
         ratio_type const rb_from(ob_1 - oa_1, length_a);
         ratio_type const rb_to(ob_2 - oa_1, length_a);
 
-        static ratio_type const zero(0, 1);
-        static ratio_type const one(1, 1);
-        bool const sanity_check_b_disjoint = ((rb_from < zero && rb_to < zero) || (rb_from > one && rb_to > one));
-        if ((ra_from < zero && ra_to < zero) || (ra_from > one && ra_to > one))
+        bool const sanity_check_b_disjoint
+            = ((rb_from.left() && rb_to.left())
+            || (rb_from.right() && rb_to.right()));
+        if ((ra_from.left() && ra_to.left()) || (ra_from.right() && ra_to.right()))
         {
             assert(sanity_check_b_disjoint); // this will go
             return Policy::disjoint();

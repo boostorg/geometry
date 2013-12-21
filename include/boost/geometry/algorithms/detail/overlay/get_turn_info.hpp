@@ -149,7 +149,7 @@ struct base_turn_handler
     template <typename IntersectionInfo>
     static inline int non_opposite_to_index(IntersectionInfo const& info)
     {
-        return info.fractions[1].robust_rb > info.fractions[0].robust_rb
+        return info.fractions[0].robust_rb < info.fractions[1].robust_rb
             ? 1 : 0;
     }
 
