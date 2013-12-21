@@ -16,6 +16,8 @@
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
+#include <boost/range.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -86,7 +88,7 @@ struct linear_linear
 
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
 
-        result res("FFFFFFFFF");
+        result res("FFFFFFFFT");
 
         // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
         bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
@@ -119,7 +121,7 @@ struct linear_linear
 
         std::deque<typename turns::get_turns<Geometry1, Geometry2>::turn_info> turns;
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry2, geometry2);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         // TODO: turns must be analysed this way only if it's possible to go out and in on the same point
         // for linear geometries union or intersection operation was detected

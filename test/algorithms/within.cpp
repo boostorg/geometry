@@ -49,20 +49,6 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,5 0,3 0,6 0)", "LINESTRING(0 0,6 0)", true);
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,3 3,6 3)", true);
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1,5 3)", "LINESTRING(0 0,3 3,6 3)", false);
-
-    // RELATE TEST
-    ls geometry1;
-    ls geometry2;
-    bg::read_wkt("LINESTRING(0 0,2 2,3 3,1 1,5 3)", geometry1);
-    bg::read_wkt("LINESTRING(0 0,3 3,6 3)", geometry2);
-    namespace bgr = bg::detail::relate;
-    bgr::result
-        res = bgr::linear_linear<ls, ls>::apply(geometry1, geometry2);
-    bool ii = res.template get<bgr::interior, bgr::interior>() != 'F';
-    bool ie = res.template get<bgr::interior, bgr::exterior>() != 'F';
-    bool be = res.template get<bgr::boundary, bgr::exterior>() != 'F';
-    bool w = ii && !ie && !be;
-    BOOST_CHECK(!w);
 }
 
 template <typename P>

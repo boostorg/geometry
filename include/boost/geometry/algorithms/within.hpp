@@ -55,8 +55,6 @@
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <deque>
 
-#include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
-
 namespace boost { namespace geometry
 {
 

@@ -67,6 +67,11 @@ public:
         ::memset(array, v, 9);
     }
 
+    std::pair<const char*, const char*> get_code() const
+    {
+        return std::make_pair(array, array+9);
+    }
+
 private:
     char array[9];
 };
