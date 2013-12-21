@@ -94,28 +94,7 @@ struct linear_linear
         bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
         bool has_boundary2 = ! detail::equals::equals_point_point(front(geometry2), back(geometry2));
 
-        int pig_front = detail::within::point_in_geometry(front(geometry1), geometry2);
-
-        if ( has_boundary1 )
-        {
-            int pig_back = detail::within::point_in_geometry(back(geometry1), geometry2);
-
-            if ( pig_front > 0 || pig_back > 0 )
-                res.template set<boundary, interior>('0');
-            if ( pig_front == 0 || pig_back == 0 )
-                res.template set<boundary, boundary>('0');
-            if ( pig_front < 0 || pig_back < 0 )
-                res.template set<boundary, exterior>('0');
-        }
-        else
-        {
-            if ( pig_front > 0 )
-                res.template set<interior, interior>('0');
-            else if ( pig_front == 0 )
-                res.template set<interior, boundary>('0');
-            else if ( pig_front < 0 )
-                res.template set<interior, exterior>('0');
-        }
+        handle_boundaries(res, geometry1, geometry2, has_boundary1, has_boundary2);
 
         // get and analyse turns
 
@@ -152,8 +131,6 @@ struct linear_linear
                     break;
                 case overlay::method_equal:
                 case overlay::method_collinear:
-                    // probably there is no need to check it for collinear
-                    // and for equal only one linestring shoudl be checked, not both
                     handle_terminal_point(res, *it, geometry1, geometry2, has_boundary1, has_boundary2);
                     handle_col_eq(res);
                     break;
@@ -183,21 +160,20 @@ struct linear_linear
                                     Geometry1 const& geometry1, Geometry2 const& geometry2,
                                     bool has_boundary1, bool has_boundary2)
     {
-        if ( turn.both(overlay::operation_continue)
-          || turn.both(overlay::operation_blocked) )
+        // TODO: boundaries shoudl probably be also handled here
+        // boundaries of G1 was already set
+
+        if ( turn.both(overlay::operation_blocked) )
         {
             res.template update_dimension<interior, interior>('1');
         }
-        else if ( turn.has(overlay::operation_union) || turn.has(overlay::operation_intersection) )
+        else if ( turn.both(overlay::operation_continue)
+               || turn.has(overlay::operation_union)
+               || turn.has(overlay::operation_intersection) )
         {
             res.template update_dimension<interior, exterior>('1');
             res.template update_dimension<exterior, interior>('1');
-
-            // boundaries shoudl probably be also handled here
-            // boundaries of G1 was already set
         }
-
-        // TODO: THE REST OF CONDITIONS + CHECK FOR OUT-IN
     }
 
     template <typename Turn>
@@ -223,6 +199,63 @@ struct linear_linear
     {
         return detail::equals::equals_point_point(point, front(geometry))
             || detail::equals::equals_point_point(point, back(geometry));
+    }
+
+    static inline void handle_boundaries(result & res,
+                                         Geometry1 const& geometry1, Geometry2 const& geometry2,
+                                         bool has_boundary1, bool has_boundary2)
+    {
+        int pig_front = detail::within::point_in_geometry(front(geometry1), geometry2);
+
+        if ( has_boundary1 )
+        {
+            int pig_back = detail::within::point_in_geometry(back(geometry1), geometry2);
+
+            if ( pig_front > 0 || pig_back > 0 )
+                res.template set<boundary, interior>('0');
+            if ( pig_front == 0 || pig_back == 0 )
+                res.template set<boundary, boundary>('0');
+            if ( pig_front < 0 || pig_back < 0 )
+            {
+                res.template set<boundary, exterior>('0');
+                res.template set<interior, exterior>('1');
+            }
+        }
+        else
+        {
+            if ( pig_front > 0 )
+                res.template set<interior, interior>('0');
+            else if ( pig_front == 0 )
+                res.template set<interior, boundary>('0');
+            else if ( pig_front < 0 )
+                res.template set<interior, exterior>('0');
+        }
+
+        pig_front = detail::within::point_in_geometry(front(geometry2), geometry1);
+
+        if ( has_boundary2 )
+        {
+            int pig_back = detail::within::point_in_geometry(back(geometry2), geometry1);
+
+            if ( pig_front > 0 || pig_back > 0 )
+                res.template set<interior, boundary>('0');
+            if ( pig_front == 0 || pig_back == 0 )
+                res.template set<boundary, boundary>('0');
+            if ( pig_front < 0 || pig_back < 0 )
+            {
+                res.template set<exterior, boundary>('0');
+                res.template set<exterior, interior>('1');
+            }
+        }
+        else
+        {
+            if ( pig_front > 0 )
+                res.template set<interior, interior>('0');
+            else if ( pig_front == 0 )
+                res.template set<boundary, interior>('0');
+            else if ( pig_front < 0 )
+                res.template set<exterior, interior>('0');
+        }
     }
 };
 
