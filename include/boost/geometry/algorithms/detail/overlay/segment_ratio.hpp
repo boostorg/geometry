@@ -37,7 +37,7 @@ public :
         : m_numerator(nominator)
         , m_denominator(denominator)
     {
-        normalize();
+        initialize();
     }
 
     inline Type numerator() const { return m_numerator; }
@@ -47,10 +47,10 @@ public :
     {
         m_numerator = nominator;
         m_denominator = denominator;
-        normalize();
+        initialize();
     }
 
-    inline void normalize()
+    inline void initialize()
     {
         // Minimal normalization
         // 1/-4 => -1/4, -1/-4 => 1/4
@@ -59,6 +59,11 @@ public :
             m_numerator = -m_numerator;
             m_denominator = -m_denominator;
         }
+
+        static const double scale = 1000000.0;
+        m_approximation =
+            m_denominator == 0 ? 0
+            : int(double(m_numerator) * scale / double(m_denominator));
     }
 
     inline bool is_zero() const { return math::equals(m_numerator, 0); }
@@ -89,18 +94,24 @@ public :
         return m_numerator > m_denominator;
     }
 
+    inline bool close_to(segment_ratio<Type> const& other) const
+    {
+        return geometry::math::abs(m_approximation - other.m_approximation) < 2;
+    }
+
     inline bool operator< (segment_ratio<Type> const& other) const
     {
-        // For now we rely still on Boost.Rational
-        // Will be specialized for FP later
-        return boost::rational<Type>(m_numerator, m_denominator)
-             < boost::rational<Type>(other.m_numerator, other.m_denominator);
+        return close_to(other)
+            ? boost::rational<Type>(m_numerator, m_denominator)
+                < boost::rational<Type>(other.m_numerator, other.m_denominator)
+            : m_approximation < other.m_approximation;
     }
 
     inline bool operator== (segment_ratio<Type> const& other) const
     {
-        return boost::rational<Type>(m_numerator, m_denominator)
-            == boost::rational<Type>(other.m_numerator, other.m_denominator);
+        return close_to(other)
+            && (boost::rational<Type>(m_numerator, m_denominator)
+                == boost::rational<Type>(other.m_numerator, other.m_denominator));
     }
 
     static inline segment_ratio<Type> zero()
@@ -118,6 +129,13 @@ public :
 private :
     Type m_numerator;
     Type m_denominator;
+
+    // Contains ratio on scale 0..1000000 (for 0..1)
+    // This is an approximation for fast and rough comparisons
+    // Boost.Rational is used if the approximations are close.
+    // Reason: performance, Boost.Rational does a GCD by default and also the
+    // comparisons contain while-loops.
+    int m_approximation;
 };
 
 template <typename Char, typename Traits, typename Type>
