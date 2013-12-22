@@ -344,15 +344,10 @@ private :
         ratio_type const rb_from(ob_1 - oa_1, length_a);
         ratio_type const rb_to(ob_2 - oa_1, length_a);
 
-        bool const sanity_check_b_disjoint
-            = ((rb_from.left() && rb_to.left())
-            || (rb_from.right() && rb_to.right()));
         if ((ra_from.left() && ra_to.left()) || (ra_from.right() && ra_to.right()))
         {
-            assert(sanity_check_b_disjoint); // this will go
             return Policy::disjoint();
         }
-        assert(! sanity_check_b_disjoint);
 
         return Policy::segments_collinear(a, b, ra_from, ra_to, rb_from, rb_to);
     }
