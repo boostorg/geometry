@@ -500,7 +500,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     }
     test_traverse<polygon, polygon, operation_intersection>::apply("53_iet", 0, 0, case_53[0], case_53[2]);
 
-    test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_iet", 1, 2, case_54[1], case_54[3]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_iet", 2, 2, case_54[1], case_54[3]);
     if (test_self_tangencies)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("54_st_iet", 1, 2, case_54[0], case_54[3]);
@@ -647,7 +647,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             2, 16, case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
-        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 2, 20, case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 3, 20, case_54[0], case_54[2]);
         test_traverse<polygon, polygon, operation_union>::apply("54_st_iet", 2, 20, case_54[0], case_54[3]);
         test_traverse<polygon, polygon, operation_union>::apply("54_iet_st", 2, 20, case_54[1], case_54[2]);
     }

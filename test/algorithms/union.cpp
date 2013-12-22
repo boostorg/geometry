@@ -221,16 +221,11 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, 0,
-        if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)),
-        14729.07145);
+        1, 0, 8, 14729.07145);
 
-    // FP might return different amount of points
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-        1, 1,
-        if_typed<ct, double>(18, if_typed<ct, float>(-1, 17)),
-        129904.197692871);
+        1, 1, 15, 129904.197692871);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],

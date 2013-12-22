@@ -185,9 +185,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-        3,
-        if_typed<ct, double>(21, 20),
-        35723.8506317139);
+        3, 16, 35723.8506317139);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20131119_james",
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
