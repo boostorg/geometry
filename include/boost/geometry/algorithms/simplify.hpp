@@ -30,6 +30,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
@@ -229,6 +230,49 @@ struct simplify_insert<Ring, ring_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy
+{
+
+struct simplify
+{
+    template <typename Geometry, typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        dispatch::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
+    }
+
+    template <typename Geometry, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+
+        typedef typename strategy::distance::services::default_strategy
+        <
+            segment_tag, point_type
+        >::type ds_strategy_type;
+
+        typedef strategy::simplify::douglas_peucker
+        <
+            point_type, ds_strategy_type
+        > strategy_type;
+
+        BOOST_CONCEPT_ASSERT(
+            (concept::SimplifyStrategy<strategy_type, point_type>)
+        );
+
+        apply(geometry, out, max_distance, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
 /*!
 \brief Simplify a geometry using a specified strategy
 \ingroup simplify
@@ -252,13 +296,9 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 {
     concept::check<Geometry>();
 
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
-
     geometry::clear(out);
 
-    dispatch::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
+    resolve_strategy::simplify::apply(geometry, out, max_distance, strategy);
 }
 
 
@@ -285,17 +325,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     concept::check<Geometry>();
 
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename strategy::distance::services::default_strategy
-            <
-                segment_tag, point_type
-            >::type ds_strategy_type;
 
-    typedef strategy::simplify::douglas_peucker
-        <
-            point_type, ds_strategy_type
-        > strategy_type;
-
-    simplify(geometry, out, max_distance, strategy_type());
+    simplify(geometry, out, max_distance, default_strategy());
 }
 
 
