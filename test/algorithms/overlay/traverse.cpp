@@ -73,6 +73,17 @@ static inline std::string operation(int d)
     return d == 1 ? "union" : "intersection";
 }
 
+template <typename Ratio>
+static inline std::string debug_string(Ratio const& ratio)
+{
+    std::ostringstream out;
+    out << double(ratio.numerator()) / double(ratio.denominator())
+        //<< " " << ratio.numerator() << '/' << ratio.denominator()
+        ;
+    return out.str();
+}
+
+
 namespace detail
 {
 
@@ -272,8 +283,8 @@ struct test_traverse
                         << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                         << std::endl;
 
-                    out << "r: " << turn.operations[0].fraction
-                        << " ; " << turn.operations[1].fraction
+                    out << "r: " << debug_string(turn.operations[0].fraction)
+                        << " ; " << debug_string(turn.operations[1].fraction)
                         << std::endl;
                     if (turn.operations[0].enriched.next_ip_index != -1)
                     {

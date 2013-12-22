@@ -138,16 +138,6 @@ private :
     int m_approximation;
 };
 
-template <typename Char, typename Traits, typename Type>
-inline std::basic_ostream<Char, Traits>& operator<<
-    (
-        std::basic_ostream<Char, Traits>& os,
-        segment_ratio<Type> const& ratio
-    )
-{
-    os << ratio.numerator() << '/' << ratio.denominator();
-    return os;
-}
 
 }} // namespace boost::geometry
 
