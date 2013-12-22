@@ -218,11 +218,13 @@ struct segment_intersection_points
 template <typename CoordinateType, typename PromotedType, typename RobustType>
 struct segment_intersection_info
 {
-    typedef geometry::segment_ratio<boost::long_long_type> robust_type;
+    typedef PromotedType promoted_type;
+    typedef RobustType robust_type;
+
     CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
     PromotedType r;
-    robust_type robust_ra;
-    robust_type robust_rb;
+    geometry::segment_ratio<RobustType> robust_ra;
+    geometry::segment_ratio<RobustType> robust_rb;
 
     // TEMP to check calculations
 #ifdef BOOST_GEOMETRY_CHECK_RATIO

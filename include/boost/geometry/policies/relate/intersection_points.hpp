@@ -53,27 +53,52 @@ struct segments_intersection_points
             <
                 typename return_type::point_type
             >::type return_coordinate_type;
+        typedef typename SegmentIntersectionInfo::promoted_type promoted_type;
 
-        coordinate_type const s1x = get<0, 0>(s1);
-        coordinate_type const s1y = get<0, 1>(s1);
 
         return_type result;
         result.count = 1;
-        typedef double R; // TODO fix this
-        set<0>(result.intersections[0],
-            boost::numeric_cast<return_coordinate_type>(R(s1x) + sinfo.r * R(sinfo.dx_a)));
-        set<1>(result.intersections[0],
-            boost::numeric_cast<return_coordinate_type>(R(s1y) + sinfo.r * R(sinfo.dy_a)));
+
+        promoted_type const s1x = get<0, 0>(s1);
+        promoted_type const s1y = get<0, 1>(s1);
+        promoted_type const dx = sinfo.dx_a;
+        promoted_type const dy = sinfo.dy_a;
+        if (sinfo.r < 0 || sinfo.r > 1)
+        {
+            // Because we calculate side/info test from rescaled coordinates, we now
+            // use the ratio based on rescaled too. This is in 99.999% cases exactly the same.
+            // Where it is not the same, the FP one is off. Sometimes it is outside
+            // the range, so we have to use it...
+            // For now we only use that if the FP r is off.
+            assert(sinfo.robust_ra.denominator() != 0);
+            promoted_type const num = sinfo.robust_ra.numerator();
+            promoted_type const den = sinfo.robust_ra.denominator();
+            set<0>(result.intersections[0],
+                boost::numeric_cast<return_coordinate_type>(s1x + num * dx / den));
+            set<1>(result.intersections[0],
+                boost::numeric_cast<return_coordinate_type>(s1y + num * dy / den));
+        }
+        else
+        {
+            set<0>(result.intersections[0],
+                boost::numeric_cast<return_coordinate_type>(s1x + sinfo.r * dx));
+            set<1>(result.intersections[0],
+                boost::numeric_cast<return_coordinate_type>(s1y + sinfo.r * dy));
+        }
 
         result.fractions[0].assign(sinfo);
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
-        coordinate_type const s2x = get<0, 0>(s2);
-        coordinate_type const s2y = get<0, 1>(s2);
-        set<0>(result.intersections_check[0],
-            boost::numeric_cast<return_coordinate_type>(R(s2x) + sinfo.rb * R(sinfo.dx_b)));
-        set<1>(result.intersections_check[0],
-            boost::numeric_cast<return_coordinate_type>(R(s2y) + sinfo.rb * R(sinfo.dy_b)));
+        {
+            promoted_type const s2x = get<0, 0>(s2);
+            promoted_type const s2y = get<0, 1>(s2);
+            promoted_type const dx = sinfo.dx_b;
+            promoted_type const dy = sinfo.dy_b;
+            set<0>(result.intersections_check[0],
+                boost::numeric_cast<return_coordinate_type>(s2x + sinfo.rb * dx));
+            set<1>(result.intersections_check[0],
+                boost::numeric_cast<return_coordinate_type>(s2y + sinfo.rb * dy));
+        }
 #else
         boost::ignore_unused_variable_warning(s2);
 #endif

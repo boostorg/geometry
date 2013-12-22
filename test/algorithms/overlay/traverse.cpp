@@ -984,6 +984,10 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
     test_traverse<polygon, polygon, operation_intersection>::apply("ticket_7462", 1, 0.220582, ticket_7462[0], ticket_7462[1]);
 
+    test_traverse<polygon, polygon, operation_intersection>::apply
+        ("ticket_9081_15", 1, 0.006889578,
+            ticket_9081_15[0], ticket_9081_15[1]);
+
 #ifdef BOOST_GEOMETRY_OVERLAY_NO_THROW
     {
         // NOTE: currently throws (normally)
