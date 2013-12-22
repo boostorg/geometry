@@ -16,6 +16,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
@@ -115,7 +116,14 @@ inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const
 template <typename Geometry>
 inline bool has_self_intersections(Geometry const& geometry)
 {
-    return has_self_intersections(geometry, detail::no_rescale_policy());
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef typename geometry::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = get_rescale_policy<rescale_policy_type>(geometry);
+
+    return has_self_intersections(geometry, rescale_policy);
 }
 
 
