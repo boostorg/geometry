@@ -155,10 +155,6 @@ struct linear_linear
                 {
                     res.template update_dimension<interior, exterior>('1');
                     res.template update_dimension<exterior, interior>('1');
-
-                    typedef typename std::iterator_traits<TurnIt>::value_type turn_type;
-                    TurnIt next = turns::find_next_if<false>(first, it, last, turns::is_valid_turn<turn_type>);
-                    int a = 10;
                 }
             }
             // 'e' 'c'

@@ -69,12 +69,25 @@ struct get_turns
 
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
-        boost::geometry::get_turns
-                <
-                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                    assign_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
+        static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
+        static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
+
+//        boost::geometry::get_turns
+//                <
+//                    reverse1, reverse2, assign_policy
+//                >(geometry1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
+
+        typedef detail::overlay::get_turn_info
+            <
+                assign_policy
+            > turn_policy;
+
+        dispatch::get_turns
+            <
+                typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
+                Geometry1, Geometry2, reverse1, reverse2,
+                turn_policy
+            >::apply(0, geometry1, 1, geometry2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
     }
 };
 
