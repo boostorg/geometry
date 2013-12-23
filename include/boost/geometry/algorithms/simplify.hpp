@@ -270,6 +270,49 @@ struct simplify
     }
 };
 
+struct simplify_insert
+{
+    template
+    <
+        typename Geometry,
+        typename OutputIterator,
+        typename Distance,
+        typename Strategy
+    >
+    static inline void apply(Geometry const& geometry,
+                             OutputIterator& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy);
+    }
+
+    template <typename Geometry, typename OutputIterator, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             OutputIterator& out,
+                             Distance const& max_distance,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+
+        typedef typename strategy::distance::services::default_strategy
+        <
+            segment_tag, point_type
+        >::type ds_strategy_type;
+
+        typedef strategy::simplify::douglas_peucker
+        <
+            point_type, ds_strategy_type
+        > strategy_type;
+
+        BOOST_CONCEPT_ASSERT(
+            (concept::SimplifyStrategy<strategy_type, point_type>)
+        );
+
+        apply(geometry, out, max_distance, strategy_type());
+    }
+};
+
 } // namespace resolve_strategy
 
 
@@ -377,23 +420,11 @@ template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_insert(Geometry const& geometry, OutputIterator out,
                               Distance const& max_distance)
 {
-    typedef typename point_type<Geometry>::type point_type;
-
     // Concept: output point type = point type of input geometry
     concept::check<Geometry const>();
-    concept::check<point_type>();
+    concept::check<typename point_type<Geometry>::type>();
 
-    typedef typename strategy::distance::services::default_strategy
-        <
-            segment_tag, point_type
-        >::type ds_strategy_type;
-
-    typedef strategy::simplify::douglas_peucker
-        <
-            point_type, ds_strategy_type
-        > strategy_type;
-
-    dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy_type());
+    resolve_strategy::simplify_insert::apply(geometry, out, max_distance, default_strategy());
 }
 
 }} // namespace detail::simplify
