@@ -4,6 +4,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -12,8 +13,167 @@
 
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
+template <typename G, typename Turns, typename Mapper>
+inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = false)
+{
+    // turn points in orange, + enrichment/traversal info
+    typedef typename bg::coordinate_type<G>::type coordinate_type;
+    typedef typename boost::range_value<Turns>::type turn_info;
+
+    // Simple map to avoid two texts at same place (note that can still overlap!)
+    std::map<std::pair<int, int>, int> offsets;
+    int index = 0;
+    int const margin = 5;
+
+    BOOST_FOREACH(turn_info const& turn, turns)
+    {
+        int lineheight = 10;
+        mapper.map(turn.point, "fill:rgb(255,128,0);"
+                "stroke:rgb(0,0,0);stroke-width:1", 3);
+
+        {
+            coordinate_type half = 0.5;
+            coordinate_type ten = 10;
+            // Map characteristics
+            // Create a rounded off point
+            std::pair<int, int> p
+                = std::make_pair(
+                    boost::numeric_cast<int>(half
+                        + ten * bg::get<0>(turn.point)),
+                    boost::numeric_cast<int>(half
+                        + ten * bg::get<1>(turn.point))
+                    );
+        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:12px";
+
+        if (turn.discarded)
+        {
+            style =  "fill:rgb(92,92,92);font-family:Arial;font-size:10px";
+            lineheight = 6;
+        }
+
+        //if (! turn.is_discarded() && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
+        //if (! turn.discarded)
+        {
+            std::ostringstream out;
+            out << index
+                << ": " << bg::method_char(turn.method);
+
+            if ( turn.is_discarded() )
+                out << " (discarded)\n";
+            else if ( turn.blocked() )
+                out << " (blocked)\n";
+            else
+                out << '\n';
+
+            out << bg::operation_char(turn.operations[0].operation)
+                <<": seg: " << turn.operations[0].seg_id.source_index
+                << ' ' << turn.operations[0].seg_id.multi_index
+                << ' ' << turn.operations[0].seg_id.ring_index
+                << ' ' << turn.operations[0].seg_id.segment_index << ", ";
+            out << "other: " << turn.operations[0].other_id.source_index
+                << ' ' << turn.operations[0].other_id.multi_index
+                << ' ' << turn.operations[0].other_id.ring_index
+                << ' ' << turn.operations[0].other_id.segment_index;
+
+            if ( enrich )
+            {
+                out << ", ";
+                if (turn.operations[0].enriched.next_ip_index != -1)
+                {
+                    out << "ip: " << turn.operations[0].enriched.next_ip_index;
+                }
+                else
+                {
+                    out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
+                        << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
+                }
+            }
+
+            out << '\n';
+
+            out << bg::operation_char(turn.operations[1].operation)
+                << ": seg: " << turn.operations[1].seg_id.source_index
+                << ' ' << turn.operations[1].seg_id.multi_index
+                << ' ' << turn.operations[1].seg_id.ring_index
+                << ' ' << turn.operations[1].seg_id.segment_index << ", ";
+            out << "other: " << turn.operations[1].other_id.source_index
+                << ' ' << turn.operations[1].other_id.multi_index
+                << ' ' << turn.operations[1].other_id.segment_index
+                << ' ' << turn.operations[1].other_id.ring_index;
+
+            if ( enrich )
+            {
+                out << ", ";
+                if (turn.operations[1].enriched.next_ip_index != -1)
+                {
+                    out << "ip: " << turn.operations[1].enriched.next_ip_index;
+                }
+                else
+                {
+                    out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
+                        << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
+                }
+            }
+
+            //out << std::endl;
+
+            /*out
+
+                << std::setprecision(3)
+                << "dist: " << boost::numeric_cast<double>(turn.operations[0].enriched.distance)
+                << " / "  << boost::numeric_cast<double>(turn.operations[1].enriched.distance)
+                << std::endl
+                << "vis: " << bg::visited_char(turn.operations[0].visited)
+                << " / "  << bg::visited_char(turn.operations[1].visited);
+            */
+
+            /*
+                out << index
+                    << ": " << bg::operation_char(turn.operations[0].operation)
+                    << " " << bg::operation_char(turn.operations[1].operation)
+                    << " (" << bg::method_char(turn.method) << ")"
+                    << (turn.ignore() ? " (ignore) " : " ")
+                    << std::endl
+
+                    << "ip: " << turn.operations[0].enriched.travels_to_ip_index
+                    << "/"  << turn.operations[1].enriched.travels_to_ip_index;
+
+                if (turn.operations[0].enriched.next_ip_index != -1
+                    || turn.operations[1].enriched.next_ip_index != -1)
+                {
+                    out << " [" << turn.operations[0].enriched.next_ip_index
+                        << "/"  << turn.operations[1].enriched.next_ip_index
+                        << "]"
+                        ;
+                }
+                out << std::endl;
+
+
+                out
+                    << "vx:" << turn.operations[0].enriched.travels_to_vertex_index
+                    << "/"  << turn.operations[1].enriched.travels_to_vertex_index
+                    << std::endl
+
+                    << std::setprecision(3)
+                    << "dist: " << turn.operations[0].enriched.distance
+                    << " / "  << turn.operations[1].enriched.distance
+                    << std::endl
+                    */
+
+
+
+                offsets[p] += lineheight;
+                int offset = offsets[p];
+                offsets[p] += lineheight * 3;
+                mapper.text(turn.point, out.str(), style, margin, offset, lineheight);
+            }
+            index++;
+        }
+    }
+}
+
 template <typename G>
-inline void to_svg(G const& g, std::string const& filename)
+inline void to_svg(G const& g, std::string const& filename, bool sort = true)
 {
     namespace bg = boost::geometry;
 
@@ -27,6 +187,26 @@ inline void to_svg(G const& g, std::string const& filename)
 
     mapper.map(g, "fill-opacity:0.5;fill:rgb(153,204,0);"
         "stroke:rgb(153,204,0);stroke-width:3");
+
+    // GET TURNS
+
+    typedef bg::detail::overlay::traversal_turn_info<P> turn_info;
+    typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+
+    typedef std::deque<turn_info> Turns;
+    typedef bg::detail::self_get_turn_points::no_interrupt_policy InterruptPolicy;
+
+    Turns turns;
+    InterruptPolicy interrupt_policy;
+
+    typedef bg::detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
+
+    bg::detail::self_get_turn_points::get_turns
+        <
+            TurnPolicy
+        >::apply(g, bg::detail::no_rescale_policy(), turns, interrupt_policy);
+
+    turns_to_svg<G>(turns, mapper);
 }
 
 template <typename G1, typename G2>
@@ -107,159 +287,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
                  side_strategy_type());
     }
 
-    // turn points in orange, + enrichment/traversal info
-    typedef typename bg::coordinate_type<G1>::type coordinate_type;
-
-    // Simple map to avoid two texts at same place (note that can still overlap!)
-    std::map<std::pair<int, int>, int> offsets;
-    int index = 0;
-    int const margin = 5;
-
-    BOOST_FOREACH(turn_info const& turn, turns)
-    {
-        int lineheight = 10;
-        mapper.map(turn.point, "fill:rgb(255,128,0);"
-                "stroke:rgb(0,0,0);stroke-width:1", 3);
-
-        {
-            coordinate_type half = 0.5;
-            coordinate_type ten = 10;
-            // Map characteristics
-            // Create a rounded off point
-            std::pair<int, int> p
-                = std::make_pair(
-                    boost::numeric_cast<int>(half
-                        + ten * bg::get<0>(turn.point)),
-                    boost::numeric_cast<int>(half
-                        + ten * bg::get<1>(turn.point))
-                    );
-        std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:12px";
-
-        if (turn.discarded)
-        {
-            style =  "fill:rgb(92,92,92);font-family:Arial;font-size:10px";
-            lineheight = 6;
-        }
-
-        //if (! turn.is_discarded() && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
-        //if (! turn.discarded)
-        {
-            std::ostringstream out;
-            out << index
-                << ": " << bg::method_char(turn.method);
-
-            if ( turn.is_discarded() )
-                out << " (discarded)\n";
-            else if ( turn.blocked() )
-                out << " (blocked)\n";
-            else
-                out << '\n';
-
-            out << bg::operation_char(turn.operations[0].operation)
-                <<": seg: " << turn.operations[0].seg_id.source_index
-                << ' ' << turn.operations[0].seg_id.multi_index
-                << ' ' << turn.operations[0].seg_id.ring_index
-                << ' ' << turn.operations[0].seg_id.segment_index << ", ";
-            out << "other: " << turn.operations[0].other_id.source_index
-                << ' ' << turn.operations[0].other_id.multi_index
-                << ' ' << turn.operations[0].other_id.ring_index
-                << ' ' << turn.operations[0].other_id.segment_index;
-            
-            if ( enrich )
-            {
-                out << ", ";
-                if (turn.operations[0].enriched.next_ip_index != -1)
-                {
-                    out << "ip: " << turn.operations[0].enriched.next_ip_index;
-                }
-                else
-                {
-                    out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
-                        << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
-                }
-            }
-
-            out << '\n';
-
-            out << bg::operation_char(turn.operations[1].operation)
-                << ": seg: " << turn.operations[1].seg_id.source_index
-                << ' ' << turn.operations[1].seg_id.multi_index
-                << ' ' << turn.operations[1].seg_id.ring_index
-                << ' ' << turn.operations[1].seg_id.segment_index << ", ";
-            out << "other: " << turn.operations[1].other_id.source_index
-                << ' ' << turn.operations[1].other_id.multi_index
-                << ' ' << turn.operations[1].other_id.segment_index
-                << ' ' << turn.operations[1].other_id.ring_index;
-
-            if ( enrich )
-            {
-                out << ", ";
-                if (turn.operations[1].enriched.next_ip_index != -1)
-                {
-                    out << "ip: " << turn.operations[1].enriched.next_ip_index;
-                }
-                else
-                {
-                    out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
-                        << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
-                }
-            }
-                    
-            //out << std::endl;
-
-            /*out
-
-                << std::setprecision(3)
-                << "dist: " << boost::numeric_cast<double>(turn.operations[0].enriched.distance)
-                << " / "  << boost::numeric_cast<double>(turn.operations[1].enriched.distance)
-                << std::endl
-                << "vis: " << bg::visited_char(turn.operations[0].visited)
-                << " / "  << bg::visited_char(turn.operations[1].visited);
-            */
-
-            /*
-                out << index
-                    << ": " << bg::operation_char(turn.operations[0].operation)
-                    << " " << bg::operation_char(turn.operations[1].operation)
-                    << " (" << bg::method_char(turn.method) << ")"
-                    << (turn.ignore() ? " (ignore) " : " ")
-                    << std::endl
-
-                    << "ip: " << turn.operations[0].enriched.travels_to_ip_index
-                    << "/"  << turn.operations[1].enriched.travels_to_ip_index;
-
-                if (turn.operations[0].enriched.next_ip_index != -1
-                    || turn.operations[1].enriched.next_ip_index != -1)
-                {
-                    out << " [" << turn.operations[0].enriched.next_ip_index
-                        << "/"  << turn.operations[1].enriched.next_ip_index
-                        << "]"
-                        ;
-                }
-                out << std::endl;
-
-
-                out
-                    << "vx:" << turn.operations[0].enriched.travels_to_vertex_index
-                    << "/"  << turn.operations[1].enriched.travels_to_vertex_index
-                    << std::endl
-
-                    << std::setprecision(3)
-                    << "dist: " << turn.operations[0].enriched.distance
-                    << " / "  << turn.operations[1].enriched.distance
-                    << std::endl
-                    */
-
-
-
-                offsets[p] += lineheight;
-                int offset = offsets[p];
-                offsets[p] += lineheight * 3;
-                mapper.text(turn.point, out.str(), style, margin, offset, lineheight);
-            }
-            index++;
-        }
-    }
+    turns_to_svg<G1>(turns, mapper, enrich);
 }
 
 template <typename G>
