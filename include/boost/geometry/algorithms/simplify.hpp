@@ -37,6 +37,10 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -316,6 +320,60 @@ struct simplify_insert
 } // namespace resolve_strategy
 
 
+namespace resolve_variant {
+
+template <typename Geometry>
+struct simplify
+{
+    template <typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        resolve_strategy::simplify::apply(geometry, out, max_distance, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct simplify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Distance, typename Strategy>
+    struct visitor: boost::static_visitor<void>
+    {
+        Distance const& m_max_distance;
+        Strategy const& m_strategy;
+
+        visitor(Distance const& max_distance, Strategy const& strategy)
+            : m_max_distance(max_distance)
+            , m_strategy(strategy)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry, Geometry& out) const
+        {
+            simplify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
+        }
+    };
+
+    template <typename Distance, typename Strategy>
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& out,
+          Distance const& max_distance,
+          Strategy const& strategy)
+    {
+        boost::apply_visitor(
+            visitor<Distance, Strategy>(max_distance, strategy),
+            geometry,
+            out
+        );
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief Simplify a geometry using a specified strategy
 \ingroup simplify
@@ -341,7 +399,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 
     geometry::clear(out);
 
-    resolve_strategy::simplify::apply(geometry, out, max_distance, strategy);
+    resolve_variant::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
 }
 
 

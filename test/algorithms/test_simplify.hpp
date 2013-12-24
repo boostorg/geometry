@@ -17,8 +17,8 @@
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/variant/variant.hpp>
 
 template <typename Tag, typename Geometry>
 struct test_inserter
@@ -46,24 +46,43 @@ struct test_inserter<bg::linestring_tag, Geometry>
 
 
 template <typename Geometry>
-void test_geometry(std::string const& wkt, std::string const& expected, double distance)
+void check_geometry(Geometry const& geometry,
+                    std::string const& expected,
+                    double distance)
 {
-    Geometry geometry, simplified;
-
-    // Generate polygon using only integer coordinates and obvious results
-    // Polygon is a hexagon, having one extra point (2,1) on a line which should be filtered out.
-    bg::read_wkt(wkt, geometry);
+    Geometry simplified;
     bg::simplify(geometry, simplified, distance);
 
-    {
-        std::ostringstream out;
-        out << std::setprecision(12) << bg::wkt(simplified);
+    std::ostringstream out;
+    out << std::setprecision(12) << bg::wkt(simplified);
+    BOOST_CHECK_EQUAL(out.str(), expected);
+}
 
-        BOOST_CHECK_MESSAGE(out.str() == expected,
-            "simplify: " << bg::wkt(geometry)
-            << " expected " << expected
-            << " got " << out.str());
-    }
+template <typename Geometry, typename Strategy>
+void check_geometry(Geometry const& geometry,
+                    std::string const& expected,
+                    double distance,
+                    Strategy const& strategy)
+{
+    Geometry simplified;
+    bg::simplify(geometry, simplified, distance, strategy);
+
+    std::ostringstream out;
+    out << std::setprecision(12) << bg::wkt(simplified);
+    BOOST_CHECK_EQUAL(out.str(), expected);
+}
+
+template <typename Geometry>
+void test_geometry(std::string const& wkt, std::string const& expected, double distance)
+{
+    // Generate polygon using only integer coordinates and obvious results
+    // Polygon is a hexagon, having one extra point (2,1) on a line which should be filtered out.
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    boost::variant<Geometry> v(geometry);
+
+    check_geometry(geometry, expected, distance);
+    check_geometry(v, expected, distance);
 
     // Check using user-specified strategy
     typedef typename bg::point_type<Geometry>::type point_type;
@@ -76,13 +95,9 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
         > simplify_strategy_type;
 
     BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<simplify_strategy_type, point_type>) );
-    bg::simplify(geometry, simplified, distance, simplify_strategy_type());
 
-    {
-        std::ostringstream out;
-        out << std::setprecision(12) << bg::wkt(simplified);
-        BOOST_CHECK_EQUAL(out.str(), expected);
-    }
+    check_geometry(geometry, expected, distance, simplify_strategy_type());
+    check_geometry(v, expected, distance, simplify_strategy_type());
 
     // Check inserter (if applicable)
     test_inserter
