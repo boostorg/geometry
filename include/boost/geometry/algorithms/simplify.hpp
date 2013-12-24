@@ -453,14 +453,11 @@ namespace detail { namespace simplify
 */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_insert(Geometry const& geometry, OutputIterator out,
-                              Distance const& max_distance, Strategy const& strategy)
+                            Distance const& max_distance, Strategy const& strategy)
 {
     concept::check<Geometry const>();
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
 
-    dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy);
+    resolve_strategy::simplify_insert::apply(geometry, out, max_distance, strategy);
 }
 
 /*!
@@ -476,13 +473,13 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
  */
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_insert(Geometry const& geometry, OutputIterator out,
-                              Distance const& max_distance)
+                            Distance const& max_distance)
 {
     // Concept: output point type = point type of input geometry
     concept::check<Geometry const>();
     concept::check<typename point_type<Geometry>::type>();
 
-    resolve_strategy::simplify_insert::apply(geometry, out, max_distance, default_strategy());
+    simplify_insert(geometry, out, max_distance, default_strategy());
 }
 
 }} // namespace detail::simplify
