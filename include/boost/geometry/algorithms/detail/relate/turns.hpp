@@ -259,8 +259,10 @@ struct get_turn_info_linear_linear
         if ( !has_intersections )
             return;
 
+        // is the IP equal to the first point of a Linestring P
         bool is_p_first_ip = tp_model.operations[0].seg_id.segment_index == 0
                           && equals::equals_point_point(pi, result.template get<0>().intersections[0]);
+        // is the IP equal to the first point of a Linestring Q
         bool is_q_first_ip = tp_model.operations[1].seg_id.segment_index == 0
                           && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
 
@@ -271,24 +273,28 @@ struct get_turn_info_linear_linear
 
         TurnInfo tp = tp_model;
 
+        // if the IP is on the second point of a segment of the other Linestring
+        // it should be ignored to avoid generation of 2 turns
+
+        if ( is_p_first_ip
+          && equals::equals_point_point(qj, result.template get<0>().intersections[0]) )
+            return;
+
+        if ( is_q_first_ip
+          && equals::equals_point_point(pj, result.template get<0>().intersections[0]) )
+            return;
+
+        // calculate the sides and set operations
+
         overlay::side_calculator<Point1, Point2> side_calc(pi, pi, pj, qi, qi, qj);
 
-// FROM SWITCH FOR COLINEAR
-        if (result.template get<1>().arrival[0] == 0)
-        {
-            // Collinear, but similar thus handled as equal
-            overlay::equal<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
-                tp, result.template get<0>(), result.template get<1>(), side_calc);
+        overlay::equal<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
+            tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-            // override assigned method
-            tp.method = overlay::method_collinear;
-        }
-        else
-        {
-            overlay::collinear<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
-                tp, result.template get<0>(), result.template get<1>(), side_calc);
-        }
+        // override assigned method
+        tp.method = overlay::method_collinear;
 
+        // assign the IP0, equal<> assigns the 2nd one
         geometry::convert(result.template get<0>().intersections[0], tp.point);
         
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
