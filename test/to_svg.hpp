@@ -172,13 +172,13 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = fals
     }
 }
 
-//struct to_svg_assign_policy
-//    : bg::detail::overlay::calculate_distance_policy
-//{
-//    static bool const include_no_turn = true;
-//    static bool const include_degenerate = true;
-//    static bool const include_opposite = true;
-//};
+struct to_svg_assign_policy
+    : bg::detail::overlay::calculate_distance_policy
+{
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+    static bool const include_opposite = true;
+};
 
 template <typename G>
 inline void to_svg(G const& g, std::string const& filename, bool sort = true)
@@ -200,6 +200,7 @@ inline void to_svg(G const& g, std::string const& filename, bool sort = true)
 
     typedef bg::detail::overlay::traversal_turn_info<P> turn_info;
     typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+    //typedef to_svg_assign_policy AssignPolicy;    
 
     typedef std::deque<turn_info> Turns;
     typedef bg::detail::self_get_turn_points::no_interrupt_policy InterruptPolicy;
@@ -218,7 +219,7 @@ inline void to_svg(G const& g, std::string const& filename, bool sort = true)
 }
 
 template <typename G1, typename G2>
-inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool sort = true, bool reverse_by_geometry_id = false, bool enrich = false)
+inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool sort = true, bool use_old_turns_policy = false, bool enrich = false)
 {
     namespace bg = boost::geometry;
 
@@ -240,7 +241,8 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
     // GET TURNS
     
     typedef bg::detail::overlay::traversal_turn_info<P1> turn_info;
-    typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+    //typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+    typedef to_svg_assign_policy AssignPolicy;
 
     typedef std::deque<turn_info> Turns;
     typedef bg::detail::get_turns::no_interrupt_policy InterruptPolicy;
@@ -250,7 +252,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
     Turns turns;
     InterruptPolicy interrupt_policy;
 
-    if ( reverse_by_geometry_id )
+    if ( use_old_turns_policy )
     {
         boost::geometry::get_turns
             <
@@ -259,17 +261,15 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
     }
     else
     {
-        typedef bg::detail::overlay::get_turn_info
+        typedef bg::detail::relate::turns::get_turn_info
             <
-                AssignPolicy
+                G1, G2, AssignPolicy
             > TurnPolicy;
 
-        bg::dispatch::get_turns
+        bg::detail::relate::turns::get_turns
             <
-                typename bg::tag<G1>::type, typename bg::tag<G2>::type,
-                G1, G2, Reverse1, Reverse2,
-                TurnPolicy
-            >::apply(0, g1, 1, g2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
+                G1, G2, TurnPolicy
+            >::apply(turns, g1, g2);
     }
 
     if ( sort )

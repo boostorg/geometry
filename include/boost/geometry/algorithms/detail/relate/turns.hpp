@@ -14,12 +14,17 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
+
+#include <boost/type_traits/is_base_of.hpp>
 
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
+
+// TURN_INFO
 
 template<typename P>
 struct distance_info
@@ -50,7 +55,285 @@ struct turn_operation_with_distance : public overlay::turn_operation
     distance_info<P> enriched;
 };
 
-template <typename Geometry1, typename Geometry2>
+// GET_TURN_INFO
+
+template<typename AssignPolicy>
+struct get_turn_info_linear_linear
+{
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename TurnInfo,
+        typename RescalePolicy,
+        typename OutputIterator
+    >
+    static inline OutputIterator apply(
+                Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                TurnInfo const& tp_model,
+                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                OutputIterator out)
+    {
+        typedef model::referring_segment<Point1 const> segment_type1;
+        typedef model::referring_segment<Point2 const> segment_type2;
+        segment_type1 p1(pi, pj), p2(pj, pk);
+        segment_type2 q1(qi, qj), q2(qj, qk);
+
+        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+
+        typedef strategy_intersection
+            <
+                typename cs_tag<typename TurnInfo::point_type>::type,
+                Point1,
+                Point2,
+                typename TurnInfo::point_type
+            > si;
+
+        typedef typename si::segment_intersection_strategy_type strategy;
+
+        typename strategy::return_type result = strategy::apply(p1, q1);
+
+        char const method = result.template get<1>().how;
+
+        // Copy, to copy possibly extended fields
+        TurnInfo tp = tp_model;
+
+        // Select method and apply
+        switch(method)
+        {
+            case 'a' : // collinear, "at"
+            case 'f' : // collinear, "from"
+            case 's' : // starts from the middle
+                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
+                break;
+
+            case 'd' : // disjoint: never do anything
+                break;
+
+            case 'm' :
+            {
+                typedef overlay::touch_interior
+                    <
+                        TurnInfo
+                    > policy;
+
+                // If Q (1) arrives (1)
+                if (result.template get<1>().arrival[1] == 1)
+                {
+                    policy::template apply<0>(pi, pj, pk, qi, qj, qk,
+                                tp, result.template get<0>(), result.template get<1>(),
+                                side_calc);
+                }
+                else
+                {
+                    // Swap p/q
+                    overlay::side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                    policy::template apply<1>(qi, qj, qk, pi, pj, pk,
+                                tp, result.template get<0>(), result.template get<1>(),
+                                swapped_side_calc);
+                }
+                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                *out++ = tp;
+            }
+            break;
+            case 'i' :
+            {
+                overlay::crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    tp, result.template get<0>(), result.template get<1>());
+                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                *out++ = tp;
+            }
+            break;
+            case 't' :
+            {
+                // Both touch (both arrive there)
+                overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    tp, result.template get<0>(), result.template get<1>(), side_calc);
+                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                *out++ = tp;
+            }
+            break;
+            case 'e':
+            {
+                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
+
+                if (! result.template get<1>().opposite)
+                {
+                    // Both equal
+                    // or collinear-and-ending at intersection point
+                    overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    *out++ = tp;
+                }
+                else
+                {
+                    overlay::equal_opposite
+                        <
+                            TurnInfo,
+                            AssignPolicy
+                        >::apply(pi, qi,
+                            tp, out, result.template get<0>(), result.template get<1>());
+                }
+            }
+            break;
+            case 'c' :
+            {
+                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
+
+                // Collinear
+                if (! result.template get<1>().opposite)
+                {
+
+                    if (result.template get<1>().arrival[0] == 0)
+                    {
+                        // Collinear, but similar thus handled as equal
+                        overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                                tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                        // override assigned method
+                        tp.method = overlay::method_collinear;
+                    }
+                    else
+                    {
+                        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                                tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    }
+
+                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    *out++ = tp;
+                }
+                else
+                {
+                    overlay::collinear_opposite
+                        <
+                            TurnInfo,
+                            AssignPolicy
+                        >::apply(pi, pj, pk, qi, qj, qk,
+                            tp, out, result.template get<0>(), result.template get<1>(), side_calc);
+                }
+            }
+            break;
+            case '0' :
+            {
+                // degenerate points
+                if (AssignPolicy::include_degenerate)
+                {
+                    overlay::only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    *out++ = tp;
+                }
+            }
+            break;
+            default :
+            {
+#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
+                std::cout << "TURN: Unknown method: " << method << std::endl;
+#endif
+#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
+                throw turn_info_exception(method);
+#endif
+            }
+            break;
+        }
+
+        return out;
+    }
+
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename TurnInfo,
+        typename IntersectionResult,
+        typename OutputIterator
+    >
+    static inline void handle_first(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                    Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                    TurnInfo const& tp_model,
+                                    IntersectionResult const& result,
+                                    OutputIterator out)
+    {
+        bool has_intersections = result.template get<0>().count > 0;
+        if ( !has_intersections )
+            return;
+
+        bool is_p_first_ip = tp_model.operations[0].seg_id.segment_index == 0
+                          && equals::equals_point_point(pi, result.template get<0>().intersections[0]);
+        bool is_q_first_ip = tp_model.operations[1].seg_id.segment_index == 0
+                          && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
+
+        bool should_handle = has_intersections && ( is_p_first_ip || is_q_first_ip );
+
+        if ( !should_handle )
+            return;
+
+        TurnInfo tp = tp_model;
+
+        overlay::side_calculator<Point1, Point2> side_calc(pi, pi, pj, qi, qi, qj);
+
+// FROM SWITCH FOR COLINEAR
+        if (result.template get<1>().arrival[0] == 0)
+        {
+            // Collinear, but similar thus handled as equal
+            overlay::equal<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
+                tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+            // override assigned method
+            tp.method = overlay::method_collinear;
+        }
+        else
+        {
+            overlay::collinear<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
+                tp, result.template get<0>(), result.template get<1>(), side_calc);
+        }
+
+        geometry::convert(result.template get<0>().intersections[0], tp.point);
+        
+        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+        *out++ = tp;
+    }
+};
+
+// GET_TURN_INFO_TYPE
+
+template <typename Tag,
+          bool IsLinear = boost::is_base_of<linear_tag, Tag>::value,
+          bool IsAreal = boost::is_base_of<areal_tag, Tag>::value>
+struct tag_base : not_implemented<Tag>
+{};
+
+template <typename Tag>
+struct tag_base<Tag, true, false>
+{
+    typedef linear_tag type;
+};
+
+template <typename Tag>
+struct tag_base<Tag, false, true>
+{
+    typedef areal_tag type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AssignPolicy = overlay::calculate_distance_policy,
+          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
+          typename TagBase1 = typename tag_base<Tag1>::type, typename TagBase2 = typename tag_base<Tag2>::type>
+struct get_turn_info
+    : overlay::get_turn_info<AssignPolicy>
+{};
+
+template <typename Geometry1, typename Geometry2, typename AssignPolicy, typename Tag1, typename Tag2>
+struct get_turn_info<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear_tag, linear_tag>
+    : get_turn_info_linear_linear<AssignPolicy>
+{};
+
+// GET_TURNS
+
+template <typename Geometry1,
+          typename Geometry2,
+          typename GetTurnPolicy
+            = get_turn_info<Geometry1, Geometry2, overlay::calculate_distance_policy> >
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;
@@ -64,32 +347,21 @@ struct get_turns
     template <typename Turns>
     static inline void apply(Turns & turns, Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        typedef //overlay::assign_null_policy
-                overlay::calculate_distance_policy assign_policy;
-
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
-//        boost::geometry::get_turns
-//                <
-//                    reverse1, reverse2, assign_policy
-//                >(geometry1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
-
-        typedef detail::overlay::get_turn_info
-            <
-                assign_policy
-            > turn_policy;
-
         dispatch::get_turns
             <
                 typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
                 Geometry1, Geometry2, reverse1, reverse2,
-                turn_policy
+                GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
     }
 };
+
+// TURNS SORTING AND SEARCHING
 
 struct operation_order_uibc
 {
