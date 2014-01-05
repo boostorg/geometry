@@ -64,6 +64,8 @@ struct get_turn_info_linear_linear
     <
         typename Point1,
         typename Point2,
+        typename Geometry1,
+        typename Geometry2,
         typename TurnInfo,
         typename RescalePolicy,
         typename OutputIterator
@@ -71,6 +73,8 @@ struct get_turn_info_linear_linear
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                Geometry1 const& geometry1,
+                Geometry2 const& geometry2,
                 TurnInfo const& tp_model,
                 RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)
@@ -158,7 +162,12 @@ struct get_turn_info_linear_linear
             {
                 handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
 
-                if (! result.template get<1>().opposite)
+                if ( handle_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                 tp_model, result, overlay::method_equal, out) )
+                {
+                    // do nothing
+                }
+                else if ( ! result.template get<1>().opposite )
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
@@ -183,7 +192,12 @@ struct get_turn_info_linear_linear
                 handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
 
                 // Collinear
-                if (! result.template get<1>().opposite)
+                if ( handle_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                 tp_model, result, overlay::method_equal, out) )
+                {
+                    // do nothing
+                }
+                else if (! result.template get<1>().opposite)
                 {
 
                     if (result.template get<1>().arrival[0] == 0)
@@ -266,9 +280,7 @@ struct get_turn_info_linear_linear
         bool is_q_first_ip = tp_model.operations[1].seg_id.segment_index == 0
                           && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
 
-        bool should_handle = has_intersections && ( is_p_first_ip || is_q_first_ip );
-
-        if ( !should_handle )
+        if ( !(is_p_first_ip || is_q_first_ip) )
             return;
 
         TurnInfo tp = tp_model;
@@ -292,13 +304,64 @@ struct get_turn_info_linear_linear
             tp, result.template get<0>(), result.template get<1>(), side_calc);
 
         // override assigned method
-        tp.method = overlay::method_collinear;
+        if ( is_p_first_ip && is_q_first_ip )
+            tp.method = overlay::method_equal;
+        else
+            tp.method = overlay::method_collinear;
 
         // assign the IP0, equal<> assigns the 2nd one
         geometry::convert(result.template get<0>().intersections[0], tp.point);
         
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
+    }
+
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename Geometry1,
+        typename Geometry2,
+        typename TurnInfo,
+        typename IntersectionResult,
+        typename OutputIterator
+    >
+    static inline bool handle_last(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                   Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                   Geometry1 const& geometry1,
+                                   Geometry2 const& geometry2,
+                                   TurnInfo const& tp_model,
+                                   IntersectionResult const& result,
+                                   overlay::method_type method,
+                                   OutputIterator out)
+    {
+        bool has_intersections = result.template get<0>().count > 0;
+        if ( !has_intersections )
+            return false;
+
+        const size_t ip_i = result.template get<0>().count - 1;
+        const size_t num_p1 = geometry::num_points(sub_geometry::get(geometry1, tp_model.operations[0].seg_id));
+        const size_t num_p2 = geometry::num_points(sub_geometry::get(geometry2, tp_model.operations[1].seg_id));
+        
+        BOOST_ASSERT(num_p1 >= 2 && num_p2 >= 2);
+
+        bool is_p_last_ip = tp_model.operations[0].seg_id.segment_index == num_p1 - 2
+                         && equals::equals_point_point(pj, result.template get<0>().intersections[ip_i]);
+        bool is_q_last_ip = tp_model.operations[1].seg_id.segment_index == num_p2 - 2
+                         && equals::equals_point_point(qj, result.template get<0>().intersections[ip_i]);
+
+        if ( !(is_p_last_ip || is_q_last_ip) )
+            return false;
+        
+        TurnInfo tp = tp_model;
+        geometry::convert(result.template get<0>().intersections[ip_i], tp.point);
+        tp.method = method;
+        tp.operations[0].operation = overlay::operation_continue;
+        tp.operations[1].operation = overlay::operation_continue;
+        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+        *out++ = tp;
+
+        return true;
     }
 };
 

@@ -278,7 +278,7 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
+                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2, geometry1, geometry2,
                             ti, rescale_policy, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
