@@ -82,18 +82,27 @@ void test_touches(std::string const& wkt1,
 
 
 template <typename Geometry>
-void test_self_touches(std::string const& wkt, bool expected)
+void check_self_touches(Geometry const& geometry,
+                        std::string const& wkt,
+                        bool expected)
 {
-    Geometry geometry;
-
-    bg::read_wkt(wkt, geometry);
-
     bool detected = bg::touches(geometry);
 
     BOOST_CHECK_MESSAGE(detected == expected,
         "touches: " << wkt
         << " -> Expected: " << expected
         << " detected: " << detected);
+}
+
+template <typename Geometry>
+void test_self_touches(std::string const& wkt, bool expected)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    boost::variant<Geometry> v(geometry);
+
+    check_self_touches(geometry, wkt, expected);
+    check_self_touches(v, wkt, expected);
 }
 
 

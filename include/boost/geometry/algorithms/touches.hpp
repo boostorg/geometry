@@ -578,6 +578,53 @@ struct touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
     }
 };
 
+template <typename Geometry>
+struct self_touches
+{
+    static bool apply(Geometry const& geometry)
+    {
+        concept::check<Geometry const>();
+
+        typedef detail::overlay::turn_info
+        <
+            typename geometry::point_type<Geometry>::type
+        > turn_info;
+
+        typedef detail::overlay::get_turn_info
+        <
+            detail::overlay::assign_null_policy
+        > policy_type;
+
+        std::deque<turn_info> turns;
+        detail::touches::areal_interrupt_policy policy;
+        detail::self_get_turn_points::get_turns
+        <
+            policy_type
+        >::apply(geometry, detail::no_rescale_policy(), turns, policy);
+
+        return policy.result();
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct self_touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        template <typename Geometry>
+        bool operator()(Geometry const& geometry) const
+        {
+            return self_touches<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
+    {
+        return boost::apply_visitor(visitor(), geometry);
+    }
+};
+
 } // namespace resolve_variant
 
 
@@ -597,26 +644,7 @@ struct touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
 template <typename Geometry>
 inline bool touches(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-
-    typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry>::type
-        > turn_info;
-
-    typedef detail::overlay::get_turn_info
-        <
-            detail::overlay::assign_null_policy
-        > policy_type;
-
-    std::deque<turn_info> turns;
-    detail::touches::areal_interrupt_policy policy;
-    detail::self_get_turn_points::get_turns
-            <
-                policy_type
-            >::apply(geometry, detail::no_rescale_policy(), turns, policy);
-
-    return policy.result();
+    return resolve_variant::self_touches<Geometry>::apply(geometry);
 }
 
 
