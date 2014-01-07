@@ -177,7 +177,7 @@ struct to_svg_assign_policy
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
-    static bool const include_opposite = true;
+    static bool const include_opposite = false;
 };
 
 template <typename G>

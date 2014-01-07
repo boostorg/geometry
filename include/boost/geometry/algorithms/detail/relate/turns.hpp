@@ -109,7 +109,8 @@ struct get_turn_info_linear_linear
             case 'a' : // collinear, "at"
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
-                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
+                handle_first_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                  tp_model, result, overlay::method_none, out, true, false);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -117,28 +118,36 @@ struct get_turn_info_linear_linear
 
             case 'm' :
             {
-                typedef overlay::touch_interior
-                    <
-                        TurnInfo
-                    > policy;
-
-                // If Q (1) arrives (1)
-                if (result.template get<1>().arrival[1] == 1)
+                if ( handle_first_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                       tp_model, result, overlay::method_touch_interior, out, false, true) )
                 {
-                    policy::template apply<0>(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(),
-                                side_calc);
+                    // do nothing
                 }
                 else
                 {
-                    // Swap p/q
-                    overlay::side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
-                    policy::template apply<1>(qi, qj, qk, pi, pj, pk,
-                                tp, result.template get<0>(), result.template get<1>(),
-                                swapped_side_calc);
+                    typedef overlay::touch_interior
+                        <
+                            TurnInfo
+                        > policy;
+
+                    // If Q (1) arrives (1)
+                    if (result.template get<1>().arrival[1] == 1)
+                    {
+                        policy::template apply<0>(pi, pj, pk, qi, qj, qk,
+                                    tp, result.template get<0>(), result.template get<1>(),
+                                    side_calc);
+                    }
+                    else
+                    {
+                        // Swap p/q
+                        overlay::side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        policy::template apply<1>(qi, qj, qk, pi, pj, pk,
+                                    tp, result.template get<0>(), result.template get<1>(),
+                                    swapped_side_calc);
+                    }
+                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    *out++ = tp;
                 }
-                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                *out++ = tp;
             }
             break;
             case 'i' :
@@ -152,18 +161,24 @@ struct get_turn_info_linear_linear
             case 't' :
             {
                 // Both touch (both arrive there)
-                overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                    tp, result.template get<0>(), result.template get<1>(), side_calc);
-                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                *out++ = tp;
+                if ( handle_first_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                       tp_model, result, overlay::method_touch, out, false, true) )
+                {
+                    // do nothing
+                }
+                else 
+                {
+                    overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    *out++ = tp;
+                }
             }
             break;
             case 'e':
             {
-                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
-
-                if ( handle_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
-                                 tp_model, result, overlay::method_equal, out) )
+                if ( handle_first_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                       tp_model, result, overlay::method_equal, out, true, true) )
                 {
                     // do nothing
                 }
@@ -189,11 +204,9 @@ struct get_turn_info_linear_linear
             break;
             case 'c' :
             {
-                handle_first(pi, pj, pk, qi, qj, qk, tp_model, result, out);
-
                 // Collinear
-                if ( handle_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
-                                 tp_model, result, overlay::method_equal, out) )
+                if ( handle_first_last(pi, pj, pk, qi, qj, qk, geometry1, geometry2,
+                                       tp_model, result, overlay::method_collinear, out, true, true) )
                 {
                     // do nothing
                 }
@@ -255,114 +268,271 @@ struct get_turn_info_linear_linear
         return out;
     }
 
-    template
-    <
-        typename Point1,
-        typename Point2,
-        typename TurnInfo,
-        typename IntersectionResult,
-        typename OutputIterator
+    template<typename Point1,
+             typename Point2,
+             typename Geometry1,
+             typename Geometry2,
+             typename TurnInfo,
+             typename IntersectionResult,
+             typename OutputIterator
     >
-    static inline void handle_first(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                    Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                    TurnInfo const& tp_model,
-                                    IntersectionResult const& result,
-                                    OutputIterator out)
+    static inline bool handle_first_last(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                         Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                         Geometry1 const& geometry1,
+                                         Geometry2 const& geometry2,
+                                         TurnInfo const& tp_model,
+                                         IntersectionResult const& result,
+                                         overlay::method_type method,
+                                         OutputIterator out,
+                                         bool enable_first = true,
+                                         bool enable_last = true)
     {
-        bool has_intersections = result.template get<0>().count > 0;
-        if ( !has_intersections )
-            return;
+        namespace ov = overlay;
 
-        // is the IP equal to the first point of a Linestring P
-        bool is_p_first_ip = tp_model.operations[0].seg_id.segment_index == 0
-                          && equals::equals_point_point(pi, result.template get<0>().intersections[0]);
-        // is the IP equal to the first point of a Linestring Q
-        bool is_q_first_ip = tp_model.operations[1].seg_id.segment_index == 0
-                          && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
+        std::size_t ip_count = result.template get<0>().count;
 
-        if ( !(is_p_first_ip || is_q_first_ip) )
-            return;
+        if ( ip_count == 0 )
+            return false;
+
+        std::pair<bool, std::size_t> first_p = find_if(pi, geometry1, tp_model.operations[0].seg_id, result, is_first_segment());
+        std::pair<bool, std::size_t> first_q = find_if(qi, geometry2, tp_model.operations[1].seg_id, result, is_first_segment());
+        std::pair<bool, std::size_t> last_p = find_if(pj, geometry1, tp_model.operations[0].seg_id, result, is_last_segment());
+        std::pair<bool, std::size_t> last_q = find_if(qj, geometry2, tp_model.operations[1].seg_id, result, is_last_segment());
+
+        bool is_p_first_ip = first_p.second < ip_count;
+        bool is_q_first_ip = first_q.second < ip_count;
+        bool is_p_last_ip = last_p.second < ip_count;
+        bool is_q_last_ip = last_q.second < ip_count;
+
+        // handle first
+        bool handle_first_p = false;
+        bool handle_first_q = false;
+
+// NEW VERSION BEGINS HERE
+
+        int spi = result.template get<1>().sides.sides[0].first;
+        int spj = result.template get<1>().sides.sides[0].second;
+        int sqi = result.template get<1>().sides.sides[1].first;
+        int sqj = result.template get<1>().sides.sides[1].second;
+        bool col_op = result.template get<1>().opposite;
 
         TurnInfo tp = tp_model;
 
-        // if the IP is on the second point of a segment of the other Linestring
-        // it should be ignored to avoid generation of 2 turns
-
-        if ( is_p_first_ip
-          && equals::equals_point_point(qj, result.template get<0>().intersections[0]) )
-            return;
-
-        if ( is_q_first_ip
-          && equals::equals_point_point(pj, result.template get<0>().intersections[0]) )
-            return;
-
-        // calculate the sides and set operations
-
-        overlay::side_calculator<Point1, Point2> side_calc(pi, pi, pj, qi, qi, qj);
-
-        overlay::equal<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
-            tp, result.template get<0>(), result.template get<1>(), side_calc);
-
-        // override assigned method
+        // collinear         collinear      arbitrary
+        // |------->         |------->          |--->
+        // |---->-->-->   <--<----|--|      <---|
         if ( is_p_first_ip && is_q_first_ip )
-            tp.method = overlay::method_equal;
+        {
+            if ( ip_count == 2 )
+            {
+                if ( !col_op )
+                {
+                    assign(pi, qi, result, pi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
+                }
+                else
+                {
+                    bool equal_ij = equals::equals_point_point(pi, qj);
+                    bool equal_ji = equals::equals_point_point(pj, qi);
+                    if ( equal_ij && equal_ji )
+                    {
+                        assign(pi, qi, result, pi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
+                        assign(pi, qi, result, qi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
+                    }
+                    else
+                    {
+                        // NOTE: we don't know anything about previous segments
+                        // so for pi we don't know the method and for qi we don't know the operation
+                        if ( equal_ij )
+                        {
+                            assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
+                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_union, ov::operation_blocked, tp, out);
+                        }
+                        else if ( equal_ji )
+                        {
+                            assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
+                            assign(pi, qi, result, qi, ov::method_touch, ov::operation_intersection, ov::operation_blocked, tp, out);
+                        }
+                        else
+                        {
+                            assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
+                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_union, ov::operation_blocked, tp, out);
+                        }
+                    }
+                }
+            }
+            else
+            {
+// TODO: Is this ok? Assuming that Q is considered as CW
+
+                // NOTE: we don't know anything about the previous segments
+                // so we can't really set correct method or operation here
+                assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+            }
+        }
+// NEW VERSION ENDS HERE
         else
+        {
+            if ( is_p_first_ip )
+            {
+                bool equal_ii = equals::equals_point_point(pi, qi);
+                bool equal_ij = equals::equals_point_point(pi, qj);
+
+                handle_first_p = first_q.first && last_q.first // Q is one-segment LS
+                              || equal_ii && !last_q.first     // both starts
+                              || equal_ij && last_q.first
+                              || !equal_ii && !equal_ij;
+
+                //TEST
+                handle_first_p = true;
+            }
+
+            if ( is_q_first_ip )
+            {
+                bool equal_ii = equals::equals_point_point(pi, qi);
+                bool equal_ji = equals::equals_point_point(pj, qi);
+
+                handle_first_q = first_p.first && last_p.first || equal_ii && !last_p.first || equal_ji && last_p.first || !equal_ii && !equal_ji;
+
+                //TEST
+                handle_first_q = true;
+            }
+        }
+
+        // handle last
+        bool handle_last_p = false;
+        bool handle_last_q = false;
+
+        if ( is_p_last_ip )
+        {
+            bool equal_ji = equals::equals_point_point(pj, qi);
+            bool equal_jj = equals::equals_point_point(pj, qj);
+
+            handle_last_p = equal_jj || equal_ji && is_q_first_ip || !equal_ji && !equal_jj;
+
+            //TEST
+            handle_last_p = true;
+        }
+
+        if ( is_q_last_ip )
+        {
+            bool equal_ij = equals::equals_point_point(pi, qj);
+            bool equal_jj = equals::equals_point_point(pj, qj);
+
+            handle_last_q = equal_jj || equal_ij && is_p_first_ip || !equal_ij && !equal_jj;
+
+            //TEST
+            handle_last_q = true;
+        }
+
+        bool first_ok = handle_first_p || handle_first_q;
+        bool last_ok = handle_last_p || handle_last_q;
+
+        if ( enable_first && first_ok )
+        {
+            TurnInfo tp = tp_model;
+            overlay::side_calculator<Point1, Point2> side_calc(pi, pi, pj, qi, qi, qj);
+            overlay::equal<TurnInfo>::apply(pi, pi, pj, qi, qi, qj,
+                tp, result.template get<0>(), result.template get<1>(), side_calc);
+// TODO: better method calculation, check above! E.g. if equal_ii then method_equal
             tp.method = overlay::method_collinear;
+// TODO: what if both are first?
+            geometry::convert(handle_first_p ? pi : qi, tp.point);
+            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            *out++ = tp;
+        }
 
-        // assign the IP0, equal<> assigns the 2nd one
-        geometry::convert(result.template get<0>().intersections[0], tp.point);
-        
-        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-        *out++ = tp;
+        if ( enable_last && last_ok )
+        {
+            TurnInfo tp = tp_model;
+            overlay::side_calculator<Point1, Point2> side_calc(pj, pj, pi, qj, qj, qi);
+            overlay::equal<TurnInfo>::apply(pj, pj, pi, qj, qj, qi,
+                tp, result.template get<0>(), result.template get<1>(), side_calc);
+            std::swap(tp.operations[0].operation, tp.operations[1].operation);
+            tp.method = method;
+// TODO: what if both are first?
+            geometry::convert(handle_last_p ? pj : qj, tp.point);
+            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            *out++ = tp;
+
+            return true;
+        }
+
+        return false;
     }
 
-    template
-    <
-        typename Point1,
-        typename Point2,
-        typename Geometry1,
-        typename Geometry2,
-        typename TurnInfo,
-        typename IntersectionResult,
-        typename OutputIterator
-    >
-    static inline bool handle_last(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                   Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                   Geometry1 const& geometry1,
-                                   Geometry2 const& geometry2,
-                                   TurnInfo const& tp_model,
-                                   IntersectionResult const& result,
-                                   overlay::method_type method,
-                                   OutputIterator out)
+    template <typename Point1,
+              typename Point2,
+              typename IntersectionResult,
+              typename Point,
+              typename TurnInfo,
+              typename OutputIterator>
+    static inline void assign(Point1 const& pi, Point2 const& qi,
+                              IntersectionResult const& result,
+                              Point const& ip,
+                              overlay::method_type method,
+                              overlay::operation_type op0, overlay::operation_type op1,
+                              TurnInfo & tp,
+                              OutputIterator out)
     {
-        bool has_intersections = result.template get<0>().count > 0;
-        if ( !has_intersections )
-            return false;
-
-        const size_t ip_i = result.template get<0>().count - 1;
-        const size_t num_p1 = geometry::num_points(sub_geometry::get(geometry1, tp_model.operations[0].seg_id));
-        const size_t num_p2 = geometry::num_points(sub_geometry::get(geometry2, tp_model.operations[1].seg_id));
-        
-        BOOST_ASSERT(num_p1 >= 2 && num_p2 >= 2);
-
-        bool is_p_last_ip = tp_model.operations[0].seg_id.segment_index == num_p1 - 2
-                         && equals::equals_point_point(pj, result.template get<0>().intersections[ip_i]);
-        bool is_q_last_ip = tp_model.operations[1].seg_id.segment_index == num_p2 - 2
-                         && equals::equals_point_point(qj, result.template get<0>().intersections[ip_i]);
-
-        if ( !(is_p_last_ip || is_q_last_ip) )
-            return false;
-        
-        TurnInfo tp = tp_model;
-        geometry::convert(result.template get<0>().intersections[ip_i], tp.point);
+        geometry::convert(ip, tp.point);
         tp.method = method;
-        tp.operations[0].operation = overlay::operation_continue;
-        tp.operations[1].operation = overlay::operation_continue;
+        tp.operations[0].operation = op0;
+        tp.operations[1].operation = op1;
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
-
-        return true;
     }
+
+    template<typename Point,
+             typename Geometry,
+             typename SegId,
+             typename IntersectionResult,
+             typename SegmentPred>
+    static inline std::pair<bool, std::size_t>
+    find_if(Point const& point,
+            Geometry const& geometry,
+            SegId const& seg_id,
+            IntersectionResult const& result,
+            SegmentPred segment_pred)
+    {
+        const bool is = segment_pred(geometry, seg_id);
+        const std::size_t size = result.template get<0>().count;
+
+        std::pair<bool, std::size_t> res(is, size);
+
+        if ( is )
+        {
+            for ( std::size_t i = 0 ; i < size ; ++i )
+            {
+                if ( equals::equals_point_point(point, result.template get<0>().intersections[i]) )
+                {
+                    res.second = i;
+                    break;
+                }
+            }
+        }
+
+        return res;
+    }
+
+    struct is_first_segment
+    {
+        template <typename Geometry, typename SegId>
+        inline bool operator()(Geometry const&, SegId const& seg_id)
+        {
+            return seg_id.segment_index == 0;
+        }
+    };
+    
+    struct is_last_segment
+    {
+        template <typename Geometry, typename SegId>
+        inline bool operator()(Geometry const& g, SegId const& seg_id)
+        {
+            const size_t count = geometry::num_points(sub_geometry::get(g, seg_id));
+            BOOST_ASSERT(count >= 2);
+            return seg_id.segment_index == count - 2;
+        }
+    };
 };
 
 // GET_TURN_INFO_TYPE
