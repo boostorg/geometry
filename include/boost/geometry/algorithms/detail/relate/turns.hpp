@@ -310,6 +310,8 @@ struct get_turn_info_linear_linear
 
 // NEW VERSION BEGINS HERE
 
+// TODO: maybe turns should be calculated WRT Q since we might assume that Q may be Areal CW
+
         int spi = result.template get<1>().sides.sides[0].first;
         int spj = result.template get<1>().sides.sides[0].second;
         int sqi = result.template get<1>().sides.sides[1].first;
@@ -318,16 +320,17 @@ struct get_turn_info_linear_linear
 
         TurnInfo tp = tp_model;
 
-        // collinear         collinear      arbitrary
-        // |------->         |------->          |--->
-        // |---->-->-->   <--<----|--|      <---|
+        // Both first points are IPs
         if ( is_p_first_ip && is_q_first_ip )
         {
+            // collinear         collinear
+            // |------->         |------->
+            // |---->-->-->   <--<----|--|
             if ( ip_count == 2 )
             {
                 if ( !col_op )
                 {
-                    assign(pi, qi, result, pi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
+                    assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
                 }
                 else
                 {
@@ -335,8 +338,8 @@ struct get_turn_info_linear_linear
                     bool equal_ji = equals::equals_point_point(pj, qi);
                     if ( equal_ij && equal_ji )
                     {
-                        assign(pi, qi, result, pi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
-                        assign(pi, qi, result, qi, ov::method_equal, ov::operation_continue, ov::operation_continue, tp, out);
+                        assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
+                        assign(pi, qi, result, qi, ov::method_equal, ov::operation_opposite, ov::operation_opposite, tp, out);
                     }
                     else
                     {
@@ -345,7 +348,7 @@ struct get_turn_info_linear_linear
                         if ( equal_ij )
                         {
                             assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
-                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_union, ov::operation_blocked, tp, out);
+                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_opposite, ov::operation_opposite, tp, out);
                         }
                         else if ( equal_ji )
                         {
@@ -360,7 +363,10 @@ struct get_turn_info_linear_linear
                     }
                 }
             }
-            else
+            // arbitrary
+            //     |--->
+            // <---|
+            else // ip_count == 1
             {
 // TODO: Is this ok? Assuming that Q is considered as CW
 
