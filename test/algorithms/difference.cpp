@@ -337,6 +337,16 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
+    test_one<polygon, polygon, polygon>("ticket_9081_15",
+            ticket_9081_15[0], ticket_9081_15[1],
+            1, 10, 0.0334529710902111,
+            1, 4, 6.22453685816815e-10); // Output should be discarded
+
+    test_one<polygon, polygon, polygon>("ticket_9081_314",
+            ticket_9081_314[0], ticket_9081_314[1],
+            2, 12, 0.0451236449624935,
+            0, 0, 0);
+
 
     // Other combi's
     {
@@ -505,10 +515,8 @@ int test_main(int, char* [])
 
     test_all<bg::model::d2::point_xy<double> >();
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     // TODO: integer should never be rescaled
     test_specific<bg::model::d2::point_xy<int>, false, false>();
-#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

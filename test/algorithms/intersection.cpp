@@ -198,20 +198,24 @@ void test_areal()
                 1, 0, 2.914213562373);
 
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.63593e-08, 0.01);
+                1, 4, 3.6334e-08, 0.01);
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
                 1, 4, 4.34355e-05, 0.01);
 
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
-                1, 4, 0.0003, 0.00001);
+                1, 4, 0.0003);
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
-                1, 5, 0.3843747, 0.00001);
+                1, 5, 0.3843747);
     test_one<Polygon, Polygon, Polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1],
-                1, 5, 0.3734379, 0.00001);
+                1, 5, 0.3734379);
     test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
-                1, 5, 0.4689541, 0.00001);
+                1, 5, 0.4689541);
+
+    test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
+                ticket_9081_15[0], ticket_9081_15[1],
+                1, 4, 0.0068895780745301394);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
@@ -370,20 +374,25 @@ void test_all()
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal_linear<polygon_open, linestring>();
     test_areal_linear<polygon_ccw, linestring>();
     test_areal_linear<polygon_ccw_open, linestring>();
+#endif
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
-
+#endif
 
     test_areal_clip<polygon, box>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal_clip<polygon_ccw, box>();
+#endif
 
 #if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
     // Should NOT compile
