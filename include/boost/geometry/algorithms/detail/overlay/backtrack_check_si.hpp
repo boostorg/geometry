@@ -79,9 +79,9 @@ class backtrack_check_self_intersections
 public :
     typedef state state_type;
 
-    template <typename Operation, typename Rings, typename Turns, typename RescalePolicy>
+    template <typename Operation, typename Rings, typename Ring, typename Turns, typename RescalePolicy>
     static inline void apply(std::size_t size_at_start,
-                Rings& rings, typename boost::range_value<Rings>::type& ring,
+                Rings& rings, Ring& ring,
                 Turns& turns, Operation& operation,
                 std::string const& ,
                 Geometry1 const& geometry1,
