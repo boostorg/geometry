@@ -375,6 +375,62 @@ struct get_turn_info_linear_linear
                 assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
             }
         }
+        else if ( is_p_first_ip )
+        {
+            // always collinear, P may be also last, Q may be arbitrary
+            // P  |--+-->        <--+--|
+            // Q |---+--->      |---+--->
+            if ( ip_count == 2 )
+            {
+                // same direction
+                if ( !col_op )
+                {
+                    bool equal_ii = equals::equals_point_point(pi, qi);
+                    ov::method_type method = equal_ii ? ov::method_touch : ov::method_touch_interior;
+                    assign(pi, qi, result, pi, method, ov::operation_continue, ov::operation_continue, tp, out);
+                }
+                // opposite direction
+                else
+                {
+                    bool equal_ij = equals::equals_point_point(pi, qj);
+                    ov::method_type method = equal_ij ? ov::method_equal : ov::method_collinear;
+                    assign(pi, qi, result, pi, method, ov::operation_opposite, ov::operation_opposite, tp, out);
+                }
+            }
+            // non-collinear
+            // P    | | | | | |
+            // Q  |---+---+--->
+            else // ip_count == 1
+            {
+                bool equal_ii = equals::equals_point_point(pi, qi);
+                bool equal_ij = equals::equals_point_point(pi, qj);
+                // p starts at the beginning of segment, but not at the first point of Q
+                if ( equal_ii )
+                {
+                    // should probably check the side of pi WRT q1 and q-1 if this changes anything
+                    assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                }
+                // p starts at the end of segment
+                else if ( equal_ij )
+                {
+                    // the end of Q's segment is the last point
+                    if ( last_q.first )
+                    {
+                        // t+u/u
+                        assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                    }
+                    // the qj is some internal point
+                    else
+                    {
+                        // check the side of pj WRT q1 and q2
+                    }
+                }
+                else
+                {
+                    assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_union, ov::operation_union, tp, out);
+                }
+            }
+        }
 // NEW VERSION ENDS HERE
         else
         {
