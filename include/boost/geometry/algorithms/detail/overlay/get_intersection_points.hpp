@@ -72,8 +72,9 @@ struct get_turn_without_info
         geometry::recalculate(pj_rob, pj, rescale_policy);
         geometry::recalculate(qi_rob, qi, rescale_policy);
         geometry::recalculate(qj_rob, qj, rescale_policy);
+        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
         typename strategy::return_type result
-            = strategy::apply(p1, q1,
+            = strategy::apply(p1, q1, robust_policy,
                               pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < result.template get<0>().count; i++)

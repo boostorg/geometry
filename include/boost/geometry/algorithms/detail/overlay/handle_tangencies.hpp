@@ -137,9 +137,10 @@ private :
         segment_type s(si, sj);
 
         // Get the intersection point (or two points)
-        segment_intersection_points<point_type> pr = policy::apply(p, r, pi, pj, ri, rj);
-        segment_intersection_points<point_type> ps = policy::apply(p, s, pi, pj, si, sj);
-        segment_intersection_points<point_type> rs = policy::apply(r, s, ri, rj, si, sj);
+        default_robust_policy robust_policy;
+        segment_intersection_points<point_type> pr = policy::apply(p, r, robust_policy, pi, pj, ri, rj);
+        segment_intersection_points<point_type> ps = policy::apply(p, s, robust_policy, pi, pj, si, sj);
+        segment_intersection_points<point_type> rs = policy::apply(r, s, robust_policy, ri, rj, si, sj);
 
         // Check on overlap
         pr_overlap = pr.count == 2;

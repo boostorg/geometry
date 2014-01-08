@@ -19,6 +19,7 @@
 
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
@@ -90,15 +91,23 @@ struct relate_cartesian_segments
 
 
     // Relate segments a and b
-//    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
-//    {
-//        // TODO: rescale this and then calculate
-//        return apply(a, b, ...);
-//    }
+    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
+    {
+        // TODO: revise this or remove this overload
+        // This considers two segments without robustness checks
+        default_robust_policy robust_policy;
+        typename geometry::point_type<segment_type1>::type a0, a1, b0, b1; // type them all as in first
+        detail::assign_point_from_index<0>(a, a0);
+        detail::assign_point_from_index<1>(a, a1);
+        detail::assign_point_from_index<0>(b, b0);
+        detail::assign_point_from_index<1>(b, b1);
+        return apply(a, b, robust_policy, a0, a1, b0, b1);
+    }
 
     // The main entry-routine, calculating intersections of segments a / b
-    template <typename RobustPoint>
+    template <typename RobustPolicy, typename RobustPoint>
     static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
+            RobustPolicy const& robust_policy,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
@@ -128,7 +137,6 @@ struct relate_cartesian_segments
 
         bool collinear = sides.collinear();
 
-
         if (sides.same<0>() || sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
@@ -149,12 +157,18 @@ struct relate_cartesian_segments
             <
                 coordinate_type, double
             >::type promoted_type;
+
         typedef typename geometry::coordinate_type
             <
                 RobustPoint
             >::type robust_coordinate_type;
 
-        segment_intersection_info<coordinate_type, promoted_type, robust_coordinate_type> sinfo;
+        segment_intersection_info
+        <
+            coordinate_type,
+            promoted_type,
+            typename RobustPolicy::segment_ratio_type
+        > sinfo;
 
         sinfo.dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
         sinfo.dx_b = get<1, 0>(b) - get<0, 0>(b);
@@ -193,15 +207,28 @@ struct relate_cartesian_segments
             if (robust_da0 == 0)
             {
                 // This is still a collinear case (because of FP imprecision this could, in the past, occur here)
-                // Not it should NOT occur anymore
+                // Note it should NOT occur anymore
                 // sides.debug();
                 sides.set<0>(0,0);
                 sides.set<1>(0,0);
                 collinear = true;
+                std::cout << "Warning: robust_d=0, SHOULD NOT OCCUR" << std::endl;
             }
             else
             {
-                sinfo.r = da / d;
+                // TODO: sinfo.r is redundant - will be removed later
+                if (d == 0)
+                {
+                    std::cout << "Warning: d=0" << std::endl;
+                    //fp_sides.debug();
+                    sinfo.r = 0;
+                }
+                else
+                {
+                    sinfo.r = da / d;
+                }
+                // END TODO
+
 
                 sinfo.robust_ra.assign(robust_da, robust_da0);
                 sinfo.robust_rb.assign(robust_db, robust_db0);
@@ -229,7 +256,9 @@ struct relate_cartesian_segments
 
 #endif
 
+                // TODO: remove this call and corresponding function
                 verify_r(sinfo.r);
+                // END TODO
             }
         }
 
@@ -240,12 +269,12 @@ struct relate_cartesian_segments
                     >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
             if (collinear_use_first)
             {
-                return relate_collinear<0>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<0>(a, b, robust_policy, robust_a1, robust_a2, robust_b1, robust_b2);
             }
             else
             {
                 // Y direction contains larger segments (maybe dx is zero)
-                return relate_collinear<1>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<1>(a, b, robust_policy, robust_a1, robust_a2, robust_b1, robust_b2);
             }
         }
 
@@ -284,13 +313,15 @@ private :
         }
     }
 
-    template <std::size_t Dimension, typename RobustPoint>
+private:
+    template <std::size_t Dimension, typename RobustPolicy, typename RobustPoint>
     static inline return_type relate_collinear(segment_type1 const& a,
             segment_type2 const& b,
+            RobustPolicy const& robust_policy,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
-        return relate_collinear(a, b,
+        return relate_collinear(a, b, robust_policy,
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
                                 get<Dimension>(robust_b1),
@@ -298,9 +329,10 @@ private :
     }
 
     /// Relate segments known collinear
-    template <typename RobustType>
+    template <typename RobustPolicy, typename RobustType>
     static inline return_type relate_collinear(segment_type1 const& a
             , segment_type2 const& b
+            , RobustPolicy const& robust_policy
             , RobustType oa_1, RobustType oa_2
             , RobustType ob_1, RobustType ob_2
             )
@@ -338,7 +370,8 @@ private :
         RobustType const length_a = oa_2 - oa_1; // no abs, see above
         RobustType const length_b = ob_2 - ob_1;
 
-        typedef geometry::segment_ratio<boost::long_long_type> ratio_type;
+        boost::ignore_unused_variable_warning(robust_policy);
+        typedef typename RobustPolicy::segment_ratio_type ratio_type;
         ratio_type const ra_from(oa_1 - ob_1, length_b);
         ratio_type const ra_to(oa_2 - ob_1, length_b);
         ratio_type const rb_from(ob_1 - oa_1, length_a);

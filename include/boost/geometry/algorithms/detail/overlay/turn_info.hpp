@@ -63,6 +63,7 @@ struct turn_operation
     geometry::segment_ratio<boost::long_long_type> fraction;
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
+    double r;
     double x, y;
 #endif
 

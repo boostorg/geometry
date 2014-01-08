@@ -63,7 +63,14 @@ struct segments_intersection_points
         promoted_type const s1y = get<0, 1>(s1);
         promoted_type const dx = sinfo.dx_a;
         promoted_type const dy = sinfo.dy_a;
-        if (sinfo.r < 0 || sinfo.r > 1)
+        // We now always use the robust-ratio because next check was not enough:
+        // if (sinfo.r < 0 || sinfo.r > 1)
+        // It also would need this check:
+        // if (sinfo.rB < 0 || sinfo.rB > 1) for the other segment
+        // TODO: these comments can be removed.
+        // NOTE: in case of integer, the robust one is identical to the original one (but more precise)
+        // in case of float, the robust one is nearly always as precise (or more) than the FP one
+        // It does not change the result of the floating-point intersection point
         {
             // Because we calculate side/info test from rescaled coordinates, we now
             // use the ratio based on rescaled too. This is in 99.999% cases exactly the same.
@@ -77,13 +84,6 @@ struct segments_intersection_points
                 boost::numeric_cast<return_coordinate_type>(s1x + num * dx / den));
             set<1>(result.intersections[0],
                 boost::numeric_cast<return_coordinate_type>(s1y + num * dy / den));
-        }
-        else
-        {
-            set<0>(result.intersections[0],
-                boost::numeric_cast<return_coordinate_type>(s1x + sinfo.r * dx));
-            set<1>(result.intersections[0],
-                boost::numeric_cast<return_coordinate_type>(s1y + sinfo.r * dy));
         }
 
         result.fractions[0].assign(sinfo);

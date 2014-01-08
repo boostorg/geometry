@@ -155,13 +155,11 @@ struct de9im_segment : public de9im
 #endif
 };
 
-
+template <typename SegmentRatio>
 struct fraction_type
 {
-    typedef geometry::segment_ratio<boost::long_long_type> robust_type;
-
-    robust_type robust_ra;
-    robust_type robust_rb;
+    SegmentRatio robust_ra;
+    SegmentRatio robust_rb;
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
     double ra, rb;
 #endif
@@ -182,7 +180,7 @@ struct fraction_type
 #endif
     }
 
-    inline void assign(robust_type const& a, robust_type const& b)
+    inline void assign(SegmentRatio const& a, SegmentRatio const& b)
     {
         initialized = true;
         robust_ra = a;
@@ -201,8 +199,9 @@ struct segment_intersection_points
 {
     std::size_t count;
     // TODO: combine intersections and fractions in one struct
+    typedef segment_ratio<boost::long_long_type> SegmentRatio;
     Point intersections[2];
-    fraction_type fractions[2];
+    fraction_type<SegmentRatio> fractions[2];
     typedef Point point_type;
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
@@ -215,21 +214,27 @@ struct segment_intersection_points
 };
 
 // All assigned in cart_intersect, passed to intersection_points
-template <typename CoordinateType, typename PromotedType, typename RobustType>
+template <typename CoordinateType, typename PromotedType, typename SegmentRatio>
 struct segment_intersection_info
 {
     typedef PromotedType promoted_type;
-    typedef RobustType robust_type;
+    //typedef RobustType robust_type;
 
     CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
-    PromotedType r;
-    geometry::segment_ratio<RobustType> robust_ra;
-    geometry::segment_ratio<RobustType> robust_rb;
+    PromotedType r; // TODO is probably redundant
+    SegmentRatio robust_ra;
+    SegmentRatio robust_rb;
 
     // TEMP to check calculations
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
     PromotedType rb;
 #endif
+};
+
+// TEMPORARY HERE
+struct default_robust_policy
+{
+    typedef segment_ratio<boost::long_long_type> segment_ratio_type;
 };
 
 

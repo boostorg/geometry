@@ -138,6 +138,8 @@ struct base_turn_handler
         ti.operations[0].fraction = info.fractions[index].robust_ra;
         ti.operations[1].fraction = info.fractions[index].robust_rb;
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
+        ti.operations[0].r = info.fractions[index].ra;
+        ti.operations[1].r = info.fractions[index].rb;
         geometry::convert(info.intersections_check[index], ti.point_check);
         ti.operations[0].x = geometry::get<0>(ti.point);
         ti.operations[0].y = geometry::get<1>(ti.point);
@@ -998,8 +1000,6 @@ struct get_turn_info
         geometry::recalculate(qi_rob, qi, rescale_policy);
         geometry::recalculate(qj_rob, qj, rescale_policy);
         geometry::recalculate(qk_rob, qk, rescale_policy);
-
-
 #endif
 
 
@@ -1025,7 +1025,9 @@ struct get_turn_info
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1, pi_rob, pj_rob, qi_rob, qj_rob);
+        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
+        typename strategy::return_type result = strategy::apply(p1, q1,
+                    robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         char const method = result.template get<1>().how;
 
