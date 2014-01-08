@@ -41,6 +41,19 @@ void test_transform_point(Value value)
     BOOST_CHECK_CLOSE(value * bg::get<1>(p1), bg::get<1>(p2), 0.001);
 }
 
+template <typename Geometry1, typename Geometry2>
+void check_transform(Geometry1 const& geometry1,
+                     Geometry2& geometry2,
+                     Geometry2 const& expected)
+{
+    BOOST_CHECK(bg::transform(geometry1, geometry2));
+
+    std::ostringstream result_wkt, expected_wkt;
+    result_wkt << bg::wkt(geometry2);
+    expected_wkt << bg::wkt(expected);
+    BOOST_CHECK_EQUAL(result_wkt.str(), expected_wkt.str());
+}
+
 template <typename P1, typename P2, typename Value>
 void test_transform_linestring(Value value)
 {
@@ -58,12 +71,7 @@ void test_transform_linestring(Value value)
         expected.push_back(new_point);
     }
 
-    BOOST_CHECK(bg::transform(line1, line2));
-
-    std::ostringstream result_wkt, expected_wkt;
-    result_wkt << bg::wkt(line2);
-    expected_wkt << bg::wkt(expected);
-    BOOST_CHECK_EQUAL(result_wkt.str(), expected_wkt.str());
+    check_transform(line1, line2, expected);
 }
 
 
