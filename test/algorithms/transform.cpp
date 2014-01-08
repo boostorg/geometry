@@ -28,19 +28,6 @@
 
 #include <test_common/test_point.hpp>
 
-template <typename P1, typename P2, typename Value>
-void test_transform_point(Value value)
-{
-    P1 p1;
-    bg::set<0>(p1, 1);
-    bg::set<1>(p1, 2);
-    P2 p2;
-    BOOST_CHECK(bg::transform(p1, p2));
-
-    BOOST_CHECK_CLOSE(value * bg::get<0>(p1), bg::get<0>(p2), 0.001);
-    BOOST_CHECK_CLOSE(value * bg::get<1>(p1), bg::get<1>(p2), 0.001);
-}
-
 template <typename Geometry1, typename Geometry2>
 void check_transform(Geometry1 const& geometry1,
                      Geometry2& geometry2,
@@ -52,6 +39,21 @@ void check_transform(Geometry1 const& geometry1,
     result_wkt << bg::wkt(geometry2);
     expected_wkt << bg::wkt(expected);
     BOOST_CHECK_EQUAL(result_wkt.str(), expected_wkt.str());
+}
+
+template <typename P1, typename P2, typename Value>
+void test_transform_point(Value value)
+{
+    P1 p1;
+    bg::set<0>(p1, 1);
+    bg::set<1>(p1, 2);
+    P2 p2;
+
+    P2 expected;
+    bg::assign(expected, p1);
+    bg::multiply_value(expected, value);
+
+    check_transform(p1, p2, expected);
 }
 
 template <typename P1, typename P2, typename Value>
