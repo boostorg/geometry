@@ -285,6 +285,8 @@ struct test_traverse
 
                     out << "r: " << debug_string(turn.operations[0].fraction)
                         << " ; " << debug_string(turn.operations[1].fraction)
+                        << "r: " << turn.operations[0].r
+                        << " ; " << turn.operations[1].r
                         << std::endl;
                     if (turn.operations[0].enriched.next_ip_index != -1)
                     {
