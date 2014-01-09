@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -311,6 +311,7 @@ struct get_turn_info_linear_linear
 // NEW VERSION BEGINS HERE
 
 // TODO: maybe turns should be calculated WRT Q since we might assume that Q may be Areal CW
+// TODO: replace checks for equality of points with result...arrival
 
         int spi = result.template get<1>().sides.sides[0].first;
         int spj = result.template get<1>().sides.sides[0].second;
@@ -320,143 +321,173 @@ struct get_turn_info_linear_linear
 
         TurnInfo tp = tp_model;
 
-        // Both first points are IPs
-        if ( is_p_first_ip && is_q_first_ip )
-        {
-            // collinear         collinear
-            // |------->         |------->
-            // |---->-->-->   <--<----|--|
-            if ( ip_count == 2 )
+        if ( enable_first )
+        {        
+            // Both first points are IPs
+            if ( is_p_first_ip && is_q_first_ip )
             {
-                if ( !col_op )
+                // collinear         collinear
+                // |------->         |------->
+                // |---->-->-->   <--<----|--|
+                if ( ip_count == 2 )
                 {
-                    assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
-                }
-                else
-                {
-                    bool equal_ij = equals::equals_point_point(pi, qj);
-                    bool equal_ji = equals::equals_point_point(pj, qi);
-                    if ( equal_ij && equal_ji )
+                    if ( !col_op )
                     {
                         assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
-                        assign(pi, qi, result, qi, ov::method_equal, ov::operation_opposite, ov::operation_opposite, tp, out);
                     }
                     else
                     {
-                        // NOTE: we don't know anything about previous segments
-                        // so for pi we don't know the method and for qi we don't know the operation
-                        if ( equal_ij )
+                        bool equal_ij = equals::equals_point_point(pi, qj);
+                        bool equal_ji = equals::equals_point_point(pj, qi);
+                        if ( equal_ij && equal_ji )
                         {
                             assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
-                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_opposite, ov::operation_opposite, tp, out);
-                        }
-                        else if ( equal_ji )
-                        {
-                            assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
-                            assign(pi, qi, result, qi, ov::method_touch, ov::operation_intersection, ov::operation_blocked, tp, out);
+                            assign(pi, qi, result, qi, ov::method_equal, ov::operation_opposite, ov::operation_opposite, tp, out);
                         }
                         else
                         {
-                            assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
-                            assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_union, ov::operation_blocked, tp, out);
+                            // NOTE: we don't know anything about previous segments
+                            // so for pi we don't know the method and for qi we don't know the operation
+                            if ( equal_ij )
+                            {
+                                assign(pi, qi, result, pi, ov::method_touch, ov::operation_continue, ov::operation_continue, tp, out);
+                                assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_opposite, ov::operation_opposite, tp, out);
+                            }
+                            else if ( equal_ji )
+                            {
+                                assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
+                                assign(pi, qi, result, qi, ov::method_touch, ov::operation_intersection, ov::operation_blocked, tp, out);
+                            }
+                            else
+                            {
+                                assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_continue, ov::operation_continue, tp, out);
+                                assign(pi, qi, result, qi, ov::method_touch_interior, ov::operation_union, ov::operation_blocked, tp, out);
+                            }
+                        }
+                    }
+                }
+                // arbitrary
+                //     |--->
+                // <---|
+                else // ip_count == 1
+                {
+// TODO: Is this ok? Assuming that Q is considered as CW
+
+                    // NOTE: we don't know anything about the previous segments
+                    // so we can't really set correct method or operation here
+                    assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                }
+            }
+            // The first point of P is IP
+            else if ( is_p_first_ip )
+            {
+                // always collinear, P may be also last, Q may be arbitrary
+                // P  |--+-->        <--+--|
+                // Q |---+--->      |---+--->
+                if ( ip_count == 2 )
+                {
+                    // same direction
+                    if ( !col_op )
+                    {
+                        bool equal_ii = equals::equals_point_point(pi, qi);
+                        ov::method_type method = equal_ii ? ov::method_touch : ov::method_touch_interior;
+                        assign(pi, qi, result, pi, method, ov::operation_continue, ov::operation_continue, tp, out);
+                    }
+                    // opposite direction
+                    else
+                    {
+                        bool equal_ij = equals::equals_point_point(pi, qj);
+                        ov::method_type method = equal_ij ? ov::method_equal : ov::method_collinear;
+                        assign(pi, qi, result, pi, method, ov::operation_opposite, ov::operation_opposite, tp, out);
+                    }
+                }
+                // non-collinear
+                // P    | | | | | |
+                // Q  |---+---+--->
+                else // ip_count == 1
+                {
+                    bool equal_ii = equals::equals_point_point(pi, qi);
+                    bool equal_ij = equals::equals_point_point(pi, qj);
+                    // p starts at the beginning of segment, but not at the first point of Q
+                    // P      |   |
+                    // Q  |---+---+--->
+                    if ( equal_ii )
+                    {
+                        BOOST_ASSERT(tp.operations[1].seg_id.segment_index > 0);
+                        Point2 const& qh = *(boost::begin(sub_geometry::get(geometry2, tp.operations[1].seg_id))
+                                                + tp.operations[1].seg_id.segment_index - 1);
+                        // t+u/i or t+i/u
+                        assign_using_equal(qh, pi, pj, qh, qi, qj, result, pi, overlay::method_touch, tp, out);
+                        // OR JUST
+                        // assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                    }
+                    // p starts at the end of segment
+                    // P      |   |   |
+                    // Q  |---+---+--->
+                    else if ( equal_ij )
+                    {
+                        // the end of Q's segment is the last point
+                        // P              |
+                        // Q  |---+---+--->
+                        if ( last_q.first )
+                        {
+                            // t+u/u
+                            assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                        }
+                        // the qj is some internal point
+                        // P      |   |
+                        // Q  |---+---+--->
+                        else
+                        {
+                            // t+u/i or t+i/u
+                            assign_using_equal(qi, pi, pj, qi, qj, qk, result, pi, overlay::method_touch, tp, out);
+                        }
+                    }
+                    // p starts somewhere in the middle of Q's segment
+                    // P    |   |   |
+                    // Q  |---+---+--->
+                    else
+                    {
+                        if ( last_q.first )
+                        {
+                            // m+u/u
+                            assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_union, ov::operation_union, tp, out);
+                        }
+                        else
+                        {
+                            // t+u/i or t+i/u
+                            assign_using_collinear(qi, pi, pj, qi, qj, qk, result, pi, overlay::method_touch_interior, tp, out);
                         }
                     }
                 }
             }
-            // arbitrary
-            //     |--->
-            // <---|
-            else // ip_count == 1
+// NEW VERSION ENDS HERE
+            else
             {
-// TODO: Is this ok? Assuming that Q is considered as CW
-
-                // NOTE: we don't know anything about the previous segments
-                // so we can't really set correct method or operation here
-                assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
-            }
-        }
-        else if ( is_p_first_ip )
-        {
-            // always collinear, P may be also last, Q may be arbitrary
-            // P  |--+-->        <--+--|
-            // Q |---+--->      |---+--->
-            if ( ip_count == 2 )
-            {
-                // same direction
-                if ( !col_op )
+                if ( is_p_first_ip )
                 {
                     bool equal_ii = equals::equals_point_point(pi, qi);
-                    ov::method_type method = equal_ii ? ov::method_touch : ov::method_touch_interior;
-                    assign(pi, qi, result, pi, method, ov::operation_continue, ov::operation_continue, tp, out);
-                }
-                // opposite direction
-                else
-                {
                     bool equal_ij = equals::equals_point_point(pi, qj);
-                    ov::method_type method = equal_ij ? ov::method_equal : ov::method_collinear;
-                    assign(pi, qi, result, pi, method, ov::operation_opposite, ov::operation_opposite, tp, out);
+
+                    handle_first_p = first_q.first && last_q.first // Q is one-segment LS
+                                    || equal_ii && !last_q.first     // both starts
+                                    || equal_ij && last_q.first
+                                    || !equal_ii && !equal_ij;
+
+                    //TEST
+                    handle_first_p = true;
                 }
-            }
-            // non-collinear
-            // P    | | | | | |
-            // Q  |---+---+--->
-            else // ip_count == 1
-            {
-                bool equal_ii = equals::equals_point_point(pi, qi);
-                bool equal_ij = equals::equals_point_point(pi, qj);
-                // p starts at the beginning of segment, but not at the first point of Q
-                if ( equal_ii )
+
+                if ( is_q_first_ip )
                 {
-                    // should probably check the side of pi WRT q1 and q-1 if this changes anything
-                    assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
+                    bool equal_ii = equals::equals_point_point(pi, qi);
+                    bool equal_ji = equals::equals_point_point(pj, qi);
+
+                    handle_first_q = first_p.first && last_p.first || equal_ii && !last_p.first || equal_ji && last_p.first || !equal_ii && !equal_ji;
+
+                    //TEST
+                    handle_first_q = true;
                 }
-                // p starts at the end of segment
-                else if ( equal_ij )
-                {
-                    // the end of Q's segment is the last point
-                    if ( last_q.first )
-                    {
-                        // t+u/u
-                        assign(pi, qi, result, pi, ov::method_touch, ov::operation_union, ov::operation_union, tp, out);
-                    }
-                    // the qj is some internal point
-                    else
-                    {
-                        // check the side of pj WRT q1 and q2
-                    }
-                }
-                else
-                {
-                    assign(pi, qi, result, pi, ov::method_touch_interior, ov::operation_union, ov::operation_union, tp, out);
-                }
-            }
-        }
-// NEW VERSION ENDS HERE
-        else
-        {
-            if ( is_p_first_ip )
-            {
-                bool equal_ii = equals::equals_point_point(pi, qi);
-                bool equal_ij = equals::equals_point_point(pi, qj);
-
-                handle_first_p = first_q.first && last_q.first // Q is one-segment LS
-                              || equal_ii && !last_q.first     // both starts
-                              || equal_ij && last_q.first
-                              || !equal_ii && !equal_ij;
-
-                //TEST
-                handle_first_p = true;
-            }
-
-            if ( is_q_first_ip )
-            {
-                bool equal_ii = equals::equals_point_point(pi, qi);
-                bool equal_ji = equals::equals_point_point(pj, qi);
-
-                handle_first_q = first_p.first && last_p.first || equal_ii && !last_p.first || equal_ji && last_p.first || !equal_ii && !equal_ji;
-
-                //TEST
-                handle_first_q = true;
             }
         }
 
@@ -540,6 +571,52 @@ struct get_turn_info_linear_linear
         tp.method = method;
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
+        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+        *out++ = tp;
+    }
+
+    template <typename Point1,
+              typename Point2,
+              typename IntersectionResult,
+              typename Point,
+              typename TurnInfo,
+              typename OutputIterator>
+    static inline void assign_using_equal(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                          Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                          IntersectionResult const& result,
+                                          Point const& ip,
+                                          overlay::method_type method,
+                                          TurnInfo & tp,
+                                          OutputIterator out)
+    {
+        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+            tp, result.template get<0>(), result.template get<1>(), side_calc);
+        tp.method = method;
+        geometry::convert(ip, tp.point);
+        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+        *out++ = tp;
+    }
+
+    template <typename Point1,
+              typename Point2,
+              typename IntersectionResult,
+              typename Point,
+              typename TurnInfo,
+              typename OutputIterator>
+    static inline void assign_using_collinear(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                              Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                              IntersectionResult const& result,
+                                              Point const& ip,
+                                              overlay::method_type method,
+                                              TurnInfo & tp,
+                                              OutputIterator out)
+    {
+        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+            tp, result.template get<0>(), result.template get<1>(), side_calc);
+        tp.method = method;
+        geometry::convert(ip, tp.point);
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
     }
