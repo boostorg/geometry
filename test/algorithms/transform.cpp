@@ -25,14 +25,15 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <test_common/test_point.hpp>
 
 template <typename Geometry1, typename Geometry2>
 void check_transform(Geometry1 const& geometry1,
-                     Geometry2& geometry2,
                      Geometry2 const& expected)
 {
+    Geometry2 geometry2;
     BOOST_CHECK(bg::transform(geometry1, geometry2));
 
     std::ostringstream result_wkt, expected_wkt;
@@ -47,24 +48,28 @@ void test_transform_point(Value value)
     P1 p1;
     bg::set<0>(p1, 1);
     bg::set<1>(p1, 2);
-    P2 p2;
+    boost::variant<P1> v(p1);
 
     P2 expected;
     bg::assign(expected, p1);
     bg::multiply_value(expected, value);
 
-    check_transform(p1, p2, expected);
+    check_transform(p1, expected);
+    check_transform(v, expected);
 }
 
 template <typename P1, typename P2, typename Value>
 void test_transform_linestring(Value value)
 {
-    bg::model::linestring<P1> line1;
+    typedef bg::model::linestring<P1> line1_type;
+    typedef bg::model::linestring<P2> line2_type;
+
+    line1_type line1;
     line1.push_back(bg::make<P1>(1, 1));
     line1.push_back(bg::make<P1>(2, 2));
-    bg::model::linestring<P2> line2;
+    boost::variant<line1_type> v(line1);
 
-    bg::model::linestring<P2> expected;
+    line2_type expected;
     for (BOOST_AUTO(p, line1.begin()); p != line1.end(); ++p)
     {
         P2 new_point;
@@ -73,7 +78,8 @@ void test_transform_linestring(Value value)
         expected.push_back(new_point);
     }
 
-    check_transform(line1, line2, expected);
+    check_transform(line1, expected);
+    check_transform(v, expected);
 }
 
 
