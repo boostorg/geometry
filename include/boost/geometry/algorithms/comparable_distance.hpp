@@ -7,9 +7,14 @@
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Constributed/Modified by Menelaos Karavelas, Greece, 2014, on behalf of Oracle.
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_COMPARABLE_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_COMPARABLE_DISTANCE_HPP
@@ -20,6 +25,30 @@
 
 namespace boost { namespace geometry
 {
+
+
+// MK::need to add qbk documentation
+template <typename Geometry1, typename Geometry2, typename Strategy>
+inline typename strategy::distance::services::return_type
+                <
+                    Strategy,
+                    typename point_type<Geometry1>::type,
+                    typename point_type<Geometry2>::type
+                >::type
+comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                    Strategy const& strategy)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
+    typedef typename strategy::distance::services::comparable_type
+        <
+            Strategy
+        >::type strategy_type;
+
+    return distance(geometry1, geometry2, strategy_type());
+}
+
 
 
 /*!

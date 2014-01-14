@@ -7,9 +7,14 @@
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Constributed/Modified by Menelaos Karavelas, Greece, 2014, on behalf of Oracle.
 
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DISTANCE_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DISTANCE_HPP
@@ -80,6 +85,28 @@ struct distance_single_to_multi
     }
 };
 
+template<typename MultiGeometry, typename Geometry, typename Strategy>
+struct distance_multi_to_single
+{
+    typedef
+    typename strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<MultiGeometry>::type,
+            typename point_type<Geometry>::type
+        >::type  return_type;
+
+    static inline return_type apply(MultiGeometry const& multi,
+                                    Geometry const& geometry,
+                                    Strategy const& strategy)
+    {
+        return distance_single_to_multi
+            <
+                Geometry, MultiGeometry, Strategy
+            >::apply(geometry, multi, strategy);
+    }
+};
+
 template<typename Multi1, typename Multi2, typename Strategy>
 struct distance_multi_to_multi
     : private distance_single_to_multi
@@ -147,6 +174,25 @@ struct distance
     : detail::distance::distance_single_to_multi<G1, G2, Strategy>
 {};
 
+template
+<
+    typename G1,
+    typename G2,
+    typename Strategy,
+    typename SingleGeometryTag
+>
+struct distance
+<
+    G1, G2, Strategy,
+    SingleGeometryTag, multi_tag,
+    strategy_tag_distance_point_segment,
+    false
+>
+    : detail::distance::distance_single_to_multi<G1, G2, Strategy>
+{};
+
+
+
 template <typename G1, typename G2, typename Strategy>
 struct distance
 <
@@ -156,6 +202,32 @@ struct distance
 >
     : detail::distance::distance_multi_to_multi<G1, G2, Strategy>
 {};
+
+template <typename G1, typename G2, typename Strategy>
+struct distance
+<
+    G1, G2, Strategy,
+    multi_tag, multi_tag,
+    strategy_tag_distance_point_segment,
+    false
+>
+    : detail::distance::distance_multi_to_multi<G1, G2, Strategy>
+{};
+
+
+// distpatch for segment and multi-geometry
+template
+<
+    typename G1, typename Segment, typename Strategy,
+    typename StrategyTag
+>
+struct distance
+    <
+        G1, Segment, Strategy, multi_tag, segment_tag, StrategyTag, false
+    >
+        : detail::distance::distance_multi_to_single<G1, Segment, Strategy>
+{};
+
 
 } // namespace dispatch
 #endif

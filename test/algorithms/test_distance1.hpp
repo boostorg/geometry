@@ -1,3 +1,14 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Unit Test
+
+// Copyright (c) 2014, Oracle and/or its affiliates.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed/Modified by Menelaos Karavelas, Greece, 2014, on behalf of Oracle.
+
 #ifndef BOOST_GEOMETRY_TEST_DISTANCE1_HPP
 #define BOOST_GEOMETRY_TEST_DISTANCE1_HPP
 
