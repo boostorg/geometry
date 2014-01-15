@@ -1,19 +1,12 @@
-#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_BICHROMATIC_CLOSEST_PAIR_HPP
-#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_BICHROMATIC_CLOSEST_PAIR_HPP
+#ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_DISTANCE_BICHROMATIC_CLOSEST_PAIR_HPP
+#define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_DISTANCE_BICHROMATIC_CLOSEST_PAIR_HPP
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
-
-#if (__cplusplus > 199711L)
-#include <random>
-#endif
+#include <boost/geometry/multi/algorithms/detail/distance/random_integer_generator.hpp>
 
 #include <cmath>
-#include <map>
-#include <boost/range.hpp>
-//#include <cstdlib>
-
 
 
 namespace boost { namespace geometry
@@ -21,50 +14,6 @@ namespace boost { namespace geometry
 
 namespace detail { namespace distance
 {
-
-
-#if (__cplusplus > 199711L)
-template <typename IntegerType, typename RealType = double>
-class random_integer_generator
-{
-public:
-    random_integer_generator(unsigned int seed = 0)
-      : generator(), distribution(0, 1)
-    {
-        generator.seed(seed);
-    }
-
-    IntegerType operator()(IntegerType const& low,
-                           IntegerType const& high)
-    {
-        RealType r = distribution(generator);
-        r = low + r * (high - low + 1);
-        return static_cast<IntegerType>(std::floor(r));
-    }
-
-private:
-    std::default_random_engine generator;
-    std::uniform_real_distribution<RealType> distribution;
-};
-#else
-template <typename IntegerType, typename RealType = double>
-class random_integer_generator
-{
-public:
-    random_integer_generator(unsigned int seed = 0)
-    {
-      srand(seed);
-    }
-
-    IntegerType operator()(IntegerType const& low,
-                           IntegerType const& high)
-    {
-        IntegerType i = rand() % (high - low + 1);
-        i += low;
-        return i;
-    }
-};
-#endif
 
 
 
@@ -381,4 +330,4 @@ struct bichromatic_closest_pair
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_BICHROMATIC_CLOSEST_PAIR_HPP
+#endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_DISTANCE_BICHROMATIC_CLOSEST_PAIR_HPP
