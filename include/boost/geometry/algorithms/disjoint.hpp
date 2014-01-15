@@ -15,6 +15,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Contributed/Modified by Adam Wulkiewicz, Poland, 2013, on behalf of Oracle.
+// Contributed/Modified by Menelaos Karavelas, Greece, 2014, on behalf of Oracle.
+
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
 
@@ -37,7 +40,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
-#include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/rescale.hpp>
 
@@ -46,7 +48,6 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
-#include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
 
@@ -72,7 +73,7 @@ struct check_each_ring_for_within
     template <typename Range>
     inline void apply(Range const& range)
     {
-        if (geometry::within(geometry::return_point_on_surface(range), m_geometry))
+        if ( detail::within::within_point_geometry(geometry::return_point_on_surface(range), m_geometry) )
         {
             has_within = true;
         }
@@ -253,10 +254,26 @@ struct disjoint_linestring_segment
     static inline
     bool apply(Linestring const& ls, Segment const& seg)
     {
-        return disjoint_linear
-            <
-                Linestring, segment_view<Segment>
-            >::apply(ls, geometry::segment_view<Segment>(seg));
+        typedef typename boost::range_value<Linestring>::type LS_Point;
+        typedef geometry::model::segment<LS_Point> LS_Segment;
+
+        if ( boost::size(ls) == 1 )
+        {
+            LS_Segment ls_seg(*boost::begin(ls), *boost::begin(ls));
+            return disjoint_segment<Segment, LS_Segment>::apply(seg, ls_seg);
+        }
+
+        BOOST_AUTO_TPL(it1, boost::begin(ls));
+        BOOST_AUTO_TPL(it2, ++boost::begin(ls));
+        for (; it2 != boost::end(ls); ++it1, ++it2)
+        {
+            LS_Segment ls_seg(*it1, *it2);
+            if ( !disjoint_segment<Segment, LS_Segment>::apply(seg, ls_seg) )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
@@ -277,16 +294,62 @@ struct disjoint_linear_areal
     }
 };
 
-template<typename Segment, typename Geometry>
-struct disjoint_segment_areal
+template<typename Segment, typename Ring>
+struct disjoint_segment_ring
 {
     static inline
-    bool apply(Segment const& seg, Geometry const& g)
+    bool apply(Segment const& seg, Ring const& r)
     {
-        return disjoint_linear_areal
+        if ( !disjoint_linestring_segment<Ring, Segment>::apply(r, seg) )
+        {
+            return false;
+        }
+
+        typename point_type<Segment>::type p;
+        detail::assign_point_from_index<0>(seg, p);
+
+        return !covered_by(p, r);
+    }
+};
+
+template<typename Segment, typename Polygon>
+struct disjoint_segment_polygon
+{
+    static inline
+    bool apply(Segment const& seg, Polygon const& polygon)
+    {
+        typedef typename geometry::ring_type<Polygon>::type Ring;
+        typedef typename geometry::interior_return_type
             <
-                segment_view<Segment>, Geometry
-            >::apply(segment_view<Segment>(seg), g);
+                Polygon const
+            >::type InteriorRings;
+
+        if ( !disjoint_linestring_segment
+                  <
+                      Ring, Segment
+             >::apply(geometry::exterior_ring(polygon), seg) )
+        {
+            return false;
+        }
+
+        InteriorRings const& irings = geometry::interior_rings(polygon);
+
+        BOOST_AUTO_TPL(it, boost::begin(irings));
+        for (; it != boost::end(irings); ++it)
+        {
+            if ( !disjoint_linestring_segment
+                      <
+                          Ring, Segment
+                      >::apply(*it, seg) )
+            {
+                return false;
+            }
+        }
+
+        typename point_type<Segment>::type p;
+        detail::assign_point_from_index<0>(seg, p);
+
+        return !covered_by(p, polygon);
     }
 };
 
@@ -392,7 +455,7 @@ struct disjoint<Linestring, Segment, DimensionCount, linestring_tag, segment_tag
 
 template<typename Segment, typename Ring, std::size_t DimensionCount, bool Reverse>
 struct disjoint<Segment, Ring, DimensionCount, segment_tag, ring_tag, Reverse>
-    : detail::disjoint::disjoint_segment_areal<Segment, Ring>
+    : detail::disjoint::disjoint_segment_ring<Segment, Ring>
 {};
 
 template<typename Polygon, typename Segment, std::size_t DimensionCount, bool Reverse>
@@ -401,7 +464,7 @@ struct disjoint<Polygon, Segment, DimensionCount, polygon_tag, segment_tag, Reve
     static inline
     bool apply(Polygon const& g1, Segment const& g2)
     {
-        return detail::disjoint::disjoint_segment_areal<Segment, Polygon>::apply(g2, g1);
+        return detail::disjoint::disjoint_segment_polygon<Segment, Polygon>::apply(g2, g1);
     }
 };
 

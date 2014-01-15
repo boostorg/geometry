@@ -30,11 +30,16 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
+
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 
 namespace boost { namespace geometry
@@ -229,6 +234,146 @@ struct simplify_insert<Ring, ring_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy
+{
+
+struct simplify
+{
+    template <typename Geometry, typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        dispatch::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
+    }
+
+    template <typename Geometry, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+
+        typedef typename strategy::distance::services::default_strategy
+        <
+            segment_tag, point_type
+        >::type ds_strategy_type;
+
+        typedef strategy::simplify::douglas_peucker
+        <
+            point_type, ds_strategy_type
+        > strategy_type;
+
+        BOOST_CONCEPT_ASSERT(
+            (concept::SimplifyStrategy<strategy_type, point_type>)
+        );
+
+        apply(geometry, out, max_distance, strategy_type());
+    }
+};
+
+struct simplify_insert
+{
+    template
+    <
+        typename Geometry,
+        typename OutputIterator,
+        typename Distance,
+        typename Strategy
+    >
+    static inline void apply(Geometry const& geometry,
+                             OutputIterator& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy);
+    }
+
+    template <typename Geometry, typename OutputIterator, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             OutputIterator& out,
+                             Distance const& max_distance,
+                             default_strategy)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+
+        typedef typename strategy::distance::services::default_strategy
+        <
+            segment_tag, point_type
+        >::type ds_strategy_type;
+
+        typedef strategy::simplify::douglas_peucker
+        <
+            point_type, ds_strategy_type
+        > strategy_type;
+
+        BOOST_CONCEPT_ASSERT(
+            (concept::SimplifyStrategy<strategy_type, point_type>)
+        );
+
+        apply(geometry, out, max_distance, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace resolve_variant {
+
+template <typename Geometry>
+struct simplify
+{
+    template <typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        resolve_strategy::simplify::apply(geometry, out, max_distance, strategy);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct simplify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Distance, typename Strategy>
+    struct visitor: boost::static_visitor<void>
+    {
+        Distance const& m_max_distance;
+        Strategy const& m_strategy;
+
+        visitor(Distance const& max_distance, Strategy const& strategy)
+            : m_max_distance(max_distance)
+            , m_strategy(strategy)
+        {}
+
+        template <typename Geometry>
+        void operator()(Geometry const& geometry, Geometry& out) const
+        {
+            simplify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
+        }
+    };
+
+    template <typename Distance, typename Strategy>
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& out,
+          Distance const& max_distance,
+          Strategy const& strategy)
+    {
+        boost::apply_visitor(
+            visitor<Distance, Strategy>(max_distance, strategy),
+            geometry,
+            out
+        );
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief Simplify a geometry using a specified strategy
 \ingroup simplify
@@ -252,13 +397,9 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 {
     concept::check<Geometry>();
 
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
-
     geometry::clear(out);
 
-    dispatch::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
+    resolve_variant::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
 }
 
 
@@ -285,17 +426,8 @@ inline void simplify(Geometry const& geometry, Geometry& out,
     concept::check<Geometry>();
 
     typedef typename point_type<Geometry>::type point_type;
-    typedef typename strategy::distance::services::default_strategy
-            <
-                segment_tag, point_type
-            >::type ds_strategy_type;
 
-    typedef strategy::simplify::douglas_peucker
-        <
-            point_type, ds_strategy_type
-        > strategy_type;
-
-    simplify(geometry, out, max_distance, strategy_type());
+    simplify(geometry, out, max_distance, default_strategy());
 }
 
 
@@ -321,14 +453,11 @@ namespace detail { namespace simplify
 */
 template<typename Geometry, typename OutputIterator, typename Distance, typename Strategy>
 inline void simplify_insert(Geometry const& geometry, OutputIterator out,
-                              Distance const& max_distance, Strategy const& strategy)
+                            Distance const& max_distance, Strategy const& strategy)
 {
     concept::check<Geometry const>();
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
 
-    dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy);
+    resolve_strategy::simplify_insert::apply(geometry, out, max_distance, strategy);
 }
 
 /*!
@@ -344,25 +473,13 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
  */
 template<typename Geometry, typename OutputIterator, typename Distance>
 inline void simplify_insert(Geometry const& geometry, OutputIterator out,
-                              Distance const& max_distance)
+                            Distance const& max_distance)
 {
-    typedef typename point_type<Geometry>::type point_type;
-
     // Concept: output point type = point type of input geometry
     concept::check<Geometry const>();
-    concept::check<point_type>();
+    concept::check<typename point_type<Geometry>::type>();
 
-    typedef typename strategy::distance::services::default_strategy
-        <
-            segment_tag, point_type
-        >::type ds_strategy_type;
-
-    typedef strategy::simplify::douglas_peucker
-        <
-            point_type, ds_strategy_type
-        > strategy_type;
-
-    dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy_type());
+    simplify_insert(geometry, out, max_distance, default_strategy());
 }
 
 }} // namespace detail::simplify

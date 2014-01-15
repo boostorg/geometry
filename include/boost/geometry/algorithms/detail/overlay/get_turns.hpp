@@ -43,7 +43,8 @@
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
@@ -278,7 +279,7 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
+                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2, geometry1, geometry2,
                             ti, rescale_policy, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
