@@ -227,7 +227,8 @@ void test_one(std::string const& caseid,
         expected_area2, percentage);
     test_difference<OutputType>(caseid + "_s", g1, g2,
         expected_count1 + expected_count2,
-        expected_point_count1 + expected_point_count2,
+        expected_point_count1 >= 0 && expected_point_count2 >= 0
+            ? (expected_point_count1 + expected_point_count2) : -1,
         expected_area1 + expected_area2,
         percentage, true);
 

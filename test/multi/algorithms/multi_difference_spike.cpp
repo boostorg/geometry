@@ -43,7 +43,7 @@ void test_spikes_in_ticket_8364()
         if_typed<ct, int>(15, 22),
         if_typed<ct, int>(2775561.0, 2775256.487954), // SQL Server: 2775256.47588724
         3,
-        14,
+        -1, // don't check point-count
         if_typed<ct, int>(7710.5, 7810.487954)); // SQL Server: 7810.48711165739
 
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step4",
@@ -74,7 +74,7 @@ void test_spikes_in_ticket_8365()
         if_typed<ct, int>(17, 21),
         if_typed<ct, int>(7974930.5, 7975207.6047877), // SQL Server:
         2,
-        9,
+        -1,
         if_typed<ct, int>(199.0, 197.1047877)); // SQL Server:
 }
 
