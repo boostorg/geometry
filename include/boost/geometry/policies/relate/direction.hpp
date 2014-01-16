@@ -189,7 +189,7 @@ struct segments_direction
         return r_to.in_segment() ? 1
             : r_to.on_segment() ? 0
             : r_from.on_segment() ? -1
-            : 0
+            : -1
             ;
     }
 
