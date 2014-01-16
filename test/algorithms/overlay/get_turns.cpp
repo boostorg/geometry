@@ -58,13 +58,10 @@ struct test_get_turns
             std::size_t expected_count,
             G1 const& g1, G2 const& g2, double precision)
     {
-            typedef bg::detail::overlay::turn_info
-            <
-                typename bg::point_type<G2>::type
-            > turn_info;
+        typedef typename bg::point_type<G2>::type point_type;
+        typedef bg::detail::overlay::turn_info<point_type> turn_info;
         std::vector<turn_info> turns;
 
-        typedef typename bg::point_type<G2>::type point_type;
         typedef typename bg::rescale_policy_type<point_type>::type
             rescale_policy_type;
 

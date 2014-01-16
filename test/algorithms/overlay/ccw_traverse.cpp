@@ -25,6 +25,7 @@
 #endif
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>
 
@@ -42,14 +43,18 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     >::type side_strategy_type;
 
 
-    typedef bg::detail::overlay::traversal_turn_info
-        <
-            typename bg::point_type<Geometry1>::type
-        > turn_info;
+    typedef typename bg::point_type<Geometry1>::type point_type;
+
+    typedef bg::detail::overlay::traversal_turn_info<point_type> turn_info;
     std::vector<turn_info> turns;
 
+    typedef typename bg::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
     bg::detail::get_turns::no_interrupt_policy policy;
-    bg::detail::no_rescale_policy rescale_policy;
     bg::get_turns
         <
             rev<Geometry1>::value,
