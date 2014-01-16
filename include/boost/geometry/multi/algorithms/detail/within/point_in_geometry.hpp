@@ -23,22 +23,22 @@
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace within {
+namespace detail_dispatch { namespace within {
 
-template <typename G>
-struct point_in_geometry_dispatch<G, multi_polygon_tag>
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_polygon_tag>
 {
-    template <typename P, typename S> static inline
-    int apply(P const& p, G const& g, S const& s)
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
     {
         // For invalid multipolygons
         //int res = -1; // outside
 
-        typedef typename boost::range_value<G>::type polygon_type;
-        typedef typename boost::range_const_iterator<G>::type iterator;
-        for ( iterator it = boost::begin(g) ; it != boost::end(g) ; ++it )
+        typedef typename boost::range_value<Geometry>::type polygon_type;
+        typedef typename boost::range_const_iterator<Geometry>::type iterator;
+        for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
         {
-            int pip = detail::within::point_in_geometry_dispatch<polygon_type>::apply(p, *it, s);
+            int pip = point_in_geometry<polygon_type>::apply(point, *it, strategy);
 
             if ( 1 == pip ) // inside polygon
                 return 1;
@@ -55,21 +55,21 @@ struct point_in_geometry_dispatch<G, multi_polygon_tag>
     }
 };
 
-template <typename G>
-struct point_in_geometry_dispatch<G, multi_linestring_tag>
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_linestring_tag>
 {
-    template <typename P, typename S> static inline
-    int apply(P const& p, G const& g, S const& s)
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
     {
         int pip = -1; // outside
 
-        typedef typename boost::range_value<G>::type linestring_type;
+        typedef typename boost::range_value<Geometry>::type linestring_type;
         typedef typename boost::range_value<linestring_type>::type point_type;
-        typedef typename boost::range_iterator<G const>::type iterator;
-        iterator it = boost::begin(g);
-        for ( ; it != boost::end(g) ; ++it )
+        typedef typename boost::range_iterator<Geometry const>::type iterator;
+        iterator it = boost::begin(geometry);
+        for ( ; it != boost::end(geometry) ; ++it )
         {
-            pip = detail::within::point_in_geometry_dispatch<linestring_type>::apply(p, *it, s);
+            pip = point_in_geometry<linestring_type>::apply(point, *it, strategy);
 
             if ( 0 <= pip )
             {
@@ -84,19 +84,24 @@ struct point_in_geometry_dispatch<G, multi_linestring_tag>
 
         unsigned boundaries = pip == 0 ? 1 : 0;
 
-        for ( ; it != boost::end(g) ; ++it )
+        for ( ; it != boost::end(geometry) ; ++it )
         {
             if ( boost::size(*it) < 2 )
                 continue;
 
             point_type const& front = *boost::begin(*it);
             point_type const& back = *(--boost::end(*it));
-            // is closed_ring
+
+            // is closed_ring - no boundary
             if ( detail::equals::equals_point_point(front, back) )
                 continue;
-            if ( detail::equals::equals_point_point(p, front)
-              || detail::equals::equals_point_point(p, back) )
+
+            // is point on boundary
+            if ( detail::equals::equals_point_point(point, front)
+              || detail::equals::equals_point_point(point, back) )
+            {
                 ++boundaries;
+            }
         }
 
         // if the number of boundaries is odd, the point is on the boundary
@@ -104,7 +109,7 @@ struct point_in_geometry_dispatch<G, multi_linestring_tag>
     }
 };
 
-}} // namespace detail::within
+}} // namespace detail_dispatch::within
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

@@ -36,17 +36,19 @@ struct index_type
     }
 };
 
+}} // namespace detail::sub_geometry
+
+namespace detail_dispatch { namespace sub_geometry {
+
 // TODO: later remove IsMulti and move to multi directory
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type,
           bool IsMulti = boost::is_base_of<multi_tag, Tag>::value>
-struct get_dispatch
-{
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (Geometry, Tag));
-};
+struct get : not_implemented<Tag>
+{};
 
 template <typename Geometry, typename Tag>
-struct get_dispatch<Geometry, Tag, false>
+struct get<Geometry, Tag, false>
 {
     typedef Geometry & result_type;
 
@@ -58,7 +60,7 @@ struct get_dispatch<Geometry, Tag, false>
 };
 
 template <typename Geometry>
-struct get_dispatch<Geometry, polygon_tag, false>
+struct get<Geometry, polygon_tag, false>
 {
     typedef typename geometry::ring_type<Geometry>::type & result_type;
 
@@ -77,50 +79,46 @@ struct get_dispatch<Geometry, polygon_tag, false>
 };
 
 template <typename Geometry, typename Tag>
-struct get_dispatch<Geometry, Tag, true>
+struct get<Geometry, Tag, true>
 {
-    typedef typename boost::range_value<Geometry>::type sub_type;
-    typedef typename get_dispatch<sub_type>::result_type result_type;
+    typedef typename boost::range_value<Geometry>::type value_type;
+    typedef typename boost::mpl::if_c
+        <
+            boost::is_const<Geometry>::value,
+            typename boost::add_const<value_type>::type,
+            value_type
+        >::type sub_type;
+    typedef detail_dispatch::sub_geometry::get<sub_type> get_type;
+    typedef typename get_type::result_type result_type;
 
     template <typename Id> static inline
     result_type apply(Geometry & geometry, Id const& id)
     {
         BOOST_ASSERT(0 <= id.multi_index);
-        return get_dispatch<sub_type>::apply(*(boost::begin(geometry) + id.multi_index), id);
+        return get_type::apply(*(boost::begin(geometry) + id.multi_index), id);
     }
 };
+
+}} // namespace detail_dispatch::sub_geometry
+
+namespace detail { namespace sub_geometry {
 
 template <typename Geometry>
 struct result_type
 {
-    typedef typename get_dispatch<Geometry>::result_type type;
+    typedef typename detail_dispatch::sub_geometry::get<Geometry>::result_type type;
 };
-
-//template <typename Geometry>
-//struct result_type<Geometry const>
-//{
-//    typedef typename get_dispatch<Geometry const>::result_type type;
-//};
 
 // This function also works for geometry::segment_identifier
 
 template <typename Geometry, typename Id> inline
-typename get_dispatch<Geometry>::result_type
-get(Geometry & g, Id const& id)
+typename detail_dispatch::sub_geometry::get<Geometry>::result_type
+get(Geometry & geometry, Id const& id)
 {
-    return get_dispatch<Geometry>::apply(g, id);
+    return detail_dispatch::sub_geometry::get<Geometry>::apply(geometry, id);
 };
 
-//template <typename Geometry, typename Id> inline
-//typename get_dispatch<Geometry>::result_type
-//get(Geometry const& g, Id const& id)
-//{
-//    return get_dispatch<Geometry const>::apply(g, id);
-//};
-
-} // namespace sub_geometry
-
-} // namespace detail
+}} // namespace detail::sub_geometry
 #endif
 
 }} // namespace boost::geometry

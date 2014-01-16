@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -36,7 +37,8 @@ struct box_within_range
                 , BoxContainingValue const& bing_min
                 , BoxContainingValue const& bing_max)
     {
-        return bed_min > bing_min && bed_max < bing_max;
+        return bing_min <= bed_min && bed_max <= bing_max // contained in containing
+            && bed_min < bed_max;                         // interiors overlap
     }
 };
 

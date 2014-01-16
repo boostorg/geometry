@@ -88,7 +88,7 @@ struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
                 Point,
                 MultiPolygon,
                 Strategy,
-                detail::within::point_in_geometry_dispatch
+                detail_dispatch::within::point_in_geometry
                     <
                         typename boost::range_value<MultiPolygon>::type
                     >
