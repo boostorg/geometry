@@ -24,6 +24,7 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
@@ -63,8 +64,15 @@ struct test_get_turns
             > turn_info;
         std::vector<turn_info> turns;
 
+        typedef typename bg::point_type<G2>::type point_type;
+        typedef typename bg::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(g1, g2, bg::detail::no_rescale_policy(), turns, policy);
+        bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(g1, g2, rescale_policy, turns, policy);
 
         BOOST_CHECK_MESSAGE(
             expected_count == boost::size(turns),
