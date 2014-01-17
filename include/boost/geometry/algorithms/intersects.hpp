@@ -20,6 +20,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 
 
@@ -44,11 +45,8 @@ inline bool intersects(Geometry const& geometry)
 {
     concept::check<Geometry const>();
 
-
-    typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry>::type
-        > turn_info;
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef detail::overlay::turn_info<point_type> turn_info;
     std::deque<turn_info> turns;
 
     typedef typename strategy_intersection
@@ -56,7 +54,7 @@ inline bool intersects(Geometry const& geometry)
             typename cs_tag<Geometry>::type,
             Geometry,
             Geometry,
-            typename geometry::point_type<Geometry>::type
+            point_type
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     typedef detail::overlay::get_turn_info
@@ -64,11 +62,17 @@ inline bool intersects(Geometry const& geometry)
             detail::overlay::assign_null_policy
         > TurnPolicy;
 
+    typedef typename rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = get_rescale_policy<rescale_policy_type>(geometry);
+
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
                 TurnPolicy
-            >::apply(geometry, detail::no_rescale_policy(), turns, policy);
+            >::apply(geometry, rescale_policy, turns, policy);
     return policy.has_intersections;
 }
 

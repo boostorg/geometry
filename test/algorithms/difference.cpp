@@ -141,7 +141,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         -1, -1, 8.7048386,
-        -1, -1, 0.0098387);
+        -1, -1, 0.0098387,
+        0.001);
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
