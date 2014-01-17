@@ -304,13 +304,30 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     assign_values(min_robust_point, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 }
 
-template <typename Point>
+namespace detail { namespace rescale
+{
+
+template
+<
+    typename Point,
+    bool IsFloatingPoint
+>
 struct rescale_policy_type
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    typedef Point robust_point_type;
+    typedef no_rescale_policy type;
+};
+
+// We rescale only all FP types
+template
+<
+    typename Point
+>
+struct rescale_policy_type<Point, true>
+{
     typedef model::point
     <
-        typename geometry::robust_type<coordinate_type>::type,
+        typename geometry::robust_type<typename geometry::coordinate_type<Point>::type>::type,
         geometry::dimension<Point>::value,
         typename geometry::coordinate_system<Point>::type
     > robust_point_type;
@@ -318,44 +335,93 @@ struct rescale_policy_type
     typedef detail::zoom_to_robust::rescale_strategy<Point, robust_point_type, double> type;
 };
 
+template <typename Policy>
+struct get_rescale_policy
+{
+    template <typename Geometry>
+    static inline Policy apply(Geometry const& geometry)
+    {
+        typedef typename point_type<Geometry>::type point_type;
+        typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+        typedef model::point
+        <
+            typename geometry::robust_type<coordinate_type>::type,
+            geometry::dimension<point_type>::value,
+            typename geometry::coordinate_system<point_type>::type
+        > robust_point_type;
+
+        point_type min_point;
+        robust_point_type min_robust_point;
+        double factor;
+        init_rescale_policy(geometry, min_point, min_robust_point, factor);
+
+        return Policy(min_point, min_robust_point, factor);
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static inline Policy apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        typedef typename point_type<Geometry1>::type point_type;
+        typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
+        typedef model::point
+        <
+            typename geometry::robust_type<coordinate_type>::type,
+            geometry::dimension<point_type>::value,
+            typename geometry::coordinate_system<point_type>::type
+        > robust_point_type;
+
+        point_type min_point;
+        robust_point_type min_robust_point;
+        double factor;
+        init_rescale_policy(geometry1, geometry2, min_point, min_robust_point, factor);
+
+        return Policy(min_point, min_robust_point, factor);
+    }
+};
+
+// Specialization for no-rescaling
+template <>
+struct get_rescale_policy<no_rescale_policy>
+{
+    template <typename Geometry>
+    static inline no_rescale_policy apply(Geometry const& )
+    {
+        no_rescale_policy result;
+        return result;
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static inline no_rescale_policy apply(Geometry1 const& , Geometry2 const& )
+    {
+        no_rescale_policy result;
+        return result;
+    }
+};
+
+}} // namespace detail::rescale
+
+template<typename Point>
+struct rescale_policy_type
+    : public detail::rescale::rescale_policy_type
+    <
+        Point,
+        boost::is_floating_point
+        <
+            typename geometry::coordinate_type<Point>::type
+        >::type::value
+    >
+{};
+
 template <typename Policy, typename Geometry>
 inline Policy get_rescale_policy(Geometry const& geometry)
 {
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
-    typedef model::point
-    <
-        typename geometry::robust_type<coordinate_type>::type,
-        geometry::dimension<point_type>::value,
-        typename geometry::coordinate_system<point_type>::type
-    > robust_point_type;
-
-    point_type min_point;
-    robust_point_type min_robust_point;
-    double factor;
-    init_rescale_policy(geometry, min_point, min_robust_point, factor);
-
-    return Policy(min_point, min_robust_point, factor);
+    return detail::rescale::get_rescale_policy<Policy>::apply(geometry);
 }
 
 template <typename Policy, typename Geometry1, typename Geometry2>
 inline Policy get_rescale_policy(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    typedef typename point_type<Geometry1>::type point_type;
-    typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
-    typedef model::point
-    <
-        typename geometry::robust_type<coordinate_type>::type,
-        geometry::dimension<point_type>::value,
-        typename geometry::coordinate_system<point_type>::type
-    > robust_point_type;
-
-    point_type min_point;
-    robust_point_type min_robust_point;
-    double factor;
-    init_rescale_policy(geometry1, geometry2, min_point, min_robust_point, factor);
-
-    return Policy(min_point, min_robust_point, factor);
+    return detail::rescale::get_rescale_policy<Policy>::apply(geometry1, geometry2);
 }
 
 

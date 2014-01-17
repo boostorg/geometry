@@ -157,12 +157,9 @@ void test_point_output()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-    // TODO: fix, not yet adapted for rescaling
     test_point_output<multi_polygon, multi_polygon>(case_multi_simplex[0], case_multi_simplex[1], 10);
     test_point_output<linestring, multi_polygon>("linestring(4 0,0 4)", case_multi_simplex[0], 4);
     test_point_output<box, multi_polygon>("box(3 0,4 6)", case_multi_simplex[0], 8);
-#endif
 }
 
 template <typename MultiPolygon, typename MultiLineString>
