@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
-#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
