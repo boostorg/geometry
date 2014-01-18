@@ -348,6 +348,10 @@ void test_all()
             2, 12, 0.0451236449624935,
             0, 0, 0);
 
+    test_one<polygon, polygon, polygon>("ticket_9563",
+            ticket_9563[0], ticket_9563[1],
+            0, 0, 0,
+            6, 24, 20.096189);
 
     // Other combi's
     {

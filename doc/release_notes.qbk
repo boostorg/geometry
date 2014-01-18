@@ -32,6 +32,9 @@
 
 * intersects(polygon) could return a self-intersection-point for its closing point, fixed
 
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/9563 9563] (Sym)difference not successful, fixed by rescaling to robust type
 
 [/=================]
 [heading Boost 1.55]
