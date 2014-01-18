@@ -21,6 +21,7 @@ namespace boost { namespace geometry
 //! Small class to keep a ratio (e.g. 1/4)
 //! Main purpose is intersections and checking on 0, 1, and smaller/larger
 //! The prototype used Boost.Rational. However, we also want to store FP ratios,
+//! (so numerator/denominator both in float)
 //! and Boost.Rational starts with GCD which we prefer to avoid if not necessary
 //! On a segment means: this ratio is between 0 and 1 (both inclusive)
 //!
