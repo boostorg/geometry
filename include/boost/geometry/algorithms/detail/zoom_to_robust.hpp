@@ -410,7 +410,16 @@ struct rescale_policy_type
             typename geometry::coordinate_type<Point>::type
         >::type::value
     >
-{};
+{
+    BOOST_STATIC_ASSERT
+    (
+        boost::is_same
+        <
+            typename geometry::tag<Point>::type,
+            geometry::point_tag
+        >::type::value
+    );
+};
 
 template <typename Policy, typename Geometry>
 inline Policy get_rescale_policy(Geometry const& geometry)
