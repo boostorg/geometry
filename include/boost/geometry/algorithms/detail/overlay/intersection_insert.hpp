@@ -62,7 +62,8 @@ struct intersection_segment_segment_point
 
         typedef typename geometry::robust_point_type
             <
-                Segment1, RescalePolicy
+                typename geometry::point_type<Segment1>::type,
+                RescalePolicy
             >::type robust_point_type;
 
         // TODO: rescale segment -> robust points
