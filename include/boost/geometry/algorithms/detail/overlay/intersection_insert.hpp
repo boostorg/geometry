@@ -96,9 +96,8 @@ struct intersection_segment_segment_point
                     >
             > policy;
 
-        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
         intersection_return_type is = policy::apply(segment1, segment2,
-                        robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
+                        rescale_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < is.count; i++)
         {

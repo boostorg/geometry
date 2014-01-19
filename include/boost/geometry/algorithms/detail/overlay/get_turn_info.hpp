@@ -1025,9 +1025,8 @@ struct get_turn_info
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
         typename strategy::return_type result = strategy::apply(p1, q1,
-                    robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
+                    rescale_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         char const method = result.template get<1>().how;
 

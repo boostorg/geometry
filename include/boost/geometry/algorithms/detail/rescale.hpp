@@ -12,6 +12,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
 
 namespace boost { namespace geometry
 {
@@ -24,6 +25,9 @@ namespace detail
 
 struct no_rescale_policy
 {
+    // TODO the type should be passed
+    typedef segment_ratio<boost::long_long_type> segment_ratio_type;
+
     // We don't rescale but return the reference. zero cost.
     template <std::size_t Dimension, typename Value>
     inline Value const& apply(Value const& value) const

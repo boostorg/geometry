@@ -32,6 +32,10 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
+// TODO move to policies folder
+#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <boost/geometry/io/wkt/write.hpp>
 #endif
@@ -84,12 +88,13 @@ struct relate_cartesian_segments
     {
         // TODO: revise this or remove this overload
         // This considers two segments without robustness checks
-        default_robust_policy robust_policy;
         typename geometry::point_type<Segment1>::type a0, a1, b0, b1; // type them all as in first
         detail::assign_point_from_index<0>(a, a0);
         detail::assign_point_from_index<1>(a, a1);
         detail::assign_point_from_index<0>(b, b0);
         detail::assign_point_from_index<1>(b, b1);
+
+        geometry::detail::no_rescale_policy robust_policy;
         return apply(a, b, robust_policy, a0, a1, b0, b1);
     }
 

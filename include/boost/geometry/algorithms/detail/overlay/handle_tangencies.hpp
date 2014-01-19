@@ -115,7 +115,9 @@ private :
     }
 
     // Determine how p/r and p/s are located.
-    static inline void overlap_info(robust_point_type const& pi, robust_point_type const& pj,
+    template <typename RobustnessPolicy>
+    static inline void overlap_info(RobustnessPolicy const& robust_policy,
+        robust_point_type const& pi, robust_point_type const& pj,
         robust_point_type const& ri, robust_point_type const& rj,
         robust_point_type const& si, robust_point_type const& sj,
         bool& pr_overlap, bool& ps_overlap, bool& rs_overlap)
@@ -143,7 +145,6 @@ private :
         segment_type s(si, sj);
 
         // Get the intersection point (or two points)
-        default_robust_policy robust_policy;
         intersection_return_type pr = policy::apply(p, r, robust_policy, pi, pj, ri, rj);
         intersection_return_type ps = policy::apply(p, s, robust_policy, pi, pj, si, sj);
         intersection_return_type rs = policy::apply(r, s, robust_policy, ri, rj, si, sj);
@@ -170,7 +171,7 @@ private :
         get_situation_map(left, right, pi, pj, ri, rj, si, sj);
 
         bool prc = false, psc = false, rsc = false;
-        overlap_info(pi, pj, ri, rj, si, sj, prc, psc, rsc);
+        overlap_info(m_rescale_policy, pi, pj, ri, rj, si, sj, prc, psc, rsc);
 
         int const side_ri_p = m_strategy.apply(pi, pj, ri);
         int const side_rj_p = m_strategy.apply(pi, pj, rj);
@@ -391,7 +392,7 @@ private :
 
         // We need EXTRA information here: are p/r/s overlapping?
         bool pr_ov = false, ps_ov = false, rs_ov = false;
-        overlap_info(pi, pj, ri, rj, si, sj, pr_ov, ps_ov, rs_ov);
+        overlap_info(m_rescale_policy, pi, pj, ri, rj, si, sj, pr_ov, ps_ov, rs_ov);
 
         // One coming from right (#83,#90)
         // One coming from left (#90, #94, #95)

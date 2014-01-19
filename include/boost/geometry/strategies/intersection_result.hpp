@@ -235,12 +235,6 @@ struct segment_intersection_info
 #endif
 };
 
-// TEMPORARY HERE
-struct default_robust_policy
-{
-    typedef segment_ratio<boost::long_long_type> segment_ratio_type;
-};
-
 
 }} // namespace boost::geometry
 
