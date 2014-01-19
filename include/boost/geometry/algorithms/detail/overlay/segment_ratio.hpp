@@ -127,6 +127,16 @@ public :
         return result;
     }
 
+#if defined(BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO)
+    friend std::ostream& operator<<(std::ostream &os, segment_ratio const& ratio)
+    {
+        os << ratio.m_numerator << "/" << ratio.m_denominator;
+        return os;
+    }
+#endif
+
+
+
 private :
     Type m_numerator;
     Type m_denominator;

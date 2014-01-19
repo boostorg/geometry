@@ -12,6 +12,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO
 
 #include <geometry_test_common.hpp>
 
@@ -75,28 +76,32 @@ static void test_segment_intersection(std::string const& case_id,
     segment_type s12(p1,p2);
     segment_type s34(p3,p4);
 
+    typedef bg::detail::no_rescale_policy rescale_policy_type;
+    rescale_policy_type rescale_policy;
+
+    typedef bg::segment_intersection_points
+    <
+        P,
+        typename bg::segment_ratio_type
+        <
+            P,
+            rescale_policy_type
+        >::type
+    > result_type;
+
     // Get the intersection point (or two points)
-    bg::segment_intersection_points<P> is
+    result_type is
         = bg::strategy::intersection::relate_cartesian_segments
         <
-            bg::policies::relate::segments_intersection_points
-                <
-                    segment_type,
-                    segment_type,
-                    bg::segment_intersection_points<P>
-                >
-        >::apply(s12, s34, p1, p2, p3, p4);
+            bg::policies::relate::segments_intersection_points<result_type>
+        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
 
     // Get just a character for Left/Right/intersects/etc, purpose is more for debugging
     bg::policies::relate::direction_type dir
         = bg::strategy::intersection::relate_cartesian_segments
         <
             bg::policies::relate::segments_direction
-                <
-                    segment_type,
-                    segment_type
-                >
-        >::apply(s12, s34, p1, p2, p3, p4);
+        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
 
     std::size_t expected_count =
         check(is, 0, expected_x1, expected_y1)
@@ -132,17 +137,25 @@ static void test_segment_ratio(std::string const& case_id,
     segment_type s12(p1, p2);
     segment_type s34(p3, p4);
 
+    typedef bg::detail::no_rescale_policy rescale_policy_type;
+    rescale_policy_type rescale_policy;
+
+    typedef bg::segment_intersection_points
+    <
+        P,
+        typename bg::segment_ratio_type
+        <
+            P,
+            rescale_policy_type
+        >::type
+    > result_type;
+
     // Get the intersection point (or two points)
-    bg::segment_intersection_points<P> is
+    result_type is
         = bg::strategy::intersection::relate_cartesian_segments
         <
-            bg::policies::relate::segments_intersection_points
-                <
-                    segment_type,
-                    segment_type,
-                    bg::segment_intersection_points<P>
-                >
-        >::apply(s12, s34, p1, p2, p3, p4);
+            bg::policies::relate::segments_intersection_points<result_type>
+        >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
 
     BOOST_CHECK_EQUAL(is.count, 2u);
     BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
