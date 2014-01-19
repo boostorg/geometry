@@ -56,8 +56,6 @@ struct get_max_size<Box, 0>
 template <typename FpPoint, typename IntPoint, typename CalculationType>
 struct rescale_strategy
 {
-    typedef segment_ratio<boost::long_long_type> segment_ratio_type;
-
     typedef typename geometry::coordinate_type<IntPoint>::type output_ct;
 
     rescale_strategy(FpPoint const& fp_min, IntPoint const& int_min, CalculationType const& the_factor)
@@ -92,6 +90,14 @@ struct robust_point_type<Point, detail::zoom_to_robust::rescale_strategy<FpPoint
 {
     typedef IntPoint type;
 };
+
+// Meta function for rescaling, if rescaling is done segment_ratio is based on long long
+template <typename Point, typename FpPoint, typename IntPoint, typename CalculationType>
+struct segment_ratio_type<Point, detail::zoom_to_robust::rescale_strategy<FpPoint, IntPoint, CalculationType> >
+{
+    typedef segment_ratio<boost::long_long_type> type;
+};
+
 
 
 template <typename Box>
@@ -316,7 +322,6 @@ template
 >
 struct rescale_policy_type
 {
-    typedef Point robust_point_type;
     typedef no_rescale_policy type;
 };
 
@@ -327,13 +332,14 @@ template
 >
 struct rescale_policy_type<Point, true>
 {
+private:
     typedef model::point
     <
         typename geometry::robust_type<typename geometry::coordinate_type<Point>::type>::type,
         geometry::dimension<Point>::value,
         typename geometry::coordinate_system<Point>::type
     > robust_point_type;
-
+public:
     typedef detail::zoom_to_robust::rescale_strategy<Point, robust_point_type, double> type;
 };
 

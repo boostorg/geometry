@@ -25,8 +25,6 @@ namespace detail
 
 struct no_rescale_policy
 {
-    // TODO the type should be passed
-    typedef segment_ratio<boost::long_long_type> segment_ratio_type;
 
     // We don't rescale but return the reference. zero cost.
     template <std::size_t Dimension, typename Value>
@@ -47,6 +45,15 @@ struct robust_point_type
     typedef Point type;
 };
 
+// Meta-function to access segment-ratio
+// By default, the segment ratio is derived from corresponding point-type
+// A policy can specialize this.
+template <typename Point, typename Policy>
+struct segment_ratio_type
+{
+    // TODO set to coordinate type
+    typedef segment_ratio<boost::long_long_type> type;
+};
 
 #endif
 

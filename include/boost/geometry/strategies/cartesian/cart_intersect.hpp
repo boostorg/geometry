@@ -108,6 +108,8 @@ struct relate_cartesian_segments
         BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
         BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
 
+        boost::ignore_unused_variable_warning(robust_policy);
+
         typedef typename select_calculation_type
             <Segment1, Segment2, CalculationType>::type coordinate_type;
 
@@ -163,11 +165,17 @@ struct relate_cartesian_segments
                 RobustPoint
             >::type robust_coordinate_type;
 
+        typedef typename segment_ratio_type
+        <
+            typename geometry::point_type<Segment1>::type, // TODO: most precise point?
+            RobustPolicy
+        >::type ratio_type;
+
         segment_intersection_info
         <
             coordinate_type,
             promoted_type,
-            typename RobustPolicy::segment_ratio_type
+            ratio_type
         > sinfo;
 
         sinfo.dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
@@ -269,12 +277,12 @@ struct relate_cartesian_segments
                     >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
             if (collinear_use_first)
             {
-                return relate_collinear<0>(a, b, robust_policy, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<0, ratio_type>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
             }
             else
             {
                 // Y direction contains larger segments (maybe dx is zero)
-                return relate_collinear<1>(a, b, robust_policy, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<1, ratio_type>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
             }
         }
 
@@ -314,14 +322,20 @@ private :
     }
 
 private:
-    template <std::size_t Dimension, typename Segment1, typename Segment2, typename RobustPolicy, typename RobustPoint>
+    template
+    <
+        std::size_t Dimension,
+        typename RatioType,
+        typename Segment1,
+        typename Segment2,
+        typename RobustPoint
+    >
     static inline return_type relate_collinear(Segment1 const& a,
             Segment2 const& b,
-            RobustPolicy const& robust_policy,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
-        return relate_collinear(a, b, robust_policy,
+        return relate_collinear<RatioType>(a, b,
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
                                 get<Dimension>(robust_b1),
@@ -329,10 +343,15 @@ private:
     }
 
     /// Relate segments known collinear
-    template <typename Segment1, typename Segment2, typename RobustPolicy, typename RobustType>
+    template
+    <
+        typename RatioType,
+        typename Segment1,
+        typename Segment2,
+        typename RobustType
+    >
     static inline return_type relate_collinear(Segment1 const& a
             , Segment2 const& b
-            , RobustPolicy const& robust_policy
             , RobustType oa_1, RobustType oa_2
             , RobustType ob_1, RobustType ob_2
             )
@@ -370,12 +389,10 @@ private:
         RobustType const length_a = oa_2 - oa_1; // no abs, see above
         RobustType const length_b = ob_2 - ob_1;
 
-        boost::ignore_unused_variable_warning(robust_policy);
-        typedef typename RobustPolicy::segment_ratio_type ratio_type;
-        ratio_type const ra_from(oa_1 - ob_1, length_b);
-        ratio_type const ra_to(oa_2 - ob_1, length_b);
-        ratio_type const rb_from(ob_1 - oa_1, length_a);
-        ratio_type const rb_to(ob_2 - oa_1, length_a);
+        RatioType const ra_from(oa_1 - ob_1, length_b);
+        RatioType const ra_to(oa_2 - ob_1, length_b);
+        RatioType const rb_from(ob_1 - oa_1, length_a);
+        RatioType const rb_to(ob_2 - oa_1, length_a);
 
         if ((ra_from.left() && ra_to.left()) || (ra_from.right() && ra_to.right()))
         {
