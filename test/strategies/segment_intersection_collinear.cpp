@@ -191,7 +191,7 @@ void test_all()
     test_segment_intersection<P>("n4",
         2, 0, 6, 0,
         3, 0, 5, 0,
-        'c', false, 0, 1, // VALUE ADAPTED! a did not depart or arrive in b
+        'c', false, -1, 1,
         3, 0, 5, 0);
 
     //       a1---------->a2
@@ -248,7 +248,7 @@ void test_all()
     test_segment_intersection<P>("o4",
         2, 0, 6, 0,
         5, 0, 3, 0,
-        'c', true, 0, 1, // VALUE ADAPTED see above
+        'c', true, -1, 1,
         3, 0, 5, 0);
 
     //       a1---------->a2
