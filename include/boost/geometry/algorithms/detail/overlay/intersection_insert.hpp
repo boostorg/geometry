@@ -85,7 +85,10 @@ struct intersection_segment_segment_point
         typedef segment_intersection_points
                 <
                     point_type,
-                    segment_ratio<boost::long_long_type> // TODO finetune this
+                    typename segment_ratio_type
+                    <
+                        point_type, RescalePolicy
+                    >::type
                 > intersection_return_type;
 
         typedef strategy::intersection::relate_cartesian_segments

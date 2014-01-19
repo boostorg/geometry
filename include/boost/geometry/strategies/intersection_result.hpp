@@ -15,8 +15,6 @@
 
 #include <cstddef>
 
-#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
-
 
 namespace boost { namespace geometry
 {

@@ -146,10 +146,18 @@ struct disjoint_segment
     {
         typedef typename point_type<Segment1>::type point_type;
 
+        // We don't need to rescale to detect disjointness
+        typedef no_rescale_policy rescale_policy_type;
+        rescale_policy_type rescale_policy;
+
         typedef segment_intersection_points
                 <
                     point_type,
-                    segment_ratio<boost::long_long_type> // TODO finetune this
+                    typename segment_ratio_type
+                    <
+                        point_type,
+                        rescale_policy_type
+                    >::type
                 > intersection_return_type;
 
         intersection_return_type is
@@ -159,7 +167,7 @@ struct disjoint_segment
                     <
                         intersection_return_type
                     >
-            >::apply(segment1, segment2);
+            >::apply(segment1, segment2, rescale_policy);
 
         return is.count == 0;
     }

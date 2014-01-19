@@ -34,6 +34,7 @@
 
 // TODO move to policies folder
 #include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
@@ -83,19 +84,32 @@ struct relate_cartesian_segments
 
 
     // Relate segments a and b
-    template <typename Segment1, typename Segment2>
-    static inline return_type apply(Segment1 const& a, Segment2 const& b)
+    template <typename Segment1, typename Segment2, typename RobustPolicy>
+    static inline return_type apply(Segment1 const& a, Segment2 const& b,
+                RobustPolicy const& robust_policy)
     {
-        // TODO: revise this or remove this overload
-        // This considers two segments without robustness checks
-        typename geometry::point_type<Segment1>::type a0, a1, b0, b1; // type them all as in first
+        // type them all as in Segment1 - TODO reconsider this, most precise?
+        typedef typename geometry::point_type<Segment1>::type point_type;
+
+        typedef typename geometry::robust_point_type
+            <
+                point_type, RobustPolicy
+            >::type robust_point_type;
+
+        point_type a0, a1, b0, b1;
+        robust_point_type a0_rob, a1_rob, b0_rob, b1_rob;
+
         detail::assign_point_from_index<0>(a, a0);
         detail::assign_point_from_index<1>(a, a1);
         detail::assign_point_from_index<0>(b, b0);
         detail::assign_point_from_index<1>(b, b1);
 
-        geometry::detail::no_rescale_policy robust_policy;
-        return apply(a, b, robust_policy, a0, a1, b0, b1);
+        geometry::recalculate(a0_rob, a0, robust_policy);
+        geometry::recalculate(a1_rob, a1, robust_policy);
+        geometry::recalculate(b0_rob, b0, robust_policy);
+        geometry::recalculate(b1_rob, b1, robust_policy);
+
+        return apply(a, b, robust_policy, a0_rob, a1_rob, b0_rob, b1_rob);
     }
 
     // The main entry-routine, calculating intersections of segments a / b
