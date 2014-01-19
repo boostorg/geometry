@@ -79,6 +79,8 @@ private :
             typename geometry::coordinate_system<Geometry1>::type
         > robust_point_type;
 
+    // Still called by #case_102_multi, #case_107_multi
+    // #case_recursive_boxes_3
     inline void get_situation_map(Indexed const& left, Indexed const& right,
                               robust_point_type& pi_rob, robust_point_type& pj_rob,
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
