@@ -193,11 +193,6 @@ struct segments_intersection_points
         return return_type();
     }
 
-    static inline return_type collinear_disjoint()
-    {
-        return return_type();
-    }
-
     static inline return_type degenerate(S1 const& s, bool)
     {
         return_type result;

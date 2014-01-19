@@ -284,11 +284,6 @@ struct segments_direction
         return return_type('d', false);
     }
 
-    static inline return_type collinear_disjoint()
-    {
-        return return_type('d', false);
-    }
-
     static inline return_type error(std::string const&)
     {
         // Return "E" to denote error

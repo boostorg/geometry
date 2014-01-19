@@ -101,15 +101,6 @@ struct segments_tupled
             );
     }
 
-    static inline return_type collinear_disjoint()
-    {
-        return boost::make_tuple
-            (
-                Policy1::collinear_disjoint(),
-                Policy2::collinear_disjoint()
-            );
-    }
-
 };
 
 }} // namespace policies::relate
