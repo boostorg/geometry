@@ -123,24 +123,30 @@ private :
         // Determine how p/r and p/s are located.
         // One of them is coming from opposite direction.
 
-        typedef model::referring_segment<robust_point_type const> segment_type;
+        typedef segment_intersection_points
+                <
+                    point_type,
+                    segment_ratio<boost::long_long_type> // TODO finetune this
+                > intersection_return_type;
+
         typedef strategy::intersection::relate_cartesian_segments
             <
                 policies::relate::segments_intersection_points
                     <
-                        segment_intersection_points<point_type>
+                        intersection_return_type
                     >
             > policy;
 
+        typedef model::referring_segment<robust_point_type const> segment_type;
         segment_type p(pi, pj);
         segment_type r(ri, rj);
         segment_type s(si, sj);
 
         // Get the intersection point (or two points)
         default_robust_policy robust_policy;
-        segment_intersection_points<point_type> pr = policy::apply(p, r, robust_policy, pi, pj, ri, rj);
-        segment_intersection_points<point_type> ps = policy::apply(p, s, robust_policy, pi, pj, si, sj);
-        segment_intersection_points<point_type> rs = policy::apply(r, s, robust_policy, ri, rj, si, sj);
+        intersection_return_type pr = policy::apply(p, r, robust_policy, pi, pj, ri, rj);
+        intersection_return_type ps = policy::apply(p, s, robust_policy, pi, pj, si, sj);
+        intersection_return_type rs = policy::apply(r, s, robust_policy, ri, rj, si, sj);
 
         // Check on overlap
         pr_overlap = pr.count == 2;

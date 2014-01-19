@@ -48,7 +48,8 @@ private :
 
     typedef segment_intersection_points
         <
-            IntersectionPoint
+            IntersectionPoint,
+            segment_ratio<boost::long_long_type> // TODO finetune this
         > ip_type;
 
 public:

@@ -82,15 +82,23 @@ struct intersection_segment_segment_point
         }
 
         // Get the intersection point (or two points)
-        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
-        segment_intersection_points<point_type> is
-            = strategy::intersection::relate_cartesian_segments
+        typedef segment_intersection_points
+                <
+                    point_type,
+                    segment_ratio<boost::long_long_type> // TODO finetune this
+                > intersection_return_type;
+
+        typedef strategy::intersection::relate_cartesian_segments
             <
                 policies::relate::segments_intersection_points
                     <
-                        segment_intersection_points<point_type>
+                        intersection_return_type
                     >
-            >::apply(segment1, segment2, robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
+            > policy;
+
+        default_robust_policy robust_policy; // TODO this should be passed or merged with rescale_policy
+        intersection_return_type is = policy::apply(segment1, segment2,
+                        robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < is.count; i++)
         {

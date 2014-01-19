@@ -146,12 +146,18 @@ struct disjoint_segment
     {
         typedef typename point_type<Segment1>::type point_type;
 
-        segment_intersection_points<point_type> is
+        typedef segment_intersection_points
+                <
+                    point_type,
+                    segment_ratio<boost::long_long_type> // TODO finetune this
+                > intersection_return_type;
+
+        intersection_return_type is
             = strategy::intersection::relate_cartesian_segments
             <
                 policies::relate::segments_intersection_points
                     <
-                        segment_intersection_points<point_type>
+                        intersection_return_type
                     >
             >::apply(segment1, segment2);
 

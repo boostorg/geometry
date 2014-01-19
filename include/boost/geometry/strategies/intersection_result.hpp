@@ -193,13 +193,17 @@ struct fraction_type
 
 };
 
-// Set in intersection_points.hpp, from segment_intersection_info
-template <typename Point>
+//
+/*!
+\brief return-type for segment-intersection
+\note Set in intersection_points.hpp, from segment_intersection_info
+*/
+template <typename Point, typename SegmentRatio>
 struct segment_intersection_points
 {
-    std::size_t count;
+    std::size_t count; // The number of intersection points
+
     // TODO: combine intersections and fractions in one struct
-    typedef segment_ratio<boost::long_long_type> SegmentRatio;
     Point intersections[2];
     fraction_type<SegmentRatio> fractions[2];
     typedef Point point_type;
