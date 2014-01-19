@@ -52,17 +52,6 @@ template <typename Policy, typename CalculationType = void>
 struct relate_cartesian_segments
 {
     typedef typename Policy::return_type return_type;
-    typedef typename Policy::segment_type1 segment_type1;
-    typedef typename Policy::segment_type2 segment_type2;
-
-    //typedef typename point_type<segment_type1>::type point_type;
-    //BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
-
-    BOOST_CONCEPT_ASSERT( (concept::ConstSegment<segment_type1>) );
-    BOOST_CONCEPT_ASSERT( (concept::ConstSegment<segment_type2>) );
-
-    typedef typename select_calculation_type
-        <segment_type1, segment_type2, CalculationType>::type coordinate_type;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
     static inline void debug_segments(std::string const& header, segment_type1 const& a, segment_type2 const& b)
@@ -90,12 +79,13 @@ struct relate_cartesian_segments
 
 
     // Relate segments a and b
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b)
+    template <typename Segment1, typename Segment2>
+    static inline return_type apply(Segment1 const& a, Segment2 const& b)
     {
         // TODO: revise this or remove this overload
         // This considers two segments without robustness checks
         default_robust_policy robust_policy;
-        typename geometry::point_type<segment_type1>::type a0, a1, b0, b1; // type them all as in first
+        typename geometry::point_type<Segment1>::type a0, a1, b0, b1; // type them all as in first
         detail::assign_point_from_index<0>(a, a0);
         detail::assign_point_from_index<1>(a, a1);
         detail::assign_point_from_index<0>(b, b0);
@@ -104,12 +94,18 @@ struct relate_cartesian_segments
     }
 
     // The main entry-routine, calculating intersections of segments a / b
-    template <typename RobustPolicy, typename RobustPoint>
-    static inline return_type apply(segment_type1 const& a, segment_type2 const& b,
+    template <typename Segment1, typename Segment2, typename RobustPolicy, typename RobustPoint>
+    static inline return_type apply(Segment1 const& a, Segment2 const& b,
             RobustPolicy const& robust_policy,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
     {
+        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment1>) );
+        BOOST_CONCEPT_ASSERT( (concept::ConstSegment<Segment2>) );
+
+        typedef typename select_calculation_type
+            <Segment1, Segment2, CalculationType>::type coordinate_type;
+
         using geometry::detail::equals::equals_point_point;
         bool const a_is_point = equals_point_point(robust_a1, robust_a2);
         bool const b_is_point = equals_point_point(robust_b1, robust_b2);
@@ -313,9 +309,9 @@ private :
     }
 
 private:
-    template <std::size_t Dimension, typename RobustPolicy, typename RobustPoint>
-    static inline return_type relate_collinear(segment_type1 const& a,
-            segment_type2 const& b,
+    template <std::size_t Dimension, typename Segment1, typename Segment2, typename RobustPolicy, typename RobustPoint>
+    static inline return_type relate_collinear(Segment1 const& a,
+            Segment2 const& b,
             RobustPolicy const& robust_policy,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
             RobustPoint const& robust_b1, RobustPoint const& robust_b2)
@@ -328,9 +324,9 @@ private:
     }
 
     /// Relate segments known collinear
-    template <typename RobustPolicy, typename RobustType>
-    static inline return_type relate_collinear(segment_type1 const& a
-            , segment_type2 const& b
+    template <typename Segment1, typename Segment2, typename RobustPolicy, typename RobustType>
+    static inline return_type relate_collinear(Segment1 const& a
+            , Segment2 const& b
             , RobustPolicy const& robust_policy
             , RobustType oa_1, RobustType oa_2
             , RobustType ob_1, RobustType ob_2

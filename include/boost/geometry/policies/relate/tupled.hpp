@@ -14,8 +14,6 @@
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
 {
@@ -26,7 +24,7 @@ namespace policies { namespace relate
 
 // "tupled" to return intersection results together.
 // Now with two, with some meta-programming and derivations it can also be three (or more)
-template <typename Policy1, typename Policy2, typename CalculationType = void>
+template <typename Policy1, typename Policy2>
 struct segments_tupled
 {
     typedef boost::tuple
@@ -35,24 +33,10 @@ struct segments_tupled
             typename Policy2::return_type
         > return_type;
 
-    // Take segments of first policy, they should be equal
-    typedef typename Policy1::segment_type1 segment_type1;
-    typedef typename Policy1::segment_type2 segment_type2;
-
-    typedef typename select_calculation_type
-        <
-            segment_type1,
-            segment_type2,
-            CalculationType
-        >::type coordinate_type;
-
-    // Get the same type, but at least a double
-    typedef typename select_most_precise<coordinate_type, double>::type rtype;
-
-    template <typename SegmentIntersectionInfo>
+    template <typename Segment1, typename Segment2, typename SegmentIntersectionInfo>
     static inline return_type segments_crosses(side_info const& sides,
                     SegmentIntersectionInfo const& sinfo,
-                    segment_type1 const& s1, segment_type2 const& s2)
+                    Segment1 const& s1, Segment2 const& s2)
     {
         return boost::make_tuple
             (
@@ -73,7 +57,8 @@ struct segments_tupled
             );
     }
 
-    static inline return_type degenerate(segment_type1 const& segment,
+    template <typename Segment>
+    static inline return_type degenerate(Segment const& segment,
                 bool a_degenerate)
     {
         return boost::make_tuple

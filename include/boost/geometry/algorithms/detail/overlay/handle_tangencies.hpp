@@ -126,8 +126,6 @@ private :
             <
                 policies::relate::segments_intersection_points
                     <
-                        segment_type,
-                        segment_type,
                         segment_intersection_points<point_type>
                     >
             > policy;

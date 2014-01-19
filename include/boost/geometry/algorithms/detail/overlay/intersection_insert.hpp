@@ -88,8 +88,6 @@ struct intersection_segment_segment_point
             <
                 policies::relate::segments_intersection_points
                     <
-                        Segment1,
-                        Segment2,
                         segment_intersection_points<point_type>
                     >
             >::apply(segment1, segment2, robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);

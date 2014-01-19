@@ -16,12 +16,9 @@
 #include <boost/concept_check.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
 
 
 namespace boost { namespace geometry
@@ -31,29 +28,33 @@ namespace policies { namespace relate
 {
 
 
-template <typename S1, typename S2, typename ReturnType, typename CalculationType = void>
+/*!
+\brief Policy calculating the intersection points themselves
+ */
+template
+<
+    typename ReturnType
+>
 struct segments_intersection_points
 {
     typedef ReturnType return_type;
-    typedef S1 segment_type1;
-    typedef S2 segment_type2;
 
-    typedef typename select_calculation_type
-        <
-            S1, S2, CalculationType
-        >::type coordinate_type;
-
-    template <typename SegmentIntersectionInfo>
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename SegmentIntersectionInfo
+    >
     static inline return_type segments_crosses(side_info const&,
                     SegmentIntersectionInfo const& sinfo,
-                    S1 const& s1, S2 const& s2)
+                    Segment1 const& s1, Segment2 const& s2)
     {
         typedef typename geometry::coordinate_type
             <
                 typename return_type::point_type
             >::type return_coordinate_type;
-        typedef typename SegmentIntersectionInfo::promoted_type promoted_type;
 
+        typedef typename SegmentIntersectionInfo::promoted_type promoted_type;
 
         return_type result;
         result.count = 1;
@@ -193,12 +194,13 @@ struct segments_intersection_points
         return return_type();
     }
 
-    static inline return_type degenerate(S1 const& s, bool)
+    template <typename Segment>
+    static inline return_type degenerate(Segment const& segment, bool)
     {
         return_type result;
         result.count = 1;
-        set<0>(result.intersections[0], get<0, 0>(s));
-        set<1>(result.intersections[0], get<0, 1>(s));
+        set<0>(result.intersections[0], get<0, 0>(segment));
+        set<1>(result.intersections[0], get<0, 1>(segment));
         return result;
     }
 };

@@ -26,12 +26,10 @@ namespace boost { namespace geometry
 {
 
 
-// The intersection strategy is a "compound strategy",
-// it contains a segment-intersection-strategy
-// and a side-strategy
 /*!
-\tparam CalculationType \tparam_calculation
-*/
+\brief "compound strategy", containing a segment-intersection-strategy
+       and a side-strategy
+ */
 template
 <
     typename Tag,
@@ -60,18 +58,9 @@ public:
                     <
                         policies::relate::segments_intersection_points
                             <
-                                segment1_type,
-                                segment2_type,
-                                ip_type,
-                                CalculationType
+                                ip_type
                             > ,
                         policies::relate::segments_direction
-                            <
-                                segment1_type,
-                                segment2_type,
-                                CalculationType
-                            >,
-                        CalculationType
                     >,
                 CalculationType
             > segment_intersection_strategy_type;

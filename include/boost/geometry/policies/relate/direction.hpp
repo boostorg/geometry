@@ -111,26 +111,19 @@ struct direction_type
 
 };
 
-
-template <typename S1, typename S2, typename CalculationType = void>
 struct segments_direction
 {
     typedef direction_type return_type;
-    typedef S1 segment_type1;
-    typedef S2 segment_type2;
-    typedef typename select_calculation_type
-        <
-            S1, S2, CalculationType
-        >::type coordinate_type;
 
-    // Get the same type, but at least a double
-    typedef typename select_most_precise<coordinate_type, double>::type rtype;
-
-
-    template <typename SegmentIntersectionInfo>
+    template
+    <
+        typename Segment1,
+        typename Segment2,
+        typename SegmentIntersectionInfo
+    >
     static inline return_type segments_crosses(side_info const& sides,
                     SegmentIntersectionInfo const& ,
-                    S1 const& , S2 const& )
+                    Segment1 const& , Segment2 const& )
     {
         bool const ra0 = sides.get<0,0>() == 0;
         bool const ra1 = sides.get<0,1>() == 0;
@@ -274,7 +267,8 @@ struct segments_direction
         return r;
     }
 
-    static inline return_type degenerate(S1 const& , bool)
+    template <typename Segment>
+    static inline return_type degenerate(Segment const& , bool)
     {
         return return_type('0', false);
     }

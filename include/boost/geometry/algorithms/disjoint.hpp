@@ -151,8 +151,6 @@ struct disjoint_segment
             <
                 policies::relate::segments_intersection_points
                     <
-                        Segment1,
-                        Segment2,
                         segment_intersection_points<point_type>
                     >
             >::apply(segment1, segment2);
