@@ -935,8 +935,6 @@ struct get_turn_info
     <
         typename Point1,
         typename Point2,
-        typename Geometry1,
-        typename Geometry2,
         typename TurnInfo,
         typename RescalePolicy,
         typename OutputIterator
@@ -944,8 +942,9 @@ struct get_turn_info
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                Geometry1 const&,
-                Geometry2 const&,
+// TODO: should this always be std::size_t or replace with template parameter?
+                std::size_t /*p_segments_count*/,
+                std::size_t /*q_segments_count*/,
                 TurnInfo const& tp_model,
                 RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)

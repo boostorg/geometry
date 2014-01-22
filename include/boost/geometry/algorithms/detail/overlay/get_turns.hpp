@@ -2,9 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
@@ -278,8 +283,9 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2, geometry1, geometry2,
-                            ti, rescale_policy, std::back_inserter(turns));
+                    TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
+                                      sec1.range_count - 1, sec2.range_count - 1,
+                                      ti, rescale_policy, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
                     {
