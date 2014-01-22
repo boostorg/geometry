@@ -161,7 +161,12 @@ struct range_collect_vectors
             c_iterator first = collection.begin() + c_old_size;
 
             if ( first->same_direction(collection.back()) )
-                collection.erase(first);
+            {
+                //collection.erase(first);
+                // O(1) instead of O(N)
+                *first = collection.back();
+                collection.pop_back();
+            }
         }
     }
 };
