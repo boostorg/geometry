@@ -111,6 +111,9 @@ struct range_collect_vectors
             return;
         }
 
+        typedef boost::range_size<Collection>::type collection_size_t;
+        collection_size_t c_old_size = boost::size(collection);
+
         typedef typename boost::range_iterator<Range const>::type iterator;
 
         bool first = true;
@@ -150,10 +153,14 @@ struct range_collect_vectors
         }
 
         // If first one has same direction as last one, remove first one
-        if (boost::size(collection) > 1
-            && collection.front().same_direction(collection.back()))
+        collection_size_t collected_count = boost::size(collection) - c_old_size;
+        if ( collected_count > 1 )
         {
-            collection.erase(collection.begin());
+            typedef typename boost::range_iterator<Collection>::type c_iterator;
+            c_iterator first = collection.begin() + c_old_size;
+
+            if ( first->same_direction(collection.back()) )
+                collection.erase(first);
         }
     }
 };
