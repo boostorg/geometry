@@ -351,9 +351,8 @@ struct get_turn_info_linear_linear
         return out;
     }
 
-    template<typename Point1,
-             typename Point2
-    > static inline
+    template<typename Point1, typename Point2>
+    static inline
     void handle_segment(bool first, bool last, int how, int arrival,
                         bool other_first, bool other_last, int other_how, int other_arrival,
                         bool opposite, std::size_t ip_count, bool same_dirs,
@@ -363,9 +362,6 @@ struct get_turn_info_linear_linear
                         Point2 const& qi, Point2 const& qj, Point2 const& qk) // TEST
     {
         namespace ov = overlay;
-
-        if ( !first && !last && !other_first && !other_last  )
-            return;
 
         if ( same_dirs )
         {
@@ -434,6 +430,9 @@ struct get_turn_info_linear_linear
     {
         namespace ov = overlay;
 
+        //if ( !enable_first && !enable_last )
+        //    return false;
+
         std::size_t ip_count = result.template get<0>().count;
         // no intersection points
         if ( ip_count == 0 )
@@ -444,53 +443,69 @@ struct get_turn_info_linear_linear
         bool is_p_last = tp_model.operations[0].seg_id.segment_index + 1 == p_segments_count;
         bool is_q_last = tp_model.operations[1].seg_id.segment_index + 1 == q_segments_count;
 
-        int p_how = result.template get<1>().how_a;
-        int q_how = result.template get<1>().how_b;
-        int p_arrival = result.template get<1>().arrival[0];
-        int q_arrival = result.template get<1>().arrival[1];
-        bool opposite = result.template get<1>().opposite;
-        bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
+        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
+            return false;
 
         ov::operation_type p_operation0 = ov::operation_none;
         ov::operation_type q_operation0 = ov::operation_none;
         ov::operation_type p_operation1 = ov::operation_none;
         ov::operation_type q_operation1 = ov::operation_none;
 
-        handle_segment(is_p_first, is_p_last, p_how, p_arrival,
-                       is_q_first, is_q_last, q_how, q_arrival,
-                       opposite, ip_count, same_dirs,
-                       p_operation0, q_operation0, p_operation1, q_operation1,
-                       pi, pj, pk, qi, qj, qk);
-
-        /*handle_segment(is_q_first, is_q_last, q_how, q_arrival,
-                       is_p_first, is_p_last, p_how, p_arrival,
-                       opposite, ip_count, same_dirs,
-                       q_operation0, p_operation0, q_operation1, p_operation1,
-                       pi, pj, pk, qi, qj, qk);*/
-
-        if ( p_operation0 != ov::operation_none || q_operation0 != ov::operation_none )
         {
-            TurnInfo tp = tp_model;
-            tp.method = overlay::method_none;
-            tp.operations[0].operation = p_operation0;
-            tp.operations[1].operation = q_operation0;
-            geometry::convert(result.template get<0>().intersections[0], tp.point);
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-            *out++ = tp;
+            int p_how = result.template get<1>().how_a;
+            int q_how = result.template get<1>().how_b;
+            int p_arrival = result.template get<1>().arrival[0];
+            int q_arrival = result.template get<1>().arrival[1];
+            bool opposite = result.template get<1>().opposite;
+            bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
+
+            handle_segment(is_p_first, is_p_last, p_how, p_arrival,
+                           is_q_first, is_q_last, q_how, q_arrival,
+                           opposite, ip_count, same_dirs,
+                           p_operation0, q_operation0, p_operation1, q_operation1,
+                           pi, pj, pk, qi, qj, qk);
         }
 
-        if ( p_operation1 != ov::operation_none || q_operation1 != ov::operation_none )
+        bool append0_last = false;
+
         {
-            TurnInfo tp = tp_model;
-            tp.method = overlay::method_none;
-            tp.operations[0].operation = p_operation1;
-            tp.operations[1].operation = q_operation1;
-            geometry::convert(result.template get<0>().intersections[1], tp.point);
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-            *out++ = tp;
+            bool append0_first = enable_first && is_p_first && is_i_or_u(p_operation0) || is_q_first && is_i_or_u(q_operation0);
+            append0_last = enable_last && is_p_last && is_x(p_operation0) || is_q_last && is_x(q_operation0);
+
+            if ( append0_first || append0_last )
+            {
+                assign(pi, qi, result, result.template get<0>().intersections[0],
+                       overlay::method_none, p_operation0, q_operation0,
+                       tp_model, out);
+            }
         }
 
-        return false;
+        bool append1_last = false;
+
+        if ( p_operation1 != ov::operation_none )
+        {
+            bool append1_first = enable_first && is_p_first && is_i_or_u(p_operation1) || is_q_first && is_i_or_u(q_operation1);
+            append1_last = enable_last && is_p_last && is_x(p_operation1) || is_q_last && is_x(q_operation1);
+
+            if ( append1_first || append1_last )
+            {
+                assign(pi, qi, result, result.template get<0>().intersections[1],
+                       overlay::method_none, p_operation1, q_operation1,
+                       tp_model, out);
+            }
+        }
+
+        return append0_last || append1_last;
+    }
+
+    static inline bool is_i_or_u(overlay::operation_type op)
+    {
+        return op == overlay::operation_intersection || op == overlay::operation_union;
+    }
+
+    static inline bool is_x(overlay::operation_type op)
+    {
+        return op == overlay::operation_blocked;
     }
 
     template <typename Point1,
@@ -504,59 +519,14 @@ struct get_turn_info_linear_linear
                               Point const& ip,
                               overlay::method_type method,
                               overlay::operation_type op0, overlay::operation_type op1,
-                              TurnInfo & tp,
+                              TurnInfo const& tp_model,
                               OutputIterator out)
     {
+        TurnInfo tp = tp_model;
         geometry::convert(ip, tp.point);
         tp.method = method;
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
-        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-        *out++ = tp;
-    }
-
-    template <typename Point1,
-              typename Point2,
-              typename IntersectionResult,
-              typename Point,
-              typename TurnInfo,
-              typename OutputIterator>
-    static inline void assign_using_equal(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                          Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                          IntersectionResult const& result,
-                                          Point const& ip,
-                                          overlay::method_type method,
-                                          TurnInfo & tp,
-                                          OutputIterator out)
-    {
-        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
-        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-            tp, result.template get<0>(), result.template get<1>(), side_calc);
-        tp.method = method;
-        geometry::convert(ip, tp.point);
-        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-        *out++ = tp;
-    }
-
-    template <typename Point1,
-              typename Point2,
-              typename IntersectionResult,
-              typename Point,
-              typename TurnInfo,
-              typename OutputIterator>
-    static inline void assign_using_collinear(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                              Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                              IntersectionResult const& result,
-                                              Point const& ip,
-                                              overlay::method_type method,
-                                              TurnInfo & tp,
-                                              OutputIterator out)
-    {
-        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
-        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-            tp, result.template get<0>(), result.template get<1>(), side_calc);
-        tp.method = method;
-        geometry::convert(ip, tp.point);
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
     }
