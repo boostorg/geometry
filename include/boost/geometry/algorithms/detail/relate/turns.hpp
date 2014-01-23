@@ -80,7 +80,7 @@ struct turn_operation_with_distance : public overlay::turn_operation
 //     |------->     2   0   0  -1  -1   T              i/u u/i
 // <-------|
 //
-// |------->         2   0   0   1   1   T              i/u u/i
+// |------->         2   0   0   1   1   T              i/x x/i
 //     <-------|
 //
 // |-------->        2   0   0  -1   1   F              i/i u/x
@@ -110,22 +110,22 @@ struct turn_operation_with_distance : public overlay::turn_operation
 //          +
 //          |
 //          v
-// |-------->       1   1   1   1   1   F               x/x
+// |-------->        1   1   1   1   1   F              x/x  (P is vertical)
 //
 // ^
 // |
 // +
-// |-------->       1  -1  -1  -1  -1   F               u/u
+// |-------->        1  -1  -1  -1  -1   F              u/u  (P is vertical)
 //
 //      ^
 //      |
 //      +
-// |-------->        1   0  -1   0  -1   F              u/u
+// |-------->        1   0  -1   0  -1   F              u/u  (P is vertical)
 //
 //      +
 //      |
 //      v
-// |-------->        1   0   1   0   1   F              u/x
+// |-------->        1   0   1   0   1   F              u/x  (P is vertical)
 //
 
 // GET_TURN_INFO
