@@ -73,6 +73,18 @@ struct turn_operation_with_distance : public overlay::turn_operation
 //       <-----|
 //
 
+// |--------->       2   0   0   0   1   T              i/x x/i
+//      <----|
+//
+// |--------->       2   0   0   0   0   F              i/i x/x
+//      |---->
+//
+// |--------->       2   0   0  -1   1   F              i/i u/x
+// |---->
+//
+// |--------->       2   0   0  -1   0   T              i/x u/i
+// <----|
+
 // |------->         2   0   0   1  -1   F   and        i/i x/u
 //     |------->     2   0   0  -1   1   F   symetric   i/i u/x
 // |------->
@@ -88,7 +100,6 @@ struct turn_operation_with_distance : public overlay::turn_operation
 //
 // |-------->        2   0   0  -1   1   T              i/x u/i
 //   <----|
-
 
 //       |----->     1  -1  -1  -1  -1   T              u/u
 // <-----|
@@ -345,7 +356,7 @@ struct get_turn_info_linear_linear
     > static inline
     void handle_segment(bool first, bool last, int how, int arrival,
                         bool other_first, bool other_last, int other_how, int other_arrival,
-                        bool opposite, std::size_t ip_count,
+                        bool opposite, std::size_t ip_count, bool same_dirs,
                         overlay::operation_type & op0, overlay::operation_type & other_op0,
                         overlay::operation_type & op1, overlay::operation_type & other_op1,
                         Point1 const& pi, Point1 const& pj, Point1 const& pk, // TEST
@@ -353,7 +364,54 @@ struct get_turn_info_linear_linear
     {
         namespace ov = overlay;
 
-        //TODO
+        if ( !first && !last && !other_first && !other_last  )
+            return;
+
+        if ( same_dirs )
+        {
+            if ( ip_count == 2 )
+            {
+                BOOST_ASSERT( how == 0 && other_how == 0 );
+
+                if ( !opposite )
+                {
+                    op0 = overlay::operation_intersection;
+                    other_op0 = overlay::operation_intersection;
+                    op1 = arrival_to_union_or_blocked(arrival);
+                    other_op1 = arrival_to_union_or_blocked(other_arrival);
+                }
+                else
+                {
+                    op0 = overlay::operation_intersection;
+                    other_op0 = arrival_to_union_or_blocked(other_arrival);
+                    op1 = arrival_to_union_or_blocked(arrival);
+                    other_op1 = overlay::operation_intersection;
+                }
+            }
+            else
+            {
+                BOOST_ASSERT(ip_count == 1);
+                op0 = arrival_to_union_or_blocked(arrival);
+                other_op0 = arrival_to_union_or_blocked(other_arrival);
+            }
+        }
+        else
+        {
+            op0 = how_to_method(how);
+            other_op0 = how_to_method(other_how);
+        }
+    }
+
+    // only if collinear (same_dirs)
+    static inline overlay::operation_type arrival_to_union_or_blocked(int arrival)
+    {
+        return arrival == -1 ? overlay::operation_union : overlay::operation_blocked;
+    }
+
+    // only if not collinear (!same_dirs)
+    static inline overlay::operation_type how_to_method(int how)
+    {
+        return how == 1 ? overlay::operation_blocked : overlay::operation_union;
     }
 
     template<typename Point1,
@@ -391,6 +449,7 @@ struct get_turn_info_linear_linear
         int p_arrival = result.template get<1>().arrival[0];
         int q_arrival = result.template get<1>().arrival[1];
         bool opposite = result.template get<1>().opposite;
+        bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
         ov::operation_type p_operation0 = ov::operation_none;
         ov::operation_type q_operation0 = ov::operation_none;
@@ -399,15 +458,15 @@ struct get_turn_info_linear_linear
 
         handle_segment(is_p_first, is_p_last, p_how, p_arrival,
                        is_q_first, is_q_last, q_how, q_arrival,
-                       opposite, ip_count,
+                       opposite, ip_count, same_dirs,
                        p_operation0, q_operation0, p_operation1, q_operation1,
                        pi, pj, pk, qi, qj, qk);
 
-        handle_segment(is_q_first, is_q_last, q_how, q_arrival,
+        /*handle_segment(is_q_first, is_q_last, q_how, q_arrival,
                        is_p_first, is_p_last, p_how, p_arrival,
-                       opposite, ip_count,
+                       opposite, ip_count, same_dirs,
                        q_operation0, p_operation0, q_operation1, p_operation1,
-                       pi, pj, pk, qi, qj, qk);
+                       pi, pj, pk, qi, qj, qk);*/
 
         if ( p_operation0 != ov::operation_none || q_operation0 != ov::operation_none )
         {
