@@ -373,22 +373,22 @@ struct get_turn_info_linear_linear
                 {
                     op0 = overlay::operation_intersection;
                     other_op0 = overlay::operation_intersection;
-                    op1 = arrival_to_union_or_blocked(arrival);
-                    other_op1 = arrival_to_union_or_blocked(other_arrival);
+                    op1 = union_or_blocked(arrival, last);
+                    other_op1 = union_or_blocked(other_arrival, other_last);
                 }
                 else
                 {
                     op0 = overlay::operation_intersection;
-                    other_op0 = arrival_to_union_or_blocked(other_arrival);
-                    op1 = arrival_to_union_or_blocked(arrival);
+                    other_op0 = union_or_blocked(other_arrival, other_last);
+                    op1 = union_or_blocked(arrival, last);
                     other_op1 = overlay::operation_intersection;
                 }
             }
             else
             {
                 BOOST_ASSERT(ip_count == 1);
-                op0 = arrival_to_union_or_blocked(arrival);
-                other_op0 = arrival_to_union_or_blocked(other_arrival);
+                op0 = union_or_blocked(arrival, last);
+                other_op0 = union_or_blocked(other_arrival, other_last);
             }
         }
         else
@@ -399,9 +399,14 @@ struct get_turn_info_linear_linear
     }
 
     // only if collinear (same_dirs)
-    static inline overlay::operation_type arrival_to_union_or_blocked(int arrival)
+    static inline overlay::operation_type union_or_blocked(int arrival, bool is_last)
     {
-        return arrival == -1 ? overlay::operation_union : overlay::operation_blocked;
+        if ( arrival == 1 )
+            return overlay::operation_blocked;
+        else if ( arrival == -1 )
+            return overlay::operation_union;
+        else
+            return is_last ? overlay::operation_blocked : overlay::operation_union;
     }
 
     // only if not collinear (!same_dirs)
@@ -451,12 +456,13 @@ struct get_turn_info_linear_linear
         ov::operation_type p_operation1 = ov::operation_none;
         ov::operation_type q_operation1 = ov::operation_none;
 
+        bool opposite = result.template get<1>().opposite;
+
         {
             int p_how = result.template get<1>().how_a;
             int q_how = result.template get<1>().how_b;
             int p_arrival = result.template get<1>().arrival[0];
             int q_arrival = result.template get<1>().arrival[1];
-            bool opposite = result.template get<1>().opposite;
             bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
             handle_segment(is_p_first, is_p_last, p_how, p_arrival,
@@ -469,8 +475,36 @@ struct get_turn_info_linear_linear
         bool append0_last = false;
 
         {
-            bool append0_first = enable_first && is_p_first && is_i_or_u(p_operation0) || is_q_first && is_i_or_u(q_operation0);
-            append0_last = enable_last && is_p_last && is_x(p_operation0) || is_q_last && is_x(q_operation0);
+            /*bool append0_first = enable_first && (is_p_first && is_i_or_u(p_operation0) || is_q_first && is_i_or_u(q_operation0));
+            append0_last = enable_last && (is_p_last && is_x(p_operation0) || is_q_last && is_x(q_operation0));
+
+            if ( append0_first && !opposite )
+            {
+                if ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) )
+                {
+                    append0_first = false;
+                }
+
+                bool not_p = !is_p_first || !equals::equals_point_point(pi, result.template get<0>().intersections[0]);
+                bool not_q = !is_q_first || !equals::equals_point_point(qi, result.template get<0>().intersections[0]);
+                if ( not_p && not_q )
+                {
+                    append0_first = false;
+                }
+            }*/
+
+            // TEST
+            bool append0_first = enable_first
+                            && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0])
+                              || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0]) );
+            append0_last = enable_last
+                      && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
+                        || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
+
+            if ( append0_first && !opposite && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
+            {
+                append0_first = false;
+            }
 
             if ( append0_first || append0_last )
             {
@@ -484,8 +518,36 @@ struct get_turn_info_linear_linear
 
         if ( p_operation1 != ov::operation_none )
         {
-            bool append1_first = enable_first && is_p_first && is_i_or_u(p_operation1) || is_q_first && is_i_or_u(q_operation1);
-            append1_last = enable_last && is_p_last && is_x(p_operation1) || is_q_last && is_x(q_operation1);
+            /*bool append1_first = enable_first && (is_p_first && is_i_or_u(p_operation1) || is_q_first && is_i_or_u(q_operation1));
+            append1_last = enable_last && (is_p_last && is_x(p_operation1) || is_q_last && is_x(q_operation1));
+
+            if ( append1_first && !opposite )
+            {
+                if ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) )
+                {
+                    append1_first = false;
+                }
+
+                bool not_p = !is_p_last || !equals::equals_point_point(pj, result.template get<0>().intersections[1]);
+                bool not_q = !is_q_last || !equals::equals_point_point(qj, result.template get<0>().intersections[1]);
+                if ( not_p && not_q )
+                {
+                    append1_first = false;
+                }
+            }*/
+
+            // TEST
+            bool append1_first = enable_first
+                            && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1])
+                              || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1]) );
+            append1_last = enable_last
+                      && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+                        || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
+
+            if ( append1_first && !opposite && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
+            {
+                append1_first = false;
+            }
 
             if ( append1_first || append1_last )
             {
