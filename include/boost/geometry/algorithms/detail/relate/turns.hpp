@@ -407,6 +407,7 @@ struct get_turn_info_linear_linear
             return overlay::operation_union;
         else
             return is_last ? overlay::operation_blocked : overlay::operation_union;
+            //return overlay::operation_blocked;
     }
 
     // only if not collinear (!same_dirs)
@@ -483,6 +484,8 @@ struct get_turn_info_linear_linear
                              || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
 
             if ( append0_first && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
+            //if ( append0_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
+            //                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) ) )
             {
                 append0_first = false;
             }
@@ -514,6 +517,8 @@ struct get_turn_info_linear_linear
                              || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
 
             if ( append1_first && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
+            //if ( append1_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+            //                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) ) )
             {
                 append1_first = false;
             }
