@@ -193,7 +193,7 @@ struct get_turn_info_linear_linear
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                  tp_model, result, overlay::method_none, out, true, false);
+                                  tp_model, result, overlay::method_none, out, true, true);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -472,38 +472,28 @@ struct get_turn_info_linear_linear
                            pi, pj, pk, qi, qj, qk);
         }
 
-        bool append0_last = false;
+        bool result_ignore_ip = false;
 
         {
-            /*bool append0_first = enable_first && (is_p_first && is_i_or_u(p_operation0) || is_q_first && is_i_or_u(q_operation0));
-            append0_last = enable_last && (is_p_last && is_x(p_operation0) || is_q_last && is_x(q_operation0));
-
-            if ( append0_first && !opposite )
-            {
-                if ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) )
-                {
-                    append0_first = false;
-                }
-
-                bool not_p = !is_p_first || !equals::equals_point_point(pi, result.template get<0>().intersections[0]);
-                bool not_q = !is_q_first || !equals::equals_point_point(qi, result.template get<0>().intersections[0]);
-                if ( not_p && not_q )
-                {
-                    append0_first = false;
-                }
-            }*/
-
-            // TEST
             bool append0_first = enable_first
                             && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0])
                               || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0]) );
-            append0_last = enable_last
-                      && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
-                        || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
+            bool append0_last = enable_last
+                           && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
+                             || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
 
-            if ( append0_first && !opposite && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
+            if ( append0_first && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
             {
                 append0_first = false;
+            }
+
+            result_ignore_ip = append0_last;
+
+            if ( append0_last )
+            {
+                if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
+                  || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) )
+                    append0_last = false;
             }
 
             if ( append0_first || append0_last )
@@ -514,39 +504,27 @@ struct get_turn_info_linear_linear
             }
         }
 
-        bool append1_last = false;
-
         if ( p_operation1 != ov::operation_none )
         {
-            /*bool append1_first = enable_first && (is_p_first && is_i_or_u(p_operation1) || is_q_first && is_i_or_u(q_operation1));
-            append1_last = enable_last && (is_p_last && is_x(p_operation1) || is_q_last && is_x(q_operation1));
-
-            if ( append1_first && !opposite )
-            {
-                if ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) )
-                {
-                    append1_first = false;
-                }
-
-                bool not_p = !is_p_last || !equals::equals_point_point(pj, result.template get<0>().intersections[1]);
-                bool not_q = !is_q_last || !equals::equals_point_point(qj, result.template get<0>().intersections[1]);
-                if ( not_p && not_q )
-                {
-                    append1_first = false;
-                }
-            }*/
-
-            // TEST
             bool append1_first = enable_first
                             && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1])
                               || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1]) );
-            append1_last = enable_last
-                      && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-                        || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
+            bool append1_last = enable_last
+                           && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+                             || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
 
-            if ( append1_first && !opposite && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
+            if ( append1_first && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
             {
                 append1_first = false;
+            }
+
+            result_ignore_ip = result_ignore_ip || append1_last;
+
+            if ( append1_last )
+            {
+                if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+                  || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) )
+                    append1_last = false;
             }
 
             if ( append1_first || append1_last )
@@ -557,7 +535,7 @@ struct get_turn_info_linear_linear
             }
         }
 
-        return append0_last || append1_last;
+        return result_ignore_ip;
     }
 
     static inline bool is_i_or_u(overlay::operation_type op)
