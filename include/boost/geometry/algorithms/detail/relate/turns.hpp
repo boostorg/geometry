@@ -373,33 +373,33 @@ struct get_turn_info_linear_linear
                 {
                     op0 = overlay::operation_intersection;
                     other_op0 = overlay::operation_intersection;
-                    op1 = union_or_blocked(arrival, last);
-                    other_op1 = union_or_blocked(other_arrival, other_last);
+                    op1 = arrival_to_union_or_blocked(arrival, last);
+                    other_op1 = arrival_to_union_or_blocked(other_arrival, other_last);
                 }
                 else
                 {
                     op0 = overlay::operation_intersection;
-                    other_op0 = union_or_blocked(other_arrival, other_last);
-                    op1 = union_or_blocked(arrival, last);
+                    other_op0 = arrival_to_union_or_blocked(other_arrival, other_last);
+                    op1 = arrival_to_union_or_blocked(arrival, last);
                     other_op1 = overlay::operation_intersection;
                 }
             }
             else
             {
                 BOOST_ASSERT(ip_count == 1);
-                op0 = union_or_blocked(arrival, last);
-                other_op0 = union_or_blocked(other_arrival, other_last);
+                op0 = arrival_to_union_or_blocked(arrival, last);
+                other_op0 = arrival_to_union_or_blocked(other_arrival, other_last);
             }
         }
         else
         {
-            op0 = how_to_method(how);
-            other_op0 = how_to_method(other_how);
+            op0 = how_to_union_or_blocked(how, last);
+            other_op0 = how_to_union_or_blocked(other_how, other_last);
         }
     }
 
     // only if collinear (same_dirs)
-    static inline overlay::operation_type union_or_blocked(int arrival, bool is_last)
+    static inline overlay::operation_type arrival_to_union_or_blocked(int arrival, bool is_last)
     {
         if ( arrival == 1 )
             return overlay::operation_blocked;
@@ -411,9 +411,13 @@ struct get_turn_info_linear_linear
     }
 
     // only if not collinear (!same_dirs)
-    static inline overlay::operation_type how_to_method(int how)
+    static inline overlay::operation_type how_to_union_or_blocked(int how, bool is_last)
     {
-        return how == 1 ? overlay::operation_blocked : overlay::operation_union;
+        if ( how == 1 )
+            //return overlay::operation_blocked;
+            return is_last ? overlay::operation_blocked : overlay::operation_union;
+        else
+            return overlay::operation_union;
     }
 
     template<typename Point1,
@@ -483,21 +487,21 @@ struct get_turn_info_linear_linear
                            && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
                              || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
 
-            if ( append0_first && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
-            //if ( append0_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
-            //                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) ) )
-            {
-                append0_first = false;
-            }
+            //if ( append0_first && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
+            ////if ( append0_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
+            ////                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) ) )
+            //{
+            //    append0_first = false;
+            //}
 
             result_ignore_ip = append0_last;
 
-            if ( append0_last )
+            /*if ( append0_last )
             {
                 if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
                   || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) )
                     append0_last = false;
-            }
+            }*/
 
             if ( append0_first || append0_last )
             {
@@ -516,21 +520,21 @@ struct get_turn_info_linear_linear
                            && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
                              || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
 
-            if ( append1_first && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
-            //if ( append1_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-            //                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) ) )
-            {
-                append1_first = false;
-            }
+            //if ( append1_first && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
+            ////if ( append1_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+            ////                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) ) )
+            //{
+            //    append1_first = false;
+            //}
 
             result_ignore_ip = result_ignore_ip || append1_last;
 
-            if ( append1_last )
+            /*if ( append1_last )
             {
-                if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-                  || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) )
-                    append1_last = false;
-            }
+            if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
+            || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) )
+            append1_last = false;
+            }*/
 
             if ( append1_first || append1_last )
             {
