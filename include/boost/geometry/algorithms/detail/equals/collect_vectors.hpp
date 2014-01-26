@@ -112,7 +112,7 @@ struct range_collect_vectors
             return;
         }
 
-        typedef boost::range_size<Collection>::type collection_size_t;
+        typedef typename boost::range_size<Collection>::type collection_size_t;
         collection_size_t c_old_size = boost::size(collection);
 
         typedef typename boost::range_iterator<Range const>::type iterator;
