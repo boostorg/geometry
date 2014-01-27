@@ -351,50 +351,76 @@ struct get_turn_info_linear_linear
         return out;
     }
 
-    template<typename Point1, typename Point2>
+    template<typename Point1, typename Point2, typename Point>
     static inline
-    void handle_segment(bool first, bool last, int how, int arrival,
-                        bool other_first, bool other_last, int other_how, int other_arrival,
-                        bool opposite, std::size_t ip_count, bool same_dirs,
-                        overlay::operation_type & op0, overlay::operation_type & other_op0,
-                        overlay::operation_type & op1, overlay::operation_type & other_op1,
+    void handle_segment(bool first_a, bool last_a, int how_a, int arrival_a,
+                        bool first_b, bool last_b, int how_b, int arrival_b,
+                        bool opposite, std::size_t ip_count, bool same_dirs/*collinear*/,
+                        Point const& ip0, Point const& ip1,
+                        overlay::operation_type & op0_a, overlay::operation_type & op0_b,
+                        overlay::operation_type & op1_a, overlay::operation_type & op1_b,
+                        bool & first0_a, bool & last0_a, bool & first0_b, bool & last0_b,
+                        bool & first1_a, bool & last1_a, bool & first1_b, bool & last1_b,
                         Point1 const& pi, Point1 const& pj, Point1 const& pk, // TEST
                         Point2 const& qi, Point2 const& qj, Point2 const& qk) // TEST
     {
         namespace ov = overlay;
 
+        first0_a = false; last0_a = false; first0_b = false; last0_b = false;
+        first1_a = false; last1_a = false; first1_b = false; last1_b = false;
+
         if ( same_dirs )
         {
             if ( ip_count == 2 )
             {
-                BOOST_ASSERT( how == 0 && other_how == 0 );
+                BOOST_ASSERT( how_a == 0 && how_b == 0 );
 
                 if ( !opposite )
                 {
-                    op0 = overlay::operation_intersection;
-                    other_op0 = overlay::operation_intersection;
-                    op1 = arrival_to_union_or_blocked(arrival, last);
-                    other_op1 = arrival_to_union_or_blocked(other_arrival, other_last);
+                    op0_a = overlay::operation_intersection;
+                    op0_b = overlay::operation_intersection;
+                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
+                    op1_b = arrival_to_union_or_blocked(arrival_b, last_b);
+
+                    first0_a = first_a && equals::equals_point_point(pi, ip0);
+                    first0_b = first_b && equals::equals_point_point(qi, ip0);
+                    last1_a = last_a && arrival_a != -1;
+                    last1_b = last_b && arrival_b != -1;
                 }
                 else
                 {
-                    op0 = overlay::operation_intersection;
-                    other_op0 = arrival_to_union_or_blocked(other_arrival, other_last);
-                    op1 = arrival_to_union_or_blocked(arrival, last);
-                    other_op1 = overlay::operation_intersection;
+                    op0_a = overlay::operation_intersection;
+                    op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
+                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
+                    op1_b = overlay::operation_intersection;
+
+                    first0_a = first_a && arrival_b != 1;
+                    last0_b = last_b && arrival_b != -1;
+                    last1_a = last_a && arrival_a != -1;
+                    first1_b = first_b && arrival_a != 1;
                 }
             }
             else
             {
                 BOOST_ASSERT(ip_count == 1);
-                op0 = arrival_to_union_or_blocked(arrival, last);
-                other_op0 = arrival_to_union_or_blocked(other_arrival, other_last);
+                op0_a = arrival_to_union_or_blocked(arrival_a, last_a);
+                op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
+
+                first0_a = first_a && how_a == -1;
+                first0_b = first_b && how_b == -1;
+                last0_a = last_a && arrival_a == 0;
+                last0_b = last_b && arrival_b == 0;
             }
         }
         else
         {
-            op0 = how_to_union_or_blocked(how, last);
-            other_op0 = how_to_union_or_blocked(other_how, other_last);
+            op0_a = how_to_union_or_blocked(how_a, last_a);
+            op0_b = how_to_union_or_blocked(how_b, last_b);
+
+            first0_a = first_a && how_a == -1;
+            first0_b = first_b && how_b == -1;
+            last0_a = last_a && how_a == 1;
+            last0_b = last_b && how_b == 1;
         }
     }
 
@@ -541,31 +567,36 @@ struct get_turn_info_linear_linear
         ov::operation_type q_operation0 = ov::operation_none;
         ov::operation_type p_operation1 = ov::operation_none;
         ov::operation_type q_operation1 = ov::operation_none;
-
-        bool opposite = result.template get<1>().opposite;
+        bool p0_first, p0_last, q0_first, q0_last; // assign false?
+        bool p1_first, p1_last, q1_first, q1_last; // assign false?
 
         {
             int p_how = result.template get<1>().how_a;
             int q_how = result.template get<1>().how_b;
             int p_arrival = result.template get<1>().arrival[0];
             int q_arrival = result.template get<1>().arrival[1];
+            bool opposite = result.template get<1>().opposite;
             bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
             handle_segment(is_p_first, is_p_last, p_how, p_arrival,
                            is_q_first, is_q_last, q_how, q_arrival,
                            opposite, ip_count, same_dirs,
+                           result.template get<0>().intersections[0],
+                           result.template get<0>().intersections[1],
                            p_operation0, q_operation0, p_operation1, q_operation1,
+                           p0_first, p0_last, q0_first, q0_last,
+                           p1_first, p1_last, q1_first, q1_last,
                            pi, pj, pk, qi, qj, qk);
         }
 
         bool result_ignore_ip = false;
 
         {
-            bool p0_first = is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0]);
-            bool q0_first = is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
-            bool p0_last = is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0]);
-            bool q0_last = is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]);
-            // TODO optimize - calculate only if needed
+            BOOST_ASSERT(p0_first == (is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0])));
+            BOOST_ASSERT(q0_first == (is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0])));
+            BOOST_ASSERT(p0_last == (is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])));
+            BOOST_ASSERT(q0_last == (is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0])));
+            // TODO - calculate first/last only if needed
             bool append0_first = enable_first && (p0_first || q0_first);
             bool append0_last = enable_last && (p0_last || q0_last);
 
@@ -592,11 +623,11 @@ struct get_turn_info_linear_linear
 
         if ( p_operation1 != ov::operation_none )
         {
-            bool p1_first = is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1]);
-            bool q1_first = is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1]);
-            bool p1_last = is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1]);
-            bool q1_last = is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]);
-            // TODO optimize - calculate only if needed
+            BOOST_ASSERT(p1_first == (is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1])));
+            BOOST_ASSERT(q1_first == (is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1])));
+            BOOST_ASSERT(p1_last == (is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])));
+            BOOST_ASSERT(q1_last == (is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1])));
+            // TODO - calculate first/last only if needed
             bool append1_first = enable_first && (p1_first || q1_first);
             bool append1_last = enable_last && (p1_last || q1_last);
 
