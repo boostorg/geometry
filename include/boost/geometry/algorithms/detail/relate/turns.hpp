@@ -422,6 +422,87 @@ struct get_turn_info_linear_linear
 
     template<typename Point1,
              typename Point2,
+             typename Point,
+             typename TurnInfo,
+             typename IntersectionResult
+    >
+    static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& k1,
+                                       Point2 const& i2, Point2 const& j2, Point2 const& k2,
+                                       Point const& ip,
+                                       bool first1, bool last1, bool first2, bool last2,
+                                       TurnInfo const& tp_model,
+                                       IntersectionResult const& result,
+                                       overlay::operation_type & op1, overlay::operation_type & op2)
+    {
+        if ( first1 || last1 )
+        {
+            if ( !first2 && !last2 )
+            {
+                bool ip_i2 = equals::equals_point_point(i2, ip);
+                bool ip_j2 = equals::equals_point_point(j2, ip);
+
+                if ( ip_i2 )
+                {
+                    // don't output this IP - for the first point of other geometry segment
+                    op1 = overlay::operation_none;
+                    op2 = overlay::operation_none;
+                    return true;
+                }
+                else if ( ip_j2 )
+                {
+                    bool opposite = result.template get<1>().opposite;
+
+                    TurnInfo tp = tp_model;
+                    if ( first1 )
+                    {
+                        overlay::side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
+                        overlay::equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
+                            tp, result.template get<0>(), result.template get<1>(), side_calc);
+                        if ( tp.both(overlay::operation_continue) )
+                        {
+                            op1 = overlay::operation_intersection;
+                            op2 = opposite ? overlay::operation_union : overlay::operation_intersection;
+                        }
+                        else
+                        {
+                            BOOST_ASSERT(tp.combination(overlay::operation_intersection, overlay::operation_union));
+                            op1 = overlay::operation_union;
+                            op2 = overlay::operation_union;
+                        }
+                    }
+                    else // last1
+                    {
+                        overlay::side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
+                        overlay::equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
+                            tp, result.template get<0>(), result.template get<1>(), side_calc);
+                        if ( tp.both(overlay::operation_continue) )
+                        {
+                            op1 = overlay::operation_blocked;
+                            op2 = opposite ? overlay::operation_intersection : overlay::operation_union;
+                        }
+                        else
+                        {
+                            BOOST_ASSERT(tp.combination(overlay::operation_intersection, overlay::operation_union));
+                            op1 = overlay::operation_blocked;
+                            op2 = overlay::operation_union;
+                        }
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    // do nothing
+                    // shouldn't be handled this way
+                }
+            }
+        }
+
+        return false;
+    }
+
+    template<typename Point1,
+             typename Point2,
              typename TurnInfo,
              typename IntersectionResult,
              typename OutputIterator
@@ -480,67 +561,63 @@ struct get_turn_info_linear_linear
         bool result_ignore_ip = false;
 
         {
-            bool append0_first = enable_first
-                            && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0])
-                              || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0]) );
-            bool append0_last = enable_last
-                           && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
-                             || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) );
-
-            //if ( append0_first && ( !is_p_last && is_x(p_operation0) || !is_q_last && is_x(q_operation0) ) )
-            ////if ( append0_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
-            ////                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) ) )
-            //{
-            //    append0_first = false;
-            //}
+            bool p0_first = is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0]);
+            bool q0_first = is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0]);
+            bool p0_last = is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0]);
+            bool q0_last = is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]);
+            // TODO optimize - calculate only if needed
+            bool append0_first = enable_first && (p0_first || q0_first);
+            bool append0_last = enable_last && (p0_last || q0_last);
 
             result_ignore_ip = append0_last;
 
-            /*if ( append0_last )
-            {
-                if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])
-                  || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0]) )
-                    append0_last = false;
-            }*/
-
             if ( append0_first || append0_last )
             {
-                assign(pi, qi, result, result.template get<0>().intersections[0],
-                       overlay::method_none, p_operation0, q_operation0,
-                       tp_model, out);
+                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[0],
+                                               p0_first, p0_last, q0_first, q0_last, tp_model, result,
+                                               p_operation0, q_operation0);
+                if ( !handled )
+                {
+                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
+                                              q0_first, q0_last, p0_first, p0_last, tp_model, result,
+                                              q_operation0, p_operation0);
+                }
+
+                if ( p_operation0 != overlay::operation_none )
+                    assign(pi, qi, result, result.template get<0>().intersections[0],
+                           overlay::method_none, p_operation0, q_operation0,
+                           tp_model, out);
             }
         }
 
         if ( p_operation1 != ov::operation_none )
         {
-            bool append1_first = enable_first
-                            && ( is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1])
-                              || is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1]) );
-            bool append1_last = enable_last
-                           && ( is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-                             || is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) );
-
-            //if ( append1_first && ( !is_p_last && is_x(p_operation1) || !is_q_last && is_x(q_operation1) ) )
-            ////if ( append1_first && ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-            ////                     || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) ) )
-            //{
-            //    append1_first = false;
-            //}
+            bool p1_first = is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1]);
+            bool q1_first = is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1]);
+            bool p1_last = is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1]);
+            bool q1_last = is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]);
+            // TODO optimize - calculate only if needed
+            bool append1_first = enable_first && (p1_first || q1_first);
+            bool append1_last = enable_last && (p1_last || q1_last);
 
             result_ignore_ip = result_ignore_ip || append1_last;
 
-            /*if ( append1_last )
-            {
-            if ( !is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])
-            || !is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1]) )
-            append1_last = false;
-            }*/
-
             if ( append1_first || append1_last )
             {
-                assign(pi, qi, result, result.template get<0>().intersections[1],
-                       overlay::method_none, p_operation1, q_operation1,
-                       tp_model, out);
+                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[1],
+                                               p1_first, p1_last, q1_first, q1_last, tp_model, result,
+                                               p_operation1, q_operation1);
+                if ( !handled )
+                {
+                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
+                                              q1_first, q1_last, p1_first, p1_last, tp_model, result,
+                                              q_operation1, p_operation1);
+                }
+
+                if ( p_operation1 != overlay::operation_none )
+                    assign(pi, qi, result, result.template get<0>().intersections[1],
+                           overlay::method_none, p_operation1, q_operation1,
+                           tp_model, out);
             }
         }
 
