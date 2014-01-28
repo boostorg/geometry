@@ -359,15 +359,15 @@ struct get_turn_info_linear_linear
                         Point const& ip0, Point const& ip1,
                         overlay::operation_type & op0_a, overlay::operation_type & op0_b,
                         overlay::operation_type & op1_a, overlay::operation_type & op1_b,
-                        bool & first0_a, bool & last0_a, bool & first0_b, bool & last0_b,
-                        bool & first1_a, bool & last1_a, bool & first1_b, bool & last1_b,
+                        bool & i0_a, bool & j0_a, bool & i0_b, bool & j0_b,
+                        bool & i1_a, bool & j1_a, bool & i1_b, bool & j1_b,
                         Point1 const& pi, Point1 const& pj, Point1 const& pk, // TEST
                         Point2 const& qi, Point2 const& qj, Point2 const& qk) // TEST
     {
         namespace ov = overlay;
 
-        first0_a = false; last0_a = false; first0_b = false; last0_b = false;
-        first1_a = false; last1_a = false; first1_b = false; last1_b = false;
+        i0_a = false; j0_a = false; i0_b = false; j0_b = false;
+        i1_a = false; j1_a = false; i1_b = false; j1_b = false;
 
         if ( same_dirs )
         {
@@ -382,10 +382,10 @@ struct get_turn_info_linear_linear
                     op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
                     op1_b = arrival_to_union_or_blocked(arrival_b, last_b);
 
-                    first0_a = first_a && equals::equals_point_point(pi, ip0);
-                    first0_b = first_b && equals::equals_point_point(qi, ip0);
-                    last1_a = last_a && arrival_a != -1;
-                    last1_b = last_b && arrival_b != -1;
+                    i0_a = equals::equals_point_point(pi, ip0);
+                    i0_b = equals::equals_point_point(qi, ip0);
+                    j1_a = arrival_a != -1;
+                    j1_b = arrival_b != -1;
                 }
                 else
                 {
@@ -394,10 +394,10 @@ struct get_turn_info_linear_linear
                     op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
                     op1_b = overlay::operation_intersection;
 
-                    first0_a = first_a && arrival_b != 1;
-                    last0_b = last_b && arrival_b != -1;
-                    last1_a = last_a && arrival_a != -1;
-                    first1_b = first_b && arrival_a != 1;
+                    i0_a = arrival_b != 1;
+                    j0_b = arrival_b != -1;
+                    j1_a = arrival_a != -1;
+                    i1_b = arrival_a != 1;
                 }
             }
             else
@@ -406,10 +406,10 @@ struct get_turn_info_linear_linear
                 op0_a = arrival_to_union_or_blocked(arrival_a, last_a);
                 op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
 
-                first0_a = first_a && how_a == -1;
-                first0_b = first_b && how_b == -1;
-                last0_a = last_a && arrival_a == 0;
-                last0_b = last_b && arrival_b == 0;
+                i0_a = how_a == -1;
+                i0_b = how_b == -1;
+                j0_a = arrival_a == 0;
+                j0_b = arrival_b == 0;
             }
         }
         else
@@ -417,10 +417,10 @@ struct get_turn_info_linear_linear
             op0_a = how_to_union_or_blocked(how_a, last_a);
             op0_b = how_to_union_or_blocked(how_b, last_b);
 
-            first0_a = first_a && how_a == -1;
-            first0_b = first_b && how_b == -1;
-            last0_a = last_a && how_a == 1;
-            last0_b = last_b && how_b == 1;
+            i0_a = how_a == -1;
+            i0_b = how_b == -1;
+            j0_a = how_a == 1;
+            j0_b = how_b == 1;
         }
     }
 
@@ -446,6 +446,8 @@ struct get_turn_info_linear_linear
             return overlay::operation_union;
     }
 
+// TODO: IT'S ALSO PROBABLE THAT ALL THIS FUNCTION COULD BE INTEGRATED WITH handle_segment
+
     template<typename Point1,
              typename Point2,
              typename Point,
@@ -456,6 +458,7 @@ struct get_turn_info_linear_linear
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
                                        Point const& ip,
                                        bool first1, bool last1, bool first2, bool last2,
+                                       bool ip_i2, bool ip_j2,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
                                        overlay::operation_type & op1, overlay::operation_type & op2)
@@ -464,8 +467,8 @@ struct get_turn_info_linear_linear
         {
             if ( !first2 && !last2 )
             {
-                bool ip_i2 = equals::equals_point_point(i2, ip);
-                bool ip_j2 = equals::equals_point_point(j2, ip);
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
 
                 if ( ip_i2 )
                 {
@@ -567,8 +570,8 @@ struct get_turn_info_linear_linear
         ov::operation_type q_operation0 = ov::operation_none;
         ov::operation_type p_operation1 = ov::operation_none;
         ov::operation_type q_operation1 = ov::operation_none;
-        bool p0_first, p0_last, q0_first, q0_last; // assign false?
-        bool p1_first, p1_last, q1_first, q1_last; // assign false?
+        bool p0i, p0j, q0i, q0j; // assign false?
+        bool p1i, p1j, q1i, q1j; // assign false?
 
         {
             int p_how = result.template get<1>().how_a;
@@ -584,19 +587,23 @@ struct get_turn_info_linear_linear
                            result.template get<0>().intersections[0],
                            result.template get<0>().intersections[1],
                            p_operation0, q_operation0, p_operation1, q_operation1,
-                           p0_first, p0_last, q0_first, q0_last,
-                           p1_first, p1_last, q1_first, q1_last,
+                           p0i, p0j, q0i, q0j,
+                           p1i, p1j, q1i, q1j,
                            pi, pj, pk, qi, qj, qk);
         }
 
         bool result_ignore_ip = false;
 
         {
-            BOOST_ASSERT(p0_first == (is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[0])));
-            BOOST_ASSERT(q0_first == (is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[0])));
-            BOOST_ASSERT(p0_last == (is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[0])));
-            BOOST_ASSERT(q0_last == (is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[0])));
+            BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(q0i == equals::equals_point_point(qi, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(p0j == equals::equals_point_point(pj, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(q0j == equals::equals_point_point(qj, result.template get<0>().intersections[0]));
             // TODO - calculate first/last only if needed
+            bool p0_first = is_p_first && p0i;
+            bool p0_last = is_p_last && p0j;
+            bool q0_first = is_q_first && q0i;
+            bool q0_last = is_q_last && q0j;
             bool append0_first = enable_first && (p0_first || q0_first);
             bool append0_last = enable_last && (p0_last || q0_last);
 
@@ -605,13 +612,13 @@ struct get_turn_info_linear_linear
             if ( append0_first || append0_last )
             {
                 bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[0],
-                                               p0_first, p0_last, q0_first, q0_last, tp_model, result,
-                                               p_operation0, q_operation0);
+                                               p0_first, p0_last, q0_first, q0_last, q0i, q0j,
+                                               tp_model, result, p_operation0, q_operation0);
                 if ( !handled )
                 {
                     handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
-                                              q0_first, q0_last, p0_first, p0_last, tp_model, result,
-                                              q_operation0, p_operation0);
+                                              q0_first, q0_last, p0_first, p0_last, p0i, p0j,
+                                              tp_model, result, q_operation0, p_operation0);
                 }
 
                 if ( p_operation0 != overlay::operation_none )
@@ -623,11 +630,15 @@ struct get_turn_info_linear_linear
 
         if ( p_operation1 != ov::operation_none )
         {
-            BOOST_ASSERT(p1_first == (is_p_first && equals::equals_point_point(pi, result.template get<0>().intersections[1])));
-            BOOST_ASSERT(q1_first == (is_q_first && equals::equals_point_point(qi, result.template get<0>().intersections[1])));
-            BOOST_ASSERT(p1_last == (is_p_last && equals::equals_point_point(pj, result.template get<0>().intersections[1])));
-            BOOST_ASSERT(q1_last == (is_q_last && equals::equals_point_point(qj, result.template get<0>().intersections[1])));
+            BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(q1i == equals::equals_point_point(qi, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(p1j == equals::equals_point_point(pj, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(q1j == equals::equals_point_point(qj, result.template get<0>().intersections[1]));
             // TODO - calculate first/last only if needed
+            bool p1_first = is_p_first && p1i;
+            bool p1_last = is_p_last && p1j;
+            bool q1_first = is_q_first && q1i;
+            bool q1_last = is_q_last && q1j;
             bool append1_first = enable_first && (p1_first || q1_first);
             bool append1_last = enable_last && (p1_last || q1_last);
 
@@ -636,13 +647,13 @@ struct get_turn_info_linear_linear
             if ( append1_first || append1_last )
             {
                 bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[1],
-                                               p1_first, p1_last, q1_first, q1_last, tp_model, result,
-                                               p_operation1, q_operation1);
+                                               p1_first, p1_last, q1_first, q1_last, q1i, q1j,
+                                               tp_model, result, p_operation1, q_operation1);
                 if ( !handled )
                 {
                     handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
-                                              q1_first, q1_last, p1_first, p1_last, tp_model, result,
-                                              q_operation1, p_operation1);
+                                              q1_first, q1_last, p1_first, p1_last, p1i, p1j,
+                                              tp_model, result, q_operation1, p_operation1);
                 }
 
                 if ( p_operation1 != overlay::operation_none )
@@ -653,16 +664,6 @@ struct get_turn_info_linear_linear
         }
 
         return result_ignore_ip;
-    }
-
-    static inline bool is_i_or_u(overlay::operation_type op)
-    {
-        return op == overlay::operation_intersection || op == overlay::operation_union;
-    }
-
-    static inline bool is_x(overlay::operation_type op)
-    {
-        return op == overlay::operation_blocked;
     }
 
     template <typename Point1,
