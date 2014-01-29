@@ -90,6 +90,9 @@ struct linear_linear
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
 
         result res("FFFFFFFFT");
+        static const std::size_t dimension = geometry::dimension<Geometry1>::value;
+        if ( dimension < 10 )
+            res.template set<exterior, exterior>('0' + dimension);
 
         // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
         bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
