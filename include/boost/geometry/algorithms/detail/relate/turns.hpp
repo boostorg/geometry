@@ -228,6 +228,9 @@ struct get_turn_info_linear_linear
                                     tp, result.template get<0>(), result.template get<1>(),
                                     swapped_side_calc);
                     }
+
+                    replace_operations_tm(tp.operations[0].operation, tp.operations[1].operation);
+                    
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -237,6 +240,9 @@ struct get_turn_info_linear_linear
             {
                 overlay::crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                     tp, result.template get<0>(), result.template get<1>());
+
+                replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
+
                 AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                 *out++ = tp;
             }
@@ -253,6 +259,9 @@ struct get_turn_info_linear_linear
                 {
                     overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                    replace_operations_tm(tp.operations[0].operation, tp.operations[1].operation);
+
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -271,6 +280,9 @@ struct get_turn_info_linear_linear
                     // or collinear-and-ending at intersection point
                     overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                    replace_operations_ec(tp.operations[0].operation, tp.operations[1].operation);
+
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -311,6 +323,8 @@ struct get_turn_info_linear_linear
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
                     }
 
+                    replace_operations_ec(tp.operations[0].operation, tp.operations[1].operation);
+
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -321,7 +335,8 @@ struct get_turn_info_linear_linear
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, pj, pk, qi, qj, qk,
-                            tp, out, result.template get<0>(), result.template get<1>(), side_calc);
+                            tp, out, result.template get<0>(), result.template get<1>(), side_calc,
+                            replace_operations_ec);
                 }
             }
             break;
@@ -349,6 +364,41 @@ struct get_turn_info_linear_linear
         }
 
         return out;
+    }
+
+    static inline void replace_operations_tm(overlay::operation_type & op0, overlay::operation_type & op1)
+    {
+        if ( op0 == overlay::operation_continue || op0 == overlay::operation_blocked )
+            op0 = overlay::operation_intersection;
+        else if ( op0 == overlay::operation_intersection )
+            op0 = overlay::operation_union;
+
+        if ( op1 == overlay::operation_continue || op1 == overlay::operation_blocked )
+            op1 = overlay::operation_intersection;
+        else if ( op1 == overlay::operation_intersection )
+            op1 = overlay::operation_union;
+    }
+
+    static inline void replace_operations_ec(overlay::operation_type & op0, overlay::operation_type & op1)
+    {
+        if ( op0 == overlay::operation_blocked )
+            op0 = overlay::operation_intersection;
+        else if ( op0 == overlay::operation_intersection )
+            op0 = overlay::operation_union;
+
+        if ( op1 == overlay::operation_blocked )
+            op1 = overlay::operation_intersection;
+        else if ( op1 == overlay::operation_intersection )
+            op1 = overlay::operation_union;
+    }
+
+    static inline void replace_operations_i(overlay::operation_type & op0, overlay::operation_type & op1)
+    {
+        if ( op0 == overlay::operation_intersection )
+            op0 = overlay::operation_union;
+
+        if ( op1 == overlay::operation_intersection )
+            op1 = overlay::operation_union;
     }
 
     template<typename Point1, typename Point2, typename Point>
@@ -658,12 +708,14 @@ struct get_turn_info_linear_linear
                                               tp_model, result, q_operation1, p_operation1);
                 }
 
-                method = endpoint_ip_method(p1i, p1j, q1i, q1j);
-
                 if ( p_operation1 != overlay::operation_none )
+                {
+                    method = endpoint_ip_method(p1i, p1j, q1i, q1j);
+
                     assign(pi, qi, result, result.template get<0>().intersections[1],
                            method, p_operation1, q_operation1,
                            tp_model, out);
+                }
             }
         }
 
