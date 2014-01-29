@@ -773,7 +773,7 @@ private :
     }
 
 public:
-    static inline void empty_operations_transform(operation_type &, operation_type &) {}
+    static inline void empty_replacer(method_type &, operation_type &, operation_type &) {}
 
     template
     <
@@ -796,7 +796,7 @@ public:
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
-        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, dir_info, side, empty_operations_transform);
+        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, dir_info, side, empty_replacer);
     }
 
 public:
@@ -808,7 +808,7 @@ public:
         typename IntersectionInfo,
         typename DirInfo,
         typename SidePolicy,
-        typename OperationsTransform
+        typename MethodAndOperationsReplacer
     >
     static inline void apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -821,7 +821,7 @@ public:
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
                 SidePolicy const& side,
-                OperationsTransform operations_transform)
+                MethodAndOperationsReplacer method_and_operations_replacer)
     {
         TurnInfo tp = tp_model;
 
@@ -831,7 +831,7 @@ public:
         if (dir_info.arrival[0] == 1
             && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, intersection_info))
         {
-            operations_transform(tp.operations[0].operation, tp.operations[1].operation);
+            method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;
@@ -841,7 +841,7 @@ public:
         if (dir_info.arrival[1] == 1
             && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, intersection_info))
         {
-            operations_transform(tp.operations[0].operation, tp.operations[1].operation);
+            method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;

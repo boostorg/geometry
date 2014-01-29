@@ -204,10 +204,19 @@ void test_linestring_linestring()
     to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 -1,1 0,3 0,3 -1)", "lsls_02.svg");
     to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 1,3 0,1 0,1 1)", "lsls_03.svg");
     to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 -1,3 0,1 0,1 -1)", "lsls_04.svg");
-    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0,6 0)", "LINESTRING(2 1,2 0,4 0,4 1)", "lsls_05.svg");
-    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0,6 0)", "LINESTRING(2 -1,2 0,4 0,4 -1)", "lsls_06.svg");
-    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0,6 0)", "LINESTRING(4 1,4 0,2 0,2 1)", "lsls_07.svg");
-    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0,6 0)", "LINESTRING(4 -1,4 0,2 0,2 -1)", "lsls_08.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 1,2 0,4 0,4 1)", "lsls_05.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 -1,2 0,4 0,4 -1)", "lsls_06.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 1,4 0,2 0,2 1)", "lsls_07.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 -1,4 0,2 0,2 -1)", "lsls_08.svg");
+
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 1,1 0,2 0,3 0,3 1)", "lsls_11.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 -1,1 0,2 0,3 0,3 -1)", "lsls_12.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 1,3 0,2 0,1 0,1 1)", "lsls_13.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 -1,3 0,2 0,1 0,1 -1)", "lsls_14.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 1,2 0,3 0,4 0,4 1)", "lsls_15.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 -1,2 0,3 0,4 0,4 -1)", "lsls_16.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 1,4 0,3 0,2 0,2 1)", "lsls_17.svg");
+    to_svg<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 -1,4 0,3 0,2 0,2 -1)", "lsls_18.svg");
 
     test_geometry<ls, ls>("LINESTRING(0 5,5 5,10 5,10 10,5 10,5 5,5 0)",
                           "LINESTRING(0 5,5 5,5 10,10 10,10 5,5 5,5 0)", "1FFF0FFFT");

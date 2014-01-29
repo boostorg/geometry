@@ -229,7 +229,7 @@ struct get_turn_info_linear_linear
                                     swapped_side_calc);
                     }
 
-                    replace_operations_tm(tp.operations[0].operation, tp.operations[1].operation);
+                    replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
@@ -260,7 +260,7 @@ struct get_turn_info_linear_linear
                     overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                    replace_operations_tm(tp.operations[0].operation, tp.operations[1].operation);
+                    replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
@@ -281,8 +281,9 @@ struct get_turn_info_linear_linear
                     overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                    replace_operations_ec(tp.operations[0].operation, tp.operations[1].operation);
-
+                    replacer_of_method_and_operations_ec replacer(overlay::method_touch);
+                    replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -314,29 +315,38 @@ struct get_turn_info_linear_linear
                         overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
 
+                        // NOTE: don't change the method only if methods are WRT IPs, not segments!
+                        // (currently this approach is used)
                         // override assigned method
-                        tp.method = overlay::method_collinear;
+                        //tp.method = overlay::method_collinear;
+
+                        replacer_of_method_and_operations_ec replacer(overlay::method_touch);
+                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     }
                     else
                     {
                         overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
-                    }
 
-                    replace_operations_ec(tp.operations[0].operation, tp.operations[1].operation);
+                        replacer_of_method_and_operations_ec replacer(overlay::method_touch_interior);
+                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    }
 
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
                 else
                 {
+                    // If this always 'm' ?
+                    replacer_of_method_and_operations_ec replacer(overlay::method_touch_interior);
+
                     overlay::collinear_opposite
                         <
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, pj, pk, qi, qj, qk,
                             tp, out, result.template get<0>(), result.template get<1>(), side_calc,
-                            replace_operations_ec);
+                            replacer);
                 }
             }
             break;
@@ -366,31 +376,64 @@ struct get_turn_info_linear_linear
         return out;
     }
 
-    static inline void replace_operations_tm(overlay::operation_type & op0, overlay::operation_type & op1)
+    static inline void replace_method_and_operations_tm(overlay::method_type & method,
+                                                        overlay::operation_type & op0,
+                                                        overlay::operation_type & op1)
     {
-        if ( op0 == overlay::operation_continue || op0 == overlay::operation_blocked )
-            op0 = overlay::operation_intersection;
-        else if ( op0 == overlay::operation_intersection )
-            op0 = overlay::operation_union;
+        if ( op0 == overlay::operation_blocked && op1 == overlay::operation_blocked )
+        {
+            // NOTE: probably only if methods are WRT IPs, not segments!
+            method = (method == overlay::method_touch ? overlay::method_equal : overlay::method_collinear);
+            op0 = overlay::operation_continue;
+            op1 = overlay::operation_continue;
+        }
+        else
+        {
+            if ( op0 == overlay::operation_continue || op0 == overlay::operation_blocked )
+                op0 = overlay::operation_intersection;
+            else if ( op0 == overlay::operation_intersection )
+                op0 = overlay::operation_union;
 
-        if ( op1 == overlay::operation_continue || op1 == overlay::operation_blocked )
-            op1 = overlay::operation_intersection;
-        else if ( op1 == overlay::operation_intersection )
-            op1 = overlay::operation_union;
+            if ( op1 == overlay::operation_continue || op1 == overlay::operation_blocked )
+                op1 = overlay::operation_intersection;
+            else if ( op1 == overlay::operation_intersection )
+                op1 = overlay::operation_union;
+        }
     }
 
-    static inline void replace_operations_ec(overlay::operation_type & op0, overlay::operation_type & op1)
+    class replacer_of_method_and_operations_ec
     {
-        if ( op0 == overlay::operation_blocked )
-            op0 = overlay::operation_intersection;
-        else if ( op0 == overlay::operation_intersection )
-            op0 = overlay::operation_union;
+    public:
+        explicit replacer_of_method_and_operations_ec(overlay::method_type method_t_or_m)
+            : m_method(method_t_or_m)
+        {}
 
-        if ( op1 == overlay::operation_blocked )
-            op1 = overlay::operation_intersection;
-        else if ( op1 == overlay::operation_intersection )
-            op1 = overlay::operation_union;
-    }
+       void operator()(overlay::method_type & method,
+                       overlay::operation_type & op0,
+                       overlay::operation_type & op1) const
+        {
+            BOOST_ASSERT(op0 != overlay::operation_blocked || op1 != overlay::operation_blocked );
+
+            if ( op0 == overlay::operation_blocked )
+                op0 = overlay::operation_intersection;
+            else if ( op0 == overlay::operation_intersection )
+                op0 = overlay::operation_union;
+
+            if ( op1 == overlay::operation_blocked )
+                op1 = overlay::operation_intersection;
+            else if ( op1 == overlay::operation_intersection )
+                op1 = overlay::operation_union;
+
+            if ( op0 == overlay::operation_intersection || op0 == overlay::operation_union
+              || op1 == overlay::operation_intersection || op1 == overlay::operation_union )
+            {
+                method = m_method;
+            }
+        }
+
+    private:
+        overlay::method_type m_method;
+    };
 
     static inline void replace_operations_i(overlay::operation_type & op0, overlay::operation_type & op1)
     {
