@@ -621,9 +621,11 @@ struct get_turn_info_linear_linear
                                               tp_model, result, q_operation0, p_operation0);
                 }
 
+                method = endpoint_ip_method(p0i, p0j, q0i, q0j);
+
                 if ( p_operation0 != overlay::operation_none )
                     assign(pi, qi, result, result.template get<0>().intersections[0],
-                           overlay::method_none, p_operation0, q_operation0,
+                           method, p_operation0, q_operation0,
                            tp_model, out);
             }
         }
@@ -656,14 +658,26 @@ struct get_turn_info_linear_linear
                                               tp_model, result, q_operation1, p_operation1);
                 }
 
+                method = endpoint_ip_method(p1i, p1j, q1i, q1j);
+
                 if ( p_operation1 != overlay::operation_none )
                     assign(pi, qi, result, result.template get<0>().intersections[1],
-                           overlay::method_none, p_operation1, q_operation1,
+                           method, p_operation1, q_operation1,
                            tp_model, out);
             }
         }
 
         return result_ignore_ip;
+    }
+
+    static inline overlay::method_type endpoint_ip_method(bool ip_pi, bool ip_pj, bool ip_qi, bool ip_qj)
+    {
+        int pc = (ip_pi ? 1 : 0) + (ip_pj ? 1 : 0);
+        int qc = (ip_qi ? 1 : 0) + (ip_qj ? 1 : 0);
+        if ( pc > 0 && qc > 0 )
+            return overlay::method_touch;
+        else
+            return overlay::method_touch_interior;
     }
 
     template <typename Point1,
