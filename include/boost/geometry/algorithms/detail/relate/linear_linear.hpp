@@ -106,8 +106,8 @@ struct linear_linear
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
-        // TODO: turns must be analysed this way only if it's possible to go out and in on the same point
-        // for linear geometries union or intersection operation was detected
+        // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
+        // for linear geometries union operation must be detected which I guess would be quite often
         std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<turns::operation_order_uibc>());
 
         analyse_turns(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
@@ -130,43 +130,36 @@ struct linear_linear
                 res.template update_dimension<interior, exterior>('1');
                 res.template update_dimension<exterior, interior>('1');
             }
+            // 'e' 'c'
+            else if ( it->method == overlay::method_equal
+                   || it->method == overlay::method_collinear )
+            {
+                res.template update_dimension<interior, interior>('1');
+            }
             // 't' 'm'
             else if ( it->method == overlay::method_touch
                    || it->method == overlay::method_touch_interior )
             {
                 bool b = handle_boundary_point(res, *it, geometry1, geometry2, has_boundary1, has_boundary2);
-
-                if ( !b )
+                
+                if ( it->has(overlay::operation_union) )
                 {
-                    // x/x i/x u/x
-                    if ( it->has(overlay::operation_blocked) )
-                        // TODO: is this ok?
-                        res.template update_dimension<interior, interior>('1');
-                    else
+                    if ( !b )
                         res.template update_dimension<interior, interior>('0');
+                    if ( it->operations[0].operation == overlay::operation_union )
+                        res.template update_dimension<interior, exterior>('1');
+                    if ( it->operations[1].operation == overlay::operation_union )
+                        res.template update_dimension<exterior, interior>('1');
                 }
 
-                // x/x
-                if ( it->both(overlay::operation_blocked) )
-                {
-                    //res.template update_dimension<interior, interior>('1');
-                }
-                // c/c i/* u/*
-                else if ( it->both(overlay::operation_continue)
-                       || it->has(overlay::operation_union)
-                       || it->has(overlay::operation_intersection) )
-                {
-                    res.template update_dimension<interior, exterior>('1');
-                    res.template update_dimension<exterior, interior>('1');
-                }
+                if ( it->has(overlay::operation_intersection) )
+                    res.template update_dimension<interior, interior>('1');
+
+                if ( it->has(overlay::operation_blocked) )
+                    if ( !b )
+                        res.template update_dimension<interior, interior>('0');
             }
-            // 'e' 'c'
-            else if ( it->method == overlay::method_equal
-                   || it->method == overlay::method_collinear )
-            {
-                handle_boundary_point(res, *it, geometry1, geometry2, has_boundary1, has_boundary2);
-                res.template update_dimension<interior, interior>('1');
-            }
+            
         }
     }
 
