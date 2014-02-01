@@ -27,7 +27,6 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -67,13 +66,16 @@ void check_geometry(
     typedef bg::detail::get_turns::no_interrupt_policy interrupt_policy_t;
 
     std::vector<turn_info> turns;
-    //interrupt_policy_t interrupt_policy;
-
-    //boost::geometry::get_turns<false, false, assign_policy_t>
-    //    (g1, g2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
+    interrupt_policy_t interrupt_policy;
+    
     // Don't switch the geometries
-    typedef bg::detail::relate::turns::get_turn_info<Geometry1, Geometry2, assign_policy_t> turn_policy_t;
-    bg::detail::relate::turns::get_turns<Geometry1, Geometry2, turn_policy_t>::apply(turns, g1, g2);
+    typedef bg::detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy_t> turn_policy_t;
+    bg::dispatch::get_turns
+        <
+            typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
+            Geometry1, Geometry2, false, false,
+            turn_policy_t
+        >::apply(0, g1, 1, g2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
 
     bool ok = expected.size() == turns.size();
 

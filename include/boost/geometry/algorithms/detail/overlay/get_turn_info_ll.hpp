@@ -131,7 +131,7 @@ struct get_turn_info_linear_linear
         segment_type1 p1(pi, pj), p2(pj, pk);
         segment_type2 q1(qi, qj), q2(qj, qk);
 
-        overlay::side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+        side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
 
         typedef strategy_intersection
             <
@@ -157,7 +157,7 @@ struct get_turn_info_linear_linear
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                  tp_model, result, overlay::method_none, out, true, true);
+                                  tp_model, result, method_none, out, true, true);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -166,13 +166,13 @@ struct get_turn_info_linear_linear
             case 'm' :
             {
                 if ( handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                       tp_model, result, overlay::method_touch_interior, out, false, true) )
+                                       tp_model, result, method_touch_interior, out, false, true) )
                 {
                     // do nothing
                 }
                 else
                 {
-                    typedef overlay::touch_interior
+                    typedef touch_interior
                         <
                             TurnInfo
                         > policy;
@@ -187,7 +187,7 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // Swap p/q
-                        overlay::side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                     tp, result.template get<0>(), result.template get<1>(),
                                     swapped_side_calc);
@@ -202,7 +202,7 @@ struct get_turn_info_linear_linear
             break;
             case 'i' :
             {
-                overlay::crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                     tp, result.template get<0>(), result.template get<1>());
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
@@ -215,13 +215,13 @@ struct get_turn_info_linear_linear
             {
                 // Both touch (both arrive there)
                 if ( handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                       tp_model, result, overlay::method_touch, out, false, true) )
+                                       tp_model, result, method_touch, out, false, true) )
                 {
                     // do nothing
                 }
                 else 
                 {
-                    overlay::touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
@@ -234,7 +234,7 @@ struct get_turn_info_linear_linear
             case 'e':
             {
                 if ( handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                       tp_model, result, overlay::method_equal, out, true, true) )
+                                       tp_model, result, method_equal, out, true, true) )
                 {
                     // do nothing
                 }
@@ -242,10 +242,10 @@ struct get_turn_info_linear_linear
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
-                    overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                    equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                    replacer_of_method_and_operations_ec replacer(overlay::method_touch);
+                    replacer_of_method_and_operations_ec replacer(method_touch);
                     replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
@@ -253,7 +253,7 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
-                    overlay::equal_opposite
+                    equal_opposite
                         <
                             TurnInfo,
                             AssignPolicy
@@ -266,7 +266,7 @@ struct get_turn_info_linear_linear
             {
                 // Collinear
                 if ( handle_first_last(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                       tp_model, result, overlay::method_collinear, out, true, true) )
+                                       tp_model, result, method_collinear, out, true, true) )
                 {
                     // do nothing
                 }
@@ -276,23 +276,23 @@ struct get_turn_info_linear_linear
                     if (result.template get<1>().arrival[0] == 0)
                     {
                         // Collinear, but similar thus handled as equal
-                        overlay::equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                         // NOTE: don't change the method only if methods are WRT IPs, not segments!
                         // (currently this approach is used)
                         // override assigned method
-                        //tp.method = overlay::method_collinear;
+                        //tp.method = method_collinear;
 
-                        replacer_of_method_and_operations_ec replacer(overlay::method_touch);
+                        replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     }
                     else
                     {
-                        overlay::collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                        collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                        replacer_of_method_and_operations_ec replacer(overlay::method_touch_interior);
+                        replacer_of_method_and_operations_ec replacer(method_touch_interior);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     }
 
@@ -302,9 +302,9 @@ struct get_turn_info_linear_linear
                 else
                 {
                     // If this always 'm' ?
-                    replacer_of_method_and_operations_ec replacer(overlay::method_touch_interior);
+                    replacer_of_method_and_operations_ec replacer(method_touch_interior);
 
-                    overlay::collinear_opposite
+                    collinear_opposite
                         <
                             TurnInfo,
                             AssignPolicy
@@ -319,7 +319,7 @@ struct get_turn_info_linear_linear
                 // degenerate points
                 if (AssignPolicy::include_degenerate)
                 {
-                    overlay::only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    only_convert<TurnInfo>::apply(tp, result.template get<0>());
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -340,72 +340,72 @@ struct get_turn_info_linear_linear
         return out;
     }
 
-    static inline void replace_method_and_operations_tm(overlay::method_type & method,
-                                                        overlay::operation_type & op0,
-                                                        overlay::operation_type & op1)
+    static inline void replace_method_and_operations_tm(method_type & method,
+                                                        operation_type & op0,
+                                                        operation_type & op1)
     {
-        if ( op0 == overlay::operation_blocked && op1 == overlay::operation_blocked )
+        if ( op0 == operation_blocked && op1 == operation_blocked )
         {
             // NOTE: probably only if methods are WRT IPs, not segments!
-            method = (method == overlay::method_touch ? overlay::method_equal : overlay::method_collinear);
-            op0 = overlay::operation_continue;
-            op1 = overlay::operation_continue;
+            method = (method == method_touch ? method_equal : method_collinear);
+            op0 = operation_continue;
+            op1 = operation_continue;
         }
         else
         {
-            if ( op0 == overlay::operation_continue || op0 == overlay::operation_blocked )
-                op0 = overlay::operation_intersection;
-            else if ( op0 == overlay::operation_intersection )
-                op0 = overlay::operation_union;
+            if ( op0 == operation_continue || op0 == operation_blocked )
+                op0 = operation_intersection;
+            else if ( op0 == operation_intersection )
+                op0 = operation_union;
 
-            if ( op1 == overlay::operation_continue || op1 == overlay::operation_blocked )
-                op1 = overlay::operation_intersection;
-            else if ( op1 == overlay::operation_intersection )
-                op1 = overlay::operation_union;
+            if ( op1 == operation_continue || op1 == operation_blocked )
+                op1 = operation_intersection;
+            else if ( op1 == operation_intersection )
+                op1 = operation_union;
         }
     }
 
     class replacer_of_method_and_operations_ec
     {
     public:
-        explicit replacer_of_method_and_operations_ec(overlay::method_type method_t_or_m)
+        explicit replacer_of_method_and_operations_ec(method_type method_t_or_m)
             : m_method(method_t_or_m)
         {}
 
-       void operator()(overlay::method_type & method,
-                       overlay::operation_type & op0,
-                       overlay::operation_type & op1) const
+       void operator()(method_type & method,
+                       operation_type & op0,
+                       operation_type & op1) const
         {
-            BOOST_ASSERT(op0 != overlay::operation_blocked || op1 != overlay::operation_blocked );
+            BOOST_ASSERT(op0 != operation_blocked || op1 != operation_blocked );
 
-            if ( op0 == overlay::operation_blocked )
-                op0 = overlay::operation_intersection;
-            else if ( op0 == overlay::operation_intersection )
-                op0 = overlay::operation_union;
+            if ( op0 == operation_blocked )
+                op0 = operation_intersection;
+            else if ( op0 == operation_intersection )
+                op0 = operation_union;
 
-            if ( op1 == overlay::operation_blocked )
-                op1 = overlay::operation_intersection;
-            else if ( op1 == overlay::operation_intersection )
-                op1 = overlay::operation_union;
+            if ( op1 == operation_blocked )
+                op1 = operation_intersection;
+            else if ( op1 == operation_intersection )
+                op1 = operation_union;
 
-            if ( op0 == overlay::operation_intersection || op0 == overlay::operation_union
-              || op1 == overlay::operation_intersection || op1 == overlay::operation_union )
+            if ( op0 == operation_intersection || op0 == operation_union
+              || op1 == operation_intersection || op1 == operation_union )
             {
                 method = m_method;
             }
         }
 
     private:
-        overlay::method_type m_method;
+        method_type m_method;
     };
 
-    static inline void replace_operations_i(overlay::operation_type & op0, overlay::operation_type & op1)
+    static inline void replace_operations_i(operation_type & op0, operation_type & op1)
     {
-        if ( op0 == overlay::operation_intersection )
-            op0 = overlay::operation_union;
+        if ( op0 == operation_intersection )
+            op0 = operation_union;
 
-        if ( op1 == overlay::operation_intersection )
-            op1 = overlay::operation_union;
+        if ( op1 == operation_intersection )
+            op1 = operation_union;
     }
 
     template<typename Point1, typename Point2, typename Point>
@@ -414,8 +414,8 @@ struct get_turn_info_linear_linear
                         bool first_b, bool last_b, int how_b, int arrival_b,
                         bool opposite, std::size_t ip_count, bool same_dirs/*collinear*/,
                         Point const& ip0, Point const& ip1,
-                        overlay::operation_type & op0_a, overlay::operation_type & op0_b,
-                        overlay::operation_type & op1_a, overlay::operation_type & op1_b,
+                        operation_type & op0_a, operation_type & op0_b,
+                        operation_type & op1_a, operation_type & op1_b,
                         bool & i0_a, bool & j0_a, bool & i0_b, bool & j0_b,
                         bool & i1_a, bool & j1_a, bool & i1_b, bool & j1_b,
                         Point1 const& pi, Point1 const& pj, Point1 const& pk, // TEST
@@ -434,8 +434,8 @@ struct get_turn_info_linear_linear
 
                 if ( !opposite )
                 {
-                    op0_a = overlay::operation_intersection;
-                    op0_b = overlay::operation_intersection;
+                    op0_a = operation_intersection;
+                    op0_b = operation_intersection;
                     op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
                     op1_b = arrival_to_union_or_blocked(arrival_b, last_b);
 
@@ -446,10 +446,10 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
-                    op0_a = overlay::operation_intersection;
+                    op0_a = operation_intersection;
                     op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
                     op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                    op1_b = overlay::operation_intersection;
+                    op1_b = operation_intersection;
 
                     i0_a = arrival_b != 1;
                     j0_b = arrival_b != -1;
@@ -482,25 +482,25 @@ struct get_turn_info_linear_linear
     }
 
     // only if collinear (same_dirs)
-    static inline overlay::operation_type arrival_to_union_or_blocked(int arrival, bool is_last)
+    static inline operation_type arrival_to_union_or_blocked(int arrival, bool is_last)
     {
         if ( arrival == 1 )
-            return overlay::operation_blocked;
+            return operation_blocked;
         else if ( arrival == -1 )
-            return overlay::operation_union;
+            return operation_union;
         else
-            return is_last ? overlay::operation_blocked : overlay::operation_union;
-            //return overlay::operation_blocked;
+            return is_last ? operation_blocked : operation_union;
+            //return operation_blocked;
     }
 
     // only if not collinear (!same_dirs)
-    static inline overlay::operation_type how_to_union_or_blocked(int how, bool is_last)
+    static inline operation_type how_to_union_or_blocked(int how, bool is_last)
     {
         if ( how == 1 )
-            //return overlay::operation_blocked;
-            return is_last ? overlay::operation_blocked : overlay::operation_union;
+            //return operation_blocked;
+            return is_last ? operation_blocked : operation_union;
         else
-            return overlay::operation_union;
+            return operation_union;
     }
 
 // TODO: IT'S ALSO PROBABLE THAT ALL THIS FUNCTION COULD BE INTEGRATED WITH handle_segment
@@ -518,7 +518,7 @@ struct get_turn_info_linear_linear
                                        bool ip_i2, bool ip_j2,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
-                                       overlay::operation_type & op1, overlay::operation_type & op2)
+                                       operation_type & op1, operation_type & op2)
     {
         if ( first1 || last1 )
         {
@@ -530,8 +530,8 @@ struct get_turn_info_linear_linear
                 if ( ip_i2 )
                 {
                     // don't output this IP - for the first point of other geometry segment
-                    op1 = overlay::operation_none;
-                    op2 = overlay::operation_none;
+                    op1 = operation_none;
+                    op2 = operation_none;
                     return true;
                 }
                 else if ( ip_j2 )
@@ -541,36 +541,36 @@ struct get_turn_info_linear_linear
                     TurnInfo tp = tp_model;
                     if ( first1 )
                     {
-                        overlay::side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
-                        overlay::equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
+                        side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
+                        equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
                             tp, result.template get<0>(), result.template get<1>(), side_calc);
-                        if ( tp.both(overlay::operation_continue) )
+                        if ( tp.both(operation_continue) )
                         {
-                            op1 = overlay::operation_intersection;
-                            op2 = opposite ? overlay::operation_union : overlay::operation_intersection;
+                            op1 = operation_intersection;
+                            op2 = opposite ? operation_union : operation_intersection;
                         }
                         else
                         {
-                            BOOST_ASSERT(tp.combination(overlay::operation_intersection, overlay::operation_union));
-                            op1 = overlay::operation_union;
-                            op2 = overlay::operation_union;
+                            BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                            op1 = operation_union;
+                            op2 = operation_union;
                         }
                     }
                     else // last1
                     {
-                        overlay::side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
-                        overlay::equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
+                        side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
+                        equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
                             tp, result.template get<0>(), result.template get<1>(), side_calc);
-                        if ( tp.both(overlay::operation_continue) )
+                        if ( tp.both(operation_continue) )
                         {
-                            op1 = overlay::operation_blocked;
-                            op2 = opposite ? overlay::operation_intersection : overlay::operation_union;
+                            op1 = operation_blocked;
+                            op2 = opposite ? operation_intersection : operation_union;
                         }
                         else
                         {
-                            BOOST_ASSERT(tp.combination(overlay::operation_intersection, overlay::operation_union));
-                            op1 = overlay::operation_blocked;
-                            op2 = overlay::operation_union;
+                            BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                            op1 = operation_blocked;
+                            op2 = operation_union;
                         }
                     }
 
@@ -600,7 +600,7 @@ struct get_turn_info_linear_linear
                                          std::size_t q_segments_count,
                                          TurnInfo const& tp_model,
                                          IntersectionResult const& result,
-                                         overlay::method_type method,
+                                         method_type method,
                                          OutputIterator out,
                                          bool enable_first = true,
                                          bool enable_last = true)
@@ -680,7 +680,7 @@ struct get_turn_info_linear_linear
 
                 method = endpoint_ip_method(p0i, p0j, q0i, q0j);
 
-                if ( p_operation0 != overlay::operation_none )
+                if ( p_operation0 != operation_none )
                     assign(pi, qi, result, result.template get<0>().intersections[0],
                            method, p_operation0, q_operation0,
                            tp_model, out);
@@ -715,7 +715,7 @@ struct get_turn_info_linear_linear
                                               tp_model, result, q_operation1, p_operation1);
                 }
 
-                if ( p_operation1 != overlay::operation_none )
+                if ( p_operation1 != operation_none )
                 {
                     method = endpoint_ip_method(p1i, p1j, q1i, q1j);
 
@@ -729,14 +729,14 @@ struct get_turn_info_linear_linear
         return result_ignore_ip;
     }
 
-    static inline overlay::method_type endpoint_ip_method(bool ip_pi, bool ip_pj, bool ip_qi, bool ip_qj)
+    static inline method_type endpoint_ip_method(bool ip_pi, bool ip_pj, bool ip_qi, bool ip_qj)
     {
         int pc = (ip_pi ? 1 : 0) + (ip_pj ? 1 : 0);
         int qc = (ip_qi ? 1 : 0) + (ip_qj ? 1 : 0);
         if ( pc > 0 && qc > 0 )
-            return overlay::method_touch;
+            return method_touch;
         else
-            return overlay::method_touch_interior;
+            return method_touch_interior;
     }
 
     template <typename Point1,
@@ -748,8 +748,8 @@ struct get_turn_info_linear_linear
     static inline void assign(Point1 const& pi, Point2 const& qi,
                               IntersectionResult const& result,
                               Point const& ip,
-                              overlay::method_type method,
-                              overlay::operation_type op0, overlay::operation_type op1,
+                              method_type method,
+                              operation_type op0, operation_type op1,
                               TurnInfo const& tp_model,
                               OutputIterator out)
     {
