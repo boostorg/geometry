@@ -898,8 +898,8 @@ inline void get_turns(Geometry1 const& geometry1,
     //        typename boost::range_value<Turns>::type
     //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
-    //typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
-    typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
+    typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
+    //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
 
     boost::mpl::if_c
         <
