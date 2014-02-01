@@ -534,7 +534,8 @@ struct get_turns_cs
                 int multi_index = -1, int ring_index = -1)
     {
         typedef typename boost::range_value<Turns>::type turn_info;
-        if (boost::size(range) <= 1)
+
+        if ( boost::size(range) <= 1)
         {
             return;
         }
@@ -544,6 +545,8 @@ struct get_turns_cs
 
         cview_type cview(range);
         view_type view(cview);
+
+        typename boost::range_size<view_type>::type segments_count1 = boost::size(view) - 1;
 
         iterator_type it = boost::begin(view);
 
@@ -593,6 +596,7 @@ struct get_turns_cs
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
+                        segments_count1,
                         rescale_policy,
                         turns, interrupt_policy);
                 // Future performance enhancement:
@@ -633,6 +637,7 @@ private:
             box_point_type const& bp1,
             box_point_type const& bp2,
             box_point_type const& bp3,
+            std::size_t segments_count1,
             RescalePolicy const& rescale_policy,
             // Output
             Turns& turns,
@@ -651,19 +656,23 @@ private:
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                ti, rescale_policy, std::back_inserter(turns));
+                          segments_count1, 4,
+                          ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                ti, rescale_policy, std::back_inserter(turns));
+                          segments_count1, 4,
+                          ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                ti, rescale_policy, std::back_inserter(turns));
+                          segments_count1, 4,
+                          ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                ti, rescale_policy, std::back_inserter(turns));
+                          segments_count1, 4,
+                          ti, rescale_policy, std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)
         {
