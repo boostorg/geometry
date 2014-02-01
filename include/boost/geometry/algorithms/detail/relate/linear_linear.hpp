@@ -108,7 +108,7 @@ struct linear_linear
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
-        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<turns::operation_order_uibc>());
+        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<>());
 
         analyse_turns(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
 

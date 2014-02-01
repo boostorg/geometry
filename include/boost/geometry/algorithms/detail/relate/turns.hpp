@@ -866,33 +866,32 @@ struct get_turns
 
 // TURNS SORTING AND SEARCHING
 
-struct operation_order_uibc
+// sort turns by G1 - source_index == 0 by:
+// seg_id -> distance -> operation
+template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0, std::size_t OpId = 0>
+struct less_seg_dist_op
 {
+    BOOST_MPL_ASSERT(OpId < 2);
+
     template <typename Op> static inline
-    int apply(Op const& op)
+    int order_op(Op const& op)
     {
         switch(op.operation)
         {
-        case detail::overlay::operation_opposite : return 0;
-        case detail::overlay::operation_none : return 0;
-        case detail::overlay::operation_union : return 1;
-        case detail::overlay::operation_intersection : return 2;
-        case detail::overlay::operation_blocked : return 3;
-        case detail::overlay::operation_continue : return 4;
+        case detail::overlay::operation_none : return N;
+        case detail::overlay::operation_union : return U;
+        case detail::overlay::operation_intersection : return I;
+        case detail::overlay::operation_blocked : return B;
+        case detail::overlay::operation_continue : return C;
+        case detail::overlay::operation_opposite : return O;
         }
         return -1;
-    };
-};
+    }
 
-// sort turns by G1 - source_index == 0 by:
-// seg_id -> distance -> operation
-template <typename OperationOrder>
-struct less_seg_dist_op
-{
     template <typename Op> static inline
     bool use_operation(Op const& left, Op const& right)
     {
-        return OperationOrder::apply(left) < OperationOrder::apply(right);
+        return order_op(left) < order_op(right);
     }
 
     template <typename Op> static inline
@@ -936,10 +935,10 @@ struct less_seg_dist_op
     template <typename Turn>
     inline bool operator()(Turn const& left, Turn const& right) const
     {
-        segment_identifier const& sl = left.operations[0].seg_id;
-        segment_identifier const& sr = right.operations[0].seg_id;
+        segment_identifier const& sl = left.operations[OpId].seg_id;
+        segment_identifier const& sr = right.operations[OpId].seg_id;
 
-        return sl < sr || ( sl == sr && use_distance(left.operations[0], right.operations[0]) );
+        return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
     }
 };
 
