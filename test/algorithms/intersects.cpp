@@ -40,6 +40,20 @@ void test_intersects_linestring_segment()
 }
 
 template <typename P>
+void test_intersects_linestring_linestring()
+{
+    typedef bg::model::linestring<P> ls;
+
+    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0)", "LINESTRING(0 0,1 1,2 2)", true);
+    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0)", "LINESTRING(2 2,1 1,0 0)", true);
+    test_geometry<ls, ls>("LINESTRING(3 0,2 0,0 0)", "LINESTRING(0 0,1 1,2 2)", true);
+    test_geometry<ls, ls>("LINESTRING(3 0,2 0,0 0)", "LINESTRING(2 2,1 1,0 0)", true);
+
+    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0)", "LINESTRING(1 0,4 0,5 0)", true);
+    test_geometry<ls, ls>("LINESTRING(1 0,2 0)", "LINESTRING(1 0,0 0)", true);
+}
+
+template <typename P>
 void test_intersects_linestring_polygon()
 {
     typedef bg::model::linestring<P> ls;
@@ -137,6 +151,7 @@ void test_all()
     test_intersects_linestring_polygon<P>();
     test_intersects_linestring_ring<P>();
     test_intersects_linestring_segment<P>();
+    test_intersects_linestring_linestring<P>();
     test_intersects_ring_polygon<P>();
 
     // self-intersecting is not tested in disjoint, so that is done here.

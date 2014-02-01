@@ -19,6 +19,9 @@
 
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -31,6 +34,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/transform.hpp>
 
 
@@ -283,6 +287,98 @@ struct transform<Segment1, Segment2, segment_tag, segment_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy {
+
+struct transform
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2& geometry2,
+                             Strategy const& strategy)
+    {
+        concept::check<Geometry1 const>();
+        concept::check<Geometry2>();
+
+        return dispatch::transform<Geometry1, Geometry2>::apply(
+            geometry1,
+            geometry2,
+            strategy
+        );
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2& geometry2,
+                             default_strategy)
+    {
+        return apply(
+            geometry1,
+            geometry2,
+            typename detail::transform::select_strategy<Geometry1, Geometry2>::type()
+        );
+    }
+};
+
+} // namespace resolve_strategy
+
+
+namespace resolve_variant {
+
+template <typename Geometry1, typename Geometry2>
+struct transform
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2& geometry2,
+                             Strategy const& strategy)
+    {
+        return resolve_strategy::transform::apply(
+            geometry1,
+            geometry2,
+            strategy
+        );
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct transform<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    template <typename Strategy>
+    struct visitor: static_visitor<bool>
+    {
+        Geometry2& m_geometry2;
+        Strategy const& m_strategy;
+
+        visitor(Geometry2& geometry2, Strategy const& strategy)
+            : m_geometry2(geometry2)
+            , m_strategy(strategy)
+        {}
+
+        template <typename Geometry1>
+        inline bool operator()(Geometry1 const& geometry1) const
+        {
+            return transform<Geometry1, Geometry2>::apply(
+                geometry1,
+                m_geometry2,
+                m_strategy
+            );
+        }
+    };
+
+    template <typename Strategy>
+    static inline bool apply(
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+        Geometry2& geometry2,
+        Strategy const& strategy
+    )
+    {
+        return apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief Transforms from one geometry to another geometry  \brief_strategy
 \ingroup transform
@@ -302,12 +398,8 @@ template <typename Geometry1, typename Geometry2, typename Strategy>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
             Strategy const& strategy)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2>();
-
-    typedef dispatch::transform<Geometry1, Geometry2> transform_type;
-
-    return transform_type::apply(geometry1, geometry2, strategy);
+    return resolve_variant::transform<Geometry1, Geometry2>
+                          ::apply(geometry1, geometry2, strategy);
 }
 
 
@@ -325,11 +417,7 @@ inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2,
 template <typename Geometry1, typename Geometry2>
 inline bool transform(Geometry1 const& geometry1, Geometry2& geometry2)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2>();
-
-    typename detail::transform::select_strategy<Geometry1, Geometry2>::type strategy;
-    return transform(geometry1, geometry2, strategy);
+    return transform(geometry1, geometry2, default_strategy());
 }
 
 

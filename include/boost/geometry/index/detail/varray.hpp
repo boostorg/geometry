@@ -363,12 +363,7 @@ public:
     //! @par Complexity
     //!   Linear O(N).
     template <std::size_t C>
-// TEMPORARY WORKAROUND
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-    varray & operator=(::boost::rv< varray<value_type, C> > const& other)
-#else
-    varray & operator=(varray<value_type, C> const& other)
-#endif
+    varray & operator=(BOOST_COPY_ASSIGN_REF_2_TEMPL_ARGS(varray, value_type, C) other)
     {
         this->assign(other.begin(), other.end());                                     // may throw
 

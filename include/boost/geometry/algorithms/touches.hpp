@@ -28,8 +28,10 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
-
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 namespace boost { namespace geometry
 {
@@ -489,6 +491,143 @@ struct touches<Areal1, Areal2, Tag1, Tag2, areal_tag, areal_tag, false>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+
+namespace resolve_variant {
+
+template <typename Geometry1, typename Geometry2>
+struct touches
+{
+    static bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    {
+        concept::check<Geometry1 const>();
+        concept::check<Geometry2 const>();
+
+        return dispatch::touches<Geometry1, Geometry2>
+                       ::apply(geometry1, geometry2);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry2 const& m_geometry2;
+
+        visitor(Geometry2 const& geometry2): m_geometry2(geometry2) {}
+
+        template <typename Geometry1>
+        bool operator()(Geometry1 const& geometry1) const
+        {
+            return touches<Geometry1, Geometry2>::apply(geometry1, m_geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry2), geometry1);
+    }
+};
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct touches<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        Geometry1 const& m_geometry1;
+
+        visitor(Geometry1 const& geometry1): m_geometry1(geometry1) {}
+
+        template <typename Geometry2>
+        bool operator()(Geometry2 const& geometry2) const
+        {
+            return touches<Geometry1, Geometry2>::apply(m_geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(Geometry1 const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(geometry1), geometry2);
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T1),
+          BOOST_VARIANT_ENUM_PARAMS(typename T2)>
+struct touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+               boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        template <typename Geometry1, typename Geometry2>
+        bool operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            return touches<Geometry1, Geometry2>::apply(geometry1, geometry2);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
+    {
+        return boost::apply_visitor(visitor(), geometry1, geometry2);
+    }
+};
+
+template <typename Geometry>
+struct self_touches
+{
+    static bool apply(Geometry const& geometry)
+    {
+        concept::check<Geometry const>();
+
+        typedef detail::overlay::turn_info
+        <
+            typename geometry::point_type<Geometry>::type
+        > turn_info;
+
+        typedef detail::overlay::get_turn_info
+        <
+            detail::overlay::assign_null_policy
+        > policy_type;
+
+        std::deque<turn_info> turns;
+        detail::touches::areal_interrupt_policy policy;
+        detail::self_get_turn_points::get_turns
+        <
+            policy_type
+        >::apply(geometry, detail::no_rescale_policy(), turns, policy);
+
+        return policy.result();
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct self_touches<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    struct visitor: boost::static_visitor<bool>
+    {
+        template <typename Geometry>
+        bool operator()(Geometry const& geometry) const
+        {
+            return self_touches<Geometry>::apply(geometry);
+        }
+    };
+
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
+    {
+        return boost::apply_visitor(visitor(), geometry);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief \brief_check{has at least one touching point (self-tangency)}
 \note This function can be called for one geometry (self-tangency) and
@@ -505,26 +644,7 @@ struct touches<Areal1, Areal2, Tag1, Tag2, areal_tag, areal_tag, false>
 template <typename Geometry>
 inline bool touches(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-
-    typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry>::type
-        > turn_info;
-
-    typedef detail::overlay::get_turn_info
-        <
-            detail::overlay::assign_null_policy
-        > policy_type;
-
-    std::deque<turn_info> turns;
-    detail::touches::areal_interrupt_policy policy;
-    detail::self_get_turn_points::get_turns
-            <
-                policy_type
-            >::apply(geometry, detail::no_rescale_policy(), turns, policy);
-
-    return policy.result();
+    return resolve_variant::self_touches<Geometry>::apply(geometry);
 }
 
 
@@ -543,10 +663,7 @@ inline bool touches(Geometry const& geometry)
 template <typename Geometry1, typename Geometry2>
 inline bool touches(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
-    return dispatch::touches<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return resolve_variant::touches<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 
