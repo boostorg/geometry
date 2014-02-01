@@ -871,7 +871,7 @@ struct get_turns
 template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0, std::size_t OpId = 0>
 struct less_seg_dist_op
 {
-    BOOST_MPL_ASSERT(OpId < 2);
+    BOOST_STATIC_ASSERT(OpId < 2);
 
     template <typename Op> static inline
     int order_op(Op const& op)
