@@ -184,7 +184,13 @@ namespace detail { namespace within {
 template <typename Point, typename Geometry, typename Strategy>
 inline int point_in_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
 {
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
+    concept::within::check
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            Strategy
+        >();
 
     return detail_dispatch::within::point_in_geometry<Geometry>::apply(point, geometry, strategy);
 }
