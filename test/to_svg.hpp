@@ -274,7 +274,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
     }
     else
     {
-        typedef bg::detail::relate::turns::get_turn_info
+        typedef bg::detail::get_turns::get_turn_info_type
             <
                 G1, G2, AssignPolicy
             > TurnPolicy;

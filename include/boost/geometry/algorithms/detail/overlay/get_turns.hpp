@@ -52,6 +52,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
@@ -724,6 +725,38 @@ struct get_turns_polygon_cs
     }
 };
 
+// GET_TURN_INFO_TYPE
+
+template <typename Tag,
+          bool IsLinear = boost::is_base_of<linear_tag, Tag>::value,
+          bool IsAreal = boost::is_base_of<areal_tag, Tag>::value>
+struct tag_base : not_implemented<Tag>
+{};
+
+template <typename Tag>
+struct tag_base<Tag, true, false>
+{
+    typedef linear_tag type;
+};
+
+template <typename Tag>
+struct tag_base<Tag, false, true>
+{
+    typedef areal_tag type;
+};
+
+template <typename Geometry1, typename Geometry2, typename AssignPolicy,
+          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
+          typename TagBase1 = typename tag_base<Tag1>::type, typename TagBase2 = typename tag_base<Tag2>::type>
+struct get_turn_info_type
+    : overlay::get_turn_info<AssignPolicy>
+{};
+
+template <typename Geometry1, typename Geometry2, typename AssignPolicy, typename Tag1, typename Tag2>
+struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear_tag, linear_tag>
+    : overlay::get_turn_info_linear_linear<AssignPolicy>
+{};
+
 }} // namespace detail::get_turns
 #endif // DOXYGEN_NO_DETAIL
 
@@ -865,7 +898,8 @@ inline void get_turns(Geometry1 const& geometry1,
     //        typename boost::range_value<Turns>::type
     //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
-    typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
+    //typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
+    typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
 
     boost::mpl::if_c
         <
