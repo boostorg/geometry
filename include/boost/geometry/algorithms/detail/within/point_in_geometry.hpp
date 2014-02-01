@@ -32,6 +32,8 @@ namespace detail { namespace within {
 template <typename Point, typename Range, typename Strategy> inline
 int point_in_range(Point const& point, Range const& range, Strategy const& strategy)
 {
+    boost::ignore_unused_variable_warning(strategy);
+
     typedef typename boost::range_iterator<Range const>::type iterator_type;
     typename Strategy::state_type state;
     iterator_type it = boost::begin(range);

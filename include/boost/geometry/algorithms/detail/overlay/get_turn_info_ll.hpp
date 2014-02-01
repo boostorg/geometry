@@ -408,18 +408,18 @@ struct get_turn_info_linear_linear
             op1 = operation_union;
     }
 
-    template<typename Point1, typename Point2, typename Point>
+    template<typename Point, typename Point1, typename Point2>
     static inline
-    void handle_segment(bool first_a, bool last_a, int how_a, int arrival_a,
-                        bool first_b, bool last_b, int how_b, int arrival_b,
+    void handle_segment(bool /*first_a*/, bool last_a, int how_a, int arrival_a,
+                        bool /*first_b*/, bool last_b, int how_b, int arrival_b,
                         bool opposite, std::size_t ip_count, bool same_dirs/*collinear*/,
-                        Point const& ip0, Point const& ip1,
+                        Point const& ip0, Point const& /*ip1*/,
                         operation_type & op0_a, operation_type & op0_b,
                         operation_type & op1_a, operation_type & op1_b,
                         bool & i0_a, bool & j0_a, bool & i0_b, bool & j0_b,
                         bool & i1_a, bool & j1_a, bool & i1_b, bool & j1_b,
-                        Point1 const& pi, Point1 const& pj, Point1 const& pk, // TEST
-                        Point2 const& qi, Point2 const& qj, Point2 const& qk) // TEST
+                        Point1 const& pi, Point1 const& /*pj*/, Point1 const& /*pk*/,
+                        Point2 const& qi, Point2 const& /*qj*/, Point2 const& /*qk*/)
     {
         namespace ov = overlay;
 
@@ -511,7 +511,7 @@ struct get_turn_info_linear_linear
              typename TurnInfo,
              typename IntersectionResult
     >
-    static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& k1,
+    static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
                                        Point const& ip,
                                        bool first1, bool last1, bool first2, bool last2,
@@ -615,10 +615,14 @@ struct get_turn_info_linear_linear
         if ( ip_count == 0 )
             return false;
 
-        bool is_p_first = tp_model.operations[0].seg_id.segment_index == 0;
-        bool is_q_first = tp_model.operations[1].seg_id.segment_index == 0;
-        bool is_p_last = tp_model.operations[0].seg_id.segment_index + 1 == p_segments_count;
-        bool is_q_last = tp_model.operations[1].seg_id.segment_index + 1 == q_segments_count;
+        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
+        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
+        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
+
+        bool is_p_first = segment_index0 == 0;
+        bool is_q_first = segment_index1 == 0;
+        bool is_p_last = static_cast<std::size_t>(segment_index0) + 1 == p_segments_count;
+        bool is_q_last = static_cast<std::size_t>(segment_index1) + 1 == q_segments_count;
 
         if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
             return false;
