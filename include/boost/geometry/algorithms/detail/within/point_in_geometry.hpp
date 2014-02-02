@@ -17,17 +17,33 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 
+#include <boost/assert.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_same.hpp>
+
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/within.hpp>
+#include <boost/geometry/strategies/covered_by.hpp>
 
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
+
+int check_result_type(int result)
+{
+    return result;
+}
+
+template <typename T>
+void check_result_type(T result)
+{
+    BOOST_ASSERT(false);
+}
 
 template <typename Point, typename Range, typename Strategy> inline
 int point_in_range(Point const& point, Range const& range, Strategy const& strategy)
@@ -50,7 +66,7 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
         }
     }
 
-    return strategy.result(state);
+    return check_result_type(strategy.result(state));
 }
 
 }} // namespace detail::within
@@ -66,17 +82,6 @@ template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
 struct point_in_geometry : not_implemented<Tag>
 {};
-
-template <typename Box>
-struct point_in_geometry<Box, box_tag>
-{
-    template <typename Point, typename Strategy> static inline
-    int apply(Point const& point, Box const& box, Strategy const& strategy)
-    {
-        // this is different Strategy concept than the one used for ranges
-        return strategy.apply(point, box);
-    }
-};
 
 template <typename Linestring>
 struct point_in_geometry<Linestring, linestring_tag>
@@ -221,26 +226,30 @@ inline int point_in_geometry(Point const& point, Geometry const& geometry)
             Geometry
         >::type strategy_type;
 
+    typedef typename strategy::covered_by::services::default_strategy
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag<Point>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            Point,
+            Geometry
+        >::type strategy_type2;
+
+    BOOST_STATIC_ASSERT(boost::is_same<strategy_type, strategy_type2>::value);
+
     return point_in_geometry(point, geometry, strategy_type());
 }
 
-template <typename Point, typename Geometry>
-inline bool within_point_geometry(Point const& point, Geometry const& geometry)
-{
-    return point_in_geometry(point, geometry) > 0;
-}
-
 }} // namespace detail::within
-
-namespace detail { namespace covered_by {
-
-template <typename Point, typename Geometry>
-inline bool covered_by_point_geometry(Point const& point, Geometry const& geometry)
-{
-    return point_in_geometry(point, geometry) >= 0;
-}
-
-}} // namespace detail::covered_by
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

@@ -33,6 +33,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
+#include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
@@ -46,8 +47,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/views/segment_view.hpp>
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -71,7 +70,7 @@ struct check_each_ring_for_within
     template <typename Range>
     inline void apply(Range const& range)
     {
-        if ( detail::within::within_point_geometry(geometry::return_point_on_surface(range), m_geometry) )
+        if ( geometry::within(geometry::return_point_on_surface(range), m_geometry) )
         {
             has_within = true;
         }

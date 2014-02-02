@@ -178,7 +178,7 @@ struct point_to_ring
                         PPStrategy,
                         PSStrategy
                     >::apply(point, ring, pp_strategy, ps_strategy),
-                detail::within::within_point_geometry(point, ring)
+                geometry::within(point, ring)
             );
     }
 };
