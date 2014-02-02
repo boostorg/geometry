@@ -92,7 +92,7 @@ struct linear_linear
         result res("FFFFFFFFT");
         static const std::size_t dimension = geometry::dimension<Geometry1>::value;
         if ( dimension < 10 )
-            res.template set<exterior, exterior>('0' + dimension);
+            res.template set<exterior, exterior, '0' + dimension>();
 
         // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
         bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
@@ -126,15 +126,15 @@ struct linear_linear
             // 'i'
             if ( it->method == overlay::method_crosses )
             {
-                res.template update_dimension<interior, interior>('0');
-                res.template update_dimension<interior, exterior>('1');
-                res.template update_dimension<exterior, interior>('1');
+                res.template update<interior, interior, '0'>();
+                res.template update<interior, exterior, '1'>();
+                res.template update<exterior, interior, '1'>();
             }
             // 'e' 'c'
             else if ( it->method == overlay::method_equal
                    || it->method == overlay::method_collinear )
             {
-                res.template update_dimension<interior, interior>('1');
+                res.template update<interior, interior, '1'>();
             }
             // 't' 'm'
             else if ( it->method == overlay::method_touch
@@ -145,19 +145,19 @@ struct linear_linear
                 if ( it->has(overlay::operation_union) )
                 {
                     if ( !b )
-                        res.template update_dimension<interior, interior>('0');
+                        res.template update<interior, interior, '0'>();
                     if ( it->operations[0].operation == overlay::operation_union )
-                        res.template update_dimension<interior, exterior>('1');
+                        res.template update<interior, exterior, '1'>();
                     if ( it->operations[1].operation == overlay::operation_union )
-                        res.template update_dimension<exterior, interior>('1');
+                        res.template update<exterior, interior, '1'>();
                 }
 
                 if ( it->has(overlay::operation_intersection) )
-                    res.template update_dimension<interior, interior>('1');
+                    res.template update<interior, interior, '1'>();
 
                 if ( it->has(overlay::operation_blocked) )
                     if ( !b )
-                        res.template update_dimension<interior, interior>('0');
+                        res.template update<interior, interior, '0'>();
             }
             
         }
@@ -173,11 +173,11 @@ struct linear_linear
         bool pt_on_boundary2 = has_boundary2 && equals_terminal_point(turn.point, geometry2);
 
         if ( pt_on_boundary1 && pt_on_boundary2 )
-            res.template update_dimension<boundary, boundary>('0');
+            res.template update<boundary, boundary, '0'>();
         else if ( pt_on_boundary1 )
-            res.template update_dimension<boundary, interior>('0');
+            res.template update<boundary, interior, '0'>();
         else if ( pt_on_boundary2 )
-            res.template update_dimension<interior, boundary>('0');
+            res.template update<interior, boundary, '0'>();
         else
             return false;
         return true;
@@ -202,23 +202,23 @@ struct linear_linear
             int pig_back = detail::within::point_in_geometry(back(geometry1), geometry2);
 
             if ( pig_front > 0 || pig_back > 0 )
-                res.template set<boundary, interior>('0');
+                res.template set<boundary, interior, '0'>();
             if ( pig_front == 0 || pig_back == 0 )
-                res.template set<boundary, boundary>('0');
+                res.template set<boundary, boundary, '0'>();
             if ( pig_front < 0 || pig_back < 0 )
             {
-                res.template set<boundary, exterior>('0');
-                res.template set<interior, exterior>('1');
+                res.template set<boundary, exterior, '0'>();
+                res.template set<interior, exterior, '1'>();
             }
         }
         else
         {
             if ( pig_front > 0 )
-                res.template set<interior, interior>('0');
+                res.template set<interior, interior, '0'>();
             else if ( pig_front == 0 )
-                res.template set<interior, boundary>('0');
+                res.template set<interior, boundary, '0'>();
             else if ( pig_front < 0 )
-                res.template set<interior, exterior>('0');
+                res.template set<interior, exterior, '0'>();
         }
 
         pig_front = detail::within::point_in_geometry(front(geometry2), geometry1);
@@ -228,23 +228,23 @@ struct linear_linear
             int pig_back = detail::within::point_in_geometry(back(geometry2), geometry1);
 
             if ( pig_front > 0 || pig_back > 0 )
-                res.template set<interior, boundary>('0');
+                res.template set<interior, boundary, '0'>();
             if ( pig_front == 0 || pig_back == 0 )
-                res.template set<boundary, boundary>('0');
+                res.template set<boundary, boundary, '0'>();
             if ( pig_front < 0 || pig_back < 0 )
             {
-                res.template set<exterior, boundary>('0');
-                res.template set<exterior, interior>('1');
+                res.template set<exterior, boundary, '0'>();
+                res.template set<exterior, interior, '1'>();
             }
         }
         else
         {
             if ( pig_front > 0 )
-                res.template set<interior, interior>('0');
+                res.template set<interior, interior, '0'>();
             else if ( pig_front == 0 )
-                res.template set<boundary, interior>('0');
+                res.template set<boundary, interior, '0'>();
             else if ( pig_front < 0 )
-                res.template set<exterior, interior>('0');
+                res.template set<exterior, interior, '0'>();
         }
     }
 };

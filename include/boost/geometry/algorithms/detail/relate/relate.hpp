@@ -60,6 +60,16 @@ struct relate<Point1, Point2, point_tag, point_tag>
     : detail::relate::point_point<Point1, Point2>
 {};
 
+template <typename Point, typename Box>
+struct relate<Point, Box, point_tag, box_tag>
+    : detail::relate::point_box<Point, Box>
+{};
+
+template <typename Box, typename Point>
+struct relate<Box, Point, box_tag, point_tag>
+    : detail::relate::box_point<Box, Point>
+{};
+
 template <typename Point, typename Geometry, typename Tag2>
 struct relate<Point, Geometry, point_tag, Tag2>
     : detail::relate::point_geometry<Point, Geometry>
