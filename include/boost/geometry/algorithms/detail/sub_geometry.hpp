@@ -2,15 +2,17 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013-2014, Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_MYSQL_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP
-#define BOOST_GEOMETRY_MYSQL_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP
 
 namespace boost { namespace geometry {
 
@@ -123,4 +125,4 @@ get(Geometry & geometry, Id const& id)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_MYSQL_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_GEOMETRY_HPP

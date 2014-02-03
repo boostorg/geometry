@@ -94,15 +94,15 @@ struct linear_linear
             // 'i'
             if ( it->method == overlay::method_crosses )
             {
-                res.template update<interior, interior, '0'>();
-                res.template update<interior, exterior, '1'>();
-                res.template update<exterior, interior, '1'>();
+                res.template update<interior, interior, '0'>(); // always true
+                res.template update<interior, exterior, '1'>(); // not always true
+                res.template update<exterior, interior, '1'>(); // not always true
             }
             // 'e' 'c'
             else if ( it->method == overlay::method_equal
                    || it->method == overlay::method_collinear )
             {
-                res.template update<interior, interior, '1'>();
+                res.template update<interior, interior, '1'>(); // always true
             }
             // 't' 'm'
             else if ( it->method == overlay::method_touch

@@ -15,6 +15,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 
