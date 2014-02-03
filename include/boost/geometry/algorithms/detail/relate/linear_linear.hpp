@@ -155,19 +155,19 @@ struct linear_linear
     template <typename Point, typename Geometry>
     static inline bool equals_terminal_point(Point const& point, Geometry const& geometry)
     {
-        return detail::equals::equals_point_point(point, front(geometry))
-            || detail::equals::equals_point_point(point, back(geometry));
+        return detail::equals::equals_point_point(point, range::front(geometry))
+            || detail::equals::equals_point_point(point, range::back(geometry));
     }
 
     static inline void handle_boundaries(result & res,
                                          Geometry1 const& geometry1, Geometry2 const& geometry2,
                                          bool has_boundary1, bool has_boundary2)
     {
-        int pig_front = detail::within::point_in_geometry(front(geometry1), geometry2);
+        int pig_front = detail::within::point_in_geometry(range::front(geometry1), geometry2);
 
         if ( has_boundary1 )
         {
-            int pig_back = detail::within::point_in_geometry(back(geometry1), geometry2);
+            int pig_back = detail::within::point_in_geometry(range::back(geometry1), geometry2);
 
             if ( pig_front > 0 || pig_back > 0 )
                 res.template set<boundary, interior, '0'>();
@@ -189,11 +189,11 @@ struct linear_linear
                 res.template set<interior, exterior, '0'>();
         }
 
-        pig_front = detail::within::point_in_geometry(front(geometry2), geometry1);
+        pig_front = detail::within::point_in_geometry(range::front(geometry2), geometry1);
 
         if ( has_boundary2 )
         {
-            int pig_back = detail::within::point_in_geometry(back(geometry2), geometry1);
+            int pig_back = detail::within::point_in_geometry(range::back(geometry2), geometry1);
 
             if ( pig_front > 0 || pig_back > 0 )
                 res.template set<interior, boundary, '0'>();
