@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,45 +17,13 @@
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
 
-#include <boost/range.hpp>
+#include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
 namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
-
-template <typename Range>
-inline typename boost::range_value<Range>::type const&
-front(Range const& rng)
-{
-    BOOST_ASSERT(!boost::empty(rng));
-    return *boost::begin(rng);
-}
-
-template <typename Range>
-inline typename boost::range_value<Range>::type &
-front(Range & rng)
-{
-    BOOST_ASSERT(!boost::empty(rng));
-    return *boost::begin(rng);
-}
-
-template <typename Range>
-inline typename boost::range_value<Range>::type const&
-back(Range const& rng)
-{
-    BOOST_ASSERT(!boost::empty(rng));
-    return *(--boost::end(rng));
-}
-
-template <typename Range>
-inline typename boost::range_value<Range>::type &
-back(Range & rng)
-{
-    BOOST_ASSERT(!boost::empty(rng));
-    return *(--boost::end(rng));
-}
 
 // currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
@@ -76,15 +44,15 @@ struct linear_linear
         }
         else if ( s1 == 1 && s2 == 1 )
         {
-            return point_point<point1_type, point2_type>::apply(front(geometry1), front(geometry2));
+            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
         }
         else if ( s1 == 1 /*&& s2 > 1*/ )
         {
-            return point_geometry<point1_type, Geometry2>::apply(front(geometry1), geometry2);
+            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
         }
         else if ( s2 == 1 /*&& s1 > 1*/  )
         {
-            return geometry_point<Geometry2, point2_type>::apply(geometry1, front(geometry2));
+            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
         }
 
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
@@ -95,8 +63,8 @@ struct linear_linear
             res.template set<exterior, exterior, '0' + dimension>();
 
         // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
-        bool has_boundary1 = ! detail::equals::equals_point_point(front(geometry1), back(geometry1));
-        bool has_boundary2 = ! detail::equals::equals_point_point(front(geometry2), back(geometry2));
+        bool has_boundary1 = ! detail::equals::equals_point_point(range::front(geometry1), range::back(geometry1));
+        bool has_boundary2 = ! detail::equals::equals_point_point(range::front(geometry2), range::back(geometry2));
 
         handle_boundaries(res, geometry1, geometry2, has_boundary1, has_boundary2);
 
