@@ -25,6 +25,30 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+template <field F1, field F2, char D, bool Reverse>
+struct update_result_dispatch
+{
+    static inline void apply(result & res)
+    {
+        res.template update<F1, F2, D>();
+    }
+};
+
+template <field F1, field F2, char D>
+struct update_result_dispatch<F1, F2, D, true>
+{
+    static inline void apply(result & res)
+    {
+        res.template update<F2, F1, D>();
+    }
+};
+
+template <field F1, field F2, char D, bool Reverse>
+inline void update_result(result & res)
+{
+    update_result_dispatch<F1, F2, D, Reverse>::apply(res);
+}
+
 // currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
 struct linear_linear
@@ -74,20 +98,205 @@ struct linear_linear
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
+        if ( turns.empty() )
+        {
+            return res;
+        }
+
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
-        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<>());
+        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,1,2,4,3,0,0>());
 
-        analyse_turns(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
+        analyse_turns<0, 1>(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
+
+        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,1,2,4,3,0,1>());
+
+        analyse_turns<1, 0>(res, turns.begin(), turns.end(), geometry2, geometry1, has_boundary2, has_boundary1);
 
         return res;
     }
 
-    template <typename TurnIt>
+    template <typename Point>
+    class point_identifier
+    {
+    public:
+        point_identifier() : sid_ptr(0), pt_ptr(0) {}
+        point_identifier(segment_identifier const& sid, Point const& pt)
+            : sid_ptr(boost::addressof(sid))
+            , pt_ptr(boost::addressof(pt))
+        {}
+        segment_identifier const& seg_id() const
+        {
+            BOOST_ASSERT(sid_ptr);
+            return *sid_ptr;
+        }
+        Point const& point() const
+        {
+            BOOST_ASSERT(pt_ptr);
+            return *pt_ptr;
+        }
+
+        //friend bool operator==(point_identifier const& l, point_identifier const& r)
+        //{
+        //    return l.seg_id() == r.seg_id()
+        //        && detail::equals::equals_point_point(l.point(), r.point());
+        //}
+
+    private:
+        const segment_identifier * sid_ptr;
+        const Point * pt_ptr;
+    };
+
+    class same_ranges
+    {
+    public:
+        same_ranges(segment_identifier const& sid)
+            : sid_ptr(boost::addressof(sid))
+        {}
+
+        template <typename Point>
+        bool operator()(point_identifier<Point> const& pid)
+        {
+            return pid.seg_id().multi_index == sid_ptr->multi_index
+                && pid.seg_id().ring_index == sid_ptr->ring_index;                
+        }
+    private:
+        const segment_identifier * sid_ptr;
+    };
+
+    template <std::size_t OpId,
+              std::size_t OtherOpId,
+              typename TurnIt,
+              typename Geometry,
+              typename OtherGeometry>
     static inline void analyse_turns(result & res,
                                      TurnIt first, TurnIt last,
-                                     Geometry1 const& geometry1, Geometry2 const& geometry2,
-                                     bool has_boundary1, bool has_boundary2)
+                                     Geometry const& geometry,
+                                     OtherGeometry const& other_geometry,
+                                     bool has_boundary,
+                                     bool other_has_boundary)
+    {
+        // should be the same as the one stored in Turn
+        typedef typename point_type<Geometry1>::type point_type;
+        typedef point_identifier<point_type> point_identifier;
+        static const bool reverse_result = OpId != 0;
+
+        if ( first == last )
+            return;
+
+        typedef typename std::vector<point_identifier>::iterator point_iterator;
+        std::vector<point_identifier> entry_points; // TODO: use map here or sorted vector?
+        
+        bool possible_exit_detected = false;
+        point_identifier possible_exit_point;
+
+        for ( TurnIt it = first ; it != last ; ++it )
+        {
+            overlay::operation_type op = it->operations[OpId].operation;
+            
+            // handle possible exit
+            if ( possible_exit_detected && 
+                 ( op == overlay::operation_union || op == overlay::operation_intersection
+                || op == overlay::operation_continue || op == overlay::operation_blocked ) )
+            {
+                // real exit point - may be multiple
+                // we know that we entered and now we exit
+                if ( !detail::equals::equals_point_point(it->point, possible_exit_point.point()) )
+                {
+                    possible_exit_detected = false;
+                    
+                    // not the last IP
+                    update_result<interior, exterior, '1', reverse_result>(res);
+                }
+                // fake exit point, reset state
+                // in reality this will be op == overlay::operation_intersection
+                else if ( op != overlay::operation_union )
+                {
+                    possible_exit_detected = false;
+                }
+            }
+
+            if ( op == overlay::operation_intersection )
+            {
+                // here we know that we entered the range
+                entry_points.push_back(point_identifier(it->operations[OpId].seg_id, it->point));
+
+                update_result<interior, interior, '1', reverse_result>(res);
+                // if the first point of P and/or Q is boundary then also
+                //update_result<boundary, interior, '0', reverse_result>(res);
+                // or
+                //update_result<boundary, boundary, '0', reverse_result>(res);
+            }
+            else if ( op == overlay::operation_blocked
+                   || op == overlay::operation_union )
+            {
+                if ( !entry_points.empty() )
+                {
+                    segment_identifier const& seg_id = it->operations[OpId].seg_id;
+                    point_iterator entry_it = std::find_if(entry_points.begin(),
+                                                           entry_points.end(),
+                                                           same_ranges(seg_id));
+                    if ( entry_it != entry_points.end() )
+                    {
+                        if ( op == overlay::operation_union )
+                        {
+                            // here we know that we possibly left LS
+                            // we must still check if we didn't get back on the same point
+                            possible_exit_detected = true;
+                            possible_exit_point = point_identifier(seg_id, it->point);
+                        }
+                        else // op == overlay::operation_blocked
+                        {
+                            // here we know that we're on the last point of the range
+
+                            // depending on the other operation
+                            //update_result<boundary, interior, '0', reverse_result>(res);
+                            // or
+                            //update_result<boundary, boundary, '0', reverse_result>(res);
+                        }
+
+                        // erase the corresponding entry point,
+                        // don't postpone the erasure decision because
+                        // there may be multiple exit IPs on the same point
+                        // and we'd be forced to store them all just like the entry points
+                        entry_points.erase(entry_it);
+                    }
+                }
+                else
+                {
+                    update_result<interior, exterior, '1', reverse_result>(res);
+
+                    if ( it->method == overlay::method_crosses )
+                        update_result<interior, interior, '0', reverse_result>(res);
+
+                    // or depending on the IP
+                    //update_result<boundary, interior, '0', reverse_result>(res);
+                    // or
+                    //update_result<boundary, boundary, '0', reverse_result>(res);
+                }
+            }
+            else if ( op == overlay::operation_continue )
+            {
+                update_result<interior, interior, '1', reverse_result>(res);
+            }
+        }
+
+        // here, the possible exit is the real one
+        // we know that we entered and now we exit
+        if ( possible_exit_detected )
+        {
+            update_result<interior, exterior, '1', reverse_result>(res);
+            // if has boundary on the last point of the current range
+            //update_result<boundary, exterior, '0', reverse_result>(res);
+        }
+    }
+    
+    template <typename TurnIt>
+    static inline void analyse_turns_simple(result & res,
+                                            TurnIt first, TurnIt last,
+                                            Geometry1 const& geometry1,
+                                            Geometry2 const& geometry2,
+                                            bool has_boundary1, bool has_boundary2)
     {
         for ( TurnIt it = first ; it != last ; ++it )
         {
