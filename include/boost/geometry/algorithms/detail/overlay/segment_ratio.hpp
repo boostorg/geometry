@@ -18,6 +18,77 @@
 namespace boost { namespace geometry
 {
 
+
+namespace detail { namespace segment_ratio
+{
+
+template
+<
+    typename Type,
+    bool IsIntegral = boost::is_integral<Type>::type::value
+>
+struct less {};
+
+template<typename Type>
+struct less<Type, true>
+{
+    template <typename Ratio>
+    static inline bool apply(Ratio const& lhs, Ratio const& rhs)
+    {
+        return boost::rational<Type>(lhs.numerator(), lhs.denominator())
+             < boost::rational<Type>(rhs.numerator(), rhs.denominator());
+    }
+};
+
+template<typename Type>
+struct less<Type, false>
+{
+    template <typename Ratio>
+    static inline bool apply(Ratio const& lhs, Ratio const& rhs)
+    {
+        assert(lhs.denominator() != 0);
+        assert(rhs.denominator() != 0);
+        return lhs.numerator() / lhs.denominator()
+             < rhs.numerator() / rhs.denominator();
+    }
+};
+
+template
+<
+    typename Type,
+    bool IsIntegral = boost::is_integral<Type>::type::value
+>
+struct equal {};
+
+template<typename Type>
+struct equal<Type, true>
+{
+    template <typename Ratio>
+    static inline bool apply(Ratio const& lhs, Ratio const& rhs)
+    {
+        return boost::rational<Type>(lhs.numerator(), lhs.denominator())
+            == boost::rational<Type>(rhs.numerator(), rhs.denominator());
+    }
+};
+
+template<typename Type>
+struct equal<Type, false>
+{
+    template <typename Ratio>
+    static inline bool apply(Ratio const& lhs, Ratio const& rhs)
+    {
+        assert(lhs.denominator() != 0);
+        assert(rhs.denominator() != 0);
+        return geometry::math::equals
+            (
+                lhs.numerator() / lhs.denominator()
+              , rhs.numerator() / rhs.denominator()
+            );
+    }
+};
+
+}}
+
 //! Small class to keep a ratio (e.g. 1/4)
 //! Main purpose is intersections and checking on 0, 1, and smaller/larger
 //! The prototype used Boost.Rational. However, we also want to store FP ratios,
@@ -103,16 +174,14 @@ public :
     inline bool operator< (segment_ratio<Type> const& other) const
     {
         return close_to(other)
-            ? boost::rational<Type>(m_numerator, m_denominator)
-                < boost::rational<Type>(other.m_numerator, other.m_denominator)
+            ? detail::segment_ratio::less<Type>::apply(*this, other)
             : m_approximation < other.m_approximation;
     }
 
     inline bool operator== (segment_ratio<Type> const& other) const
     {
         return close_to(other)
-            && (boost::rational<Type>(m_numerator, m_denominator)
-                == boost::rational<Type>(other.m_numerator, other.m_denominator));
+            && detail::segment_ratio::equal<Type>::apply(*this, other);
     }
 
     static inline segment_ratio<Type> zero()
