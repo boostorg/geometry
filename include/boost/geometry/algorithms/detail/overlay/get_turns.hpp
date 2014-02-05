@@ -891,14 +891,6 @@ inline void get_turns(Geometry1 const& geometry1,
 {
     concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
-    //typedef typename strategy_intersection
-    //    <
-    //        typename cs_tag<Geometry1>::type,
-    //        Geometry1,
-    //        Geometry2,
-    //        typename boost::range_value<Turns>::type
-    //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
-
     typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
 
     boost::mpl::if_c
