@@ -195,26 +195,22 @@ inline bool intersection(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
+    typedef typename geometry::rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type // TODO from both
+        >::type rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+
     typedef strategy_intersection
         <
             typename cs_tag<Geometry1>::type,
             Geometry1,
             Geometry2,
-            typename geometry::point_type<Geometry1>::type
+            typename geometry::point_type<Geometry1>::type,
+            rescale_policy_type
         > strategy;
-
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        typedef typename geometry::rescale_policy_type
-            <
-                typename geometry::point_type<Geometry1>::type // TODO from both
-            >::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
-#else
-        detail::no_rescale_policy rescale_policy;
-#endif
 
     return dispatch::intersection
         <

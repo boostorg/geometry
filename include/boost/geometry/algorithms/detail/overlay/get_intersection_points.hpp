@@ -37,18 +37,6 @@ template
 >
 struct get_turn_without_info
 {
-    typedef strategy_intersection
-        <
-            typename cs_tag<typename TurnInfo::point_type>::type,
-            Point1,
-            Point2,
-            typename TurnInfo::point_type
-        > si;
-
-    typedef typename si::segment_intersection_strategy_type strategy;
-
-
-
     template <typename RescalePolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& ,
@@ -57,6 +45,17 @@ struct get_turn_without_info
                 RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
+        typedef strategy_intersection
+            <
+                typename cs_tag<typename TurnInfo::point_type>::type,
+                Point1,
+                Point2,
+                typename TurnInfo::point_type,
+                RescalePolicy
+            > si;
+
+        typedef typename si::segment_intersection_strategy_type strategy;
+
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point1 const> segment_type2;
         segment_type1 p1(pi, pj);
@@ -120,7 +119,8 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             typename cs_tag<Geometry1>::type,
             Geometry1,
             Geometry2,
-            typename boost::range_value<Turns>::type
+            typename boost::range_value<Turns>::type,
+            RescalePolicy
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     detail::get_turns::no_interrupt_policy interrupt_policy;

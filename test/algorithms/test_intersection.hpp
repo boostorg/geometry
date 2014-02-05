@@ -59,6 +59,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             G1,
             G2,
             point_type,
+            typename bg::rescale_policy_type<point_type>::type,
             CalculationType
         > strategy;
 

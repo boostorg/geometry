@@ -105,7 +105,8 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
             typename cs_tag<GeometryOut>::type,
             Geometry1,
             Geometry2,
-            typename geometry::point_type<GeometryOut>::type
+            typename geometry::point_type<GeometryOut>::type,
+            RescalePolicy
         > strategy;
 
     return difference_insert<GeometryOut>(geometry1, geometry2,

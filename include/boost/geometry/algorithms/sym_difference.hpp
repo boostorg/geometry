@@ -116,7 +116,8 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             typename cs_tag<GeometryOut>::type,
             Geometry1,
             Geometry2,
-            typename geometry::point_type<GeometryOut>::type
+            typename geometry::point_type<GeometryOut>::type,
+            RescalePolicy
         > strategy_type;
 
     return sym_difference_insert<GeometryOut>(geometry1, geometry2, rescale_policy, out, strategy_type());

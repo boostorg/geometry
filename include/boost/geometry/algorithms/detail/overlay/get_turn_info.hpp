@@ -1020,7 +1020,8 @@ struct get_turn_info
                 typename cs_tag<typename TurnInfo::point_type>::type,
                 Point1,
                 Point2,
-                typename TurnInfo::point_type
+                typename TurnInfo::point_type,
+                RescalePolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;

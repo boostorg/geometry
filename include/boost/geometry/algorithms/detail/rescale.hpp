@@ -51,7 +51,7 @@ struct robust_point_type
 template <typename Point, typename Policy>
 struct segment_ratio_type
 {
-    // TODO set to coordinate type
+    // TODO set to coordinate type ?
     typedef segment_ratio<boost::long_long_type> type;
 };
 

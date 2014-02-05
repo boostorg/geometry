@@ -49,14 +49,6 @@ inline bool intersects(Geometry const& geometry)
     typedef detail::overlay::turn_info<point_type> turn_info;
     std::deque<turn_info> turns;
 
-    typedef typename strategy_intersection
-        <
-            typename cs_tag<Geometry>::type,
-            Geometry,
-            Geometry,
-            point_type
-        >::segment_intersection_strategy_type segment_intersection_strategy_type;
-
     typedef detail::overlay::get_turn_info
         <
             detail::overlay::assign_null_policy
@@ -64,6 +56,15 @@ inline bool intersects(Geometry const& geometry)
 
     typedef typename rescale_policy_type<point_type>::type
         rescale_policy_type;
+
+    typedef typename strategy_intersection
+        <
+            typename cs_tag<Geometry>::type,
+            Geometry,
+            Geometry,
+            point_type,
+            rescale_policy_type
+        >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     rescale_policy_type rescale_policy
             = get_rescale_policy<rescale_policy_type>(geometry);
