@@ -101,6 +101,9 @@ template <> struct string_from_type<long double>
 template <> struct string_from_type<int>
 { static std::string name() { return "i"; }  };
 
+template <> struct string_from_type<boost::long_long_type>
+{ static std::string name() { return "l"; }  };
+
 #if defined(HAVE_TTMATH)
     template <> struct string_from_type<ttmath_big>
     { static std::string name() { return "t"; }  };
