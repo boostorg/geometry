@@ -45,11 +45,15 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
 
     typedef typename bg::point_type<Geometry1>::type point_type;
 
-    typedef bg::detail::overlay::traversal_turn_info<point_type> turn_info;
-    std::vector<turn_info> turns;
-
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
+
+    typedef bg::detail::overlay::traversal_turn_info
+    <
+        point_type,
+        typename bg::segment_ratio_type<point_type, rescale_policy_type>::type
+    > turn_info;
+    std::vector<turn_info> turns;
 
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(g1, g2);

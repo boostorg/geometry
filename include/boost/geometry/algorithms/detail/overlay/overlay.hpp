@@ -181,7 +181,11 @@ struct overlay
 
         typedef typename geometry::coordinate_type<GeometryOut>::type coordinate_type;
         typedef typename geometry::point_type<GeometryOut>::type point_type;
-        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
+        typedef detail::overlay::traversal_turn_info
+        <
+            point_type,
+            typename geometry::segment_ratio_type<point_type, RescalePolicy>::type
+        > turn_info;
         typedef std::deque<turn_info> container_type;
 
         typedef std::deque

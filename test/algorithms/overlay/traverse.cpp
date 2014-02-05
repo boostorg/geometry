@@ -155,19 +155,19 @@ struct test_traverse
             typename bg::cs_tag<G1>::type
         >::type side_strategy_type;
 
-
-        typedef bg::detail::overlay::traversal_turn_info
-            <
-                typename bg::point_type<G2>::type
-            > turn_info;
-        std::vector<turn_info> turns;
-
         typedef typename bg::point_type<G2>::type point_type;
         typedef typename bg::rescale_policy_type<point_type>::type
             rescale_policy_type;
 
         rescale_policy_type rescale_policy
                 = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
+        typedef bg::detail::overlay::traversal_turn_info
+        <
+            point_type,
+            typename bg::segment_ratio_type<point_type, rescale_policy_type>::type
+        > turn_info;
+        std::vector<turn_info> turns;
 
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, rescale_policy, turns, policy);

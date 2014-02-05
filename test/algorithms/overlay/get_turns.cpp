@@ -43,8 +43,8 @@
 
 
 // To test that "get_turns" can be called using additional information
-template <typename P>
-struct my_turn_op : public bg::detail::overlay::turn_operation
+template <typename Point, typename SegmentRatio>
+struct my_turn_op : public bg::detail::overlay::turn_operation<SegmentRatio>
 {
 };
 
@@ -59,14 +59,19 @@ struct test_get_turns
             G1 const& g1, G2 const& g2, double precision)
     {
         typedef typename bg::point_type<G2>::type point_type;
-        typedef bg::detail::overlay::turn_info<point_type> turn_info;
-        std::vector<turn_info> turns;
-
         typedef typename bg::rescale_policy_type<point_type>::type
             rescale_policy_type;
 
         rescale_policy_type rescale_policy
                 = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
+        typedef bg::detail::overlay::turn_info
+            <
+                point_type,
+                typename bg::segment_ratio_type<point_type, rescale_policy_type>::type
+            > turn_info;
+        std::vector<turn_info> turns;
+
 
         bg::detail::get_turns::no_interrupt_policy policy;
         bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(g1, g2, rescale_policy, turns, policy);
