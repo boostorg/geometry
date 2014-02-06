@@ -69,9 +69,9 @@ struct relate_cartesian_segments
     }
 #endif
 
-    template <typename T, typename ResultType>
-    static inline void cramers_rule(T const& dx_a, T const& dy_a,
-        T const& dx_b, T const& dy_b, T const& wx, T const& wy,
+    template <typename D, typename W, typename ResultType>
+    static inline void cramers_rule(D const& dx_a, D const& dy_a,
+        D const& dx_b, D const& dy_b, W const& wx, W const& wy,
         // out:
         ResultType& d, ResultType& da)
     {
