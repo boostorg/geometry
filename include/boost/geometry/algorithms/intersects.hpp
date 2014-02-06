@@ -46,16 +46,21 @@ inline bool intersects(Geometry const& geometry)
     concept::check<Geometry const>();
 
     typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef detail::overlay::turn_info<point_type> turn_info;
+    typedef typename rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    typedef detail::overlay::turn_info
+        <
+            point_type,
+            typename segment_ratio_type<point_type, rescale_policy_type>::type
+        > turn_info;
+
     std::deque<turn_info> turns;
 
     typedef detail::overlay::get_turn_info
         <
             detail::overlay::assign_null_policy
         > TurnPolicy;
-
-    typedef typename rescale_policy_type<point_type>::type
-        rescale_policy_type;
 
     typedef typename strategy_intersection
         <

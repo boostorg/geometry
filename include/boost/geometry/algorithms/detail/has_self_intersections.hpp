@@ -62,7 +62,11 @@ template <typename Geometry, typename RescalePolicy>
 inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const& rescale_policy)
 {
     typedef typename point_type<Geometry>::type point_type;
-    typedef detail::overlay::turn_info<point_type> turn_info;
+    typedef overlay::turn_info
+    <
+        point_type,
+        typename segment_ratio_type<point_type, RescalePolicy>::type
+    > turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 

@@ -81,9 +81,13 @@ struct linear_linear
         if ( s1 == 1 )
             return point_in_geometry(*boost::begin(geometry1), geometry2) > 0;
 
+        typedef detail::no_rescale_policy rescale_policy_type;
         typedef typename geometry::point_type<Geometry1>::type point1_type;
-        typedef detail::overlay::turn_info<point1_type> turn_info;
-
+        typedef detail::overlay::turn_info
+            <
+                point1_type,
+                typename segment_ratio_type<point1_type, rescale_policy_type>::type
+            > turn_info;
         typedef detail::overlay::get_turn_info
             <
                 detail::overlay::assign_null_policy
@@ -91,13 +95,14 @@ struct linear_linear
 
         std::deque<turn_info> turns;
 
+        rescale_policy_type rescale_policy;
         detail::get_turns::no_interrupt_policy policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value, // should be false
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+                >(geometry1, geometry2, rescale_policy, turns, policy);
 
         return analyse_turns(turns.begin(), turns.end())
             // TODO: currently only for linestrings

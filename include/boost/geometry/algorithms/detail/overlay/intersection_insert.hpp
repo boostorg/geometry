@@ -129,7 +129,11 @@ struct intersection_linestring_linestring_point
     {
         typedef typename point_type<PointOut>::type point_type;
 
-        typedef detail::overlay::turn_info<point_type> turn_info;
+        typedef detail::overlay::turn_info
+            <
+                point_type,
+                typename segment_ratio_type<point_type, RescalePolicy>::type
+            > turn_info;
         std::deque<turn_info> turns;
 
         geometry::get_intersection_points(linestring1, linestring2, rescale_policy, turns);
@@ -510,7 +514,11 @@ struct intersection_insert
             OutputIterator out, Strategy const& )
     {
 
-        typedef detail::overlay::turn_info<PointOut> turn_info;
+        typedef detail::overlay::turn_info
+            <
+                PointOut,
+                typename segment_ratio_type<PointOut, RescalePolicy>::type
+            > turn_info;
         std::vector<turn_info> turns;
 
         detail::get_turns::no_interrupt_policy policy;

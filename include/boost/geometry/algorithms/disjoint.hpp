@@ -118,8 +118,12 @@ struct disjoint_linear
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
         typedef typename geometry::point_type<Geometry1>::type point_type;
-
-        typedef overlay::turn_info<point_type> turn_info;
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef overlay::turn_info
+        <
+            point_type,
+            typename segment_ratio_type<point_type, rescale_policy_type>::type
+        > turn_info;
         std::deque<turn_info> turns;
 
         static const bool reverse1 = overlay::do_reverse<geometry::point_order<Geometry1>::value>::value; // should be false
@@ -129,11 +133,12 @@ struct disjoint_linear
         // 1) Stop at any intersection
         // 2) In assignment, include also degenerate points (which are normally skipped)
         disjoint_interrupt_policy policy;
+        rescale_policy_type rescale_policy;
         geometry::get_turns
             <
                 reverse1, reverse2,
                 assign_disjoint_policy
-            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+            >(geometry1, geometry2, rescale_policy, turns, policy);
 
         return !policy.has_intersections;
     }
