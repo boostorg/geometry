@@ -220,7 +220,6 @@ template <typename CoordinateType, typename PromotedType, typename SegmentRatio>
 struct segment_intersection_info
 {
     typedef PromotedType promoted_type;
-    //typedef RobustType robust_type;
 
     CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
     PromotedType r; // TODO is probably redundant
