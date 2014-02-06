@@ -185,7 +185,7 @@ struct linear_linear
             return;
 
         typedef typename std::vector<point_identifier>::iterator point_iterator;
-        std::vector<point_identifier> entry_points; // TODO: use map here or sorted vector?
+        std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
         
         bool possible_exit_detected = false;
         point_identifier possible_exit_point;
@@ -219,7 +219,7 @@ struct linear_linear
             if ( op == overlay::operation_intersection )
             {
                 // here we know that we entered the range
-                entry_points.push_back(point_identifier(it->operations[OpId].seg_id, it->point));
+                other_entry_points.push_back(point_identifier(it->operations[OpId].other_id, it->point));
 
                 update_result<interior, interior, '1', reverse_result>(res);
                 // if the first point of P and/or Q is boundary then also
@@ -230,20 +230,20 @@ struct linear_linear
             else if ( op == overlay::operation_blocked
                    || op == overlay::operation_union )
             {
-                if ( !entry_points.empty() )
+                if ( !other_entry_points.empty() )
                 {
-                    segment_identifier const& seg_id = it->operations[OpId].seg_id;
-                    point_iterator entry_it = std::find_if(entry_points.begin(),
-                                                           entry_points.end(),
-                                                           same_ranges(seg_id));
-                    if ( entry_it != entry_points.end() )
+                    segment_identifier const& other_id = it->operations[OpId].other_id;
+                    point_iterator entry_it = std::find_if(other_entry_points.begin(),
+                                                           other_entry_points.end(),
+                                                           same_ranges(other_id));
+                    if ( entry_it != other_entry_points.end() )
                     {
                         if ( op == overlay::operation_union )
                         {
                             // here we know that we possibly left LS
                             // we must still check if we didn't get back on the same point
                             possible_exit_detected = true;
-                            possible_exit_point = point_identifier(seg_id, it->point);
+                            possible_exit_point = point_identifier(other_id, it->point);
                         }
                         else // op == overlay::operation_blocked
                         {
@@ -259,7 +259,7 @@ struct linear_linear
                         // don't postpone the erasure decision because
                         // there may be multiple exit IPs on the same point
                         // and we'd be forced to store them all just like the entry points
-                        entry_points.erase(entry_it);
+                        other_entry_points.erase(entry_it);
                     }
                 }
                 else
