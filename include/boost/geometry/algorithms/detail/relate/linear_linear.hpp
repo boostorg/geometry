@@ -25,6 +25,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+// update_result
+
 template <field F1, field F2, char D, bool Reverse>
 struct update_result_dispatch
 {
@@ -48,6 +50,109 @@ inline void update_result(result & res)
 {
     update_result_dispatch<F1, F2, D, Reverse>::apply(res);
 }
+
+// boundary_checker
+
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
+class boundary_checker {};
+
+template <typename Geometry>
+class boundary_checker<Geometry, linestring_tag>
+{
+    typedef typename point_type<Geometry>::type point_type;
+
+public:
+    boundary_checker(Geometry const& g)
+        : has_boundary(! detail::equals::equals_point_point(range::front(g), range::back(g)))
+        , geometry(g)
+    {}
+
+    // TODO: optimization expect ENTRY or EXIT    
+    bool is_boundary(point_type const& pt, segment_identifier const& sid)
+    {
+        // TODO: replace with assert?
+        if ( boost::size(geometry) < 2 )
+            return false;
+
+        // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
+
+        return has_boundary
+            && ( ( sid.segment_index == 0
+                && detail::equals::equals_point_point(pt, range::front(geometry)) )
+              || ( sid.segment_index + 2 == geometry::num_points(geometry)
+                && detail::equals::equals_point_point(pt, range::back(geometry)) ) );
+    }
+
+private:
+    bool has_boundary;
+    Geometry const& geometry;
+};
+
+template <typename Geometry>
+class boundary_checker<Geometry, multi_linestring_tag>
+{
+    typedef typename point_type<Geometry>::type point_type;
+
+public:
+    boundary_checker(Geometry const& g)
+        : is_filled(false), geometry(g)
+    {}
+
+    // TODO: optimization expect ENTRY or EXIT
+    bool is_boundary(point_type const& pt, segment_identifier const& sid)
+    {
+        typedef typename boost::range_size<Geometry>::type size_type;
+        size_type multi_count = boost::size(geometry);
+
+        // TODO: replace with assert?
+        if ( multi_count < 1 )
+            return false;
+
+        if ( sid.segment_index != 0 && sid.segment_index + 2 != geometry::num_points(geometry) )
+            return false;
+
+        if ( ! is_filled )
+        {
+            //boundary_points.clear();
+            boundary_points.reserve(multi_count * 2);
+
+            typedef typename boost::range_iterator<Geometry const>::type multi_iterator;
+            for ( multi_iterator it = boost::begin(geometry) ;
+                  it != boost::end(geometry) ; ++ it )
+            {
+                // point - no boundary
+                if ( boost::size(*it) < 2 )
+                    continue;
+
+                // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
+
+                boundary_points.push_back(range::front(geometry));
+                boundary_points.push_back(range::back(geometry));
+            }
+
+            std::sort(boundary_points.begin(), boundary_points.end(), geometry::less<point_type>());
+
+            is_filled = true;
+        }
+
+        std::size_t equal_points_count
+            = boost::size(
+                std::equal_range(boundary_points.begin(),
+                                 boundary_points.end(),
+                                 geometry::less<point_type>())
+            );
+
+        return equal_points_count % 2 != 0 && equal_points_count > 0; // the number is odd and > 0
+                
+    }
+
+private:
+    bool is_filled;
+    // TODO: store references/pointers instead of points?
+    std::vector<point_type> boundary_points;
+    Geometry const& geometry;
+};
 
 // currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
@@ -86,11 +191,10 @@ struct linear_linear
         if ( dimension < 10 )
             res.template set<exterior, exterior, '0' + dimension>();
 
-        // TODO: implement generic function working also for multilinestrings, also use it in point_in_geometry
-        bool has_boundary1 = ! detail::equals::equals_point_point(range::front(geometry1), range::back(geometry1));
-        bool has_boundary2 = ! detail::equals::equals_point_point(range::front(geometry2), range::back(geometry2));
-
-        handle_boundaries(res, geometry1, geometry2, has_boundary1, has_boundary2);
+        // TEMP
+        //bool has_boundary1 = ! detail::equals::equals_point_point(range::front(geometry1), range::back(geometry1));
+        //bool has_boundary2 = ! detail::equals::equals_point_point(range::front(geometry2), range::back(geometry2));
+        //handle_boundaries(res, geometry1, geometry2, has_boundary1, has_boundary2);
 
         // get and analyse turns
 
@@ -103,19 +207,27 @@ struct linear_linear
             return res;
         }
 
+        boundary_checker<Geometry1> boundary_checker1(geometry1);
+        boundary_checker<Geometry2> boundary_checker2(geometry2);
+
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
         std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,1,2,4,3,0,0>());
 
-        analyse_turns<0, 1>(res, turns.begin(), turns.end(), geometry1, geometry2, has_boundary1, has_boundary2);
+        analyse_turns<0, 1>(res, turns.begin(), turns.end(),
+                            geometry1, geometry2,
+                            boundary_checker1, boundary_checker2);
 
         std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,1,2,4,3,0,1>());
 
-        analyse_turns<1, 0>(res, turns.begin(), turns.end(), geometry2, geometry1, has_boundary2, has_boundary1);
+        analyse_turns<1, 0>(res, turns.begin(), turns.end(),
+                            geometry2, geometry1,
+                            boundary_checker2, boundary_checker1);
 
         return res;
     }
 
+    // TODO: rename to point_id_ref?
     template <typename Point>
     class point_identifier
     {
@@ -154,140 +266,291 @@ struct linear_linear
             : sid_ptr(boost::addressof(sid))
         {}
 
-        template <typename Point>
-        bool operator()(point_identifier<Point> const& pid)
+        bool operator()(segment_identifier const& sid) const
         {
-            return pid.seg_id().multi_index == sid_ptr->multi_index
-                && pid.seg_id().ring_index == sid_ptr->ring_index;                
+            return sid.multi_index == sid_ptr->multi_index
+                && sid.ring_index == sid_ptr->ring_index;                
         }
+
+        template <typename Point>
+        bool operator()(point_identifier<Point> const& pid) const
+        {
+            return operator()(pid.seg_id());
+        }
+
     private:
         const segment_identifier * sid_ptr;
     };
+
+    class segment_watcher
+    {
+    public:
+        segment_watcher()
+            : m_seg_id_ptr(0)
+        {}
+
+        bool update(segment_identifier const& seg_id)
+        {
+            bool result = m_seg_id_ptr == 0 || !same_ranges(*m_seg_id_ptr)(seg_id);
+            m_seg_id_ptr = boost::addressof(seg_id);
+            return result;
+        }
+
+    private:
+        const segment_identifier * m_seg_id_ptr;
+    };
+
+    template <typename Point>
+    class exit_watcher
+    {
+        typedef point_identifier<Point> point_identifier;
+
+    public:
+        exit_watcher()
+            : exit_detected(false)
+        {}
+
+        // returns true if before the call we were outside
+        bool enter(Point const& point, segment_identifier const& other_id)
+        {
+            bool result = other_entry_points.empty();
+            other_entry_points.push_back(point_identifier(other_id, point));
+            return result;
+        }
+
+        // returns true if before the call we were outside
+        bool exit(Point const& point,
+                  segment_identifier const& other_id,
+                  bool is_last_point)
+        {
+            // if we didn't entered anything in the past, we're outside
+            if ( other_entry_points.empty() )
+                return true;
+
+            typedef typename std::vector<point_identifier>::iterator point_iterator;
+            // search for the entry point in the same range of other geometry
+            point_iterator entry_it = std::find_if(other_entry_points.begin(),
+                                                   other_entry_points.end(),
+                                                   same_ranges(other_id));
+
+            // this end point has corresponding entry point
+            if ( entry_it != other_entry_points.end() )
+            {
+                if ( ! is_last_point )
+                {
+                    // here we know that we possibly left LS
+                    // we must still check if we didn't get back on the same point
+                    exit_detected = true;
+                    exit_id = point_identifier(other_id, point);
+                }                
+
+                // erase the corresponding entry point
+                other_entry_points.erase(entry_it);
+            }
+
+            return false;
+        }
+
+        bool is_exit_detected() const
+        {
+            return exit_detected;
+        }
+
+        Point const& get_exit_point() const
+        {
+            BOOST_ASSERT(exit_detected);
+            return exit_id.point();
+        }
+
+        overlay::operation_type get_exit_operation() const
+        {
+            BOOST_ASSERT(exit_detected);
+            return exit_operation;
+        }
+
+        void reset_detected_exit()
+        {
+            exit_detected = false;
+        }
+
+    private:
+        bool exit_detected;
+        point_identifier exit_id;
+        std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
+   };
 
     template <std::size_t OpId,
               std::size_t OtherOpId,
               typename TurnIt,
               typename Geometry,
-              typename OtherGeometry>
+              typename OtherGeometry,
+              typename BoundaryChecker,
+              typename OtherBoundaryChecker>
     static inline void analyse_turns(result & res,
                                      TurnIt first, TurnIt last,
                                      Geometry const& geometry,
                                      OtherGeometry const& other_geometry,
-                                     bool has_boundary,
-                                     bool other_has_boundary)
+                                     BoundaryChecker boundary_checker,
+                                     OtherBoundaryChecker other_boundary_checker)
     {
-        // should be the same as the one stored in Turn
+        // point_type should be the same as the one stored in Turn
         typedef typename point_type<Geometry1>::type point_type;
-        typedef point_identifier<point_type> point_identifier;
         static const bool reverse_result = OpId != 0;
 
         if ( first == last )
             return;
 
-        typedef typename std::vector<point_identifier>::iterator point_iterator;
-        std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
-        
-        bool possible_exit_detected = false;
-        point_identifier possible_exit_point;
+        exit_watcher<point_type> exit_watcher;
+        segment_watcher seg_watcher;
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
             overlay::operation_type op = it->operations[OpId].operation;
-            
+            segment_identifier const& seg_id = it->operations[OpId].seg_id;
+            segment_identifier const& other_id = it->operations[OtherOpId].seg_id;
+
+            bool first_in_range = seg_watcher.update(seg_id);
+            bool fake_enter_detected = false;
+
             // handle possible exit
-            if ( possible_exit_detected && 
+            if ( exit_watcher.is_exit_detected() && 
                  ( op == overlay::operation_union || op == overlay::operation_intersection
                 || op == overlay::operation_continue || op == overlay::operation_blocked ) )
             {
                 // real exit point - may be multiple
                 // we know that we entered and now we exit
-                if ( !detail::equals::equals_point_point(it->point, possible_exit_point.point()) )
+                if ( !detail::equals::equals_point_point(it->point, exit_watcher.get_exit_point()) )
                 {
-                    possible_exit_detected = false;
+                    exit_watcher.reset_detected_exit();
                     
                     // not the last IP
                     update_result<interior, exterior, '1', reverse_result>(res);
                 }
                 // fake exit point, reset state
                 // in reality this will be op == overlay::operation_intersection
-                else if ( op != overlay::operation_union )
+                else if ( op == overlay::operation_intersection )
                 {
-                    possible_exit_detected = false;
+                    exit_watcher.reset_detected_exit();
+                    fake_enter_detected = true;
                 }
             }
 
+            // i/i, i/x, i/u
             if ( op == overlay::operation_intersection )
             {
-                // here we know that we entered the range
-                other_entry_points.push_back(point_identifier(it->operations[OpId].other_id, it->point));
+                bool was_outside = exit_watcher.enter(it->point, other_id);
 
+                // interiors overlaps
                 update_result<interior, interior, '1', reverse_result>(res);
-                // if the first point of P and/or Q is boundary then also
-                //update_result<boundary, interior, '0', reverse_result>(res);
-                // or
-                //update_result<boundary, boundary, '0', reverse_result>(res);
-            }
-            else if ( op == overlay::operation_blocked
-                   || op == overlay::operation_union )
-            {
-                if ( !other_entry_points.empty() )
+                
+                // going inside on boundary point
+                if ( boundary_checker.is_boundary(it->point, seg_id) )
                 {
-                    segment_identifier const& other_id = it->operations[OpId].other_id;
-                    point_iterator entry_it = std::find_if(other_entry_points.begin(),
-                                                           other_entry_points.end(),
-                                                           same_ranges(other_id));
-                    if ( entry_it != other_entry_points.end() )
+                    // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
+                    if ( other_boundary_checker.is_boundary(it->point, other_id) )
                     {
-                        if ( op == overlay::operation_union )
-                        {
-                            // here we know that we possibly left LS
-                            // we must still check if we didn't get back on the same point
-                            possible_exit_detected = true;
-                            possible_exit_point = point_identifier(other_id, it->point);
-                        }
-                        else // op == overlay::operation_blocked
-                        {
-                            // here we know that we're on the last point of the range
-
-                            // depending on the other operation
-                            //update_result<boundary, interior, '0', reverse_result>(res);
-                            // or
-                            //update_result<boundary, boundary, '0', reverse_result>(res);
-                        }
-
-                        // erase the corresponding entry point,
-                        // don't postpone the erasure decision because
-                        // there may be multiple exit IPs on the same point
-                        // and we'd be forced to store them all just like the entry points
-                        other_entry_points.erase(entry_it);
+                        update_result<boundary, boundary, '0', reverse_result>(res);
+                    }
+                    else
+                    {
+                        update_result<boundary, interior, '0', reverse_result>(res);
                     }
                 }
+                // going inside on non-boundary point
+                else
+                {
+                    // if we didn't enter in the past, we were outside
+                    if ( was_outside && !fake_enter_detected )
+                    {
+                        update_result<interior, exterior, '1', reverse_result>(res);
+
+                        if ( first_in_range )
+                            update_result<boundary, exterior, '0', reverse_result>(res);
+                    }
+                }
+            }
+            // u/i, u/u, u/x, x/i, x/u, x/x
+            else if ( op == overlay::operation_union || op == overlay::operation_blocked )
+            {
+                bool is_last_point = op == overlay::operation_blocked;
+                bool was_outside = exit_watcher.exit(it->point, other_id, is_last_point);
+
+                // we're inside, possibly going out right now
+                if ( ! was_outside )
+                {
+                    if ( is_last_point )
+                    {
+                        // check if this is indeed the boundary point
+// TODO: For Linestring it's enough to check has_boundary
+// because we know that this is the last point of the range
+                        if ( boundary_checker.is_boundary(it->point, seg_id) )
+                        {
+                            // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
+                            if ( other_boundary_checker.is_boundary(it->point, other_id) )
+                            {
+                                update_result<boundary, boundary, '0', reverse_result>(res);
+                            }
+                            else
+                            {
+                                update_result<boundary, interior, '0', reverse_result>(res);
+                            }
+                        }
+                    }
+                }
+                // we're outside
                 else
                 {
                     update_result<interior, exterior, '1', reverse_result>(res);
 
+                    // boundaries don't overlap - just an optimization
                     if ( it->method == overlay::method_crosses )
+                    {
                         update_result<interior, interior, '0', reverse_result>(res);
 
-                    // or depending on the IP
-                    //update_result<boundary, interior, '0', reverse_result>(res);
-                    // or
-                    //update_result<boundary, boundary, '0', reverse_result>(res);
+                        if ( first_in_range )
+                            update_result<boundary, exterior, '0', reverse_result>(res);
+                    }
+                    else
+                    {
+                        // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
+                        if ( boundary_checker.is_boundary(it->point, seg_id) )
+                        {
+                            // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
+                            if ( other_boundary_checker.is_boundary(it->point, other_id) )
+                                update_result<boundary, boundary, '0', reverse_result>(res);
+                            else
+                                update_result<boundary, interior, '0', reverse_result>(res);
+                        }
+                        // boundaries don't overlap
+                        else
+                        {
+                            update_result<interior, interior, '0', reverse_result>(res);
+
+                            if ( first_in_range )
+                                update_result<boundary, exterior, '0', reverse_result>(res);
+                        }
+                    }
+
+// TODO: if this IP is not on the last point then also B/E should be updated:
+// update_result<boundary, exterior, '0', reverse_result>(res);
+
                 }
             }
             else if ( op == overlay::operation_continue )
             {
-                update_result<interior, interior, '1', reverse_result>(res);
+                //update_result<interior, interior, '1', reverse_result>(res);
             }
         }
 
         // here, the possible exit is the real one
         // we know that we entered and now we exit
-        if ( possible_exit_detected )
+        if ( exit_watcher.is_exit_detected() )
         {
             update_result<interior, exterior, '1', reverse_result>(res);
-            // if has boundary on the last point of the current range
-            //update_result<boundary, exterior, '0', reverse_result>(res);
+
+// TODO: check if the last point is indeed the boundary
+// For LS it's sufficient to check has_boundary
+            update_result<boundary, exterior, '0', reverse_result>(res);
         }
     }
     
