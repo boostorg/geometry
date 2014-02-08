@@ -409,7 +409,7 @@ struct linear_linear
             segment_identifier const& seg_id = it->operations[OpId].seg_id;
             segment_identifier const& other_id = it->operations[OtherOpId].seg_id;
 
-            bool first_in_range = seg_watcher.update(seg_id);
+            bool first_in_range = seg_watcher.update(seg_id); // TODO: could be calculated only for i and u
             bool fake_enter_detected = false;
 
             // handle possible exit
@@ -520,6 +520,13 @@ struct linear_linear
                                 update_result<boundary, boundary, '0', reverse_result>(res);
                             else
                                 update_result<boundary, interior, '0', reverse_result>(res);
+
+                            // first IP on the last segment point - this means that the first point is outside
+                            if ( first_in_range && is_last_point )
+                                update_result<boundary, exterior, '0', reverse_result>(res);
+
+                            // TODO symetric case
+                            // last IP and the first segment point -> last IP and op == union
                         }
                         // boundaries don't overlap
                         else
@@ -530,10 +537,6 @@ struct linear_linear
                                 update_result<boundary, exterior, '0', reverse_result>(res);
                         }
                     }
-
-// TODO: if this IP is not on the last point then also B/E should be updated:
-// update_result<boundary, exterior, '0', reverse_result>(res);
-
                 }
             }
             else if ( op == overlay::operation_continue )
