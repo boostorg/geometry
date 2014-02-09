@@ -37,25 +37,30 @@ struct no_rescale_policy
 } // namespace detail
 
 
-// By default, the robust type is the point type itself.
-// A policy can specialize this.
+// Meta-function to define a robust point type
 template <typename Point, typename Policy>
-struct robust_point_type
+struct robust_point_type {};
+
+// Meta-function to access segment-ratio
+template <typename Point, typename Policy>
+struct segment_ratio_type {};
+
+
+// For no-rescaling
+template <typename Point>
+struct robust_point_type<Point, detail::no_rescale_policy>
 {
     typedef Point type;
 };
 
-// Meta-function to access segment-ratio
-// By default, the segment ratio is derived from corresponding point-type
-// A policy can specialize this.
-template <typename Point, typename Policy>
-struct segment_ratio_type
+// Implementation for no-rescaling (using coordinate itself)
+template <typename Point>
+struct segment_ratio_type<Point, detail::no_rescale_policy>
 {
-//    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-//    typedef segment_ratio<coordinate_type> type;
-    typedef segment_ratio<boost::long_long_type> type;
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    typedef segment_ratio<coordinate_type> type;
+//    typedef segment_ratio<boost::long_long_type> type;
 };
-
 
 
 #endif

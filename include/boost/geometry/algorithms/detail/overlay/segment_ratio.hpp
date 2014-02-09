@@ -100,6 +100,11 @@ template <typename Type>
 class segment_ratio
 {
 public :
+    typedef Type numeric_type;
+
+    // Type-alias for the type itself
+    typedef segment_ratio<Type> thistype;
+
     inline segment_ratio()
         : m_numerator(0)
         , m_denominator(1)
@@ -166,33 +171,33 @@ public :
         return m_numerator > m_denominator;
     }
 
-    inline bool close_to(segment_ratio<Type> const& other) const
+    inline bool close_to(thistype const& other) const
     {
         return geometry::math::abs(m_approximation - other.m_approximation) < 2;
     }
 
-    inline bool operator< (segment_ratio<Type> const& other) const
+    inline bool operator< (thistype const& other) const
     {
         return close_to(other)
             ? detail::segment_ratio::less<Type>::apply(*this, other)
             : m_approximation < other.m_approximation;
     }
 
-    inline bool operator== (segment_ratio<Type> const& other) const
+    inline bool operator== (thistype const& other) const
     {
         return close_to(other)
             && detail::segment_ratio::equal<Type>::apply(*this, other);
     }
 
-    static inline segment_ratio<Type> zero()
+    static inline thistype zero()
     {
-        static segment_ratio<Type> result(0, 1);
+        static thistype result(0, 1);
         return result;
     }
 
-    static inline segment_ratio<Type> one()
+    static inline thistype one()
     {
-        static segment_ratio<Type> result(1, 1);
+        static thistype result(1, 1);
         return result;
     }
 
