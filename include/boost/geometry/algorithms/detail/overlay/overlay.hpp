@@ -27,7 +27,6 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -38,6 +37,8 @@
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>

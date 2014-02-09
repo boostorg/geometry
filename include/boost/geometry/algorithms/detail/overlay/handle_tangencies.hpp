@@ -14,10 +14,10 @@
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
-#endif
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>

@@ -33,9 +33,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
-#include <boost/geometry/util/for_each_coordinate.hpp>
-
-
 namespace boost { namespace geometry
 {
 

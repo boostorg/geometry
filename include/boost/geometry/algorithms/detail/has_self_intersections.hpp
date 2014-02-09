@@ -16,8 +16,8 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 

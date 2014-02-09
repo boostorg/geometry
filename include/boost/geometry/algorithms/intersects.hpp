@@ -19,9 +19,9 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 
 namespace boost { namespace geometry

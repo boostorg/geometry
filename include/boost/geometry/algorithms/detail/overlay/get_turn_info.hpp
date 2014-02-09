@@ -16,7 +16,6 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>

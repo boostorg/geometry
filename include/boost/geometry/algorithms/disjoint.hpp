@@ -39,7 +39,8 @@
 #include <boost/geometry/algorithms/point_on_surface.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 

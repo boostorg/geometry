@@ -21,6 +21,7 @@
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -33,8 +34,8 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 // TODO move to policies folder
-#include <boost/geometry/algorithms/detail/rescale.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/policies/robustness/rescale.hpp>
+
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)

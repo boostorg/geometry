@@ -19,11 +19,12 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 namespace boost { namespace geometry
 {

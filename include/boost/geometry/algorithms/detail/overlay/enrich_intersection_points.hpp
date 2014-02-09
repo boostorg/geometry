@@ -29,7 +29,6 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif

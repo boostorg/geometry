@@ -9,10 +9,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
+#ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP
+#define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP
 
-#include <boost/geometry/algorithms/detail/overlay/segment_ratio.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 namespace boost { namespace geometry
 {
@@ -68,4 +68,4 @@ struct segment_ratio_type<Point, detail::no_rescale_policy>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
+#endif // BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP

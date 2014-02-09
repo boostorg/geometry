@@ -28,7 +28,8 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+#include <boost/geometry/policies/robustness/rescale.hpp>
 
 #include <boost/geometry/views/segment_view.hpp>
 
