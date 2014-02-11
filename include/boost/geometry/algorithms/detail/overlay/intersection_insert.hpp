@@ -2,9 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
@@ -31,6 +36,9 @@
 #include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/views/segment_view.hpp>
+
+#include <boost/geometry/algorithms/detail/difference/linear_linear.hpp>
+
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
 #include <boost/foreach.hpp>
@@ -503,6 +511,44 @@ struct intersection_insert_reversed
             >::apply(g2, g1, out, strategy);
     }
 };
+
+
+template
+<
+    typename LineString1, typename LineString2,
+    typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        LineString1, LineString2,
+        LineStringOut,
+        overlay_difference,
+        Reverse1, Reverse2, ReverseOut,
+        linestring_tag, linestring_tag, linestring_tag,
+        false, false, false
+    > : detail::difference::linestring_linestring_linestring<LineStringOut>
+{};
+
+
+template
+<
+    typename MultiLineString1, typename MultiLineString2,
+    typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiLineString1, MultiLineString2,
+        LineStringOut,
+        overlay_difference,
+        Reverse1, Reverse2, ReverseOut,
+        multi_linestring_tag, multi_linestring_tag, linestring_tag,
+        false, false, false
+    > : detail::difference::multilinestring_multilinestring_linestring<LineStringOut>
+{};
+
+
 
 
 

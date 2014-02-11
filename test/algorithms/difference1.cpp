@@ -1,3 +1,12 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2014, Oracle and/or its affiliates.
+
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -10,7 +19,7 @@
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include "/home/mkaravel/bg/boost/geometry/mysql/algorithms/difference.hpp"
+#include <boost/geometry/algorithms/difference.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::segment<point_type>                segment_type;

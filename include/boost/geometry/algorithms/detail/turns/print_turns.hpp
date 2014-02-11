@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/foreach.hpp>
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 namespace boost { namespace geometry
 {
