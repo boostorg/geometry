@@ -140,6 +140,8 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
 
 //TEST
 //#include <to_svg.hpp>
+//#include <boost/geometry.hpp>
+//#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 template <typename T>
 void test_all()
@@ -186,6 +188,9 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 1,3 5,4 0)", "LINESTRING(3 5,2 1,1 0)", "tix", "ecc", "tui");
     test_geometry<ls, ls>("LINESTRING(1 0,2 1,3 5)", "LINESTRING(0 0,1 0,2 1,3 5,4 0)", "txu", "ecc", "tii");
     test_geometry<ls, ls>("LINESTRING(3 5,2 1,1 0)", "LINESTRING(0 0,1 0,2 1,3 5,4 0)", "tiu", "ecc", "txi");
+
+    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(-1 -1,1 0,10 0,20 -1)", "mii", "txu");
+    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu", "txi"); 
 
     //if ( boost::is_same<T, double>::value )
     //{
