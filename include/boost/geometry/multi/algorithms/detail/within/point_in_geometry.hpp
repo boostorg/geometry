@@ -84,6 +84,8 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
         if ( pip < 0 )
             return -1;
 
+        // TODO: the following isn't needed for covered_by()
+
         unsigned boundaries = pip == 0 ? 1 : 0;
 
         for ( ; it != boost::end(geometry) ; ++it )
