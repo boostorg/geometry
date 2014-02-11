@@ -455,12 +455,13 @@ struct get_turn_info_linear_linear
         bool p0i, p0j, q0i, q0j; // assign false?
         bool p1i, p1j, q1i, q1j; // assign false?
 
+        bool opposite = result.template get<1>().opposite;
+
         {
             int p_how = result.template get<1>().how_a;
             int q_how = result.template get<1>().how_b;
             int p_arrival = result.template get<1>().arrival[0];
             int q_arrival = result.template get<1>().arrival[1];
-            bool opposite = result.template get<1>().opposite;
             bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
             handle_segment(is_p_first, is_p_last, p_how, p_arrival,
@@ -474,7 +475,7 @@ struct get_turn_info_linear_linear
                            pi, pj, pk, qi, qj, qk);
         }
 
-        bool result_ignore_ip = false;
+        bool result_ignore_ip0 = false;
 
         {
             BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
@@ -489,7 +490,7 @@ struct get_turn_info_linear_linear
             bool append0_first = enable_first && (p0_first || q0_first);
             bool append0_last = enable_last && (p0_last || q0_last);
 
-            result_ignore_ip = append0_last;
+            result_ignore_ip0 = append0_last;
 
             if ( append0_first || append0_last )
             {
@@ -512,6 +513,8 @@ struct get_turn_info_linear_linear
             }
         }
 
+        bool result_ignore_ip1 = false;
+
         if ( p_operation1 != ov::operation_none )
         {
             BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
@@ -526,7 +529,7 @@ struct get_turn_info_linear_linear
             bool append1_first = enable_first && (p1_first || q1_first);
             bool append1_last = enable_last && (p1_last || q1_last);
 
-            result_ignore_ip = result_ignore_ip || append1_last;
+            result_ignore_ip1 = append1_last;
 
             if ( append1_first || append1_last )
             {
@@ -551,7 +554,8 @@ struct get_turn_info_linear_linear
             }
         }
 
-        return result_ignore_ip;
+        return ip_count == 1 ? result_ignore_ip0 :
+                               !opposite ? result_ignore_ip1 : result_ignore_ip0;
     }
 
     template<typename Point, typename Point1, typename Point2>
@@ -722,8 +726,8 @@ struct get_turn_info_linear_linear
                     bool opposite = result.template get<1>().opposite;
 
                     TurnInfo tp = tp_model;
-                    side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
-                    equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
+                    side_calculator<Point1, Point2> side_calc(j2, j1, i1, i2, j2, k2);
+                    equal<TurnInfo>::apply(j2, j1, i1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     if ( tp.both(operation_continue) )
@@ -734,8 +738,8 @@ struct get_turn_info_linear_linear
                     else
                     {
                         BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
-                        op1 = operation_blocked;
-                        op2 = operation_union;
+                        //op1 = operation_blocked;
+                        //op2 = operation_union;
                     }
 
                     return true;
