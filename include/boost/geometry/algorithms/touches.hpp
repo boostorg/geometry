@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>

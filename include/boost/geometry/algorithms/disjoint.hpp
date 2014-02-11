@@ -40,8 +40,6 @@
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -49,6 +47,9 @@
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 namespace boost { namespace geometry

@@ -21,7 +21,7 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 namespace boost { namespace geometry

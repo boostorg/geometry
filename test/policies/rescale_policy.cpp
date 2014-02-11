@@ -15,9 +15,6 @@
 #include <iostream>
 #include <string>
 
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/register/linestring.hpp>
-
 #include <boost/foreach.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -25,10 +22,10 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-
 #include <boost/geometry/geometries/geometries.hpp>
-
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -217,7 +214,7 @@ typename bg::default_area_result<Geometry1>::type test_one(std::string const& ca
         std::string const& wkt1, std::string const& wkt2,
         std::size_t expected_count = 0, int expected_point_count = 0,
         double expected_length_or_area = 0,
-        double percentage = 0.01,
+        double percentage = 0.02,
         bool debug = false)
 {
     Geometry1 geometry1;
@@ -284,10 +281,10 @@ int test_main(int, char* [])
 {
 //    test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
-//    test_all<bg::model::d2::point_xy<long double> >();
+    test_all<bg::model::d2::point_xy<long double> >();
 //    test_all<bg::model::d2::point_xy<int> >();
 //    test_all<bg::model::d2::point_xy<short int> >();
-//    test_all<bg::model::d2::point_xy<boost::long_long_type> >();
+    test_all<bg::model::d2::point_xy<boost::long_long_type> >();
 
     return 0;
 }

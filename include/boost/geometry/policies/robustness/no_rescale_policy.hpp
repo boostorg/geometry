@@ -9,24 +9,26 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP
-#define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP
+#ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_NO_RESCALE_POLICY_HPP
+#define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_NO_RESCALE_POLICY_HPP
 
+#include <stddef.h>
+
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-
-// To be removed later, when we will initialize a real policy
 namespace detail
 {
 
+// Probably this will be moved out of namespace detail
 struct no_rescale_policy
 {
-
-    // We don't rescale but return the reference. zero cost.
+    // We don't rescale but return the reference of the input
     template <std::size_t Dimension, typename Value>
     inline Value const& apply(Value const& value) const
     {
@@ -35,37 +37,26 @@ struct no_rescale_policy
 };
 
 } // namespace detail
+#endif
 
 
-// Meta-function to define a robust point type
-template <typename Point, typename Policy>
-struct robust_point_type {};
-
-// Meta-function to access segment-ratio
-template <typename Point, typename Policy>
-struct segment_ratio_type {};
-
-
-// For no-rescaling
+// Implement meta-functions for this policy
 template <typename Point>
 struct robust_point_type<Point, detail::no_rescale_policy>
 {
+    // The point itself
     typedef Point type;
 };
 
-// Implementation for no-rescaling (using coordinate itself)
 template <typename Point>
 struct segment_ratio_type<Point, detail::no_rescale_policy>
 {
+    // The coordinate itself
     typedef typename geometry::coordinate_type<Point>::type coordinate_type;
     typedef segment_ratio<coordinate_type> type;
-//    typedef segment_ratio<boost::long_long_type> type;
 };
 
 
-#endif
-
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_POLICIES_ROBUSTNESS_RESCALE_HPP
+#endif // BOOST_GEOMETRY_POLICIES_ROBUSTNESS_NO_RESCALE_POLICY_HPP

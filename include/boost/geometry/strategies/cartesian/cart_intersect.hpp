@@ -33,9 +33,8 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
-// TODO move to policies folder
-#include <boost/geometry/policies/robustness/rescale.hpp>
-
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)

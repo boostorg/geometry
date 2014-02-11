@@ -15,7 +15,6 @@
 
 #include <cstddef>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
 
 
 namespace boost { namespace geometry

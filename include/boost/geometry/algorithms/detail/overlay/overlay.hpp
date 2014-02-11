@@ -38,7 +38,8 @@
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>

@@ -13,7 +13,7 @@
 
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
 namespace boost { namespace geometry
 {

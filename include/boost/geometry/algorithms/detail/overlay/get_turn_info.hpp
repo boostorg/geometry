@@ -20,6 +20,8 @@
 
 #include <boost/geometry/geometries/segment.hpp>
 
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)

@@ -24,7 +24,9 @@
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
 namespace boost { namespace geometry
 {

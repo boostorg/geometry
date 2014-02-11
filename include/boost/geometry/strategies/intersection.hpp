@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 namespace boost { namespace geometry

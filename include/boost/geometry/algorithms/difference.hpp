@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 namespace boost { namespace geometry
 {

@@ -15,10 +15,9 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
-
 #include <boost/geometry/geometries/segment.hpp>
 
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
 namespace boost { namespace geometry
 {
