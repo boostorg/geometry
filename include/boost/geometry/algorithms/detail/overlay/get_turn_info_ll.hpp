@@ -666,9 +666,9 @@ struct get_turn_info_linear_linear
                                        IntersectionResult const& result,
                                        operation_type & op1, operation_type & op2)
     {
-        if ( first1 || last1 )
+        if ( !first2 && !last2 )
         {
-            if ( !first2 && !last2 )
+            if ( first1 )
             {
                 BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
                 BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
@@ -685,49 +685,64 @@ struct get_turn_info_linear_linear
                     bool opposite = result.template get<1>().opposite;
 
                     TurnInfo tp = tp_model;
-                    if ( first1 )
+                    side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
+                    equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
+                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                    if ( tp.both(operation_continue) )
                     {
-                        side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
-                        equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
-                            tp, result.template get<0>(), result.template get<1>(), side_calc);
-                        if ( tp.both(operation_continue) )
-                        {
-                            op1 = operation_intersection;
-                            op2 = opposite ? operation_union : operation_intersection;
-                        }
-                        else
-                        {
-                            BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
-                            op1 = operation_union;
-                            op2 = operation_union;
-                        }
+                        op1 = operation_intersection;
+                        op2 = opposite ? operation_union : operation_intersection;
                     }
-                    else // last1
+                    else
                     {
-                        side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
-                        equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
-                            tp, result.template get<0>(), result.template get<1>(), side_calc);
-                        if ( tp.both(operation_continue) )
-                        {
-                            op1 = operation_blocked;
-                            op2 = opposite ? operation_intersection : operation_union;
-                        }
-                        else
-                        {
-                            BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
-                            op1 = operation_blocked;
-                            op2 = operation_union;
-                        }
+                        BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                        //op1 = operation_union;
+                        //op2 = operation_union;
                     }
 
                     return true;
                 }
-                else
-                {
-                    // do nothing
-                    // shouldn't be handled this way
-                }
+                // else do nothing - shouldn't be handled this way
             }
+            else if ( last1 )
+            {
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
+
+                if ( ip_j2 )
+                {
+                    // don't output this IP - for the first point of other geometry segment
+                    op1 = operation_none;
+                    op2 = operation_none;
+                    return true;
+                }
+                else if ( ip_i2 )
+                {
+                    bool opposite = result.template get<1>().opposite;
+
+                    TurnInfo tp = tp_model;
+                    side_calculator<Point1, Point2> side_calc(i2, j1, i1, i2, j2, k2);
+                    equal<TurnInfo>::apply(i2, j1, i1, i2, j2, k2,
+                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                    if ( tp.both(operation_continue) )
+                    {
+                        op1 = operation_blocked;
+                        op2 = opposite ? operation_intersection : operation_union;
+                    }
+                    else
+                    {
+                        BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                        op1 = operation_blocked;
+                        op2 = operation_union;
+                    }
+
+                    return true;
+                }
+                // else do nothing - shouldn't be handled this way
+            }
+            // else do nothing - shouldn't be handled this way
         }
 
         return false;
