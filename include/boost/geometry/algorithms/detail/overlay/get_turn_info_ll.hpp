@@ -408,6 +408,152 @@ struct get_turn_info_linear_linear
             op1 = operation_union;
     }
 
+    template<typename Point1,
+             typename Point2,
+             typename TurnInfo,
+             typename IntersectionResult,
+             typename OutputIterator
+    >
+    static inline bool handle_first_last(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                         Point2 const& qi, Point2 const& qj, Point2 const& qk,
+// TODO: should this always be std::size_t or replace with template parameter?
+                                         std::size_t p_segments_count,
+                                         std::size_t q_segments_count,
+                                         TurnInfo const& tp_model,
+                                         IntersectionResult const& result,
+                                         method_type method,
+                                         OutputIterator out,
+                                         bool enable_first = true,
+                                         bool enable_last = true)
+    {
+        namespace ov = overlay;
+
+        //if ( !enable_first && !enable_last )
+        //    return false;
+
+        std::size_t ip_count = result.template get<0>().count;
+        // no intersection points
+        if ( ip_count == 0 )
+            return false;
+
+        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
+        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
+        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
+
+        bool is_p_first = segment_index0 == 0;
+        bool is_q_first = segment_index1 == 0;
+        bool is_p_last = static_cast<std::size_t>(segment_index0) + 1 == p_segments_count;
+        bool is_q_last = static_cast<std::size_t>(segment_index1) + 1 == q_segments_count;
+
+        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
+            return false;
+
+        ov::operation_type p_operation0 = ov::operation_none;
+        ov::operation_type q_operation0 = ov::operation_none;
+        ov::operation_type p_operation1 = ov::operation_none;
+        ov::operation_type q_operation1 = ov::operation_none;
+        bool p0i, p0j, q0i, q0j; // assign false?
+        bool p1i, p1j, q1i, q1j; // assign false?
+
+        {
+            int p_how = result.template get<1>().how_a;
+            int q_how = result.template get<1>().how_b;
+            int p_arrival = result.template get<1>().arrival[0];
+            int q_arrival = result.template get<1>().arrival[1];
+            bool opposite = result.template get<1>().opposite;
+            bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
+
+            handle_segment(is_p_first, is_p_last, p_how, p_arrival,
+                           is_q_first, is_q_last, q_how, q_arrival,
+                           opposite, ip_count, same_dirs,
+                           result.template get<0>().intersections[0],
+                           result.template get<0>().intersections[1],
+                           p_operation0, q_operation0, p_operation1, q_operation1,
+                           p0i, p0j, q0i, q0j,
+                           p1i, p1j, q1i, q1j,
+                           pi, pj, pk, qi, qj, qk);
+        }
+
+        bool result_ignore_ip = false;
+
+        {
+            BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(q0i == equals::equals_point_point(qi, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(p0j == equals::equals_point_point(pj, result.template get<0>().intersections[0]));
+            BOOST_ASSERT(q0j == equals::equals_point_point(qj, result.template get<0>().intersections[0]));
+            // TODO - calculate first/last only if needed
+            bool p0_first = is_p_first && p0i;
+            bool p0_last = is_p_last && p0j;
+            bool q0_first = is_q_first && q0i;
+            bool q0_last = is_q_last && q0j;
+            bool append0_first = enable_first && (p0_first || q0_first);
+            bool append0_last = enable_last && (p0_last || q0_last);
+
+            result_ignore_ip = append0_last;
+
+            if ( append0_first || append0_last )
+            {
+                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[0],
+                                               p0_first, p0_last, q0_first, q0_last, q0i, q0j,
+                                               tp_model, result, p_operation0, q_operation0);
+                if ( !handled )
+                {
+                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
+                                              q0_first, q0_last, p0_first, p0_last, p0i, p0j,
+                                              tp_model, result, q_operation0, p_operation0);
+                }
+
+                method = endpoint_ip_method(p0i, p0j, q0i, q0j);
+
+                if ( p_operation0 != operation_none )
+                    assign(pi, qi, result, result.template get<0>().intersections[0],
+                           method, p_operation0, q_operation0,
+                           tp_model, out);
+            }
+        }
+
+        if ( p_operation1 != ov::operation_none )
+        {
+            BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(q1i == equals::equals_point_point(qi, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(p1j == equals::equals_point_point(pj, result.template get<0>().intersections[1]));
+            BOOST_ASSERT(q1j == equals::equals_point_point(qj, result.template get<0>().intersections[1]));
+            // TODO - calculate first/last only if needed
+            bool p1_first = is_p_first && p1i;
+            bool p1_last = is_p_last && p1j;
+            bool q1_first = is_q_first && q1i;
+            bool q1_last = is_q_last && q1j;
+            bool append1_first = enable_first && (p1_first || q1_first);
+            bool append1_last = enable_last && (p1_last || q1_last);
+
+            result_ignore_ip = result_ignore_ip || append1_last;
+
+            if ( append1_first || append1_last )
+            {
+                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[1],
+                                               p1_first, p1_last, q1_first, q1_last, q1i, q1j,
+                                               tp_model, result, p_operation1, q_operation1);
+                if ( !handled )
+                {
+                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
+                                              q1_first, q1_last, p1_first, p1_last, p1i, p1j,
+                                              tp_model, result, q_operation1, p_operation1);
+                }
+
+                if ( p_operation1 != operation_none )
+                {
+                    method = endpoint_ip_method(p1i, p1j, q1i, q1j);
+
+                    assign(pi, qi, result, result.template get<0>().intersections[1],
+                           method, p_operation1, q_operation1,
+                           tp_model, out);
+                }
+            }
+        }
+
+        return result_ignore_ip;
+    }
+
     template<typename Point, typename Point1, typename Point2>
     static inline
     void handle_segment(bool /*first_a*/, bool last_a, int how_a, int arrival_a,
@@ -585,152 +731,6 @@ struct get_turn_info_linear_linear
         }
 
         return false;
-    }
-
-    template<typename Point1,
-             typename Point2,
-             typename TurnInfo,
-             typename IntersectionResult,
-             typename OutputIterator
-    >
-    static inline bool handle_first_last(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                                         Point2 const& qi, Point2 const& qj, Point2 const& qk,
-// TODO: should this always be std::size_t or replace with template parameter?
-                                         std::size_t p_segments_count,
-                                         std::size_t q_segments_count,
-                                         TurnInfo const& tp_model,
-                                         IntersectionResult const& result,
-                                         method_type method,
-                                         OutputIterator out,
-                                         bool enable_first = true,
-                                         bool enable_last = true)
-    {
-        namespace ov = overlay;
-
-        //if ( !enable_first && !enable_last )
-        //    return false;
-
-        std::size_t ip_count = result.template get<0>().count;
-        // no intersection points
-        if ( ip_count == 0 )
-            return false;
-
-        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
-        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
-        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
-
-        bool is_p_first = segment_index0 == 0;
-        bool is_q_first = segment_index1 == 0;
-        bool is_p_last = static_cast<std::size_t>(segment_index0) + 1 == p_segments_count;
-        bool is_q_last = static_cast<std::size_t>(segment_index1) + 1 == q_segments_count;
-
-        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
-            return false;
-
-        ov::operation_type p_operation0 = ov::operation_none;
-        ov::operation_type q_operation0 = ov::operation_none;
-        ov::operation_type p_operation1 = ov::operation_none;
-        ov::operation_type q_operation1 = ov::operation_none;
-        bool p0i, p0j, q0i, q0j; // assign false?
-        bool p1i, p1j, q1i, q1j; // assign false?
-
-        {
-            int p_how = result.template get<1>().how_a;
-            int q_how = result.template get<1>().how_b;
-            int p_arrival = result.template get<1>().arrival[0];
-            int q_arrival = result.template get<1>().arrival[1];
-            bool opposite = result.template get<1>().opposite;
-            bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
-
-            handle_segment(is_p_first, is_p_last, p_how, p_arrival,
-                           is_q_first, is_q_last, q_how, q_arrival,
-                           opposite, ip_count, same_dirs,
-                           result.template get<0>().intersections[0],
-                           result.template get<0>().intersections[1],
-                           p_operation0, q_operation0, p_operation1, q_operation1,
-                           p0i, p0j, q0i, q0j,
-                           p1i, p1j, q1i, q1j,
-                           pi, pj, pk, qi, qj, qk);
-        }
-
-        bool result_ignore_ip = false;
-
-        {
-            BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(q0i == equals::equals_point_point(qi, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(p0j == equals::equals_point_point(pj, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(q0j == equals::equals_point_point(qj, result.template get<0>().intersections[0]));
-            // TODO - calculate first/last only if needed
-            bool p0_first = is_p_first && p0i;
-            bool p0_last = is_p_last && p0j;
-            bool q0_first = is_q_first && q0i;
-            bool q0_last = is_q_last && q0j;
-            bool append0_first = enable_first && (p0_first || q0_first);
-            bool append0_last = enable_last && (p0_last || q0_last);
-
-            result_ignore_ip = append0_last;
-
-            if ( append0_first || append0_last )
-            {
-                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[0],
-                                               p0_first, p0_last, q0_first, q0_last, q0i, q0j,
-                                               tp_model, result, p_operation0, q_operation0);
-                if ( !handled )
-                {
-                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
-                                              q0_first, q0_last, p0_first, p0_last, p0i, p0j,
-                                              tp_model, result, q_operation0, p_operation0);
-                }
-
-                method = endpoint_ip_method(p0i, p0j, q0i, q0j);
-
-                if ( p_operation0 != operation_none )
-                    assign(pi, qi, result, result.template get<0>().intersections[0],
-                           method, p_operation0, q_operation0,
-                           tp_model, out);
-            }
-        }
-
-        if ( p_operation1 != ov::operation_none )
-        {
-            BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(q1i == equals::equals_point_point(qi, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(p1j == equals::equals_point_point(pj, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(q1j == equals::equals_point_point(qj, result.template get<0>().intersections[1]));
-            // TODO - calculate first/last only if needed
-            bool p1_first = is_p_first && p1i;
-            bool p1_last = is_p_last && p1j;
-            bool q1_first = is_q_first && q1i;
-            bool q1_last = is_q_last && q1j;
-            bool append1_first = enable_first && (p1_first || q1_first);
-            bool append1_last = enable_last && (p1_last || q1_last);
-
-            result_ignore_ip = result_ignore_ip || append1_last;
-
-            if ( append1_first || append1_last )
-            {
-                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[1],
-                                               p1_first, p1_last, q1_first, q1_last, q1i, q1j,
-                                               tp_model, result, p_operation1, q_operation1);
-                if ( !handled )
-                {
-                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
-                                              q1_first, q1_last, p1_first, p1_last, p1i, p1j,
-                                              tp_model, result, q_operation1, p_operation1);
-                }
-
-                if ( p_operation1 != operation_none )
-                {
-                    method = endpoint_ip_method(p1i, p1j, q1i, q1j);
-
-                    assign(pi, qi, result, result.template get<0>().intersections[1],
-                           method, p_operation1, q_operation1,
-                           tp_model, out);
-                }
-            }
-        }
-
-        return result_ignore_ip;
     }
 
     static inline method_type endpoint_ip_method(bool ip_pi, bool ip_pj, bool ip_qi, bool ip_qj)

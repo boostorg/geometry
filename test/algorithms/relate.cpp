@@ -136,7 +136,7 @@ void test_linestring_linestring()
                           "LINESTRING(0 5,5 5,5 10,10 10,10 5,5 5,5 0)", "1FFF0FFF2");
 
     to_svg<ls, ls>("LINESTRING(0 5,5 5,10 5,10 10,5 10,5 5,5 0)", "LINESTRING(0 5,5 5,5 10,10 10,10 5,5 5,5 0)", "relate1.svg");
-    
+
     // TEST ERROR - wrong result
 //    test_geometry<ls, ls>("LINESTRING(0 5,5 5,10 5,10 10,5 10,5 5,5 0)",
 //                          "LINESTRING(0 5,5 5,0 10,10 10,10 5,5 5,5 0)", "1FFF0FFF2");
