@@ -186,6 +186,9 @@ struct test_difference_base_test
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "difference : " << bg::wkt(mls_output) << std::endl;
         std::cout << std::endl;
+        std::cout << "************************************" << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
 #endif
     }
 };

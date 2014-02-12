@@ -44,7 +44,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
     typedef linestring_type L;
     typedef multi_linestring_type ML;
 
-#if 0
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0)"),
@@ -116,6 +115,18 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<L>("LINESTRING(2 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
          "lldf01-11");
+
+    test_difference_of_linestrings()
+        (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
+         from_wkt<L>("LINESTRING(3 0,5 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0))"),
+         "lldf01-11a");
+
+    test_difference_of_linestrings()
+        (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
+         from_wkt<L>("LINESTRING(3 0,4 0,5 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0))"),
+         "lldf01-11b");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
@@ -196,7 +207,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(2 0,3 0),\
                       (4 0,5 5,10 5,15 0),(30 0,31 1))"),
          "lldf11");
-#endif
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)"),
@@ -205,7 +215,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
                       (4 0,5 5,10 5,15 0),(30 0,31 0))"),
          "lldf11-1");
 
-#if 0
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
@@ -331,11 +340,24 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<L>("LINESTRING(5 1,5 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "lldf19g-r");
-#endif
+
+    test_difference_of_linestrings()
+        (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
+         from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,35 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,20 0),(25 0,30 0,30 30,10 30),\
+                       (10 0,10 -10,15 0,20 0),(25 0,35 0))"),
+         "lldf20");
+
+    test_difference_of_linestrings()
+        (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
+         from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,15 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,15 0),(30 0,30 30,10 30),\
+                       (10 0,10 -10,15 0))"),
+         "lldf20a");
 }
 
 
-#if 0
+
 BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -548,4 +570,3 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          "mlmldf18a"
          );
 }
-#endif
