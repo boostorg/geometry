@@ -11,6 +11,10 @@
 #include <string>
 #include <iomanip>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
@@ -234,10 +238,12 @@ void test_all()
         1, 5, 1,
         1, 5, 1);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("buffer_mp1",
         buffer_mp1[0], buffer_mp1[1],
         1, 61, 10.2717,
         1, 61, 10.2717);
+#endif
 
     if (boost::is_same<ct, double>::value)
     {
@@ -338,20 +344,24 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
             1, 10, 0.0334529710902111,
             1, 4, 6.22453685816815e-10); // Output should be discarded
+#endif
 
     test_one<polygon, polygon, polygon>("ticket_9081_314",
             ticket_9081_314[0], ticket_9081_314[1],
             2, 12, 0.0451236449624935,
             0, 0, 0);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
             6, 24, 20.096189);
+#endif
 
     // Other combi's
     {
@@ -387,8 +397,6 @@ void test_all()
                 "star_ring_ccw2", example_star, example_ring,
                 5, 22, 1.1901714, 5, 27, 1.6701714);
     }
-
-
 
     // Multi/box (should be moved to multi)
     {

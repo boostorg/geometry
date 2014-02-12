@@ -57,6 +57,9 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
         filename << "difference_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            << "_no_rob"
+#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());

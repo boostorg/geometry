@@ -416,10 +416,14 @@ struct rescale_policy_type
     : public detail::rescale::rescale_policy_type
     <
         Point,
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        false
+#else
         boost::is_floating_point
         <
             typename geometry::coordinate_type<Point>::type
         >::type::value
+#endif
     >
 {
     BOOST_STATIC_ASSERT

@@ -10,6 +10,9 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// This multi_union currently contains no tests for double which then fail
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
 #include <algorithms/test_union.hpp>
 #include <algorithms/test_overlay.hpp>

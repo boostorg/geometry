@@ -15,6 +15,10 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
@@ -191,20 +195,26 @@ void test_areal()
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
         1, 4, 6.6125873045, 0.1);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, 0.01);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
                 1, 4, 3.6334e-08, 0.01);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
                 1, 4, 4.34355e-05, 0.01);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
                 1, 4, 0.0003);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
                 1, 5, 0.3843747);
@@ -217,11 +227,15 @@ void test_areal()
                 ticket_9081_15[0], ticket_9081_15[1],
                 1, 4, 0.0068895780745301394);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 8, 129.90381);
+#endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);

@@ -53,30 +53,31 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
 
-    typedef bg::strategy_intersection
-        <
-            typename bg::cs_tag<point_type>::type,
-            G1,
-            G2,
-            point_type,
-            typename bg::rescale_policy_type<point_type>::type,
-            CalculationType
-        > strategy;
-
-    // Check both normal behaviour, and _inserter behaviour
     if (! debug)
     {
-        std::vector<OutputType> out;
-        bg::intersection(g1, g2, out);
+        // Check _inserter behaviour with stratey
+        typedef bg::strategy_intersection
+            <
+                typename bg::cs_tag<point_type>::type,
+                G1,
+                G2,
+                point_type,
+                typename bg::rescale_policy_type<point_type>::type,
+                CalculationType
+            > strategy;
+        std::vector<OutputType> clip;
+        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
     }
-    std::vector<OutputType> clip;
-    bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+
+    // Check normal behaviour
+    std::vector<OutputType> intersection_output;
+    bg::intersection(g1, g2, intersection_output);
 
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
-    for (typename std::vector<OutputType>::iterator it = clip.begin();
-            it != clip.end();
+    for (typename std::vector<OutputType>::iterator it = intersection_output.begin();
+            it != intersection_output.end();
             ++it)
     {
         if (expected_point_count > 0)
@@ -97,6 +98,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     if (expected_point_count > 0)
     {
         BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
@@ -106,13 +108,14 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
+#endif
 
     if (expected_count > 0)
     {
-        BOOST_CHECK_MESSAGE(clip.size() == expected_count,
+        BOOST_CHECK_MESSAGE(intersection_output.size() == expected_count,
                 "intersection: " << caseid
                 << " #outputs expected: " << expected_count
-                << " detected: " << clip.size()
+                << " detected: " << intersection_output.size()
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
@@ -138,6 +141,9 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            << "_no_rob"
+#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -154,8 +160,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
                     "stroke:rgb(51,51,153);stroke-width:3");
 
-        for (typename std::vector<OutputType>::const_iterator it = clip.begin();
-                it != clip.end(); ++it)
+        for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+                it != intersection_output.end(); ++it)
         {
             mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
                         "stroke:rgb(255,0,255);stroke-width:8");

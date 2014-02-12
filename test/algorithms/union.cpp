@@ -15,6 +15,10 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <algorithms/test_union.hpp>
 #include <algorithms/test_overlay.hpp>
 
@@ -270,17 +274,21 @@ void test_areal()
             ticket_9081_15[0], ticket_9081_15[1],
             1, 0, 7, 0.0403425433);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
             1, 0, 13, 150.0);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
                 1, 0, 265, 19.280667);
 
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
@@ -297,10 +305,12 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
                 1, 0, -1, 16.5711);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
                 1, 0, -1, 19.3995);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
                 1, 0, -1, 19.3995);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
                 1, 0, if_typed_tt<ct>(14, 13), 19.4852);
@@ -317,18 +327,24 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, 18, 18.5710);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, 19, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.07612);
+#endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
                 1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
                 1, 0, if_typed_tt<ct>(16, if_typed<ct, float>(15, 14)), 15.6569);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 0, 217, 36.752837);
@@ -397,7 +413,10 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_all<bg::model::d2::point_xy<float> >();
+#endif
     //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
