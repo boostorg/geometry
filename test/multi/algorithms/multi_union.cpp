@@ -117,6 +117,12 @@ void test_areal()
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
          1, 0, 12, 23.0); // Area from SQL Server
 
+#if 0
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20140212_sybren",
+         ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
+         1, 0, 12, 23.0);
+#endif
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
         3, 0, 31, 0.2187385);
