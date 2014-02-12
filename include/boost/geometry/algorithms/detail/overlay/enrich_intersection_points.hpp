@@ -264,8 +264,7 @@ inline void enrich_sort(Container& operations,
             if (prev_op.seg_id == op.seg_id
                 && (turn_points[prev->index].method != method_crosses
                     || turn_points[it->index].method != method_crosses)
-                && geometry::math::equals(prev_op.enriched.distance,
-                        op.enriched.distance))
+                && prev_op.fraction == op.fraction)
             {
                 if (begin_cluster == boost::end(operations))
                 {

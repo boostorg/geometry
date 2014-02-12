@@ -304,9 +304,9 @@ class follow
 
         inline bool use_distance(Turn const& left, Turn const& right) const
         {
-            return geometry::math::equals(left.operations[0].enriched.distance, right.operations[0].enriched.distance)
+            return left.operations[0].fraction == right.operations[0].fraction
                 ? use_operation(left, right)
-                : left.operations[0].enriched.distance < right.operations[0].enriched.distance
+                : left.operations[0].fraction < right.operations[0].fraction
                 ;
         }
 
