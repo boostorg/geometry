@@ -25,7 +25,7 @@
 #endif
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>
 

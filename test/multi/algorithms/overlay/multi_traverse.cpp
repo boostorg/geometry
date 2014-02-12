@@ -160,7 +160,7 @@ void test_geometries()
         );
     test_traverse_intersection::apply
         (
-            "case_96_multi", 2, 1.0,
+            "case_96_multi", 1, 0.5,
             case_96_multi[0], case_96_multi[1]
         );
     test_traverse_intersection::apply

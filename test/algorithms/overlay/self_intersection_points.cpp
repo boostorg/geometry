@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 //#include <boost/geometry/algorithms/detail/overlay/self_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -50,15 +50,23 @@ static void test_self_intersection_points(std::string const& case_id,
             double precision = 0.001)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::detail::overlay::turn_info<point_type> turn_info;
+    //typedef typename bg::rescale_policy_type<point_type>::type rescale_policy_type;
+    typedef bg::detail::no_rescale_policy rescale_policy_type;
+    typedef bg::detail::overlay::turn_info
+        <
+            point_type,
+            typename bg::segment_ratio_type
+                <
+                    point_type, rescale_policy_type
+                >::type
+        > turn_info;
 
     std::vector<turn_info> turns;
 
-    typedef typename bg::rescale_policy_type<point_type>::type
-        rescale_policy_type;
 
     rescale_policy_type rescale_policy
-            = bg::get_rescale_policy<rescale_policy_type>(geometry);
+    ;
+           // = bg::get_rescale_policy<rescale_policy_type>(geometry);
     ///bg::get_intersection_points(geometry, turns);
 
     bg::detail::self_get_turn_points::no_interrupt_policy policy;
