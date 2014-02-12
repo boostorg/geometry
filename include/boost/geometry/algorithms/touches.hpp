@@ -287,9 +287,12 @@ struct areal_areal
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry1>::type point_type;
         typedef detail::overlay::turn_info
             <
-                typename geometry::point_type<Geometry1>::type
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
             > turn_info;
 
         typedef detail::overlay::get_turn_info
@@ -299,12 +302,13 @@ struct areal_areal
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
+        rescale_policy_type rescale_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+                >(geometry1, geometry2, rescale_policy, turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
@@ -318,24 +322,23 @@ struct linear_areal
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry1>::type point_type;
         typedef detail::overlay::turn_info
             <
-                typename geometry::point_type<Geometry1>::type
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
             > turn_info;
-
-        typedef detail::overlay::get_turn_info
-            <
-                detail::overlay::assign_null_policy
-            > policy_type;
 
         std::deque<turn_info> turns;
         detail::touches::linear_areal_interrupt_policy<Geometry1> policy(geometry1);
+        rescale_policy_type rescale_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+                >(geometry1, geometry2, rescale_policy, turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry2, geometry1);
@@ -364,9 +367,12 @@ struct linestring_linestring
         if ( s1 == 0 || s2 == 0 )
             return false;
 
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry1>::type point_type;
         typedef detail::overlay::turn_info
             <
-                typename geometry::point_type<Geometry1>::type
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
             > turn_info;
 
         typedef detail::overlay::get_turn_info
@@ -376,12 +382,13 @@ struct linestring_linestring
 
         std::deque<turn_info> turns;
         turns_count_interrupt_policy<2> policy;
+        rescale_policy_type rescale_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+                >(geometry1, geometry2, rescale_policy, turns, policy);
 
         if ( 2 < policy.turns_count )
             return false;
@@ -586,10 +593,13 @@ struct self_touches
     {
         concept::check<Geometry const>();
 
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry>::type point_type;
         typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry>::type
-        > turn_info;
+            <
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
+            > turn_info;
 
         typedef detail::overlay::get_turn_info
         <
@@ -598,10 +608,11 @@ struct self_touches
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
+        rescale_policy_type rescale_policy;
         detail::self_get_turn_points::get_turns
         <
             policy_type
-        >::apply(geometry, detail::no_rescale_policy(), turns, policy);
+        >::apply(geometry, rescale_policy, turns, policy);
 
         return policy.result();
     }
