@@ -32,8 +32,6 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-typedef boost::geometry::segment_ratio<boost::long_long_type> ratio_type;
-
 
 template <typename IntersectionPoints>
 static int check(IntersectionPoints const& is,
@@ -114,12 +112,12 @@ static void test_segment_intersection(std::string const& case_id,
     BOOST_CHECK_EQUAL(dir.arrival[1], expected_arrival2);
 }
 
-template <typename P>
+template <typename P, typename Pair>
 static void test_segment_ratio(std::string const& case_id,
                 int x1, int y1, int x2, int y2,
                 int x3, int y3, int x4, int y4,
-                ratio_type expected_a1, ratio_type expected_a2,
-                ratio_type expected_b1, ratio_type expected_b2,
+                Pair expected_pair_a1, Pair expected_pair_a2,
+                Pair expected_pair_b1, Pair expected_pair_b2,
                 int exp_ax1, int exp_ay1, int exp_ax2, int exp_ay2)
 
 {
@@ -140,14 +138,11 @@ static void test_segment_ratio(std::string const& case_id,
     typedef bg::detail::no_rescale_policy rescale_policy_type;
     rescale_policy_type rescale_policy;
 
+    typedef typename bg::segment_ratio_type<P, rescale_policy_type>::type ratio_type;
     typedef bg::segment_intersection_points
     <
         P,
-        typename bg::segment_ratio_type
-        <
-            P,
-            rescale_policy_type
-        >::type
+        ratio_type
     > result_type;
 
     // Get the intersection point (or two points)
@@ -156,6 +151,11 @@ static void test_segment_ratio(std::string const& case_id,
         <
             bg::policies::relate::segments_intersection_points<result_type>
         >::apply(s12, s34, rescale_policy, p1, p2, p3, p4);
+
+    ratio_type expected_a1(expected_pair_a1.first, expected_pair_a1.second);
+    ratio_type expected_a2(expected_pair_a2.first, expected_pair_a2.second);
+    ratio_type expected_b1(expected_pair_b1.first, expected_pair_b1.second);
+    ratio_type expected_b2(expected_pair_b2.first, expected_pair_b2.second);
 
     BOOST_CHECK_EQUAL(is.count, 2u);
     BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
@@ -325,8 +325,8 @@ void test_ratios()
     test_segment_ratio<P>("n4",
         2, 0, 7, 0,
         3, 0, 5, 0,
-        ratio_type(1, 5), ratio_type(3, 5), // IP located on 1/5, 3/5 w.r.t A
-        ratio_type(0, 1), ratio_type(1, 1), // IP located on 0, 1 w.r.t. B
+        std::make_pair(1, 5), std::make_pair(3, 5), // IP located on 1/5, 3/5 w.r.t A
+        std::make_pair(0, 1), std::make_pair(1, 1), // IP located on 0, 1 w.r.t. B
         // IP's are ordered as in A (currently)
         3, 0, 5, 0);
 
@@ -335,8 +335,8 @@ void test_ratios()
     test_segment_ratio<P>("o4",
         2, 0, 7, 0,
         5, 0, 3, 0,
-        ratio_type(1, 5), ratio_type(3, 5),
-        ratio_type(1, 1), ratio_type(0, 1),
+        std::make_pair(1, 5), std::make_pair(3, 5),
+        std::make_pair(1, 1), std::make_pair(0, 1),
         3, 0, 5, 0);
 
     //       a2<------------a1
@@ -344,8 +344,8 @@ void test_ratios()
     test_segment_ratio<P>("o4b",
         7, 0, 2, 0,
         5, 0, 3, 0,
-        ratio_type(2, 5), ratio_type(4, 5),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(2, 5), std::make_pair(4, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         5, 0, 3, 0);
 
     //       a2<------------a1
@@ -353,8 +353,8 @@ void test_ratios()
     test_segment_ratio<P>("o4c",
         7, 0, 2, 0,
         3, 0, 5, 0,
-        ratio_type(2, 5), ratio_type(4, 5),
-        ratio_type(1, 1), ratio_type(0, 1),
+        std::make_pair(2, 5), std::make_pair(4, 5),
+        std::make_pair(1, 1), std::make_pair(0, 1),
         5, 0, 3, 0);
 
     // Touch-interior
@@ -363,8 +363,8 @@ void test_ratios()
     test_segment_ratio<P>("n3",
         2, 0, 7, 0,
         2, 0, 4, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         2, 0, 4, 0);
 
     //    a2<-------------a1
@@ -372,8 +372,8 @@ void test_ratios()
     test_segment_ratio<P>("n3b",
         7, 0, 2, 0,
         7, 0, 5, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         7, 0, 5, 0);
 
 
@@ -383,8 +383,8 @@ void test_ratios()
     test_segment_ratio<P>("rn4",
         3, 0, 5, 0,
         2, 0, 7, 0,
-        ratio_type(0, 1), ratio_type(1, 1),
-        ratio_type(1, 5), ratio_type(3, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
+        std::make_pair(1, 5), std::make_pair(3, 5),
         3, 0, 5, 0);
 
     //           a2<---a1
@@ -392,8 +392,8 @@ void test_ratios()
     test_segment_ratio<P>("ro4",
         5, 0, 3, 0,
         2, 0, 7, 0,
-        ratio_type(0, 1), ratio_type(1, 1),
-        ratio_type(3, 5), ratio_type(1, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
+        std::make_pair(3, 5), std::make_pair(1, 5),
         5, 0, 3, 0);
 
     //           a2<---a1
@@ -401,8 +401,8 @@ void test_ratios()
     test_segment_ratio<P>("ro4b",
         5, 0, 3, 0,
         7, 0, 2, 0,
-        ratio_type(0, 1), ratio_type(1, 1),
-        ratio_type(2, 5), ratio_type(4, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
+        std::make_pair(2, 5), std::make_pair(4, 5),
         5, 0, 3, 0);
 
     //          a1--->a2
@@ -410,8 +410,8 @@ void test_ratios()
     test_segment_ratio<P>("ro4c",
         3, 0, 5, 0,
         7, 0, 2, 0,
-        ratio_type(0, 1), ratio_type(1, 1),
-        ratio_type(4, 5), ratio_type(2, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
+        std::make_pair(4, 5), std::make_pair(2, 5),
         3, 0, 5, 0);
 
     // B inside A, boundaries intersect
@@ -421,8 +421,8 @@ void test_ratios()
     test_segment_ratio<P>("n3",
         2, 0, 7, 0,
         2, 0, 4, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         2, 0, 4, 0);
 
     //       a1---------->a2
@@ -430,8 +430,8 @@ void test_ratios()
     test_segment_ratio<P>("o3",
         2, 0, 7, 0,
         4, 0, 2, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(1, 1), ratio_type(0, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(1, 1), std::make_pair(0, 1),
         2, 0, 4, 0);
 
     //       a1---------->a2
@@ -439,8 +439,8 @@ void test_ratios()
     test_segment_ratio<P>("n5",
         2, 0, 7, 0,
         5, 0, 7, 0,
-        ratio_type(3, 5), ratio_type(1, 1),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(3, 5), std::make_pair(1, 1),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         5, 0, 7, 0);
 
     //       a1---------->a2
@@ -448,8 +448,8 @@ void test_ratios()
     test_segment_ratio<P>("o5",
         2, 0, 7, 0,
         7, 0, 5, 0,
-        ratio_type(3, 5), ratio_type(1, 1),
-        ratio_type(1, 1), ratio_type(0, 1),
+        std::make_pair(3, 5), std::make_pair(1, 1),
+        std::make_pair(1, 1), std::make_pair(0, 1),
         5, 0, 7, 0);
 
     // Generic (overlaps)
@@ -458,24 +458,24 @@ void test_ratios()
     test_segment_ratio<P>("n2",
         2, 0, 7, 0,
         1, 0, 4, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(1, 3), ratio_type(1, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(1, 3), std::make_pair(1, 1),
         2, 0, 4, 0);
 
     // Same, b reversed
     test_segment_ratio<P>("n2_b",
         2, 0, 7, 0,
         4, 0, 1, 0,
-        ratio_type(0, 1), ratio_type(2, 5),
-        ratio_type(2, 3), ratio_type(0, 1),
+        std::make_pair(0, 1), std::make_pair(2, 5),
+        std::make_pair(2, 3), std::make_pair(0, 1),
         2, 0, 4, 0);
 
     // Same, both reversed
     test_segment_ratio<P>("n2_c",
         7, 0, 2, 0,
         4, 0, 1, 0,
-        ratio_type(3, 5), ratio_type(1, 1),
-        ratio_type(0, 1), ratio_type(2, 3),
+        std::make_pair(3, 5), std::make_pair(1, 1),
+        std::make_pair(0, 1), std::make_pair(2, 3),
         4, 0, 2, 0);
 
     //       a1---------->a2
@@ -483,16 +483,16 @@ void test_ratios()
     test_segment_ratio<P>("n6",
         2, 0, 6, 0,
         5, 0, 8, 0,
-        ratio_type(3, 4), ratio_type(1, 1),
-        ratio_type(0, 1), ratio_type(1, 3),
+        std::make_pair(3, 4), std::make_pair(1, 1),
+        std::make_pair(0, 1), std::make_pair(1, 3),
         5, 0, 6, 0);
 
     // Vertical one like in box_poly5 but in integer
     test_segment_ratio<P>("box_poly5",
         45, 25, 45, 15,
         45, 22, 45, 19,
-        ratio_type(3, 10), ratio_type(6, 10),
-        ratio_type(0, 1), ratio_type(1, 1),
+        std::make_pair(3, 10), std::make_pair(6, 10),
+        std::make_pair(0, 1), std::make_pair(1, 1),
         45, 22, 45, 19);
 }
 

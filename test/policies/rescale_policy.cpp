@@ -261,30 +261,34 @@ void test_rescale()
 
     std::string suffix = Rescale ? "rescale" : "no_rescale";
 
-    test_one<rescale_policy_type, polygon, polygon, polygon>("simplex_normal_" + suffix,
-        simplex_normal[0], simplex_normal[1],
-        1, 7, 5.47363293);
+    typedef typename bg::coordinate_type<P>::type coordinate_type;
+    if (! boost::is_integral<coordinate_type>::type::value)
+    {
+        test_one<rescale_policy_type, polygon, polygon, polygon>("simplex_normal_" + suffix,
+            simplex_normal[0], simplex_normal[1],
+            1, 7, 5.47363293);
+    }
     test_one<rescale_policy_type, polygon, polygon, polygon>("simplex_large_" + suffix,
         simplex_large[0], simplex_large[1],
         1, 7, 5473632.93);
 }
 
-template <typename P>
+template <typename T>
 void test_all()
 {
-    test_rescale<true, P>();
-    test_rescale<false, P>();
+    typedef bg::model::d2::point_xy<T> point_type;
+    test_rescale<true, point_type>();
+    test_rescale<false, point_type>();
 }
 
 
 int test_main(int, char* [])
 {
-//    test_all<bg::model::d2::point_xy<float> >();
-    test_all<bg::model::d2::point_xy<double> >();
-    test_all<bg::model::d2::point_xy<long double> >();
-//    test_all<bg::model::d2::point_xy<int> >();
-//    test_all<bg::model::d2::point_xy<short int> >();
-    test_all<bg::model::d2::point_xy<boost::long_long_type> >();
+    test_all<double>();
+    test_all<long double>();
+    test_all<int>();
+    test_all<boost::long_long_type>();
+    //    test_all<short int>(); // compiles but overflows
 
     return 0;
 }
