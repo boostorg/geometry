@@ -116,22 +116,26 @@ struct segments_intersection_points
         int index = 0, count_a = 0, count_b = 0;
         Ratio on_a[2];
 
+        // The conditions "index < 2" are necessary for non-robust handling,
+        // if index would be 2 this indicate an (currently uncatched) error
+
         // IMPORTANT: the order of conditions is different as in direction.hpp
-        if (ra_from_wrt_b.on_segment())
+        if (ra_from_wrt_b.on_segment()
+            && index < 2)
         {
             //     a1--------->a2
             // b1----->b2
             //
             // ra1 (relative to b) is between 0/1:
             // -> First point of A is intersection point
-            assert(index < 2);
             detail::assign_point_from_index<0>(a, result.intersections[index]);
             result.fractions[index].assign(Ratio::zero(), ra_from_wrt_b);
             on_a[index] = Ratio::zero();
             index++;
             count_a++;
         }
-        if (rb_from_wrt_a.in_segment())
+        if (rb_from_wrt_a.in_segment()
+            && index < 2)
         {
             // We take the first intersection point of B
             // a1--------->a2
@@ -140,7 +144,6 @@ struct segments_intersection_points
             // a1--------->a2
             // b1----->b2      rb_from_wrt_a == 0/1 -> a already taken
 
-            assert(index < 2);
             detail::assign_point_from_index<0>(b, result.intersections[index]);
             result.fractions[index].assign(rb_from_wrt_a, Ratio::zero());
             on_a[index] = rb_from_wrt_a;
@@ -148,21 +151,21 @@ struct segments_intersection_points
             count_b++;
         }
 
-        if (ra_to_wrt_b.on_segment())
+        if (ra_to_wrt_b.on_segment()
+            && index < 2)
         {
             // Similarly, second IP (here a2)
             // a1--------->a2
             //         b1----->b2
-            assert(index < 2);
             detail::assign_point_from_index<1>(a, result.intersections[index]);
             result.fractions[index].assign(Ratio::one(), ra_to_wrt_b);
             on_a[index] = Ratio::one();
             index++;
             count_a++;
         }
-        if (rb_to_wrt_a.in_segment())
+        if (rb_to_wrt_a.in_segment()
+            && index < 2)
         {
-            assert(index < 2);
             detail::assign_point_from_index<1>(b, result.intersections[index]);
             result.fractions[index].assign(rb_to_wrt_a, Ratio::one());
             on_a[index] = rb_to_wrt_a;

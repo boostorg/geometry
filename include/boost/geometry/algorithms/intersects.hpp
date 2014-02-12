@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 
 namespace boost { namespace geometry

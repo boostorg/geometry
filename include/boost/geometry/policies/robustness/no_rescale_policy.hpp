@@ -14,6 +14,7 @@
 
 #include <stddef.h>
 
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -51,7 +52,8 @@ struct robust_point_type<Point, detail::no_rescale_policy>
 template <typename Point>
 struct segment_ratio_type<Point, detail::no_rescale_policy>
 {
-    // The coordinate itself
+    // Define a segment_ratio defined on coordinate type, e.g.
+    // int/int or float/float
     typedef typename geometry::coordinate_type<Point>::type coordinate_type;
     typedef segment_ratio<coordinate_type> type;
 };

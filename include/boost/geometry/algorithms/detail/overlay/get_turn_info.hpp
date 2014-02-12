@@ -134,10 +134,11 @@ struct base_turn_handler
                 IntersectionInfo const& info, int index)
     {
         ti.method = method;
-        assert(index < info.count);
+        assert(index < info.count); // TODO  remove this
         geometry::convert(info.intersections[index], ti.point);
         ti.operations[0].fraction = info.fractions[index].robust_ra;
         ti.operations[1].fraction = info.fractions[index].robust_rb;
+
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
         ti.operations[0].r = info.fractions[index].ra;
         ti.operations[1].r = info.fractions[index].rb;

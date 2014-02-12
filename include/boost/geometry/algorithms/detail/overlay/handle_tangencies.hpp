@@ -16,7 +16,8 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
-#include <boost/geometry/policies/robustness/rescale.hpp>
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
@@ -70,7 +71,7 @@ private :
     typedef typename geometry::point_type<Geometry1>::type point_type;
 
     typedef model::point
-        <
+    <
             typename geometry::robust_type
                 <
                     typename select_coordinate_type<Geometry1, Geometry2>::type
@@ -114,13 +115,21 @@ private :
 #endif
     }
 
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
+    // This method was still called but did no effect whatsoever on the results,
+    // with or without robustness-rescaling.
+    // Probable cause: we rescale in this file ourselves, ignoring passed policy
+    // TODO: check this more.
+    // Besides this, it currently does not compile for yet unknown reasons
+    // (does not find specialization for segment_ratio_type)
+    // It is currently only called from the Unit Test "multi_intersection.cpp"
+
     // Determine how p/r and p/s are located.
-    template <typename RobustnessPolicy>
-    static inline void overlap_info(RobustnessPolicy const& robust_policy,
+    inline void overlap_info(
         robust_point_type const& pi, robust_point_type const& pj,
         robust_point_type const& ri, robust_point_type const& rj,
         robust_point_type const& si, robust_point_type const& sj,
-        bool& pr_overlap, bool& ps_overlap, bool& rs_overlap)
+        bool& pr_overlap, bool& ps_overlap, bool& rs_overlap) const
     {
         // Determine how p/r and p/s are located.
         // One of them is coming from opposite direction.
@@ -148,15 +157,16 @@ private :
         segment_type s(si, sj);
 
         // Get the intersection point (or two points)
-        intersection_return_type pr = policy::apply(p, r, robust_policy, pi, pj, ri, rj);
-        intersection_return_type ps = policy::apply(p, s, robust_policy, pi, pj, si, sj);
-        intersection_return_type rs = policy::apply(r, s, robust_policy, ri, rj, si, sj);
+        intersection_return_type pr = policy::apply(p, r, m_rescale_policy, pi, pj, ri, rj);
+        intersection_return_type ps = policy::apply(p, s, m_rescale_policy, pi, pj, si, sj);
+        intersection_return_type rs = policy::apply(r, s, m_rescale_policy, ri, rj, si, sj);
 
         // Check on overlap
         pr_overlap = pr.count == 2;
         ps_overlap = ps.count == 2;
         rs_overlap = rs.count == 2;
     }
+#endif
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES
@@ -173,8 +183,10 @@ private :
         robust_point_type pi, pj, ri, rj, si, sj;
         get_situation_map(left, right, pi, pj, ri, rj, si, sj);
 
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
         bool prc = false, psc = false, rsc = false;
-        overlap_info(m_rescale_policy, pi, pj, ri, rj, si, sj, prc, psc, rsc);
+        overlap_info(pi, pj, ri, rj, si, sj, prc, psc, rsc);
+#endif
 
         int const side_ri_p = m_strategy.apply(pi, pj, ri);
         int const side_rj_p = m_strategy.apply(pi, pj, rj);
@@ -200,7 +212,9 @@ private :
                 << " ri//p: " << side_ri_p
                 << " si//p: " << side_si_p
                 << " si//r: " << side_si_r
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
                 << " cnts: " << int(prc) << ","  << int(psc) << "," << int(rsc)
+#endif
                 //<< " idx: " << left.index << "/" << right.index
                 ;
 
@@ -393,9 +407,13 @@ private :
 #endif
         }
 
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
         // We need EXTRA information here: are p/r/s overlapping?
         bool pr_ov = false, ps_ov = false, rs_ov = false;
-        overlap_info(m_rescale_policy, pi, pj, ri, rj, si, sj, pr_ov, ps_ov, rs_ov);
+        overlap_info(pi, pj, ri, rj, si, sj, pr_ov, ps_ov, rs_ov);
+#else
+        // std::cout << "Boost.Geometry: skipping overlap_info" << std::endl;
+#endif
 
         // One coming from right (#83,#90)
         // One coming from left (#90, #94, #95)
@@ -403,12 +421,14 @@ private :
         {
             bool ret = false;
 
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
             if (pr_ov || ps_ov)
             {
                 int r = side_ri_p != 0 ? side_ri_p : side_si_p;
                 ret = r * side_si_r == 1;
             }
             else
+#endif
             {
                 ret = side_si_r == 1;
             }
@@ -425,6 +445,7 @@ private :
             // Take the one NOT overlapping
             bool ret = false;
             bool found = false;
+#if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
             if (pr_ov && ! ps_ov)
             {
                 ret = true;
@@ -435,6 +456,7 @@ private :
                 ret = false;
                 found = true;
             }
+#endif
 
             debug_consider(0, left, right, header, false, "aligned", ret);
             if (found)

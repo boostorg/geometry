@@ -13,6 +13,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 
 namespace boost { namespace geometry

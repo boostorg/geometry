@@ -118,7 +118,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             typename cs_tag<Geometry1>::type,
             Geometry1,
             Geometry2,
-            typename boost::range_value<Turns>::type,
+            typename point_type<Geometry1>::type, // TODO from both
             RescalePolicy
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
