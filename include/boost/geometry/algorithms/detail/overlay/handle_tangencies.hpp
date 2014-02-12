@@ -735,7 +735,7 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
     typedef typename IndexType::type operations_type;
     operations_type const& op = turn_points[begin_cluster->index].operations[begin_cluster->operation_index];
-    std::cout << std::endl << "Clustered points on equal distance " << op.enriched.distance << std::endl;
+    std::cout << std::endl << "Clustered points on equal distance " << op.fraction << std::endl;
 
     std::cout << "->Indexes ";
     for (Iterator it = begin_cluster; it != end_cluster; ++it)

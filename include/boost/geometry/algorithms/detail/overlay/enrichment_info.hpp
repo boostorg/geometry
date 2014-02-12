@@ -48,7 +48,9 @@ struct enrichment_info
         : travels_to_vertex_index(-1)
         , travels_to_ip_index(-1)
         , next_ip_index(-1)
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
         , distance(distance_type())
+#endif
     {}
 
     // vertex to which is free travel after this IP,
@@ -62,7 +64,9 @@ struct enrichment_info
     // index of next IP on this segment, -1 if there is no one
     int next_ip_index;
 
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
     distance_type distance; // distance-measurement from segment.first to IP
+#endif
 };
 
 

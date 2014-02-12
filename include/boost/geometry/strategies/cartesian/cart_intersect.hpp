@@ -238,6 +238,7 @@ struct relate_cartesian_segments
             }
             else
             {
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
                 // TODO: sinfo.r is redundant - will be removed later
                 if (d == 0)
                 {
@@ -250,7 +251,24 @@ struct relate_cartesian_segments
                     sinfo.r = da / d;
                 }
                 // END TODO
+#endif
 
+#ifdef BOOST_GEOMETRY_CHECK_RATIO
+                // TODO remove this
+                if (!boost::is_same
+                        <
+                            robust_coordinate_type,
+                            typename ratio_type::numeric_type
+                        >::type::value)
+                {
+                    std::cout
+                        << typeid(robust_coordinate_type).name()
+                        << " vs " << typeid(typename ratio_type::numeric_type).name()
+                        // << " " << typeid(typename ratio_type::source_type).name()
+                        << std::endl;
+                }
+                // END TODO
+#endif
 
                 sinfo.robust_ra.assign(robust_da, robust_da0);
                 sinfo.robust_rb.assign(robust_db, robust_db0);
@@ -278,9 +296,6 @@ struct relate_cartesian_segments
 
 #endif
 
-                // TODO: remove this call and corresponding function
-                verify_r(sinfo.r);
-                // END TODO
             }
         }
 
@@ -301,38 +316,6 @@ struct relate_cartesian_segments
         }
 
         return Policy::segments_crosses(sides, sinfo, a, b);
-    }
-
-private :
-
-    template <typename T>
-    static inline void verify_r(T& r)
-    // If so (<0 or >1) we might use the robust fraction instead, or use it anyway
-    {
-        T const zero = 0;
-        T const one = 1;
-        if (r < zero || r > one)
-        {
-            // Note that even for ttmath r is occasionally > 1, e.g. 1.0000000000000000000000036191231203575
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-            debug_segments("correcting r", a, b);
-            std::cout << " --> r=" << r;
-            if (r > 1.00000000000001 || r < -0.00000000000001)
-            {
-                std::cout << " !!!";
-            }
-            std::cout << std::endl << std::endl;
-#endif
-
-            if (r > one)
-            {
-                r = one;
-            }
-            else if (r < zero)
-            {
-                r = zero;
-            }
-        }
     }
 
 private:

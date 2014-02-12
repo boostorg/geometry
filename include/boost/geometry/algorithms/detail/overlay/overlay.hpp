@@ -208,7 +208,7 @@ std::cout << "get turns" << std::endl;
         geometry::get_turns
             <
                 Reverse1, Reverse2,
-                detail::overlay::calculate_distance_policy
+                detail::overlay::assign_null_policy
             >(geometry1, geometry2, rescale_policy, turn_points, policy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY

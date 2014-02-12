@@ -156,13 +156,7 @@ public :
         if (sl == sr)
         {
             // Both left and right are located on the SAME segment.
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             if (left.subject.fraction == right.subject.fraction)
-#else
-            typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
-            coordinate_type diff = geometry::math::abs(left.subject.enriched.distance - right.subject.enriched.distance);
-            if (diff < geometry::math::relaxed_epsilon<coordinate_type>(10))
-#endif
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
@@ -371,7 +365,9 @@ inline void enrich_assign(Container& operations,
             std::cout << it->index
                 << " meth: " << method_char(turn_points[it->index].method)
                 << " seg: " << op.seg_id
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
                 << " dst: " << boost::numeric_cast<double>(op.enriched.distance)
+#endif
                 << " op: " << operation_char(turn_points[it->index].operations[0].operation)
                 << operation_char(turn_points[it->index].operations[1].operation)
                 << " dsc: " << (turn_points[it->index].discarded ? "T" : "F")

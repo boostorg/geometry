@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CALCULATE_DISTANCE_POLICY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CALCULATE_DISTANCE_POLICY_HPP
 
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
+
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
@@ -60,5 +62,6 @@ struct calculate_distance_policy
 
 }} // namespace boost::geometry
 
+#endif
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CALCULATE_DISTANCE_POLICY_HPP

@@ -222,8 +222,11 @@ struct segment_intersection_info
 {
     typedef PromotedType promoted_type;
 
-    CoordinateType dx_a, dy_a, dx_b, dy_b; // TODO b can be removed
+    CoordinateType dx_a, dy_a;
+    CoordinateType dx_b, dy_b; // TODO b can be removed
+#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
     PromotedType r; // TODO is probably redundant
+#endif
     SegmentRatio robust_ra;
     SegmentRatio robust_rb;
 

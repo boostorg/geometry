@@ -216,7 +216,7 @@ struct intersection_of_linestring_with_areal
             <
                 false,
                 (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
-                detail::overlay::calculate_distance_policy
+                detail::overlay::assign_null_policy
             >(linestring, areal, rescale_policy, turns, policy);
 
         if (turns.empty())
