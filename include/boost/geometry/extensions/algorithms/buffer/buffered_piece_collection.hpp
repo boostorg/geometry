@@ -158,7 +158,7 @@ public :
 
 
 
-template <typename Ring>
+template <typename Ring, typename RescalePolicy>
 struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type point_type;
@@ -193,19 +193,41 @@ struct buffered_piece_collection
 
     std::map<std::pair<segment_identifier, segment_identifier>, std::set<int> > m_turn_indices_per_segment_pair;
 
+    typedef typename geometry::rescale_policy_type
+        <
+            typename geometry::point_type<Ring>::type
+        >::type rescale_policy_type;
 
-    typedef std::vector<buffer_turn_info<point_type> > turn_vector_type;
+    typedef typename geometry::segment_ratio_type
+    <
+        point_type,
+        RescalePolicy
+    >::type segment_ratio_type;
+
+    typedef buffer_turn_info
+    <
+        point_type,
+        segment_ratio_type
+    > buffer_turn_info_type;
+
+    typedef buffer_turn_operation
+    <
+        point_type,
+        segment_ratio_type
+    > buffer_turn_operation_type;
+
+    typedef std::vector<buffer_turn_info_type> turn_vector_type;
+
     typedef detail::overlay::get_turn_info
         <
             turn_assign_for_buffer
         > turn_policy;
     turn_vector_type m_turns;
 
-    geometry::detail::no_rescale_policy m_rescale_policy;
-
-
     // To check clustered locations we keep track of segments being opposite somewhere
     std::set<segment_identifier> m_in_opposite_segments;
+
+    RescalePolicy const& m_rescale_policy;
 
     struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
     {
@@ -216,10 +238,9 @@ struct buffered_piece_collection
     typedef occupation_map<point_type, buffer_occupation_info> occupation_map_type;
     occupation_map_type m_occupation_map;
 
-
     struct redundant_turn
     {
-        inline bool operator()(buffer_turn_info<point_type> const& turn) const
+        inline bool operator()(buffer_turn_info_type const& turn) const
         {
             // Erase discarded turns (location not OK) and the turns
             // only used to detect oppositeness.
@@ -227,6 +248,10 @@ struct buffered_piece_collection
                 || turn.opposite();
         }
     };
+
+    buffered_piece_collection(RescalePolicy const& rescale_policy)
+        : m_rescale_policy(rescale_policy)
+    {}
 
 
     inline bool is_neighbor(piece const& piece1, piece const& piece2) const
@@ -294,7 +319,7 @@ struct buffered_piece_collection
         iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
         iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
 
-        buffer_turn_info<point_type> the_model;
+        buffer_turn_info_type the_model;
         the_model.operations[0].piece_index = piece1.index;
         the_model.operations[0].seg_id = piece1.first_seg_id;
 
@@ -365,7 +390,7 @@ struct buffered_piece_collection
         return segment_relation_disjoint;
     }
 
-    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation<point_type> const& operation)
+    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation_type const& operation)
     {
         point_type mapped_point;
         buffer_occupation_info& info = m_occupation_map.find_or_insert(point, mapped_point);
@@ -384,7 +409,7 @@ struct buffered_piece_collection
         {
             m_occupation_map.insert_turn_index(turn_index);
 
-            buffer_turn_info<point_type> const& turn = m_turns[turn_index];
+            buffer_turn_info_type const& turn = m_turns[turn_index];
 
 //std::cout << "Adding point " << turn_index << " " << geometry::wkt(turn.point) << std::endl;
 
@@ -395,7 +420,7 @@ struct buffered_piece_collection
 
 
 
-    inline void classify_turn(buffer_turn_info<point_type>& turn, piece const& pc) const
+    inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
     {
         if (pc.type == buffered_flat_end)
         {
@@ -769,7 +794,7 @@ struct buffered_piece_collection
 
     struct cluster_info
     {
-        inline cluster_info(int i, point_type p, buffer_turn_operation<point_type> op)
+        inline cluster_info(int i, point_type p, buffer_turn_operation_type op)
             : turn_index(i)
             , point(p)
             , operation(op)
@@ -781,7 +806,7 @@ struct buffered_piece_collection
 
         int turn_index;
         point_type point;
-        buffer_turn_operation<point_type> operation;
+        buffer_turn_operation_type operation;
     };
 
     struct clustered_info
@@ -891,7 +916,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type> const& turn = *it;
+            buffer_turn_info_type const& turn = *it;
 
             // Take care with all the indices
             map[turn.operations[0].seg_id].piece_index = turn.operations[0].piece_index;
@@ -924,7 +949,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type>& turn = *it;
+            buffer_turn_info_type& turn = *it;
 //std::cout << "Referring to point " << geometry::wkt(turn.point) << std::endl;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
                 || m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
@@ -941,7 +966,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type>& turn = *it;
+            buffer_turn_info_type& turn = *it;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) == 0
                 && m_in_opposite_segments.count(turn.operations[1].seg_id) ==  0)
             {
