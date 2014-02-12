@@ -53,6 +53,8 @@ inline void update_result(result & res)
 
 // boundary_checker
 
+enum boundary_query { boundary_front, boundary_back, boundary_front_explicit, boundary_back_explicit, boundary_any };
+
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
 class boundary_checker {};
@@ -68,7 +70,7 @@ public:
         , geometry(g)
     {}
 
-    // TODO: optimization expect ENTRY or EXIT    
+    template <boundary_query BoundaryQuery>
     bool is_boundary(point_type const& pt, segment_identifier const& sid)
     {
         // TODO: replace with assert?
@@ -77,11 +79,28 @@ public:
 
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
 
-        return has_boundary
-            && ( ( sid.segment_index == 0
-                && detail::equals::equals_point_point(pt, range::front(geometry)) )
-              || ( sid.segment_index + 2 == geometry::num_points(geometry)
-                && detail::equals::equals_point_point(pt, range::back(geometry)) ) );
+        if ( !has_boundary )
+            return false;
+
+        if ( BoundaryQuery == boundary_front_explicit || BoundaryQuery == boundary_back_explicit )
+            return true;
+
+        if ( BoundaryQuery == boundary_front )
+            return sid.segment_index == 0
+                && detail::equals::equals_point_point(pt, range::front(geometry));
+
+        if ( BoundaryQuery == boundary_back )
+            return sid.segment_index + 2 == geometry::num_points(geometry)
+                && detail::equals::equals_point_point(pt, range::back(geometry));
+
+        if ( BoundaryQuery == boundary_any )
+            return sid.segment_index == 0
+                && detail::equals::equals_point_point(pt, range::front(geometry))
+                || sid.segment_index + 2 == geometry::num_points(geometry)
+                && detail::equals::equals_point_point(pt, range::back(geometry));
+
+        BOOST_ASSERT(false);
+        return false;
     }
 
 private:
@@ -99,7 +118,7 @@ public:
         : is_filled(false), geometry(g)
     {}
 
-    // TODO: optimization expect ENTRY or EXIT
+    template <boundary_query BoundaryQuery>
     bool is_boundary(point_type const& pt, segment_identifier const& sid)
     {
         typedef typename boost::range_size<Geometry>::type size_type;
@@ -109,8 +128,23 @@ public:
         if ( multi_count < 1 )
             return false;
 
-        if ( sid.segment_index != 0 && sid.segment_index + 2 != geometry::num_points(geometry) )
-            return false;
+        if ( BoundaryQuery == boundary_front || BoundaryQuery == boundary_front_explicit )
+        {
+            if ( sid.segment_index != 0 )
+                return false;
+        }
+
+        if ( BoundaryQuery == boundary_back || BoundaryQuery == boundary_back_explicit )
+        {
+            if ( sid.segment_index + 2 != geometry::num_points(geometry) )
+                return false;
+        }
+
+        if ( BoundaryQuery == boundary_any )
+        {
+            if ( sid.segment_index != 0 && sid.segment_index + 2 != geometry::num_points(geometry) )
+                return false;
+        }
 
         if ( ! is_filled )
         {
@@ -444,10 +478,14 @@ struct linear_linear
                 update_result<interior, interior, '1', reverse_result>(res);
                 
                 // going inside on boundary point
-                if ( boundary_checker.is_boundary(it->point, seg_id) )
+                if ( boundary_checker.template is_boundary<boundary_front>(it->point, seg_id) )
                 {
-                    // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
-                    if ( other_boundary_checker.is_boundary(it->point, other_id) )
+                    bool other_b =
+                        it->operations[OtherOpId].operation == overlay::operation_blocked ?
+                            other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                            other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                        
+                    if ( other_b )
                     {
                         update_result<boundary, boundary, '0', reverse_result>(res);
                     }
@@ -481,12 +519,13 @@ struct linear_linear
                     if ( is_last_point )
                     {
                         // check if this is indeed the boundary point
-// TODO: For Linestring it's enough to check has_boundary
-// because we know that this is the last point of the range
-                        if ( boundary_checker.is_boundary(it->point, seg_id) )
+                        if ( boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) )
                         {
-                            // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
-                            if ( other_boundary_checker.is_boundary(it->point, other_id) )
+                            bool other_b =
+                                it->operations[OtherOpId].operation == overlay::operation_blocked ?
+                                    other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                                    other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                            if ( other_b )
                             {
                                 update_result<boundary, boundary, '0', reverse_result>(res);
                             }
@@ -512,11 +551,17 @@ struct linear_linear
                     }
                     else
                     {
-                        // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
-                        if ( boundary_checker.is_boundary(it->point, seg_id) )
+                        bool this_b =
+                                is_last_point ?
+                                    boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) :
+                                    boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
+                        if ( this_b )
                         {
-                            // TODO: check operation_blocked here - only for Ls, for MLs it's not enough
-                            if ( other_boundary_checker.is_boundary(it->point, other_id) )
+                            bool other_b =
+                                it->operations[OtherOpId].operation == overlay::operation_blocked ?
+                                    other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                                    other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                            if ( other_b )
                                 update_result<boundary, boundary, '0', reverse_result>(res);
                             else
                                 update_result<boundary, interior, '0', reverse_result>(res);

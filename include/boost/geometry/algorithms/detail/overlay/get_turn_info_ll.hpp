@@ -490,7 +490,9 @@ struct get_turn_info_linear_linear
             bool append0_first = enable_first && (p0_first || q0_first);
             bool append0_last = enable_last && (p0_last || q0_last);
 
-            result_ignore_ip0 = append0_last;
+            result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
+                                    append0_last :
+                                    (append0_last && p0j);
 
             if ( append0_first || append0_last )
             {
@@ -529,7 +531,9 @@ struct get_turn_info_linear_linear
             bool append1_first = enable_first && (p1_first || q1_first);
             bool append1_last = enable_last && (p1_last || q1_last);
 
-            result_ignore_ip1 = append1_last;
+            result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
+                                    append1_last :
+                                    (append1_last && q1j);
 
             if ( append1_first || append1_last )
             {
@@ -554,8 +558,7 @@ struct get_turn_info_linear_linear
             }
         }
 
-        return ip_count == 1 ? result_ignore_ip0 :
-                               !opposite ? result_ignore_ip1 : result_ignore_ip0;
+        return result_ignore_ip0 || result_ignore_ip1;
     }
 
     template<typename Point, typename Point1, typename Point2>

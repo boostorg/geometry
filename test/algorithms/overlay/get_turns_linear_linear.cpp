@@ -138,6 +138,22 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     test_geometry<G1, G2>(wkt1, wkt2, expected);
 }
 
+struct expected_pusher
+{
+    expected_pusher & operator()(std::string const& ex)
+    {
+        vec.push_back(ex);
+        return *this;
+    }
+    std::vector<std::string> vec;
+};
+
+expected_pusher expected(std::string const& ex)
+{
+    expected_pusher res;
+    return res(ex);
+}
+
 //TEST
 //#include <to_svg.hpp>
 //#include <boost/geometry.hpp>
@@ -192,12 +208,30 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(-1 -1,1 0,10 0,20 -1)", "mii", "txu");
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu", "txi"); 
 
+    test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
+                          "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
+                          expected("tii")("ecc")("muu")("mii")("muu")("mii")("mux").vec);
+    test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
+                          "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
+                          expected("tiu")("ecc")("mui")("miu")("mui")("miu")("mui").vec);
+    test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
+                          "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
+                          expected("tui")("ecc")("miu")("mui")("miu")("mui")("mix").vec);
+    test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
+                          "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
+                          expected("tuu")("ecc")("mii")("muu")("mii")("muu")("mii").vec);
+
     //if ( boost::is_same<T, double>::value )
     //{
     //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(0 0,2 0,2.5 0,3 1)", "test11.svg");
     //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(3 1,2.5 0,2 0,0 0)", "test12.svg");
     //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,30 0,31 1)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test21.svg");
     //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,30 0,31 1)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test22.svg");
+
+    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test31.svg");
+    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test32.svg");
+    //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test33.svg");
+    //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test34.svg");
     //}
 }
 
