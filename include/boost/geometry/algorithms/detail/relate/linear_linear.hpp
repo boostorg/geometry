@@ -128,6 +128,8 @@ public:
         if ( multi_count < 1 )
             return false;
 
+        // TODO: for explicit parameters ASSERT could be used
+
         if ( BoundaryQuery == boundary_front || BoundaryQuery == boundary_front_explicit )
         {
             if ( sid.segment_index != 0 )
@@ -483,8 +485,8 @@ struct linear_linear
                     bool other_b =
                         it->operations[OtherOpId].operation == overlay::operation_blocked ?
                             other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
-                            other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
-                        
+                            other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);                        
+                    // it's also the boundary of the other geometry
                     if ( other_b )
                     {
                         update_result<boundary, boundary, '0', reverse_result>(res);
@@ -502,21 +504,29 @@ struct linear_linear
                     {
                         update_result<interior, exterior, '1', reverse_result>(res);
 
+                        // if it's the first IP then the first point is outside
                         if ( first_in_range )
-                            update_result<boundary, exterior, '0', reverse_result>(res);
+                        {
+                            // if there is a boundary on the first point
+                            if ( boundary_checker.template is_boundary<boundary_front_explicit>
+                                    (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                            {
+                                update_result<boundary, exterior, '0', reverse_result>(res);
+                            }
+                        }
                     }
                 }
             }
             // u/i, u/u, u/x, x/i, x/u, x/x
             else if ( op == overlay::operation_union || op == overlay::operation_blocked )
             {
-                bool is_last_point = op == overlay::operation_blocked;
-                bool was_outside = exit_watcher.exit(it->point, other_id, is_last_point);
+                bool op_blocked = op == overlay::operation_blocked;
+                bool was_outside = exit_watcher.exit(it->point, other_id, op_blocked);
 
                 // we're inside, possibly going out right now
                 if ( ! was_outside )
                 {
-                    if ( is_last_point )
+                    if ( op_blocked )
                     {
                         // check if this is indeed the boundary point
                         if ( boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) )
@@ -525,6 +535,7 @@ struct linear_linear
                                 it->operations[OtherOpId].operation == overlay::operation_blocked ?
                                     other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
                                     other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                            // it's also the boundary of the other geometry
                             if ( other_b )
                             {
                                 update_result<boundary, boundary, '0', reverse_result>(res);
@@ -546,29 +557,47 @@ struct linear_linear
                     {
                         update_result<interior, interior, '0', reverse_result>(res);
 
+                        // it's the first point in range
                         if ( first_in_range )
-                            update_result<boundary, exterior, '0', reverse_result>(res);
+                        {
+                            // if there is a boundary on the first point
+                            if ( boundary_checker.template is_boundary<boundary_front_explicit>
+                                    (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                            {
+                                update_result<boundary, exterior, '0', reverse_result>(res);
+                            }
+                        }
                     }
                     else
                     {
                         bool this_b =
-                                is_last_point ?
+                                op_blocked ?
                                     boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) :
                                     boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
+                        
+                        // if current IP is on boundary of the geometry
                         if ( this_b )
                         {
                             bool other_b =
                                 it->operations[OtherOpId].operation == overlay::operation_blocked ?
                                     other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
                                     other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                            // it's also the boundary of the other geometry
                             if ( other_b )
                                 update_result<boundary, boundary, '0', reverse_result>(res);
                             else
                                 update_result<boundary, interior, '0', reverse_result>(res);
 
                             // first IP on the last segment point - this means that the first point is outside
-                            if ( first_in_range && is_last_point )
-                                update_result<boundary, exterior, '0', reverse_result>(res);
+                            if ( first_in_range && op_blocked )
+                            {
+                                // if there is a boundary on the first point
+                                if ( boundary_checker.template is_boundary<boundary_front_explicit>
+                                        (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                {
+                                    update_result<boundary, exterior, '0', reverse_result>(res);
+                                }
+                            }
 
                             // TODO symetric case
                             // last IP and the first segment point -> last IP and op == union
@@ -579,7 +608,14 @@ struct linear_linear
                             update_result<interior, interior, '0', reverse_result>(res);
 
                             if ( first_in_range )
-                                update_result<boundary, exterior, '0', reverse_result>(res);
+                            {
+                                // if there is a boundary on the first point
+                                if ( boundary_checker.template is_boundary<boundary_front_explicit>
+                                        (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                {
+                                    update_result<boundary, exterior, '0', reverse_result>(res);
+                                }
+                            }
                         }
                     }
                 }
