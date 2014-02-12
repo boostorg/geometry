@@ -19,10 +19,10 @@ namespace detail { namespace turns
 namespace following
 {
 
+
+
+
 // follower for linear/linear geometries set operations
-
-
-
 
 template <typename Turn, typename Operation>
 static inline bool is_entering(Turn const& turn, Operation const& op)
@@ -58,8 +58,6 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
     if ( turn.method != overlay::method_equal &&
          turn.method != overlay::method_collinear )
     {
-        // The normal case, this is completely covered with entering/leaving 
-        // so stay out of this time consuming "covered_by"
         return false;
     }
     return op.operation == overlay::operation_continue;
@@ -157,7 +155,6 @@ public:
         LineStringOut current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
         int current_multi_id = -1;
-        //        int current_other_multi_id = -1;
 
         bool entered = false;
         bool first = true;
@@ -175,15 +172,6 @@ public:
             turn_operation_iterator_type iit_r = boost::begin(it_r->operations);
             ++iit_r;
 
-            std::cout << std::endl;
-            std::cout << "current multi index: " << current_multi_id
-                      << std::endl;
-
-            std::cout << "processing turn with multi index: "
-                      << iit->seg_id.multi_index
-                      << std::endl;
-
-
             if ( iit->seg_id.multi_index != current_multi_id )
             {
                 if ( first_turn )
@@ -194,11 +182,6 @@ public:
                 }
                 else
                 {
-                    std::cout << "=================" << std::endl;
-                    std::cout << "change of multi index: "
-                              << current_multi_id << ' '
-                              << iit->seg_id.multi_index
-                              << std::endl;
                     if (action::is_entered(entered))
                     {
                         geometry::copy_segments<false>(ls1, current_segment_id,
@@ -260,7 +243,9 @@ public:
             first = false;
         }
 
-        std::cout << "***enter count: " << enter_count << std::endl;
+#ifdef PRINT_DEBUG
+        std::cout << "*** enter count: " << enter_count << std::endl;
+#endif
         BOOST_CHECK( enter_count == 0 );
         if (action::is_entered(entered))
         {

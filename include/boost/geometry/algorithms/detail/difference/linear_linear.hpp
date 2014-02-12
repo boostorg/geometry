@@ -92,13 +92,11 @@ struct multilinestring_multilinestring_linestring
     template <typename Turns>
     static inline void filter_turns(Turns& turns)
     {
-#if 1
         typedef typename Turns::iterator TurnIt;
 
         TurnIt new_end = std::remove_if(turns.begin(), turns.end(),
                                         IsContinueTurn());
         turns.resize( std::distance(turns.begin(), new_end) );
-#endif
     }
 
 
@@ -112,9 +110,10 @@ struct multilinestring_multilinestring_linestring
                                        OutputIterator oit,
                                        Strategy const& )
     {
-        std::cout << "MultiLinestring-MultiLinestring difference" << std::endl;
-
-        typedef geometry::model::multi_linestring<LinestringOut> MultiLinestringOut;
+        typedef geometry::model::multi_linestring
+            <
+                LinestringOut
+            > MultiLinestringOut;
 
         MultiLinestringOut mls1, mls2;
         geometry::convert(multilinestring1, mls1);
@@ -170,14 +169,18 @@ struct multilinestring_multilinestring_linestring
         {
             // the two linestrings are disjoint; we return the first as is;
             //            canonical<MultiLinestringOut>::apply(mls1);
+#ifdef PRINT_DEBUG
             std::cout << "NO INTERSECTIONS" << std::endl;
+#endif
             std::copy(mls1.begin(), mls1.end(), oit);
             return oit;
         }
 
         // remove turns that have no added value
+#if 1
         filter_turns(turns);
         filter_turns(reverse_turns);
+#endif
 
         // sort by seg_id, distance, and operation
         typedef detail::turns::less_seg_dist_other_op<> less;
@@ -189,7 +192,7 @@ struct multilinestring_multilinestring_linestring
                   rev_less());
 
 
-#if 1
+#ifdef PRINT_DEBUG
         detail::turns::print_turns(mls1, mls2, turns);
         std::cout << std::endl << std::endl;
         detail::turns::print_turns(mls1, mls2_reverse, reverse_turns);
@@ -231,9 +234,6 @@ struct linestring_linestring_linestring
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        std::cout << "Linestring-Linestring difference" << std::endl;
-
-#if 1
         geometry::model::multi_linestring<Linestring1> mls1;
         geometry::model::multi_linestring<Linestring2> mls2;
         
@@ -246,137 +246,6 @@ struct linestring_linestring_linestring
             <
                 LinestringOut
             >::apply(mls1, mls2, oit, strategy);
-
-#else
-        LinestringOut ls1, ls2;
-        geometry::convert(linestring1, ls1);
-        geometry::convert(linestring2, ls2);
-
-        assert( boost::size(ls1) > 1 );
-        assert( boost::size(ls2) > 1 );
-
-
-        //        canonical<LinestringOut>::apply(ls1);
-        //        canonical<LinestringOut>::apply(ls2);
-
-        //        typedef typename point_type<LinestringOut>::type PointOut;
-
-        //       typedef //overlay::assign_null_policy
-        //            overlay::calculate_distance_policy AssignPolicy;
-        typedef //overlay::assign_null_policy
-            detail::union_::assign_union_policy AssignPolicy;
-
-        typedef overlay::get_turn_info
-            <
-                PointOut, PointOut, turn_info, AssignPolicy
-            > TurnPolicy;
-
-        typedef std::vector<turn_info> Turns;
-        typedef typename std::vector<turn_info>::iterator TurnIt;
-        typedef detail::get_turns::no_interrupt_policy InterruptPolicy;
-        //        typedef detail::disjoint::disjoint_interrupt_policy InterruptPolicy;
-
-        typedef geometry::model::multi_linestring<LinestringOut> MultiLinestringOut;
-        MultiLinestringOut mls_out;
-
-        Turns turns;
-        InterruptPolicy interrupt_policy;
-
-        geometry::get_turns
-            <
-                false, false,
-                AssignPolicy
-            >(ls1, ls2, turns, interrupt_policy);
-
-
-        if ( turns.empty() )
-        {
-            // the two linestrings are disjoint; we return the first as is;
-            mls_out.push_back(ls1);
-            //            canonical<MultiLinestringOut>::apply(mls_out);
-            std::copy(mls_out.begin(), mls_out.end(), oit);
-            return oit;
-        }
-
-        // sort by seg_id, distance, and operation
-        typedef overlay::turns::less_seg_dist_op<overlay::turns::operation_order_uibc> less;
-        std::sort(boost::begin(turns), boost::end(turns), less());
-
-
-
-#if 1
-        detail::turns::print_turns(ls1, ls2, turns);
-#endif
-
-        LinestringOut current_piece;
-        geometry::segment_identifier current_segment_id(0, -1, -1, -1);
-
-        // Iterate through all intersection points (they are ordered along the line)
-
-
-        typedef typename boost::range_iterator
-            <
-                typename turn_info::container_type
-            >::type turn_operation_iterator_type;
-
-        typedef detail::overlay::following::action_selector
-            <
-                overlay_difference
-            > action;
-
-        bool entered = false;
-        bool first = true;
-        for (TurnIt it = boost::begin(turns); it != boost::end(turns); ++it)
-        {
-            turn_operation_iterator_type iit = boost::begin(it->operations);
-
-#if 1
-            if (was_entered(*it, *iit, first, ls1, ls2))
-            {
-                detail::overlay::debug_traverse(*it, *iit, "-> Was entered");
-                entered = true;
-            }
-#endif
-
-            if (is_staying_inside(*it, *iit, entered, first, ls1, ls2))
-            {
-                detail::overlay::debug_traverse(*it, *iit, "-> Staying inside");
-
-                entered = true;
-            }
-            else if (/*!entered &&*/ is_entering(*it, *iit, ls1, ls2))
-            {
-                detail::overlay::debug_traverse(*it, *iit, "-> Entering");
-
-                entered = true;
-                action::enter(current_piece, linestring1, current_segment_id, iit->seg_id.segment_index, it->point, *iit, oit);
-            }
-            else if (is_leaving(*it, *iit, entered, first, ls1, ls2))
-            {
-                detail::overlay::debug_traverse(*it, *iit, "-> Leaving");
-
-                entered = false;
-                action::leave(current_piece, linestring1, current_segment_id, iit->seg_id.segment_index, it->point, *iit, oit);
-            }
-            first = false;
-        }
-
-#if 1
-        if (action::is_entered(entered))
-        {
-            geometry::copy_segments<false>(ls1, current_segment_id,
-                    boost::size(linestring1) - 1,
-                    current_piece);
-        }
-
-        // Output the last one, if applicable
-        if (::boost::size(current_piece) > 1)
-        {
-            *oit++ = current_piece;
-        }
-#endif
-#endif
-        return oit;
     }
 };
 

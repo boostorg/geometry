@@ -33,7 +33,6 @@ typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 //===========================================================================
 
 
-#if 1
 BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -45,308 +44,298 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
     typedef linestring_type L;
     typedef multi_linestring_type ML;
 
+#if 0
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,3 0),(4 0,5 0))"),
-         "lldf01.svg");
+         "lldf01");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf01-1.svg");
+         "lldf01-1");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,6 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,3 0))"),
-         "lldf01-2.svg");
+         "lldf01-2");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(3 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((4 0,6 0))"),
-         "lldf01-3.svg");
+         "lldf01-3");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((4 0,6 0))"),
-         "lldf01-4.svg");
+         "lldf01-4");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf01-5.svg");
+         "lldf01-5");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,4 0),(5 0,20 0))"),
-         "lldf01-6.svg");
+         "lldf01-6");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-20 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
          from_wkt<ML>("MULTILINESTRING((-20 0,4 0),(5 0,20 0))"),
-         "lldf01-7.svg");
+         "lldf01-7");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
-         "lldf01-8.svg");
+         "lldf01-8");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(2 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf01-9.svg");
+         "lldf01-9");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
-         "lldf01-10.svg");
+         "lldf01-10");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(2 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
-         "lldf01-11.svg");
+         "lldf01-11");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,6 0))"),
-         "lldf01-12.svg");
+         "lldf01-12");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,5 5,10 5,15 0)"),
          from_wkt<L>("LINESTRING(-1 6,0 5,15 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,5 5),(10 5,15 0))"),
-         "lldf02.svg");
+         "lldf02");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0))"),
-         "lldf03.svg");
-
-    // to be removed
-    test_difference_of_linestrings()
-        (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0)"),
-         from_wkt<L>("LINESTRING(30 0,-1 0)"),
-         from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0))"));
+         "lldf03");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,5 5,10 5,15 0,20 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((1 0,5 5,10 5,15 0))"),
-         "lldf04.svg");
+         "lldf04");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,25 1)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (20 0,25 1))"),
-         "lldf05.svg");
+         "lldf05");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0))"),
-         "lldf05-1.svg");
+         "lldf05-1");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (30 0,31 0))"),
-         "lldf06.svg");
+         "lldf06");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,25 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (30 0,31 0))"),
-         "lldf07.svg");
+         "lldf07");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (30 0,31 0))"),
-         "lldf08.svg");
-
-    // to be removed
-    test_difference_of_linestrings()
-        (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
-         from_wkt<L>("LINESTRING(30 0,-1 0)"),
-         from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
-                      (30 0,31 0))"),
-         "lldf-ToBeRemoved1.svg");
+         "lldf08");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (30 0,31 1))"),
-         "lldf09.svg");
+         "lldf09");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 1,3 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(1 0,5 5,10 5,15 0),\
                       (30 0,31 1))"),
-         "lldf10.svg");
+         "lldf10");
 
     test_difference_of_linestrings()
-        (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,30 0,31 1)"),
+        (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,\
+                                 30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(2 0,3 0),\
                       (4 0,5 5,10 5,15 0),(30 0,31 1))"),
-         "lldf11.svg");
+         "lldf11");
+#endif
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(2 0,3 0),\
                       (4 0,5 5,10 5,15 0),(30 0,31 0))"),
-         "lldf11-1.svg");
+         "lldf11-1");
 
+#if 0
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf12.svg");
+         "lldf12");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<L>("LINESTRING(3 1,2 0,0 0)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf12-1.svg");
+         "lldf12-1");
 
    test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 5,4 0)"),
          from_wkt<L>("LINESTRING(1 0,2 1,3 5,4 0,5 10)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
-         "lldf13.svg");
+         "lldf13");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)"),
          from_wkt<L>("LINESTRING(0 0,2 0,2.5 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "lldf14.svg");
+         "lldf14");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 5,4 0)"),
          from_wkt<L>("LINESTRING(1 0,2 1,3 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(3 5,4 0))"),
-         "lldf15.svg");
+         "lldf15");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 2)"),
          from_wkt<L>("LINESTRING(0.5 0,1 0,3 2,4 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,0.5 0))"),
-         "lldf16.svg");
+         "lldf16");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 2)"),
          from_wkt<L>("LINESTRING(4 5,3 2,1 0,0.5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,0.5 0))"),
-         "lldf16-r.svg");
+         "lldf16-r");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,30 1)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(25 1,30 1))"),
-         "lldf17.svg");
+         "lldf17");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,21 0,30 0)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1,21 0,30 0))"),
-         "lldf18.svg");
+         "lldf18");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19.svg");
+         "lldf19");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19-r.svg");
+         "lldf19-r");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19a.svg");
+         "lldf19a");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19a-r.svg");
+         "lldf19a-r");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19b.svg");
+         "lldf19b");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0,6 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19c.svg");
+         "lldf19c");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,3 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19d.svg");
+         "lldf19d");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,3 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19e.svg");
+         "lldf19e");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19f.svg");
+         "lldf19f");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,5 0,4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19f-r.svg");
+         "lldf19f-r");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,5 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19g.svg");
+         "lldf19g");
 
     test_difference_of_linestrings()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,5 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
-         "lldf19g-r.svg");
-}
+         "lldf19g-r");
 #endif
+}
 
 
-#if 1
+#if 0
 BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -363,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 3),(1 1,2 2,5 3))"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
-         "mlmldf01.svg"
+         "mlmldf01"
         );
 
     test_difference_of_multilinestrings()
@@ -371,7 +360,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
                       (1 0,2 0),(4 0,7 0))"),
-         "mlmldf02.svg"
+         "mlmldf02"
         );
 
     test_difference_of_multilinestrings()
@@ -379,7 +368,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1),\
                       (1 0,2 0),(5 0,7 0))"),
-         "mlmldf03.svg"
+         "mlmldf03"
         );
 
     test_difference_of_multilinestrings()
@@ -387,7 +376,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
                       (1 0,2 0),(4 0,7 0))"),
-         "mlmldf04.svg"
+         "mlmldf04"
         );
 
     test_difference_of_multilinestrings()
@@ -397,10 +386,9 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
                        (10 20,15 10,25 10,30 15))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
                       (1 0,2 0),(4 0,7 0),(10 10,15 10),(20 10,30 20))"),
-         "mlmldf05.svg"
+         "mlmldf05"
         );
 
-    //bug
     test_difference_of_multilinestrings()
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
@@ -409,14 +397,14 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
                        (10 20,15 10,25 10,30 15))"),
          from_wkt<ML>("MULTILINESTRING((9 0,10 0,13 0.3),(15 0.5,20 1),\
                       (10 10,11 10),(12 10,15 10),(20 10,30 20))"),
-         "mlmldf06.svg"
+         "mlmldf06"
         );
 
     test_difference_of_multilinestrings()
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
-         "mlmldf07.svg"
+         "mlmldf07"
         );
 
     test_difference_of_multilinestrings()
@@ -424,7 +412,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0))"),
-         "mlmldf07a.svg"
+         "mlmldf07a"
         );
 
     test_difference_of_multilinestrings()
@@ -432,16 +420,15 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING()"),
-         "mlmldf07b.svg"
+         "mlmldf07b"
         );
 
-    //bug
     test_difference_of_multilinestrings()
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
-         "mlmldf08.svg"
+         "mlmldf08"
         );
 
     test_difference_of_multilinestrings()
@@ -449,7 +436,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0))"),
-         "mlmldf09.svg"
+         "mlmldf09"
         );
 
     test_difference_of_multilinestrings()
@@ -457,10 +444,9 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0))"),
-         "mlmldf10.svg"
+         "mlmldf10"
         );
 
-    //bug
     test_difference_of_multilinestrings()
         (from_wkt<ML>("MULTILINESTRING((0 0,1 1,100 1,101 0),\
                        (0 0,101 0))"),
@@ -469,7 +455,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
                        (-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 1),(2 1,5 1),(6 1,9 1),\
                        (10 1,13 1),(14 1,100 1,101 0),(0 0,1 0))"),
-         "mlmldf11.svg"
+         "mlmldf11"
         );
 
     test_difference_of_multilinestrings()
@@ -478,7 +464,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
                       (3 1,4 0,16 0,17 1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf12.svg"
+         "mlmldf12"
          );
 
     test_difference_of_multilinestrings()
@@ -487,7 +473,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
                       (4 0,16 0,17 1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf13.svg"
+         "mlmldf13"
          );
 
     test_difference_of_multilinestrings()
@@ -495,7 +481,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf14.svg"
+         "mlmldf14"
          );
 
     test_difference_of_multilinestrings()
@@ -503,7 +489,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf15.svg"
+         "mlmldf15"
          );
 
     test_difference_of_multilinestrings()
@@ -511,7 +497,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf15a.svg"
+         "mlmldf15a"
          );
 
     test_difference_of_multilinestrings()
@@ -519,7 +505,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf16.svg"
+         "mlmldf16"
          );
 
     test_difference_of_multilinestrings()
@@ -527,7 +513,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
-         "mlmldf16a.svg"
+         "mlmldf16a"
          );
 
     test_difference_of_multilinestrings()
@@ -535,7 +521,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
-         "mlmldf17.svg"
+         "mlmldf17"
          );
 
     test_difference_of_multilinestrings()
@@ -543,7 +529,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
-         "mlmldf17a.svg"
+         "mlmldf17a"
          );
 
     test_difference_of_multilinestrings()
@@ -551,7 +537,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
-         "mlmldf18.svg"
+         "mlmldf18"
          );
 
     test_difference_of_multilinestrings()
@@ -559,8 +545,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
-         "mlmldf18a.svg"
+         "mlmldf18a"
          );
-
 }
 #endif

@@ -54,41 +54,26 @@ struct less_seg_dist_other_op
     template <typename Op> static inline
     bool use_operation(Op const& left, Op const& right)
     {
-        if ( left.other_id.segment_index != right.other_id.segment_index )
-        {
-            return IdLess()(left.other_id.segment_index,
-                            right.other_id.segment_index);
-        }
         return order_op(left) < order_op(right);
     }
 
     template <typename Op> static inline
     bool use_other_multi_ring_id(Op const& left, Op const& right)
     {
-        //return left.other_id.ring_index < right.other_id.ring_index;
-        
-        if ( left.other_id.ring_index == -1 )
+        if ( left.other_id.multi_index != right.other_id.multi_index )
         {
-            if ( right.other_id.ring_index == -1 )
-                return use_operation(left, right); // sort by operation
-            else
-                return true; // right always greater
+            return left.other_id.multi_index < right.other_id.multi_index;
         }
-        else // left.other_id.ring_index != -1
+        if ( left.other_id.ring_index != right.other_id.ring_index )
         {
-            if ( right.other_id.ring_index == -1 )
-                return false; // left always greater
-
-            // here both ring_indexes are greater than -1
-            // so first, sort also by multi_index
-            return left.other_id.multi_index < right.other_id.multi_index || (
-                       left.other_id.multi_index == right.other_id.multi_index && (
-                       left.other_id.ring_index < right.other_id.ring_index || (
-                           left.other_id.ring_index == right.other_id.ring_index &&
-                           use_operation(left, right) )
-                    )
-                );
+            return left.other_id.ring_index != right.other_id.ring_index;
         }
+        if ( left.other_id.segment_index != right.other_id.segment_index )
+        {
+            return IdLess()(left.other_id.segment_index,
+                            right.other_id.segment_index);
+        }
+        return use_operation(left, right);
     }
 
     template <typename Op> static inline
