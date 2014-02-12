@@ -89,6 +89,17 @@ struct multilinestring_multilinestring_linestring
     };
 
 
+    struct TurnEqualsTo
+    {
+        template <typename Turn>
+        bool operator()(Turn const& t1, Turn const& t2) const
+        {
+            return geometry::equals(t1.point, t2.point)
+                && t1.operations[0].seg_id == t2.operations[0].seg_id
+                && t1.operations[0].other_id == t2.operations[0].other_id;
+        }
+    };
+
     template <typename Turns>
     static inline void filter_turns(Turns& turns)
     {
@@ -96,6 +107,16 @@ struct multilinestring_multilinestring_linestring
 
         TurnIt new_end = std::remove_if(turns.begin(), turns.end(),
                                         IsContinueTurn());
+        turns.resize( std::distance(turns.begin(), new_end) );
+    }
+
+    template <typename Turns>
+    static inline void remove_duplicates(Turns& turns)
+    {
+        typedef typename Turns::iterator TurnIt;
+
+        TurnIt new_end = std::unique(turns.begin(), turns.end(),
+                                     TurnEqualsTo());
         turns.resize( std::distance(turns.begin(), new_end) );
     }
 
@@ -191,6 +212,8 @@ struct multilinestring_multilinestring_linestring
         std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
                   rev_less());
 
+        remove_duplicates(turns);
+        remove_duplicates(reverse_turns);
 
 #ifdef PRINT_DEBUG
         detail::turns::print_turns(mls1, mls2, turns);
