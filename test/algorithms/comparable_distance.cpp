@@ -133,8 +133,27 @@ void test_all()
     test_distance_linestring<P>();
 }
 
+template <typename T>
+void test_double_result_from_integer()
+{
+    typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
+    point_type point;
+    bg::model::linestring<point_type> ls;
+    bg::read_wkt("POINT(2 2)", point);
+    bg::read_wkt("LINESTRING(4 1,1 4)", ls);
+
+    double dd = bg::distance(point, ls);
+    double dc = bg::comparable_distance(point, ls);
+
+    BOOST_CHECK_CLOSE(dd, std::sqrt(0.5), 0.001);
+    BOOST_CHECK_CLOSE(dc, 0.5, 0.001);
+}
+
 int test_main(int, char* [])
 {
+    test_double_result_from_integer<int>();
+    test_double_result_from_integer<boost::long_long_type>();
+
     //test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();

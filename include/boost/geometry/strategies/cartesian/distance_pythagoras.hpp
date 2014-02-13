@@ -85,7 +85,9 @@ public :
           <
               Point1,
               Point2,
-              CalculationType
+              CalculationType,
+              double,
+              double
           >
     {};
 
