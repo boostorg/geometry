@@ -343,7 +343,7 @@ struct linear_linear
 
     public:
         exit_watcher()
-            : exit_detected(false)
+            : exit_operation(overlay::operation_none)
         {}
 
         // returns true if before the call we were outside
@@ -357,7 +357,7 @@ struct linear_linear
         // returns true if before the call we were outside
         bool exit(Point const& point,
                   segment_identifier const& other_id,
-                  bool is_last_point)
+                  overlay::operation_type exit_op)
         {
             // if we didn't entered anything in the past, we're outside
             if ( other_entry_points.empty() )
@@ -372,13 +372,10 @@ struct linear_linear
             // this end point has corresponding entry point
             if ( entry_it != other_entry_points.end() )
             {
-                if ( ! is_last_point )
-                {
-                    // here we know that we possibly left LS
-                    // we must still check if we didn't get back on the same point
-                    exit_detected = true;
-                    exit_id = point_identifier(other_id, point);
-                }                
+                // here we know that we possibly left LS
+                // we must still check if we didn't get back on the same point
+                exit_operation = exit_op;
+                exit_id = point_identifier(other_id, point);
 
                 // erase the corresponding entry point
                 other_entry_points.erase(entry_it);
@@ -387,30 +384,24 @@ struct linear_linear
             return false;
         }
 
-        bool is_exit_detected() const
+        overlay::operation_type get_exit_operation() const
         {
-            return exit_detected;
+            return exit_operation;
         }
 
         Point const& get_exit_point() const
         {
-            BOOST_ASSERT(exit_detected);
+            BOOST_ASSERT(exit_operation != overlay::operation_none);
             return exit_id.point();
-        }
-
-        overlay::operation_type get_exit_operation() const
-        {
-            BOOST_ASSERT(exit_detected);
-            return exit_operation;
         }
 
         void reset_detected_exit()
         {
-            exit_detected = false;
+            exit_operation = overlay::operation_none;
         }
 
     private:
-        bool exit_detected;
+        overlay::operation_type exit_operation;
         point_identifier exit_id;
         std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
    };
@@ -458,7 +449,7 @@ struct linear_linear
             bool fake_enter_detected = false;
 
             // handle possible exit
-            if ( exit_watcher.is_exit_detected() )
+            if ( exit_watcher.get_exit_operation() == overlay::operation_union )
             {
                 // real exit point - may be multiple
                 // we know that we entered and now we exit
@@ -547,7 +538,7 @@ struct linear_linear
             else if ( op == overlay::operation_union || op == overlay::operation_blocked )
             {
                 bool op_blocked = op == overlay::operation_blocked;
-                bool was_outside = exit_watcher.exit(it->point, other_id, op_blocked);
+                bool was_outside = exit_watcher.exit(it->point, other_id, op);
 
                 // we're inside, possibly going out right now
                 if ( ! was_outside )
@@ -652,7 +643,8 @@ struct linear_linear
 
         // here, the possible exit is the real one
         // we know that we entered and now we exit
-        if ( exit_watcher.is_exit_detected() || last_union ) // THIS CHECK IS REDUNDANT
+        if ( exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
+          || last_union )
         {
             // for sure
             update_result<interior, exterior, '1', reverse_result>(res);
