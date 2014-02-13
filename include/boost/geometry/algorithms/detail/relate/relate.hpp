@@ -87,6 +87,11 @@ struct relate<Linestring1, Linestring2, linestring_tag, linestring_tag>
     : detail::relate::linear_linear<Linestring1, Linestring2>
 {};
 
+template <typename Linestring, typename MultiLinestring>
+struct relate<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
+    : detail::relate::linear_linear<Linestring, MultiLinestring>
+{};
+
 }} // namespace detail_dispatch::relate
 
 namespace detail { namespace relate {

@@ -179,9 +179,19 @@ void test_linestring_linestring()
 }
 
 template <typename P>
+void test_linestring_multi_linestring()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
+    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1))", "101FF0102");
+}
+
+template <typename P>
 void test_all()
 {
     test_linestring_linestring<P>();
+    test_linestring_multi_linestring<P>();
 }
 
 int test_main( int , char* [] )

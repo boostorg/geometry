@@ -119,7 +119,7 @@ public:
     {}
 
     template <boundary_query BoundaryQuery>
-    bool is_boundary(point_type const& pt, segment_identifier const& sid) const
+    bool is_boundary(point_type const& pt, segment_identifier const& sid)
     {
         typedef typename boost::range_size<Geometry>::type size_type;
         size_type multi_count = boost::size(geometry);
@@ -163,8 +163,8 @@ public:
 
                 // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
 
-                boundary_points.push_back(range::front(geometry));
-                boundary_points.push_back(range::back(geometry));
+                boundary_points.push_back(range::front(*it));
+                boundary_points.push_back(range::back(*it));
             }
 
             std::sort(boundary_points.begin(), boundary_points.end(), geometry::less<point_type>());
@@ -176,6 +176,7 @@ public:
             = boost::size(
                 std::equal_range(boundary_points.begin(),
                                  boundary_points.end(),
+                                 pt,
                                  geometry::less<point_type>())
             );
 
@@ -209,15 +210,21 @@ struct linear_linear
         }
         else if ( s1 == 1 && s2 == 1 )
         {
-            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
+// TODO : not working for MultiLinestrings
+//            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
+            BOOST_ASSERT(false);
         }
         else if ( s1 == 1 /*&& s2 > 1*/ )
         {
-            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
+// TODO : not working for MultiLinestrings
+//            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
+            BOOST_ASSERT(false);
         }
         else if ( s2 == 1 /*&& s1 > 1*/  )
         {
-            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
+// TODO : not working for MultiLinestrings
+//            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
+            BOOST_ASSERT(false);
         }
 
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
@@ -437,8 +444,8 @@ struct linear_linear
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
-                   BoundaryChecker const& boundary_checker,
-                   OtherBoundaryChecker const& other_boundary_checker)
+                   BoundaryChecker & boundary_checker,
+                   OtherBoundaryChecker & other_boundary_checker)
         {
             if ( it != last )
             {
@@ -697,8 +704,8 @@ struct linear_linear
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,
                                          OtherGeometry const& other_geometry,
-                                         BoundaryChecker const& boundary_checker,
-                                         OtherBoundaryChecker const& other_boundary_checker)
+                                         BoundaryChecker & boundary_checker,
+                                         OtherBoundaryChecker & other_boundary_checker)
     {
         if ( first == last )
             return;
