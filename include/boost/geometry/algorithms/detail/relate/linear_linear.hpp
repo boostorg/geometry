@@ -28,6 +28,52 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+template <std::size_t OpId,
+          typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
+struct has_disjoint_sub_geometries {};
+
+template <std::size_t OpId, typename Geometry>
+struct has_disjoint_sub_geometries<OpId, Geometry, linestring_tag>
+{
+    template <typename TurnIt>
+    static inline bool apply(TurnIt first, TurnIt last, Geometry const& /*geometry*/)
+    {
+        BOOST_ASSERT(first != last);
+        return false;
+    }
+};
+
+template <std::size_t OpId, typename Geometry>
+struct has_disjoint_sub_geometries<OpId, Geometry, multi_linestring_tag>
+{
+    template <typename TurnIt>
+    static inline bool apply(TurnIt first, TurnIt last, Geometry const& geometry)
+    {
+        BOOST_ASSERT(first != last);
+
+        std::size_t count = boost::size(geometry);
+        std::vector<bool> detected_intersections(count, false);
+        for ( TurnIt it = first ; it != last ; ++it )
+        {
+            int multi_index = it->operations[OpId].seg_id.multi_index;
+            BOOST_ASSERT(multi_index >= 0);
+            std::size_t index = static_cast<std::size_t>(multi_index);
+            BOOST_ASSERT(index < count);
+            detected_intersections[index] = true;
+        }
+
+        for ( std::vector<bool>::iterator it = detected_intersections.begin() ;
+              it != detected_intersections.end() ; ++it )
+        {
+            if ( *it == false )
+                return true;
+        }
+        
+        return false;
+    }
+};
+
 // update_result
 
 template <field F1, field F2, char D, bool Reverse>
@@ -112,6 +158,24 @@ struct linear_linear
         if ( turns.empty() )
         {
             return res;
+        }
+
+// TODO: this works bout we don't know what should be set exactly
+//       replace it with something like: for_each_disjoint_subgeometry
+        if ( has_disjoint_sub_geometries<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1) )
+        {
+// TODO:
+// check if there is an interior and/or boundary
+            res.template update<interior, exterior, '1'>();
+            res.template update<boundary, exterior, '0'>();
+        }
+
+        if ( has_disjoint_sub_geometries<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2) )
+        {
+// TODO:
+// check if there is an interior and/or boundary
+            res.template update<exterior, interior, '1'>();
+            res.template update<exterior, boundary, '0'>();
         }
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
