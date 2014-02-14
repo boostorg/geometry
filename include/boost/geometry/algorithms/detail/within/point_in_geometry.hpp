@@ -83,6 +83,17 @@ template <typename Geometry,
 struct point_in_geometry : not_implemented<Tag>
 {};
 
+template <typename Point2>
+struct point_in_geometry<Point2, point_tag>
+{
+    template <typename Point1, typename Strategy> static inline
+    int apply(Point1 const& point1, Point2 const& point2, Strategy const& strategy)
+    {
+        boost::ignore_unused_variable_warning(strategy);
+        return strategy.apply(point1, point2) ? 1 : -1;
+    }
+};
+
 template <typename Linestring>
 struct point_in_geometry<Linestring, linestring_tag>
 {

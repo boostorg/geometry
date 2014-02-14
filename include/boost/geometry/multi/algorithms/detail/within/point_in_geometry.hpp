@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -110,6 +110,26 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
 
         // if the number of boundaries is odd, the point is on the boundary
         return boundaries % 2 ? 0 : 1;
+    }
+};
+
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_point_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
+    {
+        typedef typename boost::range_value<Geometry>::type point_type;
+        typedef typename boost::range_const_iterator<Geometry>::type iterator;
+        for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
+        {
+            int pip = point_in_geometry<point_type>::apply(point, *it, strategy);
+
+            if ( pip > 0 ) // inside
+                return 1;
+        }
+
+        return -1; // outside
     }
 };
 
