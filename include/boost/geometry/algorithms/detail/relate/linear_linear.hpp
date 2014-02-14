@@ -82,22 +82,33 @@ public:
         if ( !has_boundary )
             return false;
 
-        if ( BoundaryQuery == boundary_front_explicit || BoundaryQuery == boundary_back_explicit )
+        if ( BoundaryQuery == boundary_front_explicit )
+        {
+            BOOST_ASSERT(this->template is_boundary<boundary_front>(pt, sid));
             return true;
-
-        if ( BoundaryQuery == boundary_front )
+        }
+        else if ( BoundaryQuery == boundary_back_explicit )
+        {
+            BOOST_ASSERT(this->template is_boundary<boundary_back>(pt, sid));
+            return true;
+        }
+        else if ( BoundaryQuery == boundary_front )
+        {
             return sid.segment_index == 0
                 && detail::equals::equals_point_point(pt, range::front(geometry));
-
-        if ( BoundaryQuery == boundary_back )
+        }
+        else if ( BoundaryQuery == boundary_back )
+        {
             return sid.segment_index + 2 == geometry::num_points(geometry)
                 && detail::equals::equals_point_point(pt, range::back(geometry));
-
-        if ( BoundaryQuery == boundary_any )
+        }
+        else if ( BoundaryQuery == boundary_any )
+        {
             return sid.segment_index == 0
                 && detail::equals::equals_point_point(pt, range::front(geometry))
                 || sid.segment_index + 2 == geometry::num_points(geometry)
                 && detail::equals::equals_point_point(pt, range::back(geometry));
+        }
 
         BOOST_ASSERT(false);
         return false;
