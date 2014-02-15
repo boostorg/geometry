@@ -28,27 +28,55 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+enum linestring_alt { linestring_exterior, linestring_point, linestring_closed, linestring_open };
+
+template <typename Linestring>
+linestring_alt linestring_simple_analysis(Linestring const& ls)
+{
+    std::size_t count = boost::size(ls);
+    if ( count == 0 )
+        return linestring_exterior;
+    else if ( count == 1 )
+        return linestring_point;
+    else
+    {
+        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
+        if ( equal_fb )
+            // TODO: here the rest of points should be checked if they're equal with the first one
+            //       and if they are, then it's a point
+            return linestring_closed;
+        else
+            return linestring_open;
+    }
+}
+
 template <std::size_t OpId,
           typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
-struct has_disjoint_sub_geometries {};
+struct for_each_disjoint_linestring_if {};
 
 template <std::size_t OpId, typename Geometry>
-struct has_disjoint_sub_geometries<OpId, Geometry, linestring_tag>
+struct for_each_disjoint_linestring_if<OpId, Geometry, linestring_tag>
 {
-    template <typename TurnIt>
-    static inline bool apply(TurnIt first, TurnIt last, Geometry const& /*geometry*/)
+    template <typename TurnIt, typename Pred>
+    static inline bool apply(TurnIt first, TurnIt last,
+                             Geometry const& /*geometry*/,
+                             Pred & /*pred*/)
     {
         BOOST_ASSERT(first != last);
+        // TODO: check if has at least one valid turn - uix?
+        //return first != last;
         return false;
     }
 };
 
 template <std::size_t OpId, typename Geometry>
-struct has_disjoint_sub_geometries<OpId, Geometry, multi_linestring_tag>
+struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
 {
-    template <typename TurnIt>
-    static inline bool apply(TurnIt first, TurnIt last, Geometry const& geometry)
+    template <typename TurnIt, typename Pred>
+    static inline bool apply(TurnIt first, TurnIt last,
+                             Geometry const& geometry,
+                             Pred & pred)
     {
         BOOST_ASSERT(first != last);
 
@@ -63,15 +91,54 @@ struct has_disjoint_sub_geometries<OpId, Geometry, multi_linestring_tag>
             detected_intersections[index] = true;
         }
 
+        bool found = false;
+
         for ( std::vector<bool>::iterator it = detected_intersections.begin() ;
               it != detected_intersections.end() ; ++it )
         {
+            // if there were no intersections for this multi_index
             if ( *it == false )
-                return true;
+            {
+                found = true;
+                bool cont = pred(
+                                *(boost::begin(geometry)
+                                    + std::distance(detected_intersections.begin(), it)));
+                if ( !cont )
+                    break;
+            }
         }
         
+        return found;
+    }
+};
+
+template <typename BoundaryChecker>
+class disjoint_linestring_pred
+{
+public:
+    disjoint_linestring_pred(BoundaryChecker & boundary_checker)
+        : m_boundary_checker_ptr(boost::addressof(boundary_checker))
+        , m_boundary('F')
+        , m_interior('F')
+    {}
+
+    template <typename Linestring>
+    bool operator()(Linestring const& linestring)
+    {
+        // TODO: check if there is boundary and interior and interior's dimension
+        m_boundary = '0';
+        m_interior = '1';
+        // TODO: return false only if boundary == 0 and interior == 1
         return false;
     }
+
+    char get_boundary() const { return m_boundary; }
+    char get_interior() const { return m_interior; }
+
+private:
+    BoundaryChecker * m_boundary_checker_ptr;
+    char m_boundary;
+    char m_interior;
 };
 
 // update_result
@@ -160,26 +227,33 @@ struct linear_linear
             return res;
         }
 
-// TODO: this works bout we don't know what should be set exactly
-//       replace it with something like: for_each_disjoint_subgeometry
-        if ( has_disjoint_sub_geometries<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1) )
-        {
-// TODO:
-// check if there is an interior and/or boundary
-            res.template update<interior, exterior, '1'>();
-            res.template update<boundary, exterior, '0'>();
-        }
-
-        if ( has_disjoint_sub_geometries<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2) )
-        {
-// TODO:
-// check if there is an interior and/or boundary
-            res.template update<exterior, interior, '1'>();
-            res.template update<exterior, boundary, '0'>();
-        }
-
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         boundary_checker<Geometry2> boundary_checker2(geometry2);
+        
+        disjoint_linestring_pred< boundary_checker<Geometry1> > pred1(boundary_checker1);
+        disjoint_linestring_pred< boundary_checker<Geometry2> > pred2(boundary_checker2);
+
+        if ( for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1) )
+        {
+            if ( pred1.get_interior() == '1' )
+                res.template update<interior, exterior, '1'>();
+            else if ( pred1.get_interior() == '0' )
+                res.template update<interior, exterior, '0'>();
+
+            if ( pred1.get_boundary() == '0' )
+                res.template update<boundary, exterior, '0'>();
+        }
+
+        if ( for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2) )
+        {
+            if ( pred2.get_interior() == '1' )
+                res.template update<exterior, interior, '1'>();
+            else if ( pred2.get_interior() == '0' )
+                res.template update<exterior, interior, '0'>();
+
+            if ( pred2.get_boundary() == '0' )
+                res.template update<exterior, boundary, '0'>();
+        }
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
