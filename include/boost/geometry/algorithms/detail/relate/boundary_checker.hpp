@@ -51,14 +51,12 @@ public:
 
         if ( BoundaryQuery == boundary_front_explicit )
         {
-// TODO: temporarily disable
-            //BOOST_ASSERT(this->template is_boundary<boundary_front>(pt, sid));
+            BOOST_ASSERT(this->template is_boundary<boundary_front>(pt, sid));
             return true;
         }
         else if ( BoundaryQuery == boundary_back_explicit )
         {
-// TODO: temporarily disable
-            //BOOST_ASSERT(this->template is_boundary<boundary_back>(pt, sid));
+            BOOST_ASSERT(this->template is_boundary<boundary_back>(pt, sid));
             return true;
         }
         else if ( BoundaryQuery == boundary_front )

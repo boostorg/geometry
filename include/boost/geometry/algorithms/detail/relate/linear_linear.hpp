@@ -469,9 +469,12 @@ struct linear_linear
                             // if it's the first IP then the first point is outside
                             if ( first_in_range )
                             {
+                                segment_identifier first_seg_id = seg_id;
+                                first_seg_id.segment_index = 0;
+
                                 // if there is a boundary on the first point
                                 if ( boundary_checker.template is_boundary<boundary_front_explicit>
-                                        (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                        (range::front(sub_geometry::get(geometry, first_seg_id)), first_seg_id) )
                                 {
                                     update_result<boundary, exterior, '0', reverse_result>(res);
                                 }
@@ -601,14 +604,19 @@ struct linear_linear
 // PREV MAY NOT BE VALID!
                     TurnIt prev = last;
                     --prev;
-                    segment_identifier const& prev_seg_id = prev->operations[OpId].seg_id;
-
-                    // if there is a boundary on the last point
-                    if ( boost::size(sub_geometry::get(geometry, prev_seg_id)) > 1
-                      && boundary_checker.template is_boundary<boundary_back_explicit>
-                            (range::back(sub_geometry::get(geometry, prev_seg_id)), prev_seg_id) )
+                    segment_identifier prev_seg_id = prev->operations[OpId].seg_id;
+                    std::size_t points_count = boost::size(sub_geometry::get(geometry, prev_seg_id));
+                    
+                    if ( points_count > 1 )
                     {
-                        update_result<boundary, exterior, '0', reverse_result>(res);
+                        prev_seg_id.segment_index = points_count - 2;
+
+                        // if there is a boundary on the last point
+                        if ( boundary_checker.template is_boundary<boundary_back_explicit>
+                                (range::back(sub_geometry::get(geometry, prev_seg_id)), prev_seg_id) )
+                        {
+                            update_result<boundary, exterior, '0', reverse_result>(res);
+                        }
                     }
                 }
             }
