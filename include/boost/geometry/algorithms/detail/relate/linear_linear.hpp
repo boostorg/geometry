@@ -28,27 +28,27 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-enum linestring_alt { linestring_exterior, linestring_point, linestring_closed, linestring_open };
-
-template <typename Linestring>
-linestring_alt linestring_simple_analysis(Linestring const& ls)
-{
-    std::size_t count = boost::size(ls);
-    if ( count == 0 )
-        return linestring_exterior;
-    else if ( count == 1 )
-        return linestring_point;
-    else
-    {
-        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
-        if ( equal_fb )
-            // TODO: here the rest of points should be checked if they're equal with the first one
-            //       and if they are, then it's a point
-            return linestring_closed;
-        else
-            return linestring_open;
-    }
-}
+//enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
+//
+//template <typename Linestring>
+//linestring_kind check_linestring_kind(Linestring const& ls)
+//{
+//    std::size_t count = boost::size(ls);
+//    if ( count == 0 )
+//        return linestring_exterior;
+//    else if ( count == 1 )
+//        return linestring_point;
+//    else
+//    {
+//        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
+//        if ( equal_fb )
+//            // TODO: here the rest of points should be checked if they're equal with the first one
+//            //       and if they are, then it's a point
+//            return linestring_closed;
+//        else
+//            return linestring_open;
+//    }
+//}
 
 template <std::size_t OpId,
           typename Geometry,
@@ -125,11 +125,33 @@ public:
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
     {
-        // TODO: check if there is boundary and interior and interior's dimension
-        m_boundary = '0';
-        m_interior = '1';
-        // TODO: return false only if boundary == 0 and interior == 1
-        return false;
+        std::size_t count = boost::size(linestring);
+
+        if ( count > 1 )
+        {
+            // TODO: if all points are the same it's 0d object - Point
+
+            m_interior = '1';
+
+            if ( m_boundary_checker_ptr->template
+                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+              || m_boundary_checker_ptr->template
+                    is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+            {
+                m_boundary = '0';
+
+                // break only when we detect dim(I)=1 and dim(B)=0
+                // we may be certain that there won't be bigger dimensions
+                return false;
+            }
+        }
+        else if ( count == 1 )
+        {
+            if ( m_interior != '1' )
+                m_interior = '0';
+        }
+
+        return true;
     }
 
     char get_boundary() const { return m_boundary; }
@@ -496,9 +518,8 @@ struct linear_linear
                     segment_identifier const& prev_seg_id = prev->operations[op_id].seg_id;
 
                     // if there is a boundary on the last point
-                    if ( boost::size(sub_geometry::get(geometry, prev_seg_id)) > 1
-                      && boundary_checker.template is_boundary<boundary_back_explicit>
-                            (range::back(sub_geometry::get(geometry, prev_seg_id)), prev_seg_id) )
+                    if ( boundary_checker.template is_endpoint_boundary<boundary_back>
+                            (range::back(sub_geometry::get(geometry, prev_seg_id))) )
                     {
                         update_result<boundary, exterior, '0', reverse_result>(res);
                     }
@@ -520,7 +541,7 @@ struct linear_linear
                     {
                         bool other_b =
                             it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                                other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                 other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);                        
                         // it's also the boundary of the other geometry
                         if ( other_b )
@@ -543,12 +564,9 @@ struct linear_linear
                             // if it's the first IP then the first point is outside
                             if ( first_in_range )
                             {
-                                segment_identifier first_seg_id = seg_id;
-                                first_seg_id.segment_index = 0;
-
                                 // if there is a boundary on the first point
-                                if ( boundary_checker.template is_boundary<boundary_front_explicit>
-                                        (range::front(sub_geometry::get(geometry, first_seg_id)), first_seg_id) )
+                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                        (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
                                     update_result<boundary, exterior, '0', reverse_result>(res);
                                 }
@@ -568,11 +586,11 @@ struct linear_linear
                         if ( op_blocked )
                         {
                             // check if this is indeed the boundary point
-                            if ( boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) )
+                            if ( boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) )
                             {
                                 bool other_b =
                                     it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                         other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
@@ -600,8 +618,8 @@ struct linear_linear
                             if ( first_in_range )
                             {
                                 // if there is a boundary on the first point
-                                if ( boundary_checker.template is_boundary<boundary_front_explicit>
-                                        (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                        (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
                                     update_result<boundary, exterior, '0', reverse_result>(res);
                                 }
@@ -612,7 +630,7 @@ struct linear_linear
                         {
                             bool this_b =
                                     op_blocked ?
-                                        boundary_checker.template is_boundary<boundary_back_explicit>(it->point, seg_id) :
+                                        boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                         boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
                         
                             // if current IP is on boundary of the geometry
@@ -620,7 +638,7 @@ struct linear_linear
                             {
                                 bool other_b =
                                     it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_boundary<boundary_back_explicit>(it->point, other_id) :
+                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                         other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
@@ -636,8 +654,8 @@ struct linear_linear
                                 if ( first_in_range && op_blocked )
                                 {
                                     // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_boundary<boundary_front_explicit>
-                                            (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                            (range::front(sub_geometry::get(geometry, seg_id))) )
                                     {
                                         update_result<boundary, exterior, '0', reverse_result>(res);
                                     }
@@ -651,8 +669,8 @@ struct linear_linear
                                 if ( first_in_range )
                                 {
                                     // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_boundary<boundary_front_explicit>
-                                            (range::front(sub_geometry::get(geometry, seg_id)), seg_id) )
+                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                            (range::front(sub_geometry::get(geometry, seg_id))) )
                                     {
                                         update_result<boundary, exterior, '0', reverse_result>(res);
                                     }
@@ -678,19 +696,13 @@ struct linear_linear
 // PREV MAY NOT BE VALID!
                     TurnIt prev = last;
                     --prev;
-                    segment_identifier prev_seg_id = prev->operations[OpId].seg_id;
-                    std::size_t points_count = boost::size(sub_geometry::get(geometry, prev_seg_id));
+                    segment_identifier const& prev_seg_id = prev->operations[OpId].seg_id;
                     
-                    if ( points_count > 1 )
+                    // if there is a boundary on the last point
+                    if ( boundary_checker.template is_endpoint_boundary<boundary_back>
+                            (range::back(sub_geometry::get(geometry, prev_seg_id))) )
                     {
-                        prev_seg_id.segment_index = points_count - 2;
-
-                        // if there is a boundary on the last point
-                        if ( boundary_checker.template is_boundary<boundary_back_explicit>
-                                (range::back(sub_geometry::get(geometry, prev_seg_id)), prev_seg_id) )
-                        {
-                            update_result<boundary, exterior, '0', reverse_result>(res);
-                        }
+                        update_result<boundary, exterior, '0', reverse_result>(res);
                     }
                 }
             }

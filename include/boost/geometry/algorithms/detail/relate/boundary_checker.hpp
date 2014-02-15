@@ -20,7 +20,7 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-enum boundary_query { boundary_front, boundary_back, boundary_front_explicit, boundary_back_explicit, boundary_any };
+enum boundary_query { boundary_front, boundary_back, boundary_any };
 
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
@@ -33,33 +33,28 @@ class boundary_checker<Geometry, linestring_tag>
 
 public:
     boundary_checker(Geometry const& g)
-        : has_boundary(! detail::equals::equals_point_point(range::front(g), range::back(g)))
+        : has_boundary( boost::size(g) >= 2
+                     && !detail::equals::equals_point_point(range::front(g), range::back(g)) )
         , geometry(g)
     {}
 
     template <boundary_query BoundaryQuery>
+    bool is_endpoint_boundary(point_type const& pt) const
+    {
+        BOOST_ASSERT( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
+                   && detail::equals::equals_point_point(pt, range::front(geometry))
+                   || (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
+                   && detail::equals::equals_point_point(pt, range::back(geometry)) );
+        return has_boundary;
+    }
+
+    template <boundary_query BoundaryQuery>
     bool is_boundary(point_type const& pt, segment_identifier const& sid) const
     {
-        // TODO: replace with assert?
-        if ( boost::size(geometry) < 2 )
-            return false;
-
-        // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
-
         if ( !has_boundary )
             return false;
 
-        if ( BoundaryQuery == boundary_front_explicit )
-        {
-            BOOST_ASSERT(this->template is_boundary<boundary_front>(pt, sid));
-            return true;
-        }
-        else if ( BoundaryQuery == boundary_back_explicit )
-        {
-            BOOST_ASSERT(this->template is_boundary<boundary_back>(pt, sid));
-            return true;
-        }
-        else if ( BoundaryQuery == boundary_front )
+        if ( BoundaryQuery == boundary_front )
         {
             return sid.segment_index == 0
                 && detail::equals::equals_point_point(pt, range::front(geometry));
@@ -97,34 +92,48 @@ public:
     {}
 
     template <boundary_query BoundaryQuery>
+    bool is_endpoint_boundary(point_type const& pt)
+    {
+        return is_boundary_point(pt);
+    }
+
+    template <boundary_query BoundaryQuery>
     bool is_boundary(point_type const& pt, segment_identifier const& sid)
     {
-        typedef typename boost::range_size<Geometry>::type size_type;
-        size_type multi_count = boost::size(geometry);
-
-        // TODO: replace with assert?
-        if ( multi_count < 1 )
-            return false;
-
         // TODO: for explicit parameters ASSERT could be used
 
-        if ( BoundaryQuery == boundary_front || BoundaryQuery == boundary_front_explicit )
+        if ( BoundaryQuery == boundary_front )
         {
             if ( sid.segment_index != 0 )
                 return false;
         }
 
-        if ( BoundaryQuery == boundary_back || BoundaryQuery == boundary_back_explicit )
+        if ( BoundaryQuery == boundary_back )
         {
-            if ( sid.segment_index + 2 != geometry::num_points(geometry) )
+            if ( sid.segment_index + 2 != geometry::num_points(sub_geometry::get(geometry, sid)) )
                 return false;
         }
 
         if ( BoundaryQuery == boundary_any )
         {
-            if ( sid.segment_index != 0 && sid.segment_index + 2 != geometry::num_points(geometry) )
+            if ( sid.segment_index != 0
+              && sid.segment_index + 2 != geometry::num_points(sub_geometry::get(geometry, sid)) )
                 return false;
         }
+
+        return is_boundary_point(pt);                
+    }
+
+private:
+    // First call O(NlogN)
+    // Each next call O(logN)
+    bool is_boundary_point(point_type const& pt)
+    {
+        typedef typename boost::range_size<Geometry>::type size_type;
+        size_type multi_count = boost::size(geometry);
+
+        if ( multi_count < 1 )
+            return false;
 
         if ( ! is_filled )
         {
@@ -159,10 +168,8 @@ public:
             );
 
         return equal_points_count % 2 != 0 && equal_points_count > 0; // the number is odd and > 0
-                
     }
 
-private:
     bool is_filled;
     // TODO: store references/pointers instead of points?
     std::vector<point_type> boundary_points;

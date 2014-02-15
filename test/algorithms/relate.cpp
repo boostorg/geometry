@@ -184,7 +184,14 @@ void test_linestring_multi_linestring()
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
 
+    // 1 LS disjoint
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1))", "101FF0102");
+    // 1 linear ring disjoint
+    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2,1 1))", "101FF01F2");
+    // 2xLS forming non-simple linear ring disjoint
+    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2),(1 1,2 2))", "101FF01F2");
+    // 1 1-point LS (a Point) disjoint
+    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1))", "101FF00F2");
 }
 
 template <typename P>
