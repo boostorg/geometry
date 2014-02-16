@@ -178,6 +178,7 @@ void test_linestring_linestring()
     //to_svg<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,0 0,5 0)", "test_relate_00.svg");
 
     // 1-point LS (a Point) NOT disjoint
+    test_geometry<ls, ls>("LINESTRING(1 0)", "LINESTRING(0 0,5 0)", "0FFFFF102");
     test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0)", "0F1FF0FF2");
     test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0)", "0F1FF0FF2");
     test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0,1 0)", "0F1FF0FF2");

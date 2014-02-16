@@ -133,15 +133,18 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
 // MLs/Ls - worst O(N^2) - Bx point_in_geometry(Ls)
 // MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
 // TODO: later use spatial index
-template <typename BoundaryChecker, typename OtherGeometry>
+template <std::size_t OpId, typename BoundaryChecker, typename OtherGeometry>
 class disjoint_linestring_pred
 {
+    static const bool reverse_result = OpId != 0;
+
 public:
-    disjoint_linestring_pred(BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
-        : m_boundary_checker_ptr(boost::addressof(boundary_checker))
+    disjoint_linestring_pred(result & res, BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
+        : m_result_ptr(boost::addressof(res))
+        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
         , m_other_geometry(boost::addressof(other_geometry))
-        , m_boundary('F')
-        , m_interior('F')
+        , m_detected_mask_point(0)
+        , m_detected_open_boundary(false)
     {}
 
     template <typename Linestring>
@@ -149,70 +152,64 @@ public:
     {
         linestring_kind lk = check_linestring_kind(linestring);
 
-        if ( lk == linestring_point )
+        if ( lk == linestring_point ) // just an optimization
         {
-            if ( m_interior != '1' )
+            if ( m_detected_mask_point != 7 )
             {
-// TODO: what if this point is touching e.g. a linestring's boundary
-// it should then be analysed later
-
                 // check the relation
                 int pig = within::point_in_geometry(range::front(linestring), *m_other_geometry);
 
                 // point inside
                 if ( pig > 0 )
                 {
-                    // TODO
-                    // interior, interior 
+                    update_result<interior, interior, '0', reverse_result>(*m_result_ptr);
+                    m_detected_mask_point |= 1;
                 }
                 // point on boundary
                 else if ( pig == 0 )
                 {
-                    // TODO
-                    // interior, boundary
+                    update_result<interior, boundary, '0', reverse_result>(*m_result_ptr);
+                    m_detected_mask_point |= 2;
                 }
                 // point outside
                 else
                 {
-                    m_interior = '0';
-                    // interior, exterior
+                    update_result<interior, exterior, '0', reverse_result>(*m_result_ptr);
+                    m_detected_mask_point |= 4;
                 }
             }
         }
-        else if ( lk == linestring_closed )
+        // NOTE: For closed Linestrings I/I=1 could be set automatically
+        // but for MultiLinestrings endpoints of closed Linestrings must also be checked for boundary
+        else if ( lk == linestring_open || lk == linestring_closed )
         {
-            m_interior = '1';
-            // interior, exterior
-        }
-        else if ( lk == linestring_open )
-        {
-            m_interior = '1';
-
-            // check if there is a boundary
-            if ( m_boundary_checker_ptr->template
-                 is_endpoint_boundary<boundary_front>(range::front(linestring))
-              || m_boundary_checker_ptr->template
-                 is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+            if ( !m_detected_open_boundary ) // just an optimization
             {
-                m_boundary = '0';
+                update_result<interior, exterior, '1', reverse_result>(*m_result_ptr);
 
-                // break only when we detect dim(I)=1 and dim(B)=0
-                // we may be certain that there won't be bigger dimensions
-                return false;
+                // check if there is a boundary
+                if ( m_boundary_checker_ptr->template
+                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+                    || m_boundary_checker_ptr->template
+                    is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+                {
+                    update_result<boundary, exterior, '0', reverse_result>(*m_result_ptr);
+                    
+                    m_detected_open_boundary = true;
+                }
             }
         }
 
-        return true;
+        bool all_detected = m_detected_mask_point == 7 && m_detected_open_boundary;
+        return !all_detected && !m_result_ptr->interrupt;
     }
 
-    char get_boundary() const { return m_boundary; }
-    char get_interior() const { return m_interior; }
-
 private:
+    result * m_result_ptr;
     BoundaryChecker * m_boundary_checker_ptr;
     const OtherGeometry * m_other_geometry;
-    char m_boundary;
-    char m_interior;
+    char m_detected_mask_point;
+    bool m_detected_open_boundary;
 };
 
 // update_result
@@ -250,44 +247,10 @@ struct linear_linear
 
     static inline result apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        // TODO: currently this only works for linestrings
-        std::size_t s1 = boost::size(geometry1);
-        std::size_t s2 = boost::size(geometry2);
-//        if ( s1 == 0 || s2 == 0 )
-//        {
-//            // throw on empty output?
-//            return result("FFFFFFFFF");
-//        }
-//        else if ( s1 == 1 && s2 == 1 )
-//        {
-//// TODO : not working for MultiLinestrings
-////            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
-//            BOOST_ASSERT(false);
-//        }
-//        else if ( s1 == 1 /*&& s2 > 1*/ )
-//        {
-//// TODO : not working for MultiLinestrings
-////            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
-//            BOOST_ASSERT(false);
-//        }
-//        else if ( s2 == 1 /*&& s1 > 1*/  )
-//        {
-//// TODO : not working for MultiLinestrings
-////            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
-//            BOOST_ASSERT(false);
-//        }
-
-        // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
-
         result res("FFFFFFFFT");
         static const std::size_t dimension = geometry::dimension<Geometry1>::value;
         if ( dimension < 10 )
             res.template set<exterior, exterior, '0' + dimension>();
-
-        // TEMP
-        //bool has_boundary1 = ! detail::equals::equals_point_point(range::front(geometry1), range::back(geometry1));
-        //bool has_boundary2 = ! detail::equals::equals_point_point(range::front(geometry2), range::back(geometry2));
-        //handle_boundaries(res, geometry1, geometry2, has_boundary1, has_boundary2);
 
         // get and analyse turns
         typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
@@ -296,38 +259,20 @@ struct linear_linear
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
-        if ( turns.empty() )
-        {
-            return res;
-        }
-
         boundary_checker<Geometry1> boundary_checker1(geometry1);
+        disjoint_linestring_pred<0, boundary_checker<Geometry1>, Geometry2> pred1(res, boundary_checker1, geometry2);
+        for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
+        if ( res.interrupt )
+            return res;
+
         boundary_checker<Geometry2> boundary_checker2(geometry2);
+        disjoint_linestring_pred<1, boundary_checker<Geometry2>, Geometry1> pred2(res, boundary_checker2, geometry1);
+        for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
+        if ( res.interrupt )
+            return res;
         
-        disjoint_linestring_pred<boundary_checker<Geometry1>, Geometry2> pred1(boundary_checker1, geometry2);
-        disjoint_linestring_pred<boundary_checker<Geometry2>, Geometry1> pred2(boundary_checker2, geometry1);
-
-        if ( for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1) )
-        {
-            if ( pred1.get_interior() == '1' )
-                res.template update<interior, exterior, '1'>();
-            else if ( pred1.get_interior() == '0' )
-                res.template update<interior, exterior, '0'>();
-
-            if ( pred1.get_boundary() == '0' )
-                res.template update<boundary, exterior, '0'>();
-        }
-
-        if ( for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2) )
-        {
-            if ( pred2.get_interior() == '1' )
-                res.template update<exterior, interior, '1'>();
-            else if ( pred2.get_interior() == '0' )
-                res.template update<exterior, interior, '0'>();
-
-            if ( pred2.get_boundary() == '0' )
-                res.template update<exterior, boundary, '0'>();
-        }
+        if ( turns.empty() )
+            return res;
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
@@ -341,6 +286,9 @@ struct linear_linear
                               geometry1, geometry2,
                               boundary_checker1, boundary_checker2);
         }
+
+        if ( res.interrupt )
+            return res;
         
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
@@ -788,6 +736,9 @@ struct linear_linear
             analyser.apply(res, first, it, last,
                            geometry, other_geometry,
                            boundary_checker, other_boundary_checker);
+
+            if ( res.interrupt )
+                return;
         }
 
         analyser.apply(res, first, last, last,

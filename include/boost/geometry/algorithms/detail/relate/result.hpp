@@ -23,6 +23,9 @@ enum field { interior = 0, boundary = 1, exterior = 2 };
 class result
 {
 public:
+
+    static const bool interrupt = false;
+
     result()
     {
         set('F');
@@ -64,12 +67,12 @@ public:
         return std::make_pair(array, array+9);
     }
 
-    void transpose()
-    {
-        std::swap(array[1], array[3]);
-        std::swap(array[2], array[6]);
-        std::swap(array[5], array[7]);
-    }
+    //void transpose()
+    //{
+    //    std::swap(array[1], array[3]);
+    //    std::swap(array[2], array[6]);
+    //    std::swap(array[5], array[7]);
+    //}
 
 private:
     char array[9];
