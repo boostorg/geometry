@@ -100,8 +100,6 @@ public:
     template <boundary_query BoundaryQuery>
     bool is_boundary(point_type const& pt, segment_identifier const& sid)
     {
-        // TODO: for explicit parameters ASSERT could be used
-
         if ( BoundaryQuery == boundary_front )
         {
             if ( sid.segment_index != 0 )
@@ -144,11 +142,13 @@ private:
             for ( multi_iterator it = boost::begin(geometry) ;
                   it != boost::end(geometry) ; ++ it )
             {
-                // point - no boundary
+                // empty or point - no boundary
                 if ( boost::size(*it) < 2 )
                     continue;
 
-                // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
+                // linear ring or point - no boundary
+                if ( equals::equals_point_point(range::front(*it), range::back(*it)) )
+                    continue;
 
                 boundary_points.push_back(range::front(*it));
                 boundary_points.push_back(range::back(*it));

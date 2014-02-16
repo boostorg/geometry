@@ -28,27 +28,42 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-//enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
-//
-//template <typename Linestring>
-//linestring_kind check_linestring_kind(Linestring const& ls)
-//{
-//    std::size_t count = boost::size(ls);
-//    if ( count == 0 )
-//        return linestring_exterior;
-//    else if ( count == 1 )
-//        return linestring_point;
-//    else
-//    {
-//        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
-//        if ( equal_fb )
-//            // TODO: here the rest of points should be checked if they're equal with the first one
-//            //       and if they are, then it's a point
-//            return linestring_closed;
-//        else
-//            return linestring_open;
-//    }
-//}
+enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
+
+template <typename Linestring>
+linestring_kind check_linestring_kind(Linestring const& ls)
+{
+    std::size_t count = boost::size(ls);
+    if ( count == 0 )
+        return linestring_exterior;
+    else if ( count == 1 )
+        return linestring_point;
+    else
+    {
+        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
+        if ( equal_fb )
+        {
+            typedef typename boost::range_iterator<Linestring const>::type iterator;
+            iterator first = boost::begin(ls);
+            ++first;
+            iterator last = boost::end(ls);
+            --last;
+            for ( iterator it = first ; it != last ; ++it )
+            {
+                if ( !equals::equals_point_point(range::front(ls), *it) )
+                    return linestring_closed;
+            }
+
+            return linestring_point;
+        }
+        else
+            return linestring_open;
+    }
+}
+
+// TODO:
+// For 1-point linestrings or with all equal points turns won't be generated!
+// Check for those degenerated cases may be connected with this one!
 
 template <std::size_t OpId,
           typename Geometry,
@@ -60,13 +75,13 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, linestring_tag>
 {
     template <typename TurnIt, typename Pred>
     static inline bool apply(TurnIt first, TurnIt last,
-                             Geometry const& /*geometry*/,
-                             Pred & /*pred*/)
+                             Geometry const& geometry,
+                             Pred & pred)
     {
-        BOOST_ASSERT(first != last);
-        // TODO: check if has at least one valid turn - uix?
-        //return first != last;
-        return false;
+        if ( first != last )
+            return false;
+        pred(geometry);
+        return true;
     }
 };
 
@@ -112,12 +127,19 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
     }
 };
 
-template <typename BoundaryChecker>
+// Called in a loop for:
+// Ls/Ls - worst O(N) - 1x point_in_geometry(MLs)
+// Ls/MLs - worst O(N) - 1x point_in_geometry(MLs)
+// MLs/Ls - worst O(N^2) - Bx point_in_geometry(Ls)
+// MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
+// TODO: later use spatial index
+template <typename BoundaryChecker, typename OtherGeometry>
 class disjoint_linestring_pred
 {
 public:
-    disjoint_linestring_pred(BoundaryChecker & boundary_checker)
+    disjoint_linestring_pred(BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
         : m_boundary_checker_ptr(boost::addressof(boundary_checker))
+        , m_other_geometry(boost::addressof(other_geometry))
         , m_boundary('F')
         , m_interior('F')
     {}
@@ -125,18 +147,52 @@ public:
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
     {
-        std::size_t count = boost::size(linestring);
+        linestring_kind lk = check_linestring_kind(linestring);
 
-        if ( count > 1 )
+        if ( lk == linestring_point )
         {
-            // TODO: if all points are the same it's 0d object - Point
+            if ( m_interior != '1' )
+            {
+// TODO: what if this point is touching e.g. a linestring's boundary
+// it should then be analysed later
 
+                // check the relation
+                int pig = within::point_in_geometry(range::front(linestring), *m_other_geometry);
+
+                // point inside
+                if ( pig > 0 )
+                {
+                    // TODO
+                    // interior, interior 
+                }
+                // point on boundary
+                else if ( pig == 0 )
+                {
+                    // TODO
+                    // interior, boundary
+                }
+                // point outside
+                else
+                {
+                    m_interior = '0';
+                    // interior, exterior
+                }
+            }
+        }
+        else if ( lk == linestring_closed )
+        {
+            m_interior = '1';
+            // interior, exterior
+        }
+        else if ( lk == linestring_open )
+        {
             m_interior = '1';
 
+            // check if there is a boundary
             if ( m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+                 is_endpoint_boundary<boundary_front>(range::front(linestring))
               || m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+                 is_endpoint_boundary<boundary_back>(range::back(linestring)) )
             {
                 m_boundary = '0';
 
@@ -144,11 +200,6 @@ public:
                 // we may be certain that there won't be bigger dimensions
                 return false;
             }
-        }
-        else if ( count == 1 )
-        {
-            if ( m_interior != '1' )
-                m_interior = '0';
         }
 
         return true;
@@ -159,6 +210,7 @@ public:
 
 private:
     BoundaryChecker * m_boundary_checker_ptr;
+    const OtherGeometry * m_other_geometry;
     char m_boundary;
     char m_interior;
 };
@@ -201,29 +253,29 @@ struct linear_linear
         // TODO: currently this only works for linestrings
         std::size_t s1 = boost::size(geometry1);
         std::size_t s2 = boost::size(geometry2);
-        if ( s1 == 0 || s2 == 0 )
-        {
-            // throw on empty output?
-            return result("FFFFFFFFF");
-        }
-        else if ( s1 == 1 && s2 == 1 )
-        {
-// TODO : not working for MultiLinestrings
-//            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
-            BOOST_ASSERT(false);
-        }
-        else if ( s1 == 1 /*&& s2 > 1*/ )
-        {
-// TODO : not working for MultiLinestrings
-//            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
-            BOOST_ASSERT(false);
-        }
-        else if ( s2 == 1 /*&& s1 > 1*/  )
-        {
-// TODO : not working for MultiLinestrings
-//            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
-            BOOST_ASSERT(false);
-        }
+//        if ( s1 == 0 || s2 == 0 )
+//        {
+//            // throw on empty output?
+//            return result("FFFFFFFFF");
+//        }
+//        else if ( s1 == 1 && s2 == 1 )
+//        {
+//// TODO : not working for MultiLinestrings
+////            return point_point<point1_type, point2_type>::apply(range::front(geometry1), range::front(geometry2));
+//            BOOST_ASSERT(false);
+//        }
+//        else if ( s1 == 1 /*&& s2 > 1*/ )
+//        {
+//// TODO : not working for MultiLinestrings
+////            return point_geometry<point1_type, Geometry2>::apply(range::front(geometry1), geometry2);
+//            BOOST_ASSERT(false);
+//        }
+//        else if ( s2 == 1 /*&& s1 > 1*/  )
+//        {
+//// TODO : not working for MultiLinestrings
+////            return geometry_point<Geometry2, point2_type>::apply(geometry1, range::front(geometry2));
+//            BOOST_ASSERT(false);
+//        }
 
         // TODO: handle also linestrings with points_num == 2 and equals(front, back) - treat like point?
 
@@ -252,8 +304,8 @@ struct linear_linear
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         boundary_checker<Geometry2> boundary_checker2(geometry2);
         
-        disjoint_linestring_pred< boundary_checker<Geometry1> > pred1(boundary_checker1);
-        disjoint_linestring_pred< boundary_checker<Geometry2> > pred2(boundary_checker2);
+        disjoint_linestring_pred<boundary_checker<Geometry1>, Geometry2> pred1(boundary_checker1, geometry2);
+        disjoint_linestring_pred<boundary_checker<Geometry2>, Geometry1> pred2(boundary_checker2, geometry1);
 
         if ( for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1) )
         {
