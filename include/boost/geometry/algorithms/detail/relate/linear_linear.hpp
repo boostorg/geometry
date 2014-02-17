@@ -136,7 +136,7 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
 template <std::size_t OpId, typename BoundaryChecker, typename OtherGeometry>
 class disjoint_linestring_pred
 {
-    static const bool reverse_result = OpId != 0;
+    static const bool transpose_result = OpId != 0;
 
 public:
     disjoint_linestring_pred(result & res, BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
@@ -162,19 +162,19 @@ public:
                 // point inside
                 if ( pig > 0 )
                 {
-                    update_result<interior, interior, '0', reverse_result>(*m_result_ptr);
+                    update<interior, interior, '0', transpose_result>(*m_result_ptr);
                     m_detected_mask_point |= 1;
                 }
                 // point on boundary
                 else if ( pig == 0 )
                 {
-                    update_result<interior, boundary, '0', reverse_result>(*m_result_ptr);
+                    update<interior, boundary, '0', transpose_result>(*m_result_ptr);
                     m_detected_mask_point |= 2;
                 }
                 // point outside
                 else
                 {
-                    update_result<interior, exterior, '0', reverse_result>(*m_result_ptr);
+                    update<interior, exterior, '0', transpose_result>(*m_result_ptr);
                     m_detected_mask_point |= 4;
                 }
             }
@@ -185,7 +185,7 @@ public:
         {
             if ( !m_detected_open_boundary ) // just an optimization
             {
-                update_result<interior, exterior, '1', reverse_result>(*m_result_ptr);
+                update<interior, exterior, '1', transpose_result>(*m_result_ptr);
 
                 // check if there is a boundary
                 if ( m_boundary_checker_ptr->template
@@ -193,7 +193,7 @@ public:
                     || m_boundary_checker_ptr->template
                     is_endpoint_boundary<boundary_back>(range::back(linestring)) )
                 {
-                    update_result<boundary, exterior, '0', reverse_result>(*m_result_ptr);
+                    update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
                     
                     m_detected_open_boundary = true;
                 }
@@ -212,32 +212,6 @@ private:
     bool m_detected_open_boundary;
 };
 
-// update_result
-
-template <field F1, field F2, char D, bool Reverse>
-struct update_result_dispatch
-{
-    static inline void apply(result & res)
-    {
-        res.template update<F1, F2, D>();
-    }
-};
-
-template <field F1, field F2, char D>
-struct update_result_dispatch<F1, F2, D, true>
-{
-    static inline void apply(result & res)
-    {
-        res.template update<F2, F1, D>();
-    }
-};
-
-template <field F1, field F2, char D, bool Reverse>
-inline void update_result(result & res)
-{
-    update_result_dispatch<F1, F2, D, Reverse>::apply(res);
-}
-
 // currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
 struct linear_linear
@@ -247,10 +221,8 @@ struct linear_linear
 
     static inline result apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        result res("FFFFFFFFT");
-        static const std::size_t dimension = geometry::dimension<Geometry1>::value;
-        if ( dimension < 10 )
-            res.template set<exterior, exterior, '0' + dimension>();
+        result res; // FFFFFFFFF
+        set<exterior, exterior, result_dimension<Geometry1>::value>(res);// FFFFFFFFd, d in [1,9] or T
 
         // get and analyse turns
         typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
@@ -451,7 +423,7 @@ struct linear_linear
     {
         static const std::size_t op_id = OpId;
         static const std::size_t other_op_id = (OpId + 1) % 2;
-        static const bool reverse_result = OpId != 0;
+        static const bool transpose_result = OpId != 0;
 
     public:
         turns_analyser()
@@ -497,7 +469,7 @@ struct linear_linear
                         m_exit_watcher.reset_detected_exit();
                     
                         // not the last IP
-                        update_result<interior, exterior, '1', reverse_result>(res);
+                        update<interior, exterior, '1', transpose_result>(res);
                     }
                     // fake exit point, reset state
                     // in reality this will be op == overlay::operation_intersection
@@ -521,7 +493,7 @@ struct linear_linear
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
                             (range::back(sub_geometry::get(geometry, prev_seg_id))) )
                     {
-                        update_result<boundary, exterior, '0', reverse_result>(res);
+                        update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
 
@@ -534,7 +506,7 @@ struct linear_linear
                     bool was_outside = m_exit_watcher.enter(it->point, other_id);
 
                     // interiors overlaps
-                    update_result<interior, interior, '1', reverse_result>(res);
+                    update<interior, interior, '1', transpose_result>(res);
                 
                     // going inside on boundary point
                     if ( boundary_checker.template is_boundary<boundary_front>(it->point, seg_id) )
@@ -546,11 +518,11 @@ struct linear_linear
                         // it's also the boundary of the other geometry
                         if ( other_b )
                         {
-                            update_result<boundary, boundary, '0', reverse_result>(res);
+                            update<boundary, boundary, '0', transpose_result>(res);
                         }
                         else
                         {
-                            update_result<boundary, interior, '0', reverse_result>(res);
+                            update<boundary, interior, '0', transpose_result>(res);
                         }
                     }
                     // going inside on non-boundary point
@@ -559,7 +531,7 @@ struct linear_linear
                         // if we didn't enter in the past, we were outside
                         if ( was_outside && !fake_enter_detected )
                         {
-                            update_result<interior, exterior, '1', reverse_result>(res);
+                            update<interior, exterior, '1', transpose_result>(res);
 
                             // if it's the first IP then the first point is outside
                             if ( first_in_range )
@@ -568,7 +540,7 @@ struct linear_linear
                                 if ( boundary_checker.template is_endpoint_boundary<boundary_front>
                                         (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
-                                    update_result<boundary, exterior, '0', reverse_result>(res);
+                                    update<boundary, exterior, '0', transpose_result>(res);
                                 }
                             }
                         }
@@ -595,11 +567,11 @@ struct linear_linear
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
                                 {
-                                    update_result<boundary, boundary, '0', reverse_result>(res);
+                                    update<boundary, boundary, '0', transpose_result>(res);
                                 }
                                 else
                                 {
-                                    update_result<boundary, interior, '0', reverse_result>(res);
+                                    update<boundary, interior, '0', transpose_result>(res);
                                 }
                             }
                         }
@@ -607,12 +579,12 @@ struct linear_linear
                     // we're outside
                     else
                     {
-                        update_result<interior, exterior, '1', reverse_result>(res);
+                        update<interior, exterior, '1', transpose_result>(res);
 
                         // boundaries don't overlap - just an optimization
                         if ( it->method == overlay::method_crosses )
                         {
-                            update_result<interior, interior, '0', reverse_result>(res);
+                            update<interior, interior, '0', transpose_result>(res);
 
                             // it's the first point in range
                             if ( first_in_range )
@@ -621,7 +593,7 @@ struct linear_linear
                                 if ( boundary_checker.template is_endpoint_boundary<boundary_front>
                                         (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
-                                    update_result<boundary, exterior, '0', reverse_result>(res);
+                                    update<boundary, exterior, '0', transpose_result>(res);
                                 }
                             }
                         }
@@ -643,11 +615,11 @@ struct linear_linear
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
                                 {
-                                    update_result<boundary, boundary, '0', reverse_result>(res);
+                                    update<boundary, boundary, '0', transpose_result>(res);
                                 }
                                 else
                                 {
-                                    update_result<boundary, interior, '0', reverse_result>(res);
+                                    update<boundary, interior, '0', transpose_result>(res);
                                 }
 
                                 // first IP on the last segment point - this means that the first point is outside
@@ -657,14 +629,14 @@ struct linear_linear
                                     if ( boundary_checker.template is_endpoint_boundary<boundary_front>
                                             (range::front(sub_geometry::get(geometry, seg_id))) )
                                     {
-                                        update_result<boundary, exterior, '0', reverse_result>(res);
+                                        update<boundary, exterior, '0', transpose_result>(res);
                                     }
                                 }
                             }
                             // boundaries don't overlap
                             else
                             {
-                                update_result<interior, interior, '0', reverse_result>(res);
+                                update<interior, interior, '0', transpose_result>(res);
 
                                 if ( first_in_range )
                                 {
@@ -672,7 +644,7 @@ struct linear_linear
                                     if ( boundary_checker.template is_endpoint_boundary<boundary_front>
                                             (range::front(sub_geometry::get(geometry, seg_id))) )
                                     {
-                                        update_result<boundary, exterior, '0', reverse_result>(res);
+                                        update<boundary, exterior, '0', transpose_result>(res);
                                     }
                                 }
                             }
@@ -689,7 +661,7 @@ struct linear_linear
                   || m_last_union )
                 {
                     // for sure
-                    update_result<interior, exterior, '1', reverse_result>(res);
+                    update<interior, exterior, '1', transpose_result>(res);
 
                     BOOST_ASSERT(first != last);
 // TODO: ERROR!
@@ -702,7 +674,7 @@ struct linear_linear
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
                             (range::back(sub_geometry::get(geometry, prev_seg_id))) )
                     {
-                        update_result<boundary, exterior, '0', reverse_result>(res);
+                        update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
             }
