@@ -273,6 +273,44 @@ struct linestring_linestring_linestring
 };
 
 
+//===========================================================================
+//===========================================================================
+//===========================================================================
+
+
+
+
+
+template <typename LinestringOut>
+struct linestring_multilinestring_linestring
+{
+    typedef typename point_type<LinestringOut>::type PointOut;
+    typedef overlay::traversal_turn_info<PointOut> turn_info;
+
+
+    template
+    <
+        typename Linestring, typename MultiLinestring,
+        typename OutputIterator, typename Strategy
+    >
+    static inline OutputIterator apply(Linestring const& linestring,
+                                       MultiLinestring const& multilinestring,
+                                       OutputIterator oit,
+                                       Strategy const& strategy)
+    {
+        geometry::model::multi_linestring<Linestring> mls;
+        
+        mls.push_back(linestring);
+        
+        return
+            multilinestring_multilinestring_linestring
+            <
+                LinestringOut
+            >::apply(mls, multilinestring, oit, strategy);
+    }
+};
+
+
 
 
 }} // namespace detail::difference

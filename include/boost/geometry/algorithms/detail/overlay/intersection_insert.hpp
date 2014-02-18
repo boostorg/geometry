@@ -533,6 +533,24 @@ struct intersection_insert
 
 template
 <
+    typename LineString, typename MultiLineString,
+    typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        LineString, MultiLineString,
+        LineStringOut,
+        overlay_difference,
+        Reverse1, Reverse2, ReverseOut,
+        linestring_tag, multi_linestring_tag, linestring_tag,
+        false, false, false
+    > : detail::difference::linestring_multilinestring_linestring<LineStringOut>
+{};
+
+
+template
+<
     typename MultiLineString1, typename MultiLineString2,
     typename LineStringOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
