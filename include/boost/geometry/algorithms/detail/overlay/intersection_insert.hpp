@@ -513,73 +513,23 @@ struct intersection_insert_reversed
 };
 
 
+
+// dispatch for difference of linear geometries
 template
 <
-    typename LineString1, typename LineString2,
+    typename Linear1, typename Linear2,
     typename LineStringOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
     <
-        LineString1, LineString2,
+        Linear1, Linear2,
         LineStringOut,
         overlay_difference,
         Reverse1, Reverse2, ReverseOut,
-        linestring_tag, linestring_tag, linestring_tag,
-        false, false, false
-    > : detail::difference::linear_linear_linestring<LineStringOut>
-{};
-
-
-template
-<
-    typename LineString, typename MultiLineString,
-    typename LineStringOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut
->
-struct intersection_insert
-    <
-        LineString, MultiLineString,
-        LineStringOut,
-        overlay_difference,
-        Reverse1, Reverse2, ReverseOut,
-        linestring_tag, multi_linestring_tag, linestring_tag,
-        false, false, false
-    > : detail::difference::linear_linear_linestring<LineStringOut>
-{};
-
-
-template
-<
-    typename MultiLineString, typename LineString,
-    typename LineStringOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut
->
-struct intersection_insert
-    <
-        MultiLineString, LineString,
-        LineStringOut,
-        overlay_difference,
-        Reverse1, Reverse2, ReverseOut,
-        multi_linestring_tag, linestring_tag, linestring_tag,
-        false, false, false
-    > : detail::difference::linear_linear_linestring<LineStringOut>
-{};
-
-
-template
-<
-    typename MultiLineString1, typename MultiLineString2,
-    typename LineStringOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut
->
-struct intersection_insert
-    <
-        MultiLineString1, MultiLineString2,
-        LineStringOut,
-        overlay_difference,
-        Reverse1, Reverse2, ReverseOut,
-        multi_linestring_tag, multi_linestring_tag, linestring_tag,
+        typename geometry::tag<Linear1>::type,
+        typename geometry::tag<Linear2>::type,
+        linestring_tag,
         false, false, false
     > : detail::difference::linear_linear_linestring<LineStringOut>
 {};
