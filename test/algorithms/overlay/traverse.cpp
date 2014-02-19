@@ -170,7 +170,7 @@ struct test_traverse
         std::vector<turn_info> turns;
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::calculate_distance_policy>(g1, g2, rescale_policy, turns, policy);
+        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::assign_null_policy>(g1, g2, rescale_policy, turns, policy);
         bg::enrich_intersection_points<Reverse1, Reverse2>(turns,
                     Direction == 1 ? bg::detail::overlay::operation_union
                     : bg::detail::overlay::operation_intersection,
@@ -281,8 +281,6 @@ struct test_traverse
 
                     out << "r: " << debug_string(turn.operations[0].fraction)
                         << " ; " << debug_string(turn.operations[1].fraction)
-                        << "r: " << turn.operations[0].r
-                        << " ; " << turn.operations[1].r
                         << std::endl;
                     if (turn.operations[0].enriched.next_ip_index != -1)
                     {
