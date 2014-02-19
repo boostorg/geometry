@@ -207,6 +207,8 @@ void test_all()
 
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(-1 -1,1 0,10 0,20 -1)", "mii", "txu");
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu", "txi"); 
+    test_geometry<ls, ls>("LINESTRING(-1 -1,1 0,10 0,20 -1)", "LINESTRING(0 0,10 0)", "mii", "tux");
+    test_geometry<ls, ls>("LINESTRING(20 -1,10 0,1 0,-1 -1)", "LINESTRING(0 0,10 0)", "mui", "tix"); 
 
     test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
                           "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
@@ -220,6 +222,20 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
                           "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
                           expected("tuu")("ecc")("mii")("muu")("mii")("muu")("mii").vec);
+
+    test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1,3 2)", "LINESTRING(4 5,3 2,1 0,0 0)", "mix", "txi", "ecc");
+    test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)", "LINESTRING(-1 0,1 0,2 1,3 2)", "mxi", "tix", "ecc");
+
+    test_geometry<ls, ls>("LINESTRING(30 1,20 1,10 0,0 0)", "LINESTRING(1 1,2 0,3 1,20 1,25 1)", "mix", "tui", "muu");
+    test_geometry<ls, ls>("LINESTRING(1 1,2 0,3 1,20 1,25 1)", "LINESTRING(30 1,20 1,10 0,0 0)", "mxi", "tiu", "muu");
+
+    test_geometry<ls, ls>("LINESTRING(0 0,30 0)", "LINESTRING(4 0,4 1,20 1,5 0,1 0)", "muu", "mui", "mix");
+    test_geometry<ls, ls>("LINESTRING(4 0,4 1,20 1,5 0,1 0)", "LINESTRING(0 0,30 0)", "muu", "miu", "mxi");
+
+    test_geometry<ls, ls>("LINESTRING(30 0,0 0)", "LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)",
+                          expected("mui")("miu")("mui")("mix").vec);
+    test_geometry<ls, ls>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)", "LINESTRING(30 0,0 0)",
+                          expected("miu")("mui")("miu")("mxi").vec);
 
     //if ( boost::is_same<T, double>::value )
     //{
