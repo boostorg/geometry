@@ -127,6 +127,52 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
     }
 };
 
+template <std::size_t OpId, typename BoundaryChecker>
+class disjoint_linestring_pred
+{
+    static const bool transpose_result = OpId != 0;
+
+public:
+    disjoint_linestring_pred(result & res,
+                             BoundaryChecker & boundary_checker)
+        : m_result_ptr(boost::addressof(res))
+        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
+    {}
+
+    template <typename Linestring>
+    bool operator()(Linestring const& linestring)
+    {
+        std::size_t count = boost::size(linestring);
+        
+        // invalid input
+        if ( count < 2 )
+        {
+            // ignore
+            // TODO: throw an exception?
+            return true;
+        }
+
+        update<interior, exterior, '1', transpose_result>(*m_result_ptr);
+
+        // check if there is a boundary
+        if ( m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_front>(range::front(linestring))
+          || m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+        {
+            update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
+                    
+            return false;
+        }
+
+        return true;
+    }
+
+private:
+    result * m_result_ptr;
+    BoundaryChecker * m_boundary_checker_ptr;
+};
+
 // Called in a loop for:
 // Ls/Ls - worst O(N) - 1x point_in_geometry(MLs)
 // Ls/MLs - worst O(N) - 1x point_in_geometry(MLs)
@@ -134,12 +180,14 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
 // MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
 // TODO: later use spatial index
 template <std::size_t OpId, typename BoundaryChecker, typename OtherGeometry>
-class disjoint_linestring_pred
+class disjoint_linestring_pred_with_point_size_handling
 {
     static const bool transpose_result = OpId != 0;
 
 public:
-    disjoint_linestring_pred(result & res, BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
+    disjoint_linestring_pred_with_point_size_handling(result & res,
+                                                      BoundaryChecker & boundary_checker,
+                                                      OtherGeometry const& other_geometry)
         : m_result_ptr(boost::addressof(res))
         , m_boundary_checker_ptr(boost::addressof(boundary_checker))
         , m_other_geometry(boost::addressof(other_geometry))
@@ -189,9 +237,9 @@ public:
 
                 // check if there is a boundary
                 if ( m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+                        is_endpoint_boundary<boundary_front>(range::front(linestring))
                     || m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+                        is_endpoint_boundary<boundary_back>(range::back(linestring)) )
                 {
                     update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
                     
@@ -232,13 +280,13 @@ struct linear_linear
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<0, boundary_checker<Geometry1>, Geometry2> pred1(res, boundary_checker1, geometry2);
+        disjoint_linestring_pred<0, boundary_checker<Geometry1> > pred1(res, boundary_checker1);
         for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( res.interrupt )
             return res;
 
         boundary_checker<Geometry2> boundary_checker2(geometry2);
-        disjoint_linestring_pred<1, boundary_checker<Geometry2>, Geometry1> pred2(res, boundary_checker2, geometry1);
+        disjoint_linestring_pred<1, boundary_checker<Geometry2> > pred2(res, boundary_checker2);
         for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( res.interrupt )
             return res;

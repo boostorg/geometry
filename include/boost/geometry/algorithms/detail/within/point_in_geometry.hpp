@@ -116,11 +116,13 @@ struct point_in_geometry<Linestring, linestring_tag>
             else
                 return 1;
         }
-        else if ( count == 1 )
+// TODO: for now degenerated linestrings are ignored
+//       throw an exception here?
+        /*else if ( count == 1 )
         {
             if ( detail::equals::equals_point_point(point, *boost::begin(linestring)) )
                 return 1;
-        }
+        }*/
 
         return -1;
     }
