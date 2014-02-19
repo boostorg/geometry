@@ -300,7 +300,7 @@ struct linear_linear
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
-            turns_analyser<0, point1_type> analyser;
+            turns_analyser<0, turn_type> analyser;
             analyse_each_turn(res, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
@@ -313,7 +313,7 @@ struct linear_linear
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
 
-            turns_analyser<1, point1_type> analyser;
+            turns_analyser<1, turn_type> analyser;
             analyse_each_turn(res, analyser,
                               turns.begin(), turns.end(),
                               geometry2, geometry1,
@@ -466,16 +466,20 @@ struct linear_linear
         std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
     };
 
-    template <std::size_t OpId, typename TurnPoint>
+    // This analyser should be used like Input or SinglePass Iterator
+    template <std::size_t OpId, typename TurnInfo>
     class turns_analyser
     {
+        typedef typename TurnInfo::point_type turn_point_type;
+
         static const std::size_t op_id = OpId;
         static const std::size_t other_op_id = (OpId + 1) % 2;
         static const bool transpose_result = OpId != 0;
 
     public:
         turns_analyser()
-            : m_last_union(false)
+            : m_previous_turn_ptr(0)
+            , m_previous_operation(overlay::operation_none)
         {}
 
         template <typename TurnIt,
@@ -528,14 +532,14 @@ struct linear_linear
                     }
                 }
 
-                if ( first_in_range && !fake_enter_detected && m_last_union )
+                if ( first_in_range
+                  && ! fake_enter_detected
+                  && m_previous_operation == overlay::operation_union )
                 {
                     BOOST_ASSERT(it != first);
-// TODO: ERROR!
-// PREV MAY NOT BE VALID!
-                    TurnIt prev = it;
-                    --prev;
-                    segment_identifier const& prev_seg_id = prev->operations[op_id].seg_id;
+                    BOOST_ASSERT(m_previous_turn_ptr);
+
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     // if there is a boundary on the last point
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
@@ -544,9 +548,6 @@ struct linear_linear
                         update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
-
-                // reset state
-                m_last_union = (op == overlay::operation_union);
 
                 // i/i, i/x, i/u
                 if ( op == overlay::operation_intersection )
@@ -699,6 +700,11 @@ struct linear_linear
                         }
                     }
                 }
+
+                // store ref to previously analysed (valid) turn
+                m_previous_turn_ptr = boost::addressof(*it);
+                // and previously analysed (valid) operation
+                m_previous_operation = op;
             }
             // it == last
             else
@@ -706,18 +712,16 @@ struct linear_linear
                 // here, the possible exit is the real one
                 // we know that we entered and now we exit
                 if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                  || m_last_union )
+                  || m_previous_operation == overlay::operation_union )
                 {
                     // for sure
                     update<interior, exterior, '1', transpose_result>(res);
 
                     BOOST_ASSERT(first != last);
-// TODO: ERROR!
-// PREV MAY NOT BE VALID!
-                    TurnIt prev = last;
-                    --prev;
-                    segment_identifier const& prev_seg_id = prev->operations[OpId].seg_id;
-                    
+                    BOOST_ASSERT(m_previous_turn_ptr);
+
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[OpId].seg_id;
+
                     // if there is a boundary on the last point
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
                             (range::back(sub_geometry::get(geometry, prev_seg_id))) )
@@ -729,9 +733,10 @@ struct linear_linear
         }
 
     private:
-        exit_watcher<TurnPoint> m_exit_watcher;
+        exit_watcher<turn_point_type> m_exit_watcher;
         segment_watcher m_seg_watcher;
-        bool m_last_union;
+        TurnInfo * m_previous_turn_ptr;
+        overlay::operation_type m_previous_operation;
     };
 
     template <typename TurnIt,
