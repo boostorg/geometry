@@ -210,7 +210,9 @@ public:
 
             if ( is_entering(*it, *iit) )
             {
+#ifdef GEOMETRY_TEST_DEBUG
                 detail::overlay::debug_traverse(*it, *iit, "-> Entering");
+#endif
 
                 entered = true;
                 if ( enter_count == 0 )
@@ -223,13 +225,17 @@ public:
             }
             else if ( is_staying_inside(*it, *iit, entered, first, ls1, ls2) )
             {
+#ifdef GEOMETRY_TEST_DEBUG
                 detail::overlay::debug_traverse(*it, *iit, "-> Staying inside");
+#endif
 
                 entered = true;
             }
             else if ( is_leaving(*it, *iit, *iit_r, entered, first, ls1, ls2) )
             {
+#ifdef GEOMETRY_TEST_DEBUG
                 detail::overlay::debug_traverse(*it, *iit, "-> Leaving");
+#endif
 
                 --enter_count;
                 if ( enter_count == 0 )
@@ -243,7 +249,7 @@ public:
             first = false;
         }
 
-#ifdef PRINT_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
         std::cout << "*** enter count: " << enter_count << std::endl;
 #endif
         BOOST_CHECK( enter_count == 0 );

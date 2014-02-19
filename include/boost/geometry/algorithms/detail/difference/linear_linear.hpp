@@ -45,6 +45,7 @@ struct multilinestring_multilinestring_linestring
     typedef typename Turns::iterator TurnIt;
     typedef detail::get_turns::no_interrupt_policy InterruptPolicy;
 
+
     struct AssignPolicy
     {
         static bool const include_no_turn = false;
@@ -65,6 +66,7 @@ struct multilinestring_multilinestring_linestring
             overlay::calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
+
 
     struct IsContinueTurn
     {
@@ -89,17 +91,6 @@ struct multilinestring_multilinestring_linestring
     };
 
 
-    struct TurnEqualsTo
-    {
-        template <typename Turn>
-        bool operator()(Turn const& t1, Turn const& t2) const
-        {
-            return geometry::equals(t1.point, t2.point)
-                && t1.operations[0].seg_id == t2.operations[0].seg_id
-                && t1.operations[0].other_id == t2.operations[0].other_id;
-        }
-    };
-
     template <typename Turns>
     static inline void filter_turns(Turns& turns)
     {
@@ -107,16 +98,6 @@ struct multilinestring_multilinestring_linestring
 
         TurnIt new_end = std::remove_if(turns.begin(), turns.end(),
                                         IsContinueTurn());
-        turns.resize( std::distance(turns.begin(), new_end) );
-    }
-
-    template <typename Turns>
-    static inline void remove_duplicates(Turns& turns)
-    {
-        typedef typename Turns::iterator TurnIt;
-
-        TurnIt new_end = std::unique(turns.begin(), turns.end(),
-                                     TurnEqualsTo());
         turns.resize( std::distance(turns.begin(), new_end) );
     }
 
@@ -190,7 +171,7 @@ struct multilinestring_multilinestring_linestring
         {
             // the two linestrings are disjoint; we return the first as is;
             //            canonical<MultiLinestringOut>::apply(mls1);
-#ifdef PRINT_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
             std::cout << "NO INTERSECTIONS" << std::endl;
 #endif
             std::copy(mls1.begin(), mls1.end(), oit);
@@ -212,10 +193,7 @@ struct multilinestring_multilinestring_linestring
         std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
                   rev_less());
 
-        remove_duplicates(turns);
-        remove_duplicates(reverse_turns);
-
-#ifdef PRINT_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
         detail::turns::print_turns(mls1, mls2, turns);
         std::cout << std::endl << std::endl;
         detail::turns::print_turns(mls1, mls2_reverse, reverse_turns);

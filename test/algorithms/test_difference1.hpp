@@ -15,13 +15,15 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/multi/algorithms/reverse.hpp>
 
-//#include "to_svg.hpp"
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <boost/geometry/geometry.hpp>
 
 
 namespace bg = ::boost::geometry;
+
+#include "to_svg.hpp"
 
 
 template <typename LS1, typename LS2>
@@ -116,7 +118,7 @@ struct multilinestring_equals
 
 //==================================================================
 //==================================================================
-// difference -- base test
+// difference of (linear) geometries
 //==================================================================
 //==================================================================
 
@@ -125,13 +127,13 @@ template
     typename Geometry1, typename Geometry2,
     typename MultiLineString
 >
-struct test_difference_base_test
+struct test_difference_of_geometries
 {
-    void operator()(Geometry1 const& geometry1,
-                    Geometry2 const& geometry2,
-                    MultiLineString const& mls_diff,
-                    bool test_vector_and_deque = true,
-                    bool reverse_output_for_checking = false) const
+    void base_test(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   MultiLineString const& mls_diff,
+                   bool test_vector_and_deque = true,
+                   bool reverse_output_for_checking = false) const
     {
         typedef typename boost::range_value<MultiLineString>::type LineString;
         typedef std::vector<LineString> LineStringVector;
@@ -157,7 +159,7 @@ struct test_difference_base_test
 
         if ( test_vector_and_deque )
         {
-#ifdef PRINT_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
             std::cout << std::endl;
             std::cout << "Testing with vector and deque as output container..."
                       << std::endl;
@@ -176,7 +178,7 @@ struct test_difference_base_test
                              MultiLineString, LineStringDeque
                          >::apply(mls_diff, ls_deque_output)
                          ));
-#ifdef PRINT_DEBUG
+#ifdef GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
 #endif
         }
@@ -191,42 +193,23 @@ struct test_difference_base_test
         std::cout << std::endl;
 #endif
     }
-};
 
-//==================================================================
-//==================================================================
-// difference of linestrings
-//==================================================================
-//==================================================================
 
-struct test_difference_of_linestrings
-{
-    template
-        <
-            typename LineString1, typename LineString2,
-            typename MultiLineStringOut
-        >
-    void operator()(LineString1 const& linestring1,
-                    LineString2 const& linestring2,
-                    MultiLineStringOut const& mls_diff) const
+
+    void operator()(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    MultiLineString const& mls_diff) const
     {
-        typedef test_difference_base_test
-            <
-                LineString1, LineString2, MultiLineStringOut
-            > BaseTest;
+        Geometry1 rg1(geometry1);
+        bg::reverse<Geometry1>(rg1);
 
-        BaseTest base_test;
+        Geometry2 rg2(geometry2);
+        bg::reverse<Geometry2>(rg2);
 
-        LineString1 rls1(linestring1);
-        bg::reverse<LineString1>(rls1);
-
-        LineString2 rls2(linestring2);
-        bg::reverse<LineString2>(rls2);
-
-        base_test(linestring1, linestring2, mls_diff);
-        base_test(linestring1, rls2, mls_diff, false);
-        base_test(rls1, linestring2, mls_diff, false, true);
-        base_test(rls1, rls2, mls_diff, false, true);
+        base_test(geometry1, geometry2, mls_diff);
+        base_test(geometry1, rg2, mls_diff, false);
+        base_test(rg1, geometry2, mls_diff, false, true);
+        base_test(rg1, rg2, mls_diff, false, true);
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
@@ -234,84 +217,21 @@ struct test_difference_of_linestrings
 #endif
     }
 
-    template
-        <
-            typename Linestring1, typename Linestring2,
-            typename MultiLinestringOut
-        >
-    void operator()(Linestring1 const& linestring1,
-                    Linestring2 const& linestring2,
-                    MultiLinestringOut const& mls_diff,
+
+    void operator()(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    MultiLineString const& mls_diff,
                     std::string const& test_case_str) const
     {
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << test_case_str << std::endl;
-        //        to_svg(linestring1, linestring2, svg_fname);
+        std::stringstream sstr;
+        sstr << "svgs/" << test_case_str << ".svg";
+        to_svg(geometry1, geometry2, sstr.str());
 #endif
-        this->operator()(linestring1, linestring2, mls_diff);
+        this->operator()(geometry1, geometry2, mls_diff);
     }
 };
-
-
-//==================================================================
-//==================================================================
-// difference of multilinestrings
-//==================================================================
-//==================================================================
-
-struct test_difference_of_multilinestrings
-{
-    template
-        <
-            typename MultiLinestring1, typename MultiLinestring2,
-            typename MultiLinestringOut
-        >
-    void operator()(MultiLinestring1 const& multilinestring1,
-                    MultiLinestring2 const& multilinestring2,
-                    MultiLinestringOut const& mls_diff) const
-    {
-        typedef test_difference_base_test
-            <
-                MultiLinestring1, MultiLinestring2, MultiLinestringOut
-            > BaseTest;
-
-        BaseTest base_test;
-
-        MultiLinestring1 rmls1(multilinestring1);
-        bg::reverse<MultiLinestring1>(rmls1);
-
-        MultiLinestring2 rmls2(multilinestring2);
-        bg::reverse<MultiLinestring2>(rmls2);
-
-        base_test(multilinestring1, multilinestring2, mls_diff);
-        base_test(multilinestring1, rmls2, mls_diff, false);
-        base_test(rmls1, multilinestring2, mls_diff, false, true);
-        base_test(rmls1, rmls2, mls_diff, false, true);
-
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << std::endl;
-        std::cout << std::endl;
-#endif
-    }
-
-    template
-        <
-            typename MultiLinestring1, typename MultiLinestring2,
-            typename MultiLinestringOut
-        >
-    void operator()(MultiLinestring1 const& multilinestring1,
-                    MultiLinestring2 const& multilinestring2,
-                    MultiLinestringOut const& mls_diff,
-                    std::string const& test_case_str) const
-    {
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "test case: " << test_case_str << std::endl;
-        //        to_svg(multilinestring1, multilinestring2, svg_fname);
-#endif
-        this->operator()(multilinestring1, multilinestring2, mls_diff);
-    }
-};
-
 
 
 #endif // BOOST_GEOMETRY_TEST_DIFFERENCE1_HPP
