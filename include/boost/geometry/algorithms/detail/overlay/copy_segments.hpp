@@ -93,7 +93,7 @@ struct copy_segments_ring
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
-            traits::push_back<RangeOut>::apply(current_output, *it);
+            detail::overlay::append_no_dups_or_spikes(current_output, *it);
         }
     }
 };

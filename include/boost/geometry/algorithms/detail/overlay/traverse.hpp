@@ -139,7 +139,7 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
         seg_id = info.seg_id;
     }
 
-    traits::push_back<GeometryOut>::apply(current_output, ip->point);
+    detail::overlay::append_no_dups_or_spikes(current_output, ip->point);
 
     return true;
 }
@@ -279,7 +279,7 @@ public :
                             set_visited_for_continue(*it, *iit);
 
                             ring_type current_output;
-                            geometry::append(current_output, it->point);
+                            detail::overlay::append_no_dups_or_spikes(current_output, it->point);
 
                             turn_iterator current = it;
                             turn_operation_iterator_type current_iit = iit;
@@ -391,7 +391,9 @@ public :
                                     detail::overlay::debug_traverse(*current, *iit, "->Finished");
                                     if (geometry::num_points(current_output) >= min_num_points)
                                     {
+                                        // TODO this call should go, it should already be clean from dups/spikes
                                         clean_dups_and_spikes(current_output, rescale_policy);
+                                        // END TODO
                                         rings.push_back(current_output);
                                     }
                                 }
