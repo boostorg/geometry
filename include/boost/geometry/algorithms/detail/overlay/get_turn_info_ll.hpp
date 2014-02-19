@@ -492,7 +492,8 @@ struct get_turn_info_linear_linear
 
             result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
                                     append0_last :
-                                    (append0_last && p0j);
+                                    (append0_last && (p0j || q0_last && q1i));
+                                    // NOTE: based on how collinear is calculated for opposite segments
 
             if ( append0_first || append0_last )
             {
@@ -533,7 +534,9 @@ struct get_turn_info_linear_linear
 
             result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
                                     append1_last :
-                                    (append1_last && q1j);
+                                    (append1_last && (q1j || p1_last && p0i));
+                                    // NOTE: based on how collinear is calculated for opposite segments
+                                    //       this condition is symmetric to the one above
 
             if ( append1_first || append1_last )
             {

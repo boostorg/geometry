@@ -62,15 +62,15 @@ struct relate<Point1, Point2, point_tag, point_tag>
     : detail::relate::point_point<Point1, Point2>
 {};
 
-template <typename Point, typename Box>
-struct relate<Point, Box, point_tag, box_tag>
-    : detail::relate::point_box<Point, Box>
-{};
-
-template <typename Box, typename Point>
-struct relate<Box, Point, box_tag, point_tag>
-    : detail::relate::box_point<Box, Point>
-{};
+//template <typename Point, typename Box>
+//struct relate<Point, Box, point_tag, box_tag>
+//    : detail::relate::point_box<Point, Box>
+//{};
+//
+//template <typename Box, typename Point>
+//struct relate<Box, Point, box_tag, point_tag>
+//    : detail::relate::box_point<Box, Point>
+//{};
 
 template <typename Point, typename Geometry, typename Tag2>
 struct relate<Point, Geometry, point_tag, Tag2>
@@ -90,6 +90,16 @@ struct relate<Linestring1, Linestring2, linestring_tag, linestring_tag>
 template <typename Linestring, typename MultiLinestring>
 struct relate<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
     : detail::relate::linear_linear<Linestring, MultiLinestring>
+{};
+
+template <typename MultiLinestring, typename Linestring>
+struct relate<MultiLinestring, Linestring, multi_linestring_tag, linestring_tag>
+    : detail::relate::linear_linear<MultiLinestring, Linestring>
+{};
+
+template <typename MultiLinestring1, typename MultiLinestring2>
+struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
+    : detail::relate::linear_linear<MultiLinestring1, MultiLinestring2>
 {};
 
 }} // namespace detail_dispatch::relate

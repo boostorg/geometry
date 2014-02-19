@@ -14,8 +14,8 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp> // later change to equal/point_point.hpp
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-#include <boost/geometry/algorithms/within.hpp>
-#include <boost/geometry/algorithms/covered_by.hpp>
+//#include <boost/geometry/algorithms/within.hpp>
+//#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 
@@ -30,104 +30,22 @@ struct point_point
 {
     static inline result apply(Point1 const& point1, Point2 const& point2)
     {
+        result res;
+
         bool equal = detail::equals::equals_point_point(point1, point2);
-
         if ( equal )
-            return result("0FFFFFFFT");
+        {
+            set<interior, interior, '0'>(res);
+            set<exterior, exterior, result_dimension<Point1>::value>(res);
+        }
         else
-            return result("FF0FFF0FT");
-    }
-};
-
-// NOTE: Those tests should be consistent with within(Point, Box) and covered_by(Point, Box)
-// There is no EPS used in those functions, values are compared using < or <=
-// so comparing MIN and MAX in the same way should be fine
-
-template <typename Box, std::size_t I = 0, std::size_t D = geometry::dimension<Box>::value>
-struct box_has_interior
-{
-    static inline bool apply(Box const& box)
-    {
-        return geometry::get<min_corner, I>(box) < geometry::get<max_corner, I>(box)
-            && box_has_interior<Box, I + 1, D>::apply(box);
-    }
-};
-
-template <typename Box, std::size_t D>
-struct box_has_interior<Box, D, D>
-{
-    static inline bool apply(Box const&) { return true; }
-};
-
-// NOTE: especially important here (see the NOTE above).
-
-template <typename Box, std::size_t I = 0, std::size_t D = geometry::dimension<Box>::value>
-struct box_has_equal_min_max
-{
-    static inline bool apply(Box const& box)
-    {
-        return geometry::get<min_corner, I>(box) == geometry::get<max_corner, I>(box)
-            && box_has_equal_min_max<Box, I + 1, D>::apply(box);
-    }
-};
-
-template <typename Box, std::size_t D>
-struct box_has_equal_min_max<Box, D, D>
-{
-    static inline bool apply(Box const&) { return true; }
-};
-
-template <typename Point, typename Box>
-struct point_box
-{
-    static inline result apply(Point const& point, Box const& box)
-    {
-        if ( geometry::within(point, box) ) // this also means that the box has interior
         {
-            return result("0FFFFFTTT");
+            set<interior, exterior, '0'>(res);
+            set<exterior, interior, '0'>(res);
+            set<exterior, exterior, result_dimension<Point1>::value>(res);
         }
-        else if ( geometry::covered_by(point, box) ) // point is on the boundary
-        {
-            //if ( box_has_interior<Box>::apply(box) )
-            //{
-            //    return result("F0FFFFTTT");
-            //}
-            //else if ( box_has_equal_min_max<Box>::apply(box) ) // no boundary outside point
-            //{
-            //    return result("F0FFFFFFT");
-            //}
-            //else // no interior outside point
-            //{
-            //    return result("F0FFFFFTT");
-            //}
-            return result("F0FFFF**T");
-        }
-        else 
-        {
-            /*if ( box_has_interior<Box>::apply(box) )
-            {
-                return result("FF0FFFTTT");
-            }
-            else
-            {
-                return result("FF0FFFFTT");
-            }*/
-            return result("FF0FFF*TT");
-        }
-    }
-};
 
-template <typename Box, typename Point>
-struct box_point
-{
-    static inline result apply(Box const& box, Point const& point)
-    {
-        if ( geometry::within(point, box) )
-            return result("0FTFFTFFT");
-        else if ( geometry::covered_by(point, box) )
-            return result("FF*0F*FFT");
-        else 
-            return result("FF*FFT0FT");
+        return res;
     }
 };
 
@@ -137,17 +55,31 @@ struct point_geometry
 {
     static inline result apply(Point const& point, Geometry const& geometry)
     {
+        result res;
+
         int pig = detail::within::point_in_geometry(point, geometry);
 
         // TODO: * - if geometry has interior and/or boundary
         // e.g. isn't 1-point linestring or linear ring or 0-area polygon
 
-        if ( pig < 0 ) // not within
-            return result("FF0FFF**T");
+        if ( pig > 0 ) // within
+        {
+            set<interior, interior, '0'>(res);
+        }
         else if ( pig == 0 )
-            return result("F0FFFF**T");
-        else // pig > 0 - within
-            return result("0FFFFF**T");
+        {
+            set<interior, boundary, '0'>(res);
+        }
+        else // pig < 0 - not within
+        {
+            set<interior, exterior, '0'>(res);
+        }
+
+        set<exterior, interior, '*'>(res); // TODO
+        set<exterior, boundary, '*'>(res); // TODO
+        set<exterior, exterior, result_dimension<Point>::value>(res);
+
+        return res;
     }
 };
 
@@ -157,19 +89,131 @@ struct geometry_point
 {
     static inline result apply(Geometry const& geometry, Point const& point)
     {
+        result res;
+
         int pig = detail::within::point_in_geometry(point, geometry);
 
         // TODO: * - if geometry has interior and/or boundary
         // e.g. isn't 1-point linestring or linear ring or 0-area polygon
 
-        if ( pig < 0 ) // not within
-            return result("FF*FF*0FT");
+        if ( pig > 0 ) // within
+        {
+            set<interior, interior, '0'>(res);
+        }
         else if ( pig == 0 )
-            return result("FF*0F*FFT");
-        else // pig > 0 - within
-            return result("0F*FF*FFT");
+        {
+            set<boundary, interior, '0'>(res);
+        }
+        else // pig < 0 - not within
+        {
+            set<exterior, interior, '0'>(res);
+        }
+
+        set<interior, exterior, '*'>(res); // TODO
+        set<boundary, exterior, '*'>(res); // TODO
+        set<exterior, exterior, result_dimension<Point>::value>(res);
+
+        return res;
     }
 };
+
+// TODO: rewrite the folowing:
+
+//// NOTE: Those tests should be consistent with within(Point, Box) and covered_by(Point, Box)
+//// There is no EPS used in those functions, values are compared using < or <=
+//// so comparing MIN and MAX in the same way should be fine
+//
+//template <typename Box, std::size_t I = 0, std::size_t D = geometry::dimension<Box>::value>
+//struct box_has_interior
+//{
+//    static inline bool apply(Box const& box)
+//    {
+//        return geometry::get<min_corner, I>(box) < geometry::get<max_corner, I>(box)
+//            && box_has_interior<Box, I + 1, D>::apply(box);
+//    }
+//};
+//
+//template <typename Box, std::size_t D>
+//struct box_has_interior<Box, D, D>
+//{
+//    static inline bool apply(Box const&) { return true; }
+//};
+//
+//// NOTE: especially important here (see the NOTE above).
+//
+//template <typename Box, std::size_t I = 0, std::size_t D = geometry::dimension<Box>::value>
+//struct box_has_equal_min_max
+//{
+//    static inline bool apply(Box const& box)
+//    {
+//        return geometry::get<min_corner, I>(box) == geometry::get<max_corner, I>(box)
+//            && box_has_equal_min_max<Box, I + 1, D>::apply(box);
+//    }
+//};
+//
+//template <typename Box, std::size_t D>
+//struct box_has_equal_min_max<Box, D, D>
+//{
+//    static inline bool apply(Box const&) { return true; }
+//};
+//
+//template <typename Point, typename Box>
+//struct point_box
+//{
+//    static inline result apply(Point const& point, Box const& box)
+//    {
+//        result res;
+//
+//        if ( geometry::within(point, box) ) // this also means that the box has interior
+//        {
+//            return result("0FFFFFTTT");
+//        }
+//        else if ( geometry::covered_by(point, box) ) // point is on the boundary
+//        {
+//            //if ( box_has_interior<Box>::apply(box) )
+//            //{
+//            //    return result("F0FFFFTTT");
+//            //}
+//            //else if ( box_has_equal_min_max<Box>::apply(box) ) // no boundary outside point
+//            //{
+//            //    return result("F0FFFFFFT");
+//            //}
+//            //else // no interior outside point
+//            //{
+//            //    return result("F0FFFFFTT");
+//            //}
+//            return result("F0FFFF**T");
+//        }
+//        else 
+//        {
+//            /*if ( box_has_interior<Box>::apply(box) )
+//            {
+//                return result("FF0FFFTTT");
+//            }
+//            else
+//            {
+//                return result("FF0FFFFTT");
+//            }*/
+//            return result("FF0FFF*TT");
+//        }
+//
+//        return res;
+//    }
+//};
+//
+//template <typename Box, typename Point>
+//struct box_point
+//{
+//    static inline result apply(Box const& box, Point const& point)
+//    {
+//        if ( geometry::within(point, box) )
+//            return result("0FTFFTFFT");
+//        else if ( geometry::covered_by(point, box) )
+//            return result("FF*0F*FFT");
+//        else 
+//            return result("FF*FFT0FT");
+//    }
+//};
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
