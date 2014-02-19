@@ -22,6 +22,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
@@ -38,16 +39,16 @@ namespace detail { namespace copy_segments
 {
 
 
-template
-<
-    typename Ring,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
+template<bool Reverse>
 struct copy_segments_ring
 {
-    template <typename RobustPolicy>
+    template
+    <
+        typename Ring,
+        typename SegmentIdentifier,
+        typename RobustPolicy,
+        typename RangeOut
+    >
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id, int to_index,
             RobustPolicy const& robust_policy,
@@ -101,16 +102,16 @@ struct copy_segments_ring
     }
 };
 
-template
-<
-    typename LineString,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
+template<bool Reverse>
 struct copy_segments_linestring
 {
-    template <typename RobustPolicy>
+    template
+    <
+        typename LineString,
+        typename SegmentIdentifier,
+        typename RobustPolicy,
+        typename RangeOut
+    >
     static inline void apply(LineString const& ls,
             SegmentIdentifier const& seg_id, int to_index,
             RobustPolicy const& robust_policy,
@@ -138,51 +139,45 @@ struct copy_segments_linestring
     }
 };
 
-template
-<
-    typename Polygon,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
+template<bool Reverse>
 struct copy_segments_polygon
 {
-    template <typename RobustPolicy>
+    template
+    <
+        typename Polygon,
+        typename SegmentIdentifier,
+        typename RobustPolicy,
+        typename RangeOut
+    >
     static inline void apply(Polygon const& polygon,
             SegmentIdentifier const& seg_id, int to_index,
             RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         // Call ring-version with the right ring
-        copy_segments_ring
-            <
-                typename geometry::ring_type<Polygon>::type,
-                Reverse,
-                SegmentIdentifier,
-                RangeOut
-            >::apply
-                (
-                    seg_id.ring_index < 0
-                    ? geometry::exterior_ring(polygon)
-                    : geometry::interior_rings(polygon)[seg_id.ring_index],
-                    seg_id, to_index,
-                    robust_policy,
-                    current_output
-                );
+        copy_segments_ring<Reverse>::apply
+            (
+                seg_id.ring_index < 0
+                ? geometry::exterior_ring(polygon)
+                : geometry::interior_rings(polygon)[seg_id.ring_index],
+                seg_id, to_index,
+                robust_policy,
+                current_output
+            );
     }
 };
 
 
-template
-<
-    typename Box,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
+template<bool Reverse>
 struct copy_segments_box
 {
-    template <typename RobustPolicy>
+    template
+    <
+        typename Box,
+        typename SegmentIdentifier,
+        typename RobustPolicy,
+        typename RangeOut
+    >
     static inline void apply(Box const& box,
             SegmentIdentifier const& seg_id, int to_index,
             RobustPolicy const& robust_policy,
@@ -223,80 +218,33 @@ namespace dispatch
 template
 <
     typename Tag,
-    typename GeometryIn,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
+    bool Reverse
 >
-struct copy_segments
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<GeometryIn>)
-        );
-};
-
-
-template
-<
-    typename Ring,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
-struct copy_segments<ring_tag, Ring, Reverse, SegmentIdentifier, RangeOut>
-    : detail::copy_segments::copy_segments_ring
-        <
-            Ring, Reverse, SegmentIdentifier, RangeOut
-        >
+struct copy_segments : not_implemented<Tag>
 {};
 
 
-
-template
-<
-    typename LineString,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
-struct copy_segments<linestring_tag, LineString, Reverse, SegmentIdentifier, RangeOut>
-    : detail::copy_segments::copy_segments_linestring
-        <
-            LineString, Reverse, SegmentIdentifier, RangeOut
-        >
-{};
-
-template
-<
-    typename Polygon,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
-struct copy_segments<polygon_tag, Polygon, Reverse, SegmentIdentifier, RangeOut>
-    : detail::copy_segments::copy_segments_polygon
-        <
-            Polygon, Reverse, SegmentIdentifier, RangeOut
-        >
+template<bool Reverse>
+struct copy_segments<ring_tag, Reverse>
+    : detail::copy_segments::copy_segments_ring<Reverse>
 {};
 
 
-template
-<
-    typename Box,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
-struct copy_segments<box_tag, Box, Reverse, SegmentIdentifier, RangeOut>
-    : detail::copy_segments::copy_segments_box
-        <
-            Box, Reverse, SegmentIdentifier, RangeOut
-        >
+template<bool Reverse>
+struct copy_segments<linestring_tag, Reverse>
+    : detail::copy_segments::copy_segments_linestring<Reverse>
 {};
 
+template<bool Reverse>
+struct copy_segments<polygon_tag, Reverse>
+    : detail::copy_segments::copy_segments_polygon<Reverse>
+{};
+
+
+template<bool Reverse>
+struct copy_segments<box_tag, Reverse>
+    : detail::copy_segments::copy_segments_box<Reverse>
+{};
 
 
 } // namespace dispatch
@@ -326,10 +274,7 @@ inline void copy_segments(Geometry const& geometry,
     dispatch::copy_segments
         <
             typename tag<Geometry>::type,
-            Geometry,
-            Reverse,
-            SegmentIdentifier,
-            RangeOut
+            Reverse
         >::apply(geometry, seg_id, to_index, robust_policy, range_out);
 }
 

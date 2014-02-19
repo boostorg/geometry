@@ -28,16 +28,16 @@ namespace detail { namespace copy_segments
 {
 
 
-template
-<
-    typename MultiGeometry,
-    typename SegmentIdentifier,
-    typename RangeOut,
-    typename Policy
->
+template<typename Policy>
 struct copy_segments_multi
 {
-    template <typename RobustPolicy>
+    template
+    <
+        typename MultiGeometry,
+        typename SegmentIdentifier,
+        typename RobustPolicy,
+        typename RangeOut
+    >
     static inline void apply(MultiGeometry const& multi_geometry,
             SegmentIdentifier const& seg_id, int to_index,
             RobustPolicy const& robust_policy,
@@ -68,33 +68,11 @@ namespace dispatch
 {
 
 
-template
-<
-    typename MultiPolygon,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
-struct copy_segments
-    <
-        multi_polygon_tag,
-        MultiPolygon,
-        Reverse,
-        SegmentIdentifier,
-        RangeOut
-    >
+template<bool Reverse>
+struct copy_segments<multi_polygon_tag, Reverse>
     : detail::copy_segments::copy_segments_multi
         <
-            MultiPolygon,
-            SegmentIdentifier,
-            RangeOut,
-            detail::copy_segments::copy_segments_polygon
-                <
-                    typename boost::range_value<MultiPolygon>::type,
-                    Reverse,
-                    SegmentIdentifier,
-                    RangeOut
-                >
+            detail::copy_segments::copy_segments_polygon<Reverse>
         >
 {};
 
