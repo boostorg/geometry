@@ -37,8 +37,10 @@ template
 >
 struct copy_segments_multi
 {
+    template <typename RobustPolicy>
     static inline void apply(MultiGeometry const& multi_geometry,
             SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
 
@@ -50,7 +52,9 @@ struct copy_segments_multi
 
         // Call the single-version
         Policy::apply(multi_geometry[seg_id.multi_index],
-                    seg_id, to_index, current_output);
+                    seg_id, to_index,
+                    robust_policy,
+                    current_output);
     }
 };
 

@@ -94,14 +94,16 @@ template
     typename G1,
     typename G2,
     typename Turns,
-    typename IntersectionInfo
+    typename IntersectionInfo,
+    typename RescalePolicy
 >
 inline bool assign_next_ip(G1 const& g1, G2 const& g2,
             Turns& turns,
             typename boost::range_iterator<Turns>::type& ip,
             GeometryOut& current_output,
             IntersectionInfo& info,
-            segment_identifier& seg_id)
+            segment_identifier& seg_id,
+            RescalePolicy const& rescale_policy)
 {
     info.visited.set_visited();
     set_visited_for_continue(*ip, info);
@@ -122,12 +124,14 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
         {
             geometry::copy_segments<Reverse1>(g1, info.seg_id,
                     info.enriched.travels_to_vertex_index,
+                    rescale_policy,
                     current_output);
         }
         else
         {
             geometry::copy_segments<Reverse2>(g2, info.seg_id,
                     info.enriched.travels_to_vertex_index,
+                    rescale_policy,
                     current_output);
         }
         seg_id = info.seg_id;
@@ -139,7 +143,8 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
         seg_id = info.seg_id;
     }
 
-    detail::overlay::append_no_dups_or_spikes(current_output, ip->point);
+    detail::overlay::append_no_dups_or_spikes(current_output, ip->point,
+        rescale_policy);
 
     return true;
 }
@@ -279,7 +284,8 @@ public :
                             set_visited_for_continue(*it, *iit);
 
                             ring_type current_output;
-                            detail::overlay::append_no_dups_or_spikes(current_output, it->point);
+                            detail::overlay::append_no_dups_or_spikes(current_output,
+                                it->point, rescale_policy);
 
                             turn_iterator current = it;
                             turn_operation_iterator_type current_iit = iit;
@@ -289,7 +295,8 @@ public :
                                         geometry1, geometry2,
                                         turns,
                                         current, current_output,
-                                        *iit, current_seg_id))
+                                        *iit, current_seg_id,
+                                        rescale_policy))
                             {
                                 Backtrack::apply(
                                     size_at_start,
@@ -349,7 +356,8 @@ public :
                                         detail::overlay::assign_next_ip<Reverse1, Reverse2>(
                                             geometry1, geometry2,
                                             turns, current, current_output,
-                                            *current_iit, current_seg_id);
+                                            *current_iit, current_seg_id,
+                                            rescale_policy);
 
                                         if (! detail::overlay::select_next_ip(
                                                     operation,

@@ -233,8 +233,7 @@ struct intersection_of_linestring_with_areal
                 return out;
             }
 
-
-            if (follower::included(border_point, areal))
+            if (follower::included(border_point, areal, rescale_policy))
             {
                 LineStringOut copy;
                 geometry::convert(linestring, copy);
@@ -255,7 +254,7 @@ struct intersection_of_linestring_with_areal
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
-                    turns, out
+                    turns, rescale_policy, out
                 );
     }
 };

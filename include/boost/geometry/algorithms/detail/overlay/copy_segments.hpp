@@ -47,25 +47,28 @@ template
 >
 struct copy_segments_ring
 {
-    typedef typename closeable_view
+    template <typename RobustPolicy>
+    static inline void apply(Ring const& ring,
+            SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
+            RangeOut& current_output)
+    {
+        typedef typename closeable_view
         <
             Ring const,
             closure<Ring>::value
         >::type cview_type;
 
-    typedef typename reversible_view
+        typedef typename reversible_view
         <
             cview_type const,
             Reverse ? iterate_reverse : iterate_forward
         >::type rview_type;
 
-    typedef typename boost::range_iterator<rview_type const>::type iterator;
-    typedef geometry::ever_circling_iterator<iterator> ec_iterator;
+        typedef typename boost::range_iterator<rview_type const>::type iterator;
+        typedef geometry::ever_circling_iterator<iterator> ec_iterator;
 
-    static inline void apply(Ring const& ring,
-            SegmentIdentifier const& seg_id, int to_index,
-            RangeOut& current_output)
-    {
+
         cview_type cview(ring);
         rview_type view(cview);
 
@@ -93,7 +96,7 @@ struct copy_segments_ring
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
-            detail::overlay::append_no_dups_or_spikes(current_output, *it);
+            detail::overlay::append_no_dups_or_spikes(current_output, *it, robust_policy);
         }
     }
 };
@@ -107,13 +110,13 @@ template
 >
 struct copy_segments_linestring
 {
-
-    typedef typename boost::range_iterator<LineString const>::type iterator;
-
+    template <typename RobustPolicy>
     static inline void apply(LineString const& ls,
             SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
+        typedef typename boost::range_iterator<LineString const>::type iterator;
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
@@ -129,7 +132,8 @@ struct copy_segments_linestring
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
-            detail::overlay::append_no_dups_or_spikes(current_output, *it);
+            detail::overlay::append_no_dups_or_spikes(current_output, *it,
+                robust_policy);
         }
     }
 };
@@ -143,8 +147,10 @@ template
 >
 struct copy_segments_polygon
 {
+    template <typename RobustPolicy>
     static inline void apply(Polygon const& polygon,
             SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         // Call ring-version with the right ring
@@ -160,6 +166,7 @@ struct copy_segments_polygon
                     ? geometry::exterior_ring(polygon)
                     : geometry::interior_rings(polygon)[seg_id.ring_index],
                     seg_id, to_index,
+                    robust_policy,
                     current_output
                 );
     }
@@ -175,8 +182,10 @@ template
 >
 struct copy_segments_box
 {
+    template <typename RobustPolicy>
     static inline void apply(Box const& box,
             SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
         int index = seg_id.segment_index + 1;
@@ -195,7 +204,8 @@ struct copy_segments_box
         //    (see comments in ring-version)
         for (int i = 0; i < count; i++, index++)
         {
-            detail::overlay::append_no_dups_or_spikes(current_output, bp[index % 5]);
+            detail::overlay::append_no_dups_or_spikes(current_output,
+                bp[index % 5], robust_policy);
 
         }
     }
@@ -303,10 +313,12 @@ template
     bool Reverse,
     typename Geometry,
     typename SegmentIdentifier,
+    typename RobustPolicy,
     typename RangeOut
 >
 inline void copy_segments(Geometry const& geometry,
             SegmentIdentifier const& seg_id, int to_index,
+            RobustPolicy const& robust_policy,
             RangeOut& range_out)
 {
     concept::check<Geometry const>();
@@ -318,7 +330,7 @@ inline void copy_segments(Geometry const& geometry,
             Reverse,
             SegmentIdentifier,
             RangeOut
-        >::apply(geometry, seg_id, to_index, range_out);
+        >::apply(geometry, seg_id, to_index, robust_policy, range_out);
 }
 
 

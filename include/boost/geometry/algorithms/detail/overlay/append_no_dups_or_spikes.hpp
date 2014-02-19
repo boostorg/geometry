@@ -24,14 +24,16 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-template <typename Range, typename Point>
-inline void append_no_dups_or_spikes(Range& range, Point const& point)
+template <typename Range, typename Point, typename RobustPolicys>
+inline void append_no_dups_or_spikes(Range& range, Point const& point,
+        RobustPolicys const& robust_policy)
 {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     std::cout << "  add: ("
         << geometry::get<0>(point) << ", " << geometry::get<1>(point) << ")"
         << std::endl;
 #endif
+    boost::ignore_unused_variable_warning(robust_policy);
 
     traits::push_back<Range>::apply(range, point);
 
