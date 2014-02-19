@@ -527,7 +527,7 @@ struct intersection_insert
         Reverse1, Reverse2, ReverseOut,
         linestring_tag, linestring_tag, linestring_tag,
         false, false, false
-    > : detail::difference::linestring_linestring_linestring<LineStringOut>
+    > : detail::difference::linear_linear_linestring<LineStringOut>
 {};
 
 
@@ -545,7 +545,25 @@ struct intersection_insert
         Reverse1, Reverse2, ReverseOut,
         linestring_tag, multi_linestring_tag, linestring_tag,
         false, false, false
-    > : detail::difference::linestring_multilinestring_linestring<LineStringOut>
+    > : detail::difference::linear_linear_linestring<LineStringOut>
+{};
+
+
+template
+<
+    typename MultiLineString, typename LineString,
+    typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiLineString, LineString,
+        LineStringOut,
+        overlay_difference,
+        Reverse1, Reverse2, ReverseOut,
+        multi_linestring_tag, linestring_tag, linestring_tag,
+        false, false, false
+    > : detail::difference::linear_linear_linestring<LineStringOut>
 {};
 
 
@@ -563,7 +581,7 @@ struct intersection_insert
         Reverse1, Reverse2, ReverseOut,
         multi_linestring_tag, multi_linestring_tag, linestring_tag,
         false, false, false
-    > : detail::difference::multilinestring_multilinestring_linestring<LineStringOut>
+    > : detail::difference::linear_linear_linestring<LineStringOut>
 {};
 
 

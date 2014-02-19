@@ -545,6 +545,58 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
 
 
 
+BOOST_AUTO_TEST_CASE( test_difference_multilinestring_linestring )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "*** MULTILINESTRING / LINESTRING DIFFERENCE ***"
+              << std::endl;
+    std::cout << std::endl;
+#endif
+
+    typedef linestring_type L;
+    typedef multi_linestring_type ML;
+
+    typedef test_difference_of_geometries<ML, L, ML> tester;
+
+    // disjoint linestrings
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
+         from_wkt<L>("LINESTRING(1 1,2 2,4 3)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
+         "mlldf01"
+        );
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
+         from_wkt<L>("LINESTRING(1 1,2 0,4 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
+                      (1 0,2 0),(4 0,7 0))"),
+         "mlldf02"
+        );
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
+         from_wkt<L>("LINESTRING(-1 -1,1 0,101 0,200 -1)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         "mlldf03"
+        );
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
+         from_wkt<L>("LINESTRING(0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
+                       1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         "mlldf04"
+         );
+}
+
+
+
+
+
+
+
 BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
