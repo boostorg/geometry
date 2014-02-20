@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
 
 
 
-#if 0
+
 BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -374,6 +374,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
 
     typedef test_intersection_of_geometries<L, ML, ML> tester;
 
+#if 0
     // disjoint linestrings
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
@@ -539,6 +540,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
          "lmli18a"
          );
+#endif
 }
 
 
@@ -559,26 +561,31 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
 
     typedef test_intersection_of_geometries<ML, L, ML> tester;
 
+    // the inertsection code automatically reverses the order of the
+    // geometries according to the geometry IDs.
+    // all calls below are actually reversed, and internally the
+    // intersection of the linestring with the multi-linestring is
+    // computed.
+
     // disjoint linestrings
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<L>("LINESTRING(1 1,2 2,4 3)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
+         from_wkt<ML>("MULTILINESTRING()"),
          "mlli01"
         );
 
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<L>("LINESTRING(1 1,2 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
-                      (1 0,2 0),(4 0,7 0))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,4 0))"),
          "mlli02"
         );
 
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<L>("LINESTRING(-1 -1,1 0,101 0,200 -1)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,101 0))"),
          "mlli03"
         );
 
@@ -586,7 +593,8 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<L>("LINESTRING(0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(18 0,2 0),\
+                       (3 0,17 0),(16 0,4 0))"),
          "mlli04"
          );
 }
@@ -596,7 +604,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
 
 
 
-
+#if 0
 BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
