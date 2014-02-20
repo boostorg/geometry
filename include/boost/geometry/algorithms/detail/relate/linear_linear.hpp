@@ -531,6 +531,14 @@ struct linear_linear
                         fake_enter_detected = true;
                     }
                 }
+                else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
+                {
+                    // ignore
+                    if ( op == overlay::operation_blocked )
+                        return;
+
+                    m_exit_watcher.reset_detected_exit();
+                }
 
                 if ( first_in_range
                   && ! fake_enter_detected
@@ -653,14 +661,16 @@ struct linear_linear
                                     op_blocked ?
                                         boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                         boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
+
+                            bool other_b =
+                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
+                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
+                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
                         
                             // if current IP is on boundary of the geometry
                             if ( this_b )
                             {
-                                bool other_b =
-                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                                
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
                                 {
@@ -682,10 +692,17 @@ struct linear_linear
                                     }
                                 }
                             }
-                            // boundaries don't overlap
+                            // if current IP is not on boundary of the geometry
                             else
                             {
-                                update<interior, interior, '0', transpose_result>(res);
+                                if ( other_b )
+                                {
+                                    update<interior, boundary, '0', transpose_result>(res);
+                                }
+                                else
+                                {
+                                    update<interior, interior, '0', transpose_result>(res);
+                                }
 
                                 if ( first_in_range )
                                 {
