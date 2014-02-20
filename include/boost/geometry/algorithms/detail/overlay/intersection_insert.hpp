@@ -530,7 +530,32 @@ struct intersection_insert
         typename geometry::tag<Linear2>::type,
         linestring_tag,
         false, false, false
-    > : detail::difference::linear_linear_linestring<LineStringOut>
+    > : detail::difference::linear_linear_linestring
+        <
+            LineStringOut, overlay_difference
+        >
+{};
+
+// dispatch for intersection of linear geometries
+template
+<
+    typename Linear1, typename Linear2,
+    typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Linear1, Linear2, LineStringOut,
+        overlay_intersection,
+        Reverse1, Reverse2, ReverseOut,
+        typename geometry::tag<Linear1>::type,
+        typename geometry::tag<Linear2>::type,
+        linestring_tag,
+        false, false, false
+    > : detail::difference::linear_linear_linestring
+        <
+            LineStringOut, overlay_intersection
+        >
 {};
 
 
