@@ -523,8 +523,7 @@ template
 >
 struct intersection_insert
     <
-        Linear1, Linear2,
-        LineStringOut,
+        Linear1, Linear2, LineStringOut,
         overlay_difference,
         Reverse1, Reverse2, ReverseOut,
         typename geometry::tag<Linear1>::type,
