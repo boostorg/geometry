@@ -533,7 +533,7 @@ struct linear_linear
                 }
                 else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
                 {
-                    // ignore
+                    // ignore multiple BLOCKs
                     if ( op == overlay::operation_blocked )
                         return;
 
@@ -670,50 +670,33 @@ struct linear_linear
                             // if current IP is on boundary of the geometry
                             if ( this_b )
                             {
-                                
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
-                                {
                                     update<boundary, boundary, '0', transpose_result>(res);
-                                }
                                 else
-                                {
                                     update<boundary, interior, '0', transpose_result>(res);
-                                }
-
-                                // first IP on the last segment point - this means that the first point is outside
-                                if ( first_in_range && op_blocked )
-                                {
-                                    // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                            (range::front(sub_geometry::get(geometry, seg_id))) )
-                                    {
-                                        update<boundary, exterior, '0', transpose_result>(res);
-                                    }
-                                }
                             }
                             // if current IP is not on boundary of the geometry
                             else
                             {
+                                // it's also the boundary of the other geometry
                                 if ( other_b )
-                                {
                                     update<interior, boundary, '0', transpose_result>(res);
-                                }
                                 else
-                                {
                                     update<interior, interior, '0', transpose_result>(res);
-                                }
+                            }
 
-                                if ( first_in_range )
+                            // first IP on the last segment point - this means that the first point is outside
+                            if ( first_in_range && ( !this_b || op_blocked ) )
+                            {
+                                // if there is a boundary on the first point
+                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                        (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
-                                    // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                            (range::front(sub_geometry::get(geometry, seg_id))) )
-                                    {
-                                        update<boundary, exterior, '0', transpose_result>(res);
-                                    }
+                                    update<boundary, exterior, '0', transpose_result>(res);
                                 }
                             }
+                            
                         }
                     }
                 }
