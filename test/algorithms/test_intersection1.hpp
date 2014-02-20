@@ -62,7 +62,10 @@ struct multilinestring_equals
     {
         MultiLinestring1 mls1 = mls1_;
         MultiLinestring2 mls2 = mls2_;
-        BOOST_CHECK(boost::size(mls1) == boost::size(mls2));
+        if ( boost::size(mls1) != boost::size(mls2) )
+        {
+            return false;
+        }
 
         typedef typename boost::range_iterator
             <
@@ -93,21 +96,21 @@ struct multilinestring_equals
         std::sort(boost::begin(mls1), boost::end(mls1), LS_Less());
         std::sort(boost::begin(mls2), boost::end(mls2), LS_Less());
 
-        if ( boost::size(mls1) == boost::size(mls2) )
+        ls1_iterator it1 = boost::begin(mls1);
+        ls2_iterator it2 = boost::begin(mls2);
+        for (; it1 != boost::end(mls1); ++it1, ++it2)
         {
-            ls1_iterator it1 = boost::begin(mls1);
-            ls2_iterator it2 = boost::begin(mls2);
-            for (; it1 != boost::end(mls1); ++it1, ++it2)
+            if ( boost::size(*it1) != boost::size(*it2) )
             {
-                BOOST_CHECK( boost::size(*it1) == boost::size(*it2) );
-                if ( boost::size(*it1) == boost::size(*it2) )
+                return false;
+            }
+            pt1_iterator pit1 = boost::begin(*it1);
+            pt2_iterator pit2 = boost::begin(*it2);
+            for (; pit1 != boost::end(*it1); ++pit1, ++pit2)
+            {
+                if ( !bg::equals(*pit1, *pit2) )
                 {
-                    pt1_iterator pit1 = boost::begin(*it1);
-                    pt2_iterator pit2 = boost::begin(*it2);
-                    for (; pit1 != boost::end(*it1); ++pit1, ++pit2)
-                    {
-                        BOOST_CHECK( bg::equals(*pit1, *pit2) );
-                    }
+                    return false;
                 }
             }
         }
@@ -120,7 +123,6 @@ struct equals
     template <typename MLS1, typename MLS2>
     bool operator()(MLS1 const& mls1, MLS2 const& mls2) const
     {
-#if 0
         if ( multilinestring_equals<MLS1, MLS2>::apply(mls1, mls2) )
         {
             return true;
@@ -139,8 +141,8 @@ struct equals
         {
             return true;
         }
-#endif
-        return multilinestring_equals<MLS1, MLS2>::apply(mls1, mls2);
+
+        return multilinestring_equals<MLS1, MLS2>::apply(rmls1, rmls2);
     }
 };
 
@@ -160,9 +162,9 @@ struct test_intersection_of_geometries
 {
     void base_test(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
-                   MultiLineString const& mls_int,
-                   bool test_vector_and_deque = true,
-                   bool reverse_output_for_checking = false) const
+                   MultiLineString const& mls_int1,
+                   MultiLineString const& mls_int2,
+                   bool test_vector_and_deque = false) const
     {
         typedef typename boost::range_value<MultiLineString>::type LineString;
         typedef std::vector<LineString> LineStringVector;
@@ -175,18 +177,14 @@ struct test_intersection_of_geometries
 
         bg::intersection(geometry1, geometry2, mls_output);
 
-        if ( reverse_output_for_checking ) 
-        {
-            bg::reverse(mls_output);
-        }
-
-        BOOST_CHECK( equals()(mls_int, mls_output) );
+        BOOST_CHECK( equals()(mls_int1, mls_output) ||
+                     equals()(mls_int2, mls_output) );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "intersection : " << bg::wkt(mls_output) << std::endl;
-        std::cout << "expected intersection : " << bg::wkt(mls_int)
+        std::cout << "expected intersection : " << bg::wkt(mls_int1)
                   << std::endl;
         std::cout << std::endl;
         std::cout << "************************************" << std::endl;
@@ -207,13 +205,13 @@ struct test_intersection_of_geometries
             BOOST_CHECK((multilinestring_equals
                          <
                              MultiLineString, LineStringVector
-                         >::apply(mls_int, ls_vector_output)
+                         >::apply(mls_int1, ls_vector_output)
                          ));
 
             BOOST_CHECK((multilinestring_equals
                          <
                              MultiLineString, LineStringDeque
-                         >::apply(mls_int, ls_deque_output)
+                         >::apply(mls_int1, ls_deque_output)
                          ));
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
@@ -225,21 +223,40 @@ struct test_intersection_of_geometries
         bg::clear(mls_output);
         bg::intersection(geometry2, geometry1, mls_output);
 
-        if ( reverse_output_for_checking ) 
-        {
-            bg::reverse(mls_output);
-        }
-
-        BOOST_CHECK( equals()(mls_int, mls_output) );
+        BOOST_CHECK( equals()(mls_int1, mls_output) ||
+                     equals()(mls_int2, mls_output) );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry1) << std::endl;
         std::cout << "intersection : " << bg::wkt(mls_output) << std::endl;
-        std::cout << "expected intersection : " << bg::wkt(mls_int)
+        std::cout << "expected intersection : " << bg::wkt(mls_int2)
                   << std::endl;
         std::cout << std::endl;
         std::cout << "************************************" << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+#endif
+    }
+
+
+    void operator()(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    MultiLineString const& mls_int1,
+                    MultiLineString const& mls_int2) const
+    {
+        Geometry1 rg1(geometry1);
+        bg::reverse<Geometry1>(rg1);
+
+        Geometry2 rg2(geometry2);
+        bg::reverse<Geometry2>(rg2);
+
+        base_test(geometry1, geometry2, mls_int1, mls_int2, true);
+        base_test(geometry1, rg2, mls_int1, mls_int2);
+        base_test(rg1, geometry2, mls_int1, mls_int2);
+        base_test(rg1, rg2, mls_int1, mls_int2);
+
+#ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << std::endl;
 #endif
@@ -251,23 +268,24 @@ struct test_intersection_of_geometries
                     Geometry2 const& geometry2,
                     MultiLineString const& mls_int) const
     {
-        Geometry1 rg1(geometry1);
-        bg::reverse<Geometry1>(rg1);
-
-        Geometry2 rg2(geometry2);
-        bg::reverse<Geometry2>(rg2);
-
-        base_test(geometry1, geometry2, mls_int);
-        //        base_test(geometry1, rg2, mls_diff, false);
-        //        base_test(rg1, geometry2, mls_diff, false, true);
-        //        base_test(rg1, rg2, mls_diff, false, true);
-
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << std::endl;
-        std::cout << std::endl;
-#endif
+        this->operator()(geometry1, geometry2, mls_int, mls_int);
     }
 
+
+    void operator()(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    MultiLineString const& mls_int1,
+                    MultiLineString const& mls_int2,
+                    std::string const& test_case_str) const
+    {
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "test case: " << test_case_str << std::endl;
+        std::stringstream sstr;
+        sstr << "svgs/" << test_case_str << ".svg";
+        to_svg(geometry1, geometry2, sstr.str());
+#endif
+        this->operator()(geometry1, geometry2, mls_int1, mls_int2);
+    }
 
     void operator()(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
