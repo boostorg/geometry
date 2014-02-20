@@ -37,7 +37,7 @@
 
 #include <boost/geometry/views/segment_view.hpp>
 
-#include <boost/geometry/algorithms/detail/difference/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
