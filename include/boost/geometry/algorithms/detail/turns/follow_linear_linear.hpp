@@ -106,8 +106,8 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
         return true;
     }
 
-    BOOST_CHECK( turn.operations[1].operation == overlay::operation_union ||
-                 turn.operations[1].operation == overlay::operation_blocked );
+    BOOST_ASSERT( turn.operations[1].operation == overlay::operation_union ||
+                  turn.operations[1].operation == overlay::operation_blocked );
 
     return reverse_op.operation == overlay::operation_intersection;
 }
@@ -229,7 +229,7 @@ public:
                                        Turns& reverse_turns,
                                        OutputIterator oit)
     {
-        BOOST_CHECK( boost::size(turns) == boost::size(reverse_turns) );
+        BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
         typedef typename Turns::iterator TurnIt;
 
@@ -259,7 +259,7 @@ public:
                                oit);
         }
 
-        BOOST_CHECK( enter_count == 0 );
+        BOOST_ASSERT( enter_count == 0 );
 
         return process_end(entered, linestring1,
                            current_segment_id, current_piece,
@@ -311,7 +311,7 @@ public:
                                        Turns& reverse_turns,
                                        OutputIterator oit)
     {
-        BOOST_CHECK( boost::size(turns) == boost::size(reverse_turns) );
+        BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
         typedef typename Turns::iterator TurnIt;
 
@@ -343,7 +343,7 @@ public:
                                      oit);
         }
 
-        BOOST_CHECK( enter_count == 0 );
+        BOOST_ASSERT( enter_count == 0 );
 
         return Base::process_end(entered, linestring,
                                  current_segment_id, current_piece,
@@ -397,7 +397,7 @@ public:
                                        Turns& reverse_turns,
                                        OutputIterator oit)
     {
-        BOOST_CHECK( boost::size(turns) == boost::size(reverse_turns) );
+        BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
         typedef typename Turns::iterator TurnIt;
 
@@ -455,7 +455,7 @@ public:
                                      oit);
         }
 
-        BOOST_CHECK( enter_count == 0 );
+        BOOST_ASSERT( enter_count == 0 );
 
         return Base::process_end(entered, *ls1,
                                  current_segment_id, current_piece,
@@ -508,7 +508,7 @@ public:
                                        Turns& reverse_turns,
                                        OutputIterator oit)
     {
-        BOOST_CHECK( boost::size(turns) == boost::size(reverse_turns) );
+        BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
         typedef typename Turns::iterator TurnIt;
 
@@ -569,7 +569,7 @@ public:
                                      oit);
         }
 
-        BOOST_CHECK( enter_count == 0 );
+        BOOST_ASSERT( enter_count == 0 );
 
         return Base::process_end(entered, *ls1,
                                  current_segment_id, current_piece,
