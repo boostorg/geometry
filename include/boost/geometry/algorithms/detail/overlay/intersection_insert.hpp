@@ -530,7 +530,7 @@ struct intersection_insert
         typename geometry::tag<Linear2>::type,
         linestring_tag,
         false, false, false
-    > : detail::difference::linear_linear_linestring
+    > : detail::overlay::linear_linear_linestring
         <
             LineStringOut, overlay_difference
         >
@@ -552,7 +552,7 @@ struct intersection_insert
         typename geometry::tag<Linear2>::type,
         linestring_tag,
         false, false, false
-    > : detail::difference::linear_linear_linestring
+    > : detail::overlay::linear_linear_linestring
         <
             LineStringOut, overlay_intersection
         >

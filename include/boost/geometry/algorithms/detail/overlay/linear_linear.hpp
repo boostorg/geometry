@@ -26,7 +26,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace difference
+namespace detail { namespace overlay
 {
 
 
@@ -116,7 +116,7 @@ template <typename LinestringOut, overlay_type OverlayType>
 struct linear_linear_linestring
 {
     typedef typename point_type<LinestringOut>::type PointOut;
-    typedef overlay::traversal_turn_info<PointOut> turn_info;
+    typedef traversal_turn_info<PointOut> turn_info;
     typedef std::vector<turn_info> Turns;
     typedef typename Turns::iterator TurnIt;
     typedef detail::get_turns::no_interrupt_policy InterruptPolicy;
@@ -139,7 +139,7 @@ struct linear_linear_linestring
         static inline void apply(Info& info, Point1 const& p1, Point2 const& p2,
                                  IntersectionInfo const& ii, DirInfo const& di)
         {
-            overlay::calculate_distance_policy::apply(info, p1, p2, ii, di);
+            calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
 
@@ -149,20 +149,20 @@ struct linear_linear_linestring
         template <typename Turn>
         bool operator()(Turn const& turn) const
         {
-            if ( turn.method != overlay::method_collinear &&
-                 turn.method != overlay::method_equal )
+            if ( turn.method != method_collinear &&
+                 turn.method != method_equal )
             {
                 return false;
             }
-            overlay::operation_type op[2];
+            operation_type op[2];
             op[0] = turn.operations[0].operation;
             op[1] = turn.operations[1].operation;
 
             return
-                (op[0] == overlay::operation_continue ||
-                 op[0] == overlay::operation_opposite) &&
-                (op[1] == overlay::operation_continue ||
-                 op[1] == overlay::operation_opposite);
+                (op[0] == operation_continue ||
+                 op[0] == operation_opposite) &&
+                (op[1] == operation_continue ||
+                 op[1] == operation_opposite);
         }
     };
 
@@ -294,7 +294,7 @@ struct linear_linear_linestring
 };
 
 
-}} // namespace detail::difference
+}} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 
