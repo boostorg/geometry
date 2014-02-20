@@ -127,13 +127,13 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
     }
 };
 
-template <std::size_t OpId, typename BoundaryChecker>
+template <std::size_t OpId, typename Result, typename BoundaryChecker>
 class disjoint_linestring_pred
 {
     static const bool transpose_result = OpId != 0;
 
 public:
-    disjoint_linestring_pred(result & res,
+    disjoint_linestring_pred(Result & res,
                              BoundaryChecker & boundary_checker)
         : m_result_ptr(boost::addressof(res))
         , m_boundary_checker_ptr(boost::addressof(boundary_checker))
@@ -169,7 +169,7 @@ public:
     }
 
 private:
-    result * m_result_ptr;
+    Result * m_result_ptr;
     BoundaryChecker * m_boundary_checker_ptr;
 };
 
@@ -267,10 +267,13 @@ struct linear_linear
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
 
-    static inline result apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Result>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
-        result res; // FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry1>::value>(res);// FFFFFFFFd, d in [1,9] or T
+        // The result should be FFFFFFFFF
+        set<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        if ( result.interrupt )
+            return;
 
         // get and analyse turns
         typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
@@ -280,19 +283,19 @@ struct linear_linear
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<0, boundary_checker<Geometry1> > pred1(res, boundary_checker1);
+        disjoint_linestring_pred<0, Result, boundary_checker<Geometry1> > pred1(result, boundary_checker1);
         for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
 
         boundary_checker<Geometry2> boundary_checker2(geometry2);
-        disjoint_linestring_pred<1, boundary_checker<Geometry2> > pred2(res, boundary_checker2);
+        disjoint_linestring_pred<1, Result, boundary_checker<Geometry2> > pred2(result, boundary_checker2);
         for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
         
         if ( turns.empty() )
-            return res;
+            return;
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
@@ -301,26 +304,24 @@ struct linear_linear
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
             turns_analyser<0, turn_type> analyser;
-            analyse_each_turn(res, analyser,
+            analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
                               boundary_checker1, boundary_checker2);
         }
 
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
         
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
 
             turns_analyser<1, turn_type> analyser;
-            analyse_each_turn(res, analyser,
+            analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry2, geometry1,
                               boundary_checker2, boundary_checker1);
         }
-
-        return res;
     }
 
     // TODO: rename to point_id_ref?
@@ -482,12 +483,13 @@ struct linear_linear
             , m_previous_operation(overlay::operation_none)
         {}
 
-        template <typename TurnIt,
+        template <typename Result,
+                  typename TurnIt,
                   typename Geometry,
                   typename OtherGeometry,
                   typename BoundaryChecker,
                   typename OtherBoundaryChecker>
-        void apply(result & res,
+        void apply(Result & res,
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
@@ -739,13 +741,14 @@ struct linear_linear
         overlay::operation_type m_previous_operation;
     };
 
-    template <typename TurnIt,
+    template <typename Result,
+              typename TurnIt,
               typename Analyser,
               typename Geometry,
               typename OtherGeometry,
               typename BoundaryChecker,
               typename OtherBoundaryChecker>
-    static inline void analyse_each_turn(result & res,
+    static inline void analyse_each_turn(Result & res,
                                          Analyser & analyser,
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,

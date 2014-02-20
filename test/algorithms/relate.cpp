@@ -49,15 +49,58 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& wkt2,
                     std::string const& expected)
 {
-    bgdr::result res = bgdr::relate(geometry1, geometry2);
-    std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
-    bool ok = boost::equal(res_str, expected);
+    {
+        bgdr::result res;
+        bgdr::relate(geometry1, geometry2, res);
+        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        bool ok = boost::equal(res_str, expected);
+        BOOST_CHECK_MESSAGE(ok,
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected
+            << " detected: " << res_str);
+    }
 
-    BOOST_CHECK_MESSAGE(ok,
-        "relate: " << wkt1
-        << " and " << wkt2
-        << " -> Expected: " << expected
-        << " detected: " << res_str);
+    {
+        bgdr::mask<true> mask(expected);
+        bgdr::relate(geometry1, geometry2, mask);
+        std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+        BOOST_CHECK_MESSAGE((!mask.interrupt && mask.check()),
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected
+            << " detected: " << res_str);
+    }
+
+    {
+        // brake the expected output
+        std::string expected_interrupt = expected;
+        bool changed = false;
+        BOOST_FOREACH(char & c, expected_interrupt)
+        {
+            if ( c >= '0' && c <= '9' )
+            {
+                if ( c == '0' )
+                    c = 'F';
+                else
+                    --c;
+
+                changed = true;
+            }
+        }
+
+        if ( changed )
+        {
+            bgdr::mask<true> mask(expected_interrupt);
+            bgdr::relate(geometry1, geometry2, mask);
+            std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+            BOOST_CHECK_MESSAGE(mask.interrupt,
+                "relate: " << wkt1
+                << " and " << wkt2
+                << " -> Expected interrupt for:" << expected_interrupt
+                << " detected: " << res_str);
+        }
+    }
 }
 
 template <typename Geometry1, typename Geometry2>

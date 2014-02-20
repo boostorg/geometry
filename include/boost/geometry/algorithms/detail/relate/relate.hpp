@@ -106,10 +106,10 @@ struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_li
 
 namespace detail { namespace relate {
 
-template <typename Geometry1, typename Geometry2>
-inline result relate(Geometry1 const& geometry1, Geometry2 const& geometry2)
+template <typename Geometry1, typename Geometry2, typename Result>
+inline void relate(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
 {
-    return detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, result);
 }
 
 }} // namespace detail::relate

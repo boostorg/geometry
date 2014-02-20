@@ -28,24 +28,21 @@ namespace detail { namespace relate {
 template <typename Point1, typename Point2>
 struct point_point
 {
-    static inline result apply(Point1 const& point1, Point2 const& point2)
+    template <typename Result>
+    static inline void apply(Point1 const& point1, Point2 const& point2, Result & result)
     {
-        result res;
-
         bool equal = detail::equals::equals_point_point(point1, point2);
         if ( equal )
         {
-            set<interior, interior, '0'>(res);
-            set<exterior, exterior, result_dimension<Point1>::value>(res);
+            set<interior, interior, '0'>(result);
+            set<exterior, exterior, result_dimension<Point1>::value>(result);
         }
         else
         {
-            set<interior, exterior, '0'>(res);
-            set<exterior, interior, '0'>(res);
-            set<exterior, exterior, result_dimension<Point1>::value>(res);
+            set<interior, exterior, '0'>(result);
+            set<exterior, interior, '0'>(result);
+            set<exterior, exterior, result_dimension<Point1>::value>(result);
         }
-
-        return res;
     }
 };
 
@@ -53,10 +50,9 @@ struct point_point
 template <typename Point, typename Geometry>
 struct point_geometry
 {
-    static inline result apply(Point const& point, Geometry const& geometry)
+    template <typename Result>
+    static inline void apply(Point const& point, Geometry const& geometry, Result & result)
     {
-        result res;
-
         int pig = detail::within::point_in_geometry(point, geometry);
 
         // TODO: * - if geometry has interior and/or boundary
@@ -64,22 +60,20 @@ struct point_geometry
 
         if ( pig > 0 ) // within
         {
-            set<interior, interior, '0'>(res);
+            set<interior, interior, '0'>(result);
         }
         else if ( pig == 0 )
         {
-            set<interior, boundary, '0'>(res);
+            set<interior, boundary, '0'>(result);
         }
         else // pig < 0 - not within
         {
-            set<interior, exterior, '0'>(res);
+            set<interior, exterior, '0'>(result);
         }
 
-        set<exterior, interior, '*'>(res); // TODO
-        set<exterior, boundary, '*'>(res); // TODO
-        set<exterior, exterior, result_dimension<Point>::value>(res);
-
-        return res;
+        set<exterior, interior, '*'>(result); // TODO
+        set<exterior, boundary, '*'>(result); // TODO
+        set<exterior, exterior, result_dimension<Point>::value>(result);
     }
 };
 
@@ -87,10 +81,9 @@ struct point_geometry
 template <typename Geometry, typename Point>
 struct geometry_point
 {
-    static inline result apply(Geometry const& geometry, Point const& point)
+    template <typename Result>
+    static inline void apply(Geometry const& geometry, Point const& point, Result & result)
     {
-        result res;
-
         int pig = detail::within::point_in_geometry(point, geometry);
 
         // TODO: * - if geometry has interior and/or boundary
@@ -98,22 +91,20 @@ struct geometry_point
 
         if ( pig > 0 ) // within
         {
-            set<interior, interior, '0'>(res);
+            set<interior, interior, '0'>(result);
         }
         else if ( pig == 0 )
         {
-            set<boundary, interior, '0'>(res);
+            set<boundary, interior, '0'>(result);
         }
         else // pig < 0 - not within
         {
-            set<exterior, interior, '0'>(res);
+            set<exterior, interior, '0'>(result);
         }
 
-        set<interior, exterior, '*'>(res); // TODO
-        set<boundary, exterior, '*'>(res); // TODO
-        set<exterior, exterior, result_dimension<Point>::value>(res);
-
-        return res;
+        set<interior, exterior, '*'>(result); // TODO
+        set<boundary, exterior, '*'>(result); // TODO
+        set<exterior, exterior, result_dimension<Point>::value>(result);
     }
 };
 
