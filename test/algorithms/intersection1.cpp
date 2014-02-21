@@ -374,40 +374,45 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
 
     typedef test_intersection_of_geometries<L, ML, ML> tester;
 
-#if 0
+    // the inertsection code automatically reverses the order of the
+    // geometries according to the geometry IDs.
+    // all calls below are actually reversed, and internally the
+    // intersection of the linestring with the multi-linestring is
+    // computed.
+
     // disjoint linestrings
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 3),(1 1,2 2,5 3))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING()"),
          "lmli01"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,4 0))"),
          "lmli02"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,5 0))"),
          "lmli03"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,4 0))"),
          "lmli04"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,101 0))"),
          "lmli07"
         );
 
@@ -415,7 +420,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(-1 1,0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((-1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          "lmli07a"
         );
 
@@ -423,7 +428,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          "lmli07b"
         );
 
@@ -431,7 +436,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,101 0))"),
          "lmli08"
         );
 
@@ -439,7 +444,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((3 0,101 0))"),
          "lmli09"
         );
 
@@ -447,7 +452,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,1.5 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,1.5 0),(3 0,101 0))"),
          "lmli10"
         );
 
@@ -456,7 +461,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
                       (3 1,4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli12"
          );
 
@@ -465,7 +470,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,19 0,20 1),\
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
                       (4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli13"
          );
 
@@ -473,7 +478,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli14"
          );
 
@@ -481,7 +486,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli15"
          );
 
@@ -489,7 +494,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli15a"
          );
 
@@ -497,7 +502,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli16"
          );
 
@@ -505,7 +510,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli16a"
          );
 
@@ -513,7 +518,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli17"
          );
 
@@ -521,7 +526,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli17a"
          );
 
@@ -529,7 +534,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
          "lmli18"
          );
 
@@ -537,10 +542,9 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,18 0,19 0))"),
          "lmli18a"
          );
-#endif
 }
 
 
