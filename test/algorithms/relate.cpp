@@ -61,8 +61,10 @@ void check_geometry(Geometry1 const& geometry1,
             << " detected: " << res_str);
     }
 
+    static const bool int_en = bgdr::interruption_enabled<Geometry1, Geometry2>::value;
+
     {
-        bgdr::mask<true> mask(expected);
+        bgdr::mask<int_en> mask(expected);
         bgdr::relate(geometry1, geometry2, mask);
         std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
         BOOST_CHECK_MESSAGE((!mask.interrupt && mask.check()),
@@ -72,6 +74,7 @@ void check_geometry(Geometry1 const& geometry1,
             << " detected: " << res_str);
     }
 
+    if ( int_en )
     {
         // brake the expected output
         std::string expected_interrupt = expected;
@@ -91,7 +94,7 @@ void check_geometry(Geometry1 const& geometry1,
 
         if ( changed )
         {
-            bgdr::mask<true> mask(expected_interrupt);
+            bgdr::mask<int_en> mask(expected_interrupt);
             bgdr::relate(geometry1, geometry2, mask);
             std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
             BOOST_CHECK_MESSAGE(mask.interrupt,

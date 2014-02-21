@@ -53,14 +53,15 @@ private:
     char m_array[9];
 };
 
+// TODO: possible optimizations
+// 1. interrupt in a template xxx<Interrupt> make it static const if Interrupt == false
+// 2. static_mask<II, IB, IE, ...> setting interrupt in compile-time
+
 template <bool Interrupt>
 class mask
     : public result
 {
 public:
-
-// TODO: put interrupt in a template xxx<Interrupt>
-// make it static const if Interrupt == false
 
     bool interrupt;
 

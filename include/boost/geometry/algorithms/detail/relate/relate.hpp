@@ -44,6 +44,8 @@
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -105,6 +107,13 @@ struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_li
 }} // namespace detail_dispatch::relate
 
 namespace detail { namespace relate {
+
+template <typename Geometry1, typename Geometry2>
+struct interruption_enabled
+{
+    static const bool value =
+        detail_dispatch::relate::relate<Geometry1, Geometry2>::interruption_enabled;
+};
 
 template <typename Geometry1, typename Geometry2, typename Result>
 inline void relate(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)

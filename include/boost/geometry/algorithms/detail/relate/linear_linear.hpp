@@ -17,7 +17,6 @@
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
 #include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
@@ -179,13 +178,13 @@ private:
 // MLs/Ls - worst O(N^2) - Bx point_in_geometry(Ls)
 // MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
 // TODO: later use spatial index
-template <std::size_t OpId, typename BoundaryChecker, typename OtherGeometry>
+template <std::size_t OpId, typename Result, typename BoundaryChecker, typename OtherGeometry>
 class disjoint_linestring_pred_with_point_size_handling
 {
     static const bool transpose_result = OpId != 0;
 
 public:
-    disjoint_linestring_pred_with_point_size_handling(result & res,
+    disjoint_linestring_pred_with_point_size_handling(Result & res,
                                                       BoundaryChecker & boundary_checker,
                                                       OtherGeometry const& other_geometry)
         : m_result_ptr(boost::addressof(res))
@@ -253,17 +252,18 @@ public:
     }
 
 private:
-    result * m_result_ptr;
+    Result * m_result_ptr;
     BoundaryChecker * m_boundary_checker_ptr;
     const OtherGeometry * m_other_geometry;
     char m_detected_mask_point;
     bool m_detected_open_boundary;
 };
 
-// currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
 struct linear_linear
 {
+    static const bool interruption_enabled = true;
+
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
 

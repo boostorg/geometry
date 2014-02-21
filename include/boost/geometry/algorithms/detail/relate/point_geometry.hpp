@@ -17,8 +17,6 @@
 //#include <boost/geometry/algorithms/within.hpp>
 //#include <boost/geometry/algorithms/covered_by.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/result.hpp>
-
 namespace boost { namespace geometry
 {
 
@@ -28,6 +26,8 @@ namespace detail { namespace relate {
 template <typename Point1, typename Point2>
 struct point_point
 {
+    static const bool interruption_enabled = false;
+
     template <typename Result>
     static inline void apply(Point1 const& point1, Point2 const& point2, Result & result)
     {
@@ -50,6 +50,8 @@ struct point_point
 template <typename Point, typename Geometry>
 struct point_geometry
 {
+    static const bool interruption_enabled = false;
+
     template <typename Result>
     static inline void apply(Point const& point, Geometry const& geometry, Result & result)
     {
@@ -81,6 +83,8 @@ struct point_geometry
 template <typename Geometry, typename Point>
 struct geometry_point
 {
+    static const bool interruption_enabled = false;
+
     template <typename Result>
     static inline void apply(Geometry const& geometry, Point const& point, Result & result)
     {
