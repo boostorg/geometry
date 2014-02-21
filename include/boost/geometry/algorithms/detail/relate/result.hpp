@@ -26,36 +26,151 @@ public:
 
     static const bool interrupt = false;
 
+// TODO: replace with std::string?
     inline result()
     {
-        ::memset(array, 'F', 9);
+        ::memset(m_array, 'F', 9);
     }
 
     template <field F1, field F2>
     inline char get() const
     {
-        return array[F1 * 3 + F2];
+        return m_array[F1 * 3 + F2];
     }
 
     template <field F1, field F2, char V>
     inline void set()
     {
-        array[F1 * 3 + F2] = V;
+        m_array[F1 * 3 + F2] = V;
     }
 
     inline std::pair<const char*, const char*> get_code() const
     {
-        return std::make_pair(array, array+9);
+        return std::make_pair(m_array, m_array+9);
     }
 
 private:
-    char array[9];
+    char m_array[9];
+};
+
+// TODO: possible optimizations
+// 1. interrupt in a template xxx<Interrupt> make it static const if Interrupt == false
+// 2. static_mask<II, IB, IE, ...> setting interrupt in compile-time
+
+template <bool Interrupt>
+class mask
+    : public result
+{
+public:
+
+    bool interrupt;
+
+    inline mask(std::string const& de9im_mask)
+        : interrupt(false)
+    {
+        BOOST_ASSERT(de9im_mask.size() == 9);
+        ::memcpy(m_mask, de9im_mask.c_str(), 9);
+    }
+
+    template <field F1, field F2, char V>
+    inline void set()
+    {
+        handle_interrupt_dispatch<F1, F2, V>(boost::integral_constant<bool, Interrupt>());
+
+        result::set<F1, F2, V>();
+    }
+
+    inline bool check() const
+    {
+        if ( interrupt )
+            return false;
+
+        std::pair<const char*, const char*> range = result::get_code();
+        const char* m_it = m_mask;
+        const char* a_it = range.first;
+        for ( ; a_it != range.second ; ++a_it, ++m_it )
+        {
+            if ( *m_it == 'F' )
+            {
+                if ( *a_it != 'F' )
+                    return false;
+            }
+            else if ( *m_it == 'T' )
+            {
+                if ( *a_it != 'T' && ( *a_it < '0' || *a_it > '9' ) )
+                    return false;
+            }
+            else if ( *m_it >= '0' && *m_it <= '9' )
+            {
+                if ( *a_it != *m_it )
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+private:
+    template <field F1, field F2, char V>
+    void handle_interrupt_dispatch(boost::integral_constant<bool, false>)
+    {}
+
+    template <field F1, field F2, char V>
+    void handle_interrupt_dispatch(boost::integral_constant<bool, true>)
+    {
+        char m = get_mask<F1, F2>();
+
+        if ( V >= '0' && V <= '9' )
+        {
+            if ( m == 'F' || ( m < V && m >= '0' && m <= '9' ) )
+                interrupt = true;
+        }
+        else if ( V == 'T' )
+        {
+            if ( m == 'F' )
+                interrupt = true;
+        }
+    }
+
+    template <field F1, field F2>
+    inline char get_mask() const
+    {
+        return m_mask[F1 * 3 + F2];
+    }
+
+    char m_mask[9];
 };
 
 template <field F1, field F2, char V, typename Result>
 inline void set(Result & res)
 {
     res.template set<F1, F2, V>();
+}
+
+template <field F1, field F2, char V, bool Transpose>
+struct set_dispatch
+{
+    template <typename Result>
+    static inline void apply(Result & res)
+    {
+        res.template set<F1, F2, V>();
+    }
+};
+
+template <field F1, field F2, char V>
+struct set_dispatch<F1, F2, V, true>
+{
+    template <typename Result>
+    static inline void apply(Result & res)
+    {
+        res.template set<F2, F1, V>();
+    }
+};
+
+template <field F1, field F2, char V, bool Transpose, typename Result>
+inline void set(Result & res)
+{
+    set_dispatch<F1, F2, V, Transpose>::apply(res);
 }
 
 template <char V, typename Result>

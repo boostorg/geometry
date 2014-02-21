@@ -167,7 +167,7 @@ private:
                                  geometry::less<point_type>())
             );
 
-        return equal_points_count % 2 != 0 && equal_points_count > 0; // the number is odd and > 0
+        return equal_points_count % 2 != 0;// && equal_points_count > 0; // the number is odd and > 0
     }
 
     bool is_filled;

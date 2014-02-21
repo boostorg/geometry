@@ -41,8 +41,11 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/point_point.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
+
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
 
 namespace boost { namespace geometry
 {
@@ -61,6 +64,21 @@ template <typename Point1, typename Point2>
 struct relate<Point1, Point2, point_tag, point_tag>
     : detail::relate::point_point<Point1, Point2>
 {};
+
+template <typename Point, typename MultiPoint>
+struct relate<Point, MultiPoint, point_tag, multi_point_tag>
+    : detail::relate::point_multipoint<Point, MultiPoint>
+{};
+
+template <typename MultiPoint, typename Point>
+struct relate<MultiPoint, Point, multi_point_tag, point_tag>
+    : detail::relate::multipoint_point<MultiPoint, Point>
+{};
+
+//template <typename MultiPoint1, typename MultiPoint2>
+//struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+//    : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
+//{};
 
 //template <typename Point, typename Box>
 //struct relate<Point, Box, point_tag, box_tag>
@@ -107,9 +125,16 @@ struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_li
 namespace detail { namespace relate {
 
 template <typename Geometry1, typename Geometry2>
-inline result relate(Geometry1 const& geometry1, Geometry2 const& geometry2)
+struct interruption_enabled
 {
-    return detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    static const bool value =
+        detail_dispatch::relate::relate<Geometry1, Geometry2>::interruption_enabled;
+};
+
+template <typename Geometry1, typename Geometry2, typename Result>
+inline void relate(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
+{
+    return detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, result);
 }
 
 }} // namespace detail::relate

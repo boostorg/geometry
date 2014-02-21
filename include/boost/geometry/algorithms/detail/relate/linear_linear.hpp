@@ -17,7 +17,6 @@
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
 #include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
@@ -127,19 +126,67 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
     }
 };
 
+template <std::size_t OpId, typename Result, typename BoundaryChecker>
+class disjoint_linestring_pred
+{
+    static const bool transpose_result = OpId != 0;
+
+public:
+    disjoint_linestring_pred(Result & res,
+                             BoundaryChecker & boundary_checker)
+        : m_result_ptr(boost::addressof(res))
+        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
+    {}
+
+    template <typename Linestring>
+    bool operator()(Linestring const& linestring)
+    {
+        std::size_t count = boost::size(linestring);
+        
+        // invalid input
+        if ( count < 2 )
+        {
+            // ignore
+            // TODO: throw an exception?
+            return true;
+        }
+
+        update<interior, exterior, '1', transpose_result>(*m_result_ptr);
+
+        // check if there is a boundary
+        if ( m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_front>(range::front(linestring))
+          || m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+        {
+            update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
+                    
+            return false;
+        }
+
+        return true;
+    }
+
+private:
+    Result * m_result_ptr;
+    BoundaryChecker * m_boundary_checker_ptr;
+};
+
 // Called in a loop for:
 // Ls/Ls - worst O(N) - 1x point_in_geometry(MLs)
 // Ls/MLs - worst O(N) - 1x point_in_geometry(MLs)
 // MLs/Ls - worst O(N^2) - Bx point_in_geometry(Ls)
 // MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
 // TODO: later use spatial index
-template <std::size_t OpId, typename BoundaryChecker, typename OtherGeometry>
-class disjoint_linestring_pred
+template <std::size_t OpId, typename Result, typename BoundaryChecker, typename OtherGeometry>
+class disjoint_linestring_pred_with_point_size_handling
 {
     static const bool transpose_result = OpId != 0;
 
 public:
-    disjoint_linestring_pred(result & res, BoundaryChecker & boundary_checker, OtherGeometry const& other_geometry)
+    disjoint_linestring_pred_with_point_size_handling(Result & res,
+                                                      BoundaryChecker & boundary_checker,
+                                                      OtherGeometry const& other_geometry)
         : m_result_ptr(boost::addressof(res))
         , m_boundary_checker_ptr(boost::addressof(boundary_checker))
         , m_other_geometry(boost::addressof(other_geometry))
@@ -189,9 +236,9 @@ public:
 
                 // check if there is a boundary
                 if ( m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+                        is_endpoint_boundary<boundary_front>(range::front(linestring))
                     || m_boundary_checker_ptr->template
-                    is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+                        is_endpoint_boundary<boundary_back>(range::back(linestring)) )
                 {
                     update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
                     
@@ -205,74 +252,80 @@ public:
     }
 
 private:
-    result * m_result_ptr;
+    Result * m_result_ptr;
     BoundaryChecker * m_boundary_checker_ptr;
     const OtherGeometry * m_other_geometry;
     char m_detected_mask_point;
     bool m_detected_open_boundary;
 };
 
-// currently works only for linestrings
 template <typename Geometry1, typename Geometry2>
 struct linear_linear
 {
+    static const bool interruption_enabled = true;
+
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
 
-    static inline result apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
+    template <typename Result>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
-        result res; // FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry1>::value>(res);// FFFFFFFFd, d in [1,9] or T
+        // The result should be FFFFFFFFF
+        set<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        if ( result.interrupt )
+            return;
 
         // get and analyse turns
         typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
+// TODO: INTEGRATE INTERRUPT POLICY WITH THE PASSED RESULT
+
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<0, boundary_checker<Geometry1>, Geometry2> pred1(res, boundary_checker1, geometry2);
+        disjoint_linestring_pred<0, Result, boundary_checker<Geometry1> > pred1(result, boundary_checker1);
         for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
 
         boundary_checker<Geometry2> boundary_checker2(geometry2);
-        disjoint_linestring_pred<1, boundary_checker<Geometry2>, Geometry1> pred2(res, boundary_checker2, geometry1);
+        disjoint_linestring_pred<1, Result, boundary_checker<Geometry2> > pred2(result, boundary_checker2);
         for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
         
         if ( turns.empty() )
-            return res;
+            return;
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
 
+// TODO: ADD A CHECK TO THE RESULT INDICATING IF THE FIRST AND/OR SECOND GEOMETRY MUST BE ANALYSED
+
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
-            turns_analyser<0, point1_type> analyser;
-            analyse_each_turn(res, analyser,
+            turns_analyser<0, turn_type> analyser;
+            analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
                               boundary_checker1, boundary_checker2);
         }
 
-        if ( res.interrupt )
-            return res;
+        if ( result.interrupt )
+            return;
         
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
 
-            turns_analyser<1, point1_type> analyser;
-            analyse_each_turn(res, analyser,
+            turns_analyser<1, turn_type> analyser;
+            analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry2, geometry1,
                               boundary_checker2, boundary_checker1);
         }
-
-        return res;
     }
 
     // TODO: rename to point_id_ref?
@@ -418,24 +471,29 @@ struct linear_linear
         std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
     };
 
-    template <std::size_t OpId, typename TurnPoint>
+    // This analyser should be used like Input or SinglePass Iterator
+    template <std::size_t OpId, typename TurnInfo>
     class turns_analyser
     {
+        typedef typename TurnInfo::point_type turn_point_type;
+
         static const std::size_t op_id = OpId;
         static const std::size_t other_op_id = (OpId + 1) % 2;
         static const bool transpose_result = OpId != 0;
 
     public:
         turns_analyser()
-            : m_last_union(false)
+            : m_previous_turn_ptr(0)
+            , m_previous_operation(overlay::operation_none)
         {}
 
-        template <typename TurnIt,
+        template <typename Result,
+                  typename TurnIt,
                   typename Geometry,
                   typename OtherGeometry,
                   typename BoundaryChecker,
                   typename OtherBoundaryChecker>
-        void apply(result & res,
+        void apply(Result & res,
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
@@ -479,15 +537,23 @@ struct linear_linear
                         fake_enter_detected = true;
                     }
                 }
+                else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
+                {
+                    // ignore multiple BLOCKs
+                    if ( op == overlay::operation_blocked )
+                        return;
 
-                if ( first_in_range && !fake_enter_detected && m_last_union )
+                    m_exit_watcher.reset_detected_exit();
+                }
+
+                if ( first_in_range
+                  && ! fake_enter_detected
+                  && m_previous_operation == overlay::operation_union )
                 {
                     BOOST_ASSERT(it != first);
-// TODO: ERROR!
-// PREV MAY NOT BE VALID!
-                    TurnIt prev = it;
-                    --prev;
-                    segment_identifier const& prev_seg_id = prev->operations[op_id].seg_id;
+                    BOOST_ASSERT(m_previous_turn_ptr);
+
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     // if there is a boundary on the last point
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
@@ -496,9 +562,6 @@ struct linear_linear
                         update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
-
-                // reset state
-                m_last_union = (op == overlay::operation_union);
 
                 // i/i, i/x, i/u
                 if ( op == overlay::operation_intersection )
@@ -604,53 +667,50 @@ struct linear_linear
                                     op_blocked ?
                                         boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
                                         boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
+
+                            bool other_b =
+                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
+                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
+                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
                         
                             // if current IP is on boundary of the geometry
                             if ( this_b )
                             {
-                                bool other_b =
-                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
-                                {
                                     update<boundary, boundary, '0', transpose_result>(res);
-                                }
                                 else
-                                {
                                     update<boundary, interior, '0', transpose_result>(res);
-                                }
-
-                                // first IP on the last segment point - this means that the first point is outside
-                                if ( first_in_range && op_blocked )
-                                {
-                                    // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                            (range::front(sub_geometry::get(geometry, seg_id))) )
-                                    {
-                                        update<boundary, exterior, '0', transpose_result>(res);
-                                    }
-                                }
                             }
-                            // boundaries don't overlap
+                            // if current IP is not on boundary of the geometry
                             else
                             {
-                                update<interior, interior, '0', transpose_result>(res);
+                                // it's also the boundary of the other geometry
+                                if ( other_b )
+                                    update<interior, boundary, '0', transpose_result>(res);
+                                else
+                                    update<interior, interior, '0', transpose_result>(res);
+                            }
 
-                                if ( first_in_range )
+                            // first IP on the last segment point - this means that the first point is outside
+                            if ( first_in_range && ( !this_b || op_blocked ) )
+                            {
+                                // if there is a boundary on the first point
+                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
+                                        (range::front(sub_geometry::get(geometry, seg_id))) )
                                 {
-                                    // if there is a boundary on the first point
-                                    if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                            (range::front(sub_geometry::get(geometry, seg_id))) )
-                                    {
-                                        update<boundary, exterior, '0', transpose_result>(res);
-                                    }
+                                    update<boundary, exterior, '0', transpose_result>(res);
                                 }
                             }
+                            
                         }
                     }
                 }
+
+                // store ref to previously analysed (valid) turn
+                m_previous_turn_ptr = boost::addressof(*it);
+                // and previously analysed (valid) operation
+                m_previous_operation = op;
             }
             // it == last
             else
@@ -658,18 +718,16 @@ struct linear_linear
                 // here, the possible exit is the real one
                 // we know that we entered and now we exit
                 if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                  || m_last_union )
+                  || m_previous_operation == overlay::operation_union )
                 {
                     // for sure
                     update<interior, exterior, '1', transpose_result>(res);
 
                     BOOST_ASSERT(first != last);
-// TODO: ERROR!
-// PREV MAY NOT BE VALID!
-                    TurnIt prev = last;
-                    --prev;
-                    segment_identifier const& prev_seg_id = prev->operations[OpId].seg_id;
-                    
+                    BOOST_ASSERT(m_previous_turn_ptr);
+
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[OpId].seg_id;
+
                     // if there is a boundary on the last point
                     if ( boundary_checker.template is_endpoint_boundary<boundary_back>
                             (range::back(sub_geometry::get(geometry, prev_seg_id))) )
@@ -681,18 +739,20 @@ struct linear_linear
         }
 
     private:
-        exit_watcher<TurnPoint> m_exit_watcher;
+        exit_watcher<turn_point_type> m_exit_watcher;
         segment_watcher m_seg_watcher;
-        bool m_last_union;
+        TurnInfo * m_previous_turn_ptr;
+        overlay::operation_type m_previous_operation;
     };
 
-    template <typename TurnIt,
+    template <typename Result,
+              typename TurnIt,
               typename Analyser,
               typename Geometry,
               typename OtherGeometry,
               typename BoundaryChecker,
               typename OtherBoundaryChecker>
-    static inline void analyse_each_turn(result & res,
+    static inline void analyse_each_turn(Result & res,
                                          Analyser & analyser,
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,

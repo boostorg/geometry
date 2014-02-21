@@ -36,11 +36,20 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_point.hpp>
 
 //TEST
 #include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
+
+std::string transposed(std::string matrix)
+{
+    std::swap(matrix[1], matrix[3]);
+    std::swap(matrix[2], matrix[6]);
+    std::swap(matrix[5], matrix[7]);
+    return matrix;
+}
 
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
@@ -49,15 +58,75 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& wkt2,
                     std::string const& expected)
 {
-    bgdr::result res = bgdr::relate(geometry1, geometry2);
-    std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
-    bool ok = boost::equal(res_str, expected);
+    {
+        bgdr::result res;
+        bgdr::relate(geometry1, geometry2, res);
+        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        bool ok = boost::equal(res_str, expected);
+        BOOST_CHECK_MESSAGE(ok,
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected
+            << " detected: " << res_str);
+    }
 
-    BOOST_CHECK_MESSAGE(ok,
-        "relate: " << wkt1
-        << " and " << wkt2
-        << " -> Expected: " << expected
-        << " detected: " << res_str);
+    // changed sequence of geometries - transposed result
+    {
+        bgdr::result res;
+        bgdr::relate(geometry2, geometry1, res);
+        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        std::string expected_tr = transposed(expected);
+        bool ok = boost::equal(res_str, expected_tr);
+        BOOST_CHECK_MESSAGE(ok,
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected_tr
+            << " detected: " << res_str);
+    }
+
+    static const bool int_en = bgdr::interruption_enabled<Geometry1, Geometry2>::value;
+
+    {
+        bgdr::mask<int_en> mask(expected);
+        bgdr::relate(geometry1, geometry2, mask);
+        std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+        BOOST_CHECK_MESSAGE((!mask.interrupt && mask.check()),
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected
+            << " detected: " << res_str);
+    }
+
+    if ( int_en )
+    {
+        // brake the expected output
+        std::string expected_interrupt = expected;
+        bool changed = false;
+        BOOST_FOREACH(char & c, expected_interrupt)
+        {
+            if ( c >= '0' && c <= '9' )
+            {
+                if ( c == '0' )
+                    c = 'F';
+                else
+                    --c;
+
+                changed = true;
+            }
+        }
+
+        if ( changed )
+        {
+            bgdr::mask<int_en> mask(expected_interrupt);
+            bgdr::relate(geometry1, geometry2, mask);
+            std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+            BOOST_CHECK_MESSAGE(mask.interrupt,
+                "relate: " << wkt1
+                << " and " << wkt2
+                << " -> Expected interrupt for:" << expected_interrupt
+                << " detected: " << res_str);
+        }
+    }
 }
 
 template <typename Geometry1, typename Geometry2>
@@ -73,12 +142,63 @@ void test_geometry(std::string const& wkt1,
 }
 
 template <typename P>
+void test_point_point()
+{
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", "0FFFFFFF2");
+    test_geometry<P, P>("POINT(1 0)", "POINT(0 0)", "FF0FFF0F2");
+}
+
+template <typename P>
+void test_point_multipoint()
+{
+    typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
+    test_geometry<P, mpt>("POINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 0)", "0FFFFF0F2");
+}
+
+template <typename P>
+void test_point_linestring()
+{
+    typedef bg::model::linestring<P> ls;
+    
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0, 2 2, 3 2)", "0FFFFF102");
+    test_geometry<P, ls>("POINT(3 2)", "LINESTRING(0 0, 2 2, 3 2)", "F0FFFF102");
+    test_geometry<P, ls>("POINT(1 0)", "LINESTRING(0 0, 2 2, 3 2)", "FF0FFF102");
+
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0FFFFF1F2");
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0FFFFF1F2");
+    test_geometry<P, ls>("POINT(3 2)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "0FFFFF1F2");
+    test_geometry<P, ls>("POINT(1 0)", "LINESTRING(0 0, 2 2, 3 2, 0 0)", "FF0FFF1F2");
+}
+
+template <typename P>
+void test_point_multilinestring()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0, 2 0, 2 2),(0 0, 0 2))", "0FFFFF102");
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0, 2 0, 2 2),(0 0, 0 2, 2 2))", "0FFFFF1F2");
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0, 2 0, 2 2),(0 0, 0 2, 2 2),(0 0, 1 1))", "F0FFFF102");
+
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
+    test_geometry<P, mls>("POINT(5 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
+    test_geometry<P, mls>("POINT(1 0)", "MULTILINESTRING((0 0,5 0),(0 0,0 5,5 0),(0 0,-5 0),(0 0,0 -5,-5 0))", "0FFFFF1F2");
+}
+
+template <typename P>
 void test_linestring_linestring()
 {
     typedef bg::model::linestring<P> ls;
 
     test_geometry<ls, ls>("LINESTRING(0 0, 2 2, 3 2)", "LINESTRING(0 0, 2 2, 3 2)", "1FFF0FFF2");
     test_geometry<ls, ls>("LINESTRING(0 0,3 2)", "LINESTRING(0 0, 2 2, 3 2)", "FF1F0F1F2");
+    test_geometry<ls, ls>("LINESTRING(1 0,2 2,2 3)", "LINESTRING(0 0, 2 2, 3 2)", "0F1FF0102");
+
+    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(0 0,1 1,2 0,2 -1)", "0F1F00102");
     
     test_geometry<ls, ls>("LINESTRING(0 0, 1 1, 2 2, 3 2)", "LINESTRING(0 0, 2 2, 3 2)", "1FFF0FFF2");
     test_geometry<ls, ls>("LINESTRING(3 2, 2 2, 1 1, 0 0)", "LINESTRING(0 0, 2 2, 3 2)", "1FFF0FFF2");
@@ -169,21 +289,19 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,5 0,10 0)", "LINESTRING(5 0,9 0,5 5,1 0,5 0)", "1F1FF01F2");
     test_geometry<ls, ls>("LINESTRING(0 0,5 0,10 0)", "LINESTRING(5 0,10 0,5 5,1 0,5 0)", "1F10F01F2");
 
-    // ERROR: x/x and x/u are generated for one point, after handling of x the algorithm thinks that G1 is outside
-    // and therefore thinks that it touches G2 at the next x
     test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,0 0,5 0)", "1FF0FF1F2");
-    // AS ABOVE
-    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,5 0)", "FF00F01F2");
+    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,5 0)", "FF10F01F2");
 
-    //to_svg<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,0 0,5 0)", "test_relate_00.svg");
+    //to_svg<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,5 0)", "test_relate_00.svg");
 
+    // INVALID LINESTRINGS
     // 1-point LS (a Point) NOT disjoint
-    test_geometry<ls, ls>("LINESTRING(1 0)", "LINESTRING(0 0,5 0)", "0FFFFF102");
-    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0)", "0F1FF0FF2");
-    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0)", "0F1FF0FF2");
-    test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0,1 0)", "0F1FF0FF2");
+    //test_geometry<ls, ls>("LINESTRING(1 0)", "LINESTRING(0 0,5 0)", "0FFFFF102");
+    //test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0)", "0F1FF0FF2");
+    //test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0)", "0F1FF0FF2");
+    //test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0,1 0)", "0F1FF0FF2");
     // Point/Point
-    test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+    //test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
 }
 
 template <typename P>
@@ -198,19 +316,25 @@ void test_linestring_multi_linestring()
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2,1 1))", "101FF01F2");
     // 2xLS forming non-simple linear ring disjoint
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2),(1 1,2 2))", "101FF01F2");
+
+    // INVALID LINESTRINGS
     // 1-point LS (a Point) disjoint
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1))", "101FF00F2");
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,1 1))", "101FF00F2");
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,1 1,1 1))", "101FF00F2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1))", "101FF00F2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,1 1))", "101FF00F2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,1 1,1 1))", "101FF00F2");
     // 1-point LS (a Point) NOT disjoint
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0))", "101FF0FF2");
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0))", "101FF0FF2");
-    test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0,2 0))", "101FF0FF2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0))", "101FF0FF2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0))", "101FF0FF2");
+    //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0,2 0))", "101FF0FF2");
 }
 
 template <typename P>
 void test_all()
 {
+    test_point_point<P>();
+    test_point_multipoint<P>();
+    test_point_linestring<P>();
+    test_point_multilinestring<P>();
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
 }

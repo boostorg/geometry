@@ -28,6 +28,12 @@ namespace detail { namespace relate { namespace turns {
 
 // TURN_INFO
 
+// TODO: rename distance_info to enriched_info or something like that
+//       and add bool is_first indicating if the turn was generated on the first Point of a Range
+//       maybe also bool is_last or some enum { first, middle, last }
+//       This info could be used in turns analysis for Linestrings (no need to calculate this twice).
+//       get_turn_info_ll must check this anyway.
+
 template<typename P>
 struct distance_info
 {
@@ -170,85 +176,85 @@ struct less_seg_dist_op
     }
 };
 
-template <typename Turn> inline
-bool is_valid_method(Turn const& turn)
-{
-    return turn.method != detail::overlay::method_none
-        && turn.method != detail::overlay::method_disjoint
-        && turn.method != detail::overlay::method_error;
-}
-
-template <typename Turn> inline
-bool is_valid_operation(Turn const& turn)
-{
-    BOOST_ASSERT(!turn.has(detail::overlay::operation_opposite));
-    return !turn.both(detail::overlay::operation_none);
-}
-
-template <typename Turn> inline
-bool is_valid_turn(Turn const& turn)
-{
-    return is_valid_method(turn) && is_valid_operation(turn);
-}
-
-template <bool IsCyclic, typename TurnIt, typename Cond> inline
-TurnIt find_next_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
-{
-    if ( first == last )
-        return last;
-
-    if ( current != last )
-    {
-        TurnIt it = current;
-        ++it;
-
-        for ( ; it != last ; ++it )
-            if ( cond(*it) )
-                return it;
-    }
-
-    if ( IsCyclic )
-    {
-        for ( TurnIt it = first ; it != current ; ++it )
-            if ( cond(*it) )
-                return it;
-    }
-
-    return last;
-}
-
-template <bool IsCyclic, typename TurnIt, typename Cond> inline
-TurnIt find_previous_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
-{
-    typedef std::reverse_iterator<TurnIt> Rit;
-    Rit rlast = Rit(first);
-    if ( current == last )
-        return last;
-    ++current;
-    Rit res = find_next_if<IsCyclic>(Rit(last), Rit(current), rlast, cond);
-    if ( res == rlast )
-        return last;
-    else
-        return --res.base();
-}
-
-template <typename TurnIt, typename Cond> inline
-TurnIt find_first_if(TurnIt first, TurnIt last, Cond cond)
-{
-    return std::find_if(first, last, cond);
-}
-
-template <typename TurnIt, typename Cond> inline
-TurnIt find_last_if(TurnIt first, TurnIt last, Cond cond)
-{
-    typedef std::reverse_iterator<TurnIt> Rit;
-    Rit rlast = Rit(first);
-    Rit res = std::find_if(Rit(last), rlast, cond);
-    if ( res == rlast )
-        return last;
-    else
-        return --res.base();
-}
+//template <typename Turn> inline
+//bool is_valid_method(Turn const& turn)
+//{
+//    return turn.method != detail::overlay::method_none
+//        && turn.method != detail::overlay::method_disjoint
+//        && turn.method != detail::overlay::method_error;
+//}
+//
+//template <typename Turn> inline
+//bool is_valid_operation(Turn const& turn)
+//{
+//    BOOST_ASSERT(!turn.has(detail::overlay::operation_opposite));
+//    return !turn.both(detail::overlay::operation_none);
+//}
+//
+//template <typename Turn> inline
+//bool is_valid_turn(Turn const& turn)
+//{
+//    return is_valid_method(turn) && is_valid_operation(turn);
+//}
+//
+//template <bool IsCyclic, typename TurnIt, typename Cond> inline
+//TurnIt find_next_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
+//{
+//    if ( first == last )
+//        return last;
+//
+//    if ( current != last )
+//    {
+//        TurnIt it = current;
+//        ++it;
+//
+//        for ( ; it != last ; ++it )
+//            if ( cond(*it) )
+//                return it;
+//    }
+//
+//    if ( IsCyclic )
+//    {
+//        for ( TurnIt it = first ; it != current ; ++it )
+//            if ( cond(*it) )
+//                return it;
+//    }
+//
+//    return last;
+//}
+//
+//template <bool IsCyclic, typename TurnIt, typename Cond> inline
+//TurnIt find_previous_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
+//{
+//    typedef std::reverse_iterator<TurnIt> Rit;
+//    Rit rlast = Rit(first);
+//    if ( current == last )
+//        return last;
+//    ++current;
+//    Rit res = find_next_if<IsCyclic>(Rit(last), Rit(current), rlast, cond);
+//    if ( res == rlast )
+//        return last;
+//    else
+//        return --res.base();
+//}
+//
+//template <typename TurnIt, typename Cond> inline
+//TurnIt find_first_if(TurnIt first, TurnIt last, Cond cond)
+//{
+//    return std::find_if(first, last, cond);
+//}
+//
+//template <typename TurnIt, typename Cond> inline
+//TurnIt find_last_if(TurnIt first, TurnIt last, Cond cond)
+//{
+//    typedef std::reverse_iterator<TurnIt> Rit;
+//    Rit rlast = Rit(first);
+//    Rit res = std::find_if(Rit(last), rlast, cond);
+//    if ( res == rlast )
+//        return last;
+//    else
+//        return --res.base();
+//}
 
 }}} // namespace detail::relate::turns
 #endif // DOXYGEN_NO_DETAIL
