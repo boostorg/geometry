@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
 
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp> // later change to equal/point_point.hpp
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 //#include <boost/geometry/algorithms/within.hpp>
 //#include <boost/geometry/algorithms/covered_by.hpp>
@@ -27,31 +26,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-template <typename Point1, typename Point2>
-struct point_point
-{
-    static const bool interruption_enabled = false;
-
-    template <typename Result>
-    static inline void apply(Point1 const& point1, Point2 const& point2, Result & result)
-    {
-        bool equal = detail::equals::equals_point_point(point1, point2);
-        if ( equal )
-        {
-            set<interior, interior, '0'>(result);
-            set<exterior, exterior, result_dimension<Point1>::value>(result);
-        }
-        else
-        {
-            set<interior, exterior, '0'>(result);
-            set<exterior, interior, '0'>(result);
-            set<exterior, exterior, result_dimension<Point1>::value>(result);
-        }
-    }
-};
-
 // non-point geometry
-template <typename Point, typename Geometry>
+template <typename Point, typename Geometry, bool Transpose = false>
 struct point_geometry
 {
     // TODO: interrupt only if the topology check is complex
@@ -65,18 +41,18 @@ struct point_geometry
 
         if ( pig > 0 ) // within
         {
-            set<interior, interior, '0'>(result);
+            set<interior, interior, '0', Transpose>(result);
         }
         else if ( pig == 0 )
         {
-            set<interior, boundary, '0'>(result);
+            set<interior, boundary, '0', Transpose>(result);
         }
         else // pig < 0 - not within
         {
-            set<interior, exterior, '0'>(result);
+            set<interior, exterior, '0', Transpose>(result);
         }
 
-        set<exterior, exterior, result_dimension<Point>::value>(result);
+        set<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
 
         if ( result.interrupt )
             return;
@@ -91,9 +67,9 @@ struct point_geometry
             typedef detail::relate::topology_check<Geometry> tc_t;
             //tc_t tc(geometry, point);
             //if ( tc.has_interior )
-                set<exterior, interior, tc_t::interior>(result);
+                set<exterior, interior, tc_t::interior, Transpose>(result);
             //if ( tc.has_boundary )
-                set<exterior, boundary, tc_t::boundary>(result);
+                set<exterior, boundary, tc_t::boundary, Transpose>(result);
         }
         else
         {
@@ -101,9 +77,9 @@ struct point_geometry
             typedef detail::relate::topology_check<Geometry> tc_t;
             tc_t tc(geometry);
             if ( tc.has_interior )
-                set<exterior, interior, tc_t::interior>(result);
+                set<exterior, interior, tc_t::interior, Transpose>(result);
             if ( tc.has_boundary )
-                set<exterior, boundary, tc_t::boundary>(result);
+                set<exterior, boundary, tc_t::boundary, Transpose>(result);
         }
     }
 };
@@ -119,50 +95,7 @@ struct geometry_point
     template <typename Result>
     static inline void apply(Geometry const& geometry, Point const& point, Result & result)
     {
-        int pig = detail::within::point_in_geometry(point, geometry);
-
-        if ( pig > 0 ) // within
-        {
-            set<interior, interior, '0'>(result);
-        }
-        else if ( pig == 0 )
-        {
-            set<boundary, interior, '0'>(result);
-        }
-        else // pig < 0 - not within
-        {
-            set<exterior, interior, '0'>(result);
-        }
-
-        set<exterior, exterior, result_dimension<Point>::value>(result);
-
-        if ( result.interrupt )
-            return;
-
-        // the point is on the boundary
-        if ( pig == 0 )
-        {
-            // NOTE: even for MLs, if there is at least one boundary point,
-            // somewhere there must be another one
-
-            // check if there are other boundaries outside
-            typedef detail::relate::topology_check<Geometry> tc_t;
-            //tc_t tc(geometry, point);
-            //if ( tc.has_interior )
-                set<interior, exterior, tc_t::interior>(result);
-            //if ( tc.has_boundary )
-                set<boundary, exterior, tc_t::boundary>(result);
-        }
-        else
-        {
-            // check if there is a boundary in Geometry
-            typedef detail::relate::topology_check<Geometry> tc_t;
-            tc_t tc(geometry);
-            if ( tc.has_interior )
-                set<interior, exterior, tc_t::interior>(result);
-            if ( tc.has_boundary )
-                set<boundary, exterior, tc_t::boundary>(result);
-        }
+        point_geometry<Point, Geometry, true>::apply(point, geometry, result);
     }
 };
 

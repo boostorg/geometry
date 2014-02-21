@@ -36,11 +36,20 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_point.hpp>
 
 //TEST
 #include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
+
+std::string transposed(std::string matrix)
+{
+    std::swap(matrix[1], matrix[3]);
+    std::swap(matrix[2], matrix[6]);
+    std::swap(matrix[5], matrix[7]);
+    return matrix;
+}
 
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
@@ -58,6 +67,20 @@ void check_geometry(Geometry1 const& geometry1,
             "relate: " << wkt1
             << " and " << wkt2
             << " -> Expected: " << expected
+            << " detected: " << res_str);
+    }
+
+    // changed sequence of geometries - transposed result
+    {
+        bgdr::result res;
+        bgdr::relate(geometry2, geometry1, res);
+        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        std::string expected_tr = transposed(expected);
+        bool ok = boost::equal(res_str, expected_tr);
+        BOOST_CHECK_MESSAGE(ok,
+            "relate: " << wkt1
+            << " and " << wkt2
+            << " -> Expected: " << expected_tr
             << " detected: " << res_str);
     }
 
@@ -123,6 +146,16 @@ void test_point_point()
 {
     test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", "0FFFFFFF2");
     test_geometry<P, P>("POINT(1 0)", "POINT(0 0)", "FF0FFF0F2");
+}
+
+template <typename P>
+void test_point_multipoint()
+{
+    typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
+    test_geometry<P, mpt>("POINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 0)", "0FFFFF0F2");
 }
 
 template <typename P>
@@ -299,6 +332,7 @@ template <typename P>
 void test_all()
 {
     test_point_point<P>();
+    test_point_multipoint<P>();
     test_point_linestring<P>();
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();

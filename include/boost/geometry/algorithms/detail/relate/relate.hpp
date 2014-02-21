@@ -41,6 +41,7 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/point_point.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
 
@@ -63,6 +64,21 @@ template <typename Point1, typename Point2>
 struct relate<Point1, Point2, point_tag, point_tag>
     : detail::relate::point_point<Point1, Point2>
 {};
+
+template <typename Point, typename MultiPoint>
+struct relate<Point, MultiPoint, point_tag, multi_point_tag>
+    : detail::relate::point_multipoint<Point, MultiPoint>
+{};
+
+template <typename MultiPoint, typename Point>
+struct relate<MultiPoint, Point, multi_point_tag, point_tag>
+    : detail::relate::multipoint_point<MultiPoint, Point>
+{};
+
+//template <typename MultiPoint1, typename MultiPoint2>
+//struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+//    : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
+//{};
 
 //template <typename Point, typename Box>
 //struct relate<Point, Box, point_tag, box_tag>

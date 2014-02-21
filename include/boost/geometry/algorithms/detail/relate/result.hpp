@@ -147,6 +147,32 @@ inline void set(Result & res)
     res.template set<F1, F2, V>();
 }
 
+template <field F1, field F2, char V, bool Transpose>
+struct set_dispatch
+{
+    template <typename Result>
+    static inline void apply(Result & res)
+    {
+        res.template set<F1, F2, V>();
+    }
+};
+
+template <field F1, field F2, char V>
+struct set_dispatch<F1, F2, V, true>
+{
+    template <typename Result>
+    static inline void apply(Result & res)
+    {
+        res.template set<F2, F1, V>();
+    }
+};
+
+template <field F1, field F2, char V, bool Transpose, typename Result>
+inline void set(Result & res)
+{
+    set_dispatch<F1, F2, V, Transpose>::apply(res);
+}
+
 template <char V, typename Result>
 inline void set(Result & res)
 {

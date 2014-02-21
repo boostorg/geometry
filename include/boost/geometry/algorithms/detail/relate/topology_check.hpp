@@ -19,25 +19,27 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+// TODO: change the name for e.g. something with the word "exterior"
+
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
 struct topology_check
     : not_implemented<Tag>
 {};
 
-template <typename Point>
-struct topology_check<Point, point_tag>
-{
-    static const char interior = '0';
-    static const char boundary = 'F';
-
-    static const bool has_interior = true;
-    static const bool has_boundary = false;
-
-    topology_check(Point const&) {}
-    template <typename IgnoreBoundaryPoint>
-    topology_check(Point const&, IgnoreBoundaryPoint const&) {}
-};
+//template <typename Point>
+//struct topology_check<Point, point_tag>
+//{
+//    static const char interior = '0';
+//    static const char boundary = 'F';
+//
+//    static const bool has_interior = true;
+//    static const bool has_boundary = false;
+//
+//    topology_check(Point const&) {}
+//    template <typename IgnoreBoundaryPoint>
+//    topology_check(Point const&, IgnoreBoundaryPoint const&) {}
+//};
 
 template <typename Linestring>
 struct topology_check<Linestring, linestring_tag>
