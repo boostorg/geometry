@@ -14,6 +14,7 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/multi/algorithms/reverse.hpp>
+#include <boost/geometry/multi/geometries/multi_point.hpp>
 
 #include <string>
 #include <sstream>
@@ -239,6 +240,39 @@ struct test_intersection_of_geometries
 #endif
     }
 
+    void base_test_all(Geometry1 const& geometry1,
+                       Geometry2 const& geometry2) const
+    {
+        typedef typename boost::range_value<MultiLineString>::type LineString;
+        typedef typename bg::point_type<MultiLineString>::type Point;
+        typedef bg::model::multi_point<Point> MultiPoint;
+
+        MultiLineString mls12_output, mls21_output;
+        MultiPoint mp12_output, mp21_output;
+
+        bg::intersection(geometry1, geometry2, mls12_output);
+        bg::intersection(geometry1, geometry2, mp12_output);
+        bg::intersection(geometry2, geometry1, mls21_output);
+        bg::intersection(geometry2, geometry1, mp21_output);
+
+        std::cout << "************************************" << std::endl;
+        std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
+        std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
+        std::cout << "intersection(1,2) [MLS] : " << bg::wkt(mls12_output)
+                  << std::endl;
+        std::cout << "intersection(2,1) [MLS]: " << bg::wkt(mls21_output)
+                  << std::endl;
+        std::cout << std::endl;
+        std::cout << "intersection(1,2) [MP]: " << bg::wkt(mp12_output)
+                  << std::endl;
+        std::cout << "intersection(2,1) [MP]: " << bg::wkt(mp21_output)
+                  << std::endl;
+        std::cout << std::endl;
+        std::cout << "************************************" << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+    }
+
 
     void operator()(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
@@ -255,6 +289,8 @@ struct test_intersection_of_geometries
         base_test(geometry1, rg2, mls_int1, mls_int2);
         base_test(rg1, geometry2, mls_int1, mls_int2);
         base_test(rg1, rg2, mls_int1, mls_int2);
+
+        base_test_all(geometry1, geometry2);
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
