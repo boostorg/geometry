@@ -167,6 +167,20 @@ struct linear_linear_linestring
     };
 
 
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
+    struct TurnEqualsTo
+    {
+        template <typename Turn>
+        bool operator()(Turn const& t1, Turn const& t2) const
+        {
+            return geometry::equals(t1.point, t2.point)
+                && t1.operations[0].seg_id == t2.operations[0].seg_id
+                && t1.operations[0].other_id == t2.operations[0].other_id;
+        }
+    };
+#endif
+
+
     template <typename Turns>
     static inline void filter_turns(Turns& turns)
     {
@@ -176,6 +190,19 @@ struct linear_linear_linestring
                                         IsContinueTurn());
         turns.resize( std::distance(turns.begin(), new_end) );
     }
+
+
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
+    template <typename Turns>
+    static inline void remove_duplicates(Turns& turns)
+    {
+        typedef typename Turns::iterator TurnIt;
+
+        TurnIt new_end = std::unique(turns.begin(), turns.end(),
+                                     TurnEqualsTo());
+        turns.resize( std::distance(turns.begin(), new_end) );
+    }
+#endif
 
 
     template
@@ -263,10 +290,8 @@ struct linear_linear_linestring
         }
 
         // remove turns that have no added value
-#if 1
         filter_turns(turns);
         filter_turns(reverse_turns);
-#endif
 
         // sort by seg_id, distance, and operation
         typedef detail::turns::less_seg_dist_other_op<> less;
@@ -276,6 +301,12 @@ struct linear_linear_linestring
         detail::turns::less_seg_dist_other_op<std::greater<int> > rev_less;
         std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
                   rev_less());
+
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
+        // remove duplicate turns
+        remove_duplicates(turns);
+        remove_duplicates(reverse_turns);
+#endif
 
 #ifdef GEOMETRY_TEST_DEBUG
         detail::turns::print_turns(linear1, linear2, turns);
