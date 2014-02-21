@@ -2,12 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
@@ -16,6 +18,8 @@
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 //#include <boost/geometry/algorithms/within.hpp>
 //#include <boost/geometry/algorithms/covered_by.hpp>
+
+#include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 
 namespace boost { namespace geometry
 {
@@ -50,15 +54,14 @@ struct point_point
 template <typename Point, typename Geometry>
 struct point_geometry
 {
-    static const bool interruption_enabled = false;
+    // TODO: interrupt only if the topology check is complex
+
+    static const bool interruption_enabled = true;
 
     template <typename Result>
     static inline void apply(Point const& point, Geometry const& geometry, Result & result)
     {
         int pig = detail::within::point_in_geometry(point, geometry);
-
-        // TODO: * - if geometry has interior and/or boundary
-        // e.g. isn't 1-point linestring or linear ring or 0-area polygon
 
         if ( pig > 0 ) // within
         {
@@ -73,9 +76,35 @@ struct point_geometry
             set<interior, exterior, '0'>(result);
         }
 
-        set<exterior, interior, '*'>(result); // TODO
-        set<exterior, boundary, '*'>(result); // TODO
         set<exterior, exterior, result_dimension<Point>::value>(result);
+
+        if ( result.interrupt )
+            return;
+
+        // the point is on the boundary
+        if ( pig == 0 )
+        {
+            // NOTE: even for MLs, if there is at least one boundary point,
+            // somewhere there must be another one
+
+            // check if there are other boundaries outside
+            typedef detail::relate::topology_check<Geometry> tc_t;
+            //tc_t tc(geometry, point);
+            //if ( tc.has_interior )
+                set<exterior, interior, tc_t::interior>(result);
+            //if ( tc.has_boundary )
+                set<exterior, boundary, tc_t::boundary>(result);
+        }
+        else
+        {
+            // check if there is a boundary in Geometry
+            typedef detail::relate::topology_check<Geometry> tc_t;
+            tc_t tc(geometry);
+            if ( tc.has_interior )
+                set<exterior, interior, tc_t::interior>(result);
+            if ( tc.has_boundary )
+                set<exterior, boundary, tc_t::boundary>(result);
+        }
     }
 };
 
@@ -83,15 +112,14 @@ struct point_geometry
 template <typename Geometry, typename Point>
 struct geometry_point
 {
-    static const bool interruption_enabled = false;
+    // TODO: interrupt only if the topology check is complex
+
+    static const bool interruption_enabled = true;
 
     template <typename Result>
     static inline void apply(Geometry const& geometry, Point const& point, Result & result)
     {
         int pig = detail::within::point_in_geometry(point, geometry);
-
-        // TODO: * - if geometry has interior and/or boundary
-        // e.g. isn't 1-point linestring or linear ring or 0-area polygon
 
         if ( pig > 0 ) // within
         {
@@ -106,9 +134,35 @@ struct geometry_point
             set<exterior, interior, '0'>(result);
         }
 
-        set<interior, exterior, '*'>(result); // TODO
-        set<boundary, exterior, '*'>(result); // TODO
         set<exterior, exterior, result_dimension<Point>::value>(result);
+
+        if ( result.interrupt )
+            return;
+
+        // the point is on the boundary
+        if ( pig == 0 )
+        {
+            // NOTE: even for MLs, if there is at least one boundary point,
+            // somewhere there must be another one
+
+            // check if there are other boundaries outside
+            typedef detail::relate::topology_check<Geometry> tc_t;
+            //tc_t tc(geometry, point);
+            //if ( tc.has_interior )
+                set<interior, exterior, tc_t::interior>(result);
+            //if ( tc.has_boundary )
+                set<boundary, exterior, tc_t::boundary>(result);
+        }
+        else
+        {
+            // check if there is a boundary in Geometry
+            typedef detail::relate::topology_check<Geometry> tc_t;
+            tc_t tc(geometry);
+            if ( tc.has_interior )
+                set<interior, exterior, tc_t::interior>(result);
+            if ( tc.has_boundary )
+                set<boundary, exterior, tc_t::boundary>(result);
+        }
     }
 };
 
