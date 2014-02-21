@@ -653,14 +653,25 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
         );
 
     tester()
-        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
-                       (-1 -1,0 0,9 0,11 10,12 10,13 0.3,14 0.4,15 0.5),\
+                       (-1 -1,0 0,9 0,11 10,12 10,13 3,14 4,15 5),\
                        (10 20,15 10,25 10,30 15))"),
-         from_wkt<ML>("MULTILINESTRING((9 0,10 0,13 0.3),(15 0.5,20 1),\
+         from_wkt<ML>("MULTILINESTRING((9 0,10 0,13 3),(15 5,20 10),\
                       (10 10,11 10),(12 10,15 10),(20 10,30 20))"),
          "mlmldf06"
+        );
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
+                      (-1 -1,0 0,9 0,11 10,12 10,13 3,14 4,15 5),\
+                      (10 20,15 10,25 10,30 15))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
+                      (10 10,20 10,30 20))"),
+         from_wkt<ML>("MULTILINESTRING((1 1,2 0),(-1 -1,0 0),(9 0,11 10),\
+                      (12 10,13 3),(10 20,15 10),(20 10,25 10,30 15))"),
+         "mlmldf06a"
         );
 
     tester()
