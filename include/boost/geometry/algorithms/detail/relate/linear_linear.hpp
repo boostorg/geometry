@@ -280,6 +280,8 @@ struct linear_linear
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
+// TODO: INTEGRATE INTERRUPT POLICY WITH THE PASSED RESULT
+
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
@@ -299,6 +301,8 @@ struct linear_linear
 
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
+
+// TODO: ADD A CHECK TO THE RESULT INDICATING IF THE FIRST AND/OR SECOND GEOMETRY MUST BE ANALYSED
 
         {
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());

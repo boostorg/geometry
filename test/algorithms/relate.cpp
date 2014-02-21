@@ -119,6 +119,13 @@ void test_geometry(std::string const& wkt1,
 }
 
 template <typename P>
+void test_point_point()
+{
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", "0FFFFFFF2");
+    test_geometry<P, P>("POINT(1 0)", "POINT(0 0)", "FF0FFF0F2");
+}
+
+template <typename P>
 void test_point_linestring()
 {
     typedef bg::model::linestring<P> ls;
@@ -291,6 +298,7 @@ void test_linestring_multi_linestring()
 template <typename P>
 void test_all()
 {
+    test_point_point<P>();
     test_point_linestring<P>();
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();
