@@ -404,7 +404,7 @@ struct linear_linear
     template <typename Point>
     class exit_watcher
     {
-        typedef point_identifier<Point> point_identifier;
+        typedef point_identifier<Point> point_info;
 
     public:
         exit_watcher()
@@ -415,7 +415,7 @@ struct linear_linear
         bool enter(Point const& point, segment_identifier const& other_id)
         {
             bool result = other_entry_points.empty();
-            other_entry_points.push_back(point_identifier(other_id, point));
+            other_entry_points.push_back(point_info(other_id, point));
             return result;
         }
 
@@ -428,7 +428,7 @@ struct linear_linear
             if ( other_entry_points.empty() )
                 return true;
 
-            typedef typename std::vector<point_identifier>::iterator point_iterator;
+            typedef typename std::vector<point_info>::iterator point_iterator;
             // search for the entry point in the same range of other geometry
             point_iterator entry_it = std::find_if(other_entry_points.begin(),
                                                    other_entry_points.end(),
@@ -440,7 +440,7 @@ struct linear_linear
                 // here we know that we possibly left LS
                 // we must still check if we didn't get back on the same point
                 exit_operation = exit_op;
-                exit_id = point_identifier(other_id, point);
+                exit_id = point_info(other_id, point);
 
                 // erase the corresponding entry point
                 other_entry_points.erase(entry_it);
@@ -467,8 +467,8 @@ struct linear_linear
 
     private:
         overlay::operation_type exit_operation;
-        point_identifier exit_id;
-        std::vector<point_identifier> other_entry_points; // TODO: use map here or sorted vector?
+        point_info exit_id;
+        std::vector<point_info> other_entry_points; // TODO: use map here or sorted vector?
     };
 
     // This analyser should be used like Input or SinglePass Iterator
