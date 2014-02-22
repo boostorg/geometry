@@ -37,18 +37,9 @@ static inline bool is_entering(Turn const& turn, Operation const& op)
 
 
 
-template 
-<
-    typename Turn, 
-    typename Operation, 
-    typename LineString1, 
-    typename LineString2
->
+template <typename Turn, typename Operation>
 static inline bool is_staying_inside(Turn const& turn, Operation const& op, 
-                                     bool entered, bool first, 
-                                     LineString1 const& linestring1,
-                                     LineString2 const& linestring2)
-
+                                     bool entered)
 {
     if ( !entered )
     {
@@ -65,18 +56,10 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
 
 
 
-template
-<
-    typename Turn,
-    typename Operation,
-    typename Linestring1,
-    typename Linestring2
->
+template <typename Turn, typename Operation>
 static inline bool is_leaving(Turn const& turn, Operation const& op, 
                               Operation const& reverse_op,
-                              bool entered, bool first, 
-                              Linestring1 const& linestring1,
-                              Linestring2 const& linestring2)
+                              bool entered)
 {
     if ( !entered )
     {
@@ -146,7 +129,7 @@ protected:
                  TurnOpIt iit, TurnOpIt iit_r,
                  bool& first, bool& entered,
                  std::size_t& enter_count,
-                 LineString1 const& ls1, LineString2 const& ls2,
+                 LineString1 const& ls1, LineString2 const&,
                  LineStringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
@@ -166,7 +149,7 @@ protected:
             }
             ++enter_count;
         }
-        else if ( is_staying_inside(*it, *iit, entered, first, ls1, ls2) )
+        else if ( is_staying_inside(*it, *iit, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
             detail::overlay::debug_traverse(*it, *iit, "-> Staying inside");
@@ -174,7 +157,7 @@ protected:
 
             entered = true;
         }
-        else if ( is_leaving(*it, *iit, *iit_r, entered, first, ls1, ls2) )
+        else if ( is_leaving(*it, *iit, *iit_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
             detail::overlay::debug_traverse(*it, *iit, "-> Leaving");
