@@ -41,11 +41,11 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
+
 #include <boost/geometry/algorithms/detail/relate/point_point.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
-
-#include <boost/geometry/algorithms/detail/relate/result.hpp>
 
 namespace boost { namespace geometry
 {

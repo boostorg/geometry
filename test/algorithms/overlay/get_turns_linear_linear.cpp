@@ -85,7 +85,9 @@ void check_geometry(
 
     BOOST_FOREACH(std::string const& s, expected)
     {
-        std::vector<turn_info>::iterator it = std::find_if(turns.begin(), turns.end(), equal_turn(s));
+        typename std::vector<turn_info>::iterator
+            it = std::find_if(turns.begin(), turns.end(), equal_turn(s));
+
         if ( it != turns.end() )
             turns.erase(it);
         else
