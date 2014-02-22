@@ -96,6 +96,49 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
 }
 
 
+template <typename Turn, typename Operation>
+static inline bool is_isolated_point(Turn const& turn, Operation const& op, 
+                                     Operation const& reverse_op,
+                                     bool entered)
+{
+    if ( entered )
+    {
+        return false;
+    }
+
+    if ( turn.method == overlay::method_crosses )
+    {
+        return true;
+    }
+
+    if ( turn.method != overlay::method_touch &&
+         turn.method != overlay::method_touch_interior )
+    {
+        return false;
+    }
+
+    if ( op.operation == overlay::operation_blocked )
+    {
+        return true;
+    }
+
+    if ( op.operation != overlay::operation_union )
+    {
+        return false;
+    }
+
+    if ( turn.operations[1].operation == overlay::operation_intersection )
+    {
+        return false;
+    }
+
+    BOOST_ASSERT( turn.operations[1].operation == overlay::operation_union ||
+                  turn.operations[1].operation == overlay::operation_blocked );
+
+    return reverse_op.operation == overlay::operation_union
+        || reverse_op.operation == overlay::operation_blocked;
+}
+
 
 template
 <
@@ -171,6 +214,13 @@ protected:
                               iit->seg_id.segment_index,
                               it->point, *iit, oit);
             }
+        }
+        else if ( is_isolated_point(*it, *iit, *iit_r, entered) )
+        {
+#ifdef GEOMETRY_TEST_DEBUG
+            detail::overlay::debug_traverse(*it, *iit,
+                                            "-> Isolated point");
+#endif
         }
         first = false;
         return oit;
