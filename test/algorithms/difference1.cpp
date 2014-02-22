@@ -13,6 +13,11 @@
 #define BOOST_TEST_MODULE test_difference
 #endif
 
+#ifdef GEOMETRY_TEST_DEBUG
+#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_difference1.hpp"
@@ -356,6 +361,27 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((0 0,15 0),(30 0,30 30,10 30),\
                        (10 0,10 -10,15 0))"),
          "lldf20a");
+
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns (when both are
+    // reversed)
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,18 0),(20 0,30 0))"),
+         "lldf21"
+         );
+
+    // the following example produces duplicate turns (when the 2nd LS
+    // is reversed)
+    tester()
+        (from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
+         from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((2 2,5 -1,15 2,18 0))"),
+         "lldf21a"
+         );
+#endif
 }
 
 
@@ -538,6 +564,35 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
                        (2 2,5 -1,15 2,18 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
          "lmldf18a"
+         );
+
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns (when both
+    // are reversed)
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,18 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(20 0,30 0))"),
+         "lmldf18b"
+         );
+#endif
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,25 0,26 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,25 0),(26 0,30 0))"),
+         "lmldf18c"
+         );
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,25 0,21 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,21 0),(25 0,30 0))"),
+         "lmldf18d"
          );
 }
 

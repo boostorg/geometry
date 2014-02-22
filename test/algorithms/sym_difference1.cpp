@@ -13,6 +13,11 @@
 #define BOOST_TEST_MODULE test_sym_difference
 #endif
 
+#ifdef GEOMETRY_TEST_DEBUG
+#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_sym_difference1.hpp"
@@ -345,17 +350,30 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_linestring )
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,35 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,20 0),(25 0,30 0,30 30,10 30),\
-                       (10 0,10 -10,15 0,20 0),(25 0,35 0),\
-                       (5 5,10 0),(10 30,20 0),(25 0,25 25,50 0,40 0))"),
+                      (10 0,10 -10,15 0,20 0),(25 0,35 0),\
+                      (5 5,10 0),(10 30,20 0),(25 0,25 25,50 0,40 0))"),
          "llsdf20");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,15 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,15 0),(30 0,30 30,10 30),\
-                       (10 0,10 -10,15 0),(5 5,10 0),(10 30,20 0),\
-                       (25 0,25 25,50 0,40 0))"),
+                      (10 0,10 -10,15 0),(5 5,10 0),(10 30,20 0),\
+                      (25 0,25 25,50 0,40 0))"),
          "llsdf20a");
+
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns (when the order
+    // is reversed and the 2nd LS is reversed)
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,18 0),(20 0,30 0),\
+                      (2 2,5 -1,15 2,18 0))"),
+         "llsdf21"
+         );
+#endif
 }
 
 
@@ -383,32 +401,34 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          "lmlsdf01"
         );
 
-#if 0
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
+                      (1 1,2 0),(1 1,3 0))"),
          "lmlsdf02"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1),\
+                      (1 1,2 0),(1 1,3 0))"),
          "lmlsdf03"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
+                      (1 1,2 0))"),
          "lmlsdf04"
         );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(-1 -1,1 0),(101 0,200 -1))"),
          "lmlsdf07"
         );
 
@@ -416,7 +436,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(-1 1,0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((-1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(-1 -1,0 0),\
+                      (19 -1,20 0),(101 0,200 -1))"),
          "lmlsdf07a"
         );
 
@@ -424,7 +445,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((-1 -1,0 0),(19 -1,20 0),\
+                      (101 0,200 -1))"),
          "lmlsdf07b"
         );
 
@@ -432,7 +454,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(0 1,1 1,2 0),\
+                      (-1 -1,1 0),(101 0,200 -1))"),
          "lmlsdf08"
         );
 
@@ -440,7 +463,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0),\
+                      (0 1,1 1,2 0.5),(-1 -1,1 0,3 0),(101 0,200 -1))"),
          "lmlsdf09"
         );
 
@@ -448,7 +472,9 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,1.5 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0),\
+                      (0 1,1 1,1 0,2 0.5),(-1 -1,1 0),(1.5 0,3 0),\
+                      (101 0,200 -1))"),
          "lmlsdf10"
         );
 
@@ -457,7 +483,9 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
                       (3 1,4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(1 1,2 0),(18 0,19 1),\
+                      (2 1,3 0),(17 0,18 1),(3 1,4 0),(16 0,17 1))"),
          "lmlsdf12"
          );
 
@@ -466,15 +494,26 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,19 0,20 1),\
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
                       (4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (19 0,20 1),(18 0,19 1),(17 0,18 1),(16 0,17 1))"),
          "lmlsdf13"
+         );
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,20 0)"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(2 0,18 0),(3 0,17 0),\
+                      (4 0,16 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         "lmlsdf13a"
          );
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1,19 1,18 0),(2 0,1 1,2 1,3 0),\
+                      (17 0,18 1,17 1,16 0),(4 0,3 1))"),
          "lmlsdf14"
          );
 
@@ -482,7 +521,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 2,6 0))"),
          "lmlsdf15"
          );
 
@@ -490,7 +530,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(6 0,4 2,2 2))"),
          "lmlsdf15a"
          );
 
@@ -498,7 +539,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 2,5 0))"),
          "lmlsdf16"
          );
 
@@ -506,7 +548,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(5 0,4 2,2 2))"),
          "lmlsdf16a"
          );
 
@@ -514,7 +557,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 0,5 2,20 2,25 0))"),
          "lmlsdf17"
          );
 
@@ -522,7 +566,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 0,5 2,20 2,25 0,26 2))"),
          "lmlsdf17a"
          );
 
@@ -530,7 +575,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "lmlsdf18"
          );
 
@@ -538,10 +584,41 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "lmlsdf18a"
          );
+
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,18 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(20 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
+         "lmlsdf18b"
+         );
 #endif
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,25 0,26 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,25 0),(26 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,25 0))"),
+         "lmlsdf18c"
+         );
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
+                       (2 2,5 -1,15 2,25 0,21 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,21 0),(25 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,25 0))"),
+         "lmlsdf18d"
+         );
 }
 
 
@@ -601,7 +678,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_linestring )
 
 
 
-#if 0
 BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -619,7 +695,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 3),(1 1,2 2,5 3))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
+                      (1 1,2 2,4 3),(1 1,2 2,5 3))"),
          "mlmlsdf01"
         );
 
@@ -627,7 +704,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
-                      (1 0,2 0),(4 0,7 0))"),
+                      (1 0,2 0),(4 0,7 0),(1 1,2 0),(1 1,3 0))"),
          "mlmlsdf02"
         );
 
@@ -635,7 +712,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1),\
-                      (1 0,2 0),(5 0,7 0))"),
+                      (1 0,2 0),(5 0,7 0),(1 1,2 0),(1 1,3 0))"),
          "mlmlsdf03"
         );
 
@@ -643,7 +720,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
-                      (1 0,2 0),(4 0,7 0))"),
+                      (1 0,2 0),(4 0,7 0),(1 1,2 0))"),
          "mlmlsdf04"
         );
 
@@ -653,10 +730,14 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
                        (10 20,15 10,25 10,30 15))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
-                      (1 0,2 0),(4 0,7 0),(10 10,15 10),(20 10,30 20))"),
+                      (1 0,2 0),(4 0,7 0),(10 10,15 10),(20 10,30 20),\
+                      (1 1,2 0),(10 20,15 10),(20 10,25 10,30 15))"),
          "mlmlsdf05"
         );
 
+#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // the following produces an assertion failure in line 483 of
+    // get_turn_info_ll
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
@@ -664,14 +745,31 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                        (-1 -1,0 0,9 0,11 10,12 10,13 0.3,14 0.4,15 0.5),\
                        (10 20,15 10,25 10,30 15))"),
          from_wkt<ML>("MULTILINESTRING((9 0,10 0,13 0.3),(15 0.5,20 1),\
-                      (10 10,11 10),(12 10,15 10),(20 10,30 20))"),
+                      (10 10,11 10),(12 10,15 10),(20 10,30 20),\
+                      (1 1,2 0),(-1 -1,0 0),(9 0,11 10),(12 10,13 0.3),\
+                      (10 20,15 10),(20 10,25 10,30 15))"),
+         "mlmlsdf06"
+        );
+#endif
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
+                       (10 10,20 10,30 20))"),
+         from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
+                       (-1 -1,0 0,9 0,11 10,12 10,13 3,14 4,15 5),\
+                       (10 20,15 10,25 10,30 15))"),
+         from_wkt<ML>("MULTILINESTRING((9 0,10 0,13 3),(15 5,20 10),\
+                      (10 10,11 10),(12 10,15 10),(20 10,30 20),\
+                      (1 1,2 0),(-1 -1,0 0),(9 0,11 10),(12 10,13 3),\
+                      (10 20,15 10),(20 10,25 10,30 15))"),
          "mlmlsdf06"
         );
 
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(-1 -1,1 0),\
+                      (101 0,200 -1))"),
          "mlmlsdf07"
         );
 
@@ -679,7 +777,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((-1 1,0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((-1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(-1 -1,0 0),\
+                      (19 -1,20 0),(101 0,200 -1))"),
          "mlmlsdf07a"
         );
 
@@ -687,7 +786,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((-1 -1,0 0),(19 -1,20 0),\
+                      (101 0,200 -1))"),
          "mlmlsdf07b"
         );
 
@@ -695,7 +795,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(0 1,1 1,2 0),\
+                      (-1 -1,1 0),(101 0,200 -1))"),
          "mlmlsdf08"
         );
 
@@ -703,7 +804,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0),(0 1,1 1,2 0.5),\
+                      (-1 -1,1 0,3 0),(101 0,200 -1))"),
          "mlmlsdf09"
         );
 
@@ -711,7 +813,9 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,1.5 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(1.5 0,2 0.5,3 0),\
+                      (0 1,1 1,1 0,2 0.5),(-1 -1,1 0),(1.5 0,3 0),\
+                      (101 0,200 -1))"),
          "mlmlsdf10"
         );
 
@@ -722,7 +826,10 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                        7 0,8 0,9 1,10 1,11 0,12 0,13 1,14 1,15 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 1),(2 1,5 1),(6 1,9 1),\
-                       (10 1,13 1),(14 1,100 1,101 0),(0 0,1 0))"),
+                       (10 1,13 1),(14 1,100 1,101 0),(0 0,1 0),\
+                       (1 0,1 1),(2 1,3 0),(4 0,5 1),(6 1,7 0),\
+                       (8 0,9 1),(10 1,11 0),(12 0,13 1),(14 1,15 0),\
+                       (-1 -1,1 0),(101 0,200 -1))"),
          "mlmlsdf11"
         );
 
@@ -731,7 +838,9 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
                       (3 1,4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(1 1,2 0),(18 0,19 1),\
+                      (2 1,3 0),(17 0,18 1),(3 1,4 0),(16 0,17 1))"),
          "mlmlsdf12"
          );
 
@@ -740,15 +849,26 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,19 0,20 1),\
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
                       (4 0,16 0,17 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (19 0,20 1),(18 0,19 1),(17 0,18 1),(16 0,17 1))"),
          "mlmlsdf13"
+         );
+
+    tester()
+        (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(2 0,18 0),(3 0,17 0),\
+                      (4 0,16 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         "mlmlsdf13a"
          );
 
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1,19 1,18 0),(2 0,1 1,2 1,3 0),\
+                      (17 0,18 1,17 1,16 0),(4 0,3 1))"),
          "mlmlsdf14"
          );
 
@@ -756,7 +876,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 2,6 0))"),
          "mlmlsdf15"
          );
 
@@ -764,7 +885,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(6 0,4 2,2 2))"),
          "mlmlsdf15a"
          );
 
@@ -772,7 +894,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 2,5 0))"),
          "mlmlsdf16"
          );
 
@@ -780,7 +903,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,20 0),\
+                      (0 1,1 0),(19 0,20 1),(5 0,4 2,2 2))"),
          "mlmlsdf16a"
          );
 
@@ -788,7 +912,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 0,5 2,20 2,25 0))"),
          "mlmlsdf17"
          );
 
@@ -796,7 +921,8 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,4 0,5 2,20 2,25 0,26 2))"),
          "mlmlsdf17a"
          );
 
@@ -804,16 +930,22 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "mlmlsdf18"
          );
 
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns (when
+    // considering the difference of the ML minus the reversed L)
     tester()
         (from_wkt<ML>("MULTILINESTRING((0 0,18 0,19 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,30 0),\
+                      (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "mlmlsdf18a"
          );
-}
 #endif
+}

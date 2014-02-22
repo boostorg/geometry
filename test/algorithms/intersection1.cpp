@@ -13,6 +13,11 @@
 #define BOOST_TEST_MODULE test_intersection
 #endif
 
+#ifdef GEOMETRY_TEST_DEBUG
+#define BOOST_GEOMETRY_DEBUG_TRAVERSE
+#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#endif
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_intersection1.hpp"
@@ -355,6 +360,19 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
                       (15 0,40 0))"),
          from_wkt<ML>("MULTILINESTRING((10 0,10 30),(20 0,25 0),(40 0,15 0))"),
          "lli20a");
+
+#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
+    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+    // the following example produces duplicate turns (when the 2nd LS
+    // is reversed)
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
+         from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
+         from_wkt<ML>("MULTILINESTRING((18 0,19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((18 0,20 0))"),
+         "lli21"
+         );
+#endif
 }
 
 
