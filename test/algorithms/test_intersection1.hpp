@@ -121,8 +121,42 @@ struct multilinestring_equals
 
 struct equals
 {
+    template <typename LS, typename OutputIterator>
+    OutputIterator
+    isolated_point_to_segment(LS const& ls, OutputIterator oit) const
+    {
+        BOOST_ASSERT( boost::size(ls) == 1 );
+
+        *oit++ = *boost::begin(ls);
+        *oit++ = *boost::begin(ls);
+        return oit;
+    }
+
+    template <typename MLS, typename OutputIterator>
+    OutputIterator
+    convert_isolated_points_to_segments(MLS const& mls,
+                                        OutputIterator oit) const
+    {
+        BOOST_AUTO_TPL(it, boost::begin(mls));
+
+        for (; it != boost::end(mls); ++it)
+        {
+            if ( boost::size(*it) == 1 )
+            {
+                typename boost::range_value<MLS>::type ls;
+                isolated_point_to_segment(*it, std::back_inserter(ls));
+                *oit++ = ls;
+            }
+            else
+            {
+                *oit++ = *it;
+            }
+        }
+        return oit;
+    }
+
     template <typename MLS1, typename MLS2>
-    bool operator()(MLS1 const& mls1, MLS2 const& mls2) const
+    bool are_equal(MLS1 const& mls1, MLS2 const& mls2) const
     {
         if ( multilinestring_equals<MLS1, MLS2>::apply(mls1, mls2) )
         {
@@ -144,6 +178,21 @@ struct equals
         }
 
         return multilinestring_equals<MLS1, MLS2>::apply(rmls1, rmls2);
+    }
+
+
+    template <typename MLS1, typename MLS2>
+    bool operator()(MLS1 const& mls1, MLS2 const& mls2) const
+    {
+#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+        MLS1 mls1c;
+        convert_isolated_points_to_segments(mls1, std::back_inserter(mls1c));
+        MLS2 mls2c;
+        convert_isolated_points_to_segments(mls2, std::back_inserter(mls2c));
+        return are_equal(mls1c, mls2c);
+#else
+        return are_equal(mls1, mls2);
+#endif
     }
 };
 
@@ -285,11 +334,14 @@ struct test_intersection_of_geometries
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
+#if 1
+        base_test(geometry1, geometry2, mls_int1, mls_int2);
+#else
         base_test(geometry1, geometry2, mls_int1, mls_int2, true);
         base_test(geometry1, rg2, mls_int1, mls_int2);
         base_test(rg1, geometry2, mls_int1, mls_int2);
         base_test(rg1, rg2, mls_int1, mls_int2);
-
+#endif
         base_test_all(geometry1, geometry2);
 
 #ifdef GEOMETRY_TEST_DEBUG

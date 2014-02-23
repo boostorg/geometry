@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIFFERENCE_FOLLOW_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIFFERENCE_FOLLOW_LINEAR_LINEAR_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -215,13 +217,18 @@ protected:
                               it->point, *iit, oit);
             }
         }
+#ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
         else if ( is_isolated_point(*it, *iit, *iit_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
-            detail::overlay::debug_traverse(*it, *iit,
-                                            "-> Isolated point");
+            detail::overlay::debug_traverse(*it, *iit, "-> Isolated point");
 #endif
+
+            action::isolated_point(current_piece, ls1, current_segment_id,
+                                   iit->seg_id.segment_index,
+                                   it->point, *iit, oit);
         }
+#endif
         first = false;
         return oit;
     }

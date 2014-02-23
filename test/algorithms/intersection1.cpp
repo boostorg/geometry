@@ -72,13 +72,21 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((4 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((0 0),(2 0),(4 0,5 0),(6.5 0),(8 0))"),
+#endif
          "lli01-6");
 
     tester()
         (from_wkt<L>("LINESTRING(-20 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((4 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((0 0),(2 0),(4 0,5 0),(6.5 0),(8 0))"),
+#endif
          "lli01-7");
 
     tester()
@@ -96,7 +104,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(2 0,5 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING()"),
+#else
+         from_wkt<ML>("MULTILINESTRING((2 0))"),
+#endif
          "lli01-11");
 
     tester()
@@ -257,37 +269,65 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,30 1)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 1)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((20 1,25 1))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((2 0),(20 1,25 1))"),
+#endif
          "lli17");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,21 0,30 0)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING()"),
+#else
+         from_wkt<ML>("MULTILINESTRING((2 0),(20 1),(25 0))"),
+#endif
          "lli18");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 1)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(4 0))"),
+#endif
          "lli19");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,4 0,4 1,20 1,5 0,1 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(4 0))"),
+#endif
          "lli19-r");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(4 0))"),
+#endif
          "lli19a");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(4 0,4 1,20 1,5 0,1 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(4 0))"),
+#endif
          "lli19a-r");
 
     tester()
@@ -335,30 +375,54 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,5 0,5 1)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(5 0))"),
+#endif
          "lli19g");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,5 0,4 1,20 1,5 0,1 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,5 0),(5 0))"),
+#endif
          "lli19g-r");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,35 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((20 0,25 0),(10 30,10 0),\
                       (35 0,40 0),(20 0,25 0))"),
          from_wkt<ML>("MULTILINESTRING((20 0,25 0),(10 0,10 30),\
-                                       (40 0,35 0))"),
+                      (40 0,35 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((10 0),(20 0,25 0),(10 30,10 0),\
+                      (30 20),(35 0,40 0),(20 0,25 0))"),
+         from_wkt<ML>("MULTILINESTRING((10 0),(20 0,25 0),(10 0,10 30),\
+                      (30 20),(40 0,35 0))"),
+#endif
          "lli20");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,15 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((15 0,30 0),(10 30,10 0),\
                       (15 0,40 0))"),
          from_wkt<ML>("MULTILINESTRING((10 0,10 30),(20 0,25 0),(40 0,15 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((10 0),(15 0,30 0),(10 30,10 0),\
+                      (30 20),(15 0,40 0))"),
+         from_wkt<ML>("MULTILINESTRING((10 0),(10 0,10 30),(20 0,25 0),\
+                      (30 20),(40 0,15 0))"),
+#endif
          "lli20a");
 
 #if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
@@ -368,8 +432,15 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((18 0,19 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((18 0,20 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((4 0),(8.33333333333333333 0),\
+                      (18 0,19 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((4 0),(8.33333333333333333 0),\
+                      (18 0,20 0))"),
+#endif
          "lli21"
          );
 #endif
@@ -462,7 +533,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((3 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0),(2 0.5),(3 0,101 0))"),
+#endif
          "lmli09"
         );
 
@@ -470,7 +545,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,1 0,1.5 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,1.5 0),(3 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0),(2 0.5),(1 0,1.5 0),(3 0,101 0))"),
+#endif
          "lmli10"
         );
 
@@ -536,7 +615,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(25 0))"),
+#endif
          "lmli17"
          );
 
@@ -544,7 +627,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(25 0))"),
+#endif
          "lmli17a"
          );
 
@@ -687,10 +774,17 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
                        (-1 -1,0 0,9 0,11 10,12 10,13 3,14 4,15 5),\
                        (10 20,15 10,25 10,30 15))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((0 0,9 0),(13 3,15 5),\
                       (1 0,7 0),(11 10,12 10),(15 10,20 10))"),
          from_wkt<ML>("MULTILINESTRING((2 0,4 0),(0 0,9 0),(13 3,14 4,15 5),\
                       (11 10,12 10),(15 10,20 10))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((0 0,9 0),(13 3,15 5),(20 10),\
+                      (1 0,7 0),(11 10,12 10),(15 10,20 10))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,4 0),(0 0,9 0),(13 3,14 4,15 5),\
+                      (11 10,12 10),(15 10,20 10))"),
+#endif
          "mlmli06"
         );
 
@@ -723,7 +817,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,101 0))"),
+         from_wkt<ML>("MULTILINESTRING((2 0),(1 0,101 0))"),
+#endif
          "mlmli08"
         );
 
@@ -731,7 +830,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((3 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0),(2 0.5),(3 0,101 0))"),
+#endif
          "mlmli09"
         );
 
@@ -739,7 +842,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,1.5 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,1.5 0),(3 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,1.5 0),(2 0.5),(3 0,101 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0),(1 0,1.5 0),(2 0.5),(3 0,101 0))"),
+#endif
          "mlmli10"
         );
 
@@ -749,11 +857,19 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1,3 0,4 0,5 1,6 1,\
                        7 0,8 0,9 1,10 1,11 0,12 0,13 1,14 1,15 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 1,2 1),(5 1,6 1),(9 1,10 1),\
                        (13 1,14 1),(1 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 1),(5 1,6 1),(9 1,10 1),\
                        (13 1,14 1),(3 0,4 0),(7 0,8 0),(11 0,12 0),\
                        (1 0,101 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 1,2 1),(5 1,6 1),(9 1,10 1),\
+                       (13 1,14 1),(101 0),(1 0),(1 0,101 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0),(1 1,2 1),(5 1,6 1),(9 1,10 1),\
+                       (13 1,14 1),(3 0,4 0),(7 0,8 0),(11 0,12 0),(15 0),\
+                       (1 0,101 0))"),
+#endif
          "mlmli11"
         );
 
@@ -793,7 +909,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(6 0))"),
+#endif
          "mlmli15"
          );
 
@@ -801,7 +922,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(6 0))"),
+#endif
          "mlmli15a"
          );
 
@@ -827,7 +953,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(25 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(4 0),(25 0))"),
+#endif
          "mlmli17"
          );
 
@@ -835,7 +966,12 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(25 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(4 0),(25 0))"),
+#endif
          "mlmli17a"
          );
 
@@ -843,7 +979,13 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(4 0),\
+                      (8.3333333333333333333 0),(18 0))"),
+#endif
          "mlmli18"
          );
 
@@ -851,8 +993,14 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
         (from_wkt<ML>("MULTILINESTRING((0 0,18 0,19 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
          from_wkt<ML>("MULTILINESTRING((1 0,18 0,19 0))"),
          from_wkt<ML>("MULTILINESTRING((1 0,19 0))"),
+#else
+         from_wkt<ML>("MULTILINESTRING((1 0,18 0,19 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,19 0),(4 0),\
+                      (8.3333333333333333333 0),(18 0))"),
+#endif
          "mlmli18a"
          );
 }
