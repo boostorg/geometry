@@ -17,7 +17,7 @@
 
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/print_turns.hpp>
-#include <boost/geometry/algorithms/detail/turns/follow_linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/follow_linear_linear.hpp>
 
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
@@ -314,7 +314,7 @@ struct linear_linear_linestring
         detail::turns::print_turns(linear1, linear2_reverse, reverse_turns);
 #endif
 
-        return detail::turns::following::follow
+        return detail::overlay::following::linear::follow
             <
                 LinestringOut,
                 Linear1,

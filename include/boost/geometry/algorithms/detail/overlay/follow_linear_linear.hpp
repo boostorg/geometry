@@ -7,18 +7,18 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIFFERENCE_FOLLOW_LINEAR_LINEAR_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIFFERENCE_FOLLOW_LINEAR_LINEAR_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 
 namespace boost { namespace geometry
 {
 
-namespace detail { namespace turns
+namespace detail { namespace overlay
 {
 
-namespace following
+namespace following { namespace linear
 {
 
 
@@ -29,12 +29,11 @@ namespace following
 template <typename Turn, typename Operation>
 static inline bool is_entering(Turn const& turn, Operation const& op)
 {
-    if ( turn.method != overlay::method_touch &&
-         turn.method != overlay::method_touch_interior )
+    if ( turn.method != method_touch && turn.method != method_touch_interior )
     {
         return false;
     }
-    return op.operation == overlay::operation_intersection;
+    return op.operation == operation_intersection;
 }
 
 
@@ -48,12 +47,11 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
         return false;
     }
 
-    if ( turn.method != overlay::method_equal &&
-         turn.method != overlay::method_collinear )
+    if ( turn.method != method_equal && turn.method != method_collinear )
     {
         return false;
     }
-    return op.operation == overlay::operation_continue;
+    return op.operation == operation_continue;
 }
 
 
@@ -68,33 +66,33 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
         return false;
     }
 
-    if ( turn.method != overlay::method_touch &&
-         turn.method != overlay::method_touch_interior &&
-         turn.method != overlay::method_equal &&
-         turn.method != overlay::method_collinear )
+    if ( turn.method != method_touch &&
+         turn.method != method_touch_interior &&
+         turn.method != method_equal &&
+         turn.method != method_collinear )
     {
         return false;
     }
 
-    if ( op.operation == overlay::operation_blocked )
+    if ( op.operation == operation_blocked )
     {
         return true;
     }
 
-    if ( op.operation != overlay::operation_union )
+    if ( op.operation != operation_union )
     {
         return false;
     }
 
-    if ( turn.operations[1].operation == overlay::operation_intersection )
+    if ( turn.operations[1].operation == operation_intersection )
     {
         return true;
     }
 
-    BOOST_ASSERT( turn.operations[1].operation == overlay::operation_union ||
-                  turn.operations[1].operation == overlay::operation_blocked );
+    BOOST_ASSERT( turn.operations[1].operation == operation_union ||
+                  turn.operations[1].operation == operation_blocked );
 
-    return reverse_op.operation == overlay::operation_intersection;
+    return reverse_op.operation == operation_intersection;
 }
 
 
@@ -108,37 +106,36 @@ static inline bool is_isolated_point(Turn const& turn, Operation const& op,
         return false;
     }
 
-    if ( turn.method == overlay::method_crosses )
+    if ( turn.method == method_crosses )
     {
         return true;
     }
 
-    if ( turn.method != overlay::method_touch &&
-         turn.method != overlay::method_touch_interior )
+    if ( turn.method != method_touch && turn.method != method_touch_interior )
     {
         return false;
     }
 
-    if ( op.operation == overlay::operation_blocked )
+    if ( op.operation == operation_blocked )
     {
         return true;
     }
 
-    if ( op.operation != overlay::operation_union )
+    if ( op.operation != operation_union )
     {
         return false;
     }
 
-    if ( turn.operations[1].operation == overlay::operation_intersection )
+    if ( turn.operations[1].operation == operation_intersection )
     {
         return false;
     }
 
-    BOOST_ASSERT( turn.operations[1].operation == overlay::operation_union ||
-                  turn.operations[1].operation == overlay::operation_blocked );
+    BOOST_ASSERT( turn.operations[1].operation == operation_union ||
+                  turn.operations[1].operation == operation_blocked );
 
-    return reverse_op.operation == overlay::operation_union
-        || reverse_op.operation == overlay::operation_blocked;
+    return reverse_op.operation == operation_union
+        || reverse_op.operation == operation_blocked;
 }
 
 
@@ -153,14 +150,14 @@ class follow_linestring_linestring_linestring
 {
 protected:
     typedef typename point_type<LineStringOut>::type PointOut;
-    typedef overlay::traversal_turn_info<PointOut> turn_info;
+    typedef traversal_turn_info<PointOut> turn_info;
 
     typedef typename boost::range_iterator
         <
             typename turn_info::container_type
         >::type turn_operation_iterator_type;
 
-    typedef detail::overlay::following::action_selector<OverlayType> action;
+    typedef following::action_selector<OverlayType> action;
 
     template
     <
@@ -334,14 +331,14 @@ protected:
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
-    typedef overlay::traversal_turn_info<PointOut> turn_info;
+    typedef traversal_turn_info<PointOut> turn_info;
 
     typedef typename boost::range_iterator
         <
             typename turn_info::container_type
         >::type turn_operation_iterator_type;
 
-    typedef detail::overlay::following::action_selector<OverlayType> action;
+    typedef following::action_selector<OverlayType> action;
 
 public:
     template <typename Turns, typename OutputIterator>
@@ -420,14 +417,14 @@ protected:
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
-    typedef overlay::traversal_turn_info<PointOut> turn_info;
+    typedef traversal_turn_info<PointOut> turn_info;
 
     typedef typename boost::range_iterator
         <
             typename turn_info::container_type
         >::type turn_operation_iterator_type;
 
-    typedef detail::overlay::following::action_selector<OverlayType> action;
+    typedef following::action_selector<OverlayType> action;
 
 public:
     template <typename Turns, typename OutputIterator>
@@ -531,14 +528,14 @@ protected:
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
-    typedef overlay::traversal_turn_info<PointOut> turn_info;
+    typedef traversal_turn_info<PointOut> turn_info;
 
     typedef typename boost::range_iterator
         <
             typename turn_info::container_type
         >::type turn_operation_iterator_type;
 
-    typedef detail::overlay::following::action_selector<OverlayType> action;
+    typedef following::action_selector<OverlayType> action;
 
 public:
     template <typename Turns, typename OutputIterator>
@@ -721,11 +718,11 @@ struct follow
 {};
 
 
-} // namespace following
+}} // namespace following::linear
 
-}} // namespace detail::turns
+}} // namespace detail::overlay
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIFFERENCE_FOLLOW_LINEAR_LINEAR_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
