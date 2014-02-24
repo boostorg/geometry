@@ -66,10 +66,10 @@ public:
         }
         else if ( BoundaryQuery == boundary_any )
         {
-            return sid.segment_index == 0
-                && detail::equals::equals_point_point(pt, range::front(geometry))
-                || sid.segment_index + 2 == geometry::num_points(geometry)
-                && detail::equals::equals_point_point(pt, range::back(geometry));
+            return ( sid.segment_index == 0
+                  && detail::equals::equals_point_point(pt, range::front(geometry)) )
+                || ( sid.segment_index + 2 == geometry::num_points(geometry)
+                  && detail::equals::equals_point_point(pt, range::back(geometry)) );
         }
 
         BOOST_ASSERT(false);
