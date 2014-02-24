@@ -144,7 +144,8 @@ template
     typename LineStringOut,
     typename LineString1,
     typename LineString2,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 class follow_linestring_linestring_linestring
 {
@@ -154,7 +155,7 @@ protected:
 
     typedef typename boost::range_iterator
         <
-            typename turn_info::container_type
+            typename turn_info::container_type const
         >::type turn_operation_iterator_type;
 
     typedef following::action_selector<OverlayType> action;
@@ -215,7 +216,7 @@ protected:
             }
         }
 #ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
-        else if ( OverlayType == overlay_intersection &&
+        else if ( FollowIsolatedPoints &&
                   is_isolated_point(*it, *iit, *iit_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -263,13 +264,13 @@ public:
     template <typename Turns, typename OutputIterator>
     static inline OutputIterator apply(LineString1 const& linestring1,
                                        LineString2 const& linestring2,
-                                       Turns& turns,
-                                       Turns& reverse_turns,
+                                       Turns const& turns,
+                                       Turns const& reverse_turns,
                                        OutputIterator oit)
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename Turns::iterator TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIt;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -311,7 +312,8 @@ template
     typename LineStringOut,
     typename LineString,
     typename MultiLineString,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 class follow_linestring_multilinestring_linestring
     : follow_linestring_linestring_linestring
@@ -319,7 +321,8 @@ class follow_linestring_multilinestring_linestring
             LineStringOut,
             LineString,
             typename boost::range_value<MultiLineString>::type,
-            OverlayType
+            OverlayType,
+            FollowIsolatedPoints
         >
 {
 protected:
@@ -327,7 +330,8 @@ protected:
 
     typedef follow_linestring_linestring_linestring
         <
-            LineStringOut, LineString, LineString2, OverlayType
+            LineStringOut, LineString, LineString2,
+            OverlayType, FollowIsolatedPoints
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
@@ -335,7 +339,7 @@ protected:
 
     typedef typename boost::range_iterator
         <
-            typename turn_info::container_type
+            typename turn_info::container_type const
         >::type turn_operation_iterator_type;
 
     typedef following::action_selector<OverlayType> action;
@@ -344,13 +348,13 @@ public:
     template <typename Turns, typename OutputIterator>
     static inline OutputIterator apply(LineString const& linestring,
                                        MultiLineString const& multilinestring,
-                                       Turns& turns,
-                                       Turns& reverse_turns,
+                                       Turns const& turns,
+                                       Turns const& reverse_turns,
                                        OutputIterator oit)
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename Turns::iterator TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIt;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -397,7 +401,8 @@ template
     typename LineStringOut,
     typename MultiLineString,
     typename LineString,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 class follow_multilinestring_linestring_linestring
     : follow_linestring_linestring_linestring
@@ -405,7 +410,8 @@ class follow_multilinestring_linestring_linestring
             LineStringOut,
             typename boost::range_value<MultiLineString>::type,
             LineString,
-            OverlayType
+            OverlayType,
+            FollowIsolatedPoints
         >
 {
 protected:
@@ -413,7 +419,8 @@ protected:
 
     typedef follow_linestring_linestring_linestring
         <
-            LineStringOut, LineString1, LineString, OverlayType
+            LineStringOut, LineString1, LineString,
+            OverlayType, FollowIsolatedPoints
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
@@ -421,7 +428,7 @@ protected:
 
     typedef typename boost::range_iterator
         <
-            typename turn_info::container_type
+            typename turn_info::container_type const
         >::type turn_operation_iterator_type;
 
     typedef following::action_selector<OverlayType> action;
@@ -430,13 +437,13 @@ public:
     template <typename Turns, typename OutputIterator>
     static inline OutputIterator apply(MultiLineString const& multilinestring,
                                        LineString const& linestring,
-                                       Turns& turns,
-                                       Turns& reverse_turns,
+                                       Turns const& turns,
+                                       Turns const& reverse_turns,
                                        OutputIterator oit)
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename Turns::iterator TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIt;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -507,7 +514,8 @@ template
     typename LineStringOut,
     typename MultiLineString1,
     typename MultiLineString2,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 class follow_multilinestring_multilinestring_linestring
     : follow_linestring_linestring_linestring
@@ -515,7 +523,8 @@ class follow_multilinestring_multilinestring_linestring
             LineStringOut,
             typename boost::range_value<MultiLineString1>::type,
             typename boost::range_value<MultiLineString2>::type,
-            OverlayType
+            OverlayType,
+            FollowIsolatedPoints
         >
 {
 protected:
@@ -524,7 +533,8 @@ protected:
 
     typedef follow_linestring_linestring_linestring
         <
-            LineStringOut, LineString1, LineString2, OverlayType
+            LineStringOut, LineString1, LineString2,
+            OverlayType, FollowIsolatedPoints
         > Base;
 
     typedef typename point_type<LineStringOut>::type PointOut;
@@ -532,7 +542,7 @@ protected:
 
     typedef typename boost::range_iterator
         <
-            typename turn_info::container_type
+            typename turn_info::container_type const
         >::type turn_operation_iterator_type;
 
     typedef following::action_selector<OverlayType> action;
@@ -541,13 +551,13 @@ public:
     template <typename Turns, typename OutputIterator>
     static inline OutputIterator apply(MultiLineString1 const& multilinestring1,
                                        MultiLineString2 const& multilinestring2,
-                                       Turns& turns,
-                                       Turns& reverse_turns,
+                                       Turns const& turns,
+                                       Turns const& reverse_turns,
                                        OutputIterator oit)
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename Turns::iterator TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIt;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -622,6 +632,7 @@ template
     typename Geometry1,
     typename Geometry2,
     overlay_type OverlayType,
+    bool FollowIsolatedPoints,
     typename TagOut = typename tag<GeometryOut>::type,
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
@@ -636,15 +647,18 @@ template
     typename LineStringOut,
     typename Linestring1,
     typename Linestring2,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct follow_dispatch
     <
-        LineStringOut, Linestring1, Linestring2, OverlayType,
+        LineStringOut, Linestring1, Linestring2,
+        OverlayType, FollowIsolatedPoints,
         linestring_tag, linestring_tag, linestring_tag
     > : follow_linestring_linestring_linestring
         <
-            LineStringOut, Linestring1, Linestring2, OverlayType
+            LineStringOut, Linestring1, Linestring2,
+            OverlayType, FollowIsolatedPoints
         >
 {};
 
@@ -654,15 +668,18 @@ template
     typename LineStringOut,
     typename Linestring,
     typename MultiLinestring,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct follow_dispatch
     <
-        LineStringOut, Linestring, MultiLinestring, OverlayType,
+        LineStringOut, Linestring, MultiLinestring,
+        OverlayType, FollowIsolatedPoints,
         linestring_tag, linestring_tag, multi_linestring_tag
     > : follow_linestring_multilinestring_linestring
         <
-            LineStringOut, Linestring, MultiLinestring, OverlayType
+            LineStringOut, Linestring, MultiLinestring,
+            OverlayType, FollowIsolatedPoints
         >
 {};
 
@@ -673,15 +690,18 @@ template
     typename LineStringOut,
     typename MultiLinestring,
     typename Linestring,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct follow_dispatch
     <
-        LineStringOut, MultiLinestring, Linestring, OverlayType,
+        LineStringOut, MultiLinestring, Linestring,
+        OverlayType, FollowIsolatedPoints,
         linestring_tag, multi_linestring_tag, linestring_tag
     > : follow_multilinestring_linestring_linestring
         <
-            LineStringOut, MultiLinestring, Linestring, OverlayType
+            LineStringOut, MultiLinestring, Linestring,
+            OverlayType, FollowIsolatedPoints
         >
 {};
 
@@ -692,15 +712,18 @@ template
     typename LineStringOut,
     typename MultiLinestring1,
     typename MultiLinestring2,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct follow_dispatch
     <
-        LineStringOut, MultiLinestring1, MultiLinestring2, OverlayType,
+        LineStringOut, MultiLinestring1, MultiLinestring2,
+        OverlayType, FollowIsolatedPoints,
         linestring_tag, multi_linestring_tag, multi_linestring_tag
     > : follow_multilinestring_multilinestring_linestring
         <
-            LineStringOut, MultiLinestring1, MultiLinestring2, OverlayType
+            LineStringOut, MultiLinestring1, MultiLinestring2,
+            OverlayType, FollowIsolatedPoints
         >
 {};
 
@@ -711,10 +734,15 @@ template
     typename LineStringOut,
     typename Geometry1,
     typename Geometry2,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct follow
-    : follow_dispatch<LineStringOut, Geometry1, Geometry2, OverlayType>
+    : follow_dispatch
+        <
+            LineStringOut, Geometry1, Geometry2,
+            OverlayType, FollowIsolatedPoints
+        >
 {};
 
 

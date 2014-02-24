@@ -113,8 +113,9 @@ struct linear_linear_no_intersections
 
 
 template <typename LinestringOut, overlay_type OverlayType>
-struct linear_linear_linestring
+class linear_linear_linestring
 {
+protected:
     typedef typename point_type<LinestringOut>::type PointOut;
     typedef traversal_turn_info<PointOut> turn_info;
     typedef std::vector<turn_info> Turns;
@@ -205,6 +206,102 @@ struct linear_linear_linestring
 #endif
 
 
+    template <typename Turns, typename Linear1, typename Linear2>
+    static inline void compute_turns(Turns& turns,
+                                     Linear1 const& linear1,
+                                     Linear2 const& linear2)
+    {
+        turns.clear();
+        geometry::detail::relate::turns::get_turns
+            <
+                Linear1,
+                Linear2,
+                detail::get_turns::get_turn_info_type
+                <
+                    Linear1,
+                    Linear2,
+                    AssignPolicy
+                >
+            >::apply(turns, linear1, linear2);
+    }
+
+
+   template
+    <
+        overlay_type OverlayTypeForFollow,
+        bool FollowIsolatedPoints,
+        typename Turns,
+        typename Linear1,
+        typename Linear2,
+        typename OutputIterator
+    >
+    static inline OutputIterator follow_turns(Turns const& turns,
+                                              Turns const& reverse_turns,
+                                              Linear1 const& linear1,
+                                              Linear2 const& linear2,
+                                              OutputIterator oit)
+    {
+        return detail::overlay::following::linear::follow
+            <
+                LinestringOut,
+                Linear1,
+                Linear2,
+                OverlayTypeForFollow,
+                FollowIsolatedPoints
+            >::apply(linear1, linear2, turns, reverse_turns, oit);
+    }
+
+
+    template
+    <
+        overlay_type OverlayTypeForFollow,
+        bool FollowIsolatedPoints,
+        typename Turns,
+        typename Linear1,
+        typename Linear2,
+        typename OutputIterator
+    >
+    static inline OutputIterator
+    sort_and_follow_turns(Turns& turns,
+                          Turns& reverse_turns,
+                          Linear1 const& linear1,
+                          Linear2 const& linear2,
+                          OutputIterator oit)
+    {
+        // remove turns that have no added value
+        filter_turns(turns);
+        filter_turns(reverse_turns);
+
+        // sort by seg_id, distance, and operation
+        typedef detail::turns::less_seg_dist_other_op<> less;
+        std::sort(boost::begin(turns), boost::end(turns), less());
+
+        typedef
+        detail::turns::less_seg_dist_other_op<std::greater<int> > rev_less;
+        std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
+                  rev_less());
+
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
+        // remove duplicate turns
+        remove_duplicates(turns);
+        remove_duplicates(reverse_turns);
+#endif
+
+#ifdef GEOMETRY_TEST_DEBUG
+        detail::turns::print_turns(linear1, linear2, turns);
+        std::cout << std::endl << std::endl;
+        Linear2 linear2_reverse = linear2;
+        geometry::reverse(linear2_reverse);
+        detail::turns::print_turns(linear1, linear2_reverse, reverse_turns);
+#endif
+
+        return follow_turns
+            <
+                OverlayTypeForFollow, FollowIsolatedPoints
+            >(turns, reverse_turns, linear1, linear2, oit);
+    }
+
+public:
     template
     <
         typename Linear1, typename Linear2,
@@ -242,87 +339,147 @@ struct linear_linear_linestring
 
         //        typedef detail::disjoint::disjoint_interrupt_policy InterruptPolicy;
 
-        Turns turns, reverse_turns;
-
-        geometry::detail::relate::turns::get_turns
-            <
-                Linear1,
-                Linear2,
-                detail::get_turns::get_turn_info_type
-                <
-                    Linear1,
-                    Linear2,
-                    AssignPolicy
-                >
-            >::apply(turns, linear1, linear2);
-
-        Linear2 linear2_reverse = linear2;
-        geometry::reverse(linear2_reverse);
-        geometry::detail::relate::turns::get_turns
-            <
-                Linear1,
-                Linear2,
-                detail::get_turns::get_turn_info_type
-                <
-                    Linear1,
-                    Linear2,
-                    AssignPolicy
-                >
-            >::apply(reverse_turns, linear1, linear2_reverse);
+        Turns turns;
+        compute_turns(turns, linear1, linear2);
 
         if ( turns.empty() )
         {
-            // the two linestrings are disjoint; we return the first as is;
-            //            canonical<MultiLinestringOut>::apply(mls1);
+            // the two linear geometries are disjoint
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "NO INTERSECTIONS" << std::endl;
 #endif
-            // MK:: need to think about this
-            //            std::copy(linear1.begin(), linear1.end(), oit);
-            oit = linear_linear_no_intersections
+            return linear_linear_no_intersections
                 <
                     LinestringOut,
                     OverlayType,
                     Linear1,
                     typename tag<Linear1>::type
                 >::apply(linear1, oit);
-            return oit;
         }
 
-        // remove turns that have no added value
-        filter_turns(turns);
-        filter_turns(reverse_turns);
 
-        // sort by seg_id, distance, and operation
-        typedef detail::turns::less_seg_dist_other_op<> less;
-        std::sort(boost::begin(turns), boost::end(turns), less());
+        Turns reverse_turns;
+        Linear2 linear2_reverse = linear2;
+        geometry::reverse(linear2_reverse);
+        compute_turns(reverse_turns, linear1, linear2_reverse);
 
-        typedef
-        detail::turns::less_seg_dist_other_op<std::greater<int> > rev_less;
-        std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
-                  rev_less());
-
-#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
-        // remove duplicate turns
-        remove_duplicates(turns);
-        remove_duplicates(reverse_turns);
-#endif
-
-#ifdef GEOMETRY_TEST_DEBUG
-        detail::turns::print_turns(linear1, linear2, turns);
-        std::cout << std::endl << std::endl;
-        detail::turns::print_turns(linear1, linear2_reverse, reverse_turns);
-#endif
-
-        return detail::overlay::following::linear::follow
+        return sort_and_follow_turns
             <
-                LinestringOut,
-                Linear1,
-                Linear2,
-                OverlayType
-            >::apply(linear1, linear2, turns, reverse_turns, oit);
+                OverlayType, OverlayType == overlay_intersection
+            >(turns, reverse_turns, linear1, linear2, oit);
     }
 };
+
+
+
+
+template <typename LinestringOut>
+struct linear_linear_linestring<LinestringOut, overlay_union>
+    : linear_linear_linestring<LinestringOut, overlay_difference>
+{
+protected:
+    typedef linear_linear_linestring
+        <
+            LinestringOut, overlay_difference
+        > Base;
+
+    typedef typename Base::Turns Turns;
+
+public:
+    template
+    <
+        typename Linear1, typename Linear2,
+        typename OutputIterator, typename Strategy
+    >
+    static inline OutputIterator apply(Linear1 const& linear1,
+                                       Linear2 const& linear2,
+                                       OutputIterator oit,
+                                       Strategy const& )
+    {
+        typedef geometry::model::multi_linestring
+            <
+                LinestringOut
+            > MultiLinestringOut;
+
+        //        MultiLinestringOut mls1, mls2;
+        //        geometry::convert(multilinestring1, mls1);
+        //        geometry::convert(multilinestring2, mls2);
+
+        //        assert( boost::size(mls1) > 0 );
+        //        assert( boost::size(mls2) > 0 );
+
+
+        //        canonical<LinestringOut>::apply(ls1);
+        //        canonical<LinestringOut>::apply(ls2);
+
+        //        typedef typename point_type<LinestringOut>::type PointOut;
+
+#if 0
+        typedef //overlay::assign_null_policy
+            overlay::calculate_distance_policy AssignPolicy;
+#endif
+        //        typedef //overlay::assign_null_policy
+        //            detail::union_::assign_union_policy AssignPolicy;
+
+        //        typedef detail::disjoint::disjoint_interrupt_policy InterruptPolicy;
+
+        Turns turns;
+        Base::compute_turns(turns, linear1, linear2);
+
+        if ( turns.empty() )
+        {
+            // the two linear geometries are disjoint
+#ifdef GEOMETRY_TEST_DEBUG
+            std::cout << "NO INTERSECTIONS" << std::endl;
+#endif
+            oit = linear_linear_no_intersections
+                <
+                    LinestringOut,
+                    overlay_difference,
+                    Linear1,
+                    typename tag<Linear1>::type
+                >::apply(linear1, oit);
+
+            return linear_linear_no_intersections
+                <
+                    LinestringOut,
+                    overlay_difference,
+                    Linear2,
+                    typename tag<Linear2>::type
+                >::apply(linear2, oit);
+        }
+
+        Linear2 linear2_reverse = linear2;
+        geometry::reverse(linear2_reverse);
+        Turns reverse_turns;
+        Base::compute_turns(reverse_turns, linear1, linear2_reverse);
+
+        oit = Base::template sort_and_follow_turns
+            <
+                overlay_difference, false
+            >(turns, reverse_turns, linear1, linear2, oit);
+
+        oit = Base::template follow_turns
+            <
+                overlay_intersection, false
+            >(turns, reverse_turns, linear1, linear2, oit);
+
+
+        // now compute the difference: linear2 - linear1
+        Base::compute_turns(turns, linear2, linear1);
+
+        Linear1 linear1_reverse = linear1;
+        geometry::reverse(linear1_reverse);
+        Base::compute_turns(reverse_turns, linear2, linear1_reverse);
+
+        return Base::template sort_and_follow_turns
+            <
+                overlay_difference, false
+            >(turns, reverse_turns, linear2, linear1, oit);
+    }
+};
+
+
 
 
 }} // namespace detail::overlay

@@ -17,7 +17,9 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>\
+
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 
 
 namespace boost { namespace geometry
@@ -90,6 +92,27 @@ struct union_insert
         false
     > : detail::overlay::overlay
         <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, GeometryOut, overlay_union>
+{};
+
+
+// dispatch for union of linear geometries
+template
+<
+    typename Linear1, typename Linear2, typename LineStringOut,
+    typename TagIn1, typename TagIn2,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        Linear1, Linear2, LineStringOut,
+        TagIn1, TagIn2, linestring_tag,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : detail::overlay::linear_linear_linestring
+        <
+            LineStringOut, overlay_union
+        >
 {};
 
 
