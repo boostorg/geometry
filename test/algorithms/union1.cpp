@@ -54,100 +54,106 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
     tester()
         (from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,3 0),(4 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,3 0),(3 0,4 0),(4 0,5 0))"),
          "lldf01");
 
     tester()
         (from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((3 0,4 0),(0 0,3 0),(4 0,5 0))"),
          "lldf01-1");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,6 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,3 0),(3 0,4 0),(4 0,6 0))"),
          "lldf01-2");
 
     tester()
         (from_wkt<L>("LINESTRING(3 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING((4 0,6 0))"),
+         from_wkt<ML>("MULTILINESTRING((4 0,6 0),(3 0,4 0),(0 0,3 0))"),
          "lldf01-3");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING((4 0,6 0))"),
+         from_wkt<ML>("MULTILINESTRING((4 0,6 0),(0 0,4 0))"),
          "lldf01-4");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,6 0)"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((0 0,4 0),(4 0,6 0))"),
          "lldf01-5");
 
-#if 0
     tester()
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,4 0),(5 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,4 0),(5 0,20 0),\
+                      (4 0,5 0),(0 0,1 1,2 0,3 1,4 0),\
+                      (5 0,6 1,7 -1,8 0))"),
          "lldf01-6");
 
     tester()
         (from_wkt<L>("LINESTRING(-20 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
-         from_wkt<ML>("MULTILINESTRING((-20 0,4 0),(5 0,20 0))"),
+         from_wkt<ML>("MULTILINESTRING((-20 0,4 0),(5 0,20 0),\
+                      (4 0,5 0),(0 0,1 1,2 0,3 1,4 0),\
+                      (5 0,6 1,7 -1,8 0))"),
          "lldf01-7");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(2 0,4 0))"),
          "lldf01-8");
 
     tester()
         (from_wkt<L>("LINESTRING(2 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
-         from_wkt<ML>("MULTILINESTRING()"),
+         from_wkt<ML>("MULTILINESTRING((2 0,4 0),(0 0,2 0))"),
          "lldf01-9");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(4 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,5 0))"),
          "lldf01-10");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(2 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(2 0,5 0))"),
          "lldf01-11");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0),(3 0,4 0),(4 0,5 0))"),
          "lldf01-11a");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,3 0),(3 0,4 0),(4 0,5 0))"),
          "lldf01-11b");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0,5 0)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,6 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,6 0),(2 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,6 0),(2 0,4 0,5 0))"),
          "lldf01-12");
 
     tester()
         (from_wkt<L>("LINESTRING(0 0,1 0,5 5,10 5,15 0)"),
          from_wkt<L>("LINESTRING(-1 6,0 5,15 5)"),
-         from_wkt<ML>("MULTILINESTRING((0 0,1 0,5 5),(10 5,15 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,5 5),(10 5,15 0),\
+                      (5 5,10 5),(-1 6,0 5,5 5),(10 5,15 5))"),
          "lldf02");
 
+#if 0
     tester()
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
