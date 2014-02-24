@@ -218,7 +218,8 @@ protected:
             }
         }
 #ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
-        else if ( is_isolated_point(*it, *iit, *iit_r, entered) )
+        else if ( OverlayType == overlay_intersection &&
+                  is_isolated_point(*it, *iit, *iit_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
             detail::overlay::debug_traverse(*it, *iit, "-> Isolated point");
@@ -281,7 +282,6 @@ public:
 
         bool entered = false;
         bool first = true;
-        //        bool first_turn = true;
         std::size_t enter_count = 0;
 
         TurnIt it = boost::begin(turns);
@@ -621,15 +621,16 @@ public:
 
 template
 <
-    typename LineStringOut,
+    typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
     overlay_type OverlayType,
+    typename TagOut = typename tag<GeometryOut>::type,
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
 struct follow_dispatch
-    : not_implemented<LineStringOut, Geometry1, Geometry2>
+    : not_implemented<GeometryOut, Geometry1, Geometry2>
 {};
 
 
@@ -642,8 +643,8 @@ template
 >
 struct follow_dispatch
     <
-        LineStringOut, Linestring1, Linestring2,
-        OverlayType, linestring_tag, linestring_tag
+        LineStringOut, Linestring1, Linestring2, OverlayType,
+        linestring_tag, linestring_tag, linestring_tag
     > : follow_linestring_linestring_linestring
         <
             LineStringOut, Linestring1, Linestring2, OverlayType
@@ -660,8 +661,8 @@ template
 >
 struct follow_dispatch
     <
-        LineStringOut, Linestring, MultiLinestring,
-        OverlayType, linestring_tag, multi_linestring_tag
+        LineStringOut, Linestring, MultiLinestring, OverlayType,
+        linestring_tag, linestring_tag, multi_linestring_tag
     > : follow_linestring_multilinestring_linestring
         <
             LineStringOut, Linestring, MultiLinestring, OverlayType
@@ -679,8 +680,8 @@ template
 >
 struct follow_dispatch
     <
-        LineStringOut, MultiLinestring, Linestring,
-        OverlayType, multi_linestring_tag, linestring_tag
+        LineStringOut, MultiLinestring, Linestring, OverlayType,
+        linestring_tag, multi_linestring_tag, linestring_tag
     > : follow_multilinestring_linestring_linestring
         <
             LineStringOut, MultiLinestring, Linestring, OverlayType
@@ -698,8 +699,8 @@ template
 >
 struct follow_dispatch
     <
-        LineStringOut, MultiLinestring1, MultiLinestring2,
-        OverlayType, multi_linestring_tag, multi_linestring_tag
+        LineStringOut, MultiLinestring1, MultiLinestring2, OverlayType,
+        linestring_tag, multi_linestring_tag, multi_linestring_tag
     > : follow_multilinestring_multilinestring_linestring
         <
             LineStringOut, MultiLinestring1, MultiLinestring2, OverlayType
