@@ -307,7 +307,7 @@ struct test_intersection_of_geometries
         std::cout << "************************************" << std::endl;
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
-        std::cout << "intersection(1,2) [MLS] : " << bg::wkt(mls12_output)
+        std::cout << "intersection(1,2) [MLS]: " << bg::wkt(mls12_output)
                   << std::endl;
         std::cout << "intersection(2,1) [MLS]: " << bg::wkt(mls21_output)
                   << std::endl;
