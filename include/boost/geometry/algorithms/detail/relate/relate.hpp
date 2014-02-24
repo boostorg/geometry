@@ -75,10 +75,10 @@ struct relate<MultiPoint, Point, multi_point_tag, point_tag>
     : detail::relate::multipoint_point<MultiPoint, Point>
 {};
 
-//template <typename MultiPoint1, typename MultiPoint2>
-//struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
-//    : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
-//{};
+template <typename MultiPoint1, typename MultiPoint2>
+struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+    : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
+{};
 
 //template <typename Point, typename Box>
 //struct relate<Point, Box, point_tag, box_tag>

@@ -83,21 +83,27 @@ struct point_multipoint
     template <typename Result>
     static inline void apply(Point const& point, MultiPoint const& multi_point, Result & result)
     {
+        if ( boost::empty(multi_point) )
+        {
+            // TODO: throw on empty input?
+            set<interior, exterior, '0', Transpose>(result);
+            return;
+        }
+
         std::pair<bool, bool> rel = point_multipoint_check(point, multi_point);
 
         if ( rel.first ) // some point of MP is equal to P
         {
             set<interior, interior, '0', Transpose>(result);
-            
+
+            if ( rel.second ) // a point of MP was found outside P
+            {
+                set<exterior, interior, '0', Transpose>(result);
+            }
         }
         else
         {
             set<interior, exterior, '0', Transpose>(result);
-            set<exterior, interior, '0', Transpose>(result);
-        }
-
-        if ( rel.second ) // a point of MP was found outside P
-        {
             set<exterior, interior, '0', Transpose>(result);
         }
 
@@ -117,49 +123,156 @@ struct multipoint_point
     }
 };
 
-//template <typename MultiPoint1, typename MultiPoint2>
-//struct multipoint_multipoint
-//{
-//    static const bool interruption_enabled = false;
-//
-//    template <typename Result>
-//    static inline void apply(MultiPoint1 const& multi_point1, MultiPoint2 const& multi_point2, Result & result)
-//    {
-//        if ( boost::size(multi_point1) < boost::size(multi_point2) )
-//        {
-//            apply<false>(multi_point1, multi_point2, result);
-//        }
-//        else
-//        {
-//            apply<true>(multi_point2, multi_point1, result);
-//        }
-//    }
-//
-//    template <bool Transpose,
-//              typename SortedMultiPoint,
-//              typename IteratedMultiPoint,
-//              typename Result>
-//    void apply(SortedMultiPoint const& sorted_mpt,
-//               IteratedMultiPoint const& iterated_mpt,
-//               Result & result)
-//    {
-//        // sort points from the 1 MPt
-//        typedef typename geometry::point_type<SortedMultiPoint>::type point_type;
-//        std::vector<point_type> points;
-//        std::sort(points.begin(), point.end(), geometry::less<point_type>());
-//
-//        // for each point in the second MPt
-//        typedef typename boost::range_iterator<IteratedMultiPoint const>::iterator iterator;
-//        for ( iterator it = boost::begin(iterated_mpt) ;
-//              it != boost::end(iterated_mpt) ; ++it )
-//        {
-//
-//// TODO: FOR THIS TO WORK, WE NEED geometry::less<> WHICH CAN TAKE 2 DIFFERENT POINT TYPES!
-////     
-//            bool found = binary_search (points.begin(), point.end(), *it, less);
-//        }
-//    }
-//};
+// TODO: should this be integrated with geometry::less?
+
+template <typename Point1,
+    typename Point2,
+    std::size_t I = 0,
+    std::size_t D = geometry::dimension<Point1>::value>
+struct less_dispatch
+{
+    static inline bool apply(Point1 const& l, Point2 const& r)
+    {
+        typename geometry::coordinate_type<Point1>::type
+            cl = geometry::get<I>(l);
+        typename geometry::coordinate_type<Point2>::type
+            cr = geometry::get<I>(r);
+
+        if ( geometry::math::equals(cl, cr) )
+        {
+            return less_dispatch<Point1, Point2, I + 1, D>::apply(l, r);
+        }
+        else
+        {
+            return cl < cr;
+        }
+    }
+};
+
+template <typename Point1, typename Point2, std::size_t D>
+struct less_dispatch<Point1, Point2, D, D>
+{
+    static inline bool apply(Point1 const&, Point2 const&)
+    {
+        return false;
+    }
+};
+
+struct less
+{
+    template <typename Point1, typename Point2>
+    inline bool operator()(Point1 const& point1, Point2 const& point2)
+    {
+        return less_dispatch<Point1, Point2>::apply(point1, point2);
+    }
+};
+
+template <typename MultiPoint1, typename MultiPoint2>
+struct multipoint_multipoint
+{
+    static const bool interruption_enabled = true;
+
+    template <typename Result>
+    static inline void apply(MultiPoint1 const& multi_point1, MultiPoint2 const& multi_point2, Result & result)
+    {
+        {
+            // TODO: throw on empty input?
+            bool empty1 = boost::empty(multi_point1);
+            bool empty2 = boost::empty(multi_point2);
+            if ( empty1 && empty2 )
+            {
+                return;
+            }
+            else if ( empty1 )
+            {
+                set<exterior, interior, '0'>(result);
+                return;
+            }
+            else if ( empty2 )
+            {
+                set<interior, exterior, '0'>(result);
+                return;
+            }
+        }
+
+// TODO: ADD A CHECK TO THE RESULT INDICATING IF THE FIRST AND/OR SECOND GEOMETRY MUST BE ANALYSED
+
+// TODO: if I/I is set for one MPt, this won't be changed when the other one in analysed
+//       so if e.g. only I/I must be analysed we musn't check the other MPt
+
+// TODO: Also, the geometry with the smaller number of points may be analysed first
+        //if ( boost::size(multi_point1) < boost::size(multi_point2) )
+
+        // NlogN + MlogN
+        bool all_handled = search<false>(multi_point1, multi_point2, result);
+        
+        if ( all_handled || result.interrupt )
+            return;
+
+        // MlogM + NlogM
+        search<true>(multi_point2, multi_point1, result);
+    }
+
+    template <bool Transpose,
+              typename SortedMultiPoint,
+              typename IteratedMultiPoint,
+              typename Result>
+    static inline bool search(SortedMultiPoint const& sorted_mpt,
+                              IteratedMultiPoint const& iterated_mpt,
+                              Result & result)
+    {
+        // sort points from the 1 MPt
+        typedef typename geometry::point_type<SortedMultiPoint>::type point_type;
+        std::vector<point_type> points(boost::begin(sorted_mpt), boost::end(sorted_mpt));
+        std::sort(points.begin(), points.end(), less());
+
+        bool found_inside = false;
+        bool found_outside = false;
+
+        // for each point in the second MPt
+        typedef typename boost::range_iterator<IteratedMultiPoint const>::type iterator;
+        for ( iterator it = boost::begin(iterated_mpt) ;
+              it != boost::end(iterated_mpt) ; ++it )
+        {
+            bool ii = binary_search(points.begin(), points.end(), *it, less());
+            if ( ii )
+                found_inside = true;
+            else
+                found_outside = true;
+
+            if ( found_inside && found_outside )
+                break;
+        }
+
+        // an optimization
+        bool all_handled = false;
+
+        if ( found_inside ) // some point of MP2 is equal to some of MP1
+        {
+// TODO: if I/I is set for one MPt, this won't be changed when the other one in analysed
+//       so if e.g. only I/I must be analysed we musn't check the other MPt
+
+            set<interior, interior, '0', Transpose>(result);
+
+            if ( found_outside ) // some point of MP2 was found outside of MP1
+            {
+                set<exterior, interior, '0', Transpose>(result);
+            }
+        }
+        else
+        {
+            set<interior, exterior, '0', Transpose>(result);
+            set<exterior, interior, '0', Transpose>(result);
+
+            // if no point is intersecting the other MPt then we musn't analyse the reversed case
+            all_handled = true;
+        }
+
+        set<exterior, exterior, result_dimension<point_type>::value, Transpose>(result);
+
+        return all_handled;
+    }
+};
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
