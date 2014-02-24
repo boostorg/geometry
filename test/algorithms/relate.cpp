@@ -159,6 +159,18 @@ void test_point_multipoint()
 }
 
 template <typename P>
+void test_multipoint_multipoint()
+{
+    typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
+    test_geometry<mpt, mpt>("MULTIPOINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0, 1 0)", "0FFFFF0F2");
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 0)", "MULTIPOINT(0 0)", "0F0FFFFF2");
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0, 1 1)", "MULTIPOINT(0 0, 1 0)", "0F0FFF0F2");
+}
+
+template <typename P>
 void test_point_linestring()
 {
     typedef bg::model::linestring<P> ls;
@@ -333,6 +345,7 @@ void test_all()
 {
     test_point_point<P>();
     test_point_multipoint<P>();
+    test_multipoint_multipoint<P>();
     test_point_linestring<P>();
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();
