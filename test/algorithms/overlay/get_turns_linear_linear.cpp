@@ -60,7 +60,8 @@ void check_geometry(
 {
     typedef bg::detail::overlay::turn_info
         <
-            typename bg::point_type<Geometry2>::type
+            typename bg::point_type<Geometry2>::type,
+            typename bg::detail::get_turns::turn_operation_type<Geometry1, Geometry2>::type
         > turn_info;
     typedef bg::detail::overlay::assign_null_policy assign_policy_t;
     typedef bg::detail::get_turns::no_interrupt_policy interrupt_policy_t;

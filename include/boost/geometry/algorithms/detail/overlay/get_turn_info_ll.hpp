@@ -21,6 +21,18 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
+enum turn_position { position_none, position_first, position_middle, position_second };
+
+struct turn_operation_linear
+    : public turn_operation
+{
+    turn_operation_linear()
+        : position(position_none)
+    {}
+
+    turn_position position;
+};
+
 // SEGMENT_INTERSECTION RESULT
 
 //                   C  H0  H1  A0  A1   O              IP1 IP2
@@ -478,10 +490,13 @@ struct get_turn_info_linear_linear
         bool result_ignore_ip0 = false;
 
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
+            // this may give false positives for INTs
             BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
             BOOST_ASSERT(q0i == equals::equals_point_point(qi, result.template get<0>().intersections[0]));
             BOOST_ASSERT(p0j == equals::equals_point_point(pj, result.template get<0>().intersections[0]));
             BOOST_ASSERT(q0j == equals::equals_point_point(qj, result.template get<0>().intersections[0]));
+#endif
             // TODO - calculate first/last only if needed
             bool p0_first = is_p_first && p0i;
             bool p0_last = is_p_last && p0j;
@@ -502,17 +517,19 @@ struct get_turn_info_linear_linear
                                                tp_model, result, p_operation0, q_operation0);
                 if ( !handled )
                 {
-                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
-                                              q0_first, q0_last, p0_first, p0_last, p0i, p0j,
-                                              tp_model, result, q_operation0, p_operation0);
+                    handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
+                                    q0_first, q0_last, p0_first, p0_last, p0i, p0j,
+                                    tp_model, result, q_operation0, p_operation0);
                 }
 
-                method = endpoint_ip_method(p0i, p0j, q0i, q0j);
-
                 if ( p_operation0 != operation_none )
+                {
                     assign(pi, qi, result, result.template get<0>().intersections[0],
-                           method, p_operation0, q_operation0,
+                           endpoint_ip_method(p0i, p0j, q0i, q0j),
+                           p_operation0, q_operation0,
+                           ip_position(p0i, p0j), ip_position(q0i, q0j),
                            tp_model, out);
+                }
             }
         }
 
@@ -520,10 +537,13 @@ struct get_turn_info_linear_linear
 
         if ( p_operation1 != ov::operation_none )
         {
+#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
+            // this may give false positives for INTs
             BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
             BOOST_ASSERT(q1i == equals::equals_point_point(qi, result.template get<0>().intersections[1]));
             BOOST_ASSERT(p1j == equals::equals_point_point(pj, result.template get<0>().intersections[1]));
             BOOST_ASSERT(q1j == equals::equals_point_point(qj, result.template get<0>().intersections[1]));
+#endif
             // TODO - calculate first/last only if needed
             bool p1_first = is_p_first && p1i;
             bool p1_last = is_p_last && p1j;
@@ -545,17 +565,17 @@ struct get_turn_info_linear_linear
                                                tp_model, result, p_operation1, q_operation1);
                 if ( !handled )
                 {
-                    handled = handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
-                                              q1_first, q1_last, p1_first, p1_last, p1i, p1j,
-                                              tp_model, result, q_operation1, p_operation1);
+                    handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
+                                    q1_first, q1_last, p1_first, p1_last, p1i, p1j,
+                                    tp_model, result, q_operation1, p_operation1);
                 }
 
                 if ( p_operation1 != operation_none )
                 {
-                    method = endpoint_ip_method(p1i, p1j, q1i, q1j);
-
                     assign(pi, qi, result, result.template get<0>().intersections[1],
-                           method, p_operation1, q_operation1,
+                           endpoint_ip_method(p1i, p1j, q1i, q1j),
+                           p_operation1, q_operation1,
+                           ip_position(p1i, p1j), ip_position(q1i, q1j),
                            tp_model, out);
                 }
             }
@@ -760,12 +780,15 @@ struct get_turn_info_linear_linear
 
     static inline method_type endpoint_ip_method(bool ip_pi, bool ip_pj, bool ip_qi, bool ip_qj)
     {
-        int pc = (ip_pi ? 1 : 0) + (ip_pj ? 1 : 0);
-        int qc = (ip_qi ? 1 : 0) + (ip_qj ? 1 : 0);
-        if ( pc > 0 && qc > 0 )
+        if ( (ip_pi || ip_pj) && (ip_qi || ip_qj) )
             return method_touch;
         else
             return method_touch_interior;
+    }
+
+    static inline turn_position ip_position(bool ip_i, bool ip_j)
+    {
+        return ip_i ? position_first : ( ip_j ? position_second : position_middle );
     }
 
     template <typename Point1,
@@ -779,6 +802,7 @@ struct get_turn_info_linear_linear
                               Point const& ip,
                               method_type method,
                               operation_type op0, operation_type op1,
+                              turn_position pos0, turn_position pos1,
                               TurnInfo const& tp_model,
                               OutputIterator out)
     {
@@ -787,6 +811,8 @@ struct get_turn_info_linear_linear
         tp.method = method;
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
+        tp.operations[0].position = pos0;
+        tp.operations[1].position = pos1;
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
     }

@@ -26,6 +26,8 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
 
+
+
 // TURN_INFO
 
 // TODO: rename distance_info to enriched_info or something like that
@@ -35,7 +37,7 @@ namespace detail { namespace relate { namespace turns {
 //       get_turn_info_ll must check this anyway.
 
 template<typename P>
-struct distance_info
+struct enriched_info // linear_enriched_info ?
 {
     typedef typename strategy::distance::services::return_type
         <
@@ -50,7 +52,7 @@ struct distance_info
             P, P
         >::type distance_type;
 
-    inline distance_info()
+    inline enriched_info()
         : distance(distance_type())
     {}
 
@@ -58,9 +60,9 @@ struct distance_info
 };
 
 template <typename P>
-struct turn_operation_with_distance : public overlay::turn_operation
+struct enriched_turn_operation : public overlay::turn_operation_linear
 {
-    distance_info<P> enriched;
+    enriched_info<P> enriched;
 };
 
 
@@ -78,7 +80,7 @@ struct get_turns
     typedef overlay::turn_info
         <
             point1_type,
-            turn_operation_with_distance<point1_type>
+            enriched_turn_operation<point1_type>
         > turn_info;
 
     template <typename Turns>
