@@ -530,7 +530,6 @@ struct linear_linear
                         update<interior, exterior, '1', transpose_result>(res);
                     }
                     // fake exit point, reset state
-                    // in reality this will be op == overlay::operation_intersection
                     else if ( op == overlay::operation_intersection )
                     {
                         m_exit_watcher.reset_detected_exit();
@@ -546,6 +545,10 @@ struct linear_linear
                     m_exit_watcher.reset_detected_exit();
                 }
 
+                // if the new linestring started just now,
+                // but the previous one went out on the previous point,
+                // we must check if the boundary of the previous segment is outside
+                // NOTE: couldn't it be integrated with the handling of the union above?
                 if ( first_in_range
                   && ! fake_enter_detected
                   && m_previous_operation == overlay::operation_union )
@@ -761,25 +764,30 @@ struct linear_linear
 
             bool res = false;
 
+            // IP on the last point of the linestring
             if ( (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
               && operation_info.operation == overlay::operation_blocked )
             {
                 BOOST_ASSERT(operation_info.position == overlay::position_back);
+                // check if this point is a boundary
                 res = boundary_checker.template is_endpoint_boundary<boundary_back>(ip);
 
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
                 BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_back>(ip, seg_id));
 #endif
             }
+            // IP on the last point of the linestring
             else if ( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
                    && operation_info.position == overlay::position_front )
             {
+                // check if this point is a boundary
                 res = boundary_checker.template is_endpoint_boundary<boundary_front>(ip);
 
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
                 BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_front>(ip, seg_id));
 #endif
             }
+            // IP somewhere in the interior
             else
             {
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
