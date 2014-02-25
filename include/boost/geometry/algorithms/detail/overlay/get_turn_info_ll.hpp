@@ -21,13 +21,13 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
-enum turn_position { position_none, position_first, position_middle, position_second };
+enum turn_position { position_middle, position_front, position_back };
 
 struct turn_operation_linear
     : public turn_operation
 {
     turn_operation_linear()
-        : position(position_none)
+        : position(position_middle)
     {}
 
     turn_position position;
@@ -632,8 +632,8 @@ struct get_turn_info_linear_linear
                                        bool is_pi_ip, bool is_pj_ip,
                                        bool is_qi_ip, bool is_qj_ip,
                                        bool enable_first, bool enable_last,
-                                       overlay::operation_type p_operation,
-                                       overlay::operation_type q_operation,
+                                       operation_type p_operation,
+                                       operation_type q_operation,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
                                        OutputIterator out)
@@ -671,7 +671,8 @@ struct get_turn_info_linear_linear
                 assign(pi, qi, result, ip,
                        endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip),
                        p_operation, q_operation,
-                       ip_position(is_pi_ip, is_pj_ip), ip_position(is_qi_ip, is_qj_ip),
+                       ip_position(is_p_first_ip, is_p_last_ip),
+                       ip_position(is_q_first_ip, is_q_last_ip),
                        tp_model, out);
             }
         }
@@ -789,9 +790,10 @@ struct get_turn_info_linear_linear
             return method_touch_interior;
     }
 
-    static inline turn_position ip_position(bool ip_i, bool ip_j)
+    static inline turn_position ip_position(bool is_ip_first_i, bool is_ip_last_j)
     {
-        return ip_i ? position_first : ( ip_j ? position_second : position_middle );
+        return is_ip_first_i ? position_front :
+               ( is_ip_last_j ? position_back : position_middle );
     }
 
     template <typename Point1,
