@@ -558,9 +558,12 @@ struct linear_linear
 
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            boundary_checker);
+
                     // if there is a boundary on the last point
-                    if ( boundary_checker.template is_endpoint_boundary<boundary_back>
-                            (range::back(sub_geometry::get(geometry, prev_seg_id))) )
+                    if ( prev_back_b )
                     {
                         update<boundary, exterior, '0', transpose_result>(res);
                     }
@@ -610,9 +613,12 @@ struct linear_linear
                             // if it's the first IP then the first point is outside
                             if ( first_in_range )
                             {
+                                bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    boundary_checker);
+
                                 // if there is a boundary on the first point
-                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                        (range::front(sub_geometry::get(geometry, seg_id))) )
+                                if ( front_b )
                                 {
                                     update<boundary, exterior, '0', transpose_result>(res);
                                 }
@@ -632,7 +638,8 @@ struct linear_linear
                         if ( op_blocked )
                         {
                             // check if this is indeed the boundary point
-                            if ( boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) )
+                            // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
+                            if ( is_endpoint_on_boundary<boundary_back>(it->point, boundary_checker) )
                             {
                                 // may be front and back
                                 bool other_b = is_ip_on_boundary<boundary_any>(it->point,
@@ -664,9 +671,12 @@ struct linear_linear
                             // it's the first point in range
                             if ( first_in_range )
                             {
+                                bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    boundary_checker);
+
                                 // if there is a boundary on the first point
-                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                        (range::front(sub_geometry::get(geometry, seg_id))) )
+                                if ( front_b )
                                 {
                                     update<boundary, exterior, '0', transpose_result>(res);
                                 }
@@ -707,9 +717,12 @@ struct linear_linear
                             // first IP on the last segment point - this means that the first point is outside
                             if ( first_in_range && ( !this_b || op_blocked ) )
                             {
+                                bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    boundary_checker);
+
                                 // if there is a boundary on the first point
-                                if ( boundary_checker.template is_endpoint_boundary<boundary_front>
-                                        (range::front(sub_geometry::get(geometry, seg_id))) )
+                                if ( front_b )
                                 {
                                     update<boundary, exterior, '0', transpose_result>(res);
                                 }
@@ -740,14 +753,27 @@ struct linear_linear
 
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[OpId].seg_id;
 
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            boundary_checker);
+
                     // if there is a boundary on the last point
-                    if ( boundary_checker.template is_endpoint_boundary<boundary_back>
-                            (range::back(sub_geometry::get(geometry, prev_seg_id))) )
+                    if ( prev_back_b )
                     {
                         update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
             }
+        }
+
+        template <boundary_query BoundaryQuery,
+                  typename Point,
+                  typename BoundaryChecker>
+        static inline
+        bool is_endpoint_on_boundary(Point const& pt,
+                                     BoundaryChecker & boundary_checker)
+        {
+            return boundary_checker.template is_endpoint_boundary<BoundaryQuery>(pt);
         }
 
         template <boundary_query BoundaryQuery,
