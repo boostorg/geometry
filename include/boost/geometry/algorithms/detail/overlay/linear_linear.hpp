@@ -30,6 +30,37 @@ namespace detail { namespace overlay
 {
 
 
+namespace core
+{
+
+template <typename Tag>
+struct is_linear : not_implemented<Tag>
+{};
+
+template <>
+struct is_linear<linestring_tag>
+{};
+
+template <>
+struct is_linear<multi_linestring_tag>
+{};
+
+
+template <typename Tag1, typename Tag2>
+struct are_linear
+    : is_linear<Tag1>, is_linear<Tag2>
+{};
+
+template <typename Tag>
+struct are_linear<Tag, Tag>
+    : is_linear<Tag>
+{};
+
+
+
+
+}
+
 //===========================================================================
 //===========================================================================
 //===========================================================================
@@ -112,8 +143,18 @@ struct linear_linear_no_intersections
 
 
 
-template <typename LinestringOut, overlay_type OverlayType>
+template
+<
+    typename Linear1,
+    typename Linear2,
+    typename LinestringOut,
+    overlay_type OverlayType
+>
 class linear_linear_linestring
+    : core::are_linear
+        <
+            typename tag<Linear1>::type, typename tag<Linear2>::type
+        >
 {
 protected:
     typedef typename point_type<LinestringOut>::type PointOut;
@@ -206,20 +247,25 @@ protected:
 #endif
 
 
-    template <typename Turns, typename Linear1, typename Linear2>
+    template
+    <
+        typename Turns,
+        typename LinearGeometry1,
+        typename LinearGeometry2
+    >
     static inline void compute_turns(Turns& turns,
-                                     Linear1 const& linear1,
-                                     Linear2 const& linear2)
+                                     LinearGeometry1 const& linear1,
+                                     LinearGeometry2 const& linear2)
     {
         turns.clear();
         geometry::detail::relate::turns::get_turns
             <
-                Linear1,
-                Linear2,
+                LinearGeometry1,
+                LinearGeometry2,
                 detail::get_turns::get_turn_info_type
                 <
-                    Linear1,
-                    Linear2,
+                    LinearGeometry1,
+                    LinearGeometry2,
                     AssignPolicy
                 >
             >::apply(turns, linear1, linear2);
@@ -231,21 +277,21 @@ protected:
         overlay_type OverlayTypeForFollow,
         bool FollowIsolatedPoints,
         typename Turns,
-        typename Linear1,
-        typename Linear2,
+        typename LinearGeometry1,
+        typename LinearGeometry2,
         typename OutputIterator
     >
     static inline OutputIterator follow_turns(Turns const& turns,
                                               Turns const& reverse_turns,
-                                              Linear1 const& linear1,
-                                              Linear2 const& linear2,
+                                              LinearGeometry1 const& linear1,
+                                              LinearGeometry2 const& linear2,
                                               OutputIterator oit)
     {
         return detail::overlay::following::linear::follow
             <
                 LinestringOut,
-                Linear1,
-                Linear2,
+                LinearGeometry1,
+                LinearGeometry2,
                 OverlayTypeForFollow,
                 FollowIsolatedPoints
             >::apply(linear1, linear2, turns, reverse_turns, oit);
@@ -257,15 +303,15 @@ protected:
         overlay_type OverlayTypeForFollow,
         bool FollowIsolatedPoints,
         typename Turns,
-        typename Linear1,
-        typename Linear2,
+        typename LinearGeometry1,
+        typename LinearGeometry2,
         typename OutputIterator
     >
     static inline OutputIterator
     sort_and_follow_turns(Turns& turns,
                           Turns& reverse_turns,
-                          Linear1 const& linear1,
-                          Linear2 const& linear2,
+                          LinearGeometry1 const& linear1,
+                          LinearGeometry2 const& linear2,
                           OutputIterator oit)
     {
         // remove turns that have no added value
@@ -304,7 +350,6 @@ protected:
 public:
     template
     <
-        typename Linear1, typename Linear2,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linear1 const& linear1,
@@ -373,14 +418,22 @@ public:
 
 
 
-template <typename LinestringOut>
-struct linear_linear_linestring<LinestringOut, overlay_union>
-    : linear_linear_linestring<LinestringOut, overlay_difference>
+template
+<
+    typename Linear1,
+    typename Linear2,
+    typename LinestringOut
+>
+struct linear_linear_linestring<Linear1, Linear2, LinestringOut, overlay_union>
+    : linear_linear_linestring
+        <
+            Linear1, Linear2, LinestringOut, overlay_difference
+        >
 {
 protected:
     typedef linear_linear_linestring
         <
-            LinestringOut, overlay_difference
+            Linear1, Linear2, LinestringOut, overlay_difference
         > Base;
 
     typedef typename Base::Turns Turns;
@@ -388,7 +441,6 @@ protected:
 public:
     template
     <
-        typename Linear1, typename Linear2,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linear1 const& linear1,

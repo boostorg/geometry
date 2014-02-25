@@ -116,7 +116,7 @@ struct union_insert
         false
     > : detail::overlay::linear_linear_linestring
         <
-            LineStringOut, overlay_union
+            Linear1, Linear2, LineStringOut, overlay_union
         >
 {};
 

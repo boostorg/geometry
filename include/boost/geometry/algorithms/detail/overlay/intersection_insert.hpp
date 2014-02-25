@@ -532,7 +532,7 @@ struct intersection_insert
         false, false, false
     > : detail::overlay::linear_linear_linestring
         <
-            LineStringOut, overlay_difference
+            Linear1, Linear2, LineStringOut, overlay_difference
         >
 {};
 
@@ -554,7 +554,7 @@ struct intersection_insert
         false, false, false
     > : detail::overlay::linear_linear_linestring
         <
-            LineStringOut, overlay_intersection
+            Linear1, Linear2, LineStringOut, overlay_intersection
         >
 {};
 
