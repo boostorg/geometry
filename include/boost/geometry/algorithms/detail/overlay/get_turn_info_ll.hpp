@@ -487,99 +487,37 @@ struct get_turn_info_linear_linear
                            pi, pj, pk, qi, qj, qk);
         }
 
-        bool result_ignore_ip0 = false;
+        bool append0_last
+            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
+                                            result.template get<0>().intersections[0],
+                                            is_p_first, is_p_last, is_q_first, is_q_last,
+                                            p0i, p0j, q0i, q0j,
+                                            enable_first, enable_last,
+                                            p_operation0, q_operation0,
+                                            tp_model, result, out);
 
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
-            // this may give false positives for INTs
-            BOOST_ASSERT(p0i == equals::equals_point_point(pi, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(q0i == equals::equals_point_point(qi, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(p0j == equals::equals_point_point(pj, result.template get<0>().intersections[0]));
-            BOOST_ASSERT(q0j == equals::equals_point_point(qj, result.template get<0>().intersections[0]));
-#endif
-            // TODO - calculate first/last only if needed
-            bool p0_first = is_p_first && p0i;
-            bool p0_last = is_p_last && p0j;
-            bool q0_first = is_q_first && q0i;
-            bool q0_last = is_q_last && q0j;
-            bool append0_first = enable_first && (p0_first || q0_first);
-            bool append0_last = enable_last && (p0_last || q0_last);
+        bool result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
+                append0_last :
+                (append0_last && (p0j || (is_q_last && q0j && q1i)));
+                // NOTE: based on how collinear is calculated for opposite segments
 
-            result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
-                                    append0_last :
-                                    (append0_last && (p0j || (q0_last && q1i)));
-                                    // NOTE: based on how collinear is calculated for opposite segments
+        if ( p_operation1 == ov::operation_none )
+            return result_ignore_ip0;
+        
+        bool append1_last
+            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
+                                            result.template get<0>().intersections[1],
+                                            is_p_first, is_p_last, is_q_first, is_q_last,
+                                            p1i, p1j, q1i, q1j,
+                                            enable_first, enable_last,
+                                            p_operation1, q_operation1,
+                                            tp_model, result, out);
 
-            if ( append0_first || append0_last )
-            {
-                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[0],
-                                               p0_first, p0_last, q0_first, q0_last, q0i, q0j,
-                                               tp_model, result, p_operation0, q_operation0);
-                if ( !handled )
-                {
-                    handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[0],
-                                    q0_first, q0_last, p0_first, p0_last, p0i, p0j,
-                                    tp_model, result, q_operation0, p_operation0);
-                }
-
-                if ( p_operation0 != operation_none )
-                {
-                    assign(pi, qi, result, result.template get<0>().intersections[0],
-                           endpoint_ip_method(p0i, p0j, q0i, q0j),
-                           p_operation0, q_operation0,
-                           ip_position(p0i, p0j), ip_position(q0i, q0j),
-                           tp_model, out);
-                }
-            }
-        }
-
-        bool result_ignore_ip1 = false;
-
-        if ( p_operation1 != ov::operation_none )
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
-            // this may give false positives for INTs
-            BOOST_ASSERT(p1i == equals::equals_point_point(pi, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(q1i == equals::equals_point_point(qi, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(p1j == equals::equals_point_point(pj, result.template get<0>().intersections[1]));
-            BOOST_ASSERT(q1j == equals::equals_point_point(qj, result.template get<0>().intersections[1]));
-#endif
-            // TODO - calculate first/last only if needed
-            bool p1_first = is_p_first && p1i;
-            bool p1_last = is_p_last && p1j;
-            bool q1_first = is_q_first && q1i;
-            bool q1_last = is_q_last && q1j;
-            bool append1_first = enable_first && (p1_first || q1_first);
-            bool append1_last = enable_last && (p1_last || q1_last);
-
-            result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
-                                    append1_last :
-                                    (append1_last && (q1j || (p1_last && p0i)));
-                                    // NOTE: based on how collinear is calculated for opposite segments
-                                    //       this condition is symmetric to the one above
-
-            if ( append1_first || append1_last )
-            {
-                bool handled = handle_internal(pi, pj, pk, qi, qj, qk,  result.template get<0>().intersections[1],
-                                               p1_first, p1_last, q1_first, q1_last, q1i, q1j,
-                                               tp_model, result, p_operation1, q_operation1);
-                if ( !handled )
-                {
-                    handle_internal(qi, qj, qk, pi, pj, pk, result.template get<0>().intersections[1],
-                                    q1_first, q1_last, p1_first, p1_last, p1i, p1j,
-                                    tp_model, result, q_operation1, p_operation1);
-                }
-
-                if ( p_operation1 != operation_none )
-                {
-                    assign(pi, qi, result, result.template get<0>().intersections[1],
-                           endpoint_ip_method(p1i, p1j, q1i, q1j),
-                           p_operation1, q_operation1,
-                           ip_position(p1i, p1j), ip_position(q1i, q1j),
-                           tp_model, out);
-                }
-            }
-        }
+        bool result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
+                append1_last :
+                (append1_last && (q1j || (is_p_last && p1j && p0i)));
+                // NOTE: based on how collinear is calculated for opposite segments
+                //       this condition is symmetric to the one above
 
         return result_ignore_ip0 || result_ignore_ip1;
     }
@@ -679,7 +617,70 @@ struct get_turn_info_linear_linear
             return operation_union;
     }
 
-// TODO: IT'S ALSO PROBABLE THAT ALL THIS FUNCTION COULD BE INTEGRATED WITH handle_segment
+    template <typename Point1,
+              typename Point2,
+              typename Point,              
+              typename TurnInfo,
+              typename IntersectionResult,
+              typename OutputIterator>
+    static inline
+    bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                                       Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                                       Point const& ip,
+                                       bool is_p_first, bool is_p_last,
+                                       bool is_q_first, bool is_q_last,
+                                       bool is_pi_ip, bool is_pj_ip,
+                                       bool is_qi_ip, bool is_qj_ip,
+                                       bool enable_first, bool enable_last,
+                                       overlay::operation_type p_operation,
+                                       overlay::operation_type q_operation,
+                                       TurnInfo const& tp_model,
+                                       IntersectionResult const& result,
+                                       OutputIterator out)
+    {
+#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
+        // may this give false positives for INTs?
+        BOOST_ASSERT(is_pi_ip == equals::equals_point_point(pi, ip));
+        BOOST_ASSERT(is_qi_ip == equals::equals_point_point(qi, ip));
+        BOOST_ASSERT(is_pj_ip == equals::equals_point_point(pj, ip));
+        BOOST_ASSERT(is_qj_ip == equals::equals_point_point(qj, ip));
+#endif
+
+        // TODO - calculate first/last only if needed
+        bool is_p_first_ip = is_p_first && is_pi_ip;
+        bool is_p_last_ip = is_p_last && is_pj_ip;
+        bool is_q_first_ip = is_q_first && is_qi_ip;
+        bool is_q_last_ip = is_q_last && is_qj_ip;
+        bool append_first = enable_first && (is_p_first_ip || is_q_first_ip);
+        bool append_last = enable_last && (is_p_last_ip || is_q_last_ip);
+
+        if ( append_first || append_last )
+        {
+            bool handled = handle_internal(pi, pj, pk, qi, qj, qk, ip,
+                                           is_p_first_ip, is_p_last_ip, is_q_first_ip, is_q_last_ip, is_qi_ip, is_qj_ip,
+                                           tp_model, result, p_operation, q_operation);
+            if ( !handled )
+            {
+                handle_internal(qi, qj, qk, pi, pj, pk, ip,
+                                is_q_first_ip, is_q_last_ip, is_p_first_ip, is_p_last_ip, is_pi_ip, is_pj_ip,
+                                tp_model, result, q_operation, p_operation);
+            }
+
+            if ( p_operation != operation_none )
+            {
+                assign(pi, qi, result, ip,
+                       endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip),
+                       p_operation, q_operation,
+                       ip_position(is_pi_ip, is_pj_ip), ip_position(is_qi_ip, is_qj_ip),
+                       tp_model, out);
+            }
+        }
+
+        return append_last;
+    }
+
+    // TODO: IT'S ALSO PROBABLE THAT ALL THIS FUNCTION COULD BE INTEGRATED WITH handle_segment
+    //       however now it's lazily calculated and then it would be always calculated
 
     template<typename Point1,
              typename Point2,
@@ -700,9 +701,11 @@ struct get_turn_info_linear_linear
         {
             if ( first1 )
             {
+#ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
+                // may this give false positives for INTs?
                 BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
                 BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
-
+#endif
                 if ( ip_i2 )
                 {
                     // don't output this IP - for the first point of other geometry segment
