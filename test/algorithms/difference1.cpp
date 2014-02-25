@@ -382,6 +382,20 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          "lldf21a"
          );
 #endif
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,10 0)"),
+         from_wkt<L>("LINESTRING(1 0,4 0,2 1,5 1,4 0,8 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(8 0,10 0))"),
+         "lldf22"
+         );
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 0,10 0)"),
+         from_wkt<L>("LINESTRING(4 0,5 0,5 1,1 1,1 0,4 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,10 0))"),
+         "lldf23"
+         );
 }
 
 
