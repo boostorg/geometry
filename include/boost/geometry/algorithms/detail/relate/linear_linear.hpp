@@ -571,13 +571,21 @@ struct linear_linear
                     // interiors overlaps
                     update<interior, interior, '1', transpose_result>(res);
                 
+                    bool this_b = is_ip_on_boundary<boundary_front>(it->point,
+                                                                    it->operations[op_id],
+                                                                    boundary_checker,
+                                                                    seg_id);
+
                     // going inside on boundary point
-                    if ( boundary_checker.template is_boundary<boundary_front>(it->point, seg_id) )
+                    // may be front only
+                    if ( this_b )
                     {
-                        bool other_b =
-                            it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);                        
+                        // may be front and back
+                        bool other_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                       it->operations[other_op_id],
+                                                                       other_boundary_checker,
+                                                                       other_id);
+
                         // it's also the boundary of the other geometry
                         if ( other_b )
                         {
@@ -623,10 +631,11 @@ struct linear_linear
                             // check if this is indeed the boundary point
                             if ( boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) )
                             {
-                                bool other_b =
-                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                                // may be front and back
+                                bool other_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                               it->operations[other_op_id],
+                                                                               other_boundary_checker,
+                                                                               other_id);
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
                                 {
@@ -663,15 +672,15 @@ struct linear_linear
                         // method other than crosses, check more conditions
                         else
                         {
-                            bool this_b =
-                                    op_blocked ?
-                                        boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                        boundary_checker.template is_boundary<boundary_front>(it->point, seg_id);
+                            bool this_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                          it->operations[op_id],
+                                                                          boundary_checker,
+                                                                          seg_id);
 
-                            bool other_b =
-                                    it->operations[other_op_id].operation == overlay::operation_blocked ?
-                                        other_boundary_checker.template is_endpoint_boundary<boundary_back>(it->point) :
-                                        other_boundary_checker.template is_boundary<boundary_any>(it->point, other_id);
+                            bool other_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                           it->operations[other_op_id],
+                                                                           other_boundary_checker,
+                                                                           other_id);
                         
                             // if current IP is on boundary of the geometry
                             if ( this_b )
@@ -736,6 +745,49 @@ struct linear_linear
                     }
                 }
             }
+        }
+
+        template <boundary_query BoundaryQuery,
+                  typename IntersectionPoint,
+                  typename OperationInfo,
+                  typename BoundaryChecker>
+        static inline
+        bool is_ip_on_boundary(IntersectionPoint const& ip,
+                               OperationInfo const& operation_info,
+                               BoundaryChecker & boundary_checker,
+                               segment_identifier const& seg_id)
+        {
+            boost::ignore_unused_variable_warning(seg_id);
+
+            bool res = false;
+
+            if ( (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
+              && operation_info.operation == overlay::operation_blocked )
+            {
+                BOOST_ASSERT(operation_info.position == overlay::position_back);
+                res = boundary_checker.template is_endpoint_boundary<boundary_back>(ip);
+
+#ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
+                BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_back>(ip, seg_id));
+#endif
+            }
+            else if ( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
+                   && operation_info.position == overlay::position_front )
+            {
+                res = boundary_checker.template is_endpoint_boundary<boundary_front>(ip);
+
+#ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
+                BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_front>(ip, seg_id));
+#endif
+            }
+            else
+            {
+#ifdef BOOST_GEOMETRY_DEBUG_RELATE_LINEAR_LINEAR
+                BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_any>(ip, seg_id));
+#endif
+            }
+            
+            return res;
         }
 
     private:
