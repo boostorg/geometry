@@ -29,6 +29,8 @@ namespace detail
 // Probably this will be moved out of namespace detail
 struct no_rescale_policy
 {
+    static bool const enabled = false;
+
     // We don't rescale but return the reference of the input
     template <std::size_t Dimension, typename Value>
     inline Value const& apply(Value const& value) const

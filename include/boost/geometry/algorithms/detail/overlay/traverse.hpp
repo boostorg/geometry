@@ -399,9 +399,7 @@ public :
                                     detail::overlay::debug_traverse(*current, *iit, "->Finished");
                                     if (geometry::num_points(current_output) >= min_num_points)
                                     {
-                                        // TODO this call should go, it should already be clean from dups/spikes
-                                        clean_dups_and_spikes(current_output, rescale_policy);
-                                        // END TODO
+                                        clean_closing_dups_and_spikes(current_output, rescale_policy);
                                         rings.push_back(current_output);
                                     }
                                 }

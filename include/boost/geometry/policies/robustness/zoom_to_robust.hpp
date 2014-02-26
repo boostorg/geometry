@@ -59,6 +59,8 @@ struct get_max_size<Box, 0>
 template <typename FpPoint, typename IntPoint, typename CalculationType>
 struct rescale_strategy
 {
+    static bool const enabled = true;
+
     typedef typename geometry::coordinate_type<IntPoint>::type output_ct;
 
     rescale_strategy(FpPoint const& fp_min, IntPoint const& int_min, CalculationType const& the_factor)
