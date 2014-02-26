@@ -52,6 +52,18 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
     typedef test_difference_of_geometries<L, L, ML> tester;
 
     tester()
+        (from_wkt<L>("LINESTRING(0 0,1 1,2 1,3 2)"),
+         from_wkt<L>("LINESTRING(0 2,1 1,2 1,3 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 1),(2 1,3 2))"),
+         "lldf00");
+
+    tester()
+        (from_wkt<L>("LINESTRING(0 2,1 1,2 1,3 0)"),
+         from_wkt<L>("LINESTRING(0 0,1 1,2 1,3 2)"),
+         from_wkt<ML>("MULTILINESTRING((0 2,1 1),(2 1,3 0))"),
+         "lldf00-1");
+
+    tester()
         (from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,3 0),(4 0,5 0))"),
