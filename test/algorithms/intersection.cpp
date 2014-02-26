@@ -195,6 +195,10 @@ void test_areal()
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
         1, 4, 6.6125873045, 0.1);
 
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20140223_shalabuda",
+        ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
+        1, 4, 3.77106);
+
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, 0.01);
