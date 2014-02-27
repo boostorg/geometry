@@ -446,88 +446,20 @@ public:
     static inline OutputIterator apply(Linear1 const& linear1,
                                        Linear2 const& linear2,
                                        OutputIterator oit,
-                                       Strategy const& )
+                                       Strategy const& strategy)
     {
-        typedef geometry::model::multi_linestring
+        oit = linear_linear_no_intersections
             <
-                LinestringOut
-            > MultiLinestringOut;
+                LinestringOut,
+                overlay_difference,
+                Linear1,
+                typename tag<Linear1>::type
+            >::apply(linear1, oit);
 
-        //        MultiLinestringOut mls1, mls2;
-        //        geometry::convert(multilinestring1, mls1);
-        //        geometry::convert(multilinestring2, mls2);
-
-        //        assert( boost::size(mls1) > 0 );
-        //        assert( boost::size(mls2) > 0 );
-
-
-        //        canonical<LinestringOut>::apply(ls1);
-        //        canonical<LinestringOut>::apply(ls2);
-
-        //        typedef typename point_type<LinestringOut>::type PointOut;
-
-#if 0
-        typedef //overlay::assign_null_policy
-            overlay::calculate_distance_policy AssignPolicy;
-#endif
-        //        typedef //overlay::assign_null_policy
-        //            detail::union_::assign_union_policy AssignPolicy;
-
-        //        typedef detail::disjoint::disjoint_interrupt_policy InterruptPolicy;
-
-        Turns turns;
-        Base::compute_turns(turns, linear1, linear2);
-
-        if ( turns.empty() )
-        {
-            // the two linear geometries are disjoint
-#ifdef GEOMETRY_TEST_DEBUG
-            std::cout << "NO INTERSECTIONS" << std::endl;
-#endif
-            oit = linear_linear_no_intersections
-                <
-                    LinestringOut,
-                    overlay_difference,
-                    Linear1,
-                    typename tag<Linear1>::type
-                >::apply(linear1, oit);
-
-            return linear_linear_no_intersections
-                <
-                    LinestringOut,
-                    overlay_difference,
-                    Linear2,
-                    typename tag<Linear2>::type
-                >::apply(linear2, oit);
-        }
-
-        Linear2 linear2_reverse = linear2;
-        geometry::reverse(linear2_reverse);
-        Turns reverse_turns;
-        Base::compute_turns(reverse_turns, linear1, linear2_reverse);
-
-        oit = Base::template sort_and_follow_turns
+        return linear_linear_linestring
             <
-                overlay_difference, false
-            >(turns, reverse_turns, linear1, linear2, oit);
-
-        oit = Base::template follow_turns
-            <
-                overlay_intersection, false
-            >(turns, reverse_turns, linear1, linear2, oit);
-
-
-        // now compute the difference: linear2 - linear1
-        Base::compute_turns(turns, linear2, linear1);
-
-        Linear1 linear1_reverse = linear1;
-        geometry::reverse(linear1_reverse);
-        Base::compute_turns(reverse_turns, linear2, linear1_reverse);
-
-        return Base::template sort_and_follow_turns
-            <
-                overlay_difference, false
-            >(turns, reverse_turns, linear2, linear1, oit);
+                Linear2, Linear1, LinestringOut, overlay_difference
+            >::apply(linear2, linear1, oit, strategy);
     }
 };
 
