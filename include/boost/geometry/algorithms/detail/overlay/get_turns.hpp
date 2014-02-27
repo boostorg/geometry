@@ -766,6 +766,11 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
     : overlay::get_turn_info_linear_linear<AssignPolicy>
 {};
 
+//template <typename Geometry1, typename Geometry2, typename AssignPolicy, typename Tag1, typename Tag2>
+//struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear_tag, areal_tag>
+//    : overlay::get_turn_info_linear_linear<AssignPolicy>
+//{};
+
 template <typename Geometry1, typename Geometry2,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
           typename TagBase1 = typename tag_base<Tag1>::type, typename TagBase2 = typename tag_base<Tag2>::type>
@@ -779,6 +784,12 @@ struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, linear_
 {
     typedef overlay::turn_operation_linear type;
 };
+
+//template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
+//struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, areal_tag>
+//{
+//    typedef overlay::turn_operation_linear type;
+//};
 
 }} // namespace detail::get_turns
 #endif // DOXYGEN_NO_DETAIL

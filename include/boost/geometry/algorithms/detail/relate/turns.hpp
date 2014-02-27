@@ -60,7 +60,7 @@ struct enriched_info // linear_enriched_info ?
 };
 
 template <typename P>
-struct enriched_turn_operation : public overlay::turn_operation_linear
+struct enriched_turn_operation_linear : public overlay::turn_operation_linear
 {
     enriched_info<P> enriched;
 };
@@ -80,7 +80,7 @@ struct get_turns
     typedef overlay::turn_info
         <
             point1_type,
-            enriched_turn_operation<point1_type>
+            enriched_turn_operation_linear<point1_type>
         > turn_info;
 
     template <typename Turns>

@@ -21,7 +21,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 //#include <boost/geometry.hpp>
 //#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
@@ -30,91 +30,14 @@ void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> pt;
     typedef bg::model::linestring<pt> ls;
+    typedef bg::model::polygon<pt> poly;
 
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(0 0,2 0)", "tii", "txx");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(2 0,0 0)", "tix", "txi");
-    
-    test_geometry<ls, ls>("LINESTRING(1 0,1 1)", "LINESTRING(0 0,1 0,2 0)", "tuu");
-    test_geometry<ls, ls>("LINESTRING(1 0,0 0)", "LINESTRING(0 0,1 0,2 0)", "txi", "tiu");
-    test_geometry<ls, ls>("LINESTRING(1 0,2 0)", "LINESTRING(0 0,1 0,2 0)", "tii", "txx");
-    test_geometry<ls, ls>("LINESTRING(1 1,1 0)", "LINESTRING(0 0,1 0,2 0)", "txu");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0)", "LINESTRING(0 0,1 0,2 0)", "tii", "txu");
-    test_geometry<ls, ls>("LINESTRING(2 0,1 0)", "LINESTRING(0 0,1 0,2 0)", "txi", "tix");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(1 0,1 1)", "tuu");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(1 0,0 0)", "tix", "tui");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(1 0,2 0)", "tii", "txx");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(1 1,1 0)", "tux");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(0 0,1 0)", "tii", "tux");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 0)", "LINESTRING(2 0,1 0)", "tix", "txi");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 1,1 0,3 0,3 1)", "mii", "ccc", "muu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 -1,1 0,3 0,3 -1)", "mii", "ccc", "muu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 1,3 0,1 0,1 1)", "miu", "mui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 -1,3 0,1 0,1 -1)", "miu", "mui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 1,2 0,4 0,4 1)", "tii", "ccc", "tuu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 -1,2 0,4 0,4 -1)", "tii", "ccc", "tuu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 1,4 0,2 0,2 1)", "tiu", "tui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 -1,4 0,2 0,2 -1)", "tiu", "tui");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 1,1 0,2 0,3 0,3 1)", "mii", "ecc", "muu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(1 -1,1 0,2 0,3 0,3 -1)", "mii", "ecc", "muu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 1,3 0,2 0,1 0,1 1)", "miu", "ecc", "mui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,4 0)", "LINESTRING(3 -1,3 0,2 0,1 0,1 -1)", "miu", "ecc", "mui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 1,2 0,3 0,4 0,4 1)", "tii", "ecc", "tuu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(2 -1,2 0,3 0,4 0,4 -1)", "tii", "ecc", "tuu");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 1,4 0,3 0,2 0,2 1)", "tiu", "ecc", "tui");
-    test_geometry<ls, ls>("LINESTRING(0 0,2 0,3 0,4 0,6 0)", "LINESTRING(4 -1,4 0,3 0,2 0,2 -1)", "tiu", "ecc", "tui");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 1,3 5,4 0)", "LINESTRING(1 0,2 1,3 5)", "tii", "ecc", "tux");
-    test_geometry<ls, ls>("LINESTRING(0 0,1 0,2 1,3 5,4 0)", "LINESTRING(3 5,2 1,1 0)", "tix", "ecc", "tui");
-    test_geometry<ls, ls>("LINESTRING(1 0,2 1,3 5)", "LINESTRING(0 0,1 0,2 1,3 5,4 0)", "txu", "ecc", "tii");
-    test_geometry<ls, ls>("LINESTRING(3 5,2 1,1 0)", "LINESTRING(0 0,1 0,2 1,3 5,4 0)", "tiu", "ecc", "txi");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(-1 -1,1 0,10 0,20 -1)", "mii", "txu");
-    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu", "txi"); 
-    test_geometry<ls, ls>("LINESTRING(-1 -1,1 0,10 0,20 -1)", "LINESTRING(0 0,10 0)", "mii", "tux");
-    test_geometry<ls, ls>("LINESTRING(20 -1,10 0,1 0,-1 -1)", "LINESTRING(0 0,10 0)", "mui", "tix"); 
-
-    test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
-                          "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
-                          expected("tii")("ecc")("muu")("mii")("muu")("mii")("mux").vec);
-    test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
-                          "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
-                          expected("tiu")("ecc")("mui")("miu")("mui")("miu")("mui").vec);
-    test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
-                          "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
-                          expected("tui")("ecc")("miu")("mui")("miu")("mui")("mix").vec);
-    test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
-                          "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
-                          expected("tuu")("ecc")("mii")("muu")("mii")("muu")("mii").vec);
-
-    test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1,3 2)", "LINESTRING(4 5,3 2,1 0,0 0)", "mix", "txi", "ecc");
-    test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)", "LINESTRING(-1 0,1 0,2 1,3 2)", "mxi", "tix", "ecc");
-
-    test_geometry<ls, ls>("LINESTRING(30 1,20 1,10 0,0 0)", "LINESTRING(1 1,2 0,3 1,20 1,25 1)", "mix", "tui", "muu");
-    test_geometry<ls, ls>("LINESTRING(1 1,2 0,3 1,20 1,25 1)", "LINESTRING(30 1,20 1,10 0,0 0)", "mxi", "tiu", "muu");
-
-    test_geometry<ls, ls>("LINESTRING(0 0,30 0)", "LINESTRING(4 0,4 1,20 1,5 0,1 0)", "muu", "mui", "mix");
-    test_geometry<ls, ls>("LINESTRING(4 0,4 1,20 1,5 0,1 0)", "LINESTRING(0 0,30 0)", "muu", "miu", "mxi");
-
-    test_geometry<ls, ls>("LINESTRING(30 0,0 0)", "LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)",
-                          expected("mui")("miu")("mui")("mix").vec);
-    test_geometry<ls, ls>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)", "LINESTRING(30 0,0 0)",
-                          expected("miu")("mui")("miu")("mxi").vec);
-
-    //if ( boost::is_same<T, double>::value )
-    //{
-    //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(0 0,2 0,2.5 0,3 1)", "test11.svg");
-    //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(3 1,2.5 0,2 0,0 0)", "test12.svg");
-    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,30 0,31 1)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test21.svg");
-    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,30 0,31 1)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test22.svg");
-
-    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test31.svg");
-    //    to_svg<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test32.svg");
-    //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test33.svg");
-    //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test34.svg");
-    //}
+    to_svg<ls, poly>("LINESTRING(15 5,24 5,13 -4,13 10,10 10,8 10,4 6,2 8,1 10)",
+                     "POLYGON((0 0,5 5,0 10,20 10,20 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
+                     "ls_poly.svg");
+    to_svg<poly, ls>("POLYGON((0 0,5 5,0 10,20 10,20 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
+                     "LINESTRING(15 5,24 5,13 -4,13 10,10 10,8 10,4 6,2 8,1 10)",
+                     "poly_ls.svg");
 }
 
 int test_main(int, char* [])
