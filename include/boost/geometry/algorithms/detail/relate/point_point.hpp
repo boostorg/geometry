@@ -16,6 +16,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+#include <boost/geometry/algorithms/detail/relate/less.hpp>
 
 namespace boost { namespace geometry
 {
@@ -120,50 +121,6 @@ struct multipoint_point
     static inline void apply(MultiPoint const& multi_point, Point const& point, Result & result)
     {
         point_multipoint<Point, MultiPoint, true>::apply(point, multi_point, result);
-    }
-};
-
-// TODO: should this be integrated with geometry::less?
-
-template <typename Point1,
-    typename Point2,
-    std::size_t I = 0,
-    std::size_t D = geometry::dimension<Point1>::value>
-struct less_dispatch
-{
-    static inline bool apply(Point1 const& l, Point2 const& r)
-    {
-        typename geometry::coordinate_type<Point1>::type
-            cl = geometry::get<I>(l);
-        typename geometry::coordinate_type<Point2>::type
-            cr = geometry::get<I>(r);
-
-        if ( geometry::math::equals(cl, cr) )
-        {
-            return less_dispatch<Point1, Point2, I + 1, D>::apply(l, r);
-        }
-        else
-        {
-            return cl < cr;
-        }
-    }
-};
-
-template <typename Point1, typename Point2, std::size_t D>
-struct less_dispatch<Point1, Point2, D, D>
-{
-    static inline bool apply(Point1 const&, Point2 const&)
-    {
-        return false;
-    }
-};
-
-struct less
-{
-    template <typename Point1, typename Point2>
-    inline bool operator()(Point1 const& point1, Point2 const& point2)
-    {
-        return less_dispatch<Point1, Point2>::apply(point1, point2);
     }
 };
 
