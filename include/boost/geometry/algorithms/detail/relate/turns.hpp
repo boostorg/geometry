@@ -26,18 +26,15 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
 
-
-
 // TURN_INFO
 
-// TODO: rename distance_info to enriched_info or something like that
-//       and add bool is_first indicating if the turn was generated on the first Point of a Range
-//       maybe also bool is_last or some enum { first, middle, last }
-//       This info could be used in turns analysis for Linestrings (no need to calculate this twice).
-//       get_turn_info_ll must check this anyway.
+// distance_info
+// enriched_distance_info
+// distance_enriched_info
+// distance_enrichment_info
 
 template<typename P>
-struct enriched_info // linear_enriched_info ?
+struct enriched_info
 {
     typedef typename strategy::distance::services::return_type
         <
@@ -59,13 +56,15 @@ struct enriched_info // linear_enriched_info ?
     distance_type distance; // distance-measurement from segment.first to IP
 };
 
+// turn_operation_linear_with_distance
+// distance_enriched_turn_operation_linear
+
 template <typename P>
-struct enriched_turn_operation_linear : public overlay::turn_operation_linear
+struct enriched_turn_operation_linear
+    : public overlay::turn_operation_linear
 {
     enriched_info<P> enriched;
 };
-
-
 
 // GET_TURNS
 
