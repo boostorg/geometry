@@ -415,6 +415,9 @@ struct get_turn_info_for_endpoint
                     equal<TurnInfo>::apply(i2_conv, i1, j1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
+// TODO: must the above be calculated?
+// wouldn't it be enough to check if segments are collinear?
+
                     if ( tp.both(operation_continue) )
                     {
                         bool opposite = result.template get<1>().opposite;
@@ -458,6 +461,9 @@ struct get_turn_info_for_endpoint
                     TurnInfo tp = tp_model;
                     equal<TurnInfo>::apply(j2_conv, j1, i1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+// TODO: must the above be calculated?
+// wouldn't it be enough to check if segments are collinear?
 
                     if ( tp.both(operation_continue) )
                     {
