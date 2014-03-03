@@ -118,6 +118,7 @@ struct turn_operation_linear
 template <typename AssignPolicy, bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
+    BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
 
     template<typename Point1,
              typename Point2,
@@ -135,11 +136,6 @@ struct get_turn_info_for_endpoint
                              method_type method,
                              OutputIterator out)
     {
-        namespace ov = overlay;
-
-        //if ( !enable_first && !enable_last )
-        //    return false;
-
         std::size_t ip_count = result.template get<0>().count;
         // no intersection points
         if ( ip_count == 0 )
@@ -157,10 +153,10 @@ struct get_turn_info_for_endpoint
         if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
             return false;
 
-        ov::operation_type p_operation0 = ov::operation_none;
-        ov::operation_type q_operation0 = ov::operation_none;
-        ov::operation_type p_operation1 = ov::operation_none;
-        ov::operation_type q_operation1 = ov::operation_none;
+        operation_type p_operation0 = operation_none;
+        operation_type q_operation0 = operation_none;
+        operation_type p_operation1 = operation_none;
+        operation_type q_operation1 = operation_none;
         bool p0i, p0j, q0i, q0j; // assign false?
         bool p1i, p1j, q1i, q1j; // assign false?
 
@@ -197,7 +193,7 @@ struct get_turn_info_for_endpoint
                 (append0_last && (p0j || (is_q_last && q0j && q1i)));
                 // NOTE: based on how collinear is calculated for opposite segments
 
-        if ( p_operation1 == ov::operation_none )
+        if ( p_operation1 == operation_none )
             return result_ignore_ip0;
         
         bool append1_last
@@ -410,15 +406,19 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    bool opposite = result.template get<1>().opposite;
+// NOTE: this conversion may be problematic
+                    Point1 i21;
+                    geometry::convert(i2, i21);
+                    side_calculator<Point1, Point2> side_calc(i21, i1, j1, i2, j2, k2);
 
                     TurnInfo tp = tp_model;
-                    side_calculator<Point1, Point2> side_calc(i2, i1, j1, i2, j2, k2);
-                    equal<TurnInfo>::apply(i2, i1, j1, i2, j2, k2,
+                    equal<TurnInfo>::apply(i21, i1, j1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     if ( tp.both(operation_continue) )
                     {
+                        bool opposite = result.template get<1>().opposite;
+
                         op1 = operation_intersection;
                         op2 = opposite ? operation_union : operation_intersection;
                     }
@@ -449,15 +449,20 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_i2 )
                 {
-                    bool opposite = result.template get<1>().opposite;
-
+// NOTE: this conversion may be problematic
+                    Point1 j21;
+                    geometry::convert(j2, j21);
+                    
+                    side_calculator<Point1, Point2> side_calc(j21, j1, i1, i2, j2, k2);
+                    
                     TurnInfo tp = tp_model;
-                    side_calculator<Point1, Point2> side_calc(j2, j1, i1, i2, j2, k2);
-                    equal<TurnInfo>::apply(j2, j1, i1, i2, j2, k2,
+                    equal<TurnInfo>::apply(j21, j1, i1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     if ( tp.both(operation_continue) )
                     {
+                        bool opposite = result.template get<1>().opposite;
+
                         op1 = operation_blocked;
                         op2 = opposite ? operation_intersection : operation_union;
                     }
