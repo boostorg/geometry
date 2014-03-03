@@ -407,12 +407,12 @@ struct get_turn_info_for_endpoint
                 else if ( ip_j2 )
                 {
 // NOTE: this conversion may be problematic
-                    Point1 i21;
-                    geometry::convert(i2, i21);
-                    side_calculator<Point1, Point2> side_calc(i21, i1, j1, i2, j2, k2);
+                    Point1 i2_conv;
+                    geometry::convert(i2, i2_conv);
+                    side_calculator<Point1, Point2> side_calc(i2_conv, i1, j1, i2, j2, k2);
 
                     TurnInfo tp = tp_model;
-                    equal<TurnInfo>::apply(i21, i1, j1, i2, j2, k2,
+                    equal<TurnInfo>::apply(i2_conv, i1, j1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     if ( tp.both(operation_continue) )
@@ -450,13 +450,13 @@ struct get_turn_info_for_endpoint
                 else if ( ip_i2 )
                 {
 // NOTE: this conversion may be problematic
-                    Point1 j21;
-                    geometry::convert(j2, j21);
+                    Point1 j2_conv;
+                    geometry::convert(j2, j2_conv);
                     
-                    side_calculator<Point1, Point2> side_calc(j21, j1, i1, i2, j2, k2);
+                    side_calculator<Point1, Point2> side_calc(j2_conv, j1, i1, i2, j2, k2);
                     
                     TurnInfo tp = tp_model;
-                    equal<TurnInfo>::apply(j21, j1, i1, i2, j2, k2,
+                    equal<TurnInfo>::apply(j2_conv, j1, i1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
                     if ( tp.both(operation_continue) )

@@ -356,13 +356,13 @@ struct get_turn_info_linear_areal
         bool p1i, p1j, q1i, q1j; // assign false?
 
         bool opposite = result.template get<1>().opposite;
+        bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
         {
             int p_how = result.template get<1>().how_a;
             int q_how = result.template get<1>().how_b;
             int p_arrival = result.template get<1>().arrival[0];
             int q_arrival = result.template get<1>().arrival[1];
-            bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
 
             get_info_e::handle_segment(
                            is_p_first, is_p_last, p_how, p_arrival,
@@ -376,16 +376,18 @@ struct get_turn_info_linear_areal
                            pi, pj, pk, qi, qj, qk);
         }
 
+        // ANALYSE AND ASSIGN FIRST
+
         // IP on the first point of Linear Geometry
-        if ( EnableFirst && is_p_first && p0i && !q0i )
+        if ( EnableFirst && is_p_first && p0i && !q0i ) // !q0i prevents duplication
         {
             TurnInfo tp = tp_model;
             tp.operations[0].position = position_front;
             tp.operations[1].position = position_middle;
 
 // NOTE: the conversion may be problematic
-            Point1 qi1;
-            geometry::convert(qi, qi1);
+            Point1 qi_conv;
+            geometry::convert(qi, qi_conv);
 
             method_type replaced_method = method_touch_interior;
 
@@ -393,8 +395,8 @@ struct get_turn_info_linear_areal
             {
                 if ( !opposite )
                 {
-                    side_calculator<Point1, Point2> side_calc(qi1, pi, pj, qi, qj, qk);
-                    equal<TurnInfo>::apply(qi1, pi, pj, qi, qj, qk,
+                    side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, qj, qk);
+                    equal<TurnInfo>::apply(qi_conv, pi, pj, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
                 }
                 else // opposite -> collinear
@@ -408,13 +410,13 @@ struct get_turn_info_linear_areal
             else
             {
 // NOTE: the conversion may be problematic
-                Point2 pi2;
-                geometry::convert(pi, pi2);
+                Point2 pi_conv;
+                geometry::convert(pi, pi_conv);
 
-                side_calculator<Point1, Point2> side_calc(qi1, pi, pj, qi, pi2, qj);
+                side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, pi_conv, qj);
 
                 // Collinear, but similar thus handled as equal
-                equal<TurnInfo>::apply(qi1, pi, pj, qi, pi2, qj,
+                equal<TurnInfo>::apply(qi_conv, pi, pj, qi, pi_conv, qj,
                     tp, result.template get<0>(), result.template get<1>(), side_calc);
             }
 
@@ -427,6 +429,28 @@ struct get_turn_info_linear_areal
 
             AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
             *out++ = tp;
+        }
+
+        // ANALYSE AND ASSIGN LAST
+
+        // IP on the first point of Linear Geometry
+        if ( EnableLast && is_p_last && p0j && !q0i ) // !q0i prevents duplication
+        {
+            TurnInfo tp = tp_model;
+            tp.method = q0j ? method_touch : method_touch_interior;
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_union;
+            tp.operations[0].position = position_back;
+            tp.operations[1].position = position_middle;
+            
+            // equals<> or collinear<> will assign the second point,
+            // we'd like to assign the first one
+            geometry::convert(result.template get<0>().intersections[0], tp.point);
+
+            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            *out++ = tp;
+
+            return true;
         }
 
         // don't ignore anything for now
