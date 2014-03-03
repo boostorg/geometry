@@ -88,19 +88,19 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = fals
                 << ' ' << turn.operations[0].other_id.ring_index
                 << ' ' << turn.operations[0].other_id.segment_index;
 
-            if ( enrich )
+            /*if ( enrich )
             {
-                out << ", ";
-                if (turn.operations[0].enriched.next_ip_index != -1)
-                {
-                    out << "ip: " << turn.operations[0].enriched.next_ip_index;
-                }
-                else
-                {
-                    out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
-                        << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
-                }
+            out << ", ";
+            if (turn.operations[0].enriched.next_ip_index != -1)
+            {
+            out << "ip: " << turn.operations[0].enriched.next_ip_index;
             }
+            else
+            {
+            out << "vx: " << turn.operations[0].enriched.travels_to_vertex_index
+            << " -> ip: "  << turn.operations[0].enriched.travels_to_ip_index;
+            }
+            }*/
 
             out << '\n';
 
@@ -111,10 +111,10 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = fals
                 << ' ' << turn.operations[1].seg_id.segment_index << ", ";
             out << "other: " << turn.operations[1].other_id.source_index
                 << ' ' << turn.operations[1].other_id.multi_index
-                << ' ' << turn.operations[1].other_id.segment_index
-                << ' ' << turn.operations[1].other_id.ring_index;
+                << ' ' << turn.operations[1].other_id.ring_index
+                << ' ' << turn.operations[1].other_id.segment_index;
 
-            if ( enrich )
+            /*if ( enrich )
             {
                 out << ", ";
                 if (turn.operations[1].enriched.next_ip_index != -1)
@@ -126,7 +126,7 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = fals
                     out << "vx: " << turn.operations[1].enriched.travels_to_vertex_index
                         << " -> ip: " << turn.operations[1].enriched.travels_to_ip_index;
                 }
-            }
+            }*/
 
             //out << std::endl;
 
@@ -253,7 +253,8 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
 
     // GET TURNS
     
-    typedef bg::detail::overlay::traversal_turn_info<P1> turn_info;
+    typedef typename bg::detail::relate::turns::get_turns<G1, G2>::turn_info turn_info;
+    //typedef bg::detail::overlay::traversal_turn_info<P1> turn_info;
     //typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
     typedef to_svg_assign_policy AssignPolicy;
 
@@ -291,7 +292,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
         std::sort(boost::begin(turns), boost::end(turns), less());
     }
 
-    if ( enrich )
+    /*if ( enrich )
     {
         typedef typename bg::strategy::side::services::default_strategy
             <
@@ -304,7 +305,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
                  g1, g1,
                  bg::detail::no_rescale_policy(),
                  side_strategy_type());
-    }
+    }*/
 
     turns_to_svg<G1>(turns, mapper, enrich);
 }

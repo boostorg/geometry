@@ -11,8 +11,8 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LL_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LL_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LA_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LA_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_for_endpoint.hpp>
@@ -23,7 +23,7 @@ namespace boost { namespace geometry {
 namespace detail { namespace overlay {
 
 template<typename AssignPolicy>
-struct get_turn_info_linear_linear
+struct get_turn_info_linear_areal
 {
     template
     <
@@ -73,9 +73,9 @@ struct get_turn_info_linear_linear
             case 'a' : // collinear, "at"
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
-                get_turn_info_for_endpoint<AssignPolicy, true, true>
-                    ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                          tp_model, result, method_none, out);
+                get_turn_info_for_endpoint<true, true>(
+                    pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                    tp_model, result, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -83,9 +83,9 @@ struct get_turn_info_linear_linear
 
             case 'm' :
             {
-                if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                              tp_model, result, method_touch_interior, out) )
+                if ( get_turn_info_for_endpoint<false, true>(
+                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        tp_model, result, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -133,9 +133,9 @@ struct get_turn_info_linear_linear
             case 't' :
             {
                 // Both touch (both arrive there)
-                if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                tp_model, result, method_touch, out) )
+                if ( get_turn_info_for_endpoint<false, true>(
+                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        tp_model, result, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -153,9 +153,9 @@ struct get_turn_info_linear_linear
             break;
             case 'e':
             {
-                if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                tp_model, result, method_equal, out) )
+                if ( get_turn_info_for_endpoint<true, true>(
+                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        tp_model, result, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -166,7 +166,7 @@ struct get_turn_info_linear_linear
                     equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                    replacer_of_method_and_operations_ec replacer(method_touch);
+                    replacer_of_method_and_operations_ec<false> replacer(method_touch);
                     replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
@@ -186,9 +186,9 @@ struct get_turn_info_linear_linear
             case 'c' :
             {
                 // Collinear
-                if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                                tp_model, result, method_collinear, out) )
+                if ( get_turn_info_for_endpoint<true, true>(
+                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        tp_model, result, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -201,12 +201,7 @@ struct get_turn_info_linear_linear
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                        // NOTE: don't change the method only if methods are WRT IPs, not segments!
-                        // (currently this approach is used)
-                        // override assigned method
-                        //tp.method = method_collinear;
-
-                        replacer_of_method_and_operations_ec replacer(method_touch);
+                        replacer_of_method_and_operations_ec<false> replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     }
                     else
@@ -214,7 +209,7 @@ struct get_turn_info_linear_linear
                         collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                 tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                        replacer_of_method_and_operations_ec replacer(method_touch_interior);
+                        replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     }
 
@@ -223,8 +218,8 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
-                    // If this always 'm' ?
-                    replacer_of_method_and_operations_ec replacer(method_touch_interior);
+                    // Is this always 'm' ?
+                    replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
 
                     collinear_opposite
                         <
@@ -270,23 +265,16 @@ struct get_turn_info_linear_linear
         {
             // NOTE: probably only if methods are WRT IPs, not segments!
             method = (method == method_touch ? method_equal : method_collinear);
-            op0 = operation_continue;
-            op1 = operation_continue;
         }
-        else
-        {
-            if ( op0 == operation_continue || op0 == operation_blocked )
-                op0 = operation_intersection;
-            else if ( op0 == operation_intersection )
-                op0 = operation_union;
 
-            if ( op1 == operation_continue || op1 == operation_blocked )
-                op1 = operation_intersection;
-            else if ( op1 == operation_intersection )
-                op1 = operation_union;
-        }
+        // assuming Linear is always the first one
+        if ( op0 == operation_blocked )
+            op0 = operation_continue;
+
+        op1 = operation_union;
     }
 
+    template <bool IsFront>
     class replacer_of_method_and_operations_ec
     {
     public:
@@ -298,23 +286,19 @@ struct get_turn_info_linear_linear
                        operation_type & op0,
                        operation_type & op1) const
         {
-            BOOST_ASSERT(op0 != operation_blocked || op1 != operation_blocked );
-
-            if ( op0 == operation_blocked )
-                op0 = operation_intersection;
-            else if ( op0 == operation_intersection )
-                op0 = operation_union;
-
-            if ( op1 == operation_blocked )
-                op1 = operation_intersection;
-            else if ( op1 == operation_intersection )
-                op1 = operation_union;
-
-            if ( op0 == operation_intersection || op0 == operation_union
+            // NOTE: probably only if methods are WRT IPs, not segments!
+            if ( IsFront
+              || op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
             {
                 method = m_method;
             }
+
+            // assuming Linear is always the first one
+            if ( op0 == operation_blocked )
+                op0 = operation_continue;
+
+            op1 = operation_union;
         }
 
     private:
@@ -323,14 +307,158 @@ struct get_turn_info_linear_linear
 
     static inline void replace_operations_i(operation_type & op0, operation_type & op1)
     {
-        if ( op0 == operation_intersection )
-            op0 = operation_union;
-
-        if ( op1 == operation_intersection )
-            op1 = operation_union;
+        // assuming Linear is always the first one
+        op1 = operation_union;
     }
 
     
+    template <bool EnableFirst,
+              bool EnableLast,
+              typename Point1,
+              typename Point2,
+              typename TurnInfo,
+              typename IntersectionResult,
+              typename OutputIterator>
+    static inline bool get_turn_info_for_endpoint(
+                            Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
+// TODO: should this always be std::size_t or replace with template parameter?
+                            std::size_t p_segments_count,
+                            std::size_t q_segments_count,
+                            TurnInfo const& tp_model,
+                            IntersectionResult const& result,
+                            method_type method,
+                            OutputIterator out)
+    {
+        namespace ov = overlay;
+        typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
+
+        const std::size_t ip_count = result.template get<0>().count;
+        // no intersection points
+        if ( ip_count == 0 )
+            return false;
+
+        const int segment_index0 = tp_model.operations[0].seg_id.segment_index;
+        const int segment_index1 = tp_model.operations[1].seg_id.segment_index;
+        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
+
+        const bool is_p_first = segment_index0 == 0;
+        const bool is_q_first = segment_index1 == 0; // not used
+        const bool is_p_last = static_cast<std::size_t>(segment_index0) + 1 == p_segments_count;
+        const bool is_q_last = static_cast<std::size_t>(segment_index1) + 1 == q_segments_count; // not used
+
+        if ( !is_p_first && !is_p_last )
+            return false;
+
+        ov::operation_type p_operation0 = ov::operation_none;
+        ov::operation_type q_operation0 = ov::operation_none;
+        ov::operation_type p_operation1 = ov::operation_none;
+        ov::operation_type q_operation1 = ov::operation_none;
+        bool p0i, p0j, q0i, q0j; // assign false?
+        bool p1i, p1j, q1i, q1j; // assign false?
+
+        const bool opposite = result.template get<1>().opposite;
+        const bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
+
+        {
+            const int p_how = result.template get<1>().how_a;
+            const int q_how = result.template get<1>().how_b;
+            const int p_arrival = result.template get<1>().arrival[0];
+            const int q_arrival = result.template get<1>().arrival[1];
+
+            get_info_e::handle_segment(
+                           is_p_first, is_p_last, p_how, p_arrival,
+                           is_q_first, is_q_last, q_how, q_arrival,
+                           opposite, ip_count, same_dirs,
+                           result.template get<0>().intersections[0],
+                           result.template get<0>().intersections[1],
+                           p_operation0, q_operation0, p_operation1, q_operation1,
+                           p0i, p0j, q0i, q0j,
+                           p1i, p1j, q1i, q1j,
+                           pi, pj, pk, qi, qj, qk);
+        }
+
+        // ANALYSE AND ASSIGN FIRST
+
+        // IP on the first point of Linear Geometry
+        if ( EnableFirst && is_p_first && p0i && !q0i ) // !q0i prevents duplication
+        {
+            TurnInfo tp = tp_model;
+            tp.operations[0].position = position_front;
+            tp.operations[1].position = position_middle;
+
+// NOTE: the conversion may be problematic
+            Point1 qi_conv;
+            geometry::convert(qi, qi_conv);
+
+            method_type replaced_method = method_touch_interior;
+
+            if ( q0j )
+            {
+                if ( !opposite )
+                {
+                    side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, qj, qk);
+                    equal<TurnInfo>::apply(qi_conv, pi, pj, qi, qj, qk,
+                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                }
+                else // opposite -> collinear
+                {
+                    tp.operations[0].operation = operation_continue;
+                    tp.operations[1].operation = operation_union;
+                }
+
+                replaced_method = method_touch;
+            }
+            else
+            {
+// NOTE: the conversion may be problematic
+                Point2 pi_conv;
+                geometry::convert(pi, pi_conv);
+
+                side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, pi_conv, qj);
+
+                // Collinear, but similar thus handled as equal
+                equal<TurnInfo>::apply(qi_conv, pi, pj, qi, pi_conv, qj,
+                    tp, result.template get<0>(), result.template get<1>(), side_calc);
+            }
+
+            replacer_of_method_and_operations_ec<true> replacer(replaced_method);
+            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+            // equals<> or collinear<> will assign the second point,
+            // we'd like to assign the first one
+            geometry::convert(result.template get<0>().intersections[0], tp.point);
+
+            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            *out++ = tp;
+        }
+
+        // ANALYSE AND ASSIGN LAST
+
+        // IP on the first point of Linear Geometry
+        if ( EnableLast && is_p_last && ( ip_count > 1 ? p1j : p0j ) && !q0i && !q1i ) // !q0i && !q1i prevents duplication
+        {
+            TurnInfo tp = tp_model;
+            tp.method = ( ip_count > 1 ? q1j : q0j ) ? method_touch : method_touch_interior;
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_union;
+            tp.operations[0].position = position_back;
+            tp.operations[1].position = position_middle;
+            
+            // equals<> or collinear<> will assign the second point,
+            // we'd like to assign the first one
+            std::size_t ip_index = ip_count > 1 ? 1 : 0;
+            geometry::convert(result.template get<0>().intersections[ip_index], tp.point);
+
+            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            *out++ = tp;
+
+            return true;
+        }
+
+        // don't ignore anything for now
+        return false;
+    }
 };
 
 }} // namespace detail::overlay
@@ -338,4 +466,4 @@ struct get_turn_info_linear_linear
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LL_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_LA_HPP

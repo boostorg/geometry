@@ -28,14 +28,13 @@ namespace detail { namespace relate { namespace turns {
 
 // TURN_INFO
 
-// TODO: rename distance_info to enriched_info or something like that
-//       and add bool is_first indicating if the turn was generated on the first Point of a Range
-//       maybe also bool is_last or some enum { first, middle, last }
-//       This info could be used in turns analysis for Linestrings (no need to calculate this twice).
-//       get_turn_info_ll must check this anyway.
+// distance_info
+// enriched_distance_info
+// distance_enriched_info
+// distance_enrichment_info
 
 template<typename P>
-struct distance_info
+struct enriched_info
 {
     typedef typename strategy::distance::services::return_type
         <
@@ -50,20 +49,22 @@ struct distance_info
             P, P
         >::type distance_type;
 
-    inline distance_info()
+    inline enriched_info()
         : distance(distance_type())
     {}
 
     distance_type distance; // distance-measurement from segment.first to IP
 };
 
+// turn_operation_linear_with_distance
+// distance_enriched_turn_operation_linear
+
 template <typename P>
-struct turn_operation_with_distance : public overlay::turn_operation
+struct enriched_turn_operation_linear
+    : public overlay::turn_operation_linear
 {
-    distance_info<P> enriched;
+    enriched_info<P> enriched;
 };
-
-
 
 // GET_TURNS
 
@@ -78,7 +79,7 @@ struct get_turns
     typedef overlay::turn_info
         <
             point1_type,
-            turn_operation_with_distance<point1_type>
+            enriched_turn_operation_linear<point1_type>
         > turn_info;
 
     template <typename Turns>
