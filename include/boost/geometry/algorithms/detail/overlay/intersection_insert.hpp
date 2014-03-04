@@ -513,12 +513,38 @@ struct intersection_insert_reversed
 };
 
 
+// dispatch for non-linear geometries
+template
+<
+    typename Geometry1, typename Geometry2, typename GeometryOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename TagIn1, typename TagIn2, typename TagOut
+>
+struct intersection_insert
+    <
+        Geometry1, Geometry2, GeometryOut,
+        OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        TagIn1, TagIn2, TagOut,
+        false, false, false
+    > : intersection_insert
+        <
+           Geometry1, Geometry2, GeometryOut,
+           OverlayType,
+           Reverse1, Reverse2, ReverseOut,
+           typename tag_cast<TagIn1, pointlike_tag, linear_tag>::type,
+           typename tag_cast<TagIn2, pointlike_tag, linear_tag>::type,
+           TagOut,
+           false, false, false
+        >
+{};
+
 
 // dispatch for difference of linear geometries
 template
 <
-    typename Linear1, typename Linear2,
-    typename LineStringOut,
+    typename Linear1, typename Linear2, typename LineStringOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
@@ -526,9 +552,7 @@ struct intersection_insert
         Linear1, Linear2, LineStringOut,
         overlay_difference,
         Reverse1, Reverse2, ReverseOut,
-        typename geometry::tag<Linear1>::type,
-        typename geometry::tag<Linear2>::type,
-        linestring_tag,
+        linear_tag, linear_tag, linestring_tag,
         false, false, false
     > : detail::overlay::linear_linear_linestring
         <
@@ -536,11 +560,12 @@ struct intersection_insert
         >
 {};
 
+
+
 // dispatch for intersection of linear geometries
 template
 <
-    typename Linear1, typename Linear2,
-    typename LineStringOut,
+    typename Linear1, typename Linear2, typename LineStringOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
@@ -548,18 +573,13 @@ struct intersection_insert
         Linear1, Linear2, LineStringOut,
         overlay_intersection,
         Reverse1, Reverse2, ReverseOut,
-        typename geometry::tag<Linear1>::type,
-        typename geometry::tag<Linear2>::type,
-        linestring_tag,
+        linear_tag, linear_tag, linestring_tag,
         false, false, false
     > : detail::overlay::linear_linear_linestring
         <
             Linear1, Linear2, LineStringOut, overlay_intersection
         >
 {};
-
-
-
 
 
 } // namespace dispatch

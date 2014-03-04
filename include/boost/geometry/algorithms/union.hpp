@@ -22,7 +22,7 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>\
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 
@@ -100,17 +100,43 @@ struct union_insert
 {};
 
 
+// dispatch for union of non-areal geometries
+template
+<
+    typename Geometry1, typename Geometry2, typename GeometryOut,
+    typename TagIn1, typename TagIn2, typename TagOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        Geometry1, Geometry2, GeometryOut,
+        TagIn1, TagIn2, TagOut,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : union_insert
+        <
+            Geometry1, Geometry2, GeometryOut,
+            typename tag_cast<TagIn1, pointlike_tag, linear_tag>::type,
+            typename tag_cast<TagIn2, pointlike_tag, linear_tag>::type,
+            TagOut,
+            false, false, false,
+            Reverse1, Reverse2, ReverseOut,
+            false
+        >
+{};
+
+
 // dispatch for union of linear geometries
 template
 <
     typename Linear1, typename Linear2, typename LineStringOut,
-    typename TagIn1, typename TagIn2,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct union_insert
     <
         Linear1, Linear2, LineStringOut,
-        TagIn1, TagIn2, linestring_tag,
+        linear_tag, linear_tag, linestring_tag,
         false, false, false,
         Reverse1, Reverse2, ReverseOut,
         false
@@ -118,6 +144,23 @@ struct union_insert
         <
             Linear1, Linear2, LineStringOut, overlay_union
         >
+{};
+
+
+// dispatch for point-like geometries
+template
+<
+    typename PointLike1, typename PointLike2, typename PointOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        PointLike1, PointLike2, PointOut,
+        pointlike_tag, pointlike_tag, point_tag,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : not_implemented<PointLike1, PointLike2, PointOut>
 {};
 
 

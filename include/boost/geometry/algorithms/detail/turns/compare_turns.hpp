@@ -36,10 +36,10 @@ struct less_seg_dist_other_op
 {
     BOOST_STATIC_ASSERT(OpId < 2);
 
-    template <typename Op> static inline
-    int order_op(Op const& op)
+    template <typename Op>
+    static inline int order_op(Op const& op)
     {
-        switch(op.operation)
+        switch (op.operation)
         {
         case detail::overlay::operation_none : return N;
         case detail::overlay::operation_union : return U;
@@ -51,14 +51,14 @@ struct less_seg_dist_other_op
         return -1;
     }
 
-    template <typename Op> static inline
-    bool use_operation(Op const& left, Op const& right)
+    template <typename Op>
+    static inline bool use_operation(Op const& left, Op const& right)
     {
         return order_op(left) < order_op(right);
     }
 
-    template <typename Op> static inline
-    bool use_other_multi_ring_id(Op const& left, Op const& right)
+    template <typename Op>
+    static inline bool use_other_id(Op const& left, Op const& right)
     {
         if ( left.other_id.multi_index != right.other_id.multi_index )
         {
@@ -76,13 +76,14 @@ struct less_seg_dist_other_op
         return use_operation(left, right);
     }
 
-    template <typename Op> static inline
-    bool use_distance(Op const& left, Op const& right)
+    template <typename Op>
+    static inline bool use_distance(Op const& left, Op const& right)
     {
-        return left.enriched.distance < right.enriched.distance || (
-                    geometry::math::equals(left.enriched.distance, right.enriched.distance) &&
-                    use_other_multi_ring_id(left, right)
-                );
+        return left.enriched.distance < right.enriched.distance
+           || ( geometry::math::equals(left.enriched.distance,
+                                       right.enriched.distance) 
+                && use_other_id(left, right)
+              );
     }
 
     template <typename Turn>

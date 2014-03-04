@@ -13,6 +13,7 @@
 
 #include <algorithm>
 
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
@@ -28,37 +29,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-
-namespace core
-{
-
-template <typename Tag>
-struct is_linear : not_implemented<Tag>
-{};
-
-template <>
-struct is_linear<linestring_tag>
-{};
-
-template <>
-struct is_linear<multi_linestring_tag>
-{};
-
-
-template <typename Tag1, typename Tag2>
-struct are_linear
-    : is_linear<Tag1>, is_linear<Tag2>
-{};
-
-template <typename Tag>
-struct are_linear<Tag, Tag>
-    : is_linear<Tag>
-{};
-
-
-} // namespace core
-
 
 
 //===========================================================================
@@ -151,19 +121,8 @@ template
     overlay_type OverlayType
 >
 class linear_linear_linestring
-    : core::are_linear
-        <
-            typename tag<Linear1>::type, typename tag<Linear2>::type
-        >
 {
 protected:
-    typedef typename point_type<LinestringOut>::type PointOut;
-    typedef traversal_turn_info<PointOut> turn_info;
-    typedef std::vector<turn_info> Turns;
-    typedef typename Turns::iterator TurnIt;
-    typedef detail::get_turns::no_interrupt_policy InterruptPolicy;
-
-
     struct AssignPolicy
     {
         static bool const include_no_turn = false;
@@ -186,25 +145,28 @@ protected:
     };
 
 
-    struct IsContinueTurn
+    class IsContinueTurn
     {
+    private:
+        template <typename Operation>
+        inline bool is_continue_or_opposite(Operation const& operation) const
+        {
+            return operation == operation_continue
+                || operation == operation_opposite;
+        }
+
+    public:
         template <typename Turn>
         bool operator()(Turn const& turn) const
         {
-            if ( turn.method != method_collinear &&
-                 turn.method != method_equal )
+            if ( turn.method != method_collinear
+                 && turn.method != method_equal )
             {
                 return false;
             }
-            operation_type op[2];
-            op[0] = turn.operations[0].operation;
-            op[1] = turn.operations[1].operation;
 
-            return
-                (op[0] == operation_continue ||
-                 op[0] == operation_opposite) &&
-                (op[1] == operation_continue ||
-                 op[1] == operation_opposite);
+            return is_continue_or_opposite(turn.operations[0].operation)
+                && is_continue_or_opposite(turn.operations[1].operation);
         }
     };
 
@@ -319,13 +281,11 @@ protected:
         filter_turns(reverse_turns);
 
         // sort by seg_id, distance, and operation
-        typedef detail::turns::less_seg_dist_other_op<> less;
-        std::sort(boost::begin(turns), boost::end(turns), less());
+        std::sort(boost::begin(turns), boost::end(turns),
+                  detail::turns::less_seg_dist_other_op<>());
 
-        typedef
-        detail::turns::less_seg_dist_other_op<std::greater<int> > rev_less;
         std::sort(boost::begin(reverse_turns), boost::end(reverse_turns),
-                  rev_less());
+                  detail::turns::less_seg_dist_other_op<std::greater<int> >());
 
 #ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
         // remove duplicate turns
@@ -357,32 +317,12 @@ public:
                                        OutputIterator oit,
                                        Strategy const& )
     {
-        typedef geometry::model::multi_linestring
+        typedef traversal_turn_info
             <
-                LinestringOut
-            > MultiLinestringOut;
+                typename point_type<LinestringOut>::type
+            > turn_info;
 
-        //        MultiLinestringOut mls1, mls2;
-        //        geometry::convert(multilinestring1, mls1);
-        //        geometry::convert(multilinestring2, mls2);
-
-        //        assert( boost::size(mls1) > 0 );
-        //        assert( boost::size(mls2) > 0 );
-
-
-        //        canonical<LinestringOut>::apply(ls1);
-        //        canonical<LinestringOut>::apply(ls2);
-
-        //        typedef typename point_type<LinestringOut>::type PointOut;
-
-#if 0
-        typedef //overlay::assign_null_policy
-            overlay::calculate_distance_policy AssignPolicy;
-#endif
-        //        typedef //overlay::assign_null_policy
-        //            detail::union_::assign_union_policy AssignPolicy;
-
-        //        typedef detail::disjoint::disjoint_interrupt_policy InterruptPolicy;
+        typedef std::vector<turn_info> Turns;
 
         Turns turns;
         compute_turns(turns, linear1, linear2);
@@ -425,20 +365,7 @@ template
     typename LinestringOut
 >
 struct linear_linear_linestring<Linear1, Linear2, LinestringOut, overlay_union>
-    : linear_linear_linestring
-        <
-            Linear1, Linear2, LinestringOut, overlay_difference
-        >
 {
-protected:
-    typedef linear_linear_linestring
-        <
-            Linear1, Linear2, LinestringOut, overlay_difference
-        > Base;
-
-    typedef typename Base::Turns Turns;
-
-public:
     template
     <
         typename OutputIterator, typename Strategy

@@ -523,8 +523,8 @@ struct get_turn_info_for_endpoint
         tp.method = method;
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
-        tp.operations[0].position = pos0;
-        tp.operations[1].position = pos1;
+        //        tp.operations[0].position = pos0;
+        //        tp.operations[1].position = pos1;
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
     }

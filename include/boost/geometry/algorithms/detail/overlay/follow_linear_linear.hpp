@@ -29,19 +29,21 @@ namespace following { namespace linear
 // follower for linear/linear geometries set operations
 
 template <typename Turn, typename Operation>
-static inline bool is_entering(Turn const& turn, Operation const& op)
+static inline bool is_entering(Turn const& turn,
+                               Operation const& operation)
 {
     if ( turn.method != method_touch && turn.method != method_touch_interior )
     {
         return false;
     }
-    return op.operation == operation_intersection;
+    return operation.operation == operation_intersection;
 }
 
 
 
 template <typename Turn, typename Operation>
-static inline bool is_staying_inside(Turn const& turn, Operation const& op, 
+static inline bool is_staying_inside(Turn const& turn,
+                                     Operation const& operation, 
                                      bool entered)
 {
     if ( !entered )
@@ -53,14 +55,15 @@ static inline bool is_staying_inside(Turn const& turn, Operation const& op,
     {
         return false;
     }
-    return op.operation == operation_continue;
+    return operation.operation == operation_continue;
 }
 
 
 
 template <typename Turn, typename Operation>
-static inline bool is_leaving(Turn const& turn, Operation const& op, 
-                              Operation const& reverse_op,
+static inline bool is_leaving(Turn const& turn,
+                              Operation const& operation,
+                              Operation const& reverse_operation,
                               bool entered)
 {
     if ( !entered )
@@ -68,20 +71,20 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
         return false;
     }
 
-    if ( turn.method != method_touch &&
-         turn.method != method_touch_interior &&
-         turn.method != method_equal &&
-         turn.method != method_collinear )
+    if ( turn.method != method_touch
+         && turn.method != method_touch_interior
+         && turn.method != method_equal
+         && turn.method != method_collinear )
     {
         return false;
     }
 
-    if ( op.operation == operation_blocked )
+    if ( operation.operation == operation_blocked )
     {
         return true;
     }
 
-    if ( op.operation != operation_union )
+    if ( operation.operation != operation_union )
     {
         return false;
     }
@@ -91,16 +94,17 @@ static inline bool is_leaving(Turn const& turn, Operation const& op,
         return true;
     }
 
-    BOOST_ASSERT( turn.operations[1].operation == operation_union ||
-                  turn.operations[1].operation == operation_blocked );
+    BOOST_ASSERT( turn.operations[1].operation == operation_union
+                  || turn.operations[1].operation == operation_blocked );
 
-    return reverse_op.operation == operation_intersection;
+    return reverse_operation.operation == operation_intersection;
 }
 
 
 template <typename Turn, typename Operation>
-static inline bool is_isolated_point(Turn const& turn, Operation const& op, 
-                                     Operation const& reverse_op,
+static inline bool is_isolated_point(Turn const& turn,
+                                     Operation const& operation,
+                                     Operation const& reverse_operation,
                                      bool entered)
 {
     if ( entered )
@@ -118,12 +122,12 @@ static inline bool is_isolated_point(Turn const& turn, Operation const& op,
         return false;
     }
 
-    if ( op.operation == operation_blocked )
+    if ( operation.operation == operation_blocked )
     {
         return true;
     }
 
-    if ( op.operation != operation_union )
+    if ( operation.operation != operation_union )
     {
         return false;
     }
@@ -133,11 +137,11 @@ static inline bool is_isolated_point(Turn const& turn, Operation const& op,
         return false;
     }
 
-    BOOST_ASSERT( turn.operations[1].operation == operation_union ||
-                  turn.operations[1].operation == operation_blocked );
+    BOOST_ASSERT( turn.operations[1].operation == operation_union
+                  || turn.operations[1].operation == operation_blocked );
 
-    return reverse_op.operation == operation_union
-        || reverse_op.operation == operation_blocked;
+    return reverse_operation.operation == operation_union
+        || reverse_operation.operation == operation_blocked;
 }
 
 
@@ -152,82 +156,77 @@ template
 class follow_linestring_linestring_linestring
 {
 protected:
-    typedef typename point_type<LineStringOut>::type PointOut;
-    typedef traversal_turn_info<PointOut> turn_info;
-
-    typedef typename boost::range_iterator
-        <
-            typename turn_info::container_type const
-        >::type turn_operation_iterator_type;
-
     typedef following::action_selector<OverlayType> action;
 
     template
     <
-        typename TurnIt,
-        typename TurnOpIt,
+        typename TurnIterator,
+        typename TurnOperationIterator,
         typename SegmentIdentifier,
         typename OutputIterator
     >
     static inline OutputIterator
-    process_turn(TurnIt it, TurnIt it_r,
-                 TurnOpIt iit, TurnOpIt iit_r,
+    process_turn(TurnIterator it, TurnIterator it_r,
+                 TurnOperationIterator op_it, TurnOperationIterator op_it_r,
                  bool& first, bool& entered,
                  std::size_t& enter_count,
-                 LineString1 const& ls1, LineString2 const&,
+                 LineString1 const& linestring1, LineString2 const&,
                  LineStringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
     {
-        if ( is_entering(*it, *iit) )
+        if ( is_entering(*it, *op_it) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
-            detail::overlay::debug_traverse(*it, *iit, "-> Entering");
+            detail::overlay::debug_traverse(*it, *op_it, "-> Entering");
 #endif
 
             entered = true;
             if ( enter_count == 0 )
             {
-                action::enter(current_piece, ls1, current_segment_id,
-                              iit->seg_id.segment_index,
-                              it->point, *iit, oit);
+                action::enter(current_piece, linestring1,
+                              current_segment_id,
+                              op_it->seg_id.segment_index,
+                              it->point, *op_it, oit);
             }
             ++enter_count;
         }
-        else if ( is_staying_inside(*it, *iit, entered) )
+        else if ( is_staying_inside(*it, *op_it, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
-            detail::overlay::debug_traverse(*it, *iit, "-> Staying inside");
+            detail::overlay::debug_traverse(*it, *op_it, "-> Staying inside");
 #endif
 
             entered = true;
         }
-        else if ( is_leaving(*it, *iit, *iit_r, entered) )
+        else if ( is_leaving(*it, *op_it, *op_it_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
-            detail::overlay::debug_traverse(*it, *iit, "-> Leaving");
+            detail::overlay::debug_traverse(*it, *op_it, "-> Leaving");
 #endif
 
             --enter_count;
             if ( enter_count == 0 )
             {
                 entered = false;
-                action::leave(current_piece, ls1, current_segment_id,
-                              iit->seg_id.segment_index,
-                              it->point, *iit, oit);
+                action::leave(current_piece, linestring1,
+                              current_segment_id,
+                              op_it->seg_id.segment_index,
+                              it->point, *op_it, oit);
             }
         }
 #ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
         else if ( FollowIsolatedPoints &&
-                  is_isolated_point(*it, *iit, *iit_r, entered) )
+                  is_isolated_point(*it, *op_it, *op_it_r, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
-            detail::overlay::debug_traverse(*it, *iit, "-> Isolated point");
+            detail::overlay::debug_traverse(*it, *op_it, "-> Isolated point");
 #endif
 
-            action::isolated_point(current_piece, ls1, current_segment_id,
-                                   iit->seg_id.segment_index,
-                                   it->point, *iit, oit);
+            action::isolated_point(current_piece, linestring1,
+                                   current_segment_id,
+                                   op_it->seg_id.segment_index,
+                                   it->point, *op_it, oit);
         }
 #endif
         first = false;
@@ -248,7 +247,8 @@ protected:
     {
         if ( action::is_entered(entered) )
         {
-            geometry::copy_segments<false>(linestring1, current_segment_id,
+            geometry::copy_segments<false>(linestring1,
+                                           current_segment_id,
                                            boost::size(linestring1) - 1,
                                            current_piece);
         }
@@ -272,7 +272,12 @@ public:
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename boost::range_iterator<Turns const>::type TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
+        typedef typename boost::range_value<Turns>::type TurnInfo;
+        typedef typename boost::range_iterator
+            <
+                typename TurnInfo::container_type const
+            >::type TurnOperationIterator;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -284,15 +289,15 @@ public:
         bool first = true;
         std::size_t enter_count = 0;
 
-        TurnIt it = boost::begin(turns);
-        TurnIt it_r = boost::begin(reverse_turns);
+        TurnIterator it = boost::begin(turns);
+        TurnIterator it_r = boost::begin(reverse_turns);
         for (; it != boost::end(turns); ++it, ++it_r)
         {
-            turn_operation_iterator_type iit = boost::begin(it->operations);
-            turn_operation_iterator_type iit_r = boost::begin(it_r->operations);
-            ++iit_r;
+            TurnOperationIterator op_it = boost::begin(it->operations);
+            TurnOperationIterator op_it_r = boost::begin(it_r->operations);
+            ++op_it_r;
 
-            oit = process_turn(it, it_r, iit, iit_r,
+            oit = process_turn(it, it_r, op_it, op_it_r,
                                first, entered, enter_count, 
                                linestring1, linestring2,
                                current_piece, current_segment_id,
@@ -336,14 +341,6 @@ protected:
             OverlayType, FollowIsolatedPoints
         > Base;
 
-    typedef typename point_type<LineStringOut>::type PointOut;
-    typedef traversal_turn_info<PointOut> turn_info;
-
-    typedef typename boost::range_iterator
-        <
-            typename turn_info::container_type const
-        >::type turn_operation_iterator_type;
-
     typedef following::action_selector<OverlayType> action;
 
 public:
@@ -356,7 +353,12 @@ public:
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename boost::range_iterator<Turns const>::type TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
+        typedef typename boost::range_value<Turns>::type TurnInfo;
+        typedef typename boost::range_iterator
+            <
+                typename TurnInfo::container_type const
+            >::type TurnOperationIterator;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -368,20 +370,20 @@ public:
         bool first = true;
         std::size_t enter_count = 0;
 
-        TurnIt it = boost::begin(turns);
-        TurnIt it_r = boost::begin(reverse_turns);
+        TurnIterator it = boost::begin(turns);
+        TurnIterator it_r = boost::begin(reverse_turns);
         for (; it != boost::end(turns); ++it, ++it_r)
         {
-            turn_operation_iterator_type iit = boost::begin(it->operations);
-            turn_operation_iterator_type iit_r = boost::begin(it_r->operations);
-            ++iit_r;
+            TurnOperationIterator op_it = boost::begin(it->operations);
+            TurnOperationIterator op_it_r = boost::begin(it_r->operations);
+            ++op_it_r;
 
-            LineString2 const* ls2 =
-                &*(boost::begin(multilinestring) + iit->other_id.multi_index);
+            LineString2 const* linestring2 =
+                &*(boost::begin(multilinestring) + op_it->other_id.multi_index);
 
-            oit = Base::process_turn(it, it_r, iit, iit_r,
+            oit = Base::process_turn(it, it_r, op_it, op_it_r,
                                      first, entered, enter_count,
-                                     linestring, *ls2, 
+                                     linestring, *linestring2, 
                                      current_piece, current_segment_id,
                                      oit);
         }
@@ -425,14 +427,6 @@ protected:
             OverlayType, FollowIsolatedPoints
         > Base;
 
-    typedef typename point_type<LineStringOut>::type PointOut;
-    typedef traversal_turn_info<PointOut> turn_info;
-
-    typedef typename boost::range_iterator
-        <
-            typename turn_info::container_type const
-        >::type turn_operation_iterator_type;
-
     typedef following::action_selector<OverlayType> action;
 
 public:
@@ -445,7 +439,12 @@ public:
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename boost::range_iterator<Turns const>::type TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
+        typedef typename boost::range_value<Turns>::type TurnInfo;
+        typedef typename boost::range_iterator
+            <
+                typename TurnInfo::container_type const
+            >::type TurnOperationIterator;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -460,17 +459,17 @@ public:
         std::size_t enter_count = 0;
 
         // dummy initialization
-        LineString1 const* ls1 = &*boost::begin(multilinestring);
+        LineString1 const* linestring1 = &*boost::begin(multilinestring);
 
-        TurnIt it = boost::begin(turns);
-        TurnIt it_r = boost::begin(reverse_turns);
+        TurnIterator it = boost::begin(turns);
+        TurnIterator it_r = boost::begin(reverse_turns);
         for (; it != boost::end(turns); ++it, ++it_r)
         {
-            turn_operation_iterator_type iit = boost::begin(it->operations);
-            turn_operation_iterator_type iit_r = boost::begin(it_r->operations);
-            ++iit_r;
+            TurnOperationIterator op_it = boost::begin(it->operations);
+            TurnOperationIterator op_it_r = boost::begin(it_r->operations);
+            ++op_it_r;
 
-            if ( iit->seg_id.multi_index != current_multi_id )
+            if ( op_it->seg_id.multi_index != current_multi_id )
             {
                 if ( first_turn )
                 {
@@ -478,7 +477,7 @@ public:
                 }
                 else
                 {
-                    oit = Base::process_end(entered, *ls1,
+                    oit = Base::process_end(entered, *linestring1,
                                             current_segment_id, current_piece,
                                             oit);
 
@@ -490,20 +489,21 @@ public:
                         = geometry::segment_identifier(0, -1, -1, -1);
                     geometry::clear(current_piece);
                 }
-                current_multi_id = iit->seg_id.multi_index;
-                ls1 = &*(boost::begin(multilinestring) + current_multi_id);
+                current_multi_id = op_it->seg_id.multi_index;
+                linestring1 =
+                    &*(boost::begin(multilinestring) + current_multi_id);
             }
 
-            oit = Base::process_turn(it, it_r, iit, iit_r,
+            oit = Base::process_turn(it, it_r, op_it, op_it_r,
                                      first, entered, enter_count, 
-                                     *ls1, linestring,
+                                     *linestring1, linestring,
                                      current_piece, current_segment_id,
                                      oit);
         }
 
         BOOST_ASSERT( enter_count == 0 );
 
-        return Base::process_end(entered, *ls1,
+        return Base::process_end(entered, *linestring1,
                                  current_segment_id, current_piece,
                                  oit);
     }
@@ -539,14 +539,6 @@ protected:
             OverlayType, FollowIsolatedPoints
         > Base;
 
-    typedef typename point_type<LineStringOut>::type PointOut;
-    typedef traversal_turn_info<PointOut> turn_info;
-
-    typedef typename boost::range_iterator
-        <
-            typename turn_info::container_type const
-        >::type turn_operation_iterator_type;
-
     typedef following::action_selector<OverlayType> action;
 
 public:
@@ -559,7 +551,12 @@ public:
     {
         BOOST_ASSERT( boost::size(turns) == boost::size(reverse_turns) );
 
-        typedef typename boost::range_iterator<Turns const>::type TurnIt;
+        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
+        typedef typename boost::range_value<Turns>::type TurnInfo;
+        typedef typename boost::range_iterator
+            <
+                typename TurnInfo::container_type const
+            >::type TurnOperationIterator;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
@@ -574,17 +571,17 @@ public:
         std::size_t enter_count = 0;
 
         // dummy initialization
-        LineString1 const* ls1 = &*boost::begin(multilinestring1);
+        LineString1 const* linestring1 = &*boost::begin(multilinestring1);
 
-        TurnIt it = boost::begin(turns);
-        TurnIt it_r = boost::begin(reverse_turns);
+        TurnIterator it = boost::begin(turns);
+        TurnIterator it_r = boost::begin(reverse_turns);
         for (; it != boost::end(turns); ++it, ++it_r)
         {
-            turn_operation_iterator_type iit = boost::begin(it->operations);
-            turn_operation_iterator_type iit_r = boost::begin(it_r->operations);
-            ++iit_r;
+            TurnOperationIterator op_it = boost::begin(it->operations);
+            TurnOperationIterator op_it_r = boost::begin(it_r->operations);
+            ++op_it_r;
 
-            if ( iit->seg_id.multi_index != current_multi_id )
+            if ( op_it->seg_id.multi_index != current_multi_id )
             {
                 if ( first_turn )
                 {
@@ -592,7 +589,7 @@ public:
                 }
                 else
                 {
-                    oit = Base::process_end(entered, *ls1,
+                    oit = Base::process_end(entered, *linestring1,
                                             current_segment_id, current_piece,
                                             oit);
 
@@ -604,23 +601,24 @@ public:
                         = geometry::segment_identifier(0, -1, -1, -1);
                     geometry::clear(current_piece);
                 }
-                current_multi_id = iit->seg_id.multi_index;
-                ls1 = &*(boost::begin(multilinestring1) + current_multi_id);
+                current_multi_id = op_it->seg_id.multi_index;
+                linestring1 =
+                    &*(boost::begin(multilinestring1) + current_multi_id);
             }
 
-            LineString2 const* ls2 =
-                &*(boost::begin(multilinestring2) + iit->other_id.multi_index);
+            LineString2 const* linestring2 =
+                &*(boost::begin(multilinestring2) + op_it->other_id.multi_index);
 
-            oit = Base::process_turn(it, it_r, iit, iit_r,
+            oit = Base::process_turn(it, it_r, op_it, op_it_r,
                                      first, entered, enter_count, 
-                                     *ls1, *ls2,
+                                     *linestring1, *linestring2,
                                      current_piece, current_segment_id,
                                      oit);
         }
 
         BOOST_ASSERT( enter_count == 0 );
 
-        return Base::process_end(entered, *ls1,
+        return Base::process_end(entered, *linestring1,
                                  current_segment_id, current_piece,
                                  oit);
     }
@@ -636,8 +634,8 @@ template
     overlay_type OverlayType,
     bool FollowIsolatedPoints,
     typename TagOut = typename tag<GeometryOut>::type,
-    typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type
+    typename TagIn1 = typename tag<Geometry1>::type,
+    typename TagIn2 = typename tag<Geometry2>::type
 >
 struct follow_dispatch
     : not_implemented<GeometryOut, Geometry1, Geometry2>
