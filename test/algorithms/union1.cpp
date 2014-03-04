@@ -38,11 +38,11 @@ typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 //===========================================================================
 
 
-BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
+BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** LINESTRING / LINESTRING DIFFERENCE ***" << std::endl;
+    std::cout << "*** LINESTRING / LINESTRING UNION ***" << std::endl;
     std::cout << std::endl;
 #endif
 
@@ -427,11 +427,11 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
 
 
 #if 0
-BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
+BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** LINESTRING / MULTILINESTRING DIFFERENCE ***"
+    std::cout << "*** LINESTRING / MULTILINESTRING UNION ***"
               << std::endl;
     std::cout << std::endl;
 #endif
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
     typedef linestring_type L;
     typedef multi_linestring_type ML;
 
-    typedef test_difference_of_geometries<L, ML, ML> tester;
+    typedef test_union_of_geometries<L, ML, ML> tester;
 
     // disjoint linestrings
     tester()
@@ -641,11 +641,11 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
 
 
 
-BOOST_AUTO_TEST_CASE( test_difference_multilinestring_linestring )
+BOOST_AUTO_TEST_CASE( test_union_multilinestring_linestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTILINESTRING / LINESTRING DIFFERENCE ***"
+    std::cout << "*** MULTILINESTRING / LINESTRING UNION ***"
               << std::endl;
     std::cout << std::endl;
 #endif
@@ -653,7 +653,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_linestring )
     typedef linestring_type L;
     typedef multi_linestring_type ML;
 
-    typedef test_difference_of_geometries<ML, L, ML> tester;
+    typedef test_union_of_geometries<ML, L, ML> tester;
 
     // disjoint linestrings
     tester()
@@ -693,18 +693,18 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_linestring )
 
 
 
-BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
+BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE ***"
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING UNION ***"
               << std::endl;
     std::cout << std::endl;
 #endif
 
     typedef multi_linestring_type ML;
 
-    typedef test_difference_of_geometries<ML, ML, ML> tester;
+    typedef test_union_of_geometries<ML, ML, ML> tester;
 
     // disjoint linestrings
     tester()
