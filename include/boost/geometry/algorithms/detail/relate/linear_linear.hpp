@@ -31,13 +31,20 @@ namespace detail { namespace relate {
 // For 1-point linestrings or with all equal points turns won't be generated!
 // Check for those degenerated cases may be connected with this one!
 
+// TODO:
+// Move this to separate file, maybe name it differently e.g. for_each_turnless_geometry_if
+
 template <std::size_t OpId,
           typename Geometry,
-          typename Tag = typename geometry::tag<Geometry>::type>
-struct for_each_disjoint_linestring_if {};
+          typename Tag = typename geometry::tag<Geometry>::type,
+          bool IsMulti = boost::is_base_of<multi_tag, Tag>::value
+>
+struct for_each_disjoint_geometry_if
+    : public not_implemented<Tag>
+{};
 
-template <std::size_t OpId, typename Geometry>
-struct for_each_disjoint_linestring_if<OpId, Geometry, linestring_tag>
+template <std::size_t OpId, typename Geometry, typename Tag>
+struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, false>
 {
     template <typename TurnIt, typename Pred>
     static inline bool apply(TurnIt first, TurnIt last,
@@ -51,8 +58,8 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, linestring_tag>
     }
 };
 
-template <std::size_t OpId, typename Geometry>
-struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
+template <std::size_t OpId, typename Geometry, typename Tag>
+struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
 {
     template <typename TurnIt, typename Pred>
     static inline bool apply(TurnIt first, TurnIt last,
@@ -61,7 +68,11 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
     {
         BOOST_ASSERT(first != last);
 
-        std::size_t count = boost::size(geometry);
+        const std::size_t count = boost::size(geometry);
+        boost::ignore_unused_variable_warning(count);
+
+        // O(I)
+        // gather info about turns generated for contained geometries
         std::vector<bool> detected_intersections(count, false);
         for ( TurnIt it = first ; it != last ; ++it )
         {
@@ -74,6 +85,8 @@ struct for_each_disjoint_linestring_if<OpId, Geometry, multi_linestring_tag>
 
         bool found = false;
 
+        // O(N)
+        // check predicate for each contained geometry without generated turn
         for ( std::vector<bool>::iterator it = detected_intersections.begin() ;
               it != detected_intersections.end() ; ++it )
         {
@@ -286,13 +299,13 @@ struct linear_linear
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         disjoint_linestring_pred<0, Result, boundary_checker<Geometry1> > pred1(result, boundary_checker1);
-        for_each_disjoint_linestring_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
+        for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( result.interrupt )
             return;
 
         boundary_checker<Geometry2> boundary_checker2(geometry2);
         disjoint_linestring_pred<1, Result, boundary_checker<Geometry2> > pred2(result, boundary_checker2);
-        for_each_disjoint_linestring_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
+        for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( result.interrupt )
             return;
         
