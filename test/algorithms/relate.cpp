@@ -345,6 +345,16 @@ void test_linestring_multi_linestring()
 }
 
 template <typename P>
+void test_linestring_polygon()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::polygon<P> poly;
+
+    // LS disjoint
+    test_geometry<ls, poly>("LINESTRING(11 0,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
+}
+
+template <typename P>
 void test_all()
 {
     test_point_point<P>();
@@ -354,6 +364,7 @@ void test_all()
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
+    test_linestring_polygon<P>();
 }
 
 int test_main( int , char* [] )

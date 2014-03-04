@@ -106,11 +106,9 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
     }
 };
 
-template <std::size_t OpId, typename Result, typename BoundaryChecker>
+template <typename Result, typename BoundaryChecker, bool TransposeResult>
 class disjoint_linestring_pred
 {
-    static const bool transpose_result = OpId != 0;
-
 public:
     disjoint_linestring_pred(Result & res,
                              BoundaryChecker & boundary_checker)
@@ -131,7 +129,7 @@ public:
             return true;
         }
 
-        update<interior, exterior, '1', transpose_result>(*m_result_ptr);
+        update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
 
         // check if there is a boundary
         if ( m_boundary_checker_ptr->template
@@ -139,7 +137,7 @@ public:
           || m_boundary_checker_ptr->template
                 is_endpoint_boundary<boundary_back>(range::back(linestring)) )
         {
-            update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
+            update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
                     
             return false;
         }
@@ -298,13 +296,13 @@ struct linear_linear
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<0, Result, boundary_checker<Geometry1> > pred1(result, boundary_checker1);
+        disjoint_linestring_pred<Result, boundary_checker<Geometry1>, false> pred1(result, boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( result.interrupt )
             return;
 
         boundary_checker<Geometry2> boundary_checker2(geometry2);
-        disjoint_linestring_pred<1, Result, boundary_checker<Geometry2> > pred2(result, boundary_checker2);
+        disjoint_linestring_pred<Result, boundary_checker<Geometry2>, true> pred2(result, boundary_checker2);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( result.interrupt )
             return;
