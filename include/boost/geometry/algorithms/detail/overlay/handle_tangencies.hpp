@@ -19,7 +19,7 @@
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
-#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
+#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
