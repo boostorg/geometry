@@ -11,109 +11,15 @@
 #define BOOST_GEOMETRY_TEST_DIFFERENCE1_HPP
 
 #include "from_wkt.hpp"
-#include <boost/geometry/algorithms/reverse.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/multi/algorithms/reverse.hpp>
 
 #include <string>
 #include <sstream>
 #include <algorithm>
 #include <boost/geometry/geometry.hpp>
 
-
-namespace bg = ::boost::geometry;
+#include "test_set_ops_common.hpp"
 
 #include "to_svg.hpp"
-
-
-template <typename LS1, typename LS2>
-struct ls_less
-{
-    typedef typename boost::range_iterator<LS1 const>::type It1;
-    typedef typename boost::range_iterator<LS2 const>::type It2;
-
-    typedef bg::less<typename bg::point_type<LS1>::type> PointLess;
-
-    bool operator()(LS1 const& ls1, LS2 const& ls2) const
-    {
-        if ( boost::size(ls1) != boost::size(ls2) )
-            return boost::size(ls1) < boost::size(ls2);
-
-        It1 it1 = boost::begin(ls1);
-        It2 it2 = boost::begin(ls2);
-        PointLess less;
-        for (; it1 != boost::end(ls1); ++it1, ++it2)
-        {
-            if ( less(*it1, *it2) )
-                return true;
-            if ( less(*it2, *it1) )
-                return false;
-        }
-        return false;
-    }
-};
-
-
-template <typename MultiLinestring1, typename MultiLinestring2>
-struct multilinestring_equals
-{
-    static inline
-    bool apply(MultiLinestring1 const& mls1_, MultiLinestring2 const& mls2_)
-    {
-        MultiLinestring1 mls1 = mls1_;
-        MultiLinestring2 mls2 = mls2_;
-        BOOST_CHECK(boost::size(mls1) == boost::size(mls2));
-
-        typedef typename boost::range_iterator
-            <
-                MultiLinestring1 const
-            >::type ls1_iterator;
-
-        typedef typename boost::range_iterator
-            <
-                MultiLinestring2 const
-            >::type ls2_iterator;
-
-        typedef typename boost::range_value<MultiLinestring1>::type Linestring1;
-
-        typedef typename boost::range_value<MultiLinestring2>::type Linestring2;
-
-        typedef typename boost::range_iterator
-            <
-                Linestring1 const
-            >::type pt1_iterator;
-
-        typedef typename boost::range_iterator
-            <
-                Linestring2 const
-            >::type pt2_iterator;
-
-        typedef ls_less<Linestring1, Linestring2> LS_Less;
-
-        std::sort(boost::begin(mls1), boost::end(mls1), LS_Less());
-        std::sort(boost::begin(mls2), boost::end(mls2), LS_Less());
-
-        if ( boost::size(mls1) == boost::size(mls2) )
-        {
-            ls1_iterator it1 = boost::begin(mls1);
-            ls2_iterator it2 = boost::begin(mls2);
-            for (; it1 != boost::end(mls1); ++it1, ++it2)
-            {
-                BOOST_CHECK( boost::size(*it1) == boost::size(*it2) );
-                if ( boost::size(*it1) == boost::size(*it2) )
-                {
-                    pt1_iterator pit1 = boost::begin(*it1);
-                    pt2_iterator pit2 = boost::begin(*it2);
-                    for (; pit1 != boost::end(*it1); ++pit1, ++pit2)
-                    {
-                        BOOST_CHECK( bg::equals(*pit1, *pit2) );
-                    }
-                }
-            }
-        }
-        return true;
-    }
-};
 
 
 //==================================================================
@@ -127,22 +33,25 @@ template
     typename Geometry1, typename Geometry2,
     typename MultiLineString
 >
-struct test_difference_of_geometries
+class test_difference_of_geometries
 {
-    void base_test(Geometry1 const& geometry1,
-                   Geometry2 const& geometry2,
-                   MultiLineString const& mls_diff,
-                   bool test_vector_and_deque = true,
-                   bool reverse_output_for_checking = false) const
+private:
+    static inline void base_test(Geometry1 const& geometry1,
+                                 Geometry2 const& geometry2,
+                                 MultiLineString const& mls_diff,
+                                 bool test_vector_and_deque = true,
+                                 bool reverse_output_for_checking = false)
     {
+        static bool vector_deque_already_tested = false;
+
         typedef typename boost::range_value<MultiLineString>::type LineString;
-        typedef std::vector<LineString> LineStringVector;
-        typedef std::deque<LineString> LineStringDeque;
+        typedef std::vector<LineString> linestring_vector;
+        typedef std::deque<LineString> linestring_deque;
 
         MultiLineString mls_output;
 
-        LineStringVector ls_vector_output;
-        LineStringDeque ls_deque_output;
+        linestring_vector ls_vector_output;
+        linestring_deque ls_deque_output;
 
         bg::difference(geometry1, geometry2, mls_output);
 
@@ -157,8 +66,9 @@ struct test_difference_of_geometries
                      >::apply(mls_diff, mls_output)
                      ));
 
-        if ( test_vector_and_deque )
+        if ( !vector_deque_already_tested && test_vector_and_deque )
         {
+            vector_deque_already_tested = true;
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << std::endl;
             std::cout << "Testing with vector and deque as output container..."
@@ -169,13 +79,13 @@ struct test_difference_of_geometries
 
             BOOST_CHECK((multilinestring_equals
                          <
-                             MultiLineString, LineStringVector
+                             MultiLineString, linestring_vector
                          >::apply(mls_diff, ls_vector_output)
                          ));
 
             BOOST_CHECK((multilinestring_equals
                          <
-                             MultiLineString, LineStringDeque
+                             MultiLineString, linestring_deque
                          >::apply(mls_diff, ls_deque_output)
                          ));
 #ifdef GEOMETRY_TEST_DEBUG
@@ -195,10 +105,10 @@ struct test_difference_of_geometries
     }
 
 
-
-    void operator()(Geometry1 const& geometry1,
-                    Geometry2 const& geometry2,
-                    MultiLineString const& mls_diff) const
+public:
+    static inline void apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             MultiLineString const& mls_diff)
     {
         Geometry1 rg1(geometry1);
         bg::reverse<Geometry1>(rg1);
@@ -218,10 +128,10 @@ struct test_difference_of_geometries
     }
 
 
-    void operator()(Geometry1 const& geometry1,
-                    Geometry2 const& geometry2,
-                    MultiLineString const& mls_diff,
-                    std::string const& test_case_str) const
+    static inline void apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             MultiLineString const& mls_diff,
+                             std::string const& test_case_str)
     {
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << test_case_str << std::endl;
@@ -229,7 +139,7 @@ struct test_difference_of_geometries
         sstr << "svgs/" << test_case_str << ".svg";
         to_svg(geometry1, geometry2, sstr.str());
 #endif
-        this->operator()(geometry1, geometry2, mls_diff);
+        apply(geometry1, geometry2, mls_diff);
     }
 };
 
