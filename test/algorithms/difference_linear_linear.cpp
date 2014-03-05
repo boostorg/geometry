@@ -620,6 +620,14 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(19 0,21 0),(25 0,30 0))"),
          "lmldf18d"
          );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,10 0)"),
+         from_wkt<ML>("MULTILINESTRING((0 5,1 0,9 0,10 5),(0 1,2 0,3 1),\
+                      (0 -2,3 0,4 4),(0 -5,4 0,5 0,6 3))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10))"),
+         "lmldf19"
+         );
 }
 
 
