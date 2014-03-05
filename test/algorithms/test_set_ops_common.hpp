@@ -11,6 +11,11 @@
 #define BOOST_GEOMETRY_TEST_SET_OPS_COMMON_HPP
 
 
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+
 #include <boost/range.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
@@ -214,6 +219,41 @@ public:
 #endif
     }
 };
+
+
+
+
+template <typename Output, typename G1, typename G2>
+void set_operation_output(std::string const& set_op_id,
+                          std::string const& caseid,
+                          G1 const& g1, G2 const& g2,
+                          Output const& output)
+{
+#if defined(TEST_WITH_SVG)
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::point_type<G1>::type point_type;
+
+    std::ostringstream filename;
+    filename << "svgs/" << set_op_id << "_" << caseid << ".svg";
+
+    std::ofstream svg(filename.str().c_str());
+
+    bg::svg_mapper<point_type> mapper(svg, 500, 500);
+
+    mapper.add(g1);
+    mapper.add(g2);
+
+    mapper.map(g2, "stroke-opacity:1;stroke:rgb(153,204,0);stroke-width:4");
+    mapper.map(g1, "stroke-opacity:1;stroke:rgb(51,51,153);stroke-width:2");
+
+    BOOST_AUTO_TPL(it, output.begin());
+    for (; it != output.end(); ++it)
+    {
+        mapper.map(*it,
+                   "stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:8");
+    }
+#endif
+}
 
 
 #endif // BOOST_GEOMETRY_TEST_SET_OPS_COMMON_HPP

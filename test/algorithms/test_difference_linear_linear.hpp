@@ -7,18 +7,12 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_TEST_DIFFERENCE1_HPP
-#define BOOST_GEOMETRY_TEST_DIFFERENCE1_HPP
+#ifndef BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP
+#define BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP
 
 #include "from_wkt.hpp"
-
-#include <string>
-#include <sstream>
-#include <algorithm>
 #include <boost/geometry/geometry.hpp>
-
 #include "test_set_ops_common.hpp"
-
 #include "to_svg.hpp"
 
 
@@ -39,6 +33,7 @@ private:
     static inline void base_test(Geometry1 const& geometry1,
                                  Geometry2 const& geometry2,
                                  MultiLineString const& mls_diff,
+                                 std::string const& case_id,
                                  bool test_vector_and_deque = true,
                                  bool reverse_output_for_checking = false)
     {
@@ -65,6 +60,9 @@ private:
                          MultiLineString, MultiLineString
                      >::apply(mls_diff, mls_output)
                      ));
+
+        set_operation_output("difference", case_id,
+                             geometry1, geometry2, mls_output);
 
         if ( !vector_deque_already_tested && test_vector_and_deque )
         {
@@ -108,40 +106,35 @@ private:
 public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             MultiLineString const& mls_diff)
+                             MultiLineString const& mls_diff,
+                             std::string const& case_id)
     {
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "test case: " << case_id << std::endl;
+        std::stringstream sstr;
+        sstr << "svgs/" << case_id << ".svg";
+#ifdef TEST_WITH_SVG
+        to_svg(geometry1, geometry2, sstr.str());
+#endif
+#endif
+
         Geometry1 rg1(geometry1);
         bg::reverse<Geometry1>(rg1);
 
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
-        base_test(geometry1, geometry2, mls_diff);
-        base_test(geometry1, rg2, mls_diff, false);
-        base_test(rg1, geometry2, mls_diff, false, true);
-        base_test(rg1, rg2, mls_diff, false, true);
+        base_test(geometry1, geometry2, mls_diff, case_id);
+        base_test(geometry1, rg2, mls_diff, case_id, false);
+        base_test(rg1, geometry2, mls_diff, case_id, false, true);
+        base_test(rg1, rg2, mls_diff, case_id, false, true);
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << std::endl;
 #endif
-    }
-
-
-    static inline void apply(Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
-                             MultiLineString const& mls_diff,
-                             std::string const& test_case_str)
-    {
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "test case: " << test_case_str << std::endl;
-        std::stringstream sstr;
-        sstr << "svgs/" << test_case_str << ".svg";
-        to_svg(geometry1, geometry2, sstr.str());
-#endif
-        apply(geometry1, geometry2, mls_diff);
     }
 };
 
 
-#endif // BOOST_GEOMETRY_TEST_DIFFERENCE1_HPP
+#endif // BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP

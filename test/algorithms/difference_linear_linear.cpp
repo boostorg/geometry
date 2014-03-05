@@ -10,7 +10,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_difference
+#define BOOST_TEST_MODULE test_difference_linear_linear
 #endif
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -20,7 +20,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "test_difference1.hpp"
+#include "test_difference_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
