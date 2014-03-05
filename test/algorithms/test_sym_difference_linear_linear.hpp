@@ -7,8 +7,8 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_TEST_SYM_DIFFERENCE1_HPP
-#define BOOST_GEOMETRY_TEST_SYM_DIFFERENCE1_HPP
+#ifndef BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
+#define BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
 
 #include "from_wkt.hpp"
 
@@ -143,7 +143,7 @@ struct test_sym_difference_of_geometries
         base_test(geometry1, geometry2, mls_sym_diff, case_id, true);
         //        base_test(geometry1, rg2, mls_sym_diff);
         //        base_test(rg1, geometry2, mls_sym_diff);
-        base_test(rg1, rg2, case_id, mls_sym_diff);
+        base_test(rg1, rg2, mls_sym_diff, case_id);
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
@@ -153,4 +153,4 @@ struct test_sym_difference_of_geometries
 };
 
 
-#endif // BOOST_GEOMETRY_TEST_SYM_DIFFERENCE1_HPP
+#endif // BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
