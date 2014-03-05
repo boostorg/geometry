@@ -31,6 +31,7 @@
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/views/segment_view.hpp>
 
@@ -650,7 +651,7 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
 
     typedef typename Strategy::rescale_policy_type rescale_policy_type;
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
     return detail::intersection::insert
         <

@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

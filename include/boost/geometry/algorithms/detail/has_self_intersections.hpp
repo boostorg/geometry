@@ -19,6 +19,7 @@
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
@@ -126,7 +127,7 @@ inline bool has_self_intersections(Geometry const& geometry)
         rescale_policy_type;
 
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
     return has_self_intersections(geometry, rescale_policy);
 }

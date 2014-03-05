@@ -162,7 +162,7 @@ inline void sym_difference(Geometry1 const& geometry1,
         >::type rescale_policy_type;
 
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
     detail::sym_difference::sym_difference_insert<geometry_out>(
             geometry1, geometry2, rescale_policy,

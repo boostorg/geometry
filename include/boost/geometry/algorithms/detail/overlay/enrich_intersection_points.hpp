@@ -29,6 +29,8 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
+#include <boost/geometry/policies/robustness/robust_type.hpp>
+#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -103,7 +105,7 @@ private :
 
     typedef model::point
         <
-            typename geometry::robust_type
+            typename detail::robust_type
                 <
                     typename select_coordinate_type<Geometry1, Geometry2>::type
                 >::type,
@@ -127,7 +129,7 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
-        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj,
+        detail::zoom_to_robust(pi, pj, ri, rj, si, sj,
                                     pi_rob, pj_rob, ri_rob, rj_rob, si_rob, sj_rob);
     }
 

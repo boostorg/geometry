@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 namespace boost { namespace geometry
 {
@@ -156,7 +156,7 @@ inline void difference(Geometry1 const& geometry1,
             rescale_policy_type;
 
         rescale_policy_type rescale_policy
-                = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+                = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 #else
         detail::no_rescale_policy rescale_policy;
 #endif

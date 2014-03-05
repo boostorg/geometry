@@ -22,7 +22,7 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
-#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 
 namespace boost { namespace geometry
@@ -73,7 +73,7 @@ inline bool intersects(Geometry const& geometry)
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns

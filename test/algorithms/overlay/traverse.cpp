@@ -50,6 +50,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>

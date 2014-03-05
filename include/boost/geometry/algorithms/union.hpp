@@ -18,6 +18,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 
 namespace boost { namespace geometry
@@ -159,7 +160,7 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
 
     typedef typename Strategy::rescale_policy_type rescale_policy_type;
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
     return detail::union_::insert<GeometryOut>(geometry1, geometry2, rescale_policy, out, strategy);
 }

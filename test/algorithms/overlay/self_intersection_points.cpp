@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 //#include <boost/geometry/algorithms/detail/overlay/self_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/linestring.hpp>

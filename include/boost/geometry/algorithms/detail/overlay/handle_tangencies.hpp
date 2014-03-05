@@ -18,6 +18,7 @@
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
@@ -72,7 +73,7 @@ private :
 
     typedef model::point
     <
-            typename geometry::robust_type
+            typename detail::robust_type
                 <
                     typename select_coordinate_type<Geometry1, Geometry2>::type
                 >::type,
@@ -108,7 +109,7 @@ private :
         geometry::recalculate(si_rob, si, m_rescale_policy);
         geometry::recalculate(sj_rob, sj, m_rescale_policy);
 #else
-        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj,
+        detail::zoom_to_robust(pi, pj, ri, rj, si, sj,
                                  pi_rob, pj_rob,
                                  ri_rob, rj_rob,
                                  si_rob, sj_rob);

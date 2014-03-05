@@ -13,7 +13,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
-#include <boost/geometry/policies/robustness/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 
 namespace boost { namespace geometry
@@ -202,7 +202,7 @@ inline bool intersection(Geometry1 const& geometry1,
         >::type rescale_policy_type;
 
     rescale_policy_type rescale_policy
-            = get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
     typedef strategy_intersection
         <
