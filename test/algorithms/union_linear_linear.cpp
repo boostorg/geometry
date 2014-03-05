@@ -10,7 +10,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_union
+#define BOOST_TEST_MODULE test_union_linear_linear
 #endif
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -20,7 +20,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "test_union1.hpp"
+#include "test_union_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
 
     typedef test_union_of_geometries<L, L, ML> tester;
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 1,2 1,3 2)"),
          from_wkt<L>("LINESTRING(0 2,1 1,2 1,3 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 1,2 1,3 2),\
@@ -60,42 +60,42 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (0 0,1 1),(2 1,3 2))"),
          "llu00");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((3 0,4 0),(0 0,3 0),(4 0,5 0))"),
          "llu01");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(3 0,4 0)"),
          from_wkt<L>("LINESTRING(0 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((3 0,4 0),(0 0,3 0),(4 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,5 0))"),
          "llu01-1");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,6 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,4 0),(4 0,6 0))"),
          from_wkt<ML>("MULTILINESTRING((3 0,6 0),(0 0,3 0))"),
          "llu01-2");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(3 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((3 0,6 0),(0 0,3 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,4 0),(4 0,6 0))"),
          "llu01-3");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,6 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,4 0),(4 0,6 0))"),
          "llu01-4");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,20 0),\
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (0 0,4 0),(5 0,20 0))"),
          "llu01-6");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-20 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,1 1,2 0,3 1,4 0,5 0,6 1,7 -1,8 0)"),
          from_wkt<ML>("MULTILINESTRING((-20 0,20 0),\
@@ -115,47 +115,47 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (-20 0,4 0),(5 0,20 0))"),
          "llu01-7");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,4 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((2 0,4 0),(0 0,2 0))"),
          "llu01-8");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,5 0))"),
          "llu01-10");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,2 0)"),
          from_wkt<L>("LINESTRING(2 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(2 0,5 0))"),
          "llu01-11");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,4 0),(4 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((3 0,5 0),(0 0,1 0,3 0))"),
          "llu01-11a");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,4 0)"),
          from_wkt<L>("LINESTRING(3 0,4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,4 0),(4 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((3 0,4 0,5 0),(0 0,1 0,3 0))"),
          "llu01-11b");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,6 0)"),
          from_wkt<L>("LINESTRING(2 0,4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,6 0))"),
          from_wkt<ML>("MULTILINESTRING((2 0,4 0,5 0),(0 0,2 0),(5 0,6 0))"),
          "llu01-12");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,5 5,10 5,15 0)"),
          from_wkt<L>("LINESTRING(-1 6,0 5,15 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,5 5,10 5,15 0),\
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (0 0,1 0,5 5),(10 5,15 0))"),
          "llu02");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0),\
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0))"),
          "llu03");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,5 5,10 5,15 0,20 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0,5 5,10 5,15 0,20 0),\
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((-1 0,30 0),(1 0,5 5,10 5,15 0))"),
          "llu04");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,25 1)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,25 1),\
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0),(20 0,25 1))"),
          "llu05");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0),\
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0))"),
          "llu05-1");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0),\
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0),(30 0,31 0))"),
          "llu06");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,25 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0),\
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0),(30 0,31 0))"),
          "llu07");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,31 0),\
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0),(30 0,31 0))"),
          "llu08");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,\
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (1 0,5 5,10 5,15 0),(30 0,31 1))"),
          "llu09");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,5 5,10 5,15 0,20 0,30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 1,3 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0,1 0,5 5,10 5,15 0,20 0,\
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (-1 1,0 0),(1 0,5 5,10 5,15 0),(30 0,31 1))"),
          "llu10");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,20 0,\
                                  30 0,31 1)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)"),
@@ -255,147 +255,147 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
          "llu11");
 
 #if 0
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)"),
          from_wkt<L>("LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 1,0 0),(2 0,3 0),\
                       (4 0,5 5,10 5,15 0),(30 0,31 0))"),
          "llu11-1");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING()"),
          "llu12");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,2 0,3 1)"),
          from_wkt<L>("LINESTRING(3 1,2 0,0 0)"),
          from_wkt<ML>("MULTILINESTRING()"),
          "llu12-1");
 
-   tester()
+   tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 5,4 0)"),
          from_wkt<L>("LINESTRING(1 0,2 1,3 5,4 0,5 10)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
          "llu13");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)"),
          from_wkt<L>("LINESTRING(0 0,2 0,2.5 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING()"),
          "llu14");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 5,4 0)"),
          from_wkt<L>("LINESTRING(1 0,2 1,3 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(3 5,4 0))"),
          "llu15");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 2)"),
          from_wkt<L>("LINESTRING(0.5 0,1 0,3 2,4 5)"),
          from_wkt<ML>("MULTILINESTRING((0 0,0.5 0))"),
          "llu16");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 1,3 2)"),
          from_wkt<L>("LINESTRING(4 5,3 2,1 0,0.5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,0.5 0))"),
          "llu16-r");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,30 1)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(25 1,30 1))"),
          "llu17");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1,21 0,30 0)"),
          from_wkt<L>("LINESTRING(1 1,2 0,3 1,20 1,25 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1,21 0,30 0))"),
          "llu18");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19-r");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19a");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19a-r");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19b");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0,6 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19c");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,3 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19d");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,3 0,3 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19e");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19f");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,5 0,4 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19f-r");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(1 0,5 0,20 1,4 1,5 0,5 1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19g");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<L>("LINESTRING(5 1,5 0,4 1,20 1,5 0,1 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,30 0))"),
          "llu19g-r");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,35 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,20 0),(25 0,30 0,30 30,10 30),\
                        (10 0,10 -10,15 0,20 0),(25 0,35 0))"),
          "llu20");
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0,30 30,10 30,10 -10,15 0,40 0)"),
          from_wkt<L>("LINESTRING(5 5,10 0,10 30,20 0,25 0,25 25,50 0,15 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,15 0),(30 0,30 30,10 30),\
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
     || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
     // the following example produces duplicate turns (when both are
     // reversed)
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,18 0),(20 0,30 0))"),
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
 
     // the following example produces duplicate turns (when the 2nd LS
     // is reversed)
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
          from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((2 2,5 -1,15 2,18 0))"),
@@ -442,42 +442,42 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
     typedef test_union_of_geometries<L, ML, ML> tester;
 
     // disjoint linestrings
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 3),(1 1,2 2,5 3))"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1))"),
          "lmlu01"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
          "lmlu02"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1))"),
          "lmlu03"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0,20 1)"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1))"),
          "lmlu04"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
          "lmlu07"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(-1 1,0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
@@ -485,7 +485,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu07a"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu07b"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu08"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -509,7 +509,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu09"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 0,1.5 0,2 0.5,3 0,101 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu10"
         );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
@@ -526,7 +526,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu12"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((1 0,19 0,20 1),\
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu13"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu14"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu15"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
@@ -559,7 +559,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu15a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu16"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,20 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu16a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu17"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
@@ -591,7 +591,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu17a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
@@ -599,7 +599,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu18"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
     || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
     // the following example produces duplicate turns (when both
     // are reversed)
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0,20 0))"),
@@ -620,7 +620,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          );
 #endif
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,25 0,26 0))"),
@@ -628,7 +628,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
          "lmlu18c"
          );
 
-    tester()
+    tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,25 0,21 0))"),
@@ -656,14 +656,14 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_linestring )
     typedef test_union_of_geometries<ML, L, ML> tester;
 
     // disjoint linestrings
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<L>("LINESTRING(1 1,2 2,4 3)"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          "mllu01"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<L>("LINESTRING(1 1,2 0,4 0)"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
@@ -671,14 +671,14 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_linestring )
          "mllu02"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<L>("LINESTRING(-1 -1,1 0,101 0,200 -1)"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
          "mllu03"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<L>("LINESTRING(0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1)"),
@@ -707,14 +707,14 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
     typedef test_union_of_geometries<ML, ML, ML> tester;
 
     // disjoint linestrings
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 3),(1 1,2 2,5 3))"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          "mlmlu01"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
@@ -722,7 +722,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu02"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),(1 1,3 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(5 0,10 0,20 1),\
@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu03"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,2 0),(4 0,10 0,20 1),\
@@ -738,7 +738,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu04"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
@@ -748,7 +748,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu05"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
          from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
@@ -759,7 +759,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu06"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((1 1,2 0,4 0),\
                       (-1 -1,0 0,9 0,11 10,12 10,13 3,14 4,15 5),\
                       (10 20,15 10,25 10,30 15))"),
@@ -770,14 +770,14 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu06a"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,1 0,101 0,200 -1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
          "mlmlu07"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((-1 1,0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
@@ -785,7 +785,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu07a"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,50 0),\
                       (19 -1,20 0,101 0,200 -1))"),
@@ -793,7 +793,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu07b"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -801,7 +801,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu08"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -809,7 +809,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu09"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,1 0,1.5 0,2 0.5,3 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 1,1 0,2 0.5),\
                        (-1 -1,1 0,101 0,200 -1))"),
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu10"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,1 1,100 1,101 0),\
                        (0 0,101 0))"),
          from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1,3 0,4 0,5 1,6 1,\
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu11"
         );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                       (1 1,2 0,18 0,19 1),(2 1,3 0,17 0,18 1),\
@@ -837,7 +837,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu12"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((1 0,19 0,20 1),\
                       (2 0,18 0,19 1),(3 0,17 0,18 1),\
@@ -846,7 +846,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu13"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1,19 1,18 0,2 0,\
                        1 1,2 1,3 0,17 0,18 1,17 1,16 0,4 0,3 1))"),
@@ -854,7 +854,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu14"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,6 0))"),
@@ -862,7 +862,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu15"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,4 2,2 2))"),
@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu15a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 2,5 0,6 0))"),
@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu16"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,20 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (6 0,5 0,4 2,2 2))"),
@@ -886,7 +886,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu16a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0))"),
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu17"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,4 0,5 2,20 2,25 0,26 2))"),
@@ -902,7 +902,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu17a"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
@@ -910,7 +910,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
          "mlmlu18"
          );
 
-    tester()
+    tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,18 0,19 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
                        (2 2,5 -1,15 2,18 0))"),
