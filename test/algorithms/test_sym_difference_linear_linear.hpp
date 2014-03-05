@@ -11,14 +11,8 @@
 #define BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
 
 #include "from_wkt.hpp"
-
-#include <string>
-#include <sstream>
-#include <algorithm>
 #include <boost/geometry/geometry.hpp>
-
 #include "test_set_ops_common.hpp"
-
 #include "to_svg.hpp"
 
 
@@ -33,8 +27,9 @@ template
     typename Geometry1, typename Geometry2,
     typename MultiLineString
 >
-struct test_sym_difference_of_geometries
+class test_sym_difference_of_geometries
 {
+private:
     static inline void base_test(Geometry1 const& geometry1,
                                  Geometry2 const& geometry2,
                                  MultiLineString const& mls_sym_diff,
@@ -119,7 +114,7 @@ struct test_sym_difference_of_geometries
     }
 
 
-
+public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_sym_diff,
