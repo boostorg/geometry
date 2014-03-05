@@ -14,6 +14,8 @@
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 

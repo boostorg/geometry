@@ -23,6 +23,7 @@
 #include <boost/geometry/algorithms/detail/get_max_size.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 
+#include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
