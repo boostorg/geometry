@@ -188,11 +188,10 @@ protected:
     template <typename Turns>
     static inline void filter_turns(Turns& turns)
     {
-        typedef typename Turns::iterator TurnIt;
-
-        TurnIt new_end = std::remove_if(turns.begin(), turns.end(),
-                                        IsContinueTurn());
-        turns.resize( std::distance(turns.begin(), new_end) );
+        turns.erase( std::remove_if(turns.begin(), turns.end(),
+                                    IsContinueTurn()),
+                     turns.end()
+                     );
     }
 
 
@@ -200,11 +199,10 @@ protected:
     template <typename Turns>
     static inline void remove_duplicates(Turns& turns)
     {
-        typedef typename Turns::iterator TurnIt;
-
-        TurnIt new_end = std::unique(turns.begin(), turns.end(),
-                                     TurnEqualsTo());
-        turns.resize( std::distance(turns.begin(), new_end) );
+        turns.erase( std::unique(turns.begin(), turns.end(),
+                                 TurnEqualsTo()),
+                     turns.end()
+                     );
     }
 #endif
 
