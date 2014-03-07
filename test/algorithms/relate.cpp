@@ -59,9 +59,9 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& expected)
 {
     {
-        bgdr::result res;
+        bgdr::matrix9 res;
         bgdr::relate(geometry1, geometry2, res);
-        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        std::string res_str(res.data(), res.data() + 9);
         bool ok = boost::equal(res_str, expected);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
@@ -72,9 +72,9 @@ void check_geometry(Geometry1 const& geometry1,
 
     // changed sequence of geometries - transposed result
     {
-        bgdr::result res;
+        bgdr::matrix9 res;
         bgdr::relate(geometry2, geometry1, res);
-        std::string res_str(boost::begin(res.get_code()), boost::end(res.get_code()));
+        std::string res_str(res.data(), res.data() + 9);
         std::string expected_tr = transposed(expected);
         bool ok = boost::equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
@@ -87,9 +87,9 @@ void check_geometry(Geometry1 const& geometry1,
     static const bool int_en = bgdr::interruption_enabled<Geometry1, Geometry2>::value;
 
     {
-        bgdr::mask<int_en> mask(expected);
+        bgdr::mask9<int_en> mask(expected);
         bgdr::relate(geometry1, geometry2, mask);
-        std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+        std::string res_str(mask.data(), mask.data() + 9);
         BOOST_CHECK_MESSAGE((!mask.interrupt && mask.check()),
             "relate: " << wkt1
             << " and " << wkt2
@@ -117,9 +117,9 @@ void check_geometry(Geometry1 const& geometry1,
 
         if ( changed )
         {
-            bgdr::mask<int_en> mask(expected_interrupt);
+            bgdr::mask9<int_en> mask(expected_interrupt);
             bgdr::relate(geometry1, geometry2, mask);
-            std::string res_str(boost::begin(mask.get_code()), boost::end(mask.get_code()));
+            std::string res_str(mask.data(), mask.data() + 9);
             BOOST_CHECK_MESSAGE(mask.interrupt,
                 "relate: " << wkt1
                 << " and " << wkt2

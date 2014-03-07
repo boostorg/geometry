@@ -104,168 +104,27 @@ struct linear_areal
         if ( turns.empty() )
             return;
 
+        // x, u, i, c
         std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
-        // TODO:
-        /*turns_analyser<0, turn_type> analyser;
-        analyse_each_turn(result, analyser,
-                          turns.begin(), turns.end(),
-                          geometry1, geometry2,
-                          boundary_checker1, boundary_checker2);*/
+        //turns_analyser<turn_type> analyser;
+        //analyse_each_turn(result, analyser,
+        //                  turns.begin(), turns.end(),
+        //                  geometry1, geometry2,
+        //                  boundary_checker1);
     }
 //
-//    // TODO: rename to point_id_ref?
-//    template <typename Point>
-//    class point_identifier
-//    {
-//    public:
-//        point_identifier() : sid_ptr(0), pt_ptr(0) {}
-//        point_identifier(segment_identifier const& sid, Point const& pt)
-//            : sid_ptr(boost::addressof(sid))
-//            , pt_ptr(boost::addressof(pt))
-//        {}
-//        segment_identifier const& seg_id() const
-//        {
-//            BOOST_ASSERT(sid_ptr);
-//            return *sid_ptr;
-//        }
-//        Point const& point() const
-//        {
-//            BOOST_ASSERT(pt_ptr);
-//            return *pt_ptr;
-//        }
-//
-//        //friend bool operator==(point_identifier const& l, point_identifier const& r)
-//        //{
-//        //    return l.seg_id() == r.seg_id()
-//        //        && detail::equals::equals_point_point(l.point(), r.point());
-//        //}
-//
-//    private:
-//        const segment_identifier * sid_ptr;
-//        const Point * pt_ptr;
-//    };
-//
-//    class same_ranges
-//    {
-//    public:
-//        same_ranges(segment_identifier const& sid)
-//            : sid_ptr(boost::addressof(sid))
-//        {}
-//
-//        bool operator()(segment_identifier const& sid) const
-//        {
-//            return sid.multi_index == sid_ptr->multi_index
-//                && sid.ring_index == sid_ptr->ring_index;                
-//        }
-//
-//        template <typename Point>
-//        bool operator()(point_identifier<Point> const& pid) const
-//        {
-//            return operator()(pid.seg_id());
-//        }
-//
-//    private:
-//        const segment_identifier * sid_ptr;
-//    };
-//
-//    class segment_watcher
-//    {
-//    public:
-//        segment_watcher()
-//            : m_seg_id_ptr(0)
-//        {}
-//
-//        bool update(segment_identifier const& seg_id)
-//        {
-//            bool result = m_seg_id_ptr == 0 || !same_ranges(*m_seg_id_ptr)(seg_id);
-//            m_seg_id_ptr = boost::addressof(seg_id);
-//            return result;
-//        }
-//
-//    private:
-//        const segment_identifier * m_seg_id_ptr;
-//    };
-//
-//    template <typename Point>
-//    class exit_watcher
-//    {
-//        typedef point_identifier<Point> point_info;
-//
-//    public:
-//        exit_watcher()
-//            : exit_operation(overlay::operation_none)
-//        {}
-//
-//        // returns true if before the call we were outside
-//        bool enter(Point const& point, segment_identifier const& other_id)
-//        {
-//            bool result = other_entry_points.empty();
-//            other_entry_points.push_back(point_info(other_id, point));
-//            return result;
-//        }
-//
-//        // returns true if before the call we were outside
-//        bool exit(Point const& point,
-//                  segment_identifier const& other_id,
-//                  overlay::operation_type exit_op)
-//        {
-//            // if we didn't entered anything in the past, we're outside
-//            if ( other_entry_points.empty() )
-//                return true;
-//
-//            typedef typename std::vector<point_info>::iterator point_iterator;
-//            // search for the entry point in the same range of other geometry
-//            point_iterator entry_it = std::find_if(other_entry_points.begin(),
-//                                                   other_entry_points.end(),
-//                                                   same_ranges(other_id));
-//
-//            // this end point has corresponding entry point
-//            if ( entry_it != other_entry_points.end() )
-//            {
-//                // here we know that we possibly left LS
-//                // we must still check if we didn't get back on the same point
-//                exit_operation = exit_op;
-//                exit_id = point_info(other_id, point);
-//
-//                // erase the corresponding entry point
-//                other_entry_points.erase(entry_it);
-//            }
-//
-//            return false;
-//        }
-//
-//        overlay::operation_type get_exit_operation() const
-//        {
-//            return exit_operation;
-//        }
-//
-//        Point const& get_exit_point() const
-//        {
-//            BOOST_ASSERT(exit_operation != overlay::operation_none);
-//            return exit_id.point();
-//        }
-//
-//        void reset_detected_exit()
-//        {
-//            exit_operation = overlay::operation_none;
-//        }
-//
-//    private:
-//        overlay::operation_type exit_operation;
-//        point_info exit_id;
-//        std::vector<point_info> other_entry_points; // TODO: use map here or sorted vector?
-//    };
-//
 //    // This analyser should be used like Input or SinglePass Iterator
-//    template <std::size_t OpId, typename TurnInfo>
+//    template <typename TurnInfo>
 //    class turns_analyser
 //    {
 //        typedef typename TurnInfo::point_type turn_point_type;
 //
-//        static const std::size_t op_id = OpId;
-//        static const std::size_t other_op_id = (OpId + 1) % 2;
-//        static const bool transpose_result = OpId != 0;
+//        static const std::size_t op_id = 0;
+//        static const std::size_t other_op_id = 1;
+//        // if the result should be transposed, because the order of geometries was reversed
+//        // then not transposed result becomes the transposed one, and the opposite
+//        static const bool transpose_result = !TransposeResult;
 //
 //    public:
 //        turns_analyser()
@@ -283,8 +142,7 @@ struct linear_areal
 //                   TurnIt first, TurnIt it, TurnIt last,
 //                   Geometry const& geometry,
 //                   OtherGeometry const& other_geometry,
-//                   BoundaryChecker & boundary_checker,
-//                   OtherBoundaryChecker & other_boundary_checker)
+//                   BoundaryChecker & boundary_checker)
 //        {
 //            if ( it != last )
 //            {
@@ -616,39 +474,37 @@ struct linear_areal
 //        TurnInfo * m_previous_turn_ptr;
 //        overlay::operation_type m_previous_operation;
 //    };
-//
-//    template <typename Result,
-//              typename TurnIt,
-//              typename Analyser,
-//              typename Geometry,
-//              typename OtherGeometry,
-//              typename BoundaryChecker,
-//              typename OtherBoundaryChecker>
-//    static inline void analyse_each_turn(Result & res,
-//                                         Analyser & analyser,
-//                                         TurnIt first, TurnIt last,
-//                                         Geometry const& geometry,
-//                                         OtherGeometry const& other_geometry,
-//                                         BoundaryChecker & boundary_checker,
-//                                         OtherBoundaryChecker & other_boundary_checker)
-//    {
-//        if ( first == last )
-//            return;
-//
-//        for ( TurnIt it = first ; it != last ; ++it )
-//        {
-//            analyser.apply(res, first, it, last,
-//                           geometry, other_geometry,
-//                           boundary_checker, other_boundary_checker);
-//
-//            if ( res.interrupt )
-//                return;
-//        }
-//
-//        analyser.apply(res, first, last, last,
-//                       geometry, other_geometry,
-//                       boundary_checker, other_boundary_checker);
-//    }
+
+    template <typename Result,
+              typename TurnIt,
+              typename Analyser,
+              typename Geometry,
+              typename OtherGeometry,
+              typename BoundaryChecker>
+    static inline void analyse_each_turn(Result & res,
+                                         Analyser & analyser,
+                                         TurnIt first, TurnIt last,
+                                         Geometry const& geometry,
+                                         OtherGeometry const& other_geometry,
+                                         BoundaryChecker & boundary_checker)
+    {
+        if ( first == last )
+            return;
+
+        for ( TurnIt it = first ; it != last ; ++it )
+        {
+            analyser.apply(res, first, it, last,
+                           geometry, other_geometry,
+                           boundary_checker);
+
+            if ( res.interrupt )
+                return;
+        }
+
+        analyser.apply(res, first, last, last,
+                       geometry, other_geometry,
+                       boundary_checker);
+    }
 };
 
 template <typename Geometry1, typename Geometry2>
