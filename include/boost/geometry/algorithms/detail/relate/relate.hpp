@@ -143,9 +143,52 @@ struct interruption_enabled
 };
 
 template <typename Geometry1, typename Geometry2, typename Result>
-inline void relate(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
+struct result_handler_type
+    : not_implemented<Result>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct result_handler_type<Geometry1, Geometry2, matrix9>
 {
-    return detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, result);
+    typedef matrix_handler<matrix9> type;
+};
+
+template <typename Geometry1, typename Geometry2>
+struct result_handler_type<Geometry1, Geometry2, mask9>
+{
+    typedef mask_handler
+        <
+            mask9,
+            interruption_enabled
+                <
+                    Geometry1,
+                    Geometry2
+                >::value
+        > type;
+};
+
+template <typename Geometry1, typename Geometry2, typename MatrixOrMask>
+inline
+typename result_handler_type
+    <
+        Geometry1,
+        Geometry2,
+        MatrixOrMask
+    >::type::result_type
+relate(Geometry1 const& geometry1,
+       Geometry2 const& geometry2,
+       MatrixOrMask & matrix_or_mask)
+{
+    typedef typename result_handler_type
+        <
+            Geometry1,
+            Geometry2,
+            MatrixOrMask
+        >::type handler_type;
+
+    handler_type handler(matrix_or_mask);
+    detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
+    return handler.result();
 }
 
 }} // namespace detail::relate

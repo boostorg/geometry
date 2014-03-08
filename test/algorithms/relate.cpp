@@ -60,8 +60,7 @@ void check_geometry(Geometry1 const& geometry1,
 {
     {
         bgdr::matrix9 res;
-        bgdr::relate(geometry1, geometry2, res);
-        std::string res_str(res.data(), res.data() + 9);
+        std::string res_str = bgdr::relate(geometry1, geometry2, res);
         bool ok = boost::equal(res_str, expected);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
@@ -73,8 +72,7 @@ void check_geometry(Geometry1 const& geometry1,
     // changed sequence of geometries - transposed result
     {
         bgdr::matrix9 res;
-        bgdr::relate(geometry2, geometry1, res);
-        std::string res_str(res.data(), res.data() + 9);
+        std::string res_str = bgdr::relate(geometry2, geometry1, res);
         std::string expected_tr = transposed(expected);
         bool ok = boost::equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
@@ -84,20 +82,17 @@ void check_geometry(Geometry1 const& geometry1,
             << " detected: " << res_str);
     }
 
-    static const bool int_en = bgdr::interruption_enabled<Geometry1, Geometry2>::value;
-
     {
-        bgdr::mask9<int_en> mask(expected);
-        bgdr::relate(geometry1, geometry2, mask);
-        std::string res_str(mask.data(), mask.data() + 9);
-        BOOST_CHECK_MESSAGE((!mask.interrupt && mask.check()),
+        bgdr::mask9 mask(expected);
+        bool result = bgdr::relate(geometry1, geometry2, mask);
+        // TODO: SHOULD BE !interrupted - CHECK THIS!
+        BOOST_CHECK_MESSAGE(result, 
             "relate: " << wkt1
             << " and " << wkt2
-            << " -> Expected: " << expected
-            << " detected: " << res_str);
+            << " -> Expected: " << expected);
     }
 
-    if ( int_en )
+    if ( bg::detail::relate::interruption_enabled<Geometry1, Geometry2>::value )
     {
         // brake the expected output
         std::string expected_interrupt = expected;
@@ -117,14 +112,13 @@ void check_geometry(Geometry1 const& geometry1,
 
         if ( changed )
         {
-            bgdr::mask9<int_en> mask(expected_interrupt);
-            bgdr::relate(geometry1, geometry2, mask);
-            std::string res_str(mask.data(), mask.data() + 9);
-            BOOST_CHECK_MESSAGE(mask.interrupt,
+            bgdr::mask9 mask(expected_interrupt);
+            bool result = bgdr::relate(geometry1, geometry2, mask);
+            // TODO: SHOULD BE interrupted - CHECK THIS!
+            BOOST_CHECK_MESSAGE(!result,
                 "relate: " << wkt1
                 << " and " << wkt2
-                << " -> Expected interrupt for:" << expected_interrupt
-                << " detected: " << res_str);
+                << " -> Expected interrupt for:" << expected_interrupt);
         }
     }
 }
