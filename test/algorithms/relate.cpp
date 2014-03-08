@@ -59,8 +59,7 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& expected)
 {
     {
-        bgdr::matrix9 res;
-        std::string res_str = bgdr::relate(geometry1, geometry2, res);
+        std::string res_str = bgdr::relate<bgdr::matrix9>(geometry1, geometry2);
         bool ok = boost::equal(res_str, expected);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
@@ -71,8 +70,7 @@ void check_geometry(Geometry1 const& geometry1,
 
     // changed sequence of geometries - transposed result
     {
-        bgdr::matrix9 res;
-        std::string res_str = bgdr::relate(geometry2, geometry1, res);
+        std::string res_str = bgdr::relate(geometry2, geometry1, bgdr::matrix9());
         std::string expected_tr = transposed(expected);
         bool ok = boost::equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
@@ -83,8 +81,7 @@ void check_geometry(Geometry1 const& geometry1,
     }
 
     {
-        bgdr::mask9 mask(expected);
-        bool result = bgdr::relate(geometry1, geometry2, mask);
+        bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected));
         // TODO: SHOULD BE !interrupted - CHECK THIS!
         BOOST_CHECK_MESSAGE(result, 
             "relate: " << wkt1
@@ -112,8 +109,7 @@ void check_geometry(Geometry1 const& geometry1,
 
         if ( changed )
         {
-            bgdr::mask9 mask(expected_interrupt);
-            bool result = bgdr::relate(geometry1, geometry2, mask);
+            bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected_interrupt));
             // TODO: SHOULD BE interrupted - CHECK THIS!
             BOOST_CHECK_MESSAGE(!result,
                 "relate: " << wkt1

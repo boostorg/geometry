@@ -21,7 +21,7 @@ namespace detail { namespace relate {
 
 enum field { interior = 0, boundary = 1, exterior = 2 };
 
-// TODO add EnableDimensions parameter
+// TODO add height?
 
 template <std::size_t Width>
 class matrix
@@ -100,48 +100,49 @@ private:
     char m_array[size];
 };
 
-// TODO: matrix9 and matrix4 could be just empty classes passed to the relate()
-// real matrix could be stored inside matrix_handler
+// TODO add EnableDimensions parameter?
 
-class matrix9
-    : public matrix<3>
-{};
+struct matrix9
+{
+    static const std::size_t width = 3; // TEMP
+};
 
-//class matrix4
-//    : public matrix<2>
-//{};
+//struct matrix4
+//{
+//    static const std::size_t width = 2;
+//};
 
 template <typename Matrix>
 class matrix_handler
+    : private matrix<Matrix::width>
 {
+    typedef matrix<Matrix::width> base_t;
+
 public:
     typedef std::string result_type;
 
     static const bool interrupt = false;
 
-    matrix_handler(Matrix & mat)
-        : m_matrix(mat)
+    matrix_handler(Matrix const&)
     {}
 
     result_type result() const
     {
-        return std::string(m_matrix.data(), m_matrix.data() + Matrix::size);
+        return std::string(this->data(),
+                           this->data() + base_t::size);
     }
 
     template <field F1, field F2, char V>
     inline void set()
     {
-        m_matrix.template set<F1, F2, V>();
+        static_cast<base_t&>(*this).template set<F1, F2, V>();
     }
 
     template <field F1, field F2, char D>
     inline void update()
     {
-        m_matrix.template update<F1, F2, D>();
+        static_cast<base_t&>(*this).template update<F1, F2, D>();
     }
-
-private:
-    Matrix & m_matrix;
 };
 
 //template <char MaskEl>
@@ -191,6 +192,8 @@ private:
 class mask9
 {
 public:
+    static const std::size_t width = 3; // TEMP
+
     inline mask9(std::string const& de9im_mask)
     {
         // TODO: throw an exception here?
@@ -357,14 +360,16 @@ struct check_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
 
 template <typename Mask, bool Interrupt>
 class mask_handler
-    : public matrix9
+    : private matrix<Mask::width>
 {
+    typedef matrix<Mask::width> base_t;
+
 public:
     typedef bool result_type;
 
     bool interrupt;
 
-    inline mask_handler(Mask & m)
+    inline mask_handler(Mask const& m)
         : m_mask(m)
         , interrupt(false)
     {}
@@ -372,7 +377,7 @@ public:
     result_type result() const
     {
         return !interrupt
-            && check_dispatch<Mask>::apply(m_mask, static_cast<matrix9 const&>(*this));
+            && check_dispatch<Mask>::apply(m_mask, static_cast<base_t const&>(*this));
     }
 
     template <field F1, field F2, char V>
@@ -384,12 +389,18 @@ public:
         }
         else
         {
-            matrix9::set<F1, F2, V>();
+            base_t::template set<F1, F2, V>();
         }
     }
 
+    template <field F1, field F2, char V>
+    inline void update()
+    {
+        base_t::template update<F1, F2, V>();
+    }
+
 private:
-    Mask & m_mask;
+    Mask const& m_mask;
 };
 
 // TODO: implement stand-alone mask and static_mask

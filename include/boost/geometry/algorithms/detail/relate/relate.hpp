@@ -167,7 +167,7 @@ struct result_handler_type<Geometry1, Geometry2, mask9>
         > type;
 };
 
-template <typename Geometry1, typename Geometry2, typename MatrixOrMask>
+template <typename MatrixOrMask, typename Geometry1, typename Geometry2>
 inline
 typename result_handler_type
     <
@@ -177,7 +177,7 @@ typename result_handler_type
     >::type::result_type
 relate(Geometry1 const& geometry1,
        Geometry2 const& geometry2,
-       MatrixOrMask & matrix_or_mask)
+       MatrixOrMask const& matrix_or_mask = MatrixOrMask())
 {
     typedef typename result_handler_type
         <
