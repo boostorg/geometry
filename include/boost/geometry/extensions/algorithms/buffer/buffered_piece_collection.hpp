@@ -104,60 +104,6 @@ struct check_original<point_tag>
 };
 
 
-template <typename P>
-class relaxed_side
-{
-public :
-
-    // Template member function, because it is not always trivial
-    // or convenient to explicitly mention the typenames in the
-    // strategy-struct itself.
-
-    // Types can be all three different. Therefore it is
-    // not implemented (anymore) as "segment"
-
-    static inline int apply(P const& p1, P const& p2, P const& p)
-    {
-        typedef typename coordinate_type<P>::type coordinate_type;
-
-        coordinate_type const x = get<0>(p);
-        coordinate_type const y = get<1>(p);
-
-        coordinate_type const sx1 = get<0>(p1);
-        coordinate_type const sy1 = get<1>(p1);
-        coordinate_type const sx2 = get<0>(p2);
-        coordinate_type const sy2 = get<1>(p2);
-
-        // Promote float->double, small int->int
-        typedef typename geometry::select_most_precise
-            <
-                coordinate_type,
-                double
-            >::type promoted_type;
-
-        promoted_type const dx = sx2 - sx1;
-        promoted_type const dy = sy2 - sy1;
-        promoted_type const dpx = x - sx1;
-        promoted_type const dpy = y - sy1;
-
-        promoted_type const s
-            = geometry::detail::determinant<promoted_type>
-                (
-                    dx, dy,
-                    dpx, dpy
-                );
-
-        promoted_type const zero = promoted_type();
-        promoted_type const relaxed_epsilon = std::numeric_limits<double>::epsilon() * 5.0;
-
-        return math::abs(s) < relaxed_epsilon ? 0
-            : s > zero ? 1
-            : -1;
-    }
-};
-
-
-
 template <typename Ring, typename RescalePolicy>
 struct buffered_piece_collection
 {
@@ -363,31 +309,6 @@ struct buffered_piece_collection
 //std::cout << " " << it->operations[0].seg_id.segment_index;
             }
         }
-    }
-
-    inline segment_relation_code get_segment_relation(point_type const& point,
-                segment_identifier const& seg_id) const
-    {
-        typedef typename boost::range_iterator<std::vector<point_type> const>::type iterator_type;
-        iterator_type it = boost::begin(offsetted_rings[seg_id.multi_index]) + seg_id.segment_index;
-        iterator_type prev = it++;
-        int side = side_strategy::apply(point, *prev, *it);
-        if (side == 0)
-        {
-            if (detail::overlay::points_equal_or_close(point, *prev, m_rescale_policy))
-            {
-                return segment_relation_on_left;
-            }
-            else if (detail::overlay::points_equal_or_close(point, *it, m_rescale_policy))
-            {
-                return segment_relation_on_right;
-            }
-            else if (collinear_point_on_segment(point, *prev, *it))
-            {
-                return segment_relation_within;
-            }
-        }
-        return segment_relation_disjoint;
     }
 
     inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation_type const& operation)
@@ -717,17 +638,6 @@ struct buffered_piece_collection
         }
     }
 
-#define BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-    inline int get_side(point_type const& point, Ring const& ring, int segment_index)
-    {
-        typedef typename boost::range_iterator<Ring const> iterator_type;
-        iterator_type it = boost::begin(ring) + segment_index;
-        iterator_type prev = it++;
-        return side_strategy::apply(point, *prev, *it);
-    }
-#endif
-
     template <typename Iterator>
     static inline point_type const& select_for_side(Iterator first, Iterator second, int index)
     {
@@ -778,20 +688,6 @@ struct buffered_piece_collection
         return 0;
     }
 
-
-
-    inline void debug_segment(segment_identifier id)
-    {
-        typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
-
-        buffered_ring<Ring> const& ring = offsetted_rings[id.multi_index];
-        iterator it = boost::begin(ring) + id.segment_index;
-        iterator prev = it++;
-        geometry::model::referring_segment<point_type const&> segment(*prev, *it);
-        //std::cout << geometry::wkt(*prev) << " " << geometry::wkt(*it) << std::endl;
-    }
-
-
     struct cluster_info
     {
         inline cluster_info(int i, point_type p, buffer_turn_operation_type op)
@@ -815,14 +711,6 @@ struct buffered_piece_collection
         std::set<segment_identifier> intersecting_ids;
         std::vector<cluster_info> intersecting_segments;
     };
-
-#ifdef OLD
-    struct situation_info
-    {
-        std::set<int> turn_indices;
-        std::set<segment_identifier> seg_ids;
-    };
-#endif
 
     static inline bool add_mutual_intersection(clustered_info const& cluster, segment_identifier const& seg_id)
     {
