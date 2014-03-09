@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,6 +13,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/mpl/vector_c.hpp>
+#include <boost/mpl/at.hpp>
 
 namespace boost { namespace geometry {
 
@@ -144,48 +146,6 @@ public:
         static_cast<base_t&>(*this).template update<F1, F2, D>();
     }
 };
-
-//template <char MaskEl>
-//struct static_check_element
-//{
-//    static inline bool apply(char el)
-//    {
-//        static const int version
-//            = MaskEl == 'F' ? 0
-//            : MaskEl == 'T' ? 1
-//            : MaskEl >= '0' && MaskEl <= '9' ? 2
-//            : 3;
-//              
-//        return apply_dispatch(el, integral_constant<int, version>());
-//    }
-//
-//    static inline bool apply_dispatch(char el, integral_constant<int, 0>)
-//    {
-//        return el == 'F';
-//    }
-//    static inline bool apply_dispatch(char el, integral_constant<int, 1>)
-//    {
-//        return el == 'T' || ( el >= '0' && el <= '9' );
-//    }
-//    static inline bool apply_dispatch(char el, integral_constant<int, 2>)
-//    {
-//        return el == MaskEl;
-//    }
-//    static inline bool apply_dispatch(char el, integral_constant<int, 3>)
-//    {
-//        return true;
-//    }
-//};
-//
-//template <char MaskEl, char V>
-//struct static_interrupt
-//{
-//    static const bool value
-//        = ( V >= '0' && V <= '9' ) ? 
-//          ( MaskEl == 'F' || ( MaskEl < V && MaskEl >= '0' && MaskEl <= '9' ) ) :
-//          ( ( V == 'T' ) ? MaskEl == 'F' : false );
-//
-//};
 
 // RUN-TIME MASKS
 
@@ -403,165 +363,177 @@ private:
     Mask const& m_mask;
 };
 
-// TODO: implement stand-alone mask and static_mask
-// separate mask and matrix - needed by complex masks! - store only one matrix!
+// STATIC MASK
 
-//template <char II, char IB, char IE,
-//          char BI, char BB, char BE,
-//          char EI, char EB, char EE>
-//class static_mask{};
-//
-//template <template StaticMask, field F1, field F2>
-//class static_get{};
-//
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, interior, interior>
-//{ static const char value = II };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, interior, boundary>
-//{ static const char value = IB };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, interior, exterior>
-//{ static const char value = IE };
-//
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, boundary, interior>
-//{ static const char value = BI };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, boundary, boundary>
-//{ static const char value = BB };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, boundary, exterior>
-//{ static const char value = BE };
-//
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, exterior, interior>
-//{ static const char value = EI };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, exterior, boundary>
-//{ static const char value = EB };
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, bool Interrupt>
-//class static_get<static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE, Interrupt>, exterior, exterior>
-//{ static const char value = EE };
+template <char II, char IB, char IE,
+          char BI, char BB, char BE,
+          char EI, char EB, char EE>
+class static_mask
+{
+    typedef boost::mpl::vector_c
+                <
+                    char, II, IB, IE, BI, BB, BE, EI, EB, EE
+                > vector_type;
 
+public:
+    template <field F1, field F2>
+    struct get
+    {
+        BOOST_STATIC_ASSERT(F1 * 3 + F2 < boost::mpl::size<vector_type>::value);
 
-//template <template StaticMask, field F1, field F2>
-//class static_get{};
-//
-//template <char II, char IB, char IE,
-//          char BI, char BB, char BE,
-//          char EI, char EB, char EE,
-//          bool Interrupt>
-//class static_mask
-//    : public result
-//{
-//public:
-//
-//    bool interrupt;
-//
-//    inline static_mask()
-//        : interrupt(false)
-//    {}
-//
-//    template <field F1, field F2, char V>
-//    inline void set()
-//    {
-//        static const bool is_required = static_get<static_mask>::value == 'F'
-//                                     || static_get<static_mask>::value == 'T'
-//                                     || ( static_get<static_mask>::value >= 0
-//                                       && static_get<static_mask>::value <= 9 );
-//
-//        handle_interrupt_dispatch<F1, F2, V>(boost::integral_constant<bool, Interrupt && is_required>());
-//        set_dispatch<F1, F2, V>(boost::integral_constant<bool, is_required>());
-//    }
-//
-//    inline bool check() const
-//    {
-//        if ( interrupt )
-//            return false;
-//
-//        return check_one<interior, interior>()
-//            && check_one<interior, boundary>()
-//            && check_one<interior, exterior>()
-//            && check_one<boundary, interior>()
-//            && check_one<boundary, boundary>()
-//            && check_one<boundary, exterior>()
-//            && check_one<exterior, interior>()
-//            && check_one<exterior, boundary>()
-//            && check_one<exterior, exterior>();
-//    }
-//
-//private:
-//    template <field F1, field F2, char V>
-//    void handle_interrupt_dispatch(boost::integral_constant<bool, false>)
-//    {}
-//
-//    template <field F1, field F2, char V>
-//    void handle_interrupt_dispatch(boost::integral_constant<bool, true>)
-//    {
-//        char m = get_mask<F1, F2>();
-//
-//        if ( V >= '0' && V <= '9' )
-//        {
-//            if ( m == 'F' || ( m < V && m >= '0' && m <= '9' ) )
-//                interrupt = true;
-//        }
-//        else if ( V == 'T' )
-//        {
-//            if ( m == 'F' )
-//                interrupt = true;
-//        }
-//    }
-//
-//    template <field F1, field F2, char V>
-//    inline void set_dispatch(boost::integral_constant<bool, true>)
-//    {
-//        result::set<F1, F2, V>();
-//    }
-//
-//    template <field F1, field F2, char V>
-//    inline void set_dispatch(boost::integral_constant<bool, false>)
-//    {}
-//
-//    template <field F1, field F2>
-//    inline bool check_one() const
-//    {
-//        static const char m = static_get<static_mask, F1, F2>::value;
-//        return check_dispatch<F1, F2>(boost::integral_constant<char, m>);
-//    }
-//
-//    template <field F1, field F2>
-//    inline bool check_dispatch(boost::integral_constant<char, 'F'>) const
-//    {
-//        return get<F1, F2>() == 'F';
-//    }
-//
-//    template <field F1, field F2>
-//    inline bool check_dispatch(boost::integral_constant<char, 'T'>) const
-//    {
-//        const char v = get<F1, F2>();
-//        return v == 'T' || ( v >= '0' && v <= '9' );
-//    }
-//
-//    template <field F1, field F2, char C>
-//    inline bool check_dispatch(boost::integral_constant<char, C>) const
-//    {
-//        static const bool is_digit = C >= '0' && C <= '9';
-//        return bool check_dispatch_digit<F1, F2>(boost::integral_constant<bool, is_digit>());
-//    }
-//
-//    template <field F1, field F2>
-//    inline bool check_dispatch_digit(boost::integral_constant<bool, true>) const
-//    {
-//        return get<F1, F2>() == static_get<static_mask, F1, F2>::value;
-//    }
-//
-//    template <field F1, field F2>
-//    inline bool check_dispatch_digit(boost::integral_constant<bool, false>) const
-//    {
-//        return true;
-//    }
-//};
+        static const char value
+            = boost::mpl::at_c<vector_type, F1 * 3 + F2>::type::value;
+    };
+};
+
+template <typename StaticMask, field F1, field F2>
+struct static_should_handle_element
+{
+    static const char mask_el = StaticMask::template get<F1, F2>::value;
+    static const bool value = mask_el == 'F'
+                           || mask_el == 'T'
+                           || ( mask_el >= '0' && mask_el <= '9' );
+};
+
+template <typename StaticMask, char V, field F1, field F2>
+struct static_interrupt
+{
+    static const char mask_el = StaticMask::template get<F1, F2>::value;
+
+    static const bool value
+        = ( V >= '0' && V <= '9' ) ? 
+          ( mask_el == 'F' || ( mask_el < V && mask_el >= '0' && mask_el <= '9' ) ) :
+          ( ( V == 'T' ) ? mask_el == 'F' : false );
+};
+
+template <typename StaticMask>
+struct static_check
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return per_one<interior, interior>::apply(matrix)
+            && per_one<interior, boundary>::apply(matrix)
+            && per_one<interior, exterior>::apply(matrix)
+            && per_one<boundary, interior>::apply(matrix)
+            && per_one<boundary, boundary>::apply(matrix)
+            && per_one<boundary, exterior>::apply(matrix)
+            && per_one<exterior, interior>::apply(matrix)
+            && per_one<exterior, boundary>::apply(matrix)
+            && per_one<exterior, exterior>::apply(matrix);
+    }
+    
+    template <field F1, field F2>
+    struct per_one
+    {
+        static const char mask_el = StaticMask::template get<F1, F2>::value;
+        static const int version
+                            = mask_el == 'F' ? 0
+                            : mask_el == 'T' ? 1
+                            : mask_el >= '0' && mask_el <= '9' ? 2
+                            : 3;
+
+        template <typename Matrix>
+        static inline bool apply(Matrix const& matrix)
+        {
+            const char el = matrix.template get<F1, F2>();
+            return apply_dispatch(el, integral_constant<int, version>());
+        }
+
+        // mask_el == 'F'
+        static inline bool apply_dispatch(char el, integral_constant<int, 0>)
+        {
+            return el == 'F';
+        }
+        // mask_el == 'T'
+        static inline bool apply_dispatch(char el, integral_constant<int, 1>)
+        {
+            return el == 'T' || ( el >= '0' && el <= '9' );
+        }
+        // mask_el >= '0' && mask_el <= '9'
+        static inline bool apply_dispatch(char el, integral_constant<int, 2>)
+        {
+            return el == mask_el;
+        }
+        // else
+        static inline bool apply_dispatch(char el, integral_constant<int, 3>)
+        {
+            return true;
+        }
+    };
+};
+
+template <typename StaticMask, bool Interrupt>
+class static_mask_handler
+    : private matrix<3>
+{
+    typedef matrix<3> base_t;
+
+public:
+    typedef bool result_type;
+
+    bool interrupt;
+
+    inline static_mask_handler()
+        : interrupt(false)
+    {}
+
+    result_type result() const
+    {
+        return (!Interrupt || !interrupt)
+            && static_check<StaticMask>::apply(static_cast<base_t const&>(*this));
+    }
+
+    template <field F1, field F2, char V>
+    inline void set()
+    {
+        static const bool interrupt_c = static_interrupt<StaticMask, V, F1, F2>::value;
+        static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
+        static const int version = Interrupt && interrupt_c ? 0
+                                 : should_handle ? 1
+                                 : 2;
+
+        set_dispatch<F1, F2, V>(integral_constant<bool, interrupt_c>());
+    }
+
+    template <field F1, field F2, char V>
+    inline void update()
+    {
+        static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
+        base_t::template update<F1, F2, V>(integral_constant<bool, should_handle>());
+    }
+
+private:
+    // Interrupt && interrupt
+    template <field F1, field F2, char V>
+    inline void set_dispatch(integral_constant<int, 0>)
+    {
+        interrupt = true;
+    }
+    // else should_handle
+    template <field F1, field F2, char V>
+    inline void set_dispatch(integral_constant<int, 1>)
+    {
+        base_t::template set<F1, F2, V>();
+    }
+    // else
+    template <field F1, field F2, char V>
+    inline void set_dispatch(integral_constant<int, 2>)
+    {}
+
+    // should_handle
+    template <field F1, field F2, char V>
+    inline void update_dispatch(integral_constant<bool, true>)
+    {
+        base_t::template update<F1, F2, V>();
+    }
+    // else
+    template <field F1, field F2, char V>
+    inline void update_dispatch(integral_constant<bool, false>)
+    {}
+};
+
+// RESULTS/HANDLERS UTILS
 
 template <field F1, field F2, char V, typename Result>
 inline void set(Result & res)

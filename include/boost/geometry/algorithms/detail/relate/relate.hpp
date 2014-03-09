@@ -167,6 +167,23 @@ struct result_handler_type<Geometry1, Geometry2, mask9>
         > type;
 };
 
+template <typename Geometry1, typename Geometry2,
+          char II, char IB, char IE,
+          char BI, char BB, char BE,
+          char EI, char EB, char EE>
+struct result_handler_type<Geometry1, Geometry2, static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE> >
+{
+    typedef static_mask_handler
+        <
+            static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+            interruption_enabled
+                <
+                    Geometry1,
+                    Geometry2
+                >::value
+        > type;
+};
+
 template <typename MatrixOrMask, typename Geometry1, typename Geometry2>
 inline
 typename result_handler_type
