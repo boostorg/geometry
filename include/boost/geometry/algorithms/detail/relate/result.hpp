@@ -500,7 +500,7 @@ public:
     inline void update()
     {
         static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
-        base_t::template update<F1, F2, V>(integral_constant<bool, should_handle>());
+        update_dispatch<F1, F2, V>(integral_constant<bool, should_handle>());
     }
 
 private:
