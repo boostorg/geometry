@@ -374,11 +374,11 @@ struct buffered_piece_collection
         int side = side_strategy::apply(point, *prev, *it);
         if (side == 0)
         {
-            if (geometry::equals(point, *prev))
+            if (detail::overlay::points_equal_or_close(point, *prev, m_rescale_policy))
             {
                 return segment_relation_on_left;
             }
-            else if (geometry::equals(point, *it))
+            else if (detail::overlay::points_equal_or_close(point, *it, m_rescale_policy))
             {
                 return segment_relation_on_right;
             }
@@ -504,8 +504,8 @@ struct buffered_piece_collection
         }
         if (side_helper == 0)
         {
-            if (geometry::equals(turn.point, pc.helper_segments.back())
-                || geometry::equals(turn.point, pc.helper_segments.front()))
+            if (detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.back(), m_rescale_policy)
+                || detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.front(), m_rescale_policy))
             {
                 turn.count_on_corner++;
             }
@@ -863,16 +863,9 @@ struct buffered_piece_collection
             return true;
         }
 
-        if (geometry::equals(a.point, b.point))
+        if (detail::overlay::points_equal_or_close(a.point, b.point, m_rescale_policy))
         {
             std::cout << "=";
-            return true;
-        }
-
-        relaxed_less<point_type> comparator;
-        if (comparator.equals(a.point, b.point))
-        {
-            std::cout << "*";
             return true;
         }
 
