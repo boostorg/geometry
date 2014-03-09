@@ -498,7 +498,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_turns(mapper);
-    collection.map_pieces<geometry::polygon_tag>(mapper); //, false, true);
+    collection.template map_pieces<geometry::polygon_tag>(mapper); //, false, true);
     //collection.map_traverse(mapper);
 #endif
 
