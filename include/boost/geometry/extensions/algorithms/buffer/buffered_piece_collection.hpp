@@ -386,10 +386,10 @@ struct buffered_piece_collection
         {
             // The piece is a full (pseudo) circle. There are no helper segments. We only check if it is the turn is inside the generated circle,
             // or on the border.
-            int const side_wrt_circle = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+            int const side_wrt_circle = side_on_convex_range<side_strategy>(turn.point,
                             boost::begin(ring) + seg_id.segment_index,
                             boost::begin(ring) + pc.last_segment_index,
-                            seg_id, on_segment_seg_id);
+                            seg_id, on_segment_seg_id, m_rescale_policy);
             switch (side_wrt_circle)
             {
                 case 0 : turn.count_on_offsetted++; break;
@@ -398,17 +398,17 @@ struct buffered_piece_collection
             return;
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
+        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments, m_rescale_policy);
         if (side_helper == 1)
         {
             // Left or outside
             return;
         }
 
-        int const side_offsetted = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+        int const side_offsetted = side_on_convex_range<side_strategy>(turn.point,
                         boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
-                        seg_id, on_segment_seg_id);
+                        seg_id, on_segment_seg_id, m_rescale_policy);
         if (side_offsetted == 1)
         {
             return;
@@ -658,33 +658,26 @@ struct buffered_piece_collection
         iterator_type prev1 = it1++;
         iterator_type prev2 = it2++;
 
-        int code1 = side_strategy::apply(select_for_side(prev1, it1, which), *prev2, *it2);
-        int code2 = side_strategy::apply(select_for_side(prev2, it2, which), *prev1, *it1);
+        typedef typename geometry::robust_point_type
+        <
+            point_type,
+            RescalePolicy
+        >::type robust_point_type;
+
+        robust_point_type p1_rob, p2_rob, prev1_rob, prev2_rob, cur1_rob, cur2_rob;
+        geometry::recalculate(p1_rob, select_for_side(prev1, it1, which), m_rescale_policy);
+        geometry::recalculate(p2_rob, select_for_side(prev2, it2, which), m_rescale_policy);
+        geometry::recalculate(prev1_rob, *prev1, m_rescale_policy);
+        geometry::recalculate(prev2_rob, *prev2, m_rescale_policy);
+        geometry::recalculate(cur1_rob, *it1, m_rescale_policy);
+        geometry::recalculate(cur2_rob, *it2, m_rescale_policy);
+
+        int const code1 = side_strategy::apply(p1_rob, prev2_rob, cur2_rob);
+        int const code2 = side_strategy::apply(p2_rob, prev1_rob, cur1_rob);
 
         if (code1 == 1 && code2 == -1) return 1;
         if (code1 == -1 && code2 == 1) return -1;
 
-        // ROBUSTNESS: in near collinear cases one might be zero, the other non-zero.
-        // This happens several times.
-        if (code1 != 0) return code1;
-        if (code2 != 0) return -code2;
-
-  //      // Check if the other side gives some more info
-  //      // (I've never seen this is the case though it might be so, if they are much longer.
-        //int code1f = side_strategy::apply(*prev1, *prev2, *it2);
-        //int code2f = side_strategy::apply(*prev2, *prev1, *it1);
-
-  //      if (code1f != 0 || code2f != 0)
-  //      {
-  //          std::cout << "From: " << code1f << " " << code2f << std::endl;
-  //          if (code1f != 0) return -code1f;
-  //          if (code2f != 0) return code2f;
-  //      }
-
-        // Collinear?
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-        //std::cout << "Collinear: " << code1 << " " << code2 << std::endl;
-#endif
         return 0;
     }
 
