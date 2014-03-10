@@ -663,6 +663,108 @@ private:
     {}
 };
 
+// PREDEFINED MASKS
+
+// EQUALS
+//typedef static_mask<'T', '*', 'F', '*', '*', 'F', 'F', 'F', '*'> static_mask_equals; // wikipedia
+typedef static_mask<'T', 'F', 'F', 'F', 'T', 'F', 'F', 'F', 'T'> static_mask_equals; // OGC
+
+// DISJOINT
+typedef static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_disjoint;
+
+// TOUCHES - NOT P/P
+template <typename Geometry1,
+          typename Geometry2,
+          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
+          std::size_t Dimension2 = geometry::dimension<Geometry2>::value>
+struct static_mask_touches_type
+{
+    typedef boost::mpl::vector<
+                static_mask<'F', 'T', '*', '*', '*', '*', '*', '*', '*'>,
+                static_mask<'F', '*', '*', 'T', '*', '*', '*', '*', '*'>,
+                static_mask<'F', '*', '*', '*', 'T', '*', '*', '*', '*'>
+        > type;
+};
+// According to OGC, doesn't apply to P/P
+// Using the above mask the result would be always false
+template <typename Geometry1, typename Geometry2>
+struct static_mask_touches_type<Geometry1, Geometry2, 0, 0>
+    : not_implemented<typename geometry::tag<Geometry1>::type,
+                      typename geometry::tag<Geometry2>::type>
+{};
+
+// WITHIN
+typedef static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'> static_mask_within;
+
+// COVERED_BY (non OGC)
+typedef boost::mpl::vector<
+            static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'>,
+            static_mask<'*', 'T', 'F', '*', '*', 'F', '*', '*', '*'>,
+            static_mask<'*', '*', 'F', 'T', '*', 'F', '*', '*', '*'>,
+            static_mask<'*', '*', 'F', '*', 'T', 'F', '*', '*', '*'>
+        > static_mask_covered_by;
+
+// CROSSES
+// dim(G1) < dim(G2) - P/L P/A L/A
+template <typename Geometry1,
+          typename Geometry2,
+          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
+          std::size_t Dimension2 = geometry::dimension<Geometry2>::value,
+          bool D1LessD2 = (Dimension1 < Dimension2)
+>
+struct static_mask_crosses_type
+{
+    typedef static_mask<'T', '*', 'T', '*', '*', '*', '*', '*', '*'> type;
+};
+// TODO: I'm not sure if this one below should be available!
+// dim(G1) > dim(G2) - L/P A/P A/L
+template <typename Geometry1, typename Geometry2,
+          std::size_t Dimension1, std::size_t Dimension2
+>
+struct static_mask_crosses_type<Geometry1, Geometry2, Dimension1, Dimension2, false>
+{
+    typedef static_mask<'T', '*', '*', '*', '*', '*', 'T', '*', '*'> type;
+};
+// dim(G1) == dim(G2) - P/P A/A
+template <typename Geometry1, typename Geometry2,
+          std::size_t Dimension, bool D1LessD2
+>
+struct static_mask_crosses_type<Geometry1, Geometry2, Dimension, Dimension, D1LessD2/*false*/>
+    : not_implemented<typename geometry::tag<Geometry1>::type,
+                      typename geometry::tag<Geometry2>::type>
+{};
+// dim(G1) == 1 && dim(G2) == 1 - L/L
+template <typename Geometry1, typename Geometry2, bool D1LessD2>
+struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, D1LessD2>
+{
+    typedef static_mask<'0', '*', '*', '*', '*', '*', '*', '*', '*'> type;
+};
+
+// OVERLAPS
+
+// dim(G1) != dim(G2) - NOT P/P, L/L, A/A
+template <typename Geometry1,
+          typename Geometry2,
+          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
+          std::size_t Dimension2 = geometry::dimension<Geometry2>::value
+>
+struct static_mask_overlaps_type
+    : not_implemented<typename geometry::tag<Geometry1>::type,
+                      typename geometry::tag<Geometry2>::type>
+{};
+// dim(G1) == D && dim(G2) == D - P/P A/A
+template <typename Geometry1, typename Geometry2, std::size_t Dimension>
+struct static_mask_overlaps_type<Geometry1, Geometry2, Dimension, Dimension>
+{
+    typedef static_mask<'T', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
+};
+// dim(G1) == 1 && dim(G2) == 1 - L/L
+template <typename Geometry1, typename Geometry2>
+struct static_mask_overlaps_type<Geometry1, Geometry2, 1, 1>
+{
+    typedef static_mask<'1', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
+};
+
 // RESULTS/HANDLERS UTILS
 
 template <field F1, field F2, char V, typename Result>
