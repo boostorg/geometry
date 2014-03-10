@@ -242,6 +242,13 @@ struct interrupt_dispatch<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, 
     }
 };
 
+template <field F1, field F2, char V, bool InterruptEnabled, typename Mask>
+inline bool interrupt(Mask const& mask)
+{
+    return interrupt_dispatch<Mask, InterruptEnabled>
+                ::template apply<F1, F2, V>(mask);
+}
+
 template <typename Mask>
 struct check_dispatch
 {
@@ -318,6 +325,12 @@ struct check_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
     }
 };
 
+template <typename Mask, typename Matrix>
+inline bool check(Mask const& mask, Matrix const& matrix)
+{
+    return check_dispatch<Mask>::apply(mask, matrix);
+}
+
 template <typename Mask, bool Interrupt>
 class mask_handler
     : private matrix<Mask::width>
@@ -337,13 +350,13 @@ public:
     result_type result() const
     {
         return !interrupt
-            && check_dispatch<Mask>::apply(m_mask, static_cast<base_t const&>(*this));
+            && check(m_mask, static_cast<base_t const&>(*this));
     }
 
     template <field F1, field F2, char V>
     inline void set()
     {
-        if ( interrupt_dispatch<Mask, Interrupt>::template apply<F1, F2, V>(m_mask) )
+        if ( relate::interrupt<F1, F2, V, Interrupt>(m_mask) )
         {
             interrupt = true;
         }
@@ -395,8 +408,14 @@ struct static_should_handle_element
                            || ( mask_el >= '0' && mask_el <= '9' );
 };
 
-template <typename StaticMask, char V, field F1, field F2, bool IsNotSequence>
+template <typename StaticMask, char V, field F1, field F2, bool InterruptEnabled, bool IsNotSequence>
 struct static_interrupt_dispatch
+{
+    static const bool value = false;
+};
+
+template <typename StaticMask, char V, field F1, field F2, bool IsNotSequence>
+struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, IsNotSequence>
 {
     static const char mask_el = StaticMask::template get<F1, F2>::value;
 
@@ -416,6 +435,7 @@ struct static_interrupt_sequence
             <
                 StaticMask,
                 V, F1, F2,
+                true,
                 !boost::mpl::is_sequence<StaticMask>::value
             >::value
        && static_interrupt_sequence
@@ -433,7 +453,7 @@ struct static_interrupt_sequence<Last, Last, V, F1, F2>
 };
 
 template <typename StaticMask, char V, field F1, field F2>
-struct static_interrupt_dispatch<StaticMask, V, F1, F2, false>
+struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, false>
 {
     static const bool value
         = static_interrupt_sequence
@@ -444,7 +464,7 @@ struct static_interrupt_dispatch<StaticMask, V, F1, F2, false>
             >::value;
 };
 
-template <typename StaticMask, char V, field F1, field F2>
+template <typename StaticMask, char V, field F1, field F2, bool EnableInterrupt>
 struct static_interrupt
 {
     static const bool value
@@ -452,6 +472,7 @@ struct static_interrupt
             <
                 StaticMask,
                 V, F1, F2,
+                EnableInterrupt,
                 !boost::mpl::is_sequence<StaticMask>::value
             >::value;
 };
@@ -596,9 +617,9 @@ public:
     template <field F1, field F2, char V>
     inline void set()
     {
-        static const bool interrupt_c = static_interrupt<StaticMask, V, F1, F2>::value;
+        static const bool interrupt_c = static_interrupt<StaticMask, V, F1, F2, Interrupt>::value;
         static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
-        static const int version = Interrupt && interrupt_c ? 0
+        static const int version = interrupt_c ? 0
                                  : should_handle ? 1
                                  : 2;
 
