@@ -665,6 +665,13 @@ private:
 
 // PREDEFINED MASKS
 
+// TODO:
+// 1. specialize for simplified masks if available
+// e.g. for TOUCHES use 1 mask for A/A
+// 2. Think about dimensions > 2 e.g. should TOUCHES be true
+// if the interior of the Areal overlaps the boundary of the Volumetric
+// like it's true for Linear/Areal
+
 // EQUALS
 //typedef static_mask<'T', '*', 'F', '*', '*', 'F', 'F', 'F', '*'> static_mask_equals; // wikipedia
 typedef static_mask<'T', 'F', 'F', 'F', 'T', 'F', 'F', 'F', 'T'> static_mask_equals; // OGC
