@@ -395,8 +395,8 @@ struct static_should_handle_element
                            || ( mask_el >= '0' && mask_el <= '9' );
 };
 
-template <typename StaticMask, char V, field F1, field F2>
-struct static_interrupt
+template <typename StaticMask, char V, field F1, field F2, bool IsNotSequence>
+struct static_interrupt_dispatch
 {
     static const char mask_el = StaticMask::template get<F1, F2>::value;
 
@@ -406,8 +406,58 @@ struct static_interrupt
           ( ( V == 'T' ) ? mask_el == 'F' : false );
 };
 
-template <typename StaticMask>
-struct static_check
+template <typename First, typename Last, char V, field F1, field F2>
+struct static_interrupt_sequence
+{
+    typedef typename boost::mpl::deref<First>::type StaticMask;
+
+    static const bool value
+        = static_interrupt_dispatch
+            <
+                StaticMask,
+                V, F1, F2,
+                !boost::mpl::is_sequence<StaticMask>::value
+            >::value
+       && static_interrupt_sequence
+            <
+                typename boost::mpl::next<First>::type,
+                Last,
+                V, F1, F2
+            >::value;
+};
+
+template <typename Last, char V, field F1, field F2>
+struct static_interrupt_sequence<Last, Last, V, F1, F2>
+{
+    static const bool value = true;
+};
+
+template <typename StaticMask, char V, field F1, field F2>
+struct static_interrupt_dispatch<StaticMask, V, F1, F2, false>
+{
+    static const bool value
+        = static_interrupt_sequence
+            <
+                typename boost::mpl::begin<StaticMask>::type,
+                typename boost::mpl::end<StaticMask>::type,
+                V, F1, F2
+            >::value;
+};
+
+template <typename StaticMask, char V, field F1, field F2>
+struct static_interrupt
+{
+    static const bool value
+        = static_interrupt_dispatch
+            <
+                StaticMask,
+                V, F1, F2,
+                !boost::mpl::is_sequence<StaticMask>::value
+            >::value;
+};
+
+template <typename StaticMask, bool IsNotSequence>
+struct static_check_dispatch
 {
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)
@@ -461,6 +511,65 @@ struct static_check
             return true;
         }
     };
+};
+
+template <typename First, typename Last>
+struct static_check_sequence
+{
+    typedef typename boost::mpl::deref<First>::type StaticMask;
+
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_check_dispatch
+                <
+                    StaticMask,
+                    !boost::mpl::is_sequence<StaticMask>::value
+                >::apply(matrix)
+            || static_check_sequence
+                <
+                    typename boost::mpl::next<First>::type,
+                    Last
+                >::apply(matrix);
+    }
+};
+
+template <typename Last>
+struct static_check_sequence<Last, Last>
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return false;
+    }
+};
+
+template <typename StaticMask>
+struct static_check_dispatch<StaticMask, false>
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_check_sequence
+                <
+                    typename boost::mpl::begin<StaticMask>::type,
+                    typename boost::mpl::end<StaticMask>::type
+                >::apply(matrix);
+    }
+};
+
+template <typename StaticMask>
+struct static_check
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_check_dispatch
+                <
+                    StaticMask,
+                    !boost::mpl::is_sequence<StaticMask>::value
+                >::apply(matrix);
+    }
 };
 
 template <typename StaticMask, bool Interrupt>
