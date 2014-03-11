@@ -290,6 +290,20 @@ void test_linestring_linestring()
                           "LINESTRING(30 0,4 0,3 1,2 0,1 0,0 0,-1 -1)",
                           "101FF0102");
 
+    // self-IP
+    test_geometry<ls, ls>("LINESTRING(1 0,9 0)",
+                          "LINESTRING(0 0,10 0,10 10,5 0,0 10)",
+                          "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,5 0,9 0)",
+                          "LINESTRING(0 0,10 0,10 10,5 0,0 10)",
+                          "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,9 0)",
+                          "LINESTRING(0 0,10 0,10 10,5 10,5 -1)",
+                          "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,9 0)",
+                          "LINESTRING(0 0,10 0,5 0,5 5)",
+                          "1FF0FF102");
+
     // linear ring
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(5 0,9 0,5 5,1 0,5 0)", "1F1FF01F2");
     test_geometry<ls, ls>("LINESTRING(0 0,5 0,10 0)", "LINESTRING(5 0,9 0,5 5,1 0,5 0)", "1F1FF01F2");
