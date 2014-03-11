@@ -735,29 +735,76 @@ struct get_turns_polygon_cs
     }
 };
 
-// GET_TURN_INFO_TYPE
+}} // namespace detail::get_turns
+#endif // DOXYGEN_NO_DETAIL
 
-template <typename Tag,
+// TODO: move group_tag and group_dim to separate file
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail {
+
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type,
+          bool IsPoint = boost::is_base_of<pointlike_tag, Tag>::value,
           bool IsLinear = boost::is_base_of<linear_tag, Tag>::value,
           bool IsAreal = boost::is_base_of<areal_tag, Tag>::value>
-struct tag_base : not_implemented<Tag>
+struct group_tag
+    : not_implemented<Tag>
 {};
 
-template <typename Tag>
-struct tag_base<Tag, true, false>
+template <typename Geometry, typename Tag>
+struct group_tag<Geometry, Tag, true, false, false>
+{
+    typedef pointlike_tag type;
+};
+
+template <typename Geometry, typename Tag>
+struct group_tag<Geometry, Tag, false, true, false>
 {
     typedef linear_tag type;
 };
 
-template <typename Tag>
-struct tag_base<Tag, false, true>
+template <typename Geometry, typename Tag>
+struct group_tag<Geometry, Tag, false, false, true>
 {
     typedef areal_tag type;
 };
 
+template <typename Geometry,
+          typename GroupTag = typename group_tag<Geometry>::type>
+struct group_dim
+    : not_implemented<GroupTag>
+{};
+
+template <typename Geometry>
+struct group_dim<Geometry, pointlike_tag>
+{
+    static const int value = 0;
+};
+
+template <typename Geometry>
+struct group_dim<Geometry, linear_tag>
+{
+    static const int value = 1;
+};
+
+template <typename Geometry>
+struct group_dim<Geometry, areal_tag>
+{
+    static const int value = 2;
+};
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace get_turns {
+
+// GET_TURN_INFO_TYPE
+
 template <typename Geometry1, typename Geometry2, typename AssignPolicy,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename tag_base<Tag1>::type, typename TagBase2 = typename tag_base<Tag2>::type>
+          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
 struct get_turn_info_type
     : overlay::get_turn_info<AssignPolicy>
 {};
@@ -774,7 +821,7 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
 
 template <typename Geometry1, typename Geometry2,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename tag_base<Tag1>::type, typename TagBase2 = typename tag_base<Tag2>::type>
+          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
 struct turn_operation_type
 {
     typedef overlay::turn_operation type;

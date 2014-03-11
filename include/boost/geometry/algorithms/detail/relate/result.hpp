@@ -9,6 +9,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 
@@ -682,8 +684,8 @@ typedef static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_dis
 // TOUCHES - NOT P/P
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
-          std::size_t Dimension2 = geometry::dimension<Geometry2>::value>
+          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
+          std::size_t Dim2 = detail::group_dim<Geometry2>::value>
 struct static_mask_touches_type
 {
     typedef boost::mpl::vector<
@@ -715,9 +717,9 @@ typedef boost::mpl::vector<
 // dim(G1) < dim(G2) - P/L P/A L/A
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
-          std::size_t Dimension2 = geometry::dimension<Geometry2>::value,
-          bool D1LessD2 = (Dimension1 < Dimension2)
+          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
+          std::size_t Dim2 = detail::group_dim<Geometry2>::value,
+          bool D1LessD2 = (Dim1 < Dim2)
 >
 struct static_mask_crosses_type
 {
@@ -726,17 +728,17 @@ struct static_mask_crosses_type
 // TODO: I'm not sure if this one below should be available!
 // dim(G1) > dim(G2) - L/P A/P A/L
 template <typename Geometry1, typename Geometry2,
-          std::size_t Dimension1, std::size_t Dimension2
+          std::size_t Dim1, std::size_t Dim2
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dimension1, Dimension2, false>
+struct static_mask_crosses_type<Geometry1, Geometry2, Dim1, Dim2, false>
 {
     typedef static_mask<'T', '*', '*', '*', '*', '*', 'T', '*', '*'> type;
 };
 // dim(G1) == dim(G2) - P/P A/A
 template <typename Geometry1, typename Geometry2,
-          std::size_t Dimension, bool D1LessD2
+          std::size_t Dim, bool D1LessD2
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dimension, Dimension, D1LessD2/*false*/>
+struct static_mask_crosses_type<Geometry1, Geometry2, Dim, Dim, D1LessD2/*false*/>
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
@@ -752,16 +754,16 @@ struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, D1LessD2>
 // dim(G1) != dim(G2) - NOT P/P, L/L, A/A
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dimension1 = geometry::dimension<Geometry1>::value,
-          std::size_t Dimension2 = geometry::dimension<Geometry2>::value
+          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
+          std::size_t Dim2 = detail::group_dim<Geometry2>::value
 >
 struct static_mask_overlaps_type
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == D && dim(G2) == D - P/P A/A
-template <typename Geometry1, typename Geometry2, std::size_t Dimension>
-struct static_mask_overlaps_type<Geometry1, Geometry2, Dimension, Dimension>
+template <typename Geometry1, typename Geometry2, std::size_t Dim>
+struct static_mask_overlaps_type<Geometry1, Geometry2, Dim, Dim>
 {
     typedef static_mask<'T', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
 };

@@ -92,8 +92,12 @@ struct get_turns
 
         dispatch::get_turns
             <
-                typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
-                Geometry1, Geometry2, reverse1, reverse2,
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                Geometry1,
+                Geometry2,
+                reverse1,
+                reverse2,
                 GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
     }
