@@ -41,6 +41,7 @@ public:
     template <boundary_query BoundaryQuery>
     bool is_endpoint_boundary(point_type const& pt) const
     {
+        boost::ignore_unused_variable_warning(pt);
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
         // may give false positives for INT
         BOOST_ASSERT( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
