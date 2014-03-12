@@ -25,6 +25,7 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 
 namespace boost { namespace geometry
@@ -58,13 +59,14 @@ template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
     typename TagIn1, typename TagIn2, typename TagOut,
+    bool Areal1, bool Areal2, bool ArealOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct union_insert
     <
         Geometry1, Geometry2, GeometryOut,
         TagIn1, TagIn2, TagOut,
-        true, true, true,
+        Areal1, Areal2, ArealOut,
         Reverse1, Reverse2, ReverseOut,
         true
     >: union_insert<Geometry2, Geometry1, GeometryOut>
@@ -160,7 +162,10 @@ struct union_insert
         false, false, false,
         Reverse1, Reverse2, ReverseOut,
         false
-    > : not_implemented<PointLike1, PointLike2, PointOut>
+    > : detail::overlay::union_pointlike_pointlike_point
+        <
+            PointLike1, PointLike2, PointOut
+        >
 {};
 
 

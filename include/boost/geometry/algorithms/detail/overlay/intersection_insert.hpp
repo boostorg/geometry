@@ -38,6 +38,7 @@
 #include <boost/geometry/views/segment_view.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
@@ -513,7 +514,8 @@ struct intersection_insert_reversed
 };
 
 
-// dispatch for non-linear geometries
+
+// dispatch for non-areal geometries
 template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
@@ -541,43 +543,124 @@ struct intersection_insert
 {};
 
 
-// dispatch for difference of linear geometries
+// dispatch for difference/intersection of linear geometries
 template
 <
     typename Linear1, typename Linear2, typename LineStringOut,
+    overlay_type OverlayType,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
     <
-        Linear1, Linear2, LineStringOut,
-        overlay_difference,
+        Linear1, Linear2, LineStringOut, OverlayType,
         Reverse1, Reverse2, ReverseOut,
         linear_tag, linear_tag, linestring_tag,
         false, false, false
     > : detail::overlay::linear_linear_linestring
         <
-            Linear1, Linear2, LineStringOut, overlay_difference
+            Linear1, Linear2, LineStringOut, OverlayType
         >
 {};
 
 
+// dispatch for difference/intersection of point-like geometries
 
-// dispatch for intersection of linear geometries
+#if 0
+// CANNOT USE THE FOLLOWING GENERIC DISPATCH
+// CLASHES WITH SPECIALIZATION ABOVE THAT TAKES POINT OUTPUT
+// pointlike-pointlike
 template
 <
-    typename Linear1, typename Linear2, typename LineStringOut,
+    typename Point1, typename Point2, typename PointOut,
+    overlay_type OverlayType,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
     <
-        Linear1, Linear2, LineStringOut,
-        overlay_intersection,
+        Point1, Point2, PointOut, OverlayType,
         Reverse1, Reverse2, ReverseOut,
-        linear_tag, linear_tag, linestring_tag,
+        pointlike_tag, pointlike_tag, point_tag,
         false, false, false
-    > : detail::overlay::linear_linear_linestring
+    > : detail::overlay::difference_intersection_pointlike_pointlike_point
         <
-            Linear1, Linear2, LineStringOut, overlay_intersection
+            Point1, Point2, PointOut, OverlayType
+        >
+{};
+#endif
+
+// point-point
+template
+<
+    typename Point1, typename Point2, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Point1, Point2, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        point_tag, point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::point_point_point
+        <
+            Point1, Point2, PointOut, OverlayType
+        >
+{};
+
+// multipoint-point
+template
+<
+    typename MultiPoint, typename Point, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiPoint, Point, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        multi_point_tag, point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::multipoint_point_point
+        <
+            MultiPoint, Point, PointOut, OverlayType
+        >
+{};
+
+// point-multipoint
+template
+<
+    typename Point, typename MultiPoint, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Point, MultiPoint, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        point_tag, multi_point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::point_multipoint_point
+        <
+            Point, MultiPoint, PointOut, OverlayType
+        >
+{};
+
+// multipoint-multipoint
+template
+<
+    typename MultiPoint1, typename MultiPoint2, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiPoint1, MultiPoint2, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        multi_point_tag, multi_point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::multipoint_multipoint_point
+        <
+            MultiPoint1, MultiPoint2, PointOut, OverlayType
         >
 {};
 
