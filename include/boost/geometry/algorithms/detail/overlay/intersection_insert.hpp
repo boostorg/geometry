@@ -521,14 +521,14 @@ template
     typename Geometry1, typename Geometry2, typename GeometryOut,
     overlay_type OverlayType,
     bool Reverse1, bool Reverse2, bool ReverseOut,
-    typename TagIn1, typename TagIn2, typename TagOut
+    typename TagIn1, typename TagIn2
 >
 struct intersection_insert
     <
         Geometry1, Geometry2, GeometryOut,
         OverlayType,
         Reverse1, Reverse2, ReverseOut,
-        TagIn1, TagIn2, TagOut,
+        TagIn1, TagIn2, linestring_tag,
         false, false, false
     > : intersection_insert
         <
@@ -537,7 +537,7 @@ struct intersection_insert
            Reverse1, Reverse2, ReverseOut,
            typename tag_cast<TagIn1, pointlike_tag, linear_tag>::type,
            typename tag_cast<TagIn2, pointlike_tag, linear_tag>::type,
-           TagOut,
+           linestring_tag,
            false, false, false
         >
 {};
