@@ -39,7 +39,7 @@
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 
 //TEST
-#include <to_svg.hpp>
+//#include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
 

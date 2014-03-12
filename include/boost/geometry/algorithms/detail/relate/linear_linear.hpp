@@ -364,7 +364,8 @@ struct linear_linear
                 // i/i, i/x, i/u
                 if ( op == overlay::operation_intersection )
                 {
-                    bool was_outside = m_exit_watcher.enter(it->point, other_id);
+                    bool was_outside = m_exit_watcher.is_outside();
+                    m_exit_watcher.enter(it->point, other_id);
 
                     // interiors overlaps
                     update<interior, interior, '1', transpose_result>(res);
@@ -421,11 +422,23 @@ struct linear_linear
                 // u/i, u/u, u/x, x/i, x/u, x/x
                 else if ( op == overlay::operation_union || op == overlay::operation_blocked )
                 {
-                    bool op_blocked = op == overlay::operation_blocked;
-                    bool was_outside = m_exit_watcher.exit(it->point, other_id, op);
+                    // TODO: is exit watcher still needed?
+                    // couldn't is_collinear and some going inside counter be used instead?
 
-                    // we're inside, possibly going out right now
-                    if ( ! was_outside )
+                    bool is_collinear = it->operations[op_id].is_collinear;
+                    bool was_outside = m_exit_watcher.is_outside();
+
+                    // to exit we must be currently inside and the current segment must be collinear
+                    if ( !was_outside && is_collinear )
+                    {
+                        m_exit_watcher.exit(it->point, other_id, op);
+                    }
+
+                    bool op_blocked = op == overlay::operation_blocked;
+
+                    // we're inside and going out from inside
+                    // possibly going out right now
+                    if ( ! was_outside && is_collinear )
                     {
                         if ( op_blocked )
                         {
@@ -450,10 +463,14 @@ struct linear_linear
                             }
                         }
                     }
-                    // we're outside
+                    // we're outside or intersects some segment from the outside
                     else
                     {
-                        update<interior, exterior, '1', transpose_result>(res);
+                        // if we are truly outside
+                        if ( was_outside /*&& !is_collinear*/ )
+                        {
+                            update<interior, exterior, '1', transpose_result>(res);
+                        }
 
                         // boundaries don't overlap - just an optimization
                         if ( it->method == overlay::method_crosses )
@@ -508,7 +525,7 @@ struct linear_linear
                             }
 
                             // first IP on the last segment point - this means that the first point is outside
-                            if ( first_in_range && ( !this_b || op_blocked ) )
+                            if ( first_in_range && ( !this_b || op_blocked ) && was_outside /*&& !is_collinear*/ )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
                                                     range::front(sub_geometry::get(geometry, seg_id)),

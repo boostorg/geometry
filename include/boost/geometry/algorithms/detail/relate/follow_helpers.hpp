@@ -179,23 +179,15 @@ public:
         : exit_operation(overlay::operation_none)
     {}
 
-    // returns true if before the call we were outside
-    bool enter(Point const& point, segment_identifier const& other_id)
+    void enter(Point const& point, segment_identifier const& other_id)
     {
-        bool result = other_entry_points.empty();
         other_entry_points.push_back(point_info(other_id, point));
-        return result;
     }
 
-    // returns true if before the call we were outside
-    bool exit(Point const& point,
-                segment_identifier const& other_id,
-                overlay::operation_type exit_op)
+    void exit(Point const& point,
+              segment_identifier const& other_id,
+              overlay::operation_type exit_op)
     {
-        // if we didn't entered anything in the past, we're outside
-        if ( other_entry_points.empty() )
-            return true;
-
         typedef typename std::vector<point_info>::iterator point_iterator;
         // search for the entry point in the same range of other geometry
         point_iterator entry_it = std::find_if(other_entry_points.begin(),
@@ -213,8 +205,12 @@ public:
             // erase the corresponding entry point
             other_entry_points.erase(entry_it);
         }
+    }
 
-        return false;
+    bool is_outside() const
+    {
+        // if we didn't entered anything in the past, we're outside
+        return other_entry_points.empty();
     }
 
     overlay::operation_type get_exit_operation() const
