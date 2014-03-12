@@ -322,6 +322,24 @@ void test_linestring_linestring()
     //test_geometry<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(1 0,1 0,1 0)", "0F1FF0FF2");
     // Point/Point
     //test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
+
+    // OTHER MASKS
+    {
+        namespace bgdr = bg::detail::relate;
+        ls ls1, ls2, ls3;
+        bg::read_wkt("LINESTRING(0 0,2 0)", ls1);
+        bg::read_wkt("LINESTRING(2 0,4 0)", ls2);
+        bg::read_wkt("LINESTRING(1 0,1 1)", ls3);
+        BOOST_CHECK(bgdr::relate(ls1, ls2, bgdr::mask9("FT*******")
+                                        || bgdr::mask9("F**T*****")
+                                        || bgdr::mask9("F***T****")));
+        BOOST_CHECK(bgdr::relate(ls1, ls3, bgdr::mask9("FT*******")
+                                        || bgdr::mask9("F**T*****")
+                                        || bgdr::mask9("F***T****")));
+        BOOST_CHECK(bgdr::relate(ls3, ls1, bgdr::mask9("FT*******")
+                                        || bgdr::mask9("F**T*****")
+                                        || bgdr::mask9("F***T****")));
+    }
 }
 
 template <typename P>

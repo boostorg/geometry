@@ -362,11 +362,8 @@ operator&&(Pred1 const& p1, Pred2 const& p2)
 }
 
 template <typename Head, typename Tail, typename Pred> inline
-typename tuples::push_back_impl<
-    boost::tuples::cons<Head, Tail>,
-    Pred,
-    0,
-    boost::tuples::length<boost::tuples::cons<Head, Tail> >::value
+typename tuples::push_back<
+    boost::tuples::cons<Head, Tail>, Pred
 >::type
 operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
 {
@@ -374,8 +371,8 @@ operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
     namespace bt = boost::tuples;
 
     return
-    tuples::push_back_impl<
-        bt::cons<Head, Tail>, Pred, 0, bt::length< bt::cons<Head, Tail> >::value
+    tuples::push_back<
+        bt::cons<Head, Tail>, Pred
     >::apply(t, p);
 }
     

@@ -18,6 +18,9 @@
 #include <boost/mpl/vector_c.hpp>
 #include <boost/mpl/at.hpp>
 
+// TEMP - move this header to geometry/detail
+#include <boost/geometry/index/detail/tuples.hpp>
+
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -82,7 +85,7 @@ private:
     template <field F1, field F2, char V>
     inline void set_dispatch(integral_constant<bool, true>)
     {
-        BOOST_STATIC_ASSERT('0' <= V && V <= '9' || V == 'T' || V == 'F');
+        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T' || V == 'F');
         m_array[F1 * Width + F2] = V;
     }
     template <field F1, field F2, char V>
@@ -106,21 +109,25 @@ private:
 
 // TODO add EnableDimensions parameter?
 
-struct matrix9
-{
-    static const std::size_t width = 3; // TEMP
-};
+struct matrix9 {};
+//struct matrix4 {};
 
-//struct matrix4
-//{
-//    static const std::size_t width = 2;
-//};
+template <typename MatrixOrMask>
+struct matrix_width
+    : not_implemented<MatrixOrMask>
+{};
+
+template <>
+struct matrix_width<matrix9>
+{
+    static const std::size_t value = 3;
+};
 
 template <typename Matrix>
 class matrix_handler
-    : private matrix<Matrix::width>
+    : private matrix<matrix_width<Matrix>::value>
 {
-    typedef matrix<Matrix::width> base_t;
+    typedef matrix<matrix_width<Matrix>::value> base_t;
 
 public:
     typedef std::string result_type;
@@ -216,8 +223,8 @@ struct interrupt_dispatch_tuple
     {
         typedef typename boost::tuples::element<I, Masks>::type mask_type;
         mask_type const& mask = boost::get<I>(masks);
-        return interrupt_dispatch<mask_type, true>::apply<F1, F2, V>(mask)
-            && interrupt_dispatch_tuple<Masks, I+1>::apply<F1, F2, V>(masks);
+        return interrupt_dispatch<mask_type, true>::template apply<F1, F2, V>(mask)
+            && interrupt_dispatch_tuple<Masks, I+1>::template apply<F1, F2, V>(masks);
     }
 };
 
@@ -236,6 +243,18 @@ template <typename T0, typename T1, typename T2, typename T3, typename T4,
 struct interrupt_dispatch<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, true>
 {
     typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> mask_type;
+
+    template <field F1, field F2, char V>
+    static inline bool apply(mask_type const& mask)
+    {
+        return interrupt_dispatch_tuple<mask_type>::template apply<F1, F2, V>(mask);
+    }
+};
+
+template <typename Head, typename Tail>
+struct interrupt_dispatch<boost::tuples::cons<Head, Tail>, true>
+{
+    typedef boost::tuples::cons<Head, Tail> mask_type;
 
     template <field F1, field F2, char V>
     static inline bool apply(mask_type const& mask)
@@ -327,17 +346,62 @@ struct check_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
     }
 };
 
+template <typename Head, typename Tail>
+struct check_dispatch< boost::tuples::cons<Head, Tail> >
+{
+    typedef boost::tuples::cons<Head, Tail> mask_type;
+
+    template <typename Matrix>
+    static inline bool apply(mask_type const& mask, Matrix const& matrix)
+    {
+        return check_dispatch_tuple<mask_type>::template apply(mask, matrix);
+    }
+};
+
 template <typename Mask, typename Matrix>
 inline bool check(Mask const& mask, Matrix const& matrix)
 {
     return check_dispatch<Mask>::apply(mask, matrix);
 }
 
+template <>
+struct matrix_width<mask9>
+{
+    static const std::size_t value = 3;
+};
+
+template <typename Tuple,
+          int I = 0,
+          int N = boost::tuples::length<Tuple>::value>
+struct matrix_width_tuple
+{
+    static const std::size_t
+        current = matrix_width<typename boost::tuples::element<I, Tuple>::type>::value;
+    static const std::size_t
+        next = matrix_width_tuple<Tuple, I+1>::value;
+
+    static const std::size_t
+        value = current > next ? current : next;
+};
+
+template <typename Tuple, int N>
+struct matrix_width_tuple<Tuple, N, N>
+{
+    static const std::size_t value = 0;
+};
+
+template <typename Head, typename Tail>
+struct matrix_width< boost::tuples::cons<Head, Tail> >
+{
+    static const std::size_t
+        value = matrix_width_tuple< boost::tuples::cons<Head, Tail> >::value;
+};
+
 template <typename Mask, bool Interrupt>
 class mask_handler
-    : private matrix<Mask::width>
+    : private matrix<matrix_width<Mask>::value>
 {
-    typedef matrix<Mask::width> base_t;
+    typedef matrix<matrix_width<Mask>::value> base_t;
 
 public:
     typedef bool result_type;
@@ -345,8 +409,8 @@ public:
     bool interrupt;
 
     inline mask_handler(Mask const& m)
-        : m_mask(m)
-        , interrupt(false)
+        : interrupt(false)
+        , m_mask(m)
     {}
 
     result_type result() const
@@ -664,6 +728,36 @@ private:
     inline void update_dispatch(integral_constant<bool, false>)
     {}
 };
+
+// OPERATORS
+
+template <typename Mask1, typename Mask2> inline
+boost::tuples::cons<
+    Mask1,
+    boost::tuples::cons<Mask2, boost::tuples::null_type>
+>
+operator||(Mask1 const& m1, Mask2 const& m2)
+{
+    namespace bt = boost::tuples;
+
+    return
+    bt::cons< Mask1, bt::cons<Mask2, bt::null_type> >
+        ( m1, bt::cons<Mask2, bt::null_type>(m2, bt::null_type()) );
+}
+
+template <typename Head, typename Tail, typename Mask> inline
+typename index::detail::tuples::push_back<
+    boost::tuples::cons<Head, Tail>, Mask
+>::type
+operator||(boost::tuples::cons<Head, Tail> const& t, Mask const& m)
+{
+    namespace bt = boost::tuples;
+
+    return
+    index::detail::tuples::push_back<
+        bt::cons<Head, Tail>, Mask
+    >::apply(t, m);
+}
 
 // PREDEFINED MASKS
 

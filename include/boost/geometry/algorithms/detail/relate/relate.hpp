@@ -167,6 +167,20 @@ struct result_handler_type<Geometry1, Geometry2, mask9>
         > type;
 };
 
+template <typename Geometry1, typename Geometry2, typename Head, typename Tail>
+struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail> >
+{
+    typedef mask_handler
+        <
+            boost::tuples::cons<Head, Tail>,
+            interruption_enabled
+                <
+                    Geometry1,
+                    Geometry2
+                >::value
+        > type;
+};
+
 template <typename Geometry1, typename Geometry2,
           char II, char IB, char IE,
           char BI, char BB, char BE,
