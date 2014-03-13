@@ -32,7 +32,7 @@ struct turn_operation_linear
     {}
 
     turn_position position;
-    bool is_collinear;
+    bool is_collinear; // valid only for Linear geometry
 };
 
 // SEGMENT_INTERSECTION RESULT
@@ -535,10 +535,11 @@ struct get_turn_info_for_endpoint
         tp.operations[0].position = pos0;
         tp.operations[1].position = pos1;
 
+        // NOTE: this probably shouldn't be set for the first point
+        // for which there is no preceding segment
         if ( result.template get<0>().count > 1 )
         {
             //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
-
             tp.operations[0].is_collinear = true;
             tp.operations[1].is_collinear = true;
         }

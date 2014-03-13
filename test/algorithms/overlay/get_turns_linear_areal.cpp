@@ -20,6 +20,8 @@
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
 
+//#include "to_svg.hpp"
+
 template <typename T>
 void test_all()
 {
@@ -29,29 +31,36 @@ void test_all()
 
     test_geometry<ls, poly>("LINESTRING(15 5,24 5,20 2,19 0,13 -4,1 0,10 0,13 3,15 7,16 10,10 10,8 10,4 6,2 8,1 10)",
                             "POLYGON((0 0,5 5,0 10,20 10,20 2,19 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
-                            expected("miu")("iuu")("tcu")("tuu")("mcu")("miu")("muu")("tiu")("mcu")("miu")("mcu")("miu")("mxu").vec);
+                            expected("miu")("iuu")("tcc")("tuu")("mcu")("mic")("muu")("tiu")("mcu")("mic")("mcc")("miu")("mxu").vec);
 
     test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "miu", "mxu");
     test_geometry<ls, poly>("LINESTRING(0 0,5 5,10 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "tiu", "txu");
     test_geometry<ls, poly>("LINESTRING(0 0,5 0,5 5,10 5,10 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
-                            expected("tcu")("miu")("mcu")("txu").vec);
+                            expected("tcu")("mic")("mcc")("txu").vec);
     test_geometry<ls, poly>("LINESTRING(10 0,5 0,5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
-                            expected("tcu")("miu")("mcu")("txu").vec);
+                            expected("tcc")("miu")("mcu")("txc").vec);
 
     test_geometry<ls, poly>("LINESTRING(0 0,10 0,10 10)",
                             "POLYGON((0 0,5 5,0 10,20 10,20 2,19 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
-                            expected("tcu")("miu")("mcu")("miu")("mxu").vec);
+                            expected("tcu")("mic")("mcu")("mic")("mxu").vec);
 
     // true hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
                             "POLYGON((0 0,0 10,10 10,10 5,10 0,0 0)(2 2,10 5,2 8,2 2))",
                             expected("tiu")("tiu").vec);
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
+                            "POLYGON((0 0,0 10,10 10,10 5,10 0,0 0)(2 2,10 5,2 8,2 2))",
+                            expected("mcu")("ecc")("tiu")("mxc").vec);
+
     // fake hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
                             "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
                             expected("tuu")("tiu").vec);
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            expected("mcu")("tuc")("tcu")("mxc").vec);
 }
 
 int test_main(int, char* [])

@@ -63,16 +63,18 @@ struct linear_areal
 
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-
-    // if the result should be transposed, because the order of geometries was reversed
-    // then not transposed result becomes the transposed one, and the opposite
-    static const bool transpose_result = !TransposeResult;
-
+    
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry1>::value, !transpose_result>(result);// FFFFFFFFd, d in [1,9] or T
+        set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
+        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+
+// TODO: NEED TO SUPPORT exterior, boundary
+//       FOR THIS WE MUST CHECK IF THE BOUNDARY OF THE POLYGON TREATED LIKE LINEAR RING
+//       GOES OUT OF THE LINESTRING G1
+
         if ( result.interrupt )
             return;
 
@@ -86,12 +88,12 @@ struct linear_areal
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<Result, boundary_checker<Geometry1>, !transpose_result> pred1(result, boundary_checker1);
+        disjoint_linestring_pred<Result, boundary_checker<Geometry1>, TransposeResult> pred1(result, boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( result.interrupt )
             return;
 
-        disjoint_areal_pred<Result, transpose_result> pred2(result);
+        disjoint_areal_pred<Result, !TransposeResult> pred2(result);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( result.interrupt )
             return;
@@ -102,258 +104,258 @@ struct linear_areal
         // x, u, i, c
         std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
-        //turns_analyser<turn_type> analyser;
-        //analyse_each_turn(result, analyser,
-        //                  turns.begin(), turns.end(),
-        //                  geometry1, geometry2,
-        //                  boundary_checker1);
+        turns_analyser<turn_type> analyser;
+        analyse_each_turn(result, analyser,
+                          turns.begin(), turns.end(),
+                          geometry1, geometry2,
+                          boundary_checker1);
     }
 
-    //// This analyser should be used like Input or SinglePass Iterator
-    //template <typename TurnInfo>
-    //class turns_analyser
-    //{
-    //    typedef typename TurnInfo::point_type turn_point_type;
+    // This analyser should be used like Input or SinglePass Iterator
+    template <typename TurnInfo>
+    class turns_analyser
+    {
+        typedef typename TurnInfo::point_type turn_point_type;
 
-    //    static const std::size_t op_id = 0;
-    //    static const std::size_t other_op_id = 1;
-    //    // if the result should be transposed, because the order of geometries was reversed
-    //    // then not transposed result becomes the transposed one, and the opposite
-    //    static const bool transpose_result = !TransposeResult;
+        static const std::size_t op_id = 0;
+        static const std::size_t other_op_id = 1;
 
-    //public:
-    //    turns_analyser()
-    //        : m_previous_turn_ptr(0)
-    //        , m_previous_operation(overlay::operation_none)
-    //    {}
+    public:
+        turns_analyser()
+            : m_previous_turn_ptr(0)
+            , m_previous_operation(overlay::operation_none)
+        {}
 
-    //    template <typename Result,
-    //              typename TurnIt,
-    //              typename Geometry,
-    //              typename OtherGeometry,
-    //              typename BoundaryChecker>
-    //    void apply(Result & res,
-    //               TurnIt first, TurnIt it, TurnIt last,
-    //               Geometry const& geometry,
-    //               OtherGeometry const& other_geometry,
-    //               BoundaryChecker & boundary_checker)
-    //    {
-    //        if ( it != last )
-    //        {
-    //            overlay::operation_type op = it->operations[op_id].operation;
+        template <typename Result,
+                  typename TurnIt,
+                  typename Geometry,
+                  typename OtherGeometry,
+                  typename BoundaryChecker>
+        void apply(Result & res,
+                   TurnIt first, TurnIt it, TurnIt last,
+                   Geometry const& geometry,
+                   OtherGeometry const& other_geometry,
+                   BoundaryChecker & boundary_checker)
+        {
+            if ( it != last )
+            {
+                overlay::operation_type op = it->operations[op_id].operation;
 
-    //            if ( op != overlay::operation_union
-    //              && op != overlay::operation_intersection
-    //              && op != overlay::operation_blocked
-    //              && op != overlay::operation_continue ) // operation_boundary / operation_boundary_intersection
-    //            {
-    //                return;
-    //            }
+                if ( op != overlay::operation_union
+                  && op != overlay::operation_intersection
+                  && op != overlay::operation_blocked
+                  && op != overlay::operation_continue ) // operation_boundary / operation_boundary_intersection
+                {
+                    return;
+                }
 
-    //            segment_identifier const& seg_id = it->operations[op_id].seg_id;
-    //            segment_identifier const& other_id = it->operations[other_op_id].seg_id;
+                segment_identifier const& seg_id = it->operations[op_id].seg_id;
+                segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
-    //            const bool first_in_range = m_seg_watcher.update(seg_id);
+                const bool first_in_range = m_seg_watcher.update(seg_id);
 
-    //            // handle possible exit
-    //            bool fake_enter_detected = false;
-    //            if ( m_exit_watcher.get_exit_operation() == overlay::operation_union )
-    //            {
-    //                // real exit point - may be multiple
-    //                // we know that we entered and now we exit
-    //                if ( !detail::equals::equals_point_point(it->point, m_exit_watcher.get_exit_point()) )
-    //                {
-    //                    m_exit_watcher.reset_detected_exit();
-    //                
-    //                    // not the last IP
-    //                    update<interior, exterior, '1', transpose_result>(res);
-    //                }
-    //                // fake exit point, reset state
-    //                else if ( op == overlay::operation_intersection
-    //                       || op == overlay::operation_continue ) // operation_boundary
-    //                {
-    //                    m_exit_watcher.reset_detected_exit();
-    //                    fake_enter_detected = true;
-    //                }
-    //            }
-    //            else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
-    //            {
-    //                // ignore multiple BLOCKs
-    //                if ( op == overlay::operation_blocked )
-    //                    return;
+                // handle possible exit
+                bool fake_enter_detected = false;
+                if ( m_exit_watcher.get_exit_operation() == overlay::operation_union )
+                {
+                    // real exit point - may be multiple
+                    // we know that we entered and now we exit
+                    if ( !detail::equals::equals_point_point(it->point, m_exit_watcher.get_exit_point()) )
+                    {
+                        m_exit_watcher.reset_detected_exit();
+                    
+                        // not the last IP
+                        update<interior, exterior, '1', TransposeResult>(res);
+                    }
+                    // fake exit point, reset state
+                    else if ( op == overlay::operation_intersection
+                           || op == overlay::operation_continue ) // operation_boundary
+                    {
+                        m_exit_watcher.reset_detected_exit();
+                        fake_enter_detected = true;
+                    }
+                }
+                else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
+                {
+                    // ignore multiple BLOCKs
+                    if ( op == overlay::operation_blocked )
+                        return;
 
-    //                m_exit_watcher.reset_detected_exit();
-    //            }
+                    m_exit_watcher.reset_detected_exit();
+                }
 
-    //            // if the new linestring started just now,
-    //            // but the previous one went out on the previous point,
-    //            // we must check if the boundary of the previous segment is outside
-    //            // NOTE: couldn't it be integrated with the handling of the union above?
-    //            if ( first_in_range
-    //              && ! fake_enter_detected
-    //              && m_previous_operation == overlay::operation_union )
-    //            {
-    //                BOOST_ASSERT(it != first);
-    //                BOOST_ASSERT(m_previous_turn_ptr);
+                // if the new linestring started just now,
+                // but the previous one went out on the previous point,
+                // we must check if the boundary of the previous segment is outside
+                // NOTE: couldn't it be integrated with the handling of the union above?
+                if ( first_in_range
+                  && ! fake_enter_detected
+                  && m_previous_operation == overlay::operation_union )
+                {
+                    BOOST_ASSERT(it != first);
+                    BOOST_ASSERT(m_previous_turn_ptr);
 
-    //                segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-    //                bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-    //                                        range::back(sub_geometry::get(geometry, prev_seg_id)),
-    //                                        boundary_checker);
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            boundary_checker);
 
-    //                // if there is a boundary on the last point
-    //                if ( prev_back_b )
-    //                {
-    //                    update<boundary, exterior, '0', transpose_result>(res);
-    //                }
-    //            }
+                    // if there is a boundary on the last point
+                    if ( prev_back_b )
+                    {
+                        update<boundary, exterior, '0', TransposeResult>(res);
+                    }
+                }
 
-    //            // i/u, c/u
-    //            if ( op == overlay::operation_intersection
-    //              || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
-    //            {
-    //                bool was_outside = m_exit_watcher.enter(it->point, other_id);
+                // i/u, c/u
+                if ( op == overlay::operation_intersection
+                  || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
+                {
+                    bool was_outside = m_exit_watcher.is_outside();
+                    m_exit_watcher.enter(it->point, other_id);
 
-    //                if ( op == overlay::operation_intersection )
-    //                {
-    //                    // interiors overlaps
-    //                    update<interior, interior, '1', transpose_result>(res);
-    //                    update<interior, boundary, '0', transpose_result>(res);
-    //                }
-    //                else // operation_boundary
-    //                {
-    //                    update<interior, boundary, '1', transpose_result>(res);
-    //                }
+                    if ( op == overlay::operation_intersection )
+                    {
+                        // interiors overlaps
+                        update<interior, interior, '1', TransposeResult>(res);
+                    }
+                    else // operation_boundary
+                    {
+                        update<interior, boundary, '1', TransposeResult>(res);
+                    }
 
-    //                bool this_b = is_ip_on_boundary<boundary_front>(it->point,
-    //                                                                it->operations[op_id],
-    //                                                                boundary_checker,
-    //                                                                seg_id);
-    //                // going inside on boundary point
-    //                if ( this_b )
-    //                {
-    //                    update<boundary, boundary, '0', transpose_result>(res);
-    //                }
-    //                // going inside on non-boundary point
-    //                else
-    //                {
-    //                    // if we didn't enter in the past, we were outside
-    //                    if ( was_outside && !fake_enter_detected )
-    //                    {
-    //                        update<interior, exterior, '1', transpose_result>(res);
+                    bool this_b = is_ip_on_boundary<boundary_front>(it->point,
+                                                                    it->operations[op_id],
+                                                                    boundary_checker,
+                                                                    seg_id);
+                    // going inside on boundary point
+                    if ( this_b )
+                    {
+                        update<boundary, boundary, '0', TransposeResult>(res);
+                    }
+                    // going inside on non-boundary point
+                    else
+                    {
+                        update<interior, boundary, '0', TransposeResult>(res);
 
-    //                        // if it's the first IP then the first point is outside
-    //                        if ( first_in_range )
-    //                        {
-    //                            bool front_b = is_endpoint_on_boundary<boundary_front>(
-    //                                                range::front(sub_geometry::get(geometry, seg_id)),
-    //                                                boundary_checker);
+                        // if we didn't enter in the past, we were outside
+                        if ( was_outside && !fake_enter_detected )
+                        {
+                            update<interior, exterior, '1', TransposeResult>(res);
 
-    //                            // if there is a boundary on the first point
-    //                            if ( front_b )
-    //                            {
-    //                                update<boundary, exterior, '0', transpose_result>(res);
-    //                            }
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //            // u/u, x/u
-    //            else if ( op == overlay::operation_union || op == overlay::operation_blocked )
-    //            {
-    //                bool op_blocked = op == overlay::operation_blocked;
-    //                bool was_outside = m_exit_watcher.exit(it->point, other_id, op);
+                            // if it's the first IP then the first point is outside
+                            if ( first_in_range )
+                            {
+                                bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    boundary_checker);
 
-    //                // we're inside, possibly going out right now
-    //                if ( ! was_outside )
-    //                {
-    //                    if ( op_blocked )
-    //                    {
-    //                        // check if this is indeed the boundary point
-    //                        // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
-    //                        if ( is_endpoint_on_boundary<boundary_back>(it->point, boundary_checker) )
-    //                        {
-    //                            update<boundary, boundary, '0', transpose_result>(res);
-    //                        }
-    //                    }
-    //                }
-    //                // we're outside
-    //                else
-    //                {
-    //                    update<interior, exterior, '1', transpose_result>(res);
+                                // if there is a boundary on the first point
+                                if ( front_b )
+                                {
+                                    update<boundary, exterior, '0', TransposeResult>(res);
+                                }
+                            }
+                        }
+                    }
+                }
+                // u/u, x/u
+                else if ( op == overlay::operation_union || op == overlay::operation_blocked )
+                {
+                    bool op_blocked = op == overlay::operation_blocked;
+                    bool was_outside = m_exit_watcher.is_outside();
+                    m_exit_watcher.exit(it->point, other_id, op);
 
-    //                    bool this_b = is_ip_on_boundary<boundary_any>(it->point,
-    //                                                                  it->operations[op_id],
-    //                                                                  boundary_checker,
-    //                                                                  seg_id);                        
-    //                    // if current IP is on boundary of the geometry
-    //                    if ( this_b )
-    //                    {
-    //                        update<boundary, boundary, '0', transpose_result>(res);
-    //                    }
-    //                    // if current IP is not on boundary of the geometry
-    //                    else
-    //                    {
-    //                        update<interior, boundary, '0', transpose_result>(res);
-    //                    }
+                    // we're inside, possibly going out right now
+                    if ( ! was_outside )
+                    {
+                        if ( op_blocked )
+                        {
+                            // check if this is indeed the boundary point
+                            // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
+                            if ( is_endpoint_on_boundary<boundary_back>(it->point, boundary_checker) )
+                            {
+                                update<boundary, boundary, '0', TransposeResult>(res);
+                            }
+                        }
+                    }
+                    // we're outside
+                    else
+                    {
+                        update<interior, exterior, '1', TransposeResult>(res);
 
-    //                    // first IP on the last segment point - this means that the first point is outside
-    //                    if ( first_in_range && ( !this_b || op_blocked ) )
-    //                    {
-    //                        bool front_b = is_endpoint_on_boundary<boundary_front>(
-    //                                            range::front(sub_geometry::get(geometry, seg_id)),
-    //                                            boundary_checker);
+                        bool this_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                      it->operations[op_id],
+                                                                      boundary_checker,
+                                                                      seg_id);                        
+                        // if current IP is on boundary of the geometry
+                        if ( this_b )
+                        {
+                            update<boundary, boundary, '0', TransposeResult>(res);
+                        }
+                        // if current IP is not on boundary of the geometry
+                        else
+                        {
+                            update<interior, boundary, '0', TransposeResult>(res);
+                        }
 
-    //                        // if there is a boundary on the first point
-    //                        if ( front_b )
-    //                        {
-    //                            update<boundary, exterior, '0', transpose_result>(res);
-    //                        }
-    //                    }
-    //                }
-    //            }
+                        // first IP on the last segment point - this means that the first point is outside
+                        if ( first_in_range && ( !this_b || op_blocked ) )
+                        {
+                            bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                range::front(sub_geometry::get(geometry, seg_id)),
+                                                boundary_checker);
 
-    //            // store ref to previously analysed (valid) turn
-    //            m_previous_turn_ptr = boost::addressof(*it);
-    //            // and previously analysed (valid) operation
-    //            m_previous_operation = op;
-    //        }
-    //        // it == last
-    //        else
-    //        {
-    //            // here, the possible exit is the real one
-    //            // we know that we entered and now we exit
-    //            if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-    //              || m_previous_operation == overlay::operation_union )
-    //            {
-    //                // for sure
-    //                update<interior, exterior, '1', transpose_result>(res);
+                            // if there is a boundary on the first point
+                            if ( front_b )
+                            {
+                                update<boundary, exterior, '0', TransposeResult>(res);
+                            }
+                        }
+                    }
+                }
 
-    //                BOOST_ASSERT(first != last);
-    //                BOOST_ASSERT(m_previous_turn_ptr);
+                // store ref to previously analysed (valid) turn
+                m_previous_turn_ptr = boost::addressof(*it);
+                // and previously analysed (valid) operation
+                m_previous_operation = op;
+            }
+            // it == last
+            else
+            {
+                // here, the possible exit is the real one
+                // we know that we entered and now we exit
+                if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
+                  || m_previous_operation == overlay::operation_union )
+                {
+                    // for sure
+                    update<interior, exterior, '1', TransposeResult>(res);
 
-    //                segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+                    BOOST_ASSERT(first != last);
+                    BOOST_ASSERT(m_previous_turn_ptr);
 
-    //                bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-    //                                        range::back(sub_geometry::get(geometry, prev_seg_id)),
-    //                                        boundary_checker);
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-    //                // if there is a boundary on the last point
-    //                if ( prev_back_b )
-    //                {
-    //                    update<boundary, exterior, '0', transpose_result>(res);
-    //                }
-    //            }
-    //        }
-    //    }
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            boundary_checker);
 
-    //private:
-    //    exit_watcher<turn_point_type> m_exit_watcher;
-    //    segment_watcher m_seg_watcher;
-    //    TurnInfo * m_previous_turn_ptr;
-    //    overlay::operation_type m_previous_operation;
-    //};
+                    // if there is a boundary on the last point
+                    if ( prev_back_b )
+                    {
+                        update<boundary, exterior, '0', TransposeResult>(res);
+                    }
+                }
+            }
+        }
+
+    private:
+        exit_watcher<turn_point_type> m_exit_watcher;
+        segment_watcher m_seg_watcher;
+        TurnInfo * m_previous_turn_ptr;
+        overlay::operation_type m_previous_operation;
+    };
 
     template <typename Result,
               typename TurnIt,

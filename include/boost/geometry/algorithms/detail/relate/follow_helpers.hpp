@@ -128,17 +128,16 @@ private:
     const Point * pt_ptr;
 };
 
-class same_ranges
+class same_multi_index
 {
 public:
-    same_ranges(segment_identifier const& sid)
+    same_multi_index(segment_identifier const& sid)
         : sid_ptr(boost::addressof(sid))
     {}
 
     bool operator()(segment_identifier const& sid) const
     {
-        return sid.multi_index == sid_ptr->multi_index
-            && sid.ring_index == sid_ptr->ring_index;                
+        return sid.multi_index == sid_ptr->multi_index;                
     }
 
     template <typename Point>
@@ -160,7 +159,7 @@ public:
 
     bool update(segment_identifier const& seg_id)
     {
-        bool result = m_seg_id_ptr == 0 || !same_ranges(*m_seg_id_ptr)(seg_id);
+        bool result = m_seg_id_ptr == 0 || !same_multi_index(*m_seg_id_ptr)(seg_id);
         m_seg_id_ptr = boost::addressof(seg_id);
         return result;
     }
@@ -191,8 +190,8 @@ public:
         typedef typename std::vector<point_info>::iterator point_iterator;
         // search for the entry point in the same range of other geometry
         point_iterator entry_it = std::find_if(other_entry_points.begin(),
-                                                other_entry_points.end(),
-                                                same_ranges(other_id));
+                                               other_entry_points.end(),
+                                               same_multi_index(other_id));
 
         // this end point has corresponding entry point
         if ( entry_it != other_entry_points.end() )

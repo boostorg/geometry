@@ -374,6 +374,13 @@ void test_linestring_polygon()
 
     // LS disjoint
     test_geometry<ls, poly>("LINESTRING(11 0,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
+
+    test_geometry<ls, poly>("LINESTRING(0 0,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FFF0F212");
+    test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FFF0F212");
+    test_geometry<ls, poly>("LINESTRING(5 1,5 5,9 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FF0FF212");
+    
+    //test_geometry<ls, poly>("LINESTRING(0 0,5 0,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
+    //test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
 }
 
 template <typename P>
