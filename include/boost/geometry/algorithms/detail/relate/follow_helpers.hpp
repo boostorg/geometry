@@ -228,6 +228,12 @@ public:
         exit_operation = overlay::operation_none;
     }
 
+    void reset()
+    {
+        exit_operation = overlay::operation_none;
+        other_entry_points.clear();
+    }
+
 private:
     overlay::operation_type exit_operation;
     point_info exit_id;

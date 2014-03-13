@@ -303,6 +303,14 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(1 0,9 0)",
                           "LINESTRING(0 0,10 0,5 0,5 5)",
                           "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,7 0)", "LINESTRING(0 0,10 0,10 10,4 -1)",
+                          "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,5 0,7 0)", "LINESTRING(0 0,10 0,10 10,4 -1)",
+                          "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
+                          "1F10F0102");
+    test_geometry<ls, ls>("LINESTRING(1 0,5 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
+                          "1F10F0102");
 
     // linear ring
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(5 0,9 0,5 5,1 0,5 0)", "1F1FF01F2");
@@ -375,12 +383,33 @@ void test_linestring_polygon()
     // LS disjoint
     test_geometry<ls, poly>("LINESTRING(11 0,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
 
-    test_geometry<ls, poly>("LINESTRING(0 0,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FFF0F212");
+    // II BB
+    test_geometry<ls, poly>("LINESTRING(0 0,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",    "1FFF0F212");
     test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FFF0F212");
-    test_geometry<ls, poly>("LINESTRING(5 1,5 5,9 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1FF0FF212");
+    test_geometry<ls, poly>("LINESTRING(5 1,5 5,9 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",  "1FF0FF212");
     
-    //test_geometry<ls, poly>("LINESTRING(0 0,5 0,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
-    //test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
+    // IE 
+    test_geometry<ls, poly>("LINESTRING(11 1,11 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
+    // IE IB0
+    test_geometry<ls, poly>("LINESTRING(11 1,10 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1F00212");
+    // IE IB1
+    test_geometry<ls, poly>("LINESTRING(11 1,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+    // IE IB0 II
+    test_geometry<ls, poly>("LINESTRING(11 1,10 5,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+    // IE IB0 lring
+    test_geometry<ls, poly>("LINESTRING(11 1,10 5,11 5,11 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F01FFF212");
+    // IE IB1 lring
+    test_geometry<ls, poly>("LINESTRING(11 1,10 5,10 10,11 5,11 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11FFF212");
+    
+    // IB1 II
+    test_geometry<ls, poly>("LINESTRING(0 0,5 0,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11F00F212");
+    // BI0 II IB1
+    test_geometry<ls, poly>("LINESTRING(5 0,5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
+
+    // IB1 II IB1
+    test_geometry<ls, poly>("LINESTRING(1 0,2 0,3 1,4 0,5 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
+    // IB1 IE IB1
+    test_geometry<ls, poly>("LINESTRING(1 0,2 0,3 -1,4 0,5 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F0F212");
 }
 
 template <typename P>

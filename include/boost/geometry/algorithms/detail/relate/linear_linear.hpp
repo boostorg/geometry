@@ -341,25 +341,26 @@ struct linear_linear
                 // but the previous one went out on the previous point,
                 // we must check if the boundary of the previous segment is outside
                 // NOTE: couldn't it be integrated with the handling of the union above?
-                if ( first_in_range
-                  && ! fake_enter_detected
-                  && m_previous_operation == overlay::operation_union )
-                {
-                    BOOST_ASSERT(it != first);
-                    BOOST_ASSERT(m_previous_turn_ptr);
+                // THIS IS REDUNDANT WITH THE HANDLING OF THE END OF THE RANGE
+                //if ( first_in_range
+                //  && ! fake_enter_detected
+                //  && m_previous_operation == overlay::operation_union )
+                //{
+                //    BOOST_ASSERT(it != first);
+                //    BOOST_ASSERT(m_previous_turn_ptr);
 
-                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+                //    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
-                                            boundary_checker);
+                //    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                //                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                //                            boundary_checker);
 
-                    // if there is a boundary on the last point
-                    if ( prev_back_b )
-                    {
-                        update<boundary, exterior, '0', transpose_result>(res);
-                    }
-                }
+                //    // if there is a boundary on the last point
+                //    if ( prev_back_b )
+                //    {
+                //        update<boundary, exterior, '0', transpose_result>(res);
+                //    }
+                //}
 
                 // i/i, i/x, i/u
                 if ( op == overlay::operation_intersection )
@@ -552,8 +553,8 @@ struct linear_linear
             {
                 // here, the possible exit is the real one
                 // we know that we entered and now we exit
-                if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                  || m_previous_operation == overlay::operation_union )
+                if ( /*m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
+                  ||*/ m_previous_operation == overlay::operation_union )
                 {
                     // for sure
                     update<interior, exterior, '1', transpose_result>(res);
@@ -573,6 +574,11 @@ struct linear_linear
                         update<boundary, exterior, '0', transpose_result>(res);
                     }
                 }
+
+                // Just in case,
+                // reset exit watcher before the analysis of the next Linestring
+                // note that if there are some enters stored there may be some error above
+                m_exit_watcher.reset();
             }
         }
 

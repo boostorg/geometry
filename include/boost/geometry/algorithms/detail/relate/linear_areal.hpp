@@ -28,11 +28,81 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-template <typename Result, bool TransposeResult>
-class disjoint_areal_pred
+template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
+class no_turns_la_linestring_pred
 {
 public:
-    disjoint_areal_pred(Result & res)
+    no_turns_la_linestring_pred(Geometry2 const& geometry2,
+                                Result & res,
+                                BoundaryChecker & boundary_checker)
+        : m_geometry2(geometry2)
+        , m_result_ptr(boost::addressof(res))
+        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
+        , m_interrupt_flags(0)
+    {}
+
+    template <typename Linestring>
+    bool operator()(Linestring const& linestring)
+    {
+        std::size_t count = boost::size(linestring);
+        
+        // invalid input
+        if ( count < 2 )
+        {
+            // ignore
+            // TODO: throw an exception?
+            return true;
+        }
+
+        int pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
+        BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
+
+        if ( pig > 0 )
+        {
+            update<interior, interior, '1', TransposeResult>(*m_result_ptr);
+            m_interrupt_flags |= 1;
+        }
+        else
+        {
+            update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
+            m_interrupt_flags |= 2;
+        }
+
+        // check if there is a boundary
+        if ( m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_front>(range::front(linestring))
+          || m_boundary_checker_ptr->template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+        {
+            if ( pig > 0 )
+            {
+                update<boundary, interior, '0', TransposeResult>(*m_result_ptr);
+                m_interrupt_flags |= 4;
+            }
+            else
+            {
+                update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
+                m_interrupt_flags |= 8;
+            }
+
+            return m_interrupt_flags != 0xF;
+        }
+
+        return true;
+    }
+
+private:
+    Geometry2 const& m_geometry2;
+    Result * m_result_ptr;
+    BoundaryChecker * m_boundary_checker_ptr;
+    unsigned m_interrupt_flags;
+};
+
+template <typename Result, bool TransposeResult>
+class no_turns_la_areal_pred
+{
+public:
+    no_turns_la_areal_pred(Result & res)
         : m_result_ptr(boost::addressof(res))
     {}
 
@@ -69,11 +139,6 @@ struct linear_areal
     {
         // The result should be FFFFFFFFF
         set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
-        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
-
-// TODO: NEED TO SUPPORT exterior, boundary
-//       FOR THIS WE MUST CHECK IF THE BOUNDARY OF THE POLYGON TREATED LIKE LINEAR RING
-//       GOES OUT OF THE LINESTRING G1
 
         if ( result.interrupt )
             return;
@@ -88,17 +153,33 @@ struct linear_areal
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
-        disjoint_linestring_pred<Result, boundary_checker<Geometry1>, TransposeResult> pred1(result, boundary_checker1);
+        no_turns_la_linestring_pred
+            <
+                Geometry2,
+                Result,
+                boundary_checker<Geometry1>,
+                TransposeResult
+            > pred1(geometry2, result, boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( result.interrupt )
             return;
 
-        disjoint_areal_pred<Result, !TransposeResult> pred2(result);
+        no_turns_la_areal_pred<Result, !TransposeResult> pred2(result);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( result.interrupt )
             return;
         
         if ( turns.empty() )
+            return;
+
+        // This is set here because in the case if empty Areal geometry were passed
+        // those shouldn't be set
+        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+// TODO: NEED TO SUPPORT exterior, boundary
+//       FOR THIS WE MUST CHECK IF THE BOUNDARY OF THE POLYGON TREATED LIKE LINEAR RING GOES OUT OF THE LINESTRING G1
+// THIS WON'T WORK IN ALL CASES!
+        set<exterior, boundary, '1', TransposeResult>(result);// FFFFFF21d
+        if ( result.interrupt )
             return;
 
         // x, u, i, c
@@ -188,25 +269,26 @@ struct linear_areal
                 // but the previous one went out on the previous point,
                 // we must check if the boundary of the previous segment is outside
                 // NOTE: couldn't it be integrated with the handling of the union above?
-                if ( first_in_range
-                  && ! fake_enter_detected
-                  && m_previous_operation == overlay::operation_union )
-                {
-                    BOOST_ASSERT(it != first);
-                    BOOST_ASSERT(m_previous_turn_ptr);
+                // THIS IS REDUNDANT WITH THE HANDLING OF THE END OF THE RANGE
+                //if ( first_in_range
+                //  && ! fake_enter_detected
+                //  && m_previous_operation == overlay::operation_union )
+                //{
+                //    BOOST_ASSERT(it != first);
+                //    BOOST_ASSERT(m_previous_turn_ptr);
 
-                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+                //    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
-                                            boundary_checker);
+                //    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                //                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                //                            boundary_checker);
 
-                    // if there is a boundary on the last point
-                    if ( prev_back_b )
-                    {
-                        update<boundary, exterior, '0', TransposeResult>(res);
-                    }
-                }
+                //    // if there is a boundary on the last point
+                //    if ( prev_back_b )
+                //    {
+                //        update<boundary, exterior, '0', TransposeResult>(res);
+                //    }
+                //}
 
                 // i/u, c/u
                 if ( op == overlay::operation_intersection
@@ -326,8 +408,8 @@ struct linear_areal
             {
                 // here, the possible exit is the real one
                 // we know that we entered and now we exit
-                if ( m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                  || m_previous_operation == overlay::operation_union )
+                if ( /*m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
+                  ||*/ m_previous_operation == overlay::operation_union )
                 {
                     // for sure
                     update<interior, exterior, '1', TransposeResult>(res);
@@ -347,6 +429,33 @@ struct linear_areal
                         update<boundary, exterior, '0', TransposeResult>(res);
                     }
                 }
+                // we might enter some Areal and didn't go out,
+                else if ( m_previous_operation == overlay::operation_intersection )
+                {
+                    // just in case
+                    update<interior, interior, '1', TransposeResult>(res);
+
+                    BOOST_ASSERT(first != last);
+                    BOOST_ASSERT(m_previous_turn_ptr);
+
+                    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            boundary_checker);
+
+                    // if there is a boundary on the last point
+                    if ( prev_back_b )
+                    {
+                        update<boundary, interior, '0', TransposeResult>(res);
+                    }
+                }
+
+                BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
+                                 "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
+
+                // Reset exit watcher before the analysis of the next Linestring
+                m_exit_watcher.reset();
             }
         }
 
