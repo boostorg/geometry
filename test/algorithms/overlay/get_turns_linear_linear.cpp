@@ -78,16 +78,16 @@ void test_all()
 
     test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
                           "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
-                          expected("tii")("ecc")("muu")("mii")("muu")("mii")("mux").vec);
+                          expected("tii")("ecc")("muu")("mii")("muu")("mii")("mux"));
     test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
                           "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
-                          expected("tiu")("ecc")("mui")("miu")("mui")("miu")("mui").vec);
+                          expected("tiu")("ecc")("mui")("miu")("mui")("miu")("mui"));
     test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
                           "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
-                          expected("tui")("ecc")("miu")("mui")("miu")("mui")("mix").vec);
+                          expected("tui")("ecc")("miu")("mui")("miu")("mui")("mix"));
     test_geometry<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)",
                           "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)",
-                          expected("tuu")("ecc")("mii")("muu")("mii")("muu")("mii").vec);
+                          expected("tuu")("ecc")("mii")("muu")("mii")("muu")("mii"));
 
     test_geometry<ls, ls>("LINESTRING(-1 0,1 0,2 1,3 2)", "LINESTRING(4 5,3 2,1 0,0 0)", "mix", "txi", "ecc");
     test_geometry<ls, ls>("LINESTRING(4 5,3 2,1 0,0 0)", "LINESTRING(-1 0,1 0,2 1,3 2)", "mxi", "tix", "ecc");
@@ -99,9 +99,14 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(4 0,4 1,20 1,5 0,1 0)", "LINESTRING(0 0,30 0)", "muu", "miu", "mxi");
 
     test_geometry<ls, ls>("LINESTRING(30 0,0 0)", "LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)",
-                          expected("mui")("miu")("mui")("mix").vec);
+                          expected("mui")("miu")("mui")("mix"));
     test_geometry<ls, ls>("LINESTRING(1 0,5 0,20 1,4 1,4 0,5 0)", "LINESTRING(30 0,0 0)",
-                          expected("miu")("mui")("miu")("mxi").vec);
+                          expected("miu")("mui")("miu")("mxi"));
+
+    test_geometry<ls, ls>("LINESTRING(1 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
+                          expected("mii")("iuu")("muu"));
+    test_geometry<ls, ls>("LINESTRING(1 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,5 0,4 1)",
+                          expected("mii")("muu")("muu"));
 
     //if ( boost::is_same<T, double>::value )
     //{

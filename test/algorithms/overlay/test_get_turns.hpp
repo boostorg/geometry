@@ -49,13 +49,13 @@ struct equal_turn
     const std::string * turn_ptr;
 };
 
-template <typename Geometry1, typename Geometry2>
-void check_geometry(
+template <typename Geometry1, typename Geometry2, typename Range>
+void check_geometry_range(
     Geometry1 const& g1,
     Geometry2 const& g2,
     std::string const& wkt1,
     std::string const& wkt2,
-    std::vector<std::string> const& expected)
+    Range const& expected)
 {
     typedef bg::detail::overlay::turn_info
         <
@@ -77,16 +77,17 @@ void check_geometry(
             turn_policy_t
         >::apply(0, g1, 1, g2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
 
-    bool ok = expected.size() == turns.size();
+    bool ok = boost::size(expected) == turns.size();
 
     BOOST_CHECK_MESSAGE(ok,
         "get_turns: " << wkt1 << " and " << wkt2
-        << " -> Expected turns #: " << expected.size() << " detected turns #: " << turns.size());
+        << " -> Expected turns #: " << boost::size(expected) << " detected turns #: " << turns.size());
 
-    BOOST_FOREACH(std::string const& s, expected)
+    for ( typename boost::range_iterator<Range const>::type sit = boost::begin(expected) ;
+          sit != boost::end(expected) ; ++sit)
     {
         typename std::vector<turn_info>::iterator
-            it = std::find_if(turns.begin(), turns.end(), equal_turn(s));
+            it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
 
         if ( it != turns.end() )
             turns.erase(it);
@@ -94,20 +95,20 @@ void check_geometry(
         {
             BOOST_CHECK_MESSAGE(false,
                 "get_turns: " << wkt1 << " and " << wkt2
-                << " -> Expected turn: " << s << " not found");
+                << " -> Expected turn: " << *sit << " not found");
         }
     }
 }
 
-template <typename Geometry1, typename Geometry2>
-void test_geometry(std::string const& wkt1, std::string const& wkt2,
-                   std::vector<std::string> const& expected)
+template <typename Geometry1, typename Geometry2, typename Range>
+void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
+                         Range const& expected)
 {
     Geometry1 geometry1;
     Geometry2 geometry2;
     bg::read_wkt(wkt1, geometry1);
     bg::read_wkt(wkt2, geometry2);
-    check_geometry(geometry1, geometry2, wkt1, wkt2, expected);
+    check_geometry_range(geometry1, geometry2, wkt1, wkt2, expected);
 }
 
 template <typename G1, typename G2>
@@ -116,7 +117,7 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
 {
     std::vector<std::string> expected;
     expected.push_back(ex0);
-    test_geometry<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }
 
 template <typename G1, typename G2>
@@ -126,7 +127,7 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     std::vector<std::string> expected;
     expected.push_back(ex0);
     expected.push_back(ex1);
-    test_geometry<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }
 
 template <typename G1, typename G2>
@@ -137,7 +138,7 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     expected.push_back(ex0);
     expected.push_back(ex1);
     expected.push_back(ex2);
-    test_geometry<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }
 
 struct expected_pusher
@@ -147,6 +148,15 @@ struct expected_pusher
         vec.push_back(ex);
         return *this;
     }
+
+    typedef std::vector<std::string>::iterator iterator;
+    typedef std::vector<std::string>::const_iterator const_iterator;
+
+    //iterator begin() { return vec.begin(); }
+    //iterator end() { return vec.end(); }
+    const_iterator begin() const { return vec.begin(); }
+    const_iterator end() const { return vec.end(); }
+
     std::vector<std::string> vec;
 };
 
@@ -154,6 +164,20 @@ expected_pusher expected(std::string const& ex)
 {
     expected_pusher res;
     return res(ex);
+}
+
+template <typename G1, typename G2>
+void test_geometry(std::string const& wkt1, std::string const& wkt2,
+                   std::vector<std::string> const& expected)
+{
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+}
+
+template <typename G1, typename G2>
+void test_geometry(std::string const& wkt1, std::string const& wkt2,
+                   expected_pusher const& expected)
+{
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }
 
 #endif // BOOST_GEOMETRY_TEST_ALGORITHMS_OVERLAY_TEST_GET_TURNS_HPP
