@@ -317,7 +317,10 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                     }
                     else // operation_boundary
                     {
-                        ++m_boundary_counter;
+                        // don't add to the count for all met boundaries
+                        // only if this is the "new" boundary
+                        if ( first_in_range || !it->operations[op_id].is_collinear )
+                            ++m_boundary_counter;
 
                         update<interior, boundary, '1', TransposeResult>(res);
                     }
@@ -337,7 +340,9 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                         update<interior, boundary, '0', TransposeResult>(res);
 
                         // if we didn't enter in the past, we were outside
-                        if ( no_enters_detected && !fake_enter_detected )
+                        if ( no_enters_detected
+                          && !fake_enter_detected
+                          && it->operations[op_id].position != overlay::position_front )
                         {
                             bool from_inside = first_in_range
                                                && calculate_from_inside(geometry,
@@ -422,37 +427,39 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                         }
 
                         // TODO: very similar code is used in the handling of intersection
-
-                        bool first_from_inside = first_in_range
-                                              && calculate_from_inside(geometry,
-                                                                       other_geometry,
-                                                                       *it);
-                        if ( first_from_inside )
+                        if ( it->operations[op_id].position != overlay::position_front )
                         {
-                            update<interior, interior, '1', TransposeResult>(res);
-
-                            // notify the exit_watcher that we started inside
-                            m_exit_watcher.enter(it->point, other_id);
-                        }
-                        else
-                        {
-                            update<interior, exterior, '1', TransposeResult>(res);
-                        }
-
-                        // first IP on the last segment point - this means that the first point is outside or inside
-                        if ( first_in_range && ( !this_b || op_blocked ) )
-                        {
-                            bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                range::front(sub_geometry::get(geometry, seg_id)),
-                                                boundary_checker);
-
-                            // if there is a boundary on the first point
-                            if ( front_b )
+                            bool first_from_inside = first_in_range
+                                                  && calculate_from_inside(geometry,
+                                                                           other_geometry,
+                                                                           *it);
+                            if ( first_from_inside )
                             {
-                                if ( first_from_inside )
-                                    update<boundary, interior, '0', TransposeResult>(res);
-                                else
-                                    update<boundary, exterior, '0', TransposeResult>(res);
+                                update<interior, interior, '1', TransposeResult>(res);
+
+                                // notify the exit_watcher that we started inside
+                                m_exit_watcher.enter(it->point, other_id);
+                            }
+                            else
+                            {
+                                update<interior, exterior, '1', TransposeResult>(res);
+                            }
+
+                            // first IP on the last segment point - this means that the first point is outside or inside
+                            if ( first_in_range && ( !this_b || op_blocked ) )
+                            {
+                                bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    boundary_checker);
+
+                                // if there is a boundary on the first point
+                                if ( front_b )
+                                {
+                                    if ( first_from_inside )
+                                        update<boundary, interior, '0', TransposeResult>(res);
+                                    else
+                                        update<boundary, exterior, '0', TransposeResult>(res);
+                                }
                             }
                         }
                     }

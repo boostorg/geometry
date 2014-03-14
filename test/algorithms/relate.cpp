@@ -480,6 +480,14 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(11 5,10 1,10 5,10 9,11 5)",
                             "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
                             "F11FFF212");
+
+    // polygons with exterior ring equals the linestring
+    test_geometry<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "F1FFFF2F2");
+    to_svg<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "F1FFFF2F2.svg");
 }
 
 template <typename P>
