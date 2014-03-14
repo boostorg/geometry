@@ -473,7 +473,11 @@ struct get_turn_info_linear_areal
         // ANALYSE AND ASSIGN LAST
 
         // IP on the last point of Linear Geometry
-        if ( EnableLast && is_p_last && ( ip_count > 1 ? p1j : p0j ) && !q0i && !q1i ) // !q0i && !q1i prevents duplication
+        if ( EnableLast
+          && is_p_last
+          && ( ip_count > 1 ? p1j : p0j )
+          && (!q0i || (q0i && q1j))        // prevents duplication
+          && (!q1i || (q1i && q0j)) )      // prevents duplication
         {
             TurnInfo tp = tp_model;
             

@@ -39,7 +39,7 @@
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
 
@@ -394,6 +394,9 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(11 1,10 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1F00212");
     // IE IB1
     test_geometry<ls, poly>("LINESTRING(11 1,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+    test_geometry<ls, poly>("LINESTRING(11 1,10 10,0 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+    test_geometry<ls, poly>("LINESTRING(11 1,10 0,0 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+    test_geometry<ls, poly>("LINESTRING(0 -1,1 0,2 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
     // IE IB0 II
     test_geometry<ls, poly>("LINESTRING(11 1,10 5,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
     // IE IB0 lring
@@ -410,6 +413,35 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(1 0,2 0,3 1,4 0,5 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11FF0F212");
     // IB1 IE IB1
     test_geometry<ls, poly>("LINESTRING(1 0,2 0,3 -1,4 0,5 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F0F212");
+
+    // II IB1
+    test_geometry<ls, poly>("LINESTRING(5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11F00F212");
+    // IB1 II
+    test_geometry<ls, poly>("LINESTRING(10 10,10 5,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "11F00F212");
+    // IE IB1
+    test_geometry<ls, poly>("LINESTRING(15 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+    // IB1 IE
+    test_geometry<ls, poly>("LINESTRING(10 10,10 5,15 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
+
+    // II IB0 IE
+    test_geometry<ls, poly>("LINESTRING(5 5,10 5,15 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+
+    // polygon with hole
+    test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "10F0FF212");
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F1FF0F212");
+
+    to_svg<ls, poly>("LINESTRING(10 1,10 5,10 9)",
+        "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "asdasdas.svg");
+
+    // polygon with hole, linear ring
+    test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9,1 9,1 1,9 1)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "10FFFF212");
 }
 
 template <typename P>

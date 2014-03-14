@@ -152,6 +152,10 @@ struct linear_areal
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
 
+// TODO: reverse and close if needed!
+// ONLY IF THE ALGORITHM BELOW WANTS TO ACCESS THE POINTS OF SEGMENTS
+static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
+
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         no_turns_la_linestring_pred
             <
@@ -294,7 +298,7 @@ struct linear_areal
                 if ( op == overlay::operation_intersection
                   || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
                 {
-                    bool was_outside = m_exit_watcher.is_outside();
+                    bool no_enters_detected = m_exit_watcher.is_outside();
                     m_exit_watcher.enter(it->point, other_id);
 
                     if ( op == overlay::operation_intersection )
@@ -322,9 +326,17 @@ struct linear_areal
                         update<interior, boundary, '0', TransposeResult>(res);
 
                         // if we didn't enter in the past, we were outside
-                        if ( was_outside && !fake_enter_detected )
+                        if ( no_enters_detected && !fake_enter_detected )
                         {
-                            update<interior, exterior, '1', TransposeResult>(res);
+                            bool from_inside = first_in_range
+                                               && calculate_from_inside(geometry,
+                                                                        other_geometry,
+                                                                        *it);
+
+                            if ( from_inside )
+                                update<interior, interior, '1', TransposeResult>(res);
+                            else
+                                update<interior, exterior, '1', TransposeResult>(res);
 
                             // if it's the first IP then the first point is outside
                             if ( first_in_range )
@@ -336,7 +348,10 @@ struct linear_areal
                                 // if there is a boundary on the first point
                                 if ( front_b )
                                 {
-                                    update<boundary, exterior, '0', TransposeResult>(res);
+                                    if ( from_inside )
+                                        update<boundary, interior, '0', TransposeResult>(res);
+                                    else
+                                        update<boundary, exterior, '0', TransposeResult>(res);
                                 }
                             }
                         }
@@ -346,11 +361,11 @@ struct linear_areal
                 else if ( op == overlay::operation_union || op == overlay::operation_blocked )
                 {
                     bool op_blocked = op == overlay::operation_blocked;
-                    bool was_outside = m_exit_watcher.is_outside();
+                    bool no_enters_detected = m_exit_watcher.is_outside();
                     m_exit_watcher.exit(it->point, other_id, op);
 
                     // we're inside, possibly going out right now
-                    if ( ! was_outside )
+                    if ( ! no_enters_detected )
                     {
                         if ( op_blocked )
                         {
@@ -362,11 +377,9 @@ struct linear_areal
                             }
                         }
                     }
-                    // we're outside
+                    // we're outside or inside and this is the first turn
                     else
                     {
-                        update<interior, exterior, '1', TransposeResult>(res);
-
                         bool this_b = is_ip_on_boundary<boundary_any>(it->point,
                                                                       it->operations[op_id],
                                                                       boundary_checker,
@@ -382,7 +395,18 @@ struct linear_areal
                             update<interior, boundary, '0', TransposeResult>(res);
                         }
 
-                        // first IP on the last segment point - this means that the first point is outside
+                        // TODO: very similar code is used in the handling of intersection
+
+                        bool from_inside = first_in_range
+                                           && calculate_from_inside(geometry,
+                                                                    other_geometry,
+                                                                    *it);
+                        if ( from_inside )
+                            update<interior, interior, '1', TransposeResult>(res);
+                        else
+                            update<interior, exterior, '1', TransposeResult>(res);
+
+                        // first IP on the last segment point - this means that the first point is outside or inside
                         if ( first_in_range && ( !this_b || op_blocked ) )
                         {
                             bool front_b = is_endpoint_on_boundary<boundary_front>(
@@ -392,7 +416,10 @@ struct linear_areal
                             // if there is a boundary on the first point
                             if ( front_b )
                             {
-                                update<boundary, exterior, '0', TransposeResult>(res);
+                                if ( from_inside )
+                                    update<boundary, interior, '0', TransposeResult>(res);
+                                else
+                                    update<boundary, exterior, '0', TransposeResult>(res);
                             }
                         }
                     }
@@ -457,6 +484,82 @@ struct linear_areal
                 // Reset exit watcher before the analysis of the next Linestring
                 m_exit_watcher.reset();
             }
+        }
+
+        template <typename Geometry1, typename Geometry2, typename Turn>
+        static inline bool calculate_from_inside(Geometry1 const& geometry1,
+                                                 Geometry2 const& geometry2,
+                                                 Turn const& turn)
+        {
+            if ( turn.operations[op_id].position == overlay::position_front )
+                return false;
+
+            typename sub_geometry::result_type<Geometry1 const>::type
+                        sg1 = sub_geometry::get(geometry1, turn.operations[op_id].seg_id);
+            typename sub_geometry::result_type<Geometry2 const>::type
+                        sg2 = sub_geometry::get(geometry2, turn.operations[other_op_id].seg_id);
+
+            std::size_t s1 = boost::size(sg1);
+            std::size_t s2 = boost::size(sg2);
+            BOOST_ASSERT(s1 > 1 && s2 > 2);
+            std::size_t seg_count2 = s2 - 1;
+
+            std::size_t p_seg_ij = turn.operations[op_id].seg_id.segment_index;
+            std::size_t q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
+
+            BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
+
+            point1_type const& pi = range::at(sg1, p_seg_ij);
+            point2_type const& qi = range::at(sg2, q_seg_ij);
+            point2_type const& qj = range::at(sg2, q_seg_ij + 1);
+            point1_type qi_conv;
+            geometry::convert(qi, qi_conv);
+            bool is_ip_qj = equals::equals_point_point(turn.point, qj);
+// TODO: test this!
+            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
+            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
+            point1_type new_pj;
+            geometry::convert(turn.point, new_pj);
+
+            if ( is_ip_qj )
+            {
+                std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
+                BOOST_ASSERT(q_seg_jk + 1 < s2);
+                point2_type const& qk = range::at(sg2, q_seg_jk + 1);
+                // Will this sequence of point be always correct?
+                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
+
+                return calculate_from_inside_sides(side_calc);
+            }
+            else
+            {
+                point1_type new_qj;
+                geometry::convert(turn.point, new_qj);
+
+                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, new_qj, qj);
+
+                return calculate_from_inside_sides(side_calc);
+            }
+        }
+
+        template <typename SideCalc>
+        static inline bool calculate_from_inside_sides(SideCalc const& side_calc)
+        {
+            // From equal<>
+
+            int const side_pk_p = side_calc.pk_wrt_p1();
+            int const side_qk_p = side_calc.qk_wrt_p1();
+            // If they turn to same side (not opposite sides)
+            if (! overlay::base_turn_handler::opposite(side_pk_p, side_qk_p))
+            {
+                int const side_pk_q2 = side_calc.pk_wrt_q2();
+                return side_pk_q2 == -1;
+            }
+            else
+            {
+                return side_pk_p == -1;
+            }
+            
         }
 
     private:

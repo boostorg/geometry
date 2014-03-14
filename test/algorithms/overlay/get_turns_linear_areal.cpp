@@ -46,6 +46,13 @@ void test_all()
                             "POLYGON((0 0,5 5,0 10,20 10,20 2,19 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
                             expected("tcu")("mic")("mcu")("mic")("mxu").vec);
 
+    test_geometry<ls, poly>("LINESTRING(11 1,10 0,0 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "tcc", "txu");
+    test_geometry<ls, poly>("LINESTRING(0 0,10 0,11 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "tcu", "tuc");
+    test_geometry<ls, poly>("LINESTRING(10 0,0 0,-1 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "tcc", "tuu");
+
     // true hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
                             "POLYGON((0 0,0 10,10 10,10 5,10 0,0 0)(2 2,10 5,2 8,2 2))",
