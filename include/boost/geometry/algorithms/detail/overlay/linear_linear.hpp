@@ -20,7 +20,14 @@
 #include <boost/geometry/algorithms/detail/turns/print_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow_linear_linear.hpp>
 
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_FILTER_CONTINUE_TURNS
+#include <boost/geometry/algorithms/detail/turns/filter_continue_turns.hpp>
+#endif
+
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
+#include <boost/geometry/algorithms/detail/turns/remove_duplicate_turns.hpp>
+#endif
+
 
 namespace boost { namespace geometry
 {
@@ -118,7 +125,10 @@ template
     typename Linear1,
     typename Linear2,
     typename LinestringOut,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool EnableFilterContinueTurns = true,
+    bool EnableRemoveDuplicateTurns = true,
+    bool EnableDegenerateTurns = true
 >
 class linear_linear_linestring
 {
@@ -126,7 +136,11 @@ protected:
     struct AssignPolicy
     {
         static bool const include_no_turn = false;
-        static bool const include_degenerate = false;
+#ifdef BOOST_GEOMETRY_DIFFERENCE_INCLUDE_DEGENERATE_TURNS
+        static bool const include_degenerate = true;
+#else
+        static bool const include_degenerate = EnableDegenerateTurns;
+#endif
         static bool const include_opposite = false;
 
         template
@@ -143,68 +157,6 @@ protected:
             calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
-
-
-    class IsContinueTurn
-    {
-    private:
-        template <typename Operation>
-        inline bool is_continue_or_opposite(Operation const& operation) const
-        {
-            return operation == operation_continue
-                || operation == operation_opposite;
-        }
-
-    public:
-        template <typename Turn>
-        bool operator()(Turn const& turn) const
-        {
-            if ( turn.method != method_collinear
-                 && turn.method != method_equal )
-            {
-                return false;
-            }
-
-            return is_continue_or_opposite(turn.operations[0].operation)
-                && is_continue_or_opposite(turn.operations[1].operation);
-        }
-    };
-
-
-#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
-    struct TurnEqualsTo
-    {
-        template <typename Turn>
-        bool operator()(Turn const& t1, Turn const& t2) const
-        {
-            return geometry::equals(t1.point, t2.point)
-                && t1.operations[0].seg_id == t2.operations[0].seg_id
-                && t1.operations[0].other_id == t2.operations[0].other_id;
-        }
-    };
-#endif
-
-
-    template <typename Turns>
-    static inline void filter_turns(Turns& turns)
-    {
-        turns.erase( std::remove_if(turns.begin(), turns.end(),
-                                    IsContinueTurn()),
-                     turns.end()
-                     );
-    }
-
-
-#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
-    template <typename Turns>
-    static inline void remove_duplicates(Turns& turns)
-    {
-        turns.erase( std::unique(turns.begin(), turns.end(),
-                                 TurnEqualsTo()),
-                     turns.end()
-                     );
-    }
-#endif
 
 
     template
@@ -274,9 +226,17 @@ protected:
                           LinearGeometry2 const& linear2,
                           OutputIterator oit)
     {
+#ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_FILTER_CONTINUE_TURNS
         // remove turns that have no added value
-        filter_turns(turns);
-        filter_turns(reverse_turns);
+        turns::filter_continue_turns
+            <
+                Turns, EnableFilterContinueTurns
+            >::apply(turns);
+        turns::filter_continue_turns
+            <
+                Turns, EnableFilterContinueTurns
+            >::apply(reverse_turns);
+#endif
 
         // sort by seg_id, distance, and operation
         std::sort(boost::begin(turns), boost::end(turns),
@@ -287,8 +247,14 @@ protected:
 
 #ifndef BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS
         // remove duplicate turns
-        remove_duplicates(turns);
-        remove_duplicates(reverse_turns);
+        turns::remove_duplicate_turns
+            <
+                Turns, EnableRemoveDuplicateTurns
+            >::apply(turns);
+        turns::remove_duplicate_turns
+            <
+                Turns, EnableRemoveDuplicateTurns
+            >::apply(reverse_turns);
 #endif
 
 #ifdef GEOMETRY_TEST_DEBUG
