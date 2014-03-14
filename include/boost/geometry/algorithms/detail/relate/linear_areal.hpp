@@ -28,6 +28,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+// TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
+// Use the rtree in this case!
 template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
 class no_turns_la_linestring_pred
 {
@@ -209,6 +211,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
         turns_analyser()
             : m_previous_turn_ptr(0)
             , m_previous_operation(overlay::operation_none)
+            , m_boundary_counter(0)
         {}
 
         template <typename Result,
@@ -303,11 +306,19 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
 
                     if ( op == overlay::operation_intersection )
                     {
-                        // interiors overlaps
-                        update<interior, interior, '1', TransposeResult>(res);
+                        if ( m_boundary_counter > 0 && it->operations[op_id].is_collinear )
+                            --m_boundary_counter;
+
+                        if ( m_boundary_counter == 0 )
+                        {
+                            // interiors overlaps
+                            update<interior, interior, '1', TransposeResult>(res);
+                        }
                     }
                     else // operation_boundary
                     {
+                        ++m_boundary_counter;
+
                         update<interior, boundary, '1', TransposeResult>(res);
                     }
 
@@ -362,7 +373,16 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                 {
                     bool op_blocked = op == overlay::operation_blocked;
                     bool no_enters_detected = m_exit_watcher.is_outside();
-                    m_exit_watcher.exit(it->point, other_id, op);
+                    
+                    if ( op == overlay::operation_union )
+                    {
+                        if ( m_boundary_counter > 0 && it->operations[op_id].is_collinear )
+                            --m_boundary_counter;
+                    }
+                    else // overlay::operation_blocked
+                    {
+                        m_boundary_counter = 0;
+                    }
 
                     // we're inside, possibly going out right now
                     if ( ! no_enters_detected )
@@ -376,6 +396,12 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                                 update<boundary, boundary, '0', TransposeResult>(res);
                             }
                         }
+                        // union, inside, but no exit -> collinear on self-intersection point
+                        // not needed since we're already inside the boundary
+                        /*else if ( !exit_detected )
+                        {
+                            update<interior, boundary, '0', TransposeResult>(res);
+                        }*/
                     }
                     // we're outside or inside and this is the first turn
                     else
@@ -397,14 +423,21 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
 
                         // TODO: very similar code is used in the handling of intersection
 
-                        bool from_inside = first_in_range
-                                           && calculate_from_inside(geometry,
-                                                                    other_geometry,
-                                                                    *it);
-                        if ( from_inside )
+                        bool first_from_inside = first_in_range
+                                              && calculate_from_inside(geometry,
+                                                                       other_geometry,
+                                                                       *it);
+                        if ( first_from_inside )
+                        {
                             update<interior, interior, '1', TransposeResult>(res);
+
+                            // notify the exit_watcher that we started inside
+                            m_exit_watcher.enter(it->point, other_id);
+                        }
                         else
+                        {
                             update<interior, exterior, '1', TransposeResult>(res);
+                        }
 
                         // first IP on the last segment point - this means that the first point is outside or inside
                         if ( first_in_range && ( !this_b || op_blocked ) )
@@ -416,12 +449,20 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                             // if there is a boundary on the first point
                             if ( front_b )
                             {
-                                if ( from_inside )
+                                if ( first_from_inside )
                                     update<boundary, interior, '0', TransposeResult>(res);
                                 else
                                     update<boundary, exterior, '0', TransposeResult>(res);
                             }
                         }
+                    }
+
+                    // if we're going along a boundary, we exit only if the linestring was collinear
+                    if ( m_boundary_counter == 0
+                      || it->operations[op_id].is_collinear )
+                    {
+                        // notify the exit watcher about the possible exit
+                        m_exit_watcher.exit(it->point, other_id, op);
                     }
                 }
 
@@ -483,6 +524,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
 
                 // Reset exit watcher before the analysis of the next Linestring
                 m_exit_watcher.reset();
+                m_boundary_counter = 0;
             }
         }
 
@@ -567,6 +609,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
         segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
+        unsigned m_boundary_counter;
     };
 
     template <typename Result,

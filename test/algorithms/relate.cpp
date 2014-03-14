@@ -426,22 +426,60 @@ void test_linestring_polygon()
     // II IB0 IE
     test_geometry<ls, poly>("LINESTRING(5 5,10 5,15 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
 
-    // polygon with hole
+    // non-simple polygon with hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "10F0FF212");
     test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "F1FF0F212");
+    test_geometry<ls, poly>("LINESTRING(2 8,10 5,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F1FF0F212");
 
-    to_svg<ls, poly>("LINESTRING(10 1,10 5,10 9)",
-        "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
-                            "asdasdas.svg");
-
-    // polygon with hole, linear ring
+    // non-simple polygon with hole, linear ring
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9,1 9,1 1,9 1)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "10FFFF212");
+    test_geometry<ls, poly>("LINESTRING(10 5,10 9,11 5,10 1,10 5)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F11FFF212");
+    test_geometry<ls, poly>("LINESTRING(11 5,10 1,10 5,10 9,11 5)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F11FFF212");
+
+    // non-simple polygon with self-touching holes
+    test_geometry<ls, poly>("LINESTRING(7 1,8 5,7 9)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(8 1,9 1,9 9,8 9,8 1),(2 2,8 5,2 8,2 2))",
+                            "10F0FF212");
+    test_geometry<ls, poly>("LINESTRING(8 2,8 5,8 8)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(8 1,9 1,9 9,8 9,8 1),(2 2,8 5,2 8,2 2))",
+                            "F1FF0F212");
+    test_geometry<ls, poly>("LINESTRING(2 8,8 5,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(8 1,9 1,9 9,8 9,8 1),(2 2,8 5,2 8,2 2))",
+                            "F1FF0F212");
+
+    // non-simple polygon self-touching
+    test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "10F0FF212");
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "F1FF0F212");
+    test_geometry<ls, poly>("LINESTRING(2 8,10 5,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "F1FF0F212");
+
+    // non-simple polygon self-touching, linear ring
+    test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9,1 9,1 1,9 1)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "10FFFF212");
+    test_geometry<ls, poly>("LINESTRING(10 5,10 9,11 5,10 1,10 5)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "F11FFF212");
+    test_geometry<ls, poly>("LINESTRING(11 5,10 1,10 5,10 9,11 5)",
+                            "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
+                            "F11FFF212");
 }
 
 template <typename P>
