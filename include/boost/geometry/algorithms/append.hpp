@@ -105,7 +105,7 @@ struct range_to_polygon
     typedef typename ring_type<Polygon>::type ring_type;
 
     static inline void apply(Polygon& polygon, Range const& range,
-                int ring_index, int )
+                int ring_index, int = 0)
     {
         if (ring_index == -1)
         {
