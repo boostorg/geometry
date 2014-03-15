@@ -110,10 +110,7 @@ struct test_geometry
         if (check)
         {
             do_checks<false>::apply(geometry, 0u);
-            //            BOOST_CHECK_EQUAL(bg::num_points(geometry), 0u);
         }
-
-        //P p = boost::range::front(geometry);
     }
 };
 
@@ -166,7 +163,6 @@ void test_all()
 
     test_geometry_and_variant<std::vector<P> >();
     test_geometry_and_variant<std::deque<P> >();
-    //test_geometry_and_variant<std::list<P> >();
 }
 
 int test_main(int, char* [])
