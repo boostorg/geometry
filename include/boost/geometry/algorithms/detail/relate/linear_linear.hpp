@@ -33,7 +33,7 @@ class disjoint_linestring_pred
 {
 public:
     disjoint_linestring_pred(Result & res,
-                             BoundaryChecker & boundary_checker)
+                             BoundaryChecker const& boundary_checker)
         : m_result_ptr(boost::addressof(res))
         , m_boundary_checker_ptr(boost::addressof(boundary_checker))
     {}
@@ -69,7 +69,7 @@ public:
 
 private:
     Result * m_result_ptr;
-    BoundaryChecker * m_boundary_checker_ptr;
+    const BoundaryChecker * m_boundary_checker_ptr;
 };
 
 //enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
@@ -289,8 +289,8 @@ struct linear_linear
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
-                   BoundaryChecker & boundary_checker,
-                   OtherBoundaryChecker & other_boundary_checker)
+                   BoundaryChecker const& boundary_checker,
+                   OtherBoundaryChecker const& other_boundary_checker)
         {
             if ( it != last )
             {
@@ -601,8 +601,8 @@ struct linear_linear
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,
                                          OtherGeometry const& other_geometry,
-                                         BoundaryChecker & boundary_checker,
-                                         OtherBoundaryChecker & other_boundary_checker)
+                                         BoundaryChecker const& boundary_checker,
+                                         OtherBoundaryChecker const& other_boundary_checker)
     {
         if ( first == last )
             return;

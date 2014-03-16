@@ -670,7 +670,7 @@ public:
 
     bool interrupt;
 
-    inline static_mask_handler()
+    inline static_mask_handler(StaticMask const& /*dummy*/)
         : interrupt(false)
     {}
 
@@ -689,7 +689,7 @@ public:
                                  : should_handle ? 1
                                  : 2;
 
-        set_dispatch<F1, F2, V>(integral_constant<bool, interrupt_c>());
+        set_dispatch<F1, F2, V>(integral_constant<int, version>());
     }
 
     template <field F1, field F2, char V>

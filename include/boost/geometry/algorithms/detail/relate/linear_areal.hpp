@@ -36,7 +36,7 @@ class no_turns_la_linestring_pred
 public:
     no_turns_la_linestring_pred(Geometry2 const& geometry2,
                                 Result & res,
-                                BoundaryChecker & boundary_checker)
+                                BoundaryChecker const& boundary_checker)
         : m_geometry2(geometry2)
         , m_result_ptr(boost::addressof(res))
         , m_boundary_checker_ptr(boost::addressof(boundary_checker))
@@ -96,7 +96,7 @@ public:
 private:
     Geometry2 const& m_geometry2;
     Result * m_result_ptr;
-    BoundaryChecker * m_boundary_checker_ptr;
+    const BoundaryChecker * m_boundary_checker_ptr;
     unsigned m_interrupt_flags;
 };
 
@@ -223,7 +223,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
-                   BoundaryChecker & boundary_checker)
+                   BoundaryChecker const& boundary_checker)
         {
             if ( it != last )
             {
@@ -630,7 +630,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                                          TurnIt first, TurnIt last,
                                          Geometry const& geometry,
                                          OtherGeometry const& other_geometry,
-                                         BoundaryChecker & boundary_checker)
+                                         BoundaryChecker const& boundary_checker)
     {
         if ( first == last )
             return;
