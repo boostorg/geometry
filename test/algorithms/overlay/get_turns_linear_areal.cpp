@@ -68,6 +68,13 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(10 1,10 5,10 9)",
                             "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
                             expected("mcu")("tuc")("tcu")("mxc").vec);
+
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            expected("mcu")("mic")("tcu")("txc"));
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 8)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            expected("mcu")("mic")("tcc")("txu"));
 }
 
 int test_main(int, char* [])

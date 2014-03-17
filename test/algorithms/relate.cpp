@@ -440,9 +440,6 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 2)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "F1FF0F212");
-    to_svg<ls, poly>("LINESTRING(10 1,10 5,2 2)",
-                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
-                            "sort_problem.svg");
     test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 8)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "F1FF0F212");

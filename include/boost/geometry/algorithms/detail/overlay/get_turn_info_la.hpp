@@ -476,8 +476,8 @@ struct get_turn_info_linear_areal
         if ( EnableLast
           && is_p_last
           && ( ip_count > 1 ? p1j : p0j )
-          && (!q0i || (q0i && q1j))        // prevents duplication
-          && (!q1i || (q1i && q0j)) )      // prevents duplication
+          && (!q0i || (q0i && q1j))         // prevents duplication
+          && !q1i )                         // prevents duplication
         {
             TurnInfo tp = tp_model;
             
