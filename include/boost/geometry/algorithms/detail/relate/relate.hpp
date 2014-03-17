@@ -131,6 +131,16 @@ struct relate<Polygon, Linestring, polygon_tag, linestring_tag>
     : detail::relate::areal_linear<Polygon, Linestring>
 {};
 
+template <typename Linestring, typename MultiPolygon>
+struct relate<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
+    : detail::relate::linear_areal<Linestring, MultiPolygon>
+{};
+
+template <typename MultiPolygon, typename Linestring>
+struct relate<MultiPolygon, Linestring, multi_polygon_tag, linestring_tag>
+    : detail::relate::areal_linear<MultiPolygon, Linestring>
+{};
+
 }} // namespace detail_dispatch::relate
 
 namespace detail { namespace relate {

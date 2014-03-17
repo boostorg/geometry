@@ -276,6 +276,8 @@ struct linear_linear
             : m_result(result)
         {}
 
+// TODO: since we update result for some operations here, we must not do it in the analyser!
+
         template <typename Range>
         inline bool apply(Range const& turns)
         {
@@ -295,7 +297,7 @@ struct linear_linear
                        && it->operations[0].position == overlay::position_middle
                        && it->operations[1].position == overlay::position_middle )
                 {
-// TODO: here we could also check the boundaries and set IB,BI at this point
+// TODO: here we could also check the boundaries and set IB,BI,BB at this point
                     update<interior, interior, '0'>(m_result);
                 }
             }

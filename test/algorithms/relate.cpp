@@ -37,6 +37,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 //TEST
 #include <to_svg.hpp>
@@ -436,6 +437,12 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(2 8,10 5,2 2)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
                             "F1FF0F212");
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F1FF0F212");
+    test_geometry<ls, poly>("LINESTRING(10 1,10 5,2 8)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5))",
+                            "F1FF0F212");
 
     // non-simple polygon with hole, linear ring
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9,1 9,1 1,9 1)",
@@ -491,6 +498,28 @@ void test_linestring_polygon()
 }
 
 template <typename P>
+void test_linestring_multi_polygon()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,10 9)",
+                            "MULTIPOLYGON(((0 20,0 30,10 30,10 20,0 20)),((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,10 9)",
+                            "MULTIPOLYGON(((0 20,0 30,10 30,10 20,0 20)),((0 0,0 10,10 10,10 0,0 0)))",
+                            "F1FF0F212");
+
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,2 2)",
+                            "MULTIPOLYGON(((0 20,0 30,10 30,10 20,0 20)),((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,2 2)",
+                            "MULTIPOLYGON(((0 20,0 30,10 30,10 20,0 20)),((0 0,0 10,10 10,10 0,0 0)))",
+                            "11F00F212");
+}
+
+template <typename P>
 void test_all()
 {
     test_point_point<P>();
@@ -501,6 +530,7 @@ void test_all()
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
     test_linestring_polygon<P>();
+    //test_linestring_multi_polygon<P>();
 }
 
 int test_main( int , char* [] )

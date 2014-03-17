@@ -28,6 +28,37 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+template <typename Geometry,
+          bool IsMulti = boost::is_base_of
+                            <
+                                multi_tag,
+                                typename geometry::tag<Geometry>::type
+                            >::value
+>
+struct simple_geometry
+{
+    template <typename Id>
+    static inline Geometry & apply(Geometry & g, Id const& ) { return g; }
+};
+
+template <typename Geometry>
+struct simple_geometry<Geometry, true>
+{
+    template <typename Id>
+    static inline
+    typename boost::mpl::if_c
+        <
+            boost::is_const<Geometry>::value,
+            typename boost::range_value<Geometry>::type const&,
+            typename boost::range_value<Geometry>::type
+        >::type
+    apply(Geometry & g, Id const& id)
+    {
+        BOOST_ASSERT(id.multi_index >= 0);
+        return *(boost::begin(g) + id.multi_index);
+    }
+};
+
 // TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
 // Use the rtree in this case!
 template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
@@ -150,9 +181,11 @@ struct linear_areal
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
-// TODO: INTEGRATE INTERRUPT POLICY WITH THE PASSED RESULT
+        interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
+        if ( result.interrupt )
+            return;
 
 // TODO: reverse and close if needed!
 // ONLY IF THE ALGORITHM BELOW WANTS TO ACCESS THE POINTS OF SEGMENTS
@@ -197,6 +230,58 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                           geometry1, geometry2,
                           boundary_checker1);
     }
+
+    template <typename Areal, typename Result>
+    class interrupt_policy_linear_areal
+    {
+    public:
+        static bool const enabled = true;
+
+        interrupt_policy_linear_areal(Areal const& areal, Result & result)
+            : m_result(result), m_areal(areal)
+        {}
+
+// TODO: since we update result for some operations here, we must not do it in the analyser!
+
+        template <typename Range>
+        inline bool apply(Range const& turns)
+        {
+            typedef typename boost::range_iterator<Range const>::type iterator;
+            
+            for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
+            {
+                if ( it->operations[0].operation == overlay::operation_intersection )
+                {
+                    bool const no_interior_rings
+                        = boost::empty(
+                            geometry::interior_rings(
+                                simple_geometry<Areal const>::apply(m_areal, it->operations[1].seg_id)));
+
+                    // WARNING! THIS IS TRUE ONLY IF THE POLYGON IS SIMPLE!
+                    // OR WITHOUT INTERIOR RINGS (AND OF COURSE VALID)
+                    if ( no_interior_rings )
+                        update<interior, interior, '1', TransposeResult>(m_result);
+                }
+                else if ( it->operations[0].operation == overlay::operation_continue )
+                {
+                    update<interior, boundary, '1', TransposeResult>(m_result);
+                }
+                else if ( ( it->operations[0].operation == overlay::operation_union
+                         || it->operations[0].operation == overlay::operation_blocked )
+                       && it->operations[0].position == overlay::position_middle )
+                {
+// TODO: here we could also check the boundaries and set BB at this point
+                    update<interior, boundary, '0', TransposeResult>(m_result);
+                }
+            }
+
+            return m_result.interrupt;
+        }
+
+    private:
+        Result & m_result;
+        Areal const& m_areal;
+    };
 
     // This analyser should be used like Input or SinglePass Iterator
     template <typename TurnInfo>
