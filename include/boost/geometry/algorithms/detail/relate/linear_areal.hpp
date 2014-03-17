@@ -297,6 +297,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
             : m_previous_turn_ptr(0)
             , m_previous_operation(overlay::operation_none)
             , m_boundary_counter(0)
+            , m_interior_detected(false)
         {}
 
         template <typename Result,
@@ -357,6 +358,22 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                     m_exit_watcher.reset_detected_exit();
                 }
 
+                // handle the interior overlap
+                if ( m_interior_detected )
+                {
+                    // real interior overlap
+                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    {
+                        update<interior, interior, '1', TransposeResult>(res);
+                        m_interior_detected = false;
+                    }
+                    // fake interior overlap
+                    else if ( op == overlay::operation_continue )
+                    {
+                        m_interior_detected = false;
+                    }
+                }
+
                 // if the new linestring started just now,
                 // but the previous one went out on the previous point,
                 // we must check if the boundary of the previous segment is outside
@@ -397,7 +414,11 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                         if ( m_boundary_counter == 0 )
                         {
                             // interiors overlaps
-                            update<interior, interior, '1', TransposeResult>(res);
+                            //update<interior, interior, '1', TransposeResult>(res);
+
+                            // don't update now
+                            // we might enter a boundary of some other ring on the same IP
+                            m_interior_detected = true;
                         }
                     }
                     else // operation_boundary
@@ -611,6 +632,14 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                     }
                 }
 
+                // handle the interior overlap
+                if ( m_interior_detected )
+                {
+                    // just in case
+                    update<interior, interior, '1', TransposeResult>(res);
+                    m_interior_detected = false;
+                }
+
                 BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
                                  "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
 
@@ -702,6 +731,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         unsigned m_boundary_counter;
+        bool m_interior_detected;
     };
 
     template <typename Result,

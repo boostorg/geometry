@@ -517,6 +517,22 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,2 2)",
                             "MULTIPOLYGON(((0 20,0 30,10 30,10 20,0 20)),((0 0,0 10,10 10,10 0,0 0)))",
                             "11F00F212");
+
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,2 2)",
+                            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,2 8)",
+                            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,3 3)",
+                            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,3 7)",
+                            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
+                            "F1FF0F212");
+    test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,5 5)",
+                            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
+                            "11F00F212");
 }
 
 template <typename P>
