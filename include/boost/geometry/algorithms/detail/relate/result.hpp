@@ -435,7 +435,14 @@ public:
     template <field F1, field F2, char V>
     inline void update()
     {
-        base_t::template update<F1, F2, V>();
+        if ( relate::interrupt<F1, F2, V, Interrupt>(m_mask) )
+        {
+            interrupt = true;
+        }
+        else
+        {
+            base_t::template update<F1, F2, V>();
+        }
     }
 
 private:
@@ -695,8 +702,13 @@ public:
     template <field F1, field F2, char V>
     inline void update()
     {
+        static const bool interrupt_c = static_interrupt<StaticMask, V, F1, F2, Interrupt>::value;
         static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
-        update_dispatch<F1, F2, V>(integral_constant<bool, should_handle>());
+        static const int version = interrupt_c ? 0
+                                 : should_handle ? 1
+                                 : 2;
+
+        update_dispatch<F1, F2, V>(integral_constant<int, version>());
     }
 
 private:
@@ -717,15 +729,21 @@ private:
     inline void set_dispatch(integral_constant<int, 2>)
     {}
 
-    // should_handle
+    // Interrupt && interrupt
     template <field F1, field F2, char V>
-    inline void update_dispatch(integral_constant<bool, true>)
+    inline void update_dispatch(integral_constant<int, 0>)
+    {
+        interrupt = true;
+    }
+    // else should_handle
+    template <field F1, field F2, char V>
+    inline void update_dispatch(integral_constant<int, 1>)
     {
         base_t::template update<F1, F2, V>();
     }
     // else
     template <field F1, field F2, char V>
-    inline void update_dispatch(integral_constant<bool, false>)
+    inline void update_dispatch(integral_constant<int, 2>)
     {}
 };
 

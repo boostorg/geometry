@@ -83,10 +83,21 @@ struct get_turns
         > turn_info;
 
     template <typename Turns>
-    static inline void apply(Turns & turns, Geometry1 const& geometry1, Geometry2 const& geometry2)
+    static inline void apply(Turns & turns,
+                             Geometry1 const& geometry1,
+                             Geometry2 const& geometry2)
     {
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
+        apply(turns, geometry1, geometry2, interrupt_policy);
+    }
+
+    template <typename Turns, typename InterruptPolicy>
+    static inline void apply(Turns & turns,
+                             Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             InterruptPolicy & interrupt_policy)
+    {
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 

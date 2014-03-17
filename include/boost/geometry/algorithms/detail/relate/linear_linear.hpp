@@ -213,9 +213,12 @@ struct linear_linear
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
-// TODO: INTEGRATE INTERRUPT POLICY WITH THE PASSED RESULT
+        interrupt_policy_linear_linear<Result> interrupt_policy(result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
+
+        if ( result.interrupt )
+            return;
 
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         disjoint_linestring_pred<Result, boundary_checker<Geometry1>, false> pred1(result, boundary_checker1);
@@ -262,6 +265,47 @@ struct linear_linear
                               boundary_checker2, boundary_checker1);
         }
     }
+
+    template <typename Result>
+    class interrupt_policy_linear_linear
+    {
+    public:
+        static bool const enabled = true;
+
+        explicit interrupt_policy_linear_linear(Result & result)
+            : m_result(result)
+        {}
+
+        template <typename Range>
+        inline bool apply(Range const& turns)
+        {
+            typedef typename boost::range_iterator<Range const>::type iterator;
+            
+            for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
+            {
+                if ( it->operations[0].operation == overlay::operation_intersection
+                  || it->operations[1].operation == overlay::operation_intersection )
+                {
+                    update<interior, interior, '1'>(m_result);
+                }
+                else if ( ( it->operations[0].operation == overlay::operation_union
+                         || it->operations[0].operation == overlay::operation_blocked
+                         || it->operations[1].operation == overlay::operation_union
+                         || it->operations[1].operation == overlay::operation_blocked )
+                       && it->operations[0].position == overlay::position_middle
+                       && it->operations[1].position == overlay::position_middle )
+                {
+// TODO: here we could also check the boundaries and set IB,BI at this point
+                    update<interior, interior, '0'>(m_result);
+                }
+            }
+
+            return m_result.interrupt;
+        }
+
+    private:
+        Result & m_result;
+    };
 
     // This analyser should be used like Input or SinglePass Iterator
     template <std::size_t OpId, typename TurnInfo>
