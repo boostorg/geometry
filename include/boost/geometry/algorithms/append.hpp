@@ -275,7 +275,7 @@ struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \param range_or_point The point or range to add
 \param ring_index The index of the ring in case of a polygon:
     exterior ring (-1, the default) or  interior ring index
-\param multi_index Reserved for multi polygons or multi linestrings
+\param multi_index The index of the geometry to which the points are appended
 
 \qbk{[include reference/algorithms/append.qbk]}
 }
