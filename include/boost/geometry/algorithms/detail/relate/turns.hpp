@@ -176,10 +176,10 @@ struct less_seg_dist_op
     template <typename Op> static inline
     bool use_distance(Op const& left, Op const& right)
     {
-        return left.enriched.distance < right.enriched.distance || (
-                    geometry::math::equals(left.enriched.distance, right.enriched.distance) &&
-                    use_other_multi_ring_id(left, right)
-                );
+        if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
+            return use_other_multi_ring_id(left, right);
+        else
+            return left.enriched.distance < right.enriched.distance;
     }
 
     template <typename Turn>
