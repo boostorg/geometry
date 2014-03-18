@@ -546,7 +546,7 @@ void test_all()
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
     test_linestring_polygon<P>();
-    //test_linestring_multi_polygon<P>();
+    test_linestring_multi_polygon<P>();
 }
 
 int test_main( int , char* [] )

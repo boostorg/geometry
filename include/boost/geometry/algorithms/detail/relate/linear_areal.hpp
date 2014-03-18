@@ -358,6 +358,16 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                     m_exit_watcher.reset_detected_exit();
                 }
 
+// NOTE: THE WHOLE m_interior_detected HANDLING IS HERE BECAUSE WE CAN'T EFFICIENTLY SORT TURNS (CORRECTLY)
+// BECAUSE THE SAME IP MAY BE REPRESENTED BY TWO SEGMENTS WITH DIFFERENT DISTANCES
+// IT WOULD REQUIRE THE CALCULATION OF MAX DISTANCE
+// TODO: WE COULD GET RID OF THE TEST IF THE DISTANCES WERE NORMALIZED
+
+// TODO: THIS IS POTENTIALLY ERROREOUS!
+// THIS ALGORITHM DEPENDS ON SOME SPECIFIC SEQUENCE OF OPERATIONS
+// IT WOULD GIVE WRONG RESULTS E.G.
+// IN THE CASE OF SELF-TOUCHING POINT WHEN 'i' WOULD BE BEFORE 'u' 
+
                 // handle the interior overlap
                 if ( m_interior_detected )
                 {

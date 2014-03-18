@@ -139,37 +139,58 @@ struct less_seg_dist_op
     }
 
     template <typename Op> static inline
-    bool use_operation(Op const& left, Op const& right)
+    bool less_operation(Op const& left, Op const& right)
     {
         return order_op(left) < order_op(right);
     }
 
     template <typename Op> static inline
+    bool greater_operation(Op const& left, Op const& right)
+    {
+        return order_op(left) > order_op(right);
+    }
+
+    template <typename Op> static inline
     bool use_other_multi_ring_id(Op const& left, Op const& right)
     {
+        // VER1
         //return left.other_id.ring_index < right.other_id.ring_index;
         
-        if ( left.other_id.ring_index == -1 )
-        {
-            if ( right.other_id.ring_index == -1 )
-                return use_operation(left, right); // sort by operation
-            else
-                return true; // right always greater
-        }
-        else // left.other_id.ring_index != -1
-        {
-            if ( right.other_id.ring_index == -1 )
-                return false; // left always greater
+        // VER2
+        //if ( left.other_id.ring_index == -1 )
+        //{
+        //    if ( right.other_id.ring_index == -1 )
+        //        return less_operation(left, right); // sort by operation
+        //    else
+        //        return true; // right always greater
+        //}
+        //else // left.other_id.ring_index != -1
+        //{
+        //    if ( right.other_id.ring_index == -1 )
+        //        return false; // left always greater
 
-            // here both ring_indexes are greater than -1
-            // so first, sort also by multi_index
-            return left.other_id.multi_index < right.other_id.multi_index || (
-                       left.other_id.multi_index == right.other_id.multi_index && (
-                       left.other_id.ring_index < right.other_id.ring_index || (
-                           left.other_id.ring_index == right.other_id.ring_index &&
-                           use_operation(left, right) )
-                    )
-                );
+        //    // here both ring_indexes are greater than -1
+        //    // so first, sort also by multi_index
+        //    return left.other_id.multi_index < right.other_id.multi_index || (
+        //               left.other_id.multi_index == right.other_id.multi_index && (
+        //               left.other_id.ring_index < right.other_id.ring_index || (
+        //                   left.other_id.ring_index == right.other_id.ring_index &&
+        //                   less_operation(left, right) )
+        //            )
+        //        );
+        //}
+
+        // VER3
+        if ( left.other_id.multi_index == right.other_id.multi_index )
+        {
+            if ( left.other_id.ring_index == right.other_id.ring_index )
+                return less_operation(left, right);
+            else
+                return greater_operation(left, right);
+        }
+        else
+        {
+            return less_operation(left, right);
         }
     }
 
