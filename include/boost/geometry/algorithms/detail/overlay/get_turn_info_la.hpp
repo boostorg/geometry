@@ -112,8 +112,7 @@ struct get_turn_info_linear_areal
                                     swapped_side_calc);
                     }
 
-                    if ( tp.operations[1].operation == operation_blocked
-                      || tp.operations[0].operation == operation_continue )
+                    if ( tp.operations[1].operation == operation_blocked )
                     {
                         tp.operations[0].is_collinear = true;
                     }
@@ -150,8 +149,7 @@ struct get_turn_info_linear_areal
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                    if ( tp.operations[1].operation == operation_blocked
-                      || tp.operations[0].operation == operation_continue )
+                    if ( tp.operations[1].operation == operation_blocked )
                     {
                         tp.operations[0].is_collinear = true;
                     }

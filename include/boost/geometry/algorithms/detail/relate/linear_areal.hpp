@@ -221,8 +221,9 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
         if ( result.interrupt )
             return;
 
-        // x, u, c, i
-        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,4,1,3,0,0>());
+        // for different multi and same ring id: x, u, i, c
+        // for same multi and different ring id: c, i, u, x
+        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
         turns_analyser<turn_type> analyser;
         analyse_each_turn(result, analyser,
