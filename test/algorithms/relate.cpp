@@ -495,6 +495,24 @@ void test_linestring_polygon()
     to_svg<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "F1FFFF2F2.svg");
+
+    // ccw
+    {
+        typedef bg::model::polygon<P, false> ccwpoly;
+
+        // IE IB0 II
+        test_geometry<ls, ccwpoly>("LINESTRING(11 1,10 5,5 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1010F0212");
+        // IE IB1 II
+        test_geometry<ls, ccwpoly>("LINESTRING(11 1,10 1,10 5,5 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1110F0212");
+        test_geometry<ls, ccwpoly>("LINESTRING(11 1,10 5,10 1,5 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1110F0212");
+        // II IB0 IE
+        test_geometry<ls, ccwpoly>("LINESTRING(5 1,10 5,11 1)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1010F0212");
+        // IE IB1 II
+        test_geometry<ls, ccwpoly>("LINESTRING(5 5,10 1,10 5,11 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1110F0212");
+        test_geometry<ls, ccwpoly>("LINESTRING(5 5,10 5,10 1,11 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1110F0212");
+
+    }
+    
 }
 
 template <typename P>

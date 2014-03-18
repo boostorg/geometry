@@ -187,10 +187,6 @@ struct linear_areal
         if ( result.interrupt )
             return;
 
-// TODO: reverse and close if needed!
-// ONLY IF THE ALGORITHM BELOW WANTS TO ACCESS THE POINTS OF SEGMENTS
-static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
-
         boundary_checker<Geometry1> boundary_checker1(geometry1);
         no_turns_la_linestring_pred
             <
@@ -230,6 +226,12 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                           turns.begin(), turns.end(),
                           geometry1, geometry2,
                           boundary_checker1);
+
+// TODO check if this is required by the result
+        if ( interrupt_policy.is_boundary_found )
+        {
+            
+        }
     }
 
     template <typename Areal, typename Result>
@@ -240,6 +242,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
 
         interrupt_policy_linear_areal(Areal const& areal, Result & result)
             : m_result(result), m_areal(areal)
+            , is_boundary_found(false)
         {}
 
 // TODO: since we update result for some operations here, we must not do it in the analyser!
@@ -266,6 +269,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
                 else if ( it->operations[0].operation == overlay::operation_continue )
                 {
                     update<interior, boundary, '1', TransposeResult>(m_result);
+                    is_boundary_found = true;
                 }
                 else if ( ( it->operations[0].operation == overlay::operation_union
                          || it->operations[0].operation == overlay::operation_blocked )
@@ -282,6 +286,9 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
     private:
         Result & m_result;
         Areal const& m_areal;
+
+    public:
+        bool is_boundary_found;
     };
 
     // This analyser should be used like Input or SinglePass Iterator
@@ -668,13 +675,30 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
             if ( turn.operations[op_id].position == overlay::position_front )
                 return false;
 
-            typename sub_geometry::result_type<Geometry1 const>::type
-                        sg1 = sub_geometry::get(geometry1, turn.operations[op_id].seg_id);
-            typename sub_geometry::result_type<Geometry2 const>::type
-                        sg2 = sub_geometry::get(geometry2, turn.operations[other_op_id].seg_id);
+            static const bool reverse2 = detail::overlay::do_reverse<
+                                            geometry::point_order<Geometry2>::value
+                                         >::value;
 
-            std::size_t s1 = boost::size(sg1);
-            std::size_t s2 = boost::size(sg2);
+            typedef typename closeable_view
+                <
+                    typename range_type<Geometry2>::type const,
+                    closure<Geometry2>::value
+                >::type range2_cview;
+
+            typedef typename reversible_view
+                <
+                    range2_cview const,
+                    reverse2 ? iterate_reverse : iterate_forward
+                >::type range2_view;
+
+            typedef typename sub_geometry::result_type<Geometry1 const>::type range1_ref;
+
+            range1_ref range1 = sub_geometry::get(geometry1, turn.operations[op_id].seg_id);
+            range2_cview const cview(sub_geometry::get(geometry2, turn.operations[other_op_id].seg_id));
+            range2_view const range2(cview);
+
+            std::size_t s1 = boost::size(range1);
+            std::size_t s2 = boost::size(range2);
             BOOST_ASSERT(s1 > 1 && s2 > 2);
             std::size_t seg_count2 = s2 - 1;
 
@@ -683,9 +707,9 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
 
             BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
 
-            point1_type const& pi = range::at(sg1, p_seg_ij);
-            point2_type const& qi = range::at(sg2, q_seg_ij);
-            point2_type const& qj = range::at(sg2, q_seg_ij + 1);
+            point1_type const& pi = range::at(range1, p_seg_ij);
+            point2_type const& qi = range::at(range2, q_seg_ij);
+            point2_type const& qj = range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
             bool is_ip_qj = equals::equals_point_point(turn.point, qj);
@@ -699,7 +723,7 @@ static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<G
             {
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
                 BOOST_ASSERT(q_seg_jk + 1 < s2);
-                point2_type const& qk = range::at(sg2, q_seg_jk + 1);
+                point2_type const& qk = range::at(range2, q_seg_jk + 1);
                 // Will this sequence of point be always correct?
                 overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
 
