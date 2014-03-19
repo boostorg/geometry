@@ -671,6 +671,53 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,18 0,19 0))"),
          "lmli18a"
          );
+
+    // the following test cases concern linestrings with duplicate
+    // points and possibly linestrings with zero length.
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((-10 0,-9 0),(0 10,5 0,20 0,20 0,30 10),\
+                      (1 1,1 1,2 2,2 2),(1 10,1 10,1 0,1 0,1 -10),\
+                      (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
+                      (4 0,4 10,4 10))"),
+         from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),(4 0),\
+                      (5 0,18 0,19 0,20 0))"),
+         "lmli20a"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((-10 0,-9 0),(0 10,5 0,20 0,20 0,30 10),\
+                      (1 1,1 1,2 2,2 2),(1 10,1 10,1 0,1 0,1 -10),\
+                      (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
+                      (4 0,4 0,4 10,4 10))"),
+         from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),(4 0),\
+                      (5 0,18 0,19 0,20 0))"),
+         "lmli20b"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((-10 0,-9 0),(0 10,5 0,20 0,20 0,30 10),\
+                      (1 1,1 1,2 2,2 2),(1 10,1 10,1 0,1 0,1 -10),\
+                      (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
+                      (30 0,30 0,30 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),\
+                      (5 0,18 0,19 0,20 0))"),
+         "lmli20c"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0)"),
+         from_wkt<ML>("MULTILINESTRING((-10 0,-9 0),(0 10,5 0,20 0,20 0,30 10),\
+                      (1 1,1 1,2 2,2 2),(1 10,1 10,1 0,1 0,1 -10),\
+                      (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
+                      (30 0,30 0,31 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),\
+                      (5 0,18 0,19 0,20 0))"),
+         "lmli20d"
+         );
 }
 
 
