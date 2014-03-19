@@ -83,17 +83,32 @@ struct get_turns
         > turn_info;
 
     template <typename Turns>
-    static inline void apply(Turns & turns, Geometry1 const& geometry1, Geometry2 const& geometry2)
+    static inline void apply(Turns & turns,
+                             Geometry1 const& geometry1,
+                             Geometry2 const& geometry2)
     {
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
+        apply(turns, geometry1, geometry2, interrupt_policy);
+    }
+
+    template <typename Turns, typename InterruptPolicy>
+    static inline void apply(Turns & turns,
+                             Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             InterruptPolicy & interrupt_policy)
+    {
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
         dispatch::get_turns
             <
-                typename tag<Geometry1>::type, typename tag<Geometry2>::type,
-                Geometry1, Geometry2, reverse1, reverse2,
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                Geometry1,
+                Geometry2,
+                reverse1,
+                reverse2,
                 GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
     }
@@ -124,47 +139,68 @@ struct less_seg_dist_op
     }
 
     template <typename Op> static inline
-    bool use_operation(Op const& left, Op const& right)
+    bool less_operation(Op const& left, Op const& right)
     {
         return order_op(left) < order_op(right);
     }
 
     template <typename Op> static inline
+    bool greater_operation(Op const& left, Op const& right)
+    {
+        return order_op(left) > order_op(right);
+    }
+
+    template <typename Op> static inline
     bool use_other_multi_ring_id(Op const& left, Op const& right)
     {
+        // VER1
         //return left.other_id.ring_index < right.other_id.ring_index;
         
-        if ( left.other_id.ring_index == -1 )
-        {
-            if ( right.other_id.ring_index == -1 )
-                return use_operation(left, right); // sort by operation
-            else
-                return true; // right always greater
-        }
-        else // left.other_id.ring_index != -1
-        {
-            if ( right.other_id.ring_index == -1 )
-                return false; // left always greater
+        // VER2
+        //if ( left.other_id.ring_index == -1 )
+        //{
+        //    if ( right.other_id.ring_index == -1 )
+        //        return less_operation(left, right); // sort by operation
+        //    else
+        //        return true; // right always greater
+        //}
+        //else // left.other_id.ring_index != -1
+        //{
+        //    if ( right.other_id.ring_index == -1 )
+        //        return false; // left always greater
 
-            // here both ring_indexes are greater than -1
-            // so first, sort also by multi_index
-            return left.other_id.multi_index < right.other_id.multi_index || (
-                       left.other_id.multi_index == right.other_id.multi_index && (
-                       left.other_id.ring_index < right.other_id.ring_index || (
-                           left.other_id.ring_index == right.other_id.ring_index &&
-                           use_operation(left, right) )
-                    )
-                );
+        //    // here both ring_indexes are greater than -1
+        //    // so first, sort also by multi_index
+        //    return left.other_id.multi_index < right.other_id.multi_index || (
+        //               left.other_id.multi_index == right.other_id.multi_index && (
+        //               left.other_id.ring_index < right.other_id.ring_index || (
+        //                   left.other_id.ring_index == right.other_id.ring_index &&
+        //                   less_operation(left, right) )
+        //            )
+        //        );
+        //}
+
+        // VER3
+        if ( left.other_id.multi_index == right.other_id.multi_index )
+        {
+            if ( left.other_id.ring_index == right.other_id.ring_index )
+                return less_operation(left, right);
+            else
+                return greater_operation(left, right);
+        }
+        else
+        {
+            return less_operation(left, right);
         }
     }
 
     template <typename Op> static inline
     bool use_distance(Op const& left, Op const& right)
     {
-        return left.enriched.distance < right.enriched.distance || (
-                    geometry::math::equals(left.enriched.distance, right.enriched.distance) &&
-                    use_other_multi_ring_id(left, right)
-                );
+        if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
+            return use_other_multi_ring_id(left, right);
+        else
+            return left.enriched.distance < right.enriched.distance;
     }
 
     template <typename Turn>

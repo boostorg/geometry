@@ -112,6 +112,15 @@ struct get_turn_info_linear_linear
                                     swapped_side_calc);
                     }
 
+                    if ( tp.operations[0].operation == operation_blocked )
+                    {
+                        tp.operations[1].is_collinear = true;
+                    }
+                    if ( tp.operations[1].operation == operation_blocked )
+                    {
+                        tp.operations[0].is_collinear = true;
+                    }
+
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
@@ -144,6 +153,15 @@ struct get_turn_info_linear_linear
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
+                    if ( tp.operations[0].operation == operation_blocked )
+                    {
+                        tp.operations[1].is_collinear = true;
+                    }
+                    if ( tp.operations[1].operation == operation_blocked )
+                    {
+                        tp.operations[0].is_collinear = true;
+                    }
+
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
@@ -159,27 +177,33 @@ struct get_turn_info_linear_linear
                 {
                     // do nothing
                 }
-                else if ( ! result.template get<1>().opposite )
-                {
-                    // Both equal
-                    // or collinear-and-ending at intersection point
-                    equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
-
-                    replacer_of_method_and_operations_ec replacer(method_touch);
-                    replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
-                    
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                    *out++ = tp;
-                }
                 else
                 {
-                    equal_opposite
-                        <
-                            TurnInfo,
-                            AssignPolicy
-                        >::apply(pi, qi,
-                            tp, out, result.template get<0>(), result.template get<1>());
+                    tp.operations[0].is_collinear = true;
+                    tp.operations[1].is_collinear = true;
+
+                    if ( ! result.template get<1>().opposite )
+                    {
+                        // Both equal
+                        // or collinear-and-ending at intersection point
+                        equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                            tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                        replacer_of_method_and_operations_ec replacer(method_touch);
+                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    
+                        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                        *out++ = tp;
+                    }
+                    else
+                    {
+                        equal_opposite
+                            <
+                                TurnInfo,
+                                AssignPolicy
+                            >::apply(pi, qi,
+                                tp, out, result.template get<0>(), result.template get<1>());
+                    }
                 }
             }
             break;
@@ -192,47 +216,52 @@ struct get_turn_info_linear_linear
                 {
                     // do nothing
                 }
-                else if (! result.template get<1>().opposite)
+                else
                 {
+                    tp.operations[0].is_collinear = true;
+                    tp.operations[1].is_collinear = true;
 
-                    if (result.template get<1>().arrival[0] == 0)
-                    {
-                        // Collinear, but similar thus handled as equal
-                        equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    if (! result.template get<1>().opposite)
+                    {                    
+                        if (result.template get<1>().arrival[0] == 0)
+                        {
+                            // Collinear, but similar thus handled as equal
+                            equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                                    tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                        // NOTE: don't change the method only if methods are WRT IPs, not segments!
-                        // (currently this approach is used)
-                        // override assigned method
-                        //tp.method = method_collinear;
+                            // NOTE: don't change the method only if methods are WRT IPs, not segments!
+                            // (currently this approach is used)
+                            // override assigned method
+                            //tp.method = method_collinear;
 
-                        replacer_of_method_and_operations_ec replacer(method_touch);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                            replacer_of_method_and_operations_ec replacer(method_touch);
+                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        }
+                        else
+                        {
+                            collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
+                                    tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                            replacer_of_method_and_operations_ec replacer(method_touch_interior);
+                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        }
+
+                        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                        *out++ = tp;
                     }
                     else
                     {
-                        collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(), side_calc);
-
+                        // If this always 'm' ?
                         replacer_of_method_and_operations_ec replacer(method_touch_interior);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+                        collinear_opposite
+                            <
+                                TurnInfo,
+                                AssignPolicy
+                            >::apply(pi, pj, pk, qi, qj, qk,
+                                tp, out, result.template get<0>(), result.template get<1>(), side_calc,
+                                replacer);
                     }
-
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                    *out++ = tp;
-                }
-                else
-                {
-                    // If this always 'm' ?
-                    replacer_of_method_and_operations_ec replacer(method_touch_interior);
-
-                    collinear_opposite
-                        <
-                            TurnInfo,
-                            AssignPolicy
-                        >::apply(pi, pj, pk, qi, qj, qk,
-                            tp, out, result.template get<0>(), result.template get<1>(), side_calc,
-                            replacer);
                 }
             }
             break;

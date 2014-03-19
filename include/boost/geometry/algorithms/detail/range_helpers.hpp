@@ -24,6 +24,22 @@ namespace detail { namespace range {
 
 template <typename Range>
 inline typename boost::range_value<Range>::type const&
+at(Range const& rng, typename boost::range_size<Range>::type i)
+{
+    BOOST_ASSERT(i < boost::size(rng));
+    return *(boost::begin(rng) + i);
+}
+
+template <typename Range>
+inline typename boost::range_value<Range>::type &
+at(Range & rng, typename boost::range_size<Range>::type i)
+{
+    BOOST_ASSERT(i < boost::size(rng));
+    return *(boost::begin(rng) + i);
+}
+
+template <typename Range>
+inline typename boost::range_value<Range>::type const&
 front(Range const& rng)
 {
     BOOST_ASSERT(!boost::empty(rng));

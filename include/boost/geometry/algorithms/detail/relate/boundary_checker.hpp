@@ -41,6 +41,7 @@ public:
     template <boundary_query BoundaryQuery>
     bool is_endpoint_boundary(point_type const& pt) const
     {
+        boost::ignore_unused_variable_warning(pt);
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
         // may give false positives for INT
         BOOST_ASSERT( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
@@ -95,13 +96,13 @@ public:
     {}
 
     template <boundary_query BoundaryQuery>
-    bool is_endpoint_boundary(point_type const& pt)
+    bool is_endpoint_boundary(point_type const& pt) const
     {
         return is_boundary_point(pt);
     }
 
     template <boundary_query BoundaryQuery>
-    bool is_boundary(point_type const& pt, segment_identifier const& sid)
+    bool is_boundary(point_type const& pt, segment_identifier const& sid) const
     {
         if ( BoundaryQuery == boundary_front )
         {
@@ -128,7 +129,7 @@ public:
 private:
     // First call O(NlogN)
     // Each next call O(logN)
-    bool is_boundary_point(point_type const& pt)
+    bool is_boundary_point(point_type const& pt) const
     {
         typedef typename boost::range_size<Geometry>::type size_type;
         size_type multi_count = boost::size(geometry);
@@ -173,9 +174,10 @@ private:
         return equal_points_count % 2 != 0;// && equal_points_count > 0; // the number is odd and > 0
     }
 
-    bool is_filled;
+    mutable bool is_filled;
     // TODO: store references/pointers instead of points?
-    std::vector<point_type> boundary_points;
+    mutable std::vector<point_type> boundary_points;
+
     Geometry const& geometry;
 };
 

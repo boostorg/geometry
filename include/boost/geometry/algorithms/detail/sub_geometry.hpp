@@ -70,12 +70,15 @@ struct get<Geometry, polygon_tag, false>
     result_type apply(Geometry & geometry, Id const& id)
     {
         if ( id.ring_index < 0 )
+        {
             return geometry::exterior_ring(geometry);
+        }
         else
         {
-            BOOST_ASSERT( id.ring_index < boost::size(geometry::interior_rings(geometry)) );
+            std::size_t ri = static_cast<std::size_t>(id.ring_index);
+            BOOST_ASSERT( ri < boost::size(geometry::interior_rings(geometry)) );
 
-            return *(boost::begin(geometry::interior_rings(geometry)) + id.ring_index);
+            return *(boost::begin(geometry::interior_rings(geometry)) + ri);
         }
     }
 };

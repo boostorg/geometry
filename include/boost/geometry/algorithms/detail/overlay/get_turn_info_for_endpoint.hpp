@@ -28,9 +28,11 @@ struct turn_operation_linear
 {
     turn_operation_linear()
         : position(position_middle)
+        , is_collinear(false)
     {}
 
     turn_position position;
+    bool is_collinear; // valid only for Linear geometry
 };
 
 // SEGMENT_INTERSECTION RESULT
@@ -347,12 +349,16 @@ struct get_turn_info_for_endpoint
         if ( append_first || append_last )
         {
             bool handled = handle_internal(pi, pj, pk, qi, qj, qk, ip,
-                                           is_p_first_ip, is_p_last_ip, is_q_first_ip, is_q_last_ip, is_qi_ip, is_qj_ip,
+                                           is_p_first_ip, is_p_last_ip,
+                                           is_q_first_ip, is_q_last_ip,
+                                           is_qi_ip, is_qj_ip,
                                            tp_model, result, p_operation, q_operation);
             if ( !handled )
             {
                 handle_internal(qi, qj, qk, pi, pj, pk, ip,
-                                is_q_first_ip, is_q_last_ip, is_p_first_ip, is_p_last_ip, is_pi_ip, is_pj_ip,
+                                is_q_first_ip, is_q_last_ip,
+                                is_p_first_ip, is_p_last_ip,
+                                is_pi_ip, is_pj_ip,
                                 tp_model, result, q_operation, p_operation);
             }
 
@@ -382,7 +388,8 @@ struct get_turn_info_for_endpoint
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
                                        Point const& ip,
-                                       bool first1, bool last1, bool first2, bool last2,
+                                       bool first1, bool last1,
+                                       bool first2, bool last2,
                                        bool ip_i2, bool ip_j2,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
@@ -420,6 +427,7 @@ struct get_turn_info_for_endpoint
 
                     if ( tp.both(operation_continue) )
                     {
+                        // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
                         bool opposite = result.template get<1>().opposite;
 
                         op1 = operation_intersection;
@@ -443,23 +451,23 @@ struct get_turn_info_for_endpoint
                 BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
                 BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
 #endif
-                if ( ip_j2 )
+                if ( ip_i2 )
                 {
                     // don't output this IP - for the first point of other geometry segment
                     op1 = operation_none;
                     op2 = operation_none;
                     return true;
                 }
-                else if ( ip_i2 )
+                else if ( ip_j2 )
                 {
 // NOTE: this conversion may be problematic
-                    Point1 j2_conv;
-                    geometry::convert(j2, j2_conv);
+                    Point1 i2_conv;
+                    geometry::convert(i2, i2_conv);
                     
-                    side_calculator<Point1, Point2> side_calc(j2_conv, j1, i1, i2, j2, k2);
+                    side_calculator<Point1, Point2> side_calc(i2_conv, j1, i1, i2, j2, k2);
                     
                     TurnInfo tp = tp_model;
-                    equal<TurnInfo>::apply(j2_conv, j1, i1, i2, j2, k2,
+                    equal<TurnInfo>::apply(i2_conv, j1, i1, i2, j2, k2,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
 
 // TODO: must the above be calculated?
@@ -467,10 +475,11 @@ struct get_turn_info_for_endpoint
 
                     if ( tp.both(operation_continue) )
                     {
-                        bool opposite = result.template get<1>().opposite;
+                        // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
+                        bool second_going_out = result.template get<0>().count > 1;
 
                         op1 = operation_blocked;
-                        op2 = opposite ? operation_intersection : operation_union;
+                        op2 = second_going_out ? operation_union : operation_intersection;
                     }
                     else
                     {
@@ -523,8 +532,29 @@ struct get_turn_info_for_endpoint
         tp.method = method;
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
-        //        tp.operations[0].position = pos0;
-        //        tp.operations[1].position = pos1;
+        tp.operations[0].position = pos0;
+        tp.operations[1].position = pos1;
+
+        // NOTE: this probably shouldn't be set for the first point
+        // for which there is no preceding segment
+        if ( result.template get<0>().count > 1 )
+        {
+            //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
+            tp.operations[0].is_collinear = true;
+            tp.operations[1].is_collinear = true;
+        }
+        else //if ( result.template get<0>().count == 1 )
+        {
+            if ( op0 == operation_blocked && op1 == operation_intersection )
+            {
+                tp.operations[0].is_collinear = true;
+            }
+            else if ( op0 == operation_intersection && op1 == operation_blocked )
+            {
+                tp.operations[1].is_collinear = true;
+            }
+        }
+
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
     }
