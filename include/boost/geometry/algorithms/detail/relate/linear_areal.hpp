@@ -28,6 +28,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
+// Returns single geometry by Id
+// for single geometries returns the geometry itself
 template <typename Geometry,
           bool IsMulti = boost::is_base_of
                             <
@@ -35,14 +37,15 @@ template <typename Geometry,
                                 typename geometry::tag<Geometry>::type
                             >::value
 >
-struct simple_geometry
+struct single_geometry
 {
     template <typename Id>
     static inline Geometry & apply(Geometry & g, Id const& ) { return g; }
 };
 
+// for multi geometries returns one of the stored single geometries
 template <typename Geometry>
-struct simple_geometry<Geometry, true>
+struct single_geometry<Geometry, true>
 {
     template <typename Id>
     static inline
@@ -61,6 +64,8 @@ struct simple_geometry<Geometry, true>
 
 // TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
 // Use the rtree in this case!
+
+// may be used to set IE and BE for a Linear geometry for which no turns were generated
 template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
 class no_turns_la_linestring_pred
 {
@@ -131,6 +136,7 @@ private:
     unsigned m_interrupt_flags;
 };
 
+// may be used to set EI and EB for an Areal geometry for which no turns were generated
 template <typename Result, bool TransposeResult>
 class no_turns_la_areal_pred
 {
@@ -155,6 +161,7 @@ private:
     Result * m_result_ptr;
 };
 
+// The implementation of an algorithm calculating relate() for L/A
 template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
 struct linear_areal
 {
@@ -210,30 +217,85 @@ struct linear_areal
         // This is set here because in the case if empty Areal geometry were passed
         // those shouldn't be set
         set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
-// TODO: NEED TO SUPPORT exterior, boundary
-//       FOR THIS WE MUST CHECK IF THE BOUNDARY OF THE POLYGON TREATED LIKE LINEAR RING GOES OUT OF THE LINESTRING G1
-// THIS WON'T WORK IN ALL CASES!
-        set<exterior, boundary, '1', TransposeResult>(result);// FFFFFF21d
         if ( result.interrupt )
             return;
 
-        // for different multi and same ring id: x, u, i, c
-        // for same multi and different ring id: c, i, u, x
-        std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
-
-        turns_analyser<turn_type> analyser;
-        analyse_each_turn(result, analyser,
-                          turns.begin(), turns.end(),
-                          geometry1, geometry2,
-                          boundary_checker1);
-
-// TODO check if this is required by the result
-        if ( interrupt_policy.is_boundary_found )
         {
+            // for different multi or same ring id: x, u, i, c
+            // for same multi and different ring id: c, i, u, x
+            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
+
+            turns_analyser<turn_type> analyser;
+            analyse_each_turn(result, analyser,
+                              turns.begin(), turns.end(),
+                              geometry1, geometry2,
+                              boundary_checker1);
+
+            if ( result.interrupt )
+                return;
+        }
+
+// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
+//       AND ONLY IF IT WERE NOT SET BY THE no_turns_la_areal_pred
+
+        if ( !interrupt_policy.is_boundary_found )
+        {
+            set<exterior, boundary, '1', TransposeResult>(result);
+        }
+        else
+        {
+            // sort by multi_index and rind_index
+            std::sort(turns.begin(), turns.end(), less_ring());
             
+            // for each ring
+            std::vector<turn_type>::iterator
+                first = turns.begin();
+            for ( ; first != turns.end() ; )
+            {
+                // find the next ring first iterator and check if the analysis should be performed
+                has_boundary_intersection has_boundary_inters;
+                std::vector<turn_type>::iterator
+                    last = find_next_ring(first, turns.end(), has_boundary_inters);
+
+                // if there is no 1d overlap with the boundary
+                if ( !has_boundary_inters.result )
+                {
+                    // we can be sure that the exterior overlaps the boundary
+                    set<exterior, boundary, '1', TransposeResult>(result);                    
+                    break;
+                }
+                // else there is 1d overlap with the boundary so we must analyse the boundary
+                else
+                {
+                    // u, c
+                    std::sort(first, last, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
+
+                    // analyse
+                    areal_boundary_analyser<turn_type> analyser;
+                    for ( std::vector<turn_type>::iterator it = first ;
+                          it != last ; ++it )
+                    {
+                        // if the analyser requests, break the search
+                        if ( !analyser.apply(first, it, last) )
+                            break;
+                    }
+
+                    // if the boundary of Areal goes out of the Linear
+                    if ( analyser.is_union_detected )
+                    {
+                        // we can be sure that the boundary of Areal overlaps the exterior of Linear
+                        set<exterior, boundary, '1', TransposeResult>(result);
+                        break;
+                    }
+                }
+
+                first = last;
+            }
         }
     }
 
+    // interrupt policy which may be passed to get_turns to interrupt the analysis
+    // based on the info in the passed result/mask
     template <typename Areal, typename Result>
     class interrupt_policy_linear_areal
     {
@@ -259,7 +321,7 @@ struct linear_areal
                     bool const no_interior_rings
                         = boost::empty(
                             geometry::interior_rings(
-                                simple_geometry<Areal const>::apply(m_areal, it->operations[1].seg_id)));
+                                single_geometry<Areal const>::apply(m_areal, it->operations[1].seg_id)));
 
                     // WARNING! THIS IS TRUE ONLY IF THE POLYGON IS SIMPLE!
                     // OR WITHOUT INTERIOR RINGS (AND OF COURSE VALID)
@@ -292,6 +354,7 @@ struct linear_areal
     };
 
     // This analyser should be used like Input or SinglePass Iterator
+    // IMPORTANT! It should be called also for the end iterator - last
     template <typename TurnInfo>
     class turns_analyser
     {
@@ -667,6 +730,8 @@ struct linear_areal
             }
         }
 
+        // check if the passed turn's segment of Linear geometry arrived
+        // from the inside or the outside of the Areal geometry
         template <typename Geometry1, typename Geometry2, typename Turn>
         static inline bool calculate_from_inside(Geometry1 const& geometry1,
                                                  Geometry2 const& geometry2,
@@ -740,11 +805,11 @@ struct linear_areal
             }
         }
 
+        // calculate inside or outside based on side_calc
+        // this is simplified version of a check from equal<>
         template <typename SideCalc>
         static inline bool calculate_from_inside_sides(SideCalc const& side_calc)
         {
-            // From equal<>
-
             int const side_pk_p = side_calc.pk_wrt_p1();
             int const side_qk_p = side_calc.qk_wrt_p1();
             // If they turn to same side (not opposite sides)
@@ -757,7 +822,6 @@ struct linear_areal
             {
                 return side_pk_p == -1;
             }
-            
         }
 
     private:
@@ -769,6 +833,8 @@ struct linear_areal
         bool m_interior_detected;
     };
 
+    // call analyser.apply() for each turn in range
+    // IMPORTANT! The analyser is also called for the end iterator - last
     template <typename Result,
               typename TurnIt,
               typename Analyser,
@@ -799,6 +865,122 @@ struct linear_areal
                        geometry, other_geometry,
                        boundary_checker);
     }
+
+    // less comparator comparing multi_index then ring_index
+    // may be used to sort turns by ring
+    struct less_ring
+    {
+        template <typename Turn>
+        inline bool operator()(Turn const& left, Turn const& right) const
+        {
+            return left.operations[1].seg_id.multi_index < right.operations[1].seg_id.multi_index
+                || ( left.operations[1].seg_id.multi_index == right.operations[1].seg_id.multi_index
+                  && left.operations[1].seg_id.ring_index < right.operations[1].seg_id.ring_index );
+        }
+    };
+
+    // policy/functor checking if a turn's operation is operation_continue
+    struct has_boundary_intersection
+    {
+        has_boundary_intersection()
+            : result(false) {}
+
+        template <typename Turn>
+        inline void operator()(Turn const& turn)
+        {
+            if ( turn.operations[1].operation == overlay::operation_continue )
+                result = true;
+        }
+
+        bool result;
+    };
+
+    // iterate through the range and search for the different multi_index or ring_index
+    // also call fun for each turn in the current range
+    template <typename It, typename Fun>
+    static inline It find_next_ring(It first, It last, Fun & fun)
+    {
+        if ( first == last )
+            return last;
+
+        int const multi_index = first->operations[1].seg_id.multi_index;
+        int const ring_index = first->operations[1].seg_id.ring_index;
+
+        fun(*first);
+        ++first;
+
+        for ( ; first != last ; ++first )
+        {
+            if ( multi_index != first->operations[1].seg_id.multi_index
+              || ring_index != first->operations[1].seg_id.ring_index )
+            {
+                return first;
+            }
+
+            fun(*first);
+        }
+
+        return last;
+    }
+
+    // analyser which called for turns sorted by seg/distance/operation
+    // checks if the boundary of Areal geometry really got out
+    // into the exterior of Linear geometry
+    template <typename TurnInfo>
+    class areal_boundary_analyser
+    {
+    public:
+        areal_boundary_analyser()
+            : is_union_detected(false)
+            , m_previous_turn_ptr(NULL)
+        {}
+
+        template <typename TurnIt>
+        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last)
+        {
+            overlay::operation_type op = it->operations[1].operation;
+
+            if ( it != last )
+            {
+                if ( op != overlay::operation_union
+                  && op != overlay::operation_continue )
+                {
+                    return true;
+                }
+
+                if ( is_union_detected )
+                {
+                    BOOST_ASSERT(m_previous_turn_ptr != NULL);
+                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    {
+                        // break
+                        return false;
+                    }
+                    else if ( op == overlay::operation_continue ) // operation_boundary
+                    {
+                        is_union_detected = false;
+                    }
+                }
+
+                if ( op == overlay::operation_union )
+                {
+                    is_union_detected = true;
+                    m_previous_turn_ptr = boost::addressof(*it);
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }            
+        }
+
+        bool is_union_detected;
+
+    private:
+        const TurnInfo * m_previous_turn_ptr;
+    };
 };
 
 template <typename Geometry1, typename Geometry2>
