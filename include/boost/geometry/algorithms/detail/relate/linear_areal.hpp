@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <boost/geometry/algorithms/detail/group_dim.hpp>
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
 #include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
