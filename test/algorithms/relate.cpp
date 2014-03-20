@@ -578,6 +578,14 @@ void test_multi_linestring_multi_polygon()
     test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10,0 10,0 0),(2 2,5 5,2 8,2 2))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2)))",
                               "F1FFFF2F2");
+
+
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "F1FFFF2F2");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0),(20 20,50 50,20 80,20 20))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "F11FFF2F2");
 }
 
 template <typename P>
