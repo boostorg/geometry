@@ -37,30 +37,48 @@ template <typename Geometry,
                                 typename geometry::tag<Geometry>::type
                             >::value
 >
-struct single_geometry
+struct single_geometry_dispatch
 {
+    typedef Geometry & return_type;
+
     template <typename Id>
-    static inline Geometry & apply(Geometry & g, Id const& ) { return g; }
+    static inline return_type apply(Geometry & g, Id const& ) { return g; }
 };
 
 // for multi geometries returns one of the stored single geometries
 template <typename Geometry>
-struct single_geometry<Geometry, true>
+struct single_geometry_dispatch<Geometry, true>
 {
-    template <typename Id>
-    static inline
-    typename boost::mpl::if_c
+    typedef typename boost::mpl::if_c
         <
             boost::is_const<Geometry>::value,
             typename boost::range_value<Geometry>::type const&,
             typename boost::range_value<Geometry>::type
-        >::type
-    apply(Geometry & g, Id const& id)
+        >::type return_type;
+
+    template <typename Id>
+    static inline return_type apply(Geometry & g, Id const& id)
     {
         BOOST_ASSERT(id.multi_index >= 0);
         return *(boost::begin(g) + id.multi_index);
     }
 };
+
+template <typename Geometry, typename Id>
+inline
+typename single_geometry_dispatch<Geometry>::return_type
+single_geometry(Geometry & geometry, Id const& id)
+{
+    return single_geometry_dispatch<Geometry>::apply(geometry, id);
+}
+
+template <typename Geometry, typename Id>
+inline
+typename single_geometry_dispatch<Geometry const>::return_type
+single_geometry(Geometry const& geometry, Id const& id)
+{
+    return single_geometry_dispatch<Geometry const>::apply(geometry, id);
+}
 
 // TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
 // Use the rtree in this case!
@@ -246,16 +264,58 @@ struct linear_areal
         {
             // sort by multi_index and rind_index
             std::sort(turns.begin(), turns.end(), less_ring());
-            
+
+            std::vector<turn_type>::iterator it = turns.begin();
+            segment_identifier * prev_seg_id_ptr = NULL;
             // for each ring
-            std::vector<turn_type>::iterator
-                first = turns.begin();
-            for ( ; first != turns.end() ; )
+            for ( ; it != turns.end() ; )
             {
+                // it's the next single geometry
+                if ( prev_seg_id_ptr == NULL
+                  || prev_seg_id_ptr->multi_index != it->operations[1].seg_id.multi_index )
+                {
+                    // if the first ring has no IPs
+                    if ( it->operations[1].seg_id.ring_index > -1 )
+                    {
+                        // we can be sure that the exterior overlaps the boundary
+                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        break;
+                    }
+                    // if there was some previous ring
+                    if ( prev_seg_id_ptr != NULL )
+                    {
+                        int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                        BOOST_ASSERT(next_ring_index >= 0);
+                        
+                        // if one of the last rings of previous single geometry was ommited
+                        if ( static_cast<std::size_t>(next_ring_index)
+                                < geometry::num_interior_rings(
+                                    single_geometry(geometry2, *prev_seg_id_ptr)) )
+                        {
+                            // we can be sure that the exterior overlaps the boundary
+                            set<exterior, boundary, '1', TransposeResult>(result);                    
+                        }
+                    }
+                }
+                // if it's the same single geometry
+                else /*if ( previous_multi_index == it->operations[1].seg_id.multi_index )*/
+                {
+                    // and we jumped over one of the rings
+                    if ( prev_seg_id_ptr != NULL // just in case
+                      && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
+                    {
+                        // we can be sure that the exterior overlaps the boundary
+                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        break;
+                    }
+                }
+
+                prev_seg_id_ptr = boost::addressof(it->operations[1].seg_id);
+
                 // find the next ring first iterator and check if the analysis should be performed
                 has_boundary_intersection has_boundary_inters;
                 std::vector<turn_type>::iterator
-                    last = find_next_ring(first, turns.end(), has_boundary_inters);
+                    next = find_next_ring(it, turns.end(), has_boundary_inters);
 
                 // if there is no 1d overlap with the boundary
                 if ( !has_boundary_inters.result )
@@ -268,15 +328,15 @@ struct linear_areal
                 else
                 {
                     // u, c
-                    std::sort(first, last, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
+                    std::sort(it, next, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
 
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;
-                    for ( std::vector<turn_type>::iterator it = first ;
-                          it != last ; ++it )
+                    for ( std::vector<turn_type>::iterator rit = it ;
+                          rit != next ; ++rit )
                     {
                         // if the analyser requests, break the search
-                        if ( !analyser.apply(first, it, last) )
+                        if ( !analyser.apply(it, rit, next) )
                             break;
                     }
 
@@ -289,7 +349,23 @@ struct linear_areal
                     }
                 }
 
-                first = last;
+                it = next;
+            }
+
+            // if there was some previous ring
+            if ( prev_seg_id_ptr != NULL )
+            {
+                int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                BOOST_ASSERT(next_ring_index >= 0);
+
+                // if one of the last rings of previous single geometry was ommited
+                if ( static_cast<std::size_t>(next_ring_index)
+                        < geometry::num_interior_rings(
+                            single_geometry(geometry2, *prev_seg_id_ptr)) )
+                {
+                    // we can be sure that the exterior overlaps the boundary
+                    set<exterior, boundary, '1', TransposeResult>(result);                    
+                }
             }
         }
     }
@@ -319,9 +395,8 @@ struct linear_areal
                 if ( it->operations[0].operation == overlay::operation_intersection )
                 {
                     bool const no_interior_rings
-                        = boost::empty(
-                            geometry::interior_rings(
-                                single_geometry<Areal const>::apply(m_areal, it->operations[1].seg_id)));
+                        = geometry::num_interior_rings(
+                                single_geometry(m_areal, it->operations[1].seg_id)) == 0;
 
                     // WARNING! THIS IS TRUE ONLY IF THE POLYGON IS SIMPLE!
                     // OR WITHOUT INTERIOR RINGS (AND OF COURSE VALID)
