@@ -380,9 +380,11 @@ void test_linestring_polygon()
 {
     typedef bg::model::linestring<P> ls;
     typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
 
     // LS disjoint
     test_geometry<ls, poly>("LINESTRING(11 0,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
+    test_geometry<ls, ring>("LINESTRING(11 0,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "FF1FF0212");
 
     // II BB
     test_geometry<ls, poly>("LINESTRING(0 0,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",    "1FFF0F212");
@@ -488,13 +490,16 @@ void test_linestring_polygon()
                             "POLYGON((0 0,0 10,10 10,10 5,2 8,2 2,10 5,10 0,0 0))",
                             "F11FFF212");
 
-    // polygons with exterior ring equals the linestring
+    // polygons with some ring equal to the linestring
     test_geometry<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "F1FFFF2F2");
-    to_svg<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
-                            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
-                            "F1FFFF2F2.svg");
+    test_geometry<ls, poly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2))",
+                            "F1FFFF212");
+    test_geometry<ls, poly>("LINESTRING(2 2,5 5,2 8,2 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2))",
+                            "F1FFFF212");
 
     // ccw
     {
@@ -551,6 +556,36 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(10 1,10 5,5 5)",
                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(10 5,2 8,2 2,10 5)),((10 5,3 3,3 7,10 5)))",
                             "11F00F212");
+
+    test_geometry<ls, mpoly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((20 0,20 10,30 20,20 0)))",
+                             "F1FFFF212");
+}
+
+template <typename P>
+void test_multi_linestring_multi_polygon()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_linestring<ls> mls;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    // polygons with some ring equal to the linestrings
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10,0 10,0 0),(20 20,50 50,20 80,20 20))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "F11FFF2F2");
+
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10,0 10,0 0),(2 2,5 5,2 8,2 2))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2)))",
+                              "F1FFFF2F2");
+
+
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "F1FFFF2F2");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0),(20 20,50 50,20 80,20 20))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "F11FFF2F2");
 }
 
 template <typename P>
@@ -565,6 +600,7 @@ void test_all()
     test_linestring_multi_linestring<P>();
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
+    test_multi_linestring_multi_polygon<P>();
 }
 
 int test_main( int , char* [] )

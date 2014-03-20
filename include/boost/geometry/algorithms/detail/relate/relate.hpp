@@ -125,10 +125,18 @@ template <typename Linestring, typename Polygon>
 struct relate<Linestring, Polygon, linestring_tag, polygon_tag>
     : detail::relate::linear_areal<Linestring, Polygon>
 {};
+template <typename Linestring, typename Ring>
+struct relate<Linestring, Ring, linestring_tag, ring_tag>
+    : detail::relate::linear_areal<Linestring, Ring>
+{};
 
 template <typename Polygon, typename Linestring>
 struct relate<Polygon, Linestring, polygon_tag, linestring_tag>
     : detail::relate::areal_linear<Polygon, Linestring>
+{};
+template <typename Ring, typename Linestring>
+struct relate<Ring, Linestring, ring_tag, linestring_tag>
+    : detail::relate::areal_linear<Ring, Linestring>
 {};
 
 template <typename Linestring, typename MultiPolygon>
@@ -139,6 +147,34 @@ struct relate<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
 template <typename MultiPolygon, typename Linestring>
 struct relate<MultiPolygon, Linestring, multi_polygon_tag, linestring_tag>
     : detail::relate::areal_linear<MultiPolygon, Linestring>
+{};
+
+template <typename MultiLinestring, typename Polygon>
+struct relate<MultiLinestring, Polygon, multi_linestring_tag, polygon_tag>
+    : detail::relate::linear_areal<MultiLinestring, Polygon>
+{};
+template <typename MultiLinestring, typename Ring>
+struct relate<MultiLinestring, Ring, multi_linestring_tag, ring_tag>
+    : detail::relate::linear_areal<MultiLinestring, Ring>
+{};
+
+template <typename Polygon, typename MultiLinestring>
+struct relate<Polygon, MultiLinestring, polygon_tag, multi_linestring_tag>
+    : detail::relate::areal_linear<Polygon, MultiLinestring>
+{};
+template <typename Ring, typename MultiLinestring>
+struct relate<Ring, MultiLinestring, ring_tag, multi_linestring_tag>
+    : detail::relate::areal_linear<Ring, MultiLinestring>
+{};
+
+template <typename MultiLinestring, typename MultiPolygon>
+struct relate<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon_tag>
+    : detail::relate::linear_areal<MultiLinestring, MultiPolygon>
+{};
+
+template <typename MultiPolygon, typename MultiLinestring>
+struct relate<MultiPolygon, MultiLinestring, multi_polygon_tag, multi_linestring_tag>
+    : detail::relate::areal_linear<MultiPolygon, MultiLinestring>
 {};
 
 }} // namespace detail_dispatch::relate
