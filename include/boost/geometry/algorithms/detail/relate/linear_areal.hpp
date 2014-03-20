@@ -266,7 +266,9 @@ struct linear_areal
             // sort by multi_index and rind_index
             std::sort(turns.begin(), turns.end(), less_ring());
 
-            std::vector<turn_type>::iterator it = turns.begin();
+            typedef typename std::vector<turn_type>::iterator turn_iterator;
+
+            turn_iterator it = turns.begin();
             segment_identifier * prev_seg_id_ptr = NULL;
             // for each ring
             for ( ; it != turns.end() ; )
@@ -315,8 +317,7 @@ struct linear_areal
 
                 // find the next ring first iterator and check if the analysis should be performed
                 has_boundary_intersection has_boundary_inters;
-                std::vector<turn_type>::iterator
-                    next = find_next_ring(it, turns.end(), has_boundary_inters);
+                turn_iterator next = find_next_ring(it, turns.end(), has_boundary_inters);
 
                 // if there is no 1d overlap with the boundary
                 if ( !has_boundary_inters.result )
@@ -333,8 +334,7 @@ struct linear_areal
 
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;
-                    for ( std::vector<turn_type>::iterator rit = it ;
-                          rit != next ; ++rit )
+                    for ( turn_iterator rit = it ; rit != next ; ++rit )
                     {
                         // if the analyser requests, break the search
                         if ( !analyser.apply(it, rit, next) )
@@ -808,7 +808,7 @@ struct linear_areal
 
         // check if the passed turn's segment of Linear geometry arrived
         // from the inside or the outside of the Areal geometry
-        template <typename Geometry1, typename Geometry2, typename Turn>
+        template <typename Turn>
         static inline bool calculate_from_inside(Geometry1 const& geometry1,
                                                  Geometry2 const& geometry2,
                                                  Turn const& turn)

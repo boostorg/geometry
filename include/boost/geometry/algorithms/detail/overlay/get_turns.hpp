@@ -54,6 +54,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
+#include <boost/geometry/algorithms/detail/group_dim.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
