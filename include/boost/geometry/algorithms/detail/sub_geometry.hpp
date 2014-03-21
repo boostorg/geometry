@@ -106,17 +106,17 @@ namespace detail { namespace sub_geometry {
 template <typename Geometry>
 struct result_type
 {
-    typedef typename detail_dispatch::sub_geometry::get<Geometry>::result_type type;
+    typedef typename geometry::detail_dispatch::sub_geometry::get<Geometry>::result_type type;
 };
 
 // This function also works for geometry::segment_identifier
 
 template <typename Geometry, typename Id> inline
-typename detail_dispatch::sub_geometry::get<Geometry>::result_type
+typename geometry::detail_dispatch::sub_geometry::get<Geometry>::result_type
 get(Geometry & geometry, Id const& id)
 {
-    return detail_dispatch::sub_geometry::get<Geometry>::apply(geometry, id);
-};
+    return geometry::detail_dispatch::sub_geometry::get<Geometry>::apply(geometry, id);
+}
 
 }} // namespace detail::sub_geometry
 #endif
