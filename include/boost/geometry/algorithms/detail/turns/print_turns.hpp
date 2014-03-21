@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/foreach.hpp>
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
 namespace boost { namespace geometry
@@ -30,8 +31,7 @@ static inline void print_turns(Geometry1 const& g1,
                                Geometry2 const& g2,
                                Turns const& turns)
 {
-    typedef typename point_type<Geometry1>::type Point1;
-    typedef overlay::traversal_turn_info<Point1> turn_info;
+    typedef typename boost::range_value<Turns>::type turn_info;
 
     std::cout << geometry::wkt(g1) << std::endl;
     std::cout << geometry::wkt(g2) << std::endl;
@@ -59,6 +59,7 @@ static inline void print_turns(Geometry1 const& g1,
             << ", m: " << turn.operations[0].other_id.multi_index
             << ", r: " << turn.operations[0].other_id.ring_index
             << ", s: " << turn.operations[0].other_id.segment_index;
+        out << ", col?: " << turn.operations[0].is_collinear;
         out << ' ' << geometry::dsv(turn.point) << ' ';
 
         out << '\n';
@@ -72,6 +73,7 @@ static inline void print_turns(Geometry1 const& g1,
             << ", m: " << turn.operations[1].other_id.multi_index
             << ", r: " << turn.operations[1].other_id.ring_index
             << ", s: " << turn.operations[1].other_id.segment_index;
+        out << ", col?: " << turn.operations[1].is_collinear;
         out << ' ' << geometry::dsv(turn.point) << ' ';
 
         ++index;
