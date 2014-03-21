@@ -55,6 +55,8 @@
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
 
+#include <boost/geometry/strategies/agnostic/relate.hpp>
+
 #include <boost/geometry/strategies/strategy_transform.hpp>
 
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>

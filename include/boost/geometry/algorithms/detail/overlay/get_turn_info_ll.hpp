@@ -191,6 +191,10 @@ struct get_turn_info_linear_linear
 
                         replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+                        handle_possible_spike_after_equal(tp.operations[0].operation,
+                                                          tp.operations[1].operation,
+                                                          side_calc);
                     
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                         *out++ = tp;
@@ -236,6 +240,10 @@ struct get_turn_info_linear_linear
 
                             replacer_of_method_and_operations_ec replacer(method_touch);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+                            handle_possible_spike_after_equal(tp.operations[0].operation,
+                                                              tp.operations[1].operation,
+                                                              side_calc);
                         }
                         else
                         {
@@ -289,6 +297,27 @@ struct get_turn_info_linear_linear
         }
 
         return out;
+    }
+
+    template <typename SideCalc>
+    static inline void handle_possible_spike_after_equal(operation_type & op0,
+                                                         operation_type & op1,
+                                                         SideCalc const& side_calc)
+    {
+        // spike on P
+        if ( op0 == operation_union
+            && side_calc.pk_wrt_p1() == 0
+            && side_calc.qk_wrt_p1() == -side_calc.qk_wrt_p2() )
+        {
+            op0 = operation_continue;
+        }
+        // spike on Q
+        if ( op1 == operation_union
+            && side_calc.qk_wrt_q1() == 0
+            && side_calc.pk_wrt_q1() == -side_calc.pk_wrt_q2() )
+        {
+            op1 = operation_continue;
+        }
     }
 
     static inline void replace_method_and_operations_tm(method_type & method,

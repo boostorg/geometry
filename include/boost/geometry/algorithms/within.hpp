@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -13,6 +13,8 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_WITHIN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_WITHIN_HPP
@@ -61,81 +63,21 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
 
-// currently works only for linestrings
-template <typename Geometry1, typename Geometry2>
-struct linear_linear
+struct use_point_in_geometry
 {
-    template <typename Strategy>
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(geometry1, geometry2, strategy) == 1;
+    }
+};
+
+struct use_relate
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& /*strategy*/)
     {
-        // TODO within() should return FALSE if a length(geometry1) == 0 and is contained entirely within a boundary,
-        // also if geometry2 has length(geometry2) == 0, it should be considered as a point.
-
-        // TODO: currently only for linestrings
-        std::size_t s1 = boost::size(geometry1);
-        std::size_t s2 = boost::size(geometry2);
-        if ( s1 == 0 || s2 == 0 || s2 == 1 )
-            return false;
-        if ( s1 == 1 && s2 == 1 ) // within(Pt, Pt)
-            return false;
-        if ( s1 == 1 )
-            return point_in_geometry(*boost::begin(geometry1), geometry2) > 0;
-
-        typedef typename geometry::point_type<Geometry1>::type point1_type;
-        typedef detail::overlay::turn_info<point1_type> turn_info;
-
-        typedef detail::overlay::get_turn_info
-            <
-                detail::overlay::assign_null_policy
-            > policy_type;
-
-        std::deque<turn_info> turns;
-
-        detail::get_turns::no_interrupt_policy policy;
-        boost::geometry::get_turns
-                <
-                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false
-                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value, // should be false
-                    detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
-
-        return analyse_turns(turns.begin(), turns.end())
-            // TODO: currently only for linestrings
-            && point_in_geometry(*boost::begin(geometry1), geometry2) >= 0
-            && point_in_geometry(*(boost::end(geometry1) - 1), geometry2) >= 0;
-    }
-
-    template <typename TurnIt>
-    static inline bool analyse_turns(TurnIt first, TurnIt last)
-    {
-        bool has_turns = false;
-        for ( TurnIt it = first ; it != last ; ++it )
-        {
-            switch ( it->method )
-            {
-                case overlay::method_crosses:
-                    return false;
-                case overlay::method_touch:
-                case overlay::method_touch_interior:
-                    if ( it->both(overlay::operation_continue)
-                      || it->both(overlay::operation_blocked) )
-                    {
-                        has_turns = true;
-                    }
-                    else
-                        return false;
-                case overlay::method_equal:
-                case overlay::method_collinear:
-                    has_turns = true;
-                    break;
-                case overlay::method_none :
-                case overlay::method_disjoint :
-                case overlay::method_error :
-                    break;
-            }
-        }
-
-        return has_turns;
+        return Strategy::apply(geometry1, geometry2);
     }
 };
 
@@ -180,48 +122,73 @@ struct within<Box1, Box2, box_tag, box_tag>
     }
 };
 
-
+// P/A
 
 template <typename Point, typename Ring>
 struct within<Point, Ring, point_tag, ring_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, ring, strategy) == 1;
-    }
-};
+    : public detail::within::use_point_in_geometry
+{};
 
 template <typename Point, typename Polygon>
 struct within<Point, Polygon, point_tag, polygon_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, polygon, strategy) == 1;
-    }
-};
+    : public detail::within::use_point_in_geometry
+{};
+
+// P/L
 
 template <typename Point, typename Linestring>
 struct within<Point, Linestring, point_tag, linestring_tag>
-{
-    template <typename Strategy> static inline
-    bool apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, linestring, strategy) == 1;
-    }
-};
+    : public detail::within::use_point_in_geometry
+{};
+
+// L/L
 
 template <typename Linestring1, typename Linestring2>
 struct within<Linestring1, Linestring2, linestring_tag, linestring_tag>
-{
-    template <typename Strategy> static inline
-    bool apply(Linestring1 const& linestring1, Linestring2 const& linestring2, Strategy const& strategy)
-    {
-        return detail::within::linear_linear<Linestring1, Linestring2>
-                ::apply(linestring1, linestring2, strategy);
-    }
-};
+    : public detail::within::use_relate
+{};
+
+template <typename Linestring, typename MultiLinestring>
+struct within<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiLinestring, typename Linestring>
+struct within<MultiLinestring, Linestring, multi_linestring_tag, linestring_tag>
+    : public detail::within::use_relate
+{};
+
+// L/A
+
+template <typename Linestring, typename Ring>
+struct within<Linestring, Ring, linestring_tag, ring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiLinestring, typename Ring>
+struct within<MultiLinestring, Ring, multi_linestring_tag, ring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Linestring, typename Polygon>
+struct within<Linestring, Polygon, linestring_tag, polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiLinestring, typename Polygon>
+struct within<MultiLinestring, Polygon, multi_linestring_tag, polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Linestring, typename MultiPolygon>
+struct within<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiLinestring, typename MultiPolygon>
+struct within<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon_tag>
+    : public detail::within::use_relate
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

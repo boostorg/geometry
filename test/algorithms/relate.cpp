@@ -75,8 +75,8 @@ void check_geometry(Geometry1 const& geometry1,
         std::string expected_tr = transposed(expected);
         bool ok = boost::equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
-            "relate: " << wkt1
-            << " and " << wkt2
+            "relate: " << wkt2
+            << " and " << wkt1
             << " -> Expected: " << expected_tr
             << " detected: " << res_str);
     }
@@ -251,9 +251,11 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1,5 3)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
     test_geometry<ls, ls>("LINESTRING(5 3,1 1,3 3,2 2,0 0)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
 
-    // spike
+    // spikes
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)",
                           "LINESTRING(1 0,9 0,2 0)", "101FF0FF2");
+    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,3 3,6 3)", "1FF00F102");
+    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,4 4,6 3)", "1FF00F102");
 
     // loop i/i i/i u/u u/u
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)",
