@@ -22,6 +22,62 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
+template <typename Point1,
+          typename Point2,
+          typename SideCalc = side_calculator<Point1, Point2> >
+class spike_detector
+{
+public:
+    explicit spike_detector(SideCalc const& side_calc)
+        : m_side_calc(side_calc)
+    {}
+
+    inline bool is_spike_p() const
+    {
+        if ( m_side_calc.pk_wrt_p1() == 0 )
+        {
+            int const qk_p1 = m_side_calc.qk_wrt_p1();
+            int const qk_p2 = m_side_calc.qk_wrt_p2();
+
+            if ( qk_p1 == -qk_p2 )
+            {
+                if ( qk_p1 == 0 )
+                {
+                    // TODO check additional things
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    inline bool is_spike_q() const
+    {
+        if ( m_side_calc.qk_wrt_q1() == 0 )
+        {
+            int const pk_q1 = m_side_calc.pk_wrt_q1();
+            int const pk_q2 = m_side_calc.pk_wrt_q2();
+
+            if ( pk_q1 == -pk_q2 )
+            {
+                if ( pk_q1 == 0 )
+                {
+                    // TODO check additional things
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+private:
+    SideCalc const& m_side_calc;
+};
+
 template<typename AssignPolicy>
 struct get_turn_info_linear_linear
 {
@@ -192,9 +248,17 @@ struct get_turn_info_linear_linear
                         replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                        handle_possible_spike_after_equal(tp.operations[0].operation,
-                                                          tp.operations[1].operation,
-                                                          side_calc);
+                        spike_detector<Point1, Point2> spike_detect(side_calc);
+                        if ( tp.operations[0].operation == operation_union
+                          && spike_detect.is_spike_p())
+                        {
+                            tp.operations[0].operation = operation_continue;
+                        }
+                        if ( tp.operations[1].operation == operation_union
+                            && spike_detect.is_spike_q())
+                        {
+                            tp.operations[1].operation = operation_continue;
+                        }
                     
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                         *out++ = tp;
@@ -241,9 +305,17 @@ struct get_turn_info_linear_linear
                             replacer_of_method_and_operations_ec replacer(method_touch);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                            handle_possible_spike_after_equal(tp.operations[0].operation,
-                                                              tp.operations[1].operation,
-                                                              side_calc);
+                            spike_detector<Point1, Point2> spike_detect(side_calc);
+                            if ( tp.operations[0].operation == operation_union
+                              && spike_detect.is_spike_p())
+                            {
+                                tp.operations[0].operation = operation_continue;
+                            }
+                            if ( tp.operations[1].operation == operation_union
+                                && spike_detect.is_spike_q())
+                            {
+                                tp.operations[1].operation = operation_continue;
+                            }
                         }
                         else
                         {
@@ -252,6 +324,11 @@ struct get_turn_info_linear_linear
 
                             replacer_of_method_and_operations_ec replacer(method_touch_interior);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+                            // TEST
+                            spike_detector<Point1, Point2> spike_detect(side_calc);
+                            spike_detect.is_spike_p();
+                            spike_detect.is_spike_q();
                         }
 
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
@@ -297,27 +374,6 @@ struct get_turn_info_linear_linear
         }
 
         return out;
-    }
-
-    template <typename SideCalc>
-    static inline void handle_possible_spike_after_equal(operation_type & op0,
-                                                         operation_type & op1,
-                                                         SideCalc const& side_calc)
-    {
-        // spike on P
-        if ( op0 == operation_union
-            && side_calc.pk_wrt_p1() == 0
-            && side_calc.qk_wrt_p1() == -side_calc.qk_wrt_p2() )
-        {
-            op0 = operation_continue;
-        }
-        // spike on Q
-        if ( op1 == operation_union
-            && side_calc.qk_wrt_q1() == 0
-            && side_calc.pk_wrt_q1() == -side_calc.pk_wrt_q2() )
-        {
-            op1 = operation_continue;
-        }
     }
 
     static inline void replace_method_and_operations_tm(method_type & method,
