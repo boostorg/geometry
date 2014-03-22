@@ -625,6 +625,8 @@ static std::string ticket_8652[2] =
 
 static std::string ticket_9756[2] =
 {
+    // NOTE: these polygons are not closed. That is the reason the union failed for the library user.
+    // the unit test calls "correct" so this test is not a problem for the library. The ticket is closed as invalid.
     "POLYGON((440820.110024126 4047009.80267429, 440806.545727707 4046942.39533656, 440797.171880196 4046895.8425726, 440804.202135392 4046888.73092639, 440813.573458131 4046935.27114371, 440827.140279322 4047002.69102807))",
     "POLYGON((440855.857887967 4046932.1248641, 440813.740724389 4046942.21109839, 440806.376538684 4046935.44583646, 440848.493702262 4046925.35960217))",
 };
