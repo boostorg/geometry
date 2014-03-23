@@ -306,12 +306,18 @@ struct get_turn_info_linear_areal
 
         // Assuming G1 is always Linear
         if ( op0 == operation_blocked )
+        {
             op0 = operation_continue;
+        }
 
         if ( op1 == operation_blocked )
+        {
             op1 = operation_continue;
+        }
         else if ( op1 == operation_intersection )
+        {
             op1 = operation_union;
+        }
     }
 
     template <bool IsFront>
@@ -336,12 +342,18 @@ struct get_turn_info_linear_areal
 
             // Assuming G1 is always Linear
             if ( op0 == operation_blocked )
+            {
                 op0 = operation_continue;
+            }
 
             if ( op1 == operation_blocked )
+            {
                 op1 = operation_continue;
+            }
             else if ( op1 == operation_intersection )
+            {
                 op1 = operation_union;
+            }
         }
 
     private:

@@ -392,14 +392,22 @@ struct get_turn_info_linear_linear
         else
         {
             if ( op0 == operation_continue || op0 == operation_blocked )
+            {
                 op0 = operation_intersection;
+            }
             else if ( op0 == operation_intersection )
+            {
                 op0 = operation_union;
+            }
 
             if ( op1 == operation_continue || op1 == operation_blocked )
+            {
                 op1 = operation_intersection;
+            }
             else if ( op1 == operation_intersection )
+            {
                 op1 = operation_union;
+            }
         }
     }
 
@@ -417,14 +425,22 @@ struct get_turn_info_linear_linear
             BOOST_ASSERT(op0 != operation_blocked || op1 != operation_blocked );
 
             if ( op0 == operation_blocked )
+            {
                 op0 = operation_intersection;
+            }
             else if ( op0 == operation_intersection )
+            {
                 op0 = operation_union;
+            }
 
             if ( op1 == operation_blocked )
+            {
                 op1 = operation_intersection;
+            }
             else if ( op1 == operation_intersection )
+            {
                 op1 = operation_union;
+            }
 
             if ( op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
@@ -440,13 +456,15 @@ struct get_turn_info_linear_linear
     static inline void replace_operations_i(operation_type & op0, operation_type & op1)
     {
         if ( op0 == operation_intersection )
+        {
             op0 = operation_union;
+        }
 
         if ( op1 == operation_intersection )
+        {
             op1 = operation_union;
+        }
     }
-
-    
 };
 
 }} // namespace detail::overlay

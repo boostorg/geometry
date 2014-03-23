@@ -558,18 +558,26 @@ struct linear_linear
                             {
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
+                                {
                                     update<boundary, boundary, '0', transpose_result>(res);
+                                }
                                 else
+                                {
                                     update<boundary, interior, '0', transpose_result>(res);
+                                }
                             }
                             // if current IP is not on boundary of the geometry
                             else
                             {
                                 // it's also the boundary of the other geometry
                                 if ( other_b )
+                                {
                                     update<interior, boundary, '0', transpose_result>(res);
+                                }
                                 else
+                                {
                                     update<interior, interior, '0', transpose_result>(res);
+                                }
                             }
 
                             // first IP on the last segment point - this means that the first point is outside
