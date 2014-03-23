@@ -23,6 +23,12 @@
 
 namespace boost { namespace geometry { namespace range {
 
+// NOTE: For SinglePassRanges at could iterate over all elements until the i-th element is met.
+
+/*!
+\brief Short utility to conveniently return an element of a RandomAccessRange.
+\ingroup utility
+*/
 template <typename RandomAccessRange>
 inline typename boost::range_value<RandomAccessRange const>::type const&
 at(RandomAccessRange const& rng,
@@ -33,6 +39,10 @@ at(RandomAccessRange const& rng,
     return *(boost::begin(rng) + i);
 }
 
+/*!
+\brief Short utility to conveniently return an element of a RandomAccessRange.
+\ingroup utility
+*/
 template <typename RandomAccessRange>
 inline typename boost::range_value<RandomAccessRange>::type &
 at(RandomAccessRange & rng,
@@ -43,6 +53,10 @@ at(RandomAccessRange & rng,
     return *(boost::begin(rng) + i);
 }
 
+/*!
+\brief Short utility to conveniently return the front element of a Range.
+\ingroup utility
+*/
 template <typename Range>
 inline typename boost::range_value<Range>::type const&
 front(Range const& rng)
@@ -51,6 +65,10 @@ front(Range const& rng)
     return *boost::begin(rng);
 }
 
+/*!
+\brief Short utility to conveniently return the front element of a Range.
+\ingroup utility
+*/
 template <typename Range>
 inline typename boost::range_value<Range>::type &
 front(Range & rng)
@@ -59,6 +77,12 @@ front(Range & rng)
     return *boost::begin(rng);
 }
 
+// NOTE: For SinglePassRanges back() could iterate over all elements until the last element is met.
+
+/*!
+\brief Short utility to conveniently return the back element of a BidirectionalRange.
+\ingroup utility
+*/
 template <typename BidirectionalRange>
 inline typename boost::range_value<BidirectionalRange>::type const&
 back(BidirectionalRange const& rng)
@@ -68,6 +92,10 @@ back(BidirectionalRange const& rng)
     return *(--boost::end(rng));
 }
 
+/*!
+\brief Short utility to conveniently return the back element of a BidirectionalRange.
+\ingroup utility
+*/
 template <typename BidirectionalRange>
 inline typename boost::range_value<BidirectionalRange>::type &
 back(BidirectionalRange & rng)

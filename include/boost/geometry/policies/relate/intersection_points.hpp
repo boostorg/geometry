@@ -21,43 +21,13 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
 
 namespace policies { namespace relate
 {
-
-template <typename Result, bool IsInteger = std::numeric_limits<Result>::is_integer>
-struct round_dispatch
-{
-    template <typename T>
-    static inline Result apply(T const& v)
-    {
-        return v < 0 ?
-               boost::numeric_cast<Result>(ceil(v - 0.5f)) :
-               boost::numeric_cast<Result>(floor(v + 0.5f));
-    }
-};
-
-template <typename Result>
-struct round_dispatch<Result, false>
-{
-    template <typename T>
-    static inline Result apply(T const& v)
-    {
-        return boost::numeric_cast<Result>(v);
-    }
-};
-
-template <typename Result, typename T>
-inline Result round(T const& v)
-{
-    // NOTE: boost::round() could be used instead but it throws in some situations
-
-    //BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_integer);
-    return round_dispatch<Result>::apply(v);
-}
 
 template <typename S1, typename S2, typename ReturnType, typename CalculationType = void>
 struct segments_intersection_points
@@ -89,9 +59,9 @@ struct segments_intersection_points
         return_type result;
         result.count = 1;
         set<0>(result.intersections[0],
-            round<return_coordinate_type>(R(s1x) + r * R(dx1)));
+            geometry::math::round<return_coordinate_type>(R(s1x) + r * R(dx1)));
         set<1>(result.intersections[0],
-            round<return_coordinate_type>(R(s1y) + r * R(dy1)));
+            geometry::math::round<return_coordinate_type>(R(s1y) + r * R(dy1)));
 
         return result;
     }
