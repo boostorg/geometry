@@ -17,7 +17,7 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/detail/sub_geometry.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
@@ -622,7 +622,7 @@ struct linear_areal
                             if ( first_in_range )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -713,7 +713,7 @@ struct linear_areal
                             if ( first_in_range && ( !this_b || op_blocked ) )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -759,7 +759,7 @@ struct linear_areal
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            range::back(sub_range(geometry, prev_seg_id)),
                                             boundary_checker);
 
                     // if there is a boundary on the last point
@@ -780,7 +780,7 @@ struct linear_areal
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            range::back(sub_range(geometry, prev_seg_id)),
                                             boundary_checker);
 
                     // if there is a boundary on the last point
@@ -833,10 +833,10 @@ struct linear_areal
                     reverse2 ? iterate_reverse : iterate_forward
                 >::type range2_view;
 
-            typedef typename sub_geometry::result_type<Geometry1 const>::type range1_ref;
+            typedef typename sub_range_return_type<Geometry1 const>::type range1_ref;
 
-            range1_ref range1 = sub_geometry::get(geometry1, turn.operations[op_id].seg_id);
-            range2_cview const cview(sub_geometry::get(geometry2, turn.operations[other_op_id].seg_id));
+            range1_ref range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
+            range2_cview const cview(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             range2_view const range2(cview);
 
             std::size_t s1 = boost::size(range1);
@@ -849,9 +849,9 @@ struct linear_areal
 
             BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
 
-            point1_type const& pi = geometry::range::at(range1, p_seg_ij);
-            point2_type const& qi = geometry::range::at(range2, q_seg_ij);
-            point2_type const& qj = geometry::range::at(range2, q_seg_ij + 1);
+            point1_type const& pi = range::at(range1, p_seg_ij);
+            point2_type const& qi = range::at(range2, q_seg_ij);
+            point2_type const& qj = range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
             bool is_ip_qj = equals::equals_point_point(turn.point, qj);
@@ -865,7 +865,7 @@ struct linear_areal
             {
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
                 BOOST_ASSERT(q_seg_jk + 1 < s2);
-                point2_type const& qk = geometry::range::at(range2, q_seg_jk + 1);
+                point2_type const& qk = range::at(range2, q_seg_jk + 1);
                 // Will this sequence of point be always correct?
                 overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
 

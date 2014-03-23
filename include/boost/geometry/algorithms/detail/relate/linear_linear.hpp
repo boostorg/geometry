@@ -16,7 +16,7 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/detail/sub_geometry.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
@@ -455,7 +455,7 @@ struct linear_linear
                             if ( first_in_range )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -530,7 +530,7 @@ struct linear_linear
                             if ( first_in_range )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -584,7 +584,7 @@ struct linear_linear
                             if ( first_in_range && ( !this_b || op_blocked ) && was_outside /*&& !is_collinear*/ )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -620,7 +620,7 @@ struct linear_linear
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            range::back(sub_range(geometry, prev_seg_id)),
                                             boundary_checker);
 
                     // if there is a boundary on the last point
