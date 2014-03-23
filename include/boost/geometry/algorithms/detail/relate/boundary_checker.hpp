@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
@@ -113,14 +114,14 @@ public:
 
         if ( BoundaryQuery == boundary_back )
         {
-            if ( sid.segment_index + 2 != geometry::num_points(sub_geometry::get(geometry, sid)) )
+            if ( sid.segment_index + 2 != geometry::num_points(sub_range(geometry, sid)) )
                 return false;
         }
 
         if ( BoundaryQuery == boundary_any )
         {
             if ( sid.segment_index != 0
-              && sid.segment_index + 2 != geometry::num_points(sub_geometry::get(geometry, sid)) )
+              && sid.segment_index + 2 != geometry::num_points(sub_range(geometry, sid)) )
                 return false;
         }
 

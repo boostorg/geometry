@@ -110,7 +110,7 @@ struct get_turns
                 reverse1,
                 reverse2,
                 GetTurnPolicy
-            >::apply(0, geometry1, 1, geometry2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
+            >::apply(0, geometry1, 1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
     }
 };
 
