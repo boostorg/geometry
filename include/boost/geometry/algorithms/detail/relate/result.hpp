@@ -18,6 +18,8 @@
 #include <boost/mpl/vector_c.hpp>
 #include <boost/mpl/at.hpp>
 
+#include <boost/geometry/core/topological_dimension.hpp>
+
 // TEMP - move this header to geometry/detail
 #include <boost/geometry/index/detail/tuples.hpp>
 
@@ -796,8 +798,8 @@ typedef static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_dis
 // TOUCHES - NOT P/P
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
-          std::size_t Dim2 = detail::group_dim<Geometry2>::value>
+          std::size_t Dim1 = topological_dimension<Geometry1>::value,
+          std::size_t Dim2 = topological_dimension<Geometry2>::value>
 struct static_mask_touches_type
 {
     typedef boost::mpl::vector<
@@ -829,8 +831,8 @@ typedef boost::mpl::vector<
 // dim(G1) < dim(G2) - P/L P/A L/A
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
-          std::size_t Dim2 = detail::group_dim<Geometry2>::value,
+          std::size_t Dim1 = topological_dimension<Geometry1>::value,
+          std::size_t Dim2 = topological_dimension<Geometry2>::value,
           bool D1LessD2 = (Dim1 < Dim2)
 >
 struct static_mask_crosses_type
@@ -866,8 +868,8 @@ struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, D1LessD2>
 // dim(G1) != dim(G2) - NOT P/P, L/L, A/A
 template <typename Geometry1,
           typename Geometry2,
-          std::size_t Dim1 = detail::group_dim<Geometry1>::value,
-          std::size_t Dim2 = detail::group_dim<Geometry2>::value
+          std::size_t Dim1 = topological_dimension<Geometry1>::value,
+          std::size_t Dim2 = topological_dimension<Geometry2>::value
 >
 struct static_mask_overlaps_type
     : not_implemented<typename geometry::tag<Geometry1>::type,

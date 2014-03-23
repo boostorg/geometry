@@ -248,7 +248,8 @@ struct get_turn_info_linear_linear
                         replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                        spike_detector<Point1, Point2> spike_detect(side_calc);
+                        // TODO: This isn't correct handling, hence commented out
+                        /*spike_detector<Point1, Point2> spike_detect(side_calc);
                         if ( tp.operations[0].operation == operation_union
                           && spike_detect.is_spike_p())
                         {
@@ -258,7 +259,7 @@ struct get_turn_info_linear_linear
                             && spike_detect.is_spike_q())
                         {
                             tp.operations[1].operation = operation_continue;
-                        }
+                        }*/
                     
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                         *out++ = tp;
@@ -305,7 +306,8 @@ struct get_turn_info_linear_linear
                             replacer_of_method_and_operations_ec replacer(method_touch);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                            spike_detector<Point1, Point2> spike_detect(side_calc);
+                            // TODO: This isn't correct handling, hence commented out
+                            /*spike_detector<Point1, Point2> spike_detect(side_calc);
                             if ( tp.operations[0].operation == operation_union
                               && spike_detect.is_spike_p())
                             {
@@ -315,7 +317,7 @@ struct get_turn_info_linear_linear
                                 && spike_detect.is_spike_q())
                             {
                                 tp.operations[1].operation = operation_continue;
-                            }
+                            }*/
                         }
                         else
                         {
@@ -326,9 +328,9 @@ struct get_turn_info_linear_linear
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
                             // TEST
-                            spike_detector<Point1, Point2> spike_detect(side_calc);
-                            spike_detect.is_spike_p();
-                            spike_detect.is_spike_q();
+                            //spike_detector<Point1, Point2> spike_detect(side_calc);
+                            //spike_detect.is_spike_p();
+                            //spike_detect.is_spike_q();
                         }
 
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());

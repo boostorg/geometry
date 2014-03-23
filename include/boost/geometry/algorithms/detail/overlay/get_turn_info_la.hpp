@@ -17,6 +17,9 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_for_endpoint.hpp>
 
+// TEMP, for spikes detector
+//#include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
+
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -183,6 +186,14 @@ struct get_turn_info_linear_areal
                         replacer_of_method_and_operations_ec<false> replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
+                        // TODO: This isn't correct handling, hence commented out
+                        /*spike_detector<Point1, Point2> spike_detect(side_calc);
+                        if ( tp.operations[0].operation == operation_union
+                          && spike_detect.is_spike_p())
+                        {
+                            tp.operations[0].operation = operation_continue;
+                        }*/
+
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                         *out++ = tp;
                     }
@@ -218,6 +229,13 @@ struct get_turn_info_linear_areal
                             // Collinear, but similar thus handled as equal
                             equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
+
+                            spike_detector<Point1, Point2> spike_detect(side_calc);
+                            if ( tp.operations[0].operation == operation_union
+                              && spike_detect.is_spike_p())
+                            {
+                                tp.operations[0].operation = operation_continue;
+                            }
 
                             replacer_of_method_and_operations_ec<false> replacer(method_touch);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);

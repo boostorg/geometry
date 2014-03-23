@@ -54,7 +54,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
-#include <boost/geometry/algorithms/detail/group_dim.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
@@ -738,9 +737,15 @@ struct get_turns_polygon_cs
 
 // GET_TURN_INFO_TYPE
 
+template <typename Geometry>
+struct topological_tag_base
+{
+    typedef typename tag_cast<typename tag<Geometry>::type, pointlike_tag, linear_tag, areal_tag>::type type;
+};
+
 template <typename Geometry1, typename Geometry2, typename AssignPolicy,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct get_turn_info_type
     : overlay::get_turn_info<AssignPolicy>
 {};
@@ -757,7 +762,7 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
 
 template <typename Geometry1, typename Geometry2,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
     typedef overlay::turn_operation type;

@@ -14,9 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
-#include <boost/geometry/algorithms/detail/group_dim.hpp>
+#include <boost/geometry/core/topological_dimension.hpp>
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/geometry/algorithms/detail/sub_geometry.hpp>
-#include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
@@ -185,8 +186,8 @@ template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
 struct linear_areal
 {
     // check Linear / Areal
-    BOOST_STATIC_ASSERT(detail::group_dim<Geometry1>::value == 1
-                     && detail::group_dim<Geometry2>::value == 2);
+    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 1
+                     && topological_dimension<Geometry2>::value == 2);
 
     static const bool interruption_enabled = true;
 
@@ -848,15 +849,15 @@ struct linear_areal
 
             BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
 
-            point1_type const& pi = range::at(range1, p_seg_ij);
-            point2_type const& qi = range::at(range2, q_seg_ij);
-            point2_type const& qj = range::at(range2, q_seg_ij + 1);
+            point1_type const& pi = geometry::range::at(range1, p_seg_ij);
+            point2_type const& qi = geometry::range::at(range2, q_seg_ij);
+            point2_type const& qj = geometry::range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
             bool is_ip_qj = equals::equals_point_point(turn.point, qj);
 // TODO: test this!
-            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
-            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
+//            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
+//            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
             point1_type new_pj;
             geometry::convert(turn.point, new_pj);
 
@@ -864,7 +865,7 @@ struct linear_areal
             {
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
                 BOOST_ASSERT(q_seg_jk + 1 < s2);
-                point2_type const& qk = range::at(range2, q_seg_jk + 1);
+                point2_type const& qk = geometry::range::at(range2, q_seg_jk + 1);
                 // Will this sequence of point be always correct?
                 overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
 

@@ -17,37 +17,37 @@
 namespace boost { namespace geometry
 {
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
+#ifndef DOXYGEN_NO_DISPATCH
+namespace detail_dispatch { namespace relate {
 
-// TODO: should this be integrated with geometry::less?
+// TODO: Integrate it with geometry::less?
 
 template <typename Point1,
           typename Point2,
           std::size_t I = 0,
           std::size_t D = geometry::dimension<Point1>::value>
-struct less_dispatch
+struct less
 {
-    static inline bool apply(Point1 const& l, Point2 const& r)
+    static inline bool apply(Point1 const& left, Point2 const& right)
     {
         typename geometry::coordinate_type<Point1>::type
-            cl = geometry::get<I>(l);
+            cleft = geometry::get<I>(left);
         typename geometry::coordinate_type<Point2>::type
-            cr = geometry::get<I>(r);
+            cright = geometry::get<I>(right);
 
-        if ( geometry::math::equals(cl, cr) )
+        if ( geometry::math::equals(cleft, cright) )
         {
-            return less_dispatch<Point1, Point2, I + 1, D>::apply(l, r);
+            return less<Point1, Point2, I + 1, D>::apply(left, right);
         }
         else
         {
-            return cl < cr;
+            return cleft < cright;
         }
     }
 };
 
 template <typename Point1, typename Point2, std::size_t D>
-struct less_dispatch<Point1, Point2, D, D>
+struct less<Point1, Point2, D, D>
 {
     static inline bool apply(Point1 const&, Point2 const&)
     {
@@ -55,12 +55,19 @@ struct less_dispatch<Point1, Point2, D, D>
     }
 };
 
+}} // namespace detail_dispatch::relate
+
+#endif
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace relate {
+
 struct less
 {
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& point1, Point2 const& point2)
     {
-        return less_dispatch<Point1, Point2>::apply(point1, point2);
+        return detail_dispatch::relate::less<Point1, Point2>::apply(point1, point2);
     }
 };
 
