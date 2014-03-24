@@ -433,6 +433,23 @@ void test_linestring_polygon()
 
     // II IB0 IE
     test_geometry<ls, poly>("LINESTRING(5 5,10 5,15 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+    test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,10 5,10 5,10 5,15 10,15 10,15 10)",
+                            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+                            "1010F0212");
+    test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,10 0,10 0,10 0,15 10,15 10,15 10)",
+                            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+                            "1010F0212");
+    // IE IB0 II
+    test_geometry<ls, poly>("LINESTRING(15 10,15 10,15 10,10 5,10 5,10 5,5 5,5 5,5 5)",
+                            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+                            "1010F0212");
+    test_geometry<ls, poly>("LINESTRING(15 10,15 10,15 10,10 0,10 0,10 0,5 5,5 5,5 5)",
+                            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+                            "1010F0212");
+    
+    // TEST
+    test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+    test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,15 5,15 5,15 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
 
     // non-simple polygon with hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",

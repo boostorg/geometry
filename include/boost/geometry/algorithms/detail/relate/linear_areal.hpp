@@ -863,6 +863,7 @@ struct linear_areal
 
             if ( is_ip_qj )
             {
+// TODO: this won't work for duplicated points!!!
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
                 BOOST_ASSERT(q_seg_jk + 1 < s2);
                 point2_type const& qk = range::at(range2, q_seg_jk + 1);

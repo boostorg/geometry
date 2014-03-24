@@ -43,6 +43,9 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(1 1, 2 2, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", true);
     test_geometry<ls, ls>("LINESTRING(1 1, 1 1, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", true);
 
+    test_geometry<ls, ls>("LINESTRING(0 0, 0 0, 0 0, 1 1, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 2 2, 3 3)",
+                          "LINESTRING(0 0, 2 2, 4 2)", true);
+
     // invalid linestrings
 //    test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", false);
 //    test_geometry<ls, ls>("LINESTRING(1 1)", "LINESTRING(0 0, 2 2)", true);
