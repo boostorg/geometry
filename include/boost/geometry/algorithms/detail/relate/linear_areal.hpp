@@ -608,6 +608,7 @@ struct linear_areal
                           && !fake_enter_detected
                           && it->operations[op_id].position != overlay::position_front )
                         {
+// TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                             bool from_inside = first_in_range
                                                && calculate_from_inside(geometry,
                                                                         other_geometry,
@@ -693,6 +694,7 @@ struct linear_areal
                         // TODO: very similar code is used in the handling of intersection
                         if ( it->operations[op_id].position != overlay::position_front )
                         {
+// TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                             bool first_from_inside = first_in_range
                                                   && calculate_from_inside(geometry,
                                                                            other_geometry,
@@ -863,12 +865,16 @@ struct linear_areal
 
             if ( is_ip_qj )
             {
-// TODO: this won't work for duplicated points!!!
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
-                BOOST_ASSERT(q_seg_jk + 1 < s2);
-                point2_type const& qk = range::at(range2, q_seg_jk + 1);
-                // Will this sequence of point be always correct?
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
+// TODO: the following function should return immediately, however the worst case complexity is O(N)
+// It would be good to replace it with some O(1) mechanism
+                typename boost::range_iterator<range2_view>::type
+                    qk_it = find_next_non_duplicated(boost::begin(range2),
+                                                     boost::begin(range2) + q_seg_jk,
+                                                     boost::end(range2));
+
+                // Will this sequence of points be always correct?
+                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
 
                 return calculate_from_inside_sides(side_calc);
             }
@@ -881,6 +887,29 @@ struct linear_areal
 
                 return calculate_from_inside_sides(side_calc);
             }
+        }
+
+        template <typename It>
+        static inline It find_next_non_duplicated(It first, It current, It last)
+        {
+            BOOST_ASSERT( current != last );
+
+            It it = current;
+
+            for ( ++it ; it != last ; ++it )
+            {
+                if ( !equals::equals_point_point(*current, *it) )
+                    return it;
+            }
+
+            // if not found start from the beginning
+            for ( it = first ; it != current ; ++it )
+            {
+                if ( !equals::equals_point_point(*current, *it) )
+                    return it;
+            }
+
+            return current;
         }
 
         // calculate inside or outside based on side_calc

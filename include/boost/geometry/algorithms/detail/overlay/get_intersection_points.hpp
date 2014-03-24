@@ -52,9 +52,8 @@ struct get_turn_without_info
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-// TODO: should this always be std::size_t or replace with template parameter?
-                std::size_t /*p_segments_count*/,
-                std::size_t /*q_segments_count*/,
+                bool /*is_p_first*/, bool /*is_p_last*/,
+                bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& ,
                 RescalePolicy const& rescale_policy,
                 OutputIterator out)

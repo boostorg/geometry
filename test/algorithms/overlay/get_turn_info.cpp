@@ -51,7 +51,7 @@ void test_with_point(std::string const& caseid,
         <
             bg::detail::overlay::assign_null_policy
         >::apply(pi, pj, pk, qi, qj, qk,
-                 10, 10, // dummy max numbers of segments
+                 false, false, false, false, // dummy parameters
         model, bg::detail::no_rescale_policy(), std::back_inserter(info));
 
 

@@ -39,9 +39,8 @@ struct get_turn_info_linear_areal
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-// TODO: should this always be std::size_t or replace with template parameter?
-                std::size_t p_segments_count,
-                std::size_t q_segments_count,
+                bool is_p_first, bool is_p_last,
+                bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
                 RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)
@@ -77,7 +76,8 @@ struct get_turn_info_linear_areal
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<true, true>(
-                    pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                    pi, pj, pk, qi, qj, qk,
+                    is_p_first, is_p_last, is_q_first, is_q_last,
                     tp_model, result, method_none, out);
                 break;
 
@@ -87,7 +87,8 @@ struct get_turn_info_linear_areal
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        pi, pj, pk, qi, qj, qk,
+                        is_p_first, is_p_last, is_q_first, is_q_last,
                         tp_model, result, method_touch_interior, out) )
                 {
                     // do nothing
@@ -142,7 +143,8 @@ struct get_turn_info_linear_areal
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>(
-                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        pi, pj, pk, qi, qj, qk,
+                        is_p_first, is_p_last, is_q_first, is_q_last,
                         tp_model, result, method_touch, out) )
                 {
                     // do nothing
@@ -167,7 +169,8 @@ struct get_turn_info_linear_areal
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        pi, pj, pk, qi, qj, qk,
+                        is_p_first, is_p_last, is_q_first, is_q_last,
                         tp_model, result, method_equal, out) )
                 {
                     // do nothing
@@ -213,7 +216,8 @@ struct get_turn_info_linear_areal
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<true, true>(
-                        pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        pi, pj, pk, qi, qj, qk,
+                        is_p_first, is_p_last, is_q_first, is_q_last,
                         tp_model, result, method_collinear, out) )
                 {
                     // do nothing
@@ -377,9 +381,8 @@ struct get_turn_info_linear_areal
     static inline bool get_turn_info_for_endpoint(
                             Point1 const& pi, Point1 const& pj, Point1 const& pk,
                             Point2 const& qi, Point2 const& qj, Point2 const& qk,
-// TODO: should this always be std::size_t or replace with template parameter?
-                            std::size_t p_segments_count,
-                            std::size_t q_segments_count,
+                            bool is_p_first, bool is_p_last,
+                            bool is_q_first, bool is_q_last,
                             TurnInfo const& tp_model,
                             IntersectionResult const& result,
                             method_type method,
@@ -396,11 +399,6 @@ struct get_turn_info_linear_areal
         const int segment_index0 = tp_model.operations[0].seg_id.segment_index;
         const int segment_index1 = tp_model.operations[1].seg_id.segment_index;
         BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
-
-        const bool is_p_first = segment_index0 == 0;
-        const bool is_q_first = segment_index1 == 0; // not used
-        const bool is_p_last = static_cast<std::size_t>(segment_index0) + 1 == p_segments_count;
-        const bool is_q_last = static_cast<std::size_t>(segment_index1) + 1 == q_segments_count; // not used
 
         if ( !is_p_first && !is_p_last )
             return false;

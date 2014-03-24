@@ -92,9 +92,8 @@ struct get_turn_info_linear_linear
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
-// TODO: should this always be std::size_t or replace with template parameter?
-                std::size_t p_segments_count,
-                std::size_t q_segments_count,
+                bool is_p_first, bool is_p_last,
+                bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
                 RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)
@@ -130,8 +129,9 @@ struct get_turn_info_linear_linear
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
-                    ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                          tp_model, result, method_none, out);
+                    ::apply(pi, pj, pk, qi, qj, qk,
+                            is_p_first, is_p_last, is_q_first, is_q_last,
+                            tp_model, result, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -140,8 +140,9 @@ struct get_turn_info_linear_linear
             case 'm' :
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
-                              tp_model, result, method_touch_interior, out) )
+                        ::apply(pi, pj, pk, qi, qj, qk,
+                                is_p_first, is_p_last, is_q_first, is_q_last,
+                                tp_model, result, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -199,7 +200,8 @@ struct get_turn_info_linear_linear
             {
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        ::apply(pi, pj, pk, qi, qj, qk,
+                                is_p_first, is_p_last, is_q_first, is_q_last,
                                 tp_model, result, method_touch, out) )
                 {
                     // do nothing
@@ -228,7 +230,8 @@ struct get_turn_info_linear_linear
             case 'e':
             {
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        ::apply(pi, pj, pk, qi, qj, qk,
+                                is_p_first, is_p_last, is_q_first, is_q_last,
                                 tp_model, result, method_equal, out) )
                 {
                     // do nothing
@@ -280,7 +283,8 @@ struct get_turn_info_linear_linear
             {
                 // Collinear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
-                        ::apply(pi, pj, pk, qi, qj, qk, p_segments_count, q_segments_count,
+                        ::apply(pi, pj, pk, qi, qj, qk,
+                                is_p_first, is_p_last, is_q_first, is_q_last,
                                 tp_model, result, method_collinear, out) )
                 {
                     // do nothing
