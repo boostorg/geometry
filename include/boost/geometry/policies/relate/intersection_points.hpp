@@ -21,14 +21,13 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
 
 namespace policies { namespace relate
 {
-
 
 template <typename S1, typename S2, typename ReturnType, typename CalculationType = void>
 struct segments_intersection_points
@@ -60,9 +59,9 @@ struct segments_intersection_points
         return_type result;
         result.count = 1;
         set<0>(result.intersections[0],
-            boost::numeric_cast<return_coordinate_type>(R(s1x) + r * R(dx1)));
+            geometry::math::round<return_coordinate_type>(R(s1x) + r * R(dx1)));
         set<1>(result.intersections[0],
-            boost::numeric_cast<return_coordinate_type>(R(s1y) + r * R(dy1)));
+            geometry::math::round<return_coordinate_type>(R(s1y) + r * R(dy1)));
 
         return result;
     }

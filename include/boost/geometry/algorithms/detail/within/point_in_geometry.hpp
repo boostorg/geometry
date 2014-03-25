@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,8 +14,14 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
+
+#include <boost/assert.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
@@ -23,15 +29,29 @@
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/within.hpp>
+#include <boost/geometry/strategies/covered_by.hpp>
 
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
 
+int check_result_type(int result)
+{
+    return result;
+}
+
+template <typename T>
+void check_result_type(T result)
+{
+    BOOST_ASSERT(false);
+}
+
 template <typename Point, typename Range, typename Strategy> inline
 int point_in_range(Point const& point, Range const& range, Strategy const& strategy)
 {
+    boost::ignore_unused_variable_warning(strategy);
+
     typedef typename boost::range_iterator<Range const>::type iterator_type;
     typename Strategy::state_type state;
     iterator_type it = boost::begin(range);
@@ -48,7 +68,7 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
         }
     }
 
-    return strategy.result(state);
+    return check_result_type(strategy.result(state));
 }
 
 }} // namespace detail::within
@@ -65,14 +85,14 @@ template <typename Geometry,
 struct point_in_geometry : not_implemented<Tag>
 {};
 
-template <typename Box>
-struct point_in_geometry<Box, box_tag>
+template <typename Point2>
+struct point_in_geometry<Point2, point_tag>
 {
-    template <typename Point, typename Strategy> static inline
-    int apply(Point const& point, Box const& box, Strategy const& strategy)
+    template <typename Point1, typename Strategy> static inline
+    int apply(Point1 const& point1, Point2 const& point2, Strategy const& strategy)
     {
-        // this is different Strategy concept than the one used for ranges
-        return strategy.apply(point, box);
+        boost::ignore_unused_variable_warning(strategy);
+        return strategy.apply(point1, point2) ? 1 : -1;
     }
 };
 
@@ -98,9 +118,13 @@ struct point_in_geometry<Linestring, linestring_tag>
             else
                 return 1;
         }
-//        else if ( count == 1
-//               && detail::equals::equals_point_point(point, *boost::begin(linestring)) )
-//            return 0;
+// TODO: for now degenerated linestrings are ignored
+//       throw an exception here?
+        /*else if ( count == 1 )
+        {
+            if ( detail::equals::equals_point_point(point, *boost::begin(linestring)) )
+                return 1;
+        }*/
 
         return -1;
     }
@@ -184,7 +208,13 @@ namespace detail { namespace within {
 template <typename Point, typename Geometry, typename Strategy>
 inline int point_in_geometry(Point const& point, Geometry const& geometry, Strategy const& strategy)
 {
-    BOOST_CONCEPT_ASSERT( (geometry::concept::WithinStrategyPolygonal<Strategy>) );
+    concept::within::check
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            Strategy
+        >();
 
     return detail_dispatch::within::point_in_geometry<Geometry>::apply(point, geometry, strategy);
 }
@@ -212,6 +242,26 @@ inline int point_in_geometry(Point const& point, Geometry const& geometry)
             Point,
             Geometry
         >::type strategy_type;
+
+    typedef typename strategy::covered_by::services::default_strategy
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag<Point>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            Point,
+            Geometry
+        >::type strategy_type2;
+
+    BOOST_STATIC_ASSERT(boost::is_same<strategy_type, strategy_type2>::value);
 
     return point_in_geometry(point, geometry, strategy_type());
 }

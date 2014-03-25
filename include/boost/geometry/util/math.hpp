@@ -111,6 +111,29 @@ struct relaxed_epsilon
     }
 };
 
+// ItoF ItoI FtoF
+template <typename Result, typename Source,
+          bool ResultIsInteger = std::numeric_limits<Result>::is_integer,
+          bool SourceIsInteger = std::numeric_limits<Source>::is_integer>
+struct round
+{
+    static inline Result apply(Source const& v)
+    {
+        return boost::numeric_cast<Result>(v);
+    }
+};
+
+// FtoI
+template <typename Result, typename Source>
+struct round<Result, Source, true, false>
+{
+    static inline Result apply(Source const& v)
+    {
+        return v < 0
+             ? boost::numeric_cast<Result>(ceil(v - 0.5f))
+             : boost::numeric_cast<Result>(floor(v + 0.5f));        
+    }
+};
 
 } // namespace detail
 #endif
@@ -239,6 +262,19 @@ static inline int sign(T const& value)
     return value > zero ? 1 : value < zero ? -1 : 0;
 }
 
+/*!
+\brief Short utility to calculate the rounded value of a number.
+\ingroup utility
+\note If the source T is NOT an integral type and Result is an integral type
+      the value is rounded towards the closest integral value. Otherwise it's
+      just casted.
+*/
+template <typename Result, typename T>
+inline Result round(T const& v)
+{
+    // NOTE: boost::round() could be used instead but it throws in some situations
+    return detail::round<Result, T>::apply(v);
+}
 
 } // namespace math
 

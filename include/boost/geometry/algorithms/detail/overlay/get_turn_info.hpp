@@ -773,6 +773,8 @@ private :
     }
 
 public:
+    static inline void empty_replacer(method_type &, operation_type &, operation_type &) {}
+
     template
     <
         typename Point1,
@@ -794,6 +796,33 @@ public:
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
+        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, dir_info, side, empty_replacer);
+    }
+
+public:
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename OutputIterator,
+        typename IntersectionInfo,
+        typename DirInfo,
+        typename SidePolicy,
+        typename MethodAndOperationsReplacer
+    >
+    static inline void apply(
+                Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                Point2 const& qi, Point2 const& qj, Point2 const& qk,
+
+                // Opposite collinear can deliver 2 intersection points,
+                TurnInfo const& tp_model,
+                OutputIterator& out,
+
+                IntersectionInfo const& intersection_info,
+                DirInfo const& dir_info,
+                SidePolicy const& side,
+                MethodAndOperationsReplacer method_and_operations_replacer)
+    {
         TurnInfo tp = tp_model;
 
         tp.method = method_collinear;
@@ -802,6 +831,8 @@ public:
         if (dir_info.arrival[0] == 1
             && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, intersection_info))
         {
+            method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;
         }
@@ -810,6 +841,8 @@ public:
         if (dir_info.arrival[1] == 1
             && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, intersection_info))
         {
+            method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
             AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
             *out++ = tp;
         }
@@ -942,6 +975,8 @@ struct get_turn_info
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                bool /*is_p_first*/, bool /*is_p_last*/,
+                bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& tp_model,
                 RescalePolicy const& , // TODO: this will be used. rescale_policy,
                 OutputIterator out)

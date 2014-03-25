@@ -28,7 +28,7 @@
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
-#include <boost/geometry/algorithms/detail/sub_geometry.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -207,8 +207,8 @@ struct linear_areal_interrupt_policy
     template <typename Turn>
     inline bool is_turn_on_last_point(Turn const& turn)
     {
-        typename sub_geometry::result_type<Linear const>::type
-            g = sub_geometry::get(linear, turn.operations[0].seg_id);
+        typename sub_range_return_type<Linear const>::type
+            g = sub_range(linear, turn.operations[0].seg_id);
 
         std::size_t s = boost::size(g);
 

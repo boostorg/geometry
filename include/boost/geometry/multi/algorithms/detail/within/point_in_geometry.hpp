@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,6 +14,8 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
@@ -82,6 +84,8 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
         if ( pip < 0 )
             return -1;
 
+        // TODO: the following isn't needed for covered_by()
+
         unsigned boundaries = pip == 0 ? 1 : 0;
 
         for ( ; it != boost::end(geometry) ; ++it )
@@ -106,6 +110,26 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
 
         // if the number of boundaries is odd, the point is on the boundary
         return boundaries % 2 ? 0 : 1;
+    }
+};
+
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_point_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
+    {
+        typedef typename boost::range_value<Geometry>::type point_type;
+        typedef typename boost::range_const_iterator<Geometry>::type iterator;
+        for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
+        {
+            int pip = point_in_geometry<point_type>::apply(point, *it, strategy);
+
+            if ( pip > 0 ) // inside
+                return 1;
+        }
+
+        return -1; // outside
     }
 };
 
