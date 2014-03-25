@@ -15,8 +15,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 
 #include <boost/tuple/tuple.hpp>
-#include <boost/mpl/vector_c.hpp>
+
+#include <boost/mpl/is_sequence.hpp>
+#include <boost/mpl/begin.hpp>
+#include <boost/mpl/end.hpp>
+#include <boost/mpl/next.hpp>
 #include <boost/mpl/at.hpp>
+#include <boost/mpl/vector_c.hpp>
 
 #include <boost/geometry/core/topological_dimension.hpp>
 
