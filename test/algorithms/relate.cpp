@@ -618,6 +618,30 @@ void test_multi_linestring_multi_polygon()
 }
 
 template <typename P>
+void polygon_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+
+    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+    //                   "POLYGON((10 0,10 10,20 10,20 0,10 0))",
+    //                   "pp1.svg");
+
+    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,15 5,10 0,0 0))",
+    //                   "POLYGON((10 0,5 5,10 10,20 10,20 0,10 0))",
+    //                   "pp11.svg");
+
+    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+    //                   "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+    //                   "pp2.svg");
+
+    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+    //                   "POLYGON((0 -10,0 0,10 0,10 -10,0 -10))",
+    //                   "pp3.svg");
+
+    
+}
+
+template <typename P>
 void test_all()
 {
     test_point_point<P>();
@@ -630,6 +654,7 @@ void test_all()
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
     test_multi_linestring_multi_polygon<P>();
+    polygon_polygon<P>();
 }
 
 int test_main( int , char* [] )

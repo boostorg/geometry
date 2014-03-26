@@ -47,6 +47,7 @@
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_areal.hpp>
+//#include <boost/geometry/algorithms/detail/relate/areal_areal.hpp>
 
 namespace boost { namespace geometry
 {

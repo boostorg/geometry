@@ -11,8 +11,8 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -30,87 +30,13 @@ namespace boost { namespace geometry
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
-
-// TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
-// Use the rtree in this case!
-
-// may be used to set IE and BE for a Linear geometry for which no turns were generated
-template <typename Geometry2, typename Result, typename BoundaryChecker, bool TransposeResult>
-class no_turns_la_linestring_pred
-{
-public:
-    no_turns_la_linestring_pred(Geometry2 const& geometry2,
-                                Result & res,
-                                BoundaryChecker const& boundary_checker)
-        : m_geometry2(geometry2)
-        , m_result_ptr(boost::addressof(res))
-        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
-        , m_interrupt_flags(0)
-    {}
-
-    template <typename Linestring>
-    bool operator()(Linestring const& linestring)
-    {
-        std::size_t count = boost::size(linestring);
-        
-        // invalid input
-        if ( count < 2 )
-        {
-            // ignore
-            // TODO: throw an exception?
-            return true;
-        }
-
-        int pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
-        BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
-
-        if ( pig > 0 )
-        {
-            update<interior, interior, '1', TransposeResult>(*m_result_ptr);
-            m_interrupt_flags |= 1;
-        }
-        else
-        {
-            update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
-            m_interrupt_flags |= 2;
-        }
-
-        // check if there is a boundary
-        if ( m_boundary_checker_ptr->template
-                is_endpoint_boundary<boundary_front>(range::front(linestring))
-          || m_boundary_checker_ptr->template
-                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
-        {
-            if ( pig > 0 )
-            {
-                update<boundary, interior, '0', TransposeResult>(*m_result_ptr);
-                m_interrupt_flags |= 4;
-            }
-            else
-            {
-                update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
-                m_interrupt_flags |= 8;
-            }
-
-            return m_interrupt_flags != 0xF;
-        }
-
-        return true;
-    }
-
-private:
-    Geometry2 const& m_geometry2;
-    Result * m_result_ptr;
-    const BoundaryChecker * m_boundary_checker_ptr;
-    unsigned m_interrupt_flags;
-};
-
+    
 // may be used to set EI and EB for an Areal geometry for which no turns were generated
 template <typename Result, bool TransposeResult>
-class no_turns_la_areal_pred
+class no_turns_aa_pred
 {
 public:
-    no_turns_la_areal_pred(Result & res)
+    no_turns_aa_pred(Result & res)
         : m_result_ptr(boost::addressof(res))
     {}
 
@@ -130,12 +56,12 @@ private:
     Result * m_result_ptr;
 };
 
-// The implementation of an algorithm calculating relate() for L/A
+// The implementation of an algorithm calculating relate() for A/A
 template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
-struct linear_areal
+struct areal_areal
 {
     // check Linear / Areal
-    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 1
+    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 2
                      && topological_dimension<Geometry2>::value == 2);
 
     static const bool interruption_enabled = true;
@@ -157,181 +83,184 @@ struct linear_areal
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
-        interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
+        //interrupt_policy_areal_areal<Geometry1, Geometry2, Result> interrupt_policy(geometry1, geometry2, result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2/*, interrupt_policy*/);
         if ( result.interrupt )
             return;
-
-        boundary_checker<Geometry1> boundary_checker1(geometry1);
-        no_turns_la_linestring_pred
-            <
-                Geometry2,
-                Result,
-                boundary_checker<Geometry1>,
-                TransposeResult
-            > pred1(geometry2, result, boundary_checker1);
-        for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
-        if ( result.interrupt )
-            return;
-
-        no_turns_la_areal_pred<Result, !TransposeResult> pred2(result);
-        for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
-        if ( result.interrupt )
-            return;
-        
-        if ( turns.empty() )
-            return;
-
-        // This is set here because in the case if empty Areal geometry were passed
-        // those shouldn't be set
-        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
-        if ( result.interrupt )
-            return;
-
-        {
-            // for different multi or same ring id: x, u, i, c
-            // for same multi and different ring id: c, i, u, x
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
-
-            turns_analyser<turn_type> analyser;
-            analyse_each_turn(result, analyser,
-                              turns.begin(), turns.end(),
-                              geometry1, geometry2,
-                              boundary_checker1);
-
-            if ( result.interrupt )
-                return;
-        }
-
-// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
-//       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
-
-        if ( !interrupt_policy.is_boundary_found )
-        {
-            set<exterior, boundary, '1', TransposeResult>(result);
-        }
-        else
-        {
-            // sort by multi_index and rind_index
-            std::sort(turns.begin(), turns.end(), less_ring());
-
-            typedef typename std::vector<turn_type>::iterator turn_iterator;
-
-            turn_iterator it = turns.begin();
-            segment_identifier * prev_seg_id_ptr = NULL;
-            // for each ring
-            for ( ; it != turns.end() ; )
-            {
-                // it's the next single geometry
-                if ( prev_seg_id_ptr == NULL
-                  || prev_seg_id_ptr->multi_index != it->operations[1].seg_id.multi_index )
-                {
-                    // if the first ring has no IPs
-                    if ( it->operations[1].seg_id.ring_index > -1 )
-                    {
-                        // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
-                        break;
-                    }
-                    // if there was some previous ring
-                    if ( prev_seg_id_ptr != NULL )
-                    {
-                        int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-                        BOOST_ASSERT(next_ring_index >= 0);
-                        
-                        // if one of the last rings of previous single geometry was ommited
-                        if ( static_cast<std::size_t>(next_ring_index)
-                                < geometry::num_interior_rings(
-                                    single_geometry(geometry2, *prev_seg_id_ptr)) )
-                        {
-                            // we can be sure that the exterior overlaps the boundary
-                            set<exterior, boundary, '1', TransposeResult>(result);                    
-                        }
-                    }
-                }
-                // if it's the same single geometry
-                else /*if ( previous_multi_index == it->operations[1].seg_id.multi_index )*/
-                {
-                    // and we jumped over one of the rings
-                    if ( prev_seg_id_ptr != NULL // just in case
-                      && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
-                    {
-                        // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
-                        break;
-                    }
-                }
-
-                prev_seg_id_ptr = boost::addressof(it->operations[1].seg_id);
-
-                // find the next ring first iterator and check if the analysis should be performed
-                has_boundary_intersection has_boundary_inters;
-                turn_iterator next = find_next_ring(it, turns.end(), has_boundary_inters);
-
-                // if there is no 1d overlap with the boundary
-                if ( !has_boundary_inters.result )
-                {
-                    // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);                    
-                    break;
-                }
-                // else there is 1d overlap with the boundary so we must analyse the boundary
-                else
-                {
-                    // u, c
-                    std::sort(it, next, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
-
-                    // analyse
-                    areal_boundary_analyser<turn_type> analyser;
-                    for ( turn_iterator rit = it ; rit != next ; ++rit )
-                    {
-                        // if the analyser requests, break the search
-                        if ( !analyser.apply(it, rit, next) )
-                            break;
-                    }
-
-                    // if the boundary of Areal goes out of the Linear
-                    if ( analyser.is_union_detected )
-                    {
-                        // we can be sure that the boundary of Areal overlaps the exterior of Linear
-                        set<exterior, boundary, '1', TransposeResult>(result);
-                        break;
-                    }
-                }
-
-                it = next;
-            }
-
-            // if there was some previous ring
-            if ( prev_seg_id_ptr != NULL )
-            {
-                int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-                BOOST_ASSERT(next_ring_index >= 0);
-
-                // if one of the last rings of previous single geometry was ommited
-                if ( static_cast<std::size_t>(next_ring_index)
-                        < geometry::num_interior_rings(
-                            single_geometry(geometry2, *prev_seg_id_ptr)) )
-                {
-                    // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);                    
-                }
-            }
-        }
+//
+//        boundary_checker<Geometry1> boundary_checker1(geometry1);
+//        no_turns_la_linestring_pred
+//            <
+//                Geometry2,
+//                Result,
+//                boundary_checker<Geometry1>,
+//                TransposeResult
+//            > pred1(geometry2, result, boundary_checker1);
+//        for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
+//        if ( result.interrupt )
+//            return;
+//
+//        no_turns_la_areal_pred<Result, !TransposeResult> pred2(result);
+//        for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
+//        if ( result.interrupt )
+//            return;
+//        
+//        if ( turns.empty() )
+//            return;
+//
+//        // This is set here because in the case if empty Areal geometry were passed
+//        // those shouldn't be set
+//        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+//        if ( result.interrupt )
+//            return;
+//
+//        {
+//            // for different multi or same ring id: x, u, i, c
+//            // for same multi and different ring id: c, i, u, x
+//            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
+//
+//            turns_analyser<turn_type> analyser;
+//            analyse_each_turn(result, analyser,
+//                              turns.begin(), turns.end(),
+//                              geometry1, geometry2,
+//                              boundary_checker1);
+//
+//            if ( result.interrupt )
+//                return;
+//        }
+//
+//// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
+////       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
+//
+//        if ( !interrupt_policy.is_boundary_found )
+//        {
+//            set<exterior, boundary, '1', TransposeResult>(result);
+//        }
+//        else
+//        {
+//            // sort by multi_index and rind_index
+//            std::sort(turns.begin(), turns.end(), less_ring());
+//
+//            typedef typename std::vector<turn_type>::iterator turn_iterator;
+//
+//            turn_iterator it = turns.begin();
+//            segment_identifier * prev_seg_id_ptr = NULL;
+//            // for each ring
+//            for ( ; it != turns.end() ; )
+//            {
+//                // it's the next single geometry
+//                if ( prev_seg_id_ptr == NULL
+//                  || prev_seg_id_ptr->multi_index != it->operations[1].seg_id.multi_index )
+//                {
+//                    // if the first ring has no IPs
+//                    if ( it->operations[1].seg_id.ring_index > -1 )
+//                    {
+//                        // we can be sure that the exterior overlaps the boundary
+//                        set<exterior, boundary, '1', TransposeResult>(result);                    
+//                        break;
+//                    }
+//                    // if there was some previous ring
+//                    if ( prev_seg_id_ptr != NULL )
+//                    {
+//                        int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+//                        BOOST_ASSERT(next_ring_index >= 0);
+//                        
+//                        // if one of the last rings of previous single geometry was ommited
+//                        if ( static_cast<std::size_t>(next_ring_index)
+//                                < geometry::num_interior_rings(
+//                                    single_geometry(geometry2, *prev_seg_id_ptr)) )
+//                        {
+//                            // we can be sure that the exterior overlaps the boundary
+//                            set<exterior, boundary, '1', TransposeResult>(result);                    
+//                        }
+//                    }
+//                }
+//                // if it's the same single geometry
+//                else /*if ( previous_multi_index == it->operations[1].seg_id.multi_index )*/
+//                {
+//                    // and we jumped over one of the rings
+//                    if ( prev_seg_id_ptr != NULL // just in case
+//                      && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
+//                    {
+//                        // we can be sure that the exterior overlaps the boundary
+//                        set<exterior, boundary, '1', TransposeResult>(result);                    
+//                        break;
+//                    }
+//                }
+//
+//                prev_seg_id_ptr = boost::addressof(it->operations[1].seg_id);
+//
+//                // find the next ring first iterator and check if the analysis should be performed
+//                has_boundary_intersection has_boundary_inters;
+//                turn_iterator next = find_next_ring(it, turns.end(), has_boundary_inters);
+//
+//                // if there is no 1d overlap with the boundary
+//                if ( !has_boundary_inters.result )
+//                {
+//                    // we can be sure that the exterior overlaps the boundary
+//                    set<exterior, boundary, '1', TransposeResult>(result);                    
+//                    break;
+//                }
+//                // else there is 1d overlap with the boundary so we must analyse the boundary
+//                else
+//                {
+//                    // u, c
+//                    std::sort(it, next, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
+//
+//                    // analyse
+//                    areal_boundary_analyser<turn_type> analyser;
+//                    for ( turn_iterator rit = it ; rit != next ; ++rit )
+//                    {
+//                        // if the analyser requests, break the search
+//                        if ( !analyser.apply(it, rit, next) )
+//                            break;
+//                    }
+//
+//                    // if the boundary of Areal goes out of the Linear
+//                    if ( analyser.is_union_detected )
+//                    {
+//                        // we can be sure that the boundary of Areal overlaps the exterior of Linear
+//                        set<exterior, boundary, '1', TransposeResult>(result);
+//                        break;
+//                    }
+//                }
+//
+//                it = next;
+//            }
+//
+//            // if there was some previous ring
+//            if ( prev_seg_id_ptr != NULL )
+//            {
+//                int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+//                BOOST_ASSERT(next_ring_index >= 0);
+//
+//                // if one of the last rings of previous single geometry was ommited
+//                if ( static_cast<std::size_t>(next_ring_index)
+//                        < geometry::num_interior_rings(
+//                            single_geometry(geometry2, *prev_seg_id_ptr)) )
+//                {
+//                    // we can be sure that the exterior overlaps the boundary
+//                    set<exterior, boundary, '1', TransposeResult>(result);                    
+//                }
+//            }
+//        }
     }
 
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
-    template <typename Areal, typename Result>
-    class interrupt_policy_linear_areal
+    template <typename Geometry1, typename Geometry2, typename Result>
+    class interrupt_policy_areal_areal
     {
     public:
         static bool const enabled = true;
 
-        interrupt_policy_linear_areal(Areal const& areal, Result & result)
-            : m_result(result), m_areal(areal)
-            , is_boundary_found(false)
+        interrupt_policy_areal_areal(Geometry1 const& geometry1,
+                                     Geometry1 const& geometry2,
+                                     Result & result)
+            : m_result(result)
+            , m_geometry1(geometry1)
+            , m_geometry2(geometry2)
         {}
 
 // TODO: since we update result for some operations here, we may not do it in the analyser!
@@ -373,10 +302,8 @@ struct linear_areal
 
     private:
         Result & m_result;
-        Areal const& m_areal;
-
-    public:
-        bool is_boundary_found;
+        Geometry1 const& m_geometry1;
+        Geometry2 const& m_geometry2;
     };
 
     // This analyser should be used like Input or SinglePass Iterator
@@ -1039,19 +966,9 @@ struct linear_areal
     };
 };
 
-template <typename Geometry1, typename Geometry2>
-struct areal_linear
-{
-    template <typename Result>
-    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
-    {
-        linear_areal<Geometry2, Geometry1, true>::apply(geometry2, geometry1, result);
-    }
-};
-
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP

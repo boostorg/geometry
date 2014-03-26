@@ -277,7 +277,7 @@ struct linear_linear
             : m_result(result)
         {}
 
-// TODO: since we update result for some operations here, we must not do it in the analyser!
+// TODO: since we update result for some operations here, we may not do it in the analyser!
 
         template <typename Range>
         inline bool apply(Range const& turns)
