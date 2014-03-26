@@ -42,7 +42,7 @@ struct get_turn_info_linear_areal
                 bool is_p_first, bool is_p_last,
                 bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
-                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -63,7 +63,7 @@ struct get_turn_info_linear_areal
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1);
+        typename strategy::return_type result = strategy::apply(p1, q1, rescale_policy);
 
         char const method = result.template get<1>().how;
 
