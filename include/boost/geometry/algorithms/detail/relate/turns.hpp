@@ -59,11 +59,11 @@ struct enriched_info
 // turn_operation_linear_with_distance
 // distance_enriched_turn_operation_linear
 
-template <typename P>
+template <typename Point, typename SegmentRatio>
 struct enriched_turn_operation_linear
-    : public overlay::turn_operation_linear
+    : public overlay::turn_operation_linear<SegmentRatio>
 {
-    enriched_info<P> enriched;
+    enriched_info<Point> enriched;
 };
 
 // GET_TURNS
@@ -74,14 +74,6 @@ template <typename Geometry1,
             = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::assign_null_policy> >
 struct get_turns
 {
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-
-    typedef overlay::turn_info
-        <
-            point1_type,
-            enriched_turn_operation_linear<point1_type>
-        > turn_info;
-
     template <typename Turns>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
@@ -92,12 +84,25 @@ struct get_turns
         apply(turns, geometry1, geometry2, interrupt_policy);
     }
 
-    template <typename Turns, typename InterruptPolicy>
+    template <typename Turns, typename RobustPolicy, typename InterruptPolicy>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
+                             RobustPolicy const& ,
                              InterruptPolicy & interrupt_policy)
     {
+        typedef typename geometry::point_type<Geometry1>::type point1_type;
+
+        typedef overlay::turn_info
+            <
+                point1_type,
+                enriched_turn_operation_linear
+                <
+                    point1_type,
+                    typename segment_ratio_type<point1_type, RobustPolicy>::type
+                >
+            > turn_info;
+
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 

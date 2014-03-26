@@ -812,24 +812,24 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
     : overlay::get_turn_info_linear_areal<AssignPolicy>
 {};
 
-template <typename Geometry1, typename Geometry2,
+template <typename Geometry1, typename Geometry2, typename SegmentRatio,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
           typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
-    typedef overlay::turn_operation type;
+    typedef overlay::turn_operation<SegmentRatio>  type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, linear_tag>
+template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
+struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, linear_tag>
 {
-    typedef overlay::turn_operation_linear type;
+    typedef overlay::turn_operation_linear<SegmentRatio> type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, areal_tag>
+template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
+struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, areal_tag>
 {
-    typedef overlay::turn_operation_linear type;
+    typedef overlay::turn_operation_linear<SegmentRatio> type;
 };
 
 }} // namespace detail::get_turns

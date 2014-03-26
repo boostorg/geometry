@@ -23,8 +23,9 @@ namespace detail { namespace overlay {
 
 enum turn_position { position_middle, position_front, position_back };
 
+template <typename SegmentRatio>
 struct turn_operation_linear
-    : public turn_operation
+    : public turn_operation<SegmentRatio>
 {
     turn_operation_linear()
         : position(position_middle)
