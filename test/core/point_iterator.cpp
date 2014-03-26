@@ -26,7 +26,6 @@
 #include <boost/geometry/multi/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/wkt/write.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
-#include "../algorithms/from_wkt.hpp"
 
 #include <boost/geometry/core/point_iterator.hpp>
 
@@ -41,6 +40,16 @@ typedef bg::model::polygon<point_type, false, false> polygon_type; //ccw, open
 typedef bg::model::multi_point<point_type> multi_point_type;
 typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+
+
+template <typename Geometry>
+Geometry from_wkt(std::string const& wkt)
+{
+    Geometry res;
+    boost::geometry::read_wkt(wkt, res);
+    return res;
+}
+
 
 struct equals
 {
