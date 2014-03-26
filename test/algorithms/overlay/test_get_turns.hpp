@@ -57,16 +57,28 @@ void check_geometry_range(
     std::string const& wkt2,
     Range const& expected)
 {
+    typedef bg::detail::no_rescale_policy robust_policy_type;
+    typedef typename bg::point_type<Geometry2>::type point_type;
+
+    typedef typename bg::segment_ratio_type<point_type, robust_policy_type>::type segment_ratio_type;
+
     typedef bg::detail::overlay::turn_info
         <
             typename bg::point_type<Geometry2>::type,
-            typename bg::detail::get_turns::turn_operation_type<Geometry1, Geometry2>::type
+            segment_ratio_type,
+            typename bg::detail::get_turns::turn_operation_type
+            <
+                Geometry1,
+                Geometry2,
+                segment_ratio_type
+            >::type
         > turn_info;
     typedef bg::detail::overlay::assign_null_policy assign_policy_t;
     typedef bg::detail::get_turns::no_interrupt_policy interrupt_policy_t;
 
     std::vector<turn_info> turns;
     interrupt_policy_t interrupt_policy;
+    robust_policy_type robust_policy;
     
     // Don't switch the geometries
     typedef bg::detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy_t> turn_policy_t;
@@ -75,7 +87,7 @@ void check_geometry_range(
             typename bg::tag<Geometry1>::type, typename bg::tag<Geometry2>::type,
             Geometry1, Geometry2, false, false,
             turn_policy_t
-        >::apply(0, g1, 1, g2, bg::detail::no_rescale_policy(), turns, interrupt_policy);
+        >::apply(0, g1, 1, g2, robust_policy, turns, interrupt_policy);
 
     bool ok = boost::size(expected) == turns.size();
 
