@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -111,6 +112,9 @@ struct range_collect_vectors
             return;
         }
 
+        typedef typename boost::range_size<Collection>::type collection_size_t;
+        collection_size_t c_old_size = boost::size(collection);
+
         typedef typename boost::range_iterator<Range const>::type iterator;
 
         bool first = true;
@@ -150,10 +154,19 @@ struct range_collect_vectors
         }
 
         // If first one has same direction as last one, remove first one
-        if (boost::size(collection) > 1
-            && collection.front().same_direction(collection.back()))
+        collection_size_t collected_count = boost::size(collection) - c_old_size;
+        if ( collected_count > 1 )
         {
-            collection.erase(collection.begin());
+            typedef typename boost::range_iterator<Collection>::type c_iterator;
+            c_iterator first = collection.begin() + c_old_size;
+
+            if ( first->same_direction(collection.back()) )
+            {
+                //collection.erase(first);
+                // O(1) instead of O(N)
+                *first = collection.back();
+                collection.pop_back();
+            }
         }
     }
 };

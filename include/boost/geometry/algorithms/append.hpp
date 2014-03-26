@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -105,7 +110,7 @@ struct range_to_polygon
     typedef typename ring_type<Polygon>::type ring_type;
 
     static inline void apply(Polygon& polygon, Range const& range,
-                int ring_index, int )
+                int ring_index, int = 0)
     {
         if (ring_index == -1)
         {
@@ -275,7 +280,7 @@ struct append<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \param range_or_point The point or range to add
 \param ring_index The index of the ring in case of a polygon:
     exterior ring (-1, the default) or  interior ring index
-\param multi_index Reserved for multi polygons or multi linestrings
+\param multi_index The index of the geometry to which the points are appended
 
 \qbk{[include reference/algorithms/append.qbk]}
 }

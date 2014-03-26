@@ -1,8 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -396,7 +402,10 @@ struct distance
             <
                 segment_tag,
                 Point,
-                typename point_type<Ring>::type
+                typename point_type<Ring>::type,
+                typename cs_tag<Point>::type,
+                typename cs_tag<typename point_type<Ring>::type>::type,
+                Strategy
             >::type ps_strategy_type;
 
         std::pair<return_type, bool>
@@ -431,7 +440,10 @@ struct distance
             <
                 segment_tag,
                 Point,
-                typename point_type<Polygon>::type
+                typename point_type<Polygon>::type,
+                typename cs_tag<Point>::type,
+                typename cs_tag<typename point_type<Polygon>::type>::type,
+                Strategy
             >::type ps_strategy_type;
 
         std::pair<return_type, bool>

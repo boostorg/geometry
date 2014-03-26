@@ -19,7 +19,9 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-
+#include <boost/geometry/util/select_calculation_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {

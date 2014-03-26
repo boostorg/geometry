@@ -57,6 +57,7 @@ void test_with_point(std::string const& caseid,
         <
             bg::detail::overlay::assign_null_policy
         >::apply(pi, pj, pk, qi, qj, qk,
+                 false, false, false, false, // dummy parameters
         model, rescale_policy, std::back_inserter(info));
 
 

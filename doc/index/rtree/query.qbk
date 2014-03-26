@@ -173,10 +173,11 @@ Of course it's possible to connect different types of predicates together.
  BOOST_FOREACH(Value & v, rt | index::adaptors::queried(index::nearest(pt, k) && index::covered_by(b)))
    ; // do something with v
 
-[h4 Breaking or pausing the query]
+[h4 Iterative queries]
 
 The query performed using query iterators may be paused and resumed if needed, e.g. when the query takes too long,
-or stopped at some point, e.g when all interesting values were gathered.
+or may be stopped at some point, when all interesting values were gathered. The query iterator is returned by
+`qbegin()` member function which requires passing predicates, like `query()` member function.
 
  for ( Rtree::const_query_iterator it = tree.qbegin(bgi::nearest(pt, 10000)) ;
        it != tree.qend() ; ++it )
@@ -208,8 +209,8 @@ The insert iterator may be passed directly into the query.
  RTree rt3;
  rt1.query(bgi::intersects(Box(/*...*/))), bgi::inserter(rt3));
 
-If you like Boost.Range you'll appreciate the third option. You may pass the result Range directly into the
-constructor.
+If you're a user of Boost.Range you'll appreciate the third option. You may pass the result Range directly into the
+constructor or `insert()` member function.
 
  RTree rt4(rt1 | bgi::adaptors::queried(bgi::intersects(Box(/*...*/)))));
 

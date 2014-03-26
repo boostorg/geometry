@@ -4,12 +4,17 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
@@ -76,6 +81,9 @@ struct section
     bool duplicate;
     int non_duplicate_index;
 
+    bool is_non_duplicate_first;
+    bool is_non_duplicate_last;
+
     inline section()
         : id(-1)
         , begin_index(-1)
@@ -84,6 +92,8 @@ struct section
         , range_count(0)
         , duplicate(false)
         , non_duplicate_index(-1)
+        , is_non_duplicate_first(false)
+        , is_non_duplicate_last(false)
     {
         assign_inverse(bounding_box);
         for (std::size_t i = 0; i < DimensionCount; i++)
@@ -255,13 +265,11 @@ struct sectionalize_part
         typename Sections
     >
     static inline void apply(Sections& sections,
-                typename boost::range_value<Sections>::type& section,
-                int& index, int& ndi,
-                Range const& range,
-                RescalePolicy const& rescale_policy,
-                bool make_rescaled_boxes,
-                ring_identifier ring_id,
-                std::size_t max_count)
+                             Range const& range,
+                             RescalePolicy const& rescale_policy,
+                             bool make_rescaled_boxes,
+                             ring_identifier ring_id,
+                             std::size_t max_count)
     {
         boost::ignore_unused_variable_warning(rescale_policy);
         boost::ignore_unused_variable_warning(make_rescaled_boxes);
@@ -276,19 +284,20 @@ struct sectionalize_part
 #endif
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-        if (int(boost::size(range)) <= index)
+        if ( boost::empty(range) )
         {
             return;
         }
 
-        if (index == 0)
-        {
-            ndi = 0;
-        }
+        int index = 0;
+        int ndi = 0; // non duplicate index
+        section_type section;
+
+        bool mark_first_non_duplicated = true;
+        std::size_t last_non_duplicate_index = 0;
 
         iterator_type it = boost::begin(range);
-        it += index;
-
+        
         for(iterator_type previous = it++;
             it != boost::end(range);
             ++previous, ++it, index++)
@@ -344,6 +353,11 @@ struct sectionalize_part
                     )
                 )
             {
+                if ( !section.duplicate )
+                {
+                    last_non_duplicate_index = sections.size();
+                }
+
                 sections.push_back(section);
                 section = section_type();
             }
@@ -355,6 +369,12 @@ struct sectionalize_part
                 section.duplicate = duplicate;
                 section.non_duplicate_index = ndi;
                 section.range_count = boost::size(range);
+
+                if ( mark_first_non_duplicated && !duplicate )
+                {
+                    section.is_non_duplicate_first = true;
+                    mark_first_non_duplicated = false;
+                }
 
                 copy_loop
                     <
@@ -371,6 +391,23 @@ struct sectionalize_part
             {
                 ndi++;
             }
+        }
+
+        // Add last section if applicable
+        if (section.count > 0)
+        {
+            if ( !section.duplicate )
+            {
+                last_non_duplicate_index = sections.size();
+            }
+
+            sections.push_back(section);
+        }
+
+        if ( last_non_duplicate_index < sections.size()
+          && !sections[last_non_duplicate_index].duplicate )
+        {
+            sections[last_non_duplicate_index].is_non_duplicate_last = true;
         }
     }
 
@@ -406,10 +443,11 @@ struct sectionalize_range
         typename Sections
     >
     static inline void apply(Range const& range,
-                RescalePolicy const& rescale_policy,
-                bool make_rescaled_boxes,
-                Sections& sections,
-                ring_identifier ring_id, std::size_t max_count)
+                             RescalePolicy const& rescale_policy,
+                             bool make_rescaled_boxes,
+                             Sections& sections,
+                             ring_identifier ring_id,
+                             std::size_t max_count)
     {
     typedef typename closeable_view<Range const, Closure>::type cview_type;
     typedef typename reversible_view
@@ -434,20 +472,8 @@ struct sectionalize_range
             return;
         }
 
-        int index = 0;
-        int ndi = 0; // non duplicate index
-
-        typedef typename boost::range_value<Sections>::type section_type;
-        section_type section;
-
         sectionalize_part<Point, DimensionCount>
-                ::apply(sections, section, index, ndi, view, rescale_policy, make_rescaled_boxes, ring_id, max_count);
-
-        // Add last section if applicable
-        if (section.count > 0)
-        {
-            sections.push_back(section);
-        }
+                ::apply(sections, view, rescale_policy, make_rescaled_boxes, ring_id, max_count);
     }
 };
 

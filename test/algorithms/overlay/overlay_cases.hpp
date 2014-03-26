@@ -544,6 +544,12 @@ static std::string ggl_list_20140223_shalabuda[2] =
 };
 
 
+static std::string ggl_list_20140321_7415963[2] =
+{
+    "POLYGON((-6.0 3.2500000000000013, -9.0 3.2500000000000022, -9.0 6.5, -6.0 6.5, -6.0 3.2500000000000013))",
+    "POLYGON((-3.0 0.0, -6.0 0.0, -6.0 3.2500000000000013, -3.0 3.2500000000000009, -3.0 0.0))",
+};
+
 // GEOS "TestOverlay" test.
 // Note that the first one WAS invalid and is made valid using SQL Server 2008 Spatial MakeValid() function
 static std::string geos_1_test_overlay[2] =
