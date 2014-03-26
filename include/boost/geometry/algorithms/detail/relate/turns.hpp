@@ -71,7 +71,7 @@ struct enriched_turn_operation_linear
 template <typename Geometry1,
           typename Geometry2,
           typename GetTurnPolicy
-            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::calculate_distance_policy> >
+            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::assign_null_policy> >
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;

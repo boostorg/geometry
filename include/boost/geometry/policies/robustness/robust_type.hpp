@@ -21,8 +21,6 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
 
 namespace detail_dispatch
 {
@@ -44,8 +42,10 @@ struct robust_type<CoordinateType, boost::true_type>
     typedef boost::long_long_type type;
 };
 
-} // namespace dispatch
+} // namespace detail_dispatch
 
+namespace detail
+{
 
 template <typename CoordinateType>
 struct robust_type
