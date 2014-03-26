@@ -57,7 +57,7 @@ private:
 };
 
 // The implementation of an algorithm calculating relate() for A/A
-template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
+template <typename Geometry1, typename Geometry2>
 struct areal_areal
 {
     // check Linear / Areal
@@ -72,8 +72,10 @@ struct areal_areal
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
+// TODO: If Areal geometry may have infinite size, change the following line:
+
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
+        set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( result.interrupt )
             return;
@@ -83,9 +85,9 @@ struct areal_areal
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
-        //interrupt_policy_areal_areal<Geometry1, Geometry2, Result> interrupt_policy(geometry1, geometry2, result);
+        interrupt_policy_areal_areal<Geometry1, Geometry2, Result> interrupt_policy(geometry1, geometry2, result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2/*, interrupt_policy*/);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
         if ( result.interrupt )
             return;
 //
@@ -272,35 +274,40 @@ struct areal_areal
             
             for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
-                if ( it->operations[0].operation == overlay::operation_intersection )
-                {
-                    bool const no_interior_rings
-                        = geometry::num_interior_rings(
-                                single_geometry(m_areal, it->operations[1].seg_id)) == 0;
-
-                    // WARNING! THIS IS TRUE ONLY IF THE POLYGON IS SIMPLE!
-                    // OR WITHOUT INTERIOR RINGS (AND OF COURSE VALID)
-                    if ( no_interior_rings )
-                        update<interior, interior, '1', TransposeResult>(m_result);
-                }
-                else if ( it->operations[0].operation == overlay::operation_continue )
-                {
-                    update<interior, boundary, '1', TransposeResult>(m_result);
-                    is_boundary_found = true;
-                }
-                else if ( ( it->operations[0].operation == overlay::operation_union
-                         || it->operations[0].operation == overlay::operation_blocked )
-                       && it->operations[0].position == overlay::position_middle )
-                {
-// TODO: here we could also check the boundaries and set BB at this point
-                    update<interior, boundary, '0', TransposeResult>(m_result);
-                }
+                per_turn<0, false>(*it);
+                per_turn<1, true>(*it);
             }
 
             return m_result.interrupt;
         }
 
     private:
+        template <std::size_t Id, bool TransposeResult, typename Turn>
+        inline void per_turn(Turn const& turn)
+        {
+// THIS WON'T WORK FOR NON-SIMPLE GEOMETRIES!
+
+            overlay::operation_type op = turn.operations[Id].operation;
+
+            if ( op == overlay::operation_intersection )
+            {
+                update<interior, interior, '2', TransposeResult>(m_result);
+                update<boundary, interior, '1', TransposeResult>(m_result);
+                update<boundary, boundary, '0', TransposeResult>(m_result);
+            }
+            else if ( op == overlay::operation_continue ||
+                      op == overlay::operation_blocked )
+            {
+                update<boundary, boundary, '1', TransposeResult>(m_result);
+            }
+            else if ( op == overlay::operation_union )
+            {
+                update<boundary, boundary, '0', TransposeResult>(m_result);
+                update<boundary, exterior, '1', TransposeResult>(m_result);
+                update<interior, exterior, '2', TransposeResult>(m_result);
+            }
+        }
+
         Result & m_result;
         Geometry1 const& m_geometry1;
         Geometry2 const& m_geometry2;

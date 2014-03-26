@@ -622,23 +622,37 @@ void polygon_polygon()
 {
     typedef bg::model::polygon<P> poly;
 
-    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
-    //                   "POLYGON((10 0,10 10,20 10,20 0,10 0))",
-    //                   "pp1.svg");
+    // touching
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 0,10 10,20 10,20 0,10 0))",
+                              "FF2F11212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((0 -10,0 0,10 0,10 -10,0 -10))",
+                              "FF2F11212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 0,15 10,20 10,20 0,10 0))",
+                              "FF2F01212");
 
-    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,15 5,10 0,0 0))",
-    //                   "POLYGON((10 0,5 5,10 10,20 10,20 0,10 0))",
-    //                   "pp11.svg");
+    // containing
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 10,6 5,5 5))",
+                              "212F11FF2");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 5,5 5))",
+                              "212F01FF2");
 
-    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
-    //                   "POLYGON((5 0,5 10,20 10,20 0,5 0))",
-    //                   "pp2.svg");
+    // overlapping
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,15 5,10 0,0 0))",
+                              "POLYGON((10 0,5 5,10 10,20 10,20 0,10 0))",
+                              "212101212");
 
-    //to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
-    //                   "POLYGON((0 -10,0 0,10 0,10 -10,0 -10))",
-    //                   "pp3.svg");
-
-    
+    // equal
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 10,10 5,10 0,5 0,0 0,0 10,5 10,10 10))",
+                              "2FFF1FFF2");
 }
 
 template <typename P>

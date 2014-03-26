@@ -146,6 +146,8 @@ struct linear_areal
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
+// TODO: If Areal geometry may have infinite size, change the following line:
+
         // The result should be FFFFFFFFF
         set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
 

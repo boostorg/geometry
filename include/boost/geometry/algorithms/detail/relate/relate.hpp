@@ -47,7 +47,7 @@
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_areal.hpp>
-//#include <boost/geometry/algorithms/detail/relate/areal_areal.hpp>
+#include <boost/geometry/algorithms/detail/relate/areal_areal.hpp>
 
 namespace boost { namespace geometry
 {
@@ -176,6 +176,11 @@ struct relate<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon
 template <typename MultiPolygon, typename MultiLinestring>
 struct relate<MultiPolygon, MultiLinestring, multi_polygon_tag, multi_linestring_tag>
     : detail::relate::areal_linear<MultiPolygon, MultiLinestring>
+{};
+
+template <typename Polygon1, typename Polygon2>
+struct relate<Polygon1, Polygon2, polygon_tag, polygon_tag>
+    : detail::relate::areal_areal<Polygon1, Polygon2>
 {};
 
 }} // namespace detail_dispatch::relate
