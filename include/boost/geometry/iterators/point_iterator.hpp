@@ -7,11 +7,11 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_CORE_POINT_ITERATOR_HPP
-#define BOOST_GEOMETRY_CORE_POINT_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 
-#include <boost/geometry/core/dispatch/point_iterator.hpp>
-#include <boost/geometry/core/point_iterator_type.hpp>
+#include <boost/geometry/iterators/dispatch/point_iterator.hpp>
+#include <boost/geometry/iterators/point_iterator_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -19,14 +19,13 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+namespace dispatch
 {
 
 
 // specializations for points_begin
 
 
-// linestring
 template <typename Linestring>
 struct points_begin<Linestring, linestring_tag>
 {
@@ -38,7 +37,6 @@ struct points_begin<Linestring, linestring_tag>
 };
 
 
-// ring
 template <typename Ring>
 struct points_begin<Ring, ring_tag>
 {
@@ -50,7 +48,6 @@ struct points_begin<Ring, ring_tag>
 };
 
 
-// polygon
 template <typename Polygon>
 struct points_begin<Polygon, polygon_tag>
 {
@@ -71,7 +68,6 @@ struct points_begin<Polygon, polygon_tag>
 };
 
 
-// multi-point
 template <typename MultiPoint>
 struct points_begin<MultiPoint, multi_point_tag>
 {
@@ -83,7 +79,6 @@ struct points_begin<MultiPoint, multi_point_tag>
 };
 
 
-// multi-linestring
 template <typename MultiLinestring>
 struct points_begin<MultiLinestring, multi_linestring_tag>
 {
@@ -98,7 +93,6 @@ struct points_begin<MultiLinestring, multi_linestring_tag>
 };
 
 
-// multi-polygon
 template <typename MultiPolygon>
 struct points_begin<MultiPolygon, multi_polygon_tag>
 {
@@ -112,7 +106,7 @@ struct points_begin<MultiPolygon, multi_polygon_tag>
     }
 };
 
-} // namespace core_dispatch
+} // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 
@@ -120,14 +114,13 @@ struct points_begin<MultiPolygon, multi_polygon_tag>
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+namespace dispatch
 {
 
 
 // specializations for points_end
 
 
-// linestring
 template <typename Linestring>
 struct points_end<Linestring, linestring_tag>
 {
@@ -139,7 +132,6 @@ struct points_end<Linestring, linestring_tag>
 };
 
 
-// ring
 template <typename Ring>
 struct points_end<Ring, ring_tag>
 {
@@ -151,7 +143,6 @@ struct points_end<Ring, ring_tag>
 };
 
 
-// polygon
 template <typename Polygon>
 struct points_end<Polygon, polygon_tag>
 {
@@ -169,7 +160,6 @@ struct points_end<Polygon, polygon_tag>
 };
 
 
-// multi-point
 template <typename MultiPoint>
 struct points_end<MultiPoint, multi_point_tag>
 {
@@ -181,7 +171,6 @@ struct points_end<MultiPoint, multi_point_tag>
 };
 
 
-// multi-linestring
 template <typename MultiLinestring>
 struct points_end<MultiLinestring, multi_linestring_tag>
 {
@@ -196,7 +185,6 @@ struct points_end<MultiLinestring, multi_linestring_tag>
 };
 
 
-// multi-polygon
 template <typename MultiPolygon>
 struct points_end<MultiPolygon, multi_polygon_tag>
 {
@@ -211,32 +199,76 @@ struct points_end<MultiPolygon, multi_polygon_tag>
 };
 
 
-} // namespace core_dispatch
+} // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 
+// MK:: need to add doc here
+template <typename Geometry>
+class point_iterator
+    : public dispatch::point_iterator_type<Geometry>::type
+{
+private:
+    typedef typename dispatch::point_iterator_type<Geometry>::type base;
+
+    base* base_ptr()
+    {
+        return this;
+    }
+
+    base const* base_ptr() const
+    {
+        return this;
+    }
+
+    template <typename G1, typename G2>
+    struct is_convertible
+        : boost::is_convertible
+            <
+                typename dispatch::point_iterator_type<G1>::type,
+                typename dispatch::point_iterator_type<G2>::type
+            >
+    {};
+
+    struct enabler {};
+
+    template <typename OtherGeometry> friend class point_iterator;
+public:
+    point_iterator() {}
+
+    point_iterator(base const& base_it) : base(base_it) {}
+
+    template <typename OtherGeometry>
+    point_iterator(point_iterator<OtherGeometry> const& other,
+                   typename boost::enable_if
+                       <
+                           is_convertible<OtherGeometry, Geometry>,
+                           enabler
+                       >::type = enabler())
+                   
+        : base(*other.base_ptr())
+    {}
+};
 
 
 // MK:: need to add doc here
 template <typename Geometry>
-inline typename point_iterator_type<Geometry>::type
+inline point_iterator<Geometry>
 points_begin(Geometry& geometry)
 {
-    return core_dispatch::points_begin<Geometry>::apply(geometry);
+    return dispatch::points_begin<Geometry>::apply(geometry);
 }
 
 
 // MK:: need to add doc here
 template <typename Geometry>
-inline typename point_iterator_type<Geometry>::type
+inline point_iterator<Geometry>
 points_end(Geometry& geometry)
 {
-    return core_dispatch::points_end<Geometry>::apply(geometry);
+    return dispatch::points_end<Geometry>::apply(geometry);
 }
-
-
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_CORE_POINT_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
