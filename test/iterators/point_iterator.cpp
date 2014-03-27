@@ -17,6 +17,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <boost/assign/list_of.hpp>
+
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
@@ -27,27 +29,41 @@
 #include <boost/geometry/multi/io/wkt/write.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
-#include <boost/geometry/core/point_iterator.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+#include <boost/geometry/multi/geometries/register/multi_point.hpp>
 
+#include <boost/geometry/iterators/point_iterator.hpp>
 
 namespace bg = ::boost::geometry;
+namespace ba = ::boost::assign;
 
 typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
+typedef bg::model::point<double, 3, bg::cs::cartesian> point_type_3d;
 typedef bg::model::linestring<point_type> linestring_type;
 typedef bg::model::polygon<point_type, false, false> polygon_type; //ccw, open
 
 // multi geometries
 typedef bg::model::multi_point<point_type> multi_point_type;
+typedef bg::model::multi_point<point_type_3d> multi_point_type_3d;
 typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+
+typedef boost::tuple<double, double> tuple_point_type;
+typedef boost::tuple<double, double, double> tuple_point_type_3d;
+typedef std::vector<tuple_point_type> tuple_multi_point_type;
+typedef std::vector<tuple_point_type_3d> tuple_multi_point_type_3d;
+
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
+BOOST_GEOMETRY_REGISTER_MULTI_POINT(tuple_multi_point_type)
+BOOST_GEOMETRY_REGISTER_MULTI_POINT(tuple_multi_point_type_3d)
 
 
 template <typename Geometry>
 Geometry from_wkt(std::string const& wkt)
 {
-    Geometry res;
-    boost::geometry::read_wkt(wkt, res);
-    return res;
+    Geometry geometry;
+    boost::geometry::read_wkt(wkt, geometry);
+    return geometry;
 }
 
 
@@ -90,6 +106,58 @@ struct equals
     }
 };
 
+
+struct test_assignment
+{
+    template <typename Iterator, typename ConstIterator, typename Value>
+    static inline void apply(Iterator it, ConstIterator cit,
+                             Value const& value1, Value const& value2)
+    {
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "== before assignment ==" << std::endl;
+        std::cout << "value1: " << bg::wkt(value1) << std::endl;
+        std::cout << "value2: " << bg::wkt(value2) << std::endl;
+        std::cout << "*it   : " << bg::wkt(*it) << std::endl;
+        std::cout << "*cit  : " << bg::wkt(*cit) << std::endl;
+#endif
+
+        BOOST_CHECK( bg::equals(*it, value1) );
+        BOOST_CHECK( !bg::equals(*it, value2) );
+        BOOST_CHECK( bg::equals(*cit, value1) );
+        BOOST_CHECK( !bg::equals(*cit, value2) );
+
+        *it = value2;
+        BOOST_CHECK( bg::equals(*it, value2) );
+        BOOST_CHECK( !bg::equals(*it, value1) );
+        BOOST_CHECK( bg::equals(*cit, value2) );
+        BOOST_CHECK( !bg::equals(*cit, value1) );
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "== after 1st assignment ==" << std::endl;
+        std::cout << "value1: " << bg::wkt(value1) << std::endl;
+        std::cout << "value2: " << bg::wkt(value2) << std::endl;
+        std::cout << "*it   : " << bg::wkt(*it) << std::endl;
+        std::cout << "*cit  : " << bg::wkt(*cit) << std::endl;
+#endif
+
+        *it = value1;
+        BOOST_CHECK( bg::equals(*it, value1) );
+        BOOST_CHECK( !bg::equals(*it, value2) );
+        BOOST_CHECK( bg::equals(*cit, value1) );
+        BOOST_CHECK( !bg::equals(*cit, value2) );
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "== after 2nd assignment ==" << std::endl;
+        std::cout << "value1: " << bg::wkt(value1) << std::endl;
+        std::cout << "value2: " << bg::wkt(value2) << std::endl;
+        std::cout << "*it   : " << bg::wkt(*it) << std::endl;
+        std::cout << "*cit  : " << bg::wkt(*cit) << std::endl;
+        std::cout << std::endl;
+#endif
+    }
+};
+
+
 template <typename Geometry, typename PointRange>
 struct test_point_iterator_of_geometry
 {
@@ -98,29 +166,36 @@ struct test_point_iterator_of_geometry
                                  PointRange const& point_range,
                                  std::string const& header)
     {
-        typedef typename bg::point_iterator_type
-            <
-                G
-            >::type point_iterator_type;
+        typedef bg::point_iterator<G> point_iterator;
+        typedef bg::point_iterator<G const> const_point_iterator;
 
-        point_iterator_type begin = bg::points_begin(geometry);
-        point_iterator_type end = bg::points_end(geometry);
+        point_iterator begin = bg::points_begin(geometry);
+        point_iterator end = bg::points_end(geometry);
 
         BOOST_CHECK( equals::apply(begin, end,
-                                   boost::begin(point_range),
-                                   boost::end(point_range))
+                                   bg::points_begin(point_range),
+                                   bg::points_end(point_range))
                      );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << header << " geometry: " << bg::wkt(geometry) << std::endl;
         std::cout << "point range: (";
-        for (point_iterator_type pit = begin; pit != end; ++pit)
+        for (point_iterator pit = begin; pit != end; ++pit)
         {
             std::cout << " " << bg::dsv(*pit);
         }
         std::cout << " )" << std::endl;
-        std::cout << "expected point range: " << bg::wkt(point_range)
-                  << std::endl;
+
+        typedef bg::point_iterator<PointRange const> point_range_iterator;
+
+        point_range_iterator rng_begin = bg::points_begin(point_range);
+        point_range_iterator rng_end = bg::points_end(point_range);
+        std::cout << "expected point range: (";
+        for (point_range_iterator pit = rng_begin; pit != rng_end; ++pit)
+        {
+            std::cout << " " << bg::dsv(*pit);
+        }
+        std::cout << " )" << std::endl;
 #endif
     }
 
@@ -129,14 +204,44 @@ struct test_point_iterator_of_geometry
         base_test<Geometry>(geometry, point_range, "non-const");
 
 #ifdef GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
+        std::cout << std::endl;
 #endif
 
         base_test<Geometry const>(geometry, point_range, "const");
 
 #ifdef GEOMETRY_TEST_DEBUG
-    std::cout << std::endl << std::endl;
+        std::cout << std::endl << std::endl;
 #endif
+
+        // testing construction of const and non-const iterator
+        typedef bg::point_iterator<Geometry> point_iterator;
+        typedef bg::point_iterator<Geometry const> const_point_iterator;
+
+        point_iterator begin = bg::points_begin(geometry);
+        point_iterator end = bg::points_end(geometry);
+
+        const_point_iterator const_begin = bg::points_begin(geometry);
+        const_point_iterator const_end = bg::points_end(geometry);
+
+        // testing assignment of non-const to const iterator
+        const_begin = begin;
+        const_end = end;
+
+        // testing dereferencing/assignment
+        if ( begin != end )
+        {
+            typedef typename bg::point_type<Geometry>::type point;
+
+            point p = *begin;
+            point q = bg::make_zero<point>();
+
+            test_assignment::apply(begin, const_begin, p, q);
+            test_assignment::apply(begin, const_begin, p, q);
+
+            *begin = q;
+            test_assignment::apply(begin, const_begin, q, p);
+            *begin = p;
+        }
     }
 };
 
@@ -151,17 +256,17 @@ BOOST_AUTO_TEST_CASE( test_linestring_point_iterator )
     std::cout << "*** LINESTRING ***" << std::endl;
 #endif
 
-    typedef multi_point_type MP;
+    typedef tuple_multi_point_type TMP;
     typedef linestring_type L;
 
-    typedef test_point_iterator_of_geometry<L, MP> tester;
+    typedef test_point_iterator_of_geometry<L, TMP> tester;
 
     tester::apply(from_wkt<L>("LINESTRING()"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<L>("LINESTRING(3 3,4 4,5 5)"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5)")
+                  ba::tuple_list_of(3,3)(4,4)(5,5)
                   );
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -180,27 +285,29 @@ BOOST_AUTO_TEST_CASE( test_polygon_point_iterator )
     std::cout << "*** POLYGON ***" << std::endl;
 #endif
 
-    typedef multi_point_type MP;
+    typedef tuple_multi_point_type TMP;
     typedef polygon_type P;
 
-    typedef test_point_iterator_of_geometry<P, MP> tester;
+    typedef test_point_iterator_of_geometry<P, TMP> tester;
 
     tester::apply(from_wkt<P>("POLYGON()"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<P>("POLYGON(())"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
-    tester::apply(from_wkt<P>("POLYGON((3 3,4 4,5 5),(),(),(),\
-                              (6 6,7 7,8 8),(),(),(9 9),())"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5,6 6,7 7,8 8,9 9)")
+    tester::apply(from_wkt<P>("POLYGON((1 1,9 1,9 9,1 9),(5 5,6 5,6 6,5 6))"),
+                  ba::tuple_list_of(1,1)(9,1)(9,9)(1,9)(5,5)(6,5)(6,6)(5,6)
                   );
 
-    tester::apply(from_wkt<P>("POLYGON((),(3 3,4 4,5 5),(),(),\
-                              (6 6,7 7,8 8),(),(),(9 9),())"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5,6 6,7 7,8 8,9 9)")
+    tester::apply(from_wkt<P>("POLYGON((3 3,4 4,5 5),(),(),(),(6 6,7 7,8 8),(),(),(9 9),())"),
+                  ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)
+                  );
+
+    tester::apply(from_wkt<P>("POLYGON((),(3 3,4 4,5 5),(),(),(6 6,7 7,8 8),(),(),(9 9),())"),
+                  ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)
                   );
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -219,16 +326,46 @@ BOOST_AUTO_TEST_CASE( test_multipoint_point_iterator )
     std::cout << "*** MULTIPOINT ***" << std::endl;
 #endif
 
+    typedef tuple_multi_point_type TMP;
     typedef multi_point_type MP;
 
-    typedef test_point_iterator_of_geometry<MP, MP> tester;
+    typedef test_point_iterator_of_geometry<MP, TMP> tester;
 
     tester::apply(from_wkt<MP>("MULTIPOINT()"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5)"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5)")
+                  ba::tuple_list_of(3,3)(4,4)(5,5)
+                  );
+
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+#endif
+}
+
+
+//======================================================================
+//======================================================================
+
+
+BOOST_AUTO_TEST_CASE( test_multipoint_3d_point_iterator )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << "*** MULTIPOINT 3D ***" << std::endl;
+#endif
+
+    typedef tuple_multi_point_type_3d TMP;
+    typedef multi_point_type_3d MP;
+
+    typedef test_point_iterator_of_geometry<MP, TMP> tester;
+
+    tester::apply(from_wkt<MP>("MULTIPOINT()"),
+                  TMP()
+                  );
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(3 3 3,4 4 4,5 5 5)"),
+                  ba::tuple_list_of(3,3,3)(4,4,4)(5,5,5)
                   );
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -247,27 +384,29 @@ BOOST_AUTO_TEST_CASE( test_multilinestring_point_iterator )
     std::cout << "*** MULTILINESTRING ***" << std::endl;
 #endif
 
-    typedef multi_point_type MP;
-    typedef linestring_type L;
+    typedef tuple_multi_point_type TMP;
     typedef multi_linestring_type ML;
 
-    typedef test_point_iterator_of_geometry<ML, MP> tester;
+    typedef test_point_iterator_of_geometry<ML, TMP> tester;
 
     tester::apply(from_wkt<ML>("MULTILINESTRING()"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<ML>("MULTILINESTRING(())"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<ML>("MULTILINESTRING((),(),())"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((),(),(0 0,1 1,2 2),(),(),\
-                               (3 3,4 4,5 5),(),(6 6),(),(),())"),
-                  from_wkt<MP>("MULTIPOINT(0 0,1 1,2 2,3 3,4 4,5 5,6 6)")
+    tester::apply(from_wkt<ML>("MULTILINESTRING((1 1,2 2,3 3),(3 3,4 4,5 5),(6 6))"),
+                  ba::tuple_list_of(1,1)(2,2)(3,3)(3,3)(4,4)(5,5)(6,6)
+                  );
+
+    tester::apply(from_wkt<ML>("MULTILINESTRING((),(),(1 1,2 2,3 3),(),(),(3 3,4 4,5 5),(),(6 6),(),(),())"),
+                  ba::tuple_list_of(1,1)(2,2)(3,3)(3,3)(4,4)(5,5)(6,6)
                   );
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -286,55 +425,43 @@ BOOST_AUTO_TEST_CASE( test_multipolygon_point_iterator )
     std::cout << "*** MULTIPOLYGON ***" << std::endl;
 #endif
 
-    typedef multi_point_type MP;
+    typedef tuple_multi_point_type TMP;
     typedef multi_polygon_type MPL;
 
-    typedef test_point_iterator_of_geometry<MPL, MP> tester;
+    typedef test_point_iterator_of_geometry<MPL, TMP> tester;
 
     tester::apply(from_wkt<MPL>("MULTIPOLYGON()"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<MPL>("MULTIPOLYGON( () )"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<MPL>("MULTIPOLYGON( (()) )"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
     tester::apply(from_wkt<MPL>("MULTIPOLYGON( ((),()) )"),
-                  from_wkt<MP>("MULTIPOINT()")
+                  TMP()
                   );
 
-    tester::apply(from_wkt<MPL>("MULTIPOLYGON(\
-                                ((3 3,4 4,5 5),(),(),(),\
-                                (6 6,7 7,8 8),(),(),(9 9),())\
-                                \
-                                ((),(1 1,2 2,10 10),(),(),(),\
-                                (11 11,12 12),(),(),(13 13),())\
-                                )"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5,6 6,7 7,8 8,9 9,\
-                               1 1,2 2,10 10,11 11,12 12,13 13)")
+    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((3 3,4 4,5 5),(6 6,7 7,8 8),(9 9)),((1 1,2 2,10 10),(11 11,12 12)))"),
+                  ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)\
+                  (1,1)(2,2)(10,10)(11,11)(12,12)
                   );
 
-    tester::apply(from_wkt<MPL>("MULTIPOLYGON(\
-                                (),\
-                                \
-                                ((3 3,4 4,5 5),(),(),(),\
-                                (6 6,7 7,8 8),(),(),(9 9),())\
-                                \
-                                ((),(1 1,2 2,10 10),(),(),(),\
-                                (11 11,12 12),(),(),(13 13),())\
-                                \
-                                ((),(),()),\
-                                )"),
-                  from_wkt<MP>("MULTIPOINT(3 3,4 4,5 5,6 6,7 7,8 8,9 9,\
-                               1 1,2 2,10 10,11 11,12 12,13 13)")
+    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((3 3,4 4,5 5),(),(),(),(6 6,7 7,8 8),(),(),(9 9),()),((),(1 1,2 2,10 10),(),(),(),(11 11,12 12),(),(),(13 13),()))"),
+                  ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)\
+                  (1,1)(2,2)(10,10)(11,11)(12,12)(13,13)
+                  );
+
+    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((3 3,4 4,5 5),(),(),(),(6 6,7 7,8 8),(),(),(9 9),()),((),(1 1,2 2,10 10),(),(),(),(11 11,12 12),(),(),(13 13),()),((),(),()))"),
+                  ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)\
+                  (1,1)(2,2)(10,10)(11,11)(12,12)(13,13)
                   );
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
 #endif
 }
-
