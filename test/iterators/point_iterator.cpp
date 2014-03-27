@@ -236,10 +236,10 @@ struct test_point_iterator_of_geometry
             point q = bg::make_zero<point>();
 
             test_assignment::apply(begin, const_begin, p, q);
-            test_assignment::apply(begin, const_begin, p, q);
 
             *begin = q;
             test_assignment::apply(begin, const_begin, q, p);
+
             *begin = p;
         }
     }
