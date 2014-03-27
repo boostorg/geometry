@@ -85,10 +85,8 @@ public:
                      > const& other,
                      typename boost::enable_if
                      <
-                         boost::is_convertible
-                         <
-                             OtherValue*, Value*
-                         >, enabler
+                         boost::is_convertible<OtherValue*, Value*>, 
+                         enabler
                      >::type = enabler())
         : m_outer_it(other.m_outer_it),
           m_outer_end(other.m_outer_end),

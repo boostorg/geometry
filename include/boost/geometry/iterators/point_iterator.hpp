@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 
+#include <boost/utility/enable_if.hpp>
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 #include <boost/geometry/iterators/point_iterator_type.hpp>
 

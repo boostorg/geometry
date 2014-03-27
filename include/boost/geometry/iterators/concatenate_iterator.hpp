@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 
+#include <boost/type_traits.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -35,17 +37,6 @@ private:
 
     struct enabler {};
 
-    template <typename T1, typename OtherT1, typename T2, typename OtherT2>
-    struct is_convertible
-        : boost::mpl::if_c
-            <
-                boost::is_convertible<T1, OtherT1>::value
-                && boost::is_convertible<T2, OtherT2>::value,
-                boost::true_type,
-                boost::false_type
-            >::type
-    {};
-
 public:
     typedef Iterator1 first_iterator_type;
     typedef Iterator2 second_iterator_type;
@@ -67,9 +58,10 @@ public:
     template <typename OtherIt1, typename OtherIt2, typename OtherValue>
     concatenate_iterator
     (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other,
-     typename boost::enable_if
+     typename boost::enable_if_c
          <
-             is_convertible<OtherIt1, Iterator1, OtherIt2, Iterator2>,
+             boost::is_convertible<OtherIt1, Iterator1>::value
+             && boost::is_convertible<OtherIt2, Iterator2>::value,
              enabler
          >::type = enabler())
         : m_it1(other.m_it1), m_end1(other.m_end1), m_it2(other.m_it2)
