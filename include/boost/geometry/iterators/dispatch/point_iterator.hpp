@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_CORE_DISPATCH_POINT_ITERATOR_HPP
-#define BOOST_GEOMETRY_CORE_DISPATCH_POINT_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_DISPATCH_POINT_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_DISPATCH_POINT_ITERATOR_HPP
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -18,7 +18,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+namespace dispatch
 {
 
 
@@ -44,4 +44,4 @@ struct points_end
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_CORE_DISPATCH_POINT_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_DISPATCH_POINT_ITERATOR_HPP
