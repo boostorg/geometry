@@ -65,7 +65,7 @@ public:
             return false;
         }
 
-        return true;
+        return !m_result_ptr->interrupt;
     }
 
 private:

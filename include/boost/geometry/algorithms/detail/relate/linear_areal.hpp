@@ -93,10 +93,10 @@ public:
                 m_interrupt_flags |= 8;
             }
 
-            return m_interrupt_flags != 0xF;
+            return m_interrupt_flags != 0xF && !m_result_ptr->interrupt;
         }
 
-        return true;
+        return !m_result_ptr->interrupt;
     }
 
 private:

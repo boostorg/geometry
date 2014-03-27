@@ -76,7 +76,7 @@ public:
             m_flags |= 2;
         }
                     
-        return m_flags != 3;
+        return m_flags != 3 && !m_result_ptr->interrupt;
     }
 
 private:
