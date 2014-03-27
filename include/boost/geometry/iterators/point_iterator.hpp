@@ -233,10 +233,13 @@ private:
     struct enabler {};
 
     template <typename OtherGeometry> friend class point_iterator;
-public:
-    point_iterator() {}
+    template <typename G> friend inline point_iterator<G> points_begin(G&);
+    template <typename G> friend inline point_iterator<G> points_end(G&);
 
     point_iterator(base const& base_it) : base(base_it) {}
+
+public:
+    point_iterator() {}
 
     template <typename OtherGeometry>
     point_iterator(point_iterator<OtherGeometry> const& other,
