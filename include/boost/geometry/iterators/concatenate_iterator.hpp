@@ -20,7 +20,6 @@ namespace boost { namespace geometry
 
 
 
-
 template <typename Iterator1, typename Iterator2, typename Value>
 struct concatenate_iterator
     : public boost::iterator_facade
@@ -33,6 +32,19 @@ struct concatenate_iterator
 private:
     Iterator1 m_it1, m_end1;
     Iterator2 m_it2;
+
+    struct enabler {};
+
+    template <typename T1, typename OtherT1, typename T2, typename OtherT2>
+    struct is_convertible
+        : boost::mpl::if_c
+            <
+                boost::is_convertible<T1, OtherT1>::value
+                && boost::is_convertible<T2, OtherT2>::value,
+                boost::true_type,
+                boost::false_type
+            >::type
+    {};
 
 public:
     typedef Iterator1 first_iterator_type;
@@ -52,8 +64,24 @@ public:
         : m_it1(end1), m_end1(end1), m_it2(end2)
     {}
 
+    template <typename OtherIt1, typename OtherIt2, typename OtherValue>
+    concatenate_iterator
+    (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other,
+     typename boost::enable_if
+         <
+             is_convertible<OtherIt1, Iterator1, OtherIt2, Iterator2>,
+             enabler
+         >::type = enabler())
+        : m_it1(other.m_it1), m_end1(other.m_end1), m_it2(other.m_it2)
+    {}
+
+
+
 private:
     friend class boost::iterator_core_access;
+
+    template <typename It1, typename It2, typename V>
+    friend class concatenate_iterator;
 
     Value& dereference() const
     {
