@@ -615,6 +615,11 @@ void test_multi_linestring_multi_polygon()
     test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0),(20 20,50 50,20 80,20 20))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
                               "F11FFF2F2");
+
+    // disjoint
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 20,30 30),(30 30,40 40))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "FF1FF0212");
 }
 
 template <typename P>
@@ -640,6 +645,9 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((5 5,5 10,6 5,5 5))",
                               "212F01FF2");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 6,6 6,6 5,5 5))",
+                              "212FF1FF2");
 
     // overlapping
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
@@ -653,6 +661,32 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((10 10,10 5,10 0,5 0,0 0,0 10,5 10,10 10))",
                               "2FFF1FFF2");
+
+    // disjoint
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((0 20,0 30,10 30,10 20,0 20))",
+                              "FF2FF1212");
+}
+
+template <typename P>
+void multi_polygon_multi_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                                "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "212F11212");
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)))",
+                                "212F11FF2");
+
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                                "MULTIPOLYGON(((5 5,5 6,6 6,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "212FF1212");
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "MULTIPOLYGON(((5 5,5 6,6 6,6 5,5 5)))",
+                                "212FF1FF2");
 }
 
 template <typename P>
@@ -669,6 +703,7 @@ void test_all()
     test_linestring_multi_polygon<P>();
     test_multi_linestring_multi_polygon<P>();
     polygon_polygon<P>();
+    multi_polygon_multi_polygon<P>();
 }
 
 int test_main( int , char* [] )

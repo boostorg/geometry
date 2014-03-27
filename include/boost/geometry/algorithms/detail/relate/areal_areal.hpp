@@ -31,29 +31,58 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
     
+// WARNING!
+// TODO: In the worst case calling this Pred in a loop for MultiPolygon/MultiPolygon may take O(NM)
+// Use the rtree in this case!
+
 // may be used to set EI and EB for an Areal geometry for which no turns were generated
-template <typename Result, bool TransposeResult>
+template <typename OtherAreal, typename Result, bool TransposeResult>
 class no_turns_aa_pred
 {
 public:
-    no_turns_aa_pred(Result & res)
+    no_turns_aa_pred(OtherAreal const& other_areal, Result & res)
         : m_result_ptr(boost::addressof(res))
+        , m_other_areal_ptr(boost::addressof(other_areal))
+        , m_flags(0)
     {}
 
     template <typename Areal>
     bool operator()(Areal const& areal)
     {
-        // TODO:
-        // add an assertion for empty/invalid geometries
+        typedef typename geometry::point_type<Areal>::type point_type;
+        point_type pt;
+        bool ok = boost::geometry::point_on_border(pt, areal);
 
-        update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
-        update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
+        // TODO: for now ignore, later throw an exception?
+        if ( !ok )
+            return true;
+
+        // check if the areal is inside the other_areal
+        int pig = detail::within::point_in_geometry(pt, *m_other_areal_ptr);
+        //BOOST_ASSERT( pig != 0 );
+        
+        // inside
+        if ( pig > 0 )
+        {
+            update<interior, interior, '2', TransposeResult>(*m_result_ptr);
+            update<boundary, interior, '1', TransposeResult>(*m_result_ptr);
+            m_flags |= 1;
+        }
+        // outside
+        else
+        {
+            update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
+            update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
+            m_flags |= 2;
+        }
                     
-        return false;
+        return m_flags != 3;
     }
 
 private:
     Result * m_result_ptr;
+    const OtherAreal * m_other_areal_ptr;
+    int m_flags;
 };
 
 // The implementation of an algorithm calculating relate() for A/A
@@ -90,32 +119,20 @@ struct areal_areal
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
         if ( result.interrupt )
             return;
-//
-//        boundary_checker<Geometry1> boundary_checker1(geometry1);
-//        no_turns_la_linestring_pred
-//            <
-//                Geometry2,
-//                Result,
-//                boundary_checker<Geometry1>,
-//                TransposeResult
-//            > pred1(geometry2, result, boundary_checker1);
-//        for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
-//        if ( result.interrupt )
-//            return;
-//
-//        no_turns_la_areal_pred<Result, !TransposeResult> pred2(result);
-//        for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
-//        if ( result.interrupt )
-//            return;
-//        
-//        if ( turns.empty() )
-//            return;
-//
-//        // This is set here because in the case if empty Areal geometry were passed
-//        // those shouldn't be set
-//        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
-//        if ( result.interrupt )
-//            return;
+
+        no_turns_aa_pred<Geometry2, Result, false> pred1(geometry2, result);
+        for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
+        if ( result.interrupt )
+            return;
+
+        no_turns_aa_pred<Geometry1, Result, true> pred2(geometry1, result);
+        for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
+        if ( result.interrupt )
+            return;
+        
+        if ( turns.empty() )
+            return;
+
 //
 //        {
 //            // for different multi or same ring id: x, u, i, c

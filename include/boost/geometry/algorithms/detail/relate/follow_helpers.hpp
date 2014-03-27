@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
+#include <boost/geometry/util/range.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -56,6 +58,39 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
                              Geometry const& geometry,
                              Pred & pred)
     {
+        if ( first != last )
+            return for_turns(first, last, geometry, pred);
+        else
+            return for_empty(geometry, pred);
+    }
+
+    template <typename Pred>
+    static inline bool for_empty(Geometry const& geometry,
+                                 Pred & pred)
+    {
+        typedef typename boost::range_iterator<Geometry const>::type iterator;
+
+        bool found = false;
+
+        // O(N)
+        // check predicate for each contained geometry without generated turn
+        for ( iterator it = boost::begin(geometry) ;
+              it != boost::end(geometry) ; ++it )
+        {
+            found = true;
+            bool cont = pred(*it);
+            if ( !cont )
+                break;
+        }
+        
+        return true;
+    }
+
+    template <typename TurnIt, typename Pred>
+    static inline bool for_turns(TurnIt first, TurnIt last,
+                                 Geometry const& geometry,
+                                 Pred & pred)
+    {
         BOOST_ASSERT(first != last);
 
         const std::size_t count = boost::size(geometry);
@@ -84,9 +119,8 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
             if ( *it == false )
             {
                 found = true;
-                bool cont = pred(
-                                *(boost::begin(geometry)
-                                    + std::distance(detected_intersections.begin(), it)));
+                bool cont = pred(range::at(geometry,
+                                           std::distance(detected_intersections.begin(), it)));
                 if ( !cont )
                     break;
             }

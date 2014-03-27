@@ -31,7 +31,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-// TODO: In the worst case for MultiLinestring/MultiPolygon this is O(NM)
+// WARNING!
+// TODO: In the worst case calling this Pred in a loop for MultiLinestring/MultiPolygon may take O(NM)
 // Use the rtree in this case!
 
 // may be used to set IE and BE for a Linear geometry for which no turns were generated
@@ -118,7 +119,15 @@ public:
     bool operator()(Areal const& areal)
     {
         // TODO:
-        // add an assertion for empty/invalid geometries
+        // handle empty/invalid geometries in a different way than this:
+
+        typedef typename geometry::point_type<Areal>::type point_type;
+        point_type dummy;
+        bool ok = boost::geometry::point_on_border(dummy, areal);
+
+        // TODO: for now ignore, later throw an exception?
+        if ( !ok )
+            return true;
 
         update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
         update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
