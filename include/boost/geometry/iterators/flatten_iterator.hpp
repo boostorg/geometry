@@ -71,26 +71,25 @@ public:
 
     template
     <
-        typename OtherOuterIterator,
-        typename OtherInnerIterator,
-        typename OtherValue
+        typename OtherOuterIterator, typename OtherInnerIterator,
+        typename OtherValue,
+        typename OtherAccessInnerBegin, typename OtherAccessInnerEnd
     >
-    explicit flatten_iterator(flatten_iterator
-                              <
-                                  OtherOuterIterator,
-                                  OtherInnerIterator,
-                                  OtherValue,
-                                  AccessInnerBegin,
-                                  AccessInnerEnd
-                              > const& other,
-                              typename boost::enable_if
-                              <
-                                  boost::is_convertible
-                                  <
-                                      OtherOuterIterator*, OuterIterator*
-                                  >, enabler
-                              >::type = enabler()
-                              )
+    flatten_iterator(flatten_iterator
+                     <
+                         OtherOuterIterator,
+                         OtherInnerIterator,
+                         OtherValue,
+                         OtherAccessInnerBegin,
+                         OtherAccessInnerEnd
+                     > const& other,
+                     typename boost::enable_if
+                     <
+                         boost::is_convertible
+                         <
+                             OtherValue*, Value*
+                         >, enabler
+                     >::type = enabler())
         : m_outer_it(other.m_outer_it),
           m_outer_end(other.m_outer_end),
           m_inner_it(other.m_inner_it)
@@ -100,15 +99,17 @@ public:
     <
         typename OtherOuterIterator,
         typename OtherInnerIterator,
-        typename OtherValue
+        typename OtherValue,
+        typename OtherAccessInnerBegin,
+        typename OtherAccessInnerEnd
     >
     flatten_iterator operator=(flatten_iterator
                                <
                                    OtherOuterIterator,
                                    OtherInnerIterator,
                                    OtherValue,
-                                   AccessInnerBegin,
-                                   AccessInnerEnd
+                                   OtherAccessInnerBegin,
+                                   OtherAccessInnerEnd
                                > const& other)
     {
         m_outer_it = other.m_outer_it;
@@ -122,11 +123,11 @@ private:
 
     template
     <
-        typename OuterIterator1,
-        typename InnerIterator1,
-        typename Value1,
-        typename AccessInnerBegin1,
-        typename AccessInnerEnd1
+        typename Outer,
+        typename Inner,
+        typename V,
+        typename InnerBegin,
+        typename InnerEnd
     >
     friend class flatten_iterator;
 
@@ -136,7 +137,7 @@ private:
             AccessInnerBegin::apply(*outer_it) == AccessInnerEnd::apply(*outer_it);
     }
 
-    void advance_through_empty()
+    inline void advance_through_empty()
     {
         while ( m_outer_it != m_outer_end && empty(m_outer_it) )
         {
@@ -161,16 +162,18 @@ private:
     <
         typename OtherOuterIterator,
         typename OtherInnerIterator,
-        typename OtherValue
+        typename OtherValue,
+        typename OtherAccessInnerBegin,
+        typename OtherAccessInnerEnd
     >
-    bool equal(flatten_iterator
-               <
-                   OtherOuterIterator,
-                   OtherInnerIterator,
-                   OtherValue,
-                   AccessInnerBegin,
-                   AccessInnerEnd
-               > const& other) const
+    inline bool equal(flatten_iterator
+                      <
+                          OtherOuterIterator,
+                          OtherInnerIterator,
+                          OtherValue,
+                          OtherAccessInnerBegin,
+                          OtherAccessInnerEnd
+                      > const& other) const
     {
         if ( this->m_outer_it != other.m_outer_it )
         {
@@ -185,7 +188,7 @@ private:
         return this->m_inner_it == other.m_inner_it;
     }
 
-    void increment()
+    inline void increment()
     {
         BOOST_ASSERT( m_outer_it != m_outer_end );
         BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
