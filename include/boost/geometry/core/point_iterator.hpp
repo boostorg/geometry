@@ -219,7 +219,7 @@ struct points_end<MultiPolygon, multi_polygon_tag>
 
 // MK:: need to add doc here
 template <typename Geometry>
-typename point_iterator_type<Geometry>::type
+inline typename point_iterator_type<Geometry>::type
 points_begin(Geometry& geometry)
 {
     return core_dispatch::points_begin<Geometry>::apply(geometry);
@@ -228,7 +228,7 @@ points_begin(Geometry& geometry)
 
 // MK:: need to add doc here
 template <typename Geometry>
-typename point_iterator_type<Geometry>::type
+inline typename point_iterator_type<Geometry>::type
 points_end(Geometry& geometry)
 {
     return core_dispatch::points_end<Geometry>::apply(geometry);
