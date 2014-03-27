@@ -7,18 +7,18 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_UTIL_POINT_CONCATENATE_ITERATOR_HPP
-#define BOOST_GEOMETRY_UTIL_POINT_CONCATENATE_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 
+#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/iterator_categories.hpp>
 
 
 namespace boost { namespace geometry
 {
 
 
-namespace util
-{
 
 
 template <typename Iterator1, typename Iterator2, typename Value>
@@ -83,9 +83,7 @@ private:
 };
 
 
-} // namespace util
-
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_UTIL_CONCATENATE_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP

@@ -7,20 +7,19 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_UTIL_FLATTEN_ITERATOR_HPP
-#define BOOST_GEOMETRY_UTIL_FLATTEN_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/iterator_categories.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-
-namespace util
-{
 
 
 template
@@ -62,11 +61,6 @@ public:
     flatten_iterator(OuterIterator outer_it, OuterIterator outer_end)
         : m_outer_it(outer_it), m_outer_end(outer_end)
     {
-        if ( m_outer_it != m_outer_end )
-        {
-            m_inner_it = AccessInnerBegin::apply(*m_outer_it);
-            //        m_inner_it = AccessInnerBegin(*m_outer_it);
-        }
         advance_through_empty();
     }
 
@@ -140,7 +134,6 @@ private:
     {
         return
             AccessInnerBegin::apply(*outer_it) == AccessInnerEnd::apply(*outer_it);
-        //            AccessInnerBegin(*outer_it) == AccessInnerEnd(*outer_it);
     }
 
     void advance_through_empty()
@@ -153,7 +146,6 @@ private:
         if ( m_outer_it != m_outer_end )
         {
             m_inner_it = AccessInnerBegin::apply(*m_outer_it);
-            //            m_inner_it = AccessInnerBegin(*m_outer_it);
         }
     }
 
@@ -161,7 +153,6 @@ private:
     {
         BOOST_ASSERT( m_outer_it != m_outer_end );
         BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
-        //        BOOST_ASSERT( m_inner_it != AccessInnerEnd(*m_outer_it) );
         return *m_inner_it;
     }
 
@@ -198,11 +189,9 @@ private:
     {
         BOOST_ASSERT( m_outer_it != m_outer_end );
         BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
-        //        BOOST_ASSERT( m_inner_it != AccessInnerEnd(*m_outer_it) );
 
         ++m_inner_it;
         if ( m_inner_it == AccessInnerEnd::apply(*m_outer_it) )
-        //if ( m_inner_it == AccessInnerEnd(*m_outer_it) )
         {
             ++m_outer_it;
             advance_through_empty();
@@ -211,9 +200,8 @@ private:
 };
 
 
-} // namespace util
-
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_UTIL_FLATTEN_INTERATOR_HPP
+
+#endif // BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
