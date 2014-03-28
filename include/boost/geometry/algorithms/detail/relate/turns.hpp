@@ -74,6 +74,19 @@ template <typename Geometry1,
             = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::assign_null_policy> >
 struct get_turns
 {
+    typedef typename geometry::point_type<Geometry1>::type point1_type;
+
+    typedef overlay::turn_info
+            <
+                point1_type,
+                typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type,
+                enriched_turn_operation_linear
+                <
+                    point1_type,
+                    typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
+                >
+            > turn_info;
+
     template <typename Turns>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
@@ -84,24 +97,13 @@ struct get_turns
         apply(turns, geometry1, geometry2, interrupt_policy);
     }
 
-    template <typename Turns, typename RobustPolicy, typename InterruptPolicy>
+    template <typename Turns, typename InterruptPolicy>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& ,
                              InterruptPolicy & interrupt_policy)
     {
         typedef typename geometry::point_type<Geometry1>::type point1_type;
-
-        typedef overlay::turn_info
-            <
-                point1_type,
-                enriched_turn_operation_linear
-                <
-                    point1_type,
-                    typename segment_ratio_type<point1_type, RobustPolicy>::type
-                >
-            > turn_info;
 
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
@@ -200,12 +202,12 @@ struct less_seg_dist_op
     }
 
     template <typename Op> static inline
-    bool use_distance(Op const& left, Op const& right)
+    bool use_fraction(Op const& left, Op const& right)
     {
-        if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
+        if ( left.fraction == right.fraction )
             return use_other_multi_ring_id(left, right);
         else
-            return left.enriched.distance < right.enriched.distance;
+            return left.fraction < right.fraction;
     }
 
     template <typename Turn>
@@ -214,7 +216,7 @@ struct less_seg_dist_op
         segment_identifier const& sl = left.operations[OpId].seg_id;
         segment_identifier const& sr = right.operations[OpId].seg_id;
 
-        return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
+        return sl < sr || ( sl == sr && use_fraction(left.operations[OpId], right.operations[OpId]) );
     }
 };
 

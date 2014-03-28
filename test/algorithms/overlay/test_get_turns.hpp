@@ -164,8 +164,8 @@ struct expected_pusher
     typedef std::vector<std::string>::iterator iterator;
     typedef std::vector<std::string>::const_iterator const_iterator;
 
-    //iterator begin() { return vec.begin(); }
-    //iterator end() { return vec.end(); }
+    iterator begin() { return vec.begin(); }
+    iterator end() { return vec.end(); }
     const_iterator begin() const { return vec.begin(); }
     const_iterator end() const { return vec.end(); }
 

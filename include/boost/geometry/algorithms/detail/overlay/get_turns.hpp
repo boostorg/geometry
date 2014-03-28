@@ -817,7 +817,7 @@ template <typename Geometry1, typename Geometry2, typename SegmentRatio,
           typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
-    typedef overlay::turn_operation<SegmentRatio>  type;
+    typedef overlay::turn_operation<SegmentRatio> type;
 };
 
 template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>

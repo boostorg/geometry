@@ -210,6 +210,7 @@ struct get_turn_info_for_endpoint
         return result_ignore_ip0 || result_ignore_ip1;
     }
 
+    // TODO remove how_a and how_b
     template<typename Point, typename Point1, typename Point2>
     static inline
     void handle_segment(bool /*first_a*/, bool last_a, int how_a, int arrival_a,
@@ -238,8 +239,8 @@ struct get_turn_info_for_endpoint
                 {
                     op0_a = operation_intersection;
                     op0_b = operation_intersection;
-                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                    op1_b = arrival_to_union_or_blocked(arrival_b, last_b);
+                    op1_a = union_or_blocked_same_dirs(arrival_a, last_a);
+                    op1_b = union_or_blocked_same_dirs(arrival_b, last_b);
 
                     i0_a = equals::equals_point_point(pi, ip0);
                     i0_b = equals::equals_point_point(qi, ip0);
@@ -249,8 +250,8 @@ struct get_turn_info_for_endpoint
                 else
                 {
                     op0_a = operation_intersection;
-                    op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
-                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
+                    op0_b = union_or_blocked_same_dirs(arrival_b, last_b);
+                    op1_a = union_or_blocked_same_dirs(arrival_a, last_a);
                     op1_b = operation_intersection;
 
                     i0_a = arrival_b != 1;
@@ -262,29 +263,29 @@ struct get_turn_info_for_endpoint
             else
             {
                 BOOST_ASSERT(ip_count == 1);
-                op0_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
+                op0_a = union_or_blocked_same_dirs(arrival_a, last_a);
+                op0_b = union_or_blocked_same_dirs(arrival_b, last_b);
 
-                i0_a = how_a == -1;
-                i0_b = how_b == -1;
+                i0_a = arrival_a == -1;
+                i0_b = arrival_b == -1;
                 j0_a = arrival_a == 0;
                 j0_b = arrival_b == 0;
             }
         }
         else
         {
-            op0_a = how_to_union_or_blocked(how_a, last_a);
-            op0_b = how_to_union_or_blocked(how_b, last_b);
+            op0_a = union_or_blocked_different_dirs(arrival_a, last_a);
+            op0_b = union_or_blocked_different_dirs(arrival_b, last_b);
 
-            i0_a = how_a == -1;
-            i0_b = how_b == -1;
-            j0_a = how_a == 1;
-            j0_b = how_b == 1;
+            i0_a = arrival_a == -1;
+            i0_b = arrival_b == -1;
+            j0_a = arrival_a == 1;
+            j0_b = arrival_b == 1;
         }
     }
 
     // only if collinear (same_dirs)
-    static inline operation_type arrival_to_union_or_blocked(int arrival, bool is_last)
+    static inline operation_type union_or_blocked_same_dirs(int arrival, bool is_last)
     {
         if ( arrival == 1 )
             return operation_blocked;
@@ -296,9 +297,9 @@ struct get_turn_info_for_endpoint
     }
 
     // only if not collinear (!same_dirs)
-    static inline operation_type how_to_union_or_blocked(int how, bool is_last)
+    static inline operation_type union_or_blocked_different_dirs(int arrival, bool is_last)
     {
-        if ( how == 1 )
+        if ( arrival == 1 )
             //return operation_blocked;
             return is_last ? operation_blocked : operation_union;
         else
