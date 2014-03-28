@@ -20,17 +20,18 @@
 #include <boost/assign/list_of.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
+#include <boost/geometry/multi/geometries/register/multi_point.hpp>
+
+#include <boost/geometry/algorithms/equals.hpp>
+
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/wkt/write.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
-
-#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <boost/geometry/multi/geometries/register/multi_point.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
 
