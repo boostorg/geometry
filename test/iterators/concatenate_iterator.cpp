@@ -59,19 +59,20 @@ struct test_concat_iterator
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "case id: " << case_id << std::endl;
 #endif
+        typedef typename Container1::const_iterator const_iterator1;
+        typedef typename Container2::const_iterator const_iterator2;
+        typedef typename Container1::iterator iterator1;
+        typedef typename Container2::iterator iterator2;
 
         typedef boost::geometry::concatenate_iterator
             <
-                typename Container1::const_iterator,
-                typename Container2::const_iterator,
+                const_iterator1, const_iterator2,
                 typename Container1::value_type const
             > const_concat_iterator;
 
         typedef boost::geometry::concatenate_iterator
             <
-                typename Container1::iterator,
-                typename Container2::iterator,
-                typename Container1::value_type
+                iterator1, iterator2, typename Container1::value_type
             > concat_iterator;
 
 
@@ -99,10 +100,8 @@ struct test_concat_iterator
 #ifdef GEOMETRY_TEST_DEBUG
         print_container(std::cout, c1.begin(), c1.end(), "first   :")
             << std::endl;
-
         print_container(std::cout, c2.begin(), c2.end(), "second  :")
             << std::endl;
-
         print_container(std::cout, begin, end,           "combined:")
             << std::endl;
 
@@ -118,8 +117,8 @@ struct test_concat_iterator
 #endif
 
         {
-            typename Container1::const_iterator it1 = c1.begin();
-            typename Container2::const_iterator it2 = c2.begin();
+            const_iterator1 it1 = c1.begin();
+            const_iterator2 it2 = c2.begin();
             for (const_concat_iterator it = const_begin; it != const_end; ++it)
             {
                 if ( it1 != c1.end() )
