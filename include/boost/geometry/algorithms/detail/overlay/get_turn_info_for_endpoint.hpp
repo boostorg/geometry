@@ -179,11 +179,10 @@ struct get_turn_info_for_endpoint
 
         bool append0_last
             = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            result.template get<0>().intersections[0],
                                             is_p_first, is_p_last, is_q_first, is_q_last,
                                             p0i, p0j, q0i, q0j,
                                             p_operation0, q_operation0,
-                                            tp_model, result, out);
+                                            tp_model, result, 0, out);
 
         bool result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
                 append0_last :
@@ -195,11 +194,10 @@ struct get_turn_info_for_endpoint
         
         bool append1_last
             = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            result.template get<0>().intersections[1],
                                             is_p_first, is_p_last, is_q_first, is_q_last,
                                             p1i, p1j, q1i, q1j,
                                             p_operation1, q_operation1,
-                                            tp_model, result, out);
+                                            tp_model, result, 1, out);
 
         bool result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
                 append1_last :
@@ -308,14 +306,12 @@ struct get_turn_info_for_endpoint
 
     template <typename Point1,
               typename Point2,
-              typename Point,              
               typename TurnInfo,
               typename IntersectionResult,
               typename OutputIterator>
     static inline
     bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                                        Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                       Point const& ip,
                                        bool is_p_first, bool is_p_last,
                                        bool is_q_first, bool is_q_last,
                                        bool is_pi_ip, bool is_pj_ip,
@@ -324,14 +320,17 @@ struct get_turn_info_for_endpoint
                                        operation_type q_operation,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
+                                       int ip_index,
                                        OutputIterator out)
     {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
         // may this give false positives for INTs?
-        BOOST_ASSERT(is_pi_ip == equals::equals_point_point(pi, ip));
-        BOOST_ASSERT(is_qi_ip == equals::equals_point_point(qi, ip));
-        BOOST_ASSERT(is_pj_ip == equals::equals_point_point(pj, ip));
-        BOOST_ASSERT(is_qj_ip == equals::equals_point_point(qj, ip));
+        typename IntersectionResult::point_type const&
+            inters_pt = result.template get<0>().intersections[ip_index];
+        BOOST_ASSERT(is_pi_ip == equals::equals_point_point(pi, inters_pt));
+        BOOST_ASSERT(is_qi_ip == equals::equals_point_point(qi, inters_pt));
+        BOOST_ASSERT(is_pj_ip == equals::equals_point_point(pj, inters_pt));
+        BOOST_ASSERT(is_qj_ip == equals::equals_point_point(qj, inters_pt));
 #endif
 
         // TODO - calculate first/last only if needed
@@ -344,23 +343,23 @@ struct get_turn_info_for_endpoint
 
         if ( append_first || append_last )
         {
-            bool handled = handle_internal(pi, pj, pk, qi, qj, qk, ip,
+            bool handled = handle_internal(pi, pj, pk, qi, qj, qk,
                                            is_p_first_ip, is_p_last_ip,
                                            is_q_first_ip, is_q_last_ip,
                                            is_qi_ip, is_qj_ip,
-                                           tp_model, result, p_operation, q_operation);
+                                           tp_model, result, ip_index, p_operation, q_operation);
             if ( !handled )
             {
-                handle_internal(qi, qj, qk, pi, pj, pk, ip,
+                handle_internal(qi, qj, qk, pi, pj, pk,
                                 is_q_first_ip, is_q_last_ip,
                                 is_p_first_ip, is_p_last_ip,
                                 is_pi_ip, is_pj_ip,
-                                tp_model, result, q_operation, p_operation);
+                                tp_model, result, ip_index, q_operation, p_operation);
             }
 
             if ( p_operation != operation_none )
             {
-                assign(pi, qi, result, ip,
+                assign(pi, qi, result, ip_index,
                        endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip),
                        p_operation, q_operation,
                        ip_position(is_p_first_ip, is_p_last_ip),
@@ -377,18 +376,17 @@ struct get_turn_info_for_endpoint
 
     template<typename Point1,
              typename Point2,
-             typename Point,
              typename TurnInfo,
              typename IntersectionResult
     >
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
-                                       Point const& ip,
                                        bool first1, bool last1,
                                        bool first2, bool last2,
                                        bool ip_i2, bool ip_j2,
                                        TurnInfo const& tp_model,
                                        IntersectionResult const& result,
+                                       int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
         if ( !first2 && !last2 )
@@ -397,8 +395,10 @@ struct get_turn_info_for_endpoint
             {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
-                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
-                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
+                typename IntersectionResult::point_type const&
+                    inters_pt = result.template get<0>().intersections[ip_index];
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
                 if ( ip_i2 )
                 {
@@ -443,8 +443,10 @@ struct get_turn_info_for_endpoint
             {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
-                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
-                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
+                typename IntersectionResult::point_type const&
+                    inters_pt = result.template get<0>().intersections[ip_index];
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
                 if ( ip_i2 )
                 {
@@ -509,12 +511,11 @@ struct get_turn_info_for_endpoint
     template <typename Point1,
               typename Point2,
               typename IntersectionResult,
-              typename Point,
               typename TurnInfo,
               typename OutputIterator>
     static inline void assign(Point1 const& pi, Point2 const& qi,
                               IntersectionResult const& result,
-                              Point const& ip,
+                              int ip_index,
                               method_type method,
                               operation_type op0, operation_type op1,
                               turn_position pos0, turn_position pos1,
@@ -522,8 +523,11 @@ struct get_turn_info_for_endpoint
                               OutputIterator out)
     {
         TurnInfo tp = tp_model;
-        geometry::convert(ip, tp.point);
-        tp.method = method;
+        
+        //geometry::convert(ip, tp.point);
+        //tp.method = method;
+        base_turn_handler::assign_point(tp, method, result.template get<0>(), ip_index);
+
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
         tp.operations[0].position = pos0;
