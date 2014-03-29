@@ -458,8 +458,11 @@ struct get_turn_info_linear_areal
                 {
                     side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, qj, qk);
 
-                    equal<TurnInfo>::apply(qi_conv, pi, pj, qi, qj, qk,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    std::pair<operation_type, operation_type>
+                        operations = get_info_e::operations_of_equal(side_calc);
+
+                    tp.operations[0].operation = operations.first;
+                    tp.operations[1].operation = operations.second;
 
                     replaced_method = method_touch;
                 }
@@ -471,9 +474,11 @@ struct get_turn_info_linear_areal
 
                     side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, pi_conv, qj);
 
-                    // Collinear, but similar thus handled as equal
-                    equal<TurnInfo>::apply(qi_conv, pi, pj, qi, pi_conv, qj,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    std::pair<operation_type, operation_type>
+                        operations = get_info_e::operations_of_equal(side_calc);
+
+                    tp.operations[0].operation = operations.first;
+                    tp.operations[1].operation = operations.second;
                 }
 
                 replacer_of_method_and_operations_ec<true> replacer(replaced_method);
@@ -519,8 +524,11 @@ struct get_turn_info_linear_areal
                 geometry::convert(qi, qi_conv);
                 side_calculator<Point1, Point2> side_calc(qi_conv, pj, pi, qi, qj, qk);
 
-                equal<TurnInfo>::apply(qi_conv, pj, pi, qi, qj, qk,
-                    tp, result.template get<0>(), result.template get<1>(), side_calc);
+                std::pair<operation_type, operation_type>
+                    operations = get_info_e::operations_of_equal(side_calc);
+
+                tp.operations[0].operation = operations.first;
+                tp.operations[1].operation = operations.second;
 
                 replacer_of_method_and_operations_ec<false> replacer(method_none);
                 replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
