@@ -253,7 +253,9 @@ void test_integer(bool check_types)
     if (check_types)
     {
         BOOST_CHECK((boost::is_same<distance_type, double>::type::value));
-        BOOST_CHECK((boost::is_same<cdistance_type, boost::long_long_type>::type::value));
+        // comparable_distance results in now double too, obviously because
+        // comp.distance point-segment can be fraction, even for integer input
+        BOOST_CHECK((boost::is_same<cdistance_type, double>::type::value));
     }
 }
 

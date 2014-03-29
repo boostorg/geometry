@@ -412,14 +412,13 @@ struct get_turn_info_for_endpoint
                     geometry::convert(i2, i2_conv);
                     side_calculator<Point1, Point2> side_calc(i2_conv, i1, j1, i2, j2, k2);
 
-                    TurnInfo tp = tp_model;
-                    equal<TurnInfo>::apply(i2_conv, i1, j1, i2, j2, k2,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    std::pair<operation_type, operation_type>
+                        operations = operations_of_equal(side_calc);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
 
-                    if ( tp.both(operation_continue) )
+                    if ( operations_both(operations, operation_continue) )
                     {
                         // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
                         bool opposite = result.template get<1>().opposite;
@@ -429,7 +428,7 @@ struct get_turn_info_for_endpoint
                     }
                     else
                     {
-                        BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                        BOOST_ASSERT(operations_combination(operations, operation_intersection, operation_union));
                         //op1 = operation_union;
                         //op2 = operation_union;
                     }
@@ -460,14 +459,13 @@ struct get_turn_info_for_endpoint
                     
                     side_calculator<Point1, Point2> side_calc(i2_conv, j1, i1, i2, j2, k2);
                     
-                    TurnInfo tp = tp_model;
-                    equal<TurnInfo>::apply(i2_conv, j1, i1, i2, j2, k2,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    std::pair<operation_type, operation_type>
+                        operations = operations_of_equal(side_calc);
 
 // TODO: must the above be calculated?
 // wouldn't it be enough to check if segments are collinear?
 
-                    if ( tp.both(operation_continue) )
+                    if ( operations_both(operations, operation_continue) )
                     {
                         // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
                         bool second_going_out = result.template get<0>().count > 1;
@@ -477,7 +475,7 @@ struct get_turn_info_for_endpoint
                     }
                     else
                     {
-                        BOOST_ASSERT(tp.combination(operation_intersection, operation_union));
+                        BOOST_ASSERT(operations_combination(operations, operation_intersection, operation_union));
                         //op1 = operation_blocked;
                         //op2 = operation_union;
                     }
@@ -551,6 +549,66 @@ struct get_turn_info_for_endpoint
 
         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
         *out++ = tp;
+    }
+
+    template <typename SidePolicy>
+    static inline std::pair<operation_type, operation_type> operations_of_equal(SidePolicy const& side)
+    {
+        int const side_pk_q2 = side.pk_wrt_q2();
+        int const side_pk_p = side.pk_wrt_p1();
+        int const side_qk_p = side.qk_wrt_p1();
+
+        // If pk is collinear with qj-qk, they continue collinearly.
+        // This can be on either side of p1 (== q1), or collinear
+        // The second condition checks if they do not continue
+        // oppositely
+        if ( side_pk_q2 == 0 && side_pk_p == side_qk_p )
+        {
+            return std::make_pair(operation_continue, operation_continue);
+        }
+
+        // If they turn to same side (not opposite sides)
+        if ( ! base_turn_handler::opposite(side_pk_p, side_qk_p) )
+        {
+            int const side_pk_q2 = side.pk_wrt_q2();
+            // If pk is left of q2 or collinear: p: union, q: intersection
+            if ( side_pk_q2 != -1 )
+            {
+                return std::make_pair(operation_union, operation_intersection);
+            }
+            else
+            {
+               return std::make_pair(operation_intersection, operation_union);
+            }
+        }
+        else
+        {
+            // They turn opposite sides. If p turns left (or collinear),
+           // p: union, q: intersection
+            if ( side_pk_p != -1 )
+            {
+                return std::make_pair(operation_union, operation_intersection);
+            }
+           else
+            {
+                return std::make_pair(operation_intersection, operation_union);
+            }
+        }
+   }
+
+    static inline bool operations_both(
+                            std::pair<operation_type, operation_type> const& operations,
+                            operation_type const op)
+    {
+        return operations.first == op && operations.second == op;
+    }
+
+    static inline bool operations_combination(
+                            std::pair<operation_type, operation_type> const& operations,
+                            operation_type const op1, operation_type const op2)
+    {
+        return ( operations.first == op1 && operations.second == op2 )
+            || ( operations.first == op2 && operations.second == op1 );
     }
 };
 
