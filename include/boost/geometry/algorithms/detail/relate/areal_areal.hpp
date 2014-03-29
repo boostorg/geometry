@@ -114,7 +114,7 @@ struct areal_areal
         typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
-        interrupt_policy_areal_areal<Geometry1, Geometry2, Result> interrupt_policy(geometry1, geometry2, result);
+        interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
         if ( result.interrupt )
@@ -268,7 +268,7 @@ struct areal_areal
 
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
-    template <typename Geometry1, typename Geometry2, typename Result>
+    template <typename Result>
     class interrupt_policy_areal_areal
     {
     public:
@@ -332,7 +332,7 @@ struct areal_areal
 
     // This analyser should be used like Input or SinglePass Iterator
     // IMPORTANT! It should be called also for the end iterator - last
-    template <typename TurnInfo>
+    template <typename TurnInfo, bool TransposeResult>
     class turns_analyser
     {
         typedef typename TurnInfo::point_type turn_point_type;
