@@ -153,14 +153,14 @@ struct action_selector<overlay_intersection>
         typename LineString,
         typename Point,
         typename Operation,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
                 LineString const& ,
                 segment_identifier& segment_id,
                 int , Point const& point,
                 Operation const& operation,
-                RobustPolicys const& ,
+                RobustPolicy const& ,
                 OutputIterator& )
     {
         // On enter, append the intersection point and remember starting point
@@ -176,14 +176,14 @@ struct action_selector<overlay_intersection>
         typename LineString,
         typename Point,
         typename Operation,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 int index, Point const& point,
                 Operation const& ,
-                RobustPolicys const& robust_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
         // On leave, copy all segments from starting point, append the intersection point
@@ -207,11 +207,11 @@ struct action_selector<overlay_intersection>
     <
         typename Point,
         typename Geometry,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline bool included(Point const& point,
             Geometry const& geometry,
-            RobustPolicys const& )
+            RobustPolicy const& )
     {
         return geometry::covered_by(point, geometry);
     }
@@ -231,14 +231,14 @@ struct action_selector<overlay_difference>
         typename LineString,
         typename Point,
         typename Operation,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline void enter(LineStringOut& current_piece,
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 int index, Point const& point,
                 Operation const& operation,
-                RobustPolicys const& robust_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
         normal_action::leave(current_piece, linestring, segment_id, index,
@@ -252,14 +252,14 @@ struct action_selector<overlay_difference>
         typename LineString,
         typename Point,
         typename Operation,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline void leave(LineStringOut& current_piece,
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 int index, Point const& point,
                 Operation const& operation,
-                RobustPolicys const& robust_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator& out)
     {
         normal_action::enter(current_piece, linestring, segment_id, index,
@@ -275,11 +275,11 @@ struct action_selector<overlay_difference>
     <
         typename Point,
         typename Geometry,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline bool included(Point const& point,
         Geometry const& geometry,
-        RobustPolicys const& robust_policy)
+        RobustPolicy const& robust_policy)
     {
         return ! normal_action::included(point, geometry, robust_policy);
     }
@@ -358,11 +358,11 @@ public :
     <
         typename Point,
         typename Geometry,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline bool included(Point const& point,
             Geometry const& geometry,
-            RobustPolicys const& robust_policy)
+            RobustPolicy const& robust_policy)
     {
         return following::action_selector<OverlayType>::included(point, geometry, robust_policy);
     }
@@ -371,12 +371,12 @@ public :
     <
         typename Turns,
         typename OutputIterator,
-        typename RobustPolicys
+        typename RobustPolicy
     >
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
                 detail::overlay::operation_type ,  // TODO: this parameter might be redundant
                 Turns& turns,
-                RobustPolicys const& robust_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef typename boost::range_iterator<Turns>::type turn_iterator;
