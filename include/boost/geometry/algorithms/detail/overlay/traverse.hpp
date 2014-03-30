@@ -13,7 +13,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/clean_dups_and_spikes.hpp>
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
