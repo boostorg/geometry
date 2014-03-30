@@ -17,7 +17,6 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 #include <boost/type_traits/is_base_of.hpp>
 

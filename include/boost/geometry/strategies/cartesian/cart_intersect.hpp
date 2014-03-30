@@ -238,20 +238,6 @@ struct relate_cartesian_segments
             }
             else
             {
-#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
-                // TODO: sinfo.r is redundant - will be removed later
-                if (d == 0)
-                {
-                    std::cout << "Warning: d=0" << std::endl;
-                    //fp_sides.debug();
-                    sinfo.r = 0;
-                }
-                else
-                {
-                    sinfo.r = da / d;
-                }
-                // END TODO
-#endif
 
 #ifdef BOOST_GEOMETRY_CHECK_RATIO
                 // TODO remove this

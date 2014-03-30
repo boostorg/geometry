@@ -367,9 +367,7 @@ inline void enrich_assign(Container& operations,
             std::cout << it->index
                 << " meth: " << method_char(turn_points[it->index].method)
                 << " seg: " << op.seg_id
-#if defined(BOOST_GEOMETRY_OBSOLETE_INFO)
-                << " dst: " << boost::numeric_cast<double>(op.enriched.distance)
-#endif
+                << " dst: " << op.fraction // needs define
                 << " op: " << operation_char(turn_points[it->index].operations[0].operation)
                 << operation_char(turn_points[it->index].operations[1].operation)
                 << " dsc: " << (turn_points[it->index].discarded ? "T" : "F")

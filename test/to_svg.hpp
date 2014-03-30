@@ -186,7 +186,7 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = fals
 }
 
 struct to_svg_assign_policy
-    : bg::detail::overlay::calculate_distance_policy
+    : bg::detail::overlay::assign_null_policy
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
@@ -212,7 +212,7 @@ inline void to_svg(G const& g, std::string const& filename, bool sort = true)
     // GET TURNS
 
     typedef bg::detail::overlay::traversal_turn_info<P> turn_info;
-    typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+    typedef bg::detail::overlay::assign_null_policy AssignPolicy;
     //typedef to_svg_assign_policy AssignPolicy;    
 
     typedef std::deque<turn_info> Turns;
@@ -255,7 +255,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
     
     typedef typename bg::detail::relate::turns::get_turns<G1, G2>::turn_info turn_info;
     //typedef bg::detail::overlay::traversal_turn_info<P1> turn_info;
-    //typedef bg::detail::overlay::calculate_distance_policy AssignPolicy;
+    //typedef bg::detail::overlay::assign_null_policy AssignPolicy;
     typedef to_svg_assign_policy AssignPolicy;
 
     typedef std::deque<turn_info> Turns;
