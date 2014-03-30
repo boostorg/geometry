@@ -166,6 +166,20 @@ void test_areal()
     // SQL Server gives: 88.1920416352664
     // PostGIS gives:    88.19203677911
 
+    test_one<Polygon, Polygon, Polygon>("geos_1",
+        geos_1[0], geos_1[1],
+            1, -1, 3461.0214843);
+    test_one<Polygon, Polygon, Polygon>("geos_2",
+        geos_2[0], geos_2[1],
+            0, 0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("geos_3",
+        geos_3[0], geos_3[1],
+            0, -0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("geos_4",
+        geos_4[0], geos_4[1],
+            1, -1, 0.08368849);
+
+
     if (! ccw && open)
     {
         // Pointcount for ttmath/double (both 5) or float (4)

@@ -844,43 +844,6 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
                 float_might_deviate_more);
     }
 
-    // GEOS tests
-    {
-        test_traverse<polygon, polygon, operation_intersection>::apply("geos_1_test_overlay",
-                1, 3461.02330171138, geos_1_test_overlay[0], geos_1_test_overlay[1]);
-        test_traverse<polygon, polygon, operation_union>::apply("geos_1_test_overlay",
-                1, 3461.31592235516, geos_1_test_overlay[0], geos_1_test_overlay[1]);
-
-//        TODO: fix result or precision
-//        test_traverse<polygon, polygon, operation_intersection>::apply("geos_2",
-//                2, 2.157e-6, // by bg/ttmath; sql server reports: 2.20530228034477E-06
-//                geos_2[0], geos_2[1]);
-
-        test_traverse<polygon, polygon, operation_union>::apply("geos_2",
-                1, 350.550662845485,
-                geos_2[0], geos_2[1]);
-
-        test_traverse<polygon, polygon, operation_intersection>::apply("geos_3",
-                0, 0.0,
-                geos_3[0], geos_3[1]);
-    }
-
-    // Sometimes output is reported as 29229056
-    test_traverse<polygon, polygon, operation_union>::apply("geos_3",
-            1, 29391548.5,
-            geos_3[0], geos_3[1],
-            float_might_deviate_more);
-
-    // Sometimes output is reported as 0.078125
-    test_traverse<polygon, polygon, operation_intersection>::apply("geos_4",
-            1, 0.0836884926070727,
-            geos_4[0], geos_4[1],
-            float_might_deviate_more);
-
-    test_traverse<polygon, polygon, operation_union>::apply("geos_4",
-            1, 2304.41633605957,
-            geos_4[0], geos_4[1]);
-
     if (! is_float)
     {
 

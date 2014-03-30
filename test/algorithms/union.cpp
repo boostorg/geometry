@@ -282,6 +282,15 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
             1, 0, 10, 1289.08374);
 
+    test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
+            1, 0, -1, 3461.3203125);
+    test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
+            1, 0, -1, 350.55102539);
+    test_one<Polygon, Polygon, Polygon>("geos_3", geos_3[0], geos_3[1],
+            1, 0, -1, 29391548.4998779);
+    test_one<Polygon, Polygon, Polygon>("geos_4", geos_4[0], geos_4[1],
+            1, 0, -1, 2304.4163115);
+
     test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
                 1, 0, 265, 19.280667);
 

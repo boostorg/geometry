@@ -272,9 +272,28 @@ void test_all()
         -1, -1, 0.279121,
         -1, -1, 224.8892,
         0.001);
-
     // SQL Server gives: 0.279121891701124 and 224.889211358929
     // PostGIS gives:    0.279121991127244 and 224.889205853156
+
+    test_one<polygon, polygon, polygon>("geos_1",
+        geos_1[0], geos_1[1],
+        16, -1, 0.30859375,
+        12, -1, 0.025390625);
+
+    test_one<polygon, polygon, polygon>("geos_2",
+        geos_2[0], geos_2[1],
+        1, -1, 138.6923828,
+        1, -1, 211.8588867);
+
+    test_one<polygon, polygon, polygon>("geos_3",
+        geos_3[0], geos_3[1],
+        1, -1, 16211128.5,
+        1, -1, 13180420.0);
+
+    test_one<polygon, polygon, polygon>("geos_4",
+        geos_4[0], geos_4[1],
+        1, -1, 971.9163115,
+        1, -1, 1332.4163115);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
