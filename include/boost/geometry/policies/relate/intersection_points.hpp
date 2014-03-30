@@ -49,7 +49,7 @@ struct segments_intersection_points
     >
     static inline return_type segments_crosses(side_info const&,
                     SegmentIntersectionInfo const& sinfo,
-                    Segment1 const& s1, Segment2 const& s2)
+                    Segment1 const& s1, Segment2 const& )
     {
         typedef typename geometry::coordinate_type
             <
@@ -89,21 +89,6 @@ struct segments_intersection_points
         }
 
         result.fractions[0].assign(sinfo);
-
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-        {
-            promoted_type const s2x = get<0, 0>(s2);
-            promoted_type const s2y = get<0, 1>(s2);
-            promoted_type const dx = sinfo.dx_b;
-            promoted_type const dy = sinfo.dy_b;
-            set<0>(result.intersections_check[0],
-                boost::numeric_cast<return_coordinate_type>(s2x + sinfo.rb * dx));
-            set<1>(result.intersections_check[0],
-                boost::numeric_cast<return_coordinate_type>(s2y + sinfo.rb * dy));
-        }
-#else
-        boost::ignore_unused_variable_warning(s2);
-#endif
 
         return result;
     }

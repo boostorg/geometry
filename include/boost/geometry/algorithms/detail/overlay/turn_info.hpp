@@ -62,11 +62,6 @@ struct turn_operation
     segment_identifier other_id;
     SegmentRatio fraction;
 
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-    double r;
-    double x, y;
-#endif
-
     inline turn_operation()
         : operation(operation_none)
     {}
@@ -96,9 +91,6 @@ struct turn_info
     typedef Container container_type;
 
     Point point;
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-    Point point_check;
-#endif
     method_type method;
     bool discarded;
 

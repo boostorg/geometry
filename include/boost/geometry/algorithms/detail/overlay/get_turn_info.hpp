@@ -138,16 +138,6 @@ struct base_turn_handler
         geometry::convert(info.intersections[index], ti.point);
         ti.operations[0].fraction = info.fractions[index].robust_ra;
         ti.operations[1].fraction = info.fractions[index].robust_rb;
-
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-        ti.operations[0].r = info.fractions[index].ra;
-        ti.operations[1].r = info.fractions[index].rb;
-        geometry::convert(info.intersections_check[index], ti.point_check);
-        ti.operations[0].x = geometry::get<0>(ti.point);
-        ti.operations[0].y = geometry::get<1>(ti.point);
-        ti.operations[1].x = geometry::get<0>(ti.point);
-        ti.operations[1].y = geometry::get<1>(ti.point);
-#endif
     }
 
     template <typename IntersectionInfo>

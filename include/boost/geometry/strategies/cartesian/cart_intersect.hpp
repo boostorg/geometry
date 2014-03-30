@@ -238,50 +238,8 @@ struct relate_cartesian_segments
             }
             else
             {
-
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-                // TODO remove this
-                if (!boost::is_same
-                        <
-                            robust_coordinate_type,
-                            typename ratio_type::numeric_type
-                        >::type::value)
-                {
-                    std::cout
-                        << typeid(robust_coordinate_type).name()
-                        << " vs " << typeid(typename ratio_type::numeric_type).name()
-                        // << " " << typeid(typename ratio_type::source_type).name()
-                        << std::endl;
-                }
-                // END TODO
-#endif
-
                 sinfo.robust_ra.assign(robust_da, robust_da0);
                 sinfo.robust_rb.assign(robust_db, robust_db0);
-
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-                promoted_type db0, db;
-                cramers_rule(sinfo.dx_b, sinfo.dy_b, sinfo.dx_a, sinfo.dy_a,
-                    get<0, 0>(b) - get<0, 0>(a), // wx = d(x) between 2 segments
-                    get<0, 1>(b) - get<0, 1>(a), // wy = d(y) between 2 segments
-                    db0, db);
-                sinfo.rb = db0 != 0 ? db / db0 : -9999;
-
-//                std::cout << "CHECK: " << std::setprecision(16) << sinfo.r << " " << sinfo.rb
-//                    << " " << boost::rational_cast<double>(sinfo.robust_ra)
-//                    << " " << boost::rational_cast<double>(sinfo.robust_rb)
-//                    << std::endl;
-//                std::cout << "  robust: "
-//                        << double(sinfo.dx_b) / double(sinfo.dx_a)
-//                        << " " << double(sinfo.dy_b) / double(sinfo.dy_a)
-//                        << " " << double(wx) / double(wy)
-//                        << " " << double(robust_dx_b) / double(robust_dx_a)
-//                        << " " << double(robust_dy_b) / double(robust_dy_a)
-//                        << " " << double(robust_wx) / double(robust_wy)
-//                        << std::endl;
-
-#endif
-
             }
         }
 

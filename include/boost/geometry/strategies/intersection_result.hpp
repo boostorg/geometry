@@ -157,11 +157,9 @@ struct de9im_segment : public de9im
 template <typename SegmentRatio>
 struct fraction_type
 {
-    SegmentRatio robust_ra;
+    SegmentRatio robust_ra; // TODO this can be renamed now to "ra"
     SegmentRatio robust_rb;
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-    double ra, rb;
-#endif
+
     bool initialized;
     inline fraction_type()
         : initialized(false)
@@ -173,10 +171,6 @@ struct fraction_type
         initialized = true;
         robust_ra = info.robust_ra;
         robust_rb = info.robust_rb;
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-        ra = info.r;
-        rb = info.rb;
-#endif
     }
 
     inline void assign(SegmentRatio const& a, SegmentRatio const& b)
@@ -184,10 +178,6 @@ struct fraction_type
         initialized = true;
         robust_ra = a;
         robust_rb = b;
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-        ra = -9999;
-        rb = -9999;
-#endif
     }
 
 };
@@ -207,10 +197,6 @@ struct segment_intersection_points
     fraction_type<SegmentRatio> fractions[2];
     typedef Point point_type;
 
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-    Point intersections_check[2];
-#endif
-
     segment_intersection_points()
         : count(0)
     {}
@@ -226,11 +212,6 @@ struct segment_intersection_info
     CoordinateType dx_b, dy_b; // TODO b can be removed
     SegmentRatio robust_ra;
     SegmentRatio robust_rb;
-
-    // TEMP to check calculations
-#ifdef BOOST_GEOMETRY_CHECK_RATIO
-    PromotedType rb;
-#endif
 };
 
 
