@@ -7,6 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -48,6 +50,9 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
 
+    rescale_policy_type rescale_policy
+            = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
     typedef bg::detail::overlay::traversal_turn_info
     <
         point_type,
@@ -55,15 +60,12 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
     > turn_info;
     std::vector<turn_info> turns;
 
-    rescale_policy_type rescale_policy
-            = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::get_turns
         <
             rev<Geometry1>::value,
             rev<Geometry2>::value,
-            bg::detail::overlay::calculate_distance_policy
+            bg::detail::overlay::assign_null_policy
         >(g1, g2, rescale_policy, turns, policy);
 
     bg::enrich_intersection_points<rev<Geometry1>::value, rev<Geometry2>::value >(turns, bg::detail::overlay::operation_intersection,
@@ -170,8 +172,8 @@ inline typename bg::coordinate_type<Geometry1>::type intersect(Geometry1 const& 
                 out
 
                     << std::setprecision(3)
-                    << "dist: " << turn.operations[0].enriched.distance
-                    << " / "  << turn.operations[1].enriched.distance
+                    << "dist: " << turn.operations[0].fraction
+                    << " / "  << turn.operations[1].fraction
                     << std::endl;
 
                 offsets[p] += lineheight;

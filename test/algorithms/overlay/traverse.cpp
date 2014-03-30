@@ -7,6 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO
 //#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 //#define BOOST_GEOMETRY_OVERLAY_NO_THROW
 //#define HAVE_TTMATH
@@ -72,16 +73,6 @@
 static inline std::string operation(int d)
 {
     return d == 1 ? "union" : "intersection";
-}
-
-template <typename Ratio>
-static inline std::string debug_string(Ratio const& ratio)
-{
-    std::ostringstream out;
-    out << double(ratio.numerator()) / double(ratio.denominator())
-        //<< " " << ratio.numerator() << '/' << ratio.denominator()
-        ;
-    return out.str();
 }
 
 
@@ -191,6 +182,7 @@ struct test_traverse
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
                 "traverse: " << id
+                << " (" << operation(Direction) << ")"
                 << " #shapes expected: " << expected_count
                 << " detected: " << boost::size(v)
                 << " type: " << string_from_type
@@ -280,8 +272,8 @@ struct test_traverse
                         << (turn.is_discarded() ? " (discarded) " : turn.blocked() ? " (blocked)" : "")
                         << std::endl;
 
-                    out << "r: " << debug_string(turn.operations[0].fraction)
-                        << " ; " << debug_string(turn.operations[1].fraction)
+                    out << "r: " << turn.operations[0].fraction
+                        << " ; " << turn.operations[1].fraction
                         << std::endl;
                     if (turn.operations[0].enriched.next_ip_index != -1)
                     {
@@ -343,9 +335,9 @@ struct test_traverse
                             << std::endl
 
                             << std::setprecision(3)
-                            << "dist: " << turn.operations[0].enriched.distance
-                            << " / "  << turn.operations[1].enriched.distance
-                            << std::endl
+                            << "dist: " << turn.operations[0].fraction
+                            << " / "  << turn.operations[1].fraction
+                            << std::endl;
                             */
 
 
@@ -508,7 +500,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     }
     test_traverse<polygon, polygon, operation_intersection>::apply("53_iet", 0, 0, case_53[0], case_53[2]);
 
-    test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_iet", 2, 2, case_54[1], case_54[3]);
+    test_traverse<polygon, polygon, operation_intersection>::apply("54_iet_iet", 1, 2, case_54[1], case_54[3]);
     if (test_self_tangencies)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("54_st_iet", 1, 2, case_54[0], case_54[3]);
@@ -655,7 +647,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
             2, 16, case_53[0], case_53[2]);
     if (test_self_tangencies)
     {
-        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 3, 20, case_54[0], case_54[2]);
+        test_traverse<polygon, polygon, operation_union>::apply("54_st_st", 2, 20, case_54[0], case_54[2]);
         test_traverse<polygon, polygon, operation_union>::apply("54_st_iet", 2, 20, case_54[0], case_54[3]);
         test_traverse<polygon, polygon, operation_union>::apply("54_iet_st", 2, 20, case_54[1], case_54[2]);
     }
@@ -753,9 +745,6 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
     static const bool is_float
         = boost::is_same<T, float>::value;
-    static const bool is_double
-        = boost::is_same<T, double>::value
-        || boost::is_same<T, long double>::value;
 
     static const double float_might_deviate_more = is_float ? 0.1 : 0.001; // In some cases up to 1 promille permitted
 
@@ -813,17 +802,17 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     if (! is_float_on_non_msvc)
     {
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_1",
-                3, 16.887537949472005, dz_1[0], dz_1[1]);
+                2, 16.887537949472005, dz_1[0], dz_1[1]);
         test_traverse<polygon, polygon, operation_union>::apply("dz_1",
                 3, 1444.2621305732864, dz_1[0], dz_1[1]);
 
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_2",
                 2, 68.678921274288541, dz_2[0], dz_2[1]);
         test_traverse<polygon, polygon, operation_union>::apply("dz_2",
-                2, 1505.4202304878663, dz_2[0], dz_2[1]);
+                1, 1505.4202304878663, dz_2[0], dz_2[1]);
 
         test_traverse<polygon, polygon, operation_intersection>::apply("dz_3",
-                6, 192.49316937645651, dz_3[0], dz_3[1]);
+                5, 192.49316937645651, dz_3[0], dz_3[1]);
         test_traverse<polygon, polygon, operation_union>::apply("dz_3",
                 6, 1446.496005965641, dz_3[0], dz_3[1]);
 
