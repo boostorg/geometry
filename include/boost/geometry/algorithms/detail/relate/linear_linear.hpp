@@ -335,7 +335,7 @@ struct linear_linear
         void apply(Result & res,
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
-                   OtherGeometry const& other_geometry,
+                   OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& other_boundary_checker)
         {

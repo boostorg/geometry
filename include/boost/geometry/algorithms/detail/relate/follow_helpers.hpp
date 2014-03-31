@@ -70,20 +70,17 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
     {
         typedef typename boost::range_iterator<Geometry const>::type iterator;
 
-        bool found = false;
-
         // O(N)
         // check predicate for each contained geometry without generated turn
         for ( iterator it = boost::begin(geometry) ;
               it != boost::end(geometry) ; ++it )
         {
-            found = true;
             bool cont = pred(*it);
             if ( !cont )
                 break;
         }
         
-        return true;
+        return !boost::empty(geometry);
     }
 
     template <typename TurnIt, typename Pred>
