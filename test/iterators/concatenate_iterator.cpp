@@ -50,7 +50,7 @@ struct is_odd
     }
 };
 
-struct test_concat_iterator
+struct test_concatenate_iterator
 {
     template <typename Container1, typename Container2>
     static inline void apply(Container1& c1, Container2& c2,
@@ -227,27 +227,27 @@ struct test_concat_iterator
 };
 
 
-BOOST_AUTO_TEST_CASE( test_concatenate_iterator )
+BOOST_AUTO_TEST_CASE( test_concatenate_iterator_all )
 {
     {
         std::vector<int> v;
         std::list<int> l;
         
-        test_concat_iterator::apply(v, l, "empty_both");
+        test_concatenate_iterator::apply(v, l, "empty_both");
     }
     {
         std::vector<int> v;
         std::list<int> l;
         l += 10,11,12,13,14,15,16,17,18,19,20;
         
-        test_concat_iterator::apply(v, l, "empty_first");
+        test_concatenate_iterator::apply(v, l, "empty_first");
     }
     {
         std::vector<int> v;
         v += 0,1,2,3,4,5,6;
         std::list<int> l;
         
-        test_concat_iterator::apply(v, l, "empty_second");
+        test_concatenate_iterator::apply(v, l, "empty_second");
     }
     {
         std::vector<int> v;
@@ -255,6 +255,6 @@ BOOST_AUTO_TEST_CASE( test_concatenate_iterator )
         std::list<int> l;
         l += 10,11,12,13,14,15,16,17,18,19,20;
         
-        test_concat_iterator::apply(l, v, "non_empty");
+        test_concatenate_iterator::apply(l, v, "non_empty");
     }
 }
