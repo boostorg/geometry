@@ -312,16 +312,21 @@ struct areal_areal
                 update<boundary, interior, '1', TransposeResult>(m_result);
                 update<boundary, boundary, '0', TransposeResult>(m_result);
             }
-            else if ( op == overlay::operation_continue ||
-                      op == overlay::operation_blocked )
-            {
-                update<boundary, boundary, '1', TransposeResult>(m_result);
-            }
             else if ( op == overlay::operation_union )
             {
                 update<boundary, boundary, '0', TransposeResult>(m_result);
                 update<boundary, exterior, '1', TransposeResult>(m_result);
                 update<interior, exterior, '2', TransposeResult>(m_result);
+            }
+            else if ( op == overlay::operation_continue )
+            {
+                update<boundary, boundary, '1', TransposeResult>(m_result);
+                update<interior, interior, '2', TransposeResult>(m_result);
+            }
+            else if ( op == overlay::operation_blocked )
+            {
+                update<boundary, boundary, '1', TransposeResult>(m_result);
+                update<exterior, exterior, '2', TransposeResult>(m_result);
             }
         }
 
