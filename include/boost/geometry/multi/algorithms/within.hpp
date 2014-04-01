@@ -81,7 +81,8 @@ struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
 {
     template <typename Strategy>
     static inline bool apply(Point const& point,
-                MultiPolygon const& multi_polygon, Strategy const& strategy)
+                             MultiPolygon const& multi_polygon,
+                             Strategy const& strategy)
     {
         return detail::within::geometry_multi_within_code
             <
@@ -101,9 +102,22 @@ struct within<Point, MultiLinestring, point_tag, multi_linestring_tag>
 {
     template <typename Strategy>
     static inline bool apply(Point const& point,
-                MultiLinestring const& multi_linestring, Strategy const& strategy)
+                             MultiLinestring const& multi_linestring,
+                             Strategy const& strategy)
     {
         return detail::within::point_in_geometry(point, multi_linestring, strategy) == 1;
+    }
+};
+
+template <typename Point, typename MultiPoint>
+struct within<Point, MultiPoint, point_tag, multi_point_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point,
+                             MultiPoint const& multi_point,
+                             Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(point, multi_point, strategy) == 1;
     }
 };
 

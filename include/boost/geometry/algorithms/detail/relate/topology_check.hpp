@@ -11,8 +11,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TOPOLOGY_CHECK_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TOPOLOGY_CHECK_HPP
 
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
-#include <boost/geometry/algorithms/detail/range_helpers.hpp>
 
 namespace boost { namespace geometry {
 

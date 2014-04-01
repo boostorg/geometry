@@ -54,7 +54,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
-#include <boost/geometry/algorithms/detail/group_dim.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
@@ -287,8 +286,13 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
+                    bool const is_1_first = sec1.is_non_duplicate_first && index1 == sec1.begin_index;
+                    bool const is_1_last = sec1.is_non_duplicate_last && index1+1 >= sec1.end_index;
+                    bool const is_2_first = sec2.is_non_duplicate_first && index2 == sec2.begin_index;
+                    bool const is_2_last = sec2.is_non_duplicate_last && index2+1 >= sec2.end_index;
+
                     TurnPolicy::apply(*prev1, *it1, *nd_next1, *prev2, *it2, *nd_next2,
-                                      sec1.range_count - 1, sec2.range_count - 1,
+                                      is_1_first, is_1_last, is_2_first, is_2_last,
                                       ti, rescale_policy, std::back_inserter(turns));
 
                     if (InterruptPolicy::enabled)
@@ -598,7 +602,9 @@ struct get_turns_cs
                 get_turns_with_box(seg_id, source_id2,
                         *prev, *it, *next,
                         bp[0], bp[1], bp[2], bp[3],
-                        segments_count1,
+                        // NOTE: some dummy values could be passed below since this would be called only for Polygons and Boxes
+                        index == 0,
+                        unsigned(index) == segments_count1,
                         rescale_policy,
                         turns, interrupt_policy);
                 // Future performance enhancement:
@@ -639,7 +645,8 @@ private:
             box_point_type const& bp1,
             box_point_type const& bp2,
             box_point_type const& bp3,
-            std::size_t segments_count1,
+            bool const is_range_first,
+            bool const is_range_last,
             RescalePolicy const& rescale_policy,
             // Output
             Turns& turns,
@@ -658,22 +665,26 @@ private:
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,
-                          segments_count1, 4,
+                          is_range_first, is_range_last,
+                          true, false,
                           ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         TurnPolicy::apply(rp0, rp1, rp2, bp1, bp2, bp3,
-                          segments_count1, 4,
+                          is_range_first, is_range_last,
+                          false, false,
                           ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         TurnPolicy::apply(rp0, rp1, rp2, bp2, bp3, bp0,
-                          segments_count1, 4,
+                          is_range_first, is_range_last,
+                          false, false,
                           ti, rescale_policy, std::back_inserter(turns));
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         TurnPolicy::apply(rp0, rp1, rp2, bp3, bp0, bp1,
-                          segments_count1, 4,
+                          is_range_first, is_range_last,
+                          false, true,
                           ti, rescale_policy, std::back_inserter(turns));
 
         if (InterruptPolicy::enabled)
@@ -738,9 +749,15 @@ struct get_turns_polygon_cs
 
 // GET_TURN_INFO_TYPE
 
+template <typename Geometry>
+struct topological_tag_base
+{
+    typedef typename tag_cast<typename tag<Geometry>::type, pointlike_tag, linear_tag, areal_tag>::type type;
+};
+
 template <typename Geometry1, typename Geometry2, typename AssignPolicy,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct get_turn_info_type
     : overlay::get_turn_info<AssignPolicy>
 {};
@@ -757,7 +774,7 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
 
 template <typename Geometry1, typename Geometry2,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename group_tag<Geometry1>::type, typename TagBase2 = typename group_tag<Geometry2>::type>
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
     typedef overlay::turn_operation type;

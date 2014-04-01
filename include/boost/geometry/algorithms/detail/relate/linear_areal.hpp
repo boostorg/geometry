@@ -14,9 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
-#include <boost/geometry/algorithms/detail/group_dim.hpp>
-#include <boost/geometry/algorithms/detail/sub_geometry.hpp>
-#include <boost/geometry/algorithms/detail/range_helpers.hpp>
+#include <boost/geometry/core/topological_dimension.hpp>
+#include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
@@ -185,8 +186,8 @@ template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
 struct linear_areal
 {
     // check Linear / Areal
-    BOOST_STATIC_ASSERT(detail::group_dim<Geometry1>::value == 1
-                     && detail::group_dim<Geometry2>::value == 2);
+    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 1
+                     && topological_dimension<Geometry2>::value == 2);
 
     static const bool interruption_enabled = true;
 
@@ -607,6 +608,7 @@ struct linear_areal
                           && !fake_enter_detected
                           && it->operations[op_id].position != overlay::position_front )
                         {
+// TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                             bool from_inside = first_in_range
                                                && calculate_from_inside(geometry,
                                                                         other_geometry,
@@ -621,7 +623,7 @@ struct linear_areal
                             if ( first_in_range )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -692,6 +694,7 @@ struct linear_areal
                         // TODO: very similar code is used in the handling of intersection
                         if ( it->operations[op_id].position != overlay::position_front )
                         {
+// TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                             bool first_from_inside = first_in_range
                                                   && calculate_from_inside(geometry,
                                                                            other_geometry,
@@ -712,7 +715,7 @@ struct linear_areal
                             if ( first_in_range && ( !this_b || op_blocked ) )
                             {
                                 bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                    range::front(sub_geometry::get(geometry, seg_id)),
+                                                    range::front(sub_range(geometry, seg_id)),
                                                     boundary_checker);
 
                                 // if there is a boundary on the first point
@@ -758,7 +761,7 @@ struct linear_areal
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            range::back(sub_range(geometry, prev_seg_id)),
                                             boundary_checker);
 
                     // if there is a boundary on the last point
@@ -779,7 +782,7 @@ struct linear_areal
                     segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
                     bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                            range::back(sub_geometry::get(geometry, prev_seg_id)),
+                                            range::back(sub_range(geometry, prev_seg_id)),
                                             boundary_checker);
 
                     // if there is a boundary on the last point
@@ -832,10 +835,10 @@ struct linear_areal
                     reverse2 ? iterate_reverse : iterate_forward
                 >::type range2_view;
 
-            typedef typename sub_geometry::result_type<Geometry1 const>::type range1_ref;
+            typedef typename sub_range_return_type<Geometry1 const>::type range1_ref;
 
-            range1_ref range1 = sub_geometry::get(geometry1, turn.operations[op_id].seg_id);
-            range2_cview const cview(sub_geometry::get(geometry2, turn.operations[other_op_id].seg_id));
+            range1_ref range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
+            range2_cview const cview(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             range2_view const range2(cview);
 
             std::size_t s1 = boost::size(range1);
@@ -855,18 +858,23 @@ struct linear_areal
             geometry::convert(qi, qi_conv);
             bool is_ip_qj = equals::equals_point_point(turn.point, qj);
 // TODO: test this!
-            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
-            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
+//            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
+//            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
             point1_type new_pj;
             geometry::convert(turn.point, new_pj);
 
             if ( is_ip_qj )
             {
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
-                BOOST_ASSERT(q_seg_jk + 1 < s2);
-                point2_type const& qk = range::at(range2, q_seg_jk + 1);
-                // Will this sequence of point be always correct?
-                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, qk);
+// TODO: the following function should return immediately, however the worst case complexity is O(N)
+// It would be good to replace it with some O(1) mechanism
+                typename boost::range_iterator<range2_view>::type
+                    qk_it = find_next_non_duplicated(boost::begin(range2),
+                                                     boost::begin(range2) + q_seg_jk,
+                                                     boost::end(range2));
+
+                // Will this sequence of points be always correct?
+                overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
 
                 return calculate_from_inside_sides(side_calc);
             }
@@ -879,6 +887,29 @@ struct linear_areal
 
                 return calculate_from_inside_sides(side_calc);
             }
+        }
+
+        template <typename It>
+        static inline It find_next_non_duplicated(It first, It current, It last)
+        {
+            BOOST_ASSERT( current != last );
+
+            It it = current;
+
+            for ( ++it ; it != last ; ++it )
+            {
+                if ( !equals::equals_point_point(*current, *it) )
+                    return it;
+            }
+
+            // if not found start from the beginning
+            for ( it = first ; it != current ; ++it )
+            {
+                if ( !equals::equals_point_point(*current, *it) )
+                    return it;
+            }
+
+            return current;
         }
 
         // calculate inside or outside based on side_calc

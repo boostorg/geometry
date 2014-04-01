@@ -40,7 +40,7 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 //TEST
-#include <to_svg.hpp>
+//#include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
 
@@ -75,8 +75,8 @@ void check_geometry(Geometry1 const& geometry1,
         std::string expected_tr = transposed(expected);
         bool ok = boost::equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
-            "relate: " << wkt1
-            << " and " << wkt2
+            "relate: " << wkt2
+            << " and " << wkt1
             << " -> Expected: " << expected_tr
             << " detected: " << res_str);
     }
@@ -251,9 +251,14 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1,5 3)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
     test_geometry<ls, ls>("LINESTRING(5 3,1 1,3 3,2 2,0 0)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
 
-    // spike
-    test_geometry<ls, ls>("LINESTRING(0 0,10 0)",
+    // spikes
+    // FOR NOW DISABLED
+    /*test_geometry<ls, ls>("LINESTRING(0 0,10 0)",
                           "LINESTRING(1 0,9 0,2 0)", "101FF0FF2");
+    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,3 3,6 3)", "1FF00F102");
+    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,4 4,6 3)", "1FF00F102");*/
+
+    test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,4 4)", "LINESTRING(0 0,1 1,4 4)", "1FFF0FFF2");
 
     // loop i/i i/i u/u u/u
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)",
@@ -312,6 +317,10 @@ void test_linestring_linestring()
                           "1F10F0102");
     test_geometry<ls, ls>("LINESTRING(1 0,5 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
                           "1F10F0102");
+
+    // duplicated points
+    test_geometry<ls, ls>("LINESTRING(1 1, 2 2, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
+    test_geometry<ls, ls>("LINESTRING(1 1, 1 1, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
 
     // linear ring
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(5 0,9 0,5 5,1 0,5 0)", "1F1FF01F2");
@@ -426,8 +435,28 @@ void test_linestring_polygon()
     // IB1 IE
     test_geometry<ls, poly>("LINESTRING(10 10,10 5,15 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "F11F00212");
 
-    // II IB0 IE
-    test_geometry<ls, poly>("LINESTRING(5 5,10 5,15 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+    // duplicated points
+    {
+        // II IB0 IE
+        test_geometry<ls, poly>("LINESTRING(5 5,10 5,15 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+        test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,10 5,10 5,10 5,15 10,15 10,15 10)",
+            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+            "1010F0212");
+        test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,10 0,10 0,10 0,15 10,15 10,15 10)",
+            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+            "1010F0212");
+        // IE IB0 II
+        test_geometry<ls, poly>("LINESTRING(15 10,15 10,15 10,10 5,10 5,10 5,5 5,5 5,5 5)",
+            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+            "1010F0212");
+        test_geometry<ls, poly>("LINESTRING(15 10,15 10,15 10,10 0,10 0,10 0,5 5,5 5,5 5)",
+            "POLYGON((0 0,0 0,0 0,0 10,0 10,0 10,10 10,10 10,10 10,10 0,10 0,10 0,0 0,0 0,0 0))",
+            "1010F0212");
+
+        // TEST
+        //test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+        test_geometry<ls, poly>("LINESTRING(5 5,5 5,5 5,15 5,15 5,15 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", "1010F0212");
+    }
 
     // non-simple polygon with hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
