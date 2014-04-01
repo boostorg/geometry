@@ -442,7 +442,7 @@ struct linear_areal
                 {
                     // real exit point - may be multiple
                     // we know that we entered and now we exit
-                    if ( !detail::equals::equals_point_point(it->point, m_exit_watcher.get_exit_point()) )
+                    if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
                     {
                         m_exit_watcher.reset_detected_exit();
                     
@@ -480,7 +480,7 @@ struct linear_areal
                 if ( m_interior_detected )
                 {
                     // real interior overlap
-                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
                     {
                         update<interior, interior, '1', TransposeResult>(res);
                         m_interior_detected = false;
@@ -522,7 +522,7 @@ struct linear_areal
                   || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
                 {
                     bool no_enters_detected = m_exit_watcher.is_outside();
-                    m_exit_watcher.enter(it->point, other_id);
+                    m_exit_watcher.enter(*it);
 
                     if ( op == overlay::operation_intersection )
                     {
@@ -664,7 +664,7 @@ struct linear_areal
                                 update<interior, interior, '1', TransposeResult>(res);
 
                                 // notify the exit_watcher that we started inside
-                                m_exit_watcher.enter(it->point, other_id);
+                                m_exit_watcher.enter(*it);
                             }
                             else
                             {
@@ -695,7 +695,7 @@ struct linear_areal
                       || it->operations[op_id].is_collinear )
                     {
                         // notify the exit watcher about the possible exit
-                        m_exit_watcher.exit(it->point, other_id, op);
+                        m_exit_watcher.exit(*it);
                     }
                 }
 
@@ -892,7 +892,7 @@ struct linear_areal
         }
 
     private:
-        exit_watcher<turn_point_type> m_exit_watcher;
+        exit_watcher<TurnInfo, op_id> m_exit_watcher;
         segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;

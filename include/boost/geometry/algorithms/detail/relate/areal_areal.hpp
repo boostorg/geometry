@@ -133,22 +133,20 @@ struct areal_areal
         if ( turns.empty() )
             return;
 
-//
-//        {
-//            // for different multi or same ring id: x, u, i, c
-//            // for same multi and different ring id: c, i, u, x
-//            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
-//
-//            turns_analyser<turn_type> analyser;
-//            analyse_each_turn(result, analyser,
-//                              turns.begin(), turns.end(),
-//                              geometry1, geometry2,
-//                              boundary_checker1);
-//
-//            if ( result.interrupt )
-//                return;
-//        }
-//
+        //{
+        //    // for different multi or same ring id: u, i, x, c
+        //    // for same multi and different ring id: c, x, i, u
+        //    std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,1,2,3,4,0,0>());
+
+        //    turns_analyser<turn_type> analyser;
+        //    analyse_each_turn(result, analyser,
+        //                      turns.begin(), turns.end(),
+        //                      geometry1, geometry2);
+
+        //    if ( result.interrupt )
+        //        return;
+        //}
+
 //// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
 ////       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
 //
@@ -326,7 +324,9 @@ struct areal_areal
             else if ( op == overlay::operation_blocked )
             {
                 update<boundary, boundary, '1', TransposeResult>(m_result);
-                update<exterior, exterior, '2', TransposeResult>(m_result);
+                // NOTE: currently E^E is set without any checks before turns are gathered
+                // so currently the following line is redundant
+                //update<exterior, exterior, '2', TransposeResult>(m_result);
             }
         }
 
@@ -387,7 +387,7 @@ struct areal_areal
                 {
                     // real exit point - may be multiple
                     // we know that we entered and now we exit
-                    if ( !detail::equals::equals_point_point(it->point, m_exit_watcher.get_exit_point()) )
+                    if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
                     {
                         m_exit_watcher.reset_detected_exit();
                     
@@ -425,7 +425,7 @@ struct areal_areal
                 if ( m_interior_detected )
                 {
                     // real interior overlap
-                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
+                    if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
                     {
                         update<interior, interior, '1', TransposeResult>(res);
                         m_interior_detected = false;
@@ -467,7 +467,7 @@ struct areal_areal
                   || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
                 {
                     bool no_enters_detected = m_exit_watcher.is_outside();
-                    m_exit_watcher.enter(it->point, other_id);
+                    m_exit_watcher.enter(*it);
 
                     if ( op == overlay::operation_intersection )
                     {
@@ -640,7 +640,7 @@ struct areal_areal
                       || it->operations[op_id].is_collinear )
                     {
                         // notify the exit watcher about the possible exit
-                        m_exit_watcher.exit(it->point, other_id, op);
+                        m_exit_watcher.exit(*it);
                     }
                 }
 
@@ -837,7 +837,7 @@ struct areal_areal
         }
 
     private:
-        exit_watcher<turn_point_type> m_exit_watcher;
+        exit_watcher<TurnInfo, 0> m_exit_watcher;
         segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;

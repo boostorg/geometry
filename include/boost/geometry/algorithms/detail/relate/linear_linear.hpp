@@ -245,7 +245,7 @@ struct linear_linear
             // x, u, i, c
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
 
-            turns_analyser<0, turn_type> analyser;
+            turns_analyser<turn_type, 0> analyser;
             analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
@@ -259,7 +259,7 @@ struct linear_linear
             // x, u, i, c
             std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
 
-            turns_analyser<1, turn_type> analyser;
+            turns_analyser<turn_type, 1> analyser;
             analyse_each_turn(result, analyser,
                               turns.begin(), turns.end(),
                               geometry2, geometry1,
@@ -311,7 +311,7 @@ struct linear_linear
     };
 
     // This analyser should be used like Input or SinglePass Iterator
-    template <std::size_t OpId, typename TurnInfo>
+    template <typename TurnInfo, std::size_t OpId>
     class turns_analyser
     {
         typedef typename TurnInfo::point_type turn_point_type;
@@ -361,7 +361,7 @@ struct linear_linear
                 {
                     // real exit point - may be multiple
                     // we know that we entered and now we exit
-                    if ( !detail::equals::equals_point_point(it->point, m_exit_watcher.get_exit_point()) )
+                    if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
                     {
                         m_exit_watcher.reset_detected_exit();
                     
@@ -413,7 +413,7 @@ struct linear_linear
                 if ( op == overlay::operation_intersection )
                 {
                     bool was_outside = m_exit_watcher.is_outside();
-                    m_exit_watcher.enter(it->point, other_id);
+                    m_exit_watcher.enter(*it);
 
                     // interiors overlaps
                     update<interior, interior, '1', transpose_result>(res);
@@ -479,7 +479,7 @@ struct linear_linear
                     // to exit we must be currently inside and the current segment must be collinear
                     if ( !was_outside && is_collinear )
                     {
-                        m_exit_watcher.exit(it->point, other_id, op);
+                        m_exit_watcher.exit(*it);
                     }
 
                     bool op_blocked = op == overlay::operation_blocked;
@@ -638,7 +638,7 @@ struct linear_linear
         }
 
     private:
-        exit_watcher<turn_point_type> m_exit_watcher;
+        exit_watcher<TurnInfo, OpId> m_exit_watcher;
         segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;

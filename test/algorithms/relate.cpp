@@ -40,7 +40,7 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
 
@@ -318,6 +318,10 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(1 0,5 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
                           "1F10F0102");
 
+    // self-IP going out and in on the same point
+    test_geometry<ls, ls>("LINESTRING(2 0,5 0,5 5,6 5,5 0,8 0)", "LINESTRING(1 0,9 0)",
+                          "1F10FF102");
+
     // duplicated points
     test_geometry<ls, ls>("LINESTRING(1 1, 2 2, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
     test_geometry<ls, ls>("LINESTRING(1 1, 1 1, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
@@ -530,6 +534,13 @@ void test_linestring_polygon()
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2))",
                             "F1FFFF212");
 
+    // self-IP going on the boundary then into the exterior and to the boundary again
+    test_geometry<ls, poly>("LINESTRING(2 10,5 10,5 15,6 15,5 10,8 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "F11F0F212");
+    // self-IP going on the boundary then into the interior and to the boundary again
+    test_geometry<ls, poly>("LINESTRING(2 10,5 10,5 5,6 5,5 10,8 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "11FF0F212");
+
     // ccw
     {
         typedef bg::model::polygon<P, false> ccwpoly;
@@ -666,6 +677,30 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((0 20,0 30,10 30,10 20,0 20))",
                               "FF2FF1212");
+
+    // NON-SIMPLE
+
+    // equal non-simple / hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "2FFF1FFF2");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "a.svg");
+
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                        "POLYGON((0 0,5 5,10 5,10 0,0 0))",
+                        "b1.svg");
+    to_svg<poly, poly>("POLYGON((0 0,5 5,10 5,10 0,0 0))",
+                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                       "b2.svg");
+
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                       "POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                       "c1.svg");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                       "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                       "c2.svg");
 }
 
 template <typename P>
