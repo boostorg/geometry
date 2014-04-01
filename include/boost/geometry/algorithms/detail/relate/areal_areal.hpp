@@ -304,17 +304,22 @@ struct areal_areal
 
             overlay::operation_type op = turn.operations[Id].operation;
 
+            // NOTE: currently E^E is set without any checks before turns are gathered
+            // the lines commented out are redundant
+
             if ( op == overlay::operation_intersection )
             {
                 update<interior, interior, '2', TransposeResult>(m_result);
                 update<boundary, interior, '1', TransposeResult>(m_result);
                 update<boundary, boundary, '0', TransposeResult>(m_result);
+                update<exterior, interior, '2', TransposeResult>(m_result);
             }
             else if ( op == overlay::operation_union )
             {
-                update<boundary, boundary, '0', TransposeResult>(m_result);
-                update<boundary, exterior, '1', TransposeResult>(m_result);
                 update<interior, exterior, '2', TransposeResult>(m_result);
+                update<boundary, exterior, '1', TransposeResult>(m_result);
+                update<boundary, boundary, '0', TransposeResult>(m_result);
+                //update<exterior, exterior, '2', TransposeResult>(m_result);
             }
             else if ( op == overlay::operation_continue )
             {
@@ -324,8 +329,6 @@ struct areal_areal
             else if ( op == overlay::operation_blocked )
             {
                 update<boundary, boundary, '1', TransposeResult>(m_result);
-                // NOTE: currently E^E is set without any checks before turns are gathered
-                // so currently the following line is redundant
                 //update<exterior, exterior, '2', TransposeResult>(m_result);
             }
         }
