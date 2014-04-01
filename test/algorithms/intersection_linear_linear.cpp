@@ -704,7 +704,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
                       (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
                       (30 0,30 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),\
-                      (5 0,18 0,19 0,20 0))"),
+                      (5 0,18 0,19 0,20 0),(30 0))"),
          "lmli20c"
          );
 
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
                       (2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),\
                       (30 0,30 0,31 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0),(1 0),(2 0),(3 0),\
-                      (5 0,18 0,19 0,20 0))"),
+                      (5 0,18 0,19 0,20 0),(30 0))"),
          "lmli20d"
          );
 }
