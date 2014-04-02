@@ -57,22 +57,51 @@ struct ls_less
 };
 
 
+template <typename Linestring1, typename Linestring2>
+struct ls_equal
+{
+    bool operator()(Linestring1 const& linestring1,
+                    Linestring2 const& linestring2) const
+    {
+        ls_less<Linestring1, Linestring2> less;
+
+        return !less(linestring1, linestring2)
+            && !less(linestring2, linestring1);
+    }    
+};
 
 
-template <typename MultiLinestring1, typename MultiLinestring2>
+template <bool EnableUnique = false>
 struct multilinestring_equals
 {
+    template <typename MultiLinestring, bool Enable>
+    struct unique
+    {
+        typedef typename boost::range_value<MultiLinestring>::type Linestring;
+        typedef ls_equal<Linestring, Linestring> linestring_equal;
+
+        void operator()(MultiLinestring& mls)
+        {
+            mls.erase(std::unique(boost::begin(mls),
+                                  boost::end(mls),
+                                  linestring_equal()),
+                      boost::end(mls));
+        }
+    };
+
+    template <typename MultiLinestring>
+    struct unique<MultiLinestring, false>
+    {
+        void operator()(MultiLinestring& mls)
+        {
+        }
+    };
+
+    template <typename MultiLinestring1, typename MultiLinestring2>
     static inline
     bool apply(MultiLinestring1 const& multilinestring1,
                MultiLinestring2 const& multilinestring2)
     {
-        MultiLinestring1 mls1 = multilinestring1;
-        MultiLinestring2 mls2 = multilinestring2;
-        if ( boost::size(mls1) != boost::size(mls2) )
-        {
-            return false;
-        }
-
         typedef typename boost::range_iterator
             <
                 MultiLinestring1 const
@@ -99,8 +128,19 @@ struct multilinestring_equals
 
         typedef ls_less<Linestring1, Linestring2> linestring_less;
 
+        MultiLinestring1 mls1 = multilinestring1;
+        MultiLinestring2 mls2 = multilinestring2;
+
         std::sort(boost::begin(mls1), boost::end(mls1), linestring_less());
         std::sort(boost::begin(mls2), boost::end(mls2), linestring_less());
+
+        unique<MultiLinestring1, EnableUnique>()(mls1);
+        unique<MultiLinestring2, EnableUnique>()(mls2);
+
+        if ( boost::size(mls1) != boost::size(mls2) )
+        {
+            return false;
+        }
 
         ls1_iterator it1 = boost::begin(mls1);
         ls2_iterator it2 = boost::begin(mls2);
@@ -170,10 +210,7 @@ private:
     static inline bool apply_base(MultiLinestring1 const& multilinestring1,
                                   MultiLinestring2 const& multilinestring2)
     {
-        typedef multilinestring_equals
-            <
-                MultiLinestring1, MultiLinestring2
-            > mls_equals;
+        typedef multilinestring_equals<true> mls_equals;
 
         if ( mls_equals::apply(multilinestring1, multilinestring2) )
         {
