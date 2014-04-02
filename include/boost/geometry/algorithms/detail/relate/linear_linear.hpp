@@ -344,8 +344,8 @@ struct linear_linear
             overlay::operation_type op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
-                && op != overlay::operation_intersection
-                && op != overlay::operation_blocked )
+              && op != overlay::operation_intersection
+              && op != overlay::operation_blocked )
             {
                 return;
             }

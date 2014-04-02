@@ -149,6 +149,22 @@ struct areal_areal
                 return;
         }
 
+        {
+            typedef turns::less_seg_dist_op<0,1,2,3,4,0, 1,
+                                turns::less_ignore_other> less;
+
+            // u, i, x, c
+            std::sort(turns.begin(), turns.end(), less());
+
+            turns_analyser<turn_type, 1> analyser;
+            analyse_each_turn(result, analyser,
+                              turns.begin(), turns.end(),
+                              geometry2, geometry1);
+
+            if ( result.interrupt )
+                return;
+        }
+
 //// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
 ////       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
 //
@@ -291,47 +307,42 @@ struct areal_areal
             
             for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
-                per_turn<0, false>(*it);
-                per_turn<1, true>(*it);
+                per_turn<0>(*it);
+                per_turn<1>(*it);
             }
 
             return m_result.interrupt;
         }
 
     private:
-        template <std::size_t Id, bool TransposeResult, typename Turn>
+        template <std::size_t OpId, typename Turn>
         inline void per_turn(Turn const& turn)
         {
-// THIS WON'T WORK FOR NON-SIMPLE GEOMETRIES!
+            static const bool transpose_result = OpId != 0;
 
-            overlay::operation_type op = turn.operations[Id].operation;
+            overlay::operation_type op = turn.operations[OpId].operation;
 
-            // NOTE: currently E^E is set without any checks before turns are gathered
-            // the lines commented out are redundant
-
-            if ( op == overlay::operation_intersection )
+            if ( op == overlay::operation_union )
             {
-                update<interior, interior, '2', TransposeResult>(m_result);
-                update<boundary, interior, '1', TransposeResult>(m_result);
-                update<boundary, boundary, '0', TransposeResult>(m_result);
-                update<exterior, interior, '2', TransposeResult>(m_result);
+                //update<interior, exterior, '2', transpose_result>(m_result);
+                //update<boundary, exterior, '1', transpose_result>(m_result);
+                update<boundary, boundary, '0', transpose_result>(m_result);
             }
-            else if ( op == overlay::operation_union )
+            else if ( op == overlay::operation_intersection )
             {
-                update<interior, exterior, '2', TransposeResult>(m_result);
-                update<boundary, exterior, '1', TransposeResult>(m_result);
-                update<boundary, boundary, '0', TransposeResult>(m_result);
-                //update<exterior, exterior, '2', TransposeResult>(m_result);
+                update<interior, interior, '2', transpose_result>(m_result);
+                //update<boundary, interior, '1', transpose_result>(m_result);
+                update<boundary, boundary, '0', transpose_result>(m_result);
             }
             else if ( op == overlay::operation_continue )
             {
-                update<boundary, boundary, '1', TransposeResult>(m_result);
-                update<interior, interior, '2', TransposeResult>(m_result);
+                update<boundary, boundary, '1', transpose_result>(m_result);
+                update<interior, interior, '2', transpose_result>(m_result);
             }
             else if ( op == overlay::operation_blocked )
             {
-                update<boundary, boundary, '1', TransposeResult>(m_result);
-                //update<exterior, exterior, '2', TransposeResult>(m_result);
+                update<boundary, boundary, '1', transpose_result>(m_result);
+                update<interior, exterior, '2', transpose_result>(m_result);
             }
         }
 
@@ -355,13 +366,15 @@ struct areal_areal
         turns_analyser()
             : m_previous_turn_ptr(0)
             , m_previous_operation(overlay::operation_none)
+            , m_enter_detected(false)
+            , m_exit_detected(false)
         {}
 
         template <typename Result,
                   typename TurnIt,
                   typename Geometry,
                   typename OtherGeometry>
-        void apply(Result & res,
+        void apply(Result & result,
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry)
@@ -371,9 +384,9 @@ struct areal_areal
             overlay::operation_type op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
-                && op != overlay::operation_intersection
-                && op != overlay::operation_blocked
-                && op != overlay::operation_continue )
+              && op != overlay::operation_intersection
+              && op != overlay::operation_blocked
+              && op != overlay::operation_continue )
             {
                 return;
             }
@@ -383,16 +396,52 @@ struct areal_areal
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
 
-                
             // TODO
+
+            if ( m_previous_turn_ptr )
+            {
+                if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
+                {
+                    // real exit point - may be multiple
+                    if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                    {
+                        update_exit(result);
+                        m_exit_detected = false;
+                    }
+                    // fake exit point, reset state
+                    else if ( op != overlay::operation_union )
+                    {
+                        m_exit_detected = false;
+                    }
+                }
+                else if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
+                {
+                    // real entry point
+                    if ( op == overlay::operation_union // optimization
+                      || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                    {
+                        update_enter(result);
+                        m_enter_detected = false;
+                    }
+                    // fake exit point, reset state
+                    else if ( op == overlay::operation_continue
+                           || op == overlay::operation_blocked )
+                    {
+                        m_enter_detected = false;
+                    }
+                }
+            }
 
             if ( op == overlay::operation_union )
             {
-                // TODO
+                //update<boundary, boundary, '0', transpose_result>(m_result);
+                m_exit_detected = true;
             }
             else if ( op == overlay::operation_intersection )
             {
-                // TODO
+                //update<interior, interior, '2', transpose_result>(result);
+                //update<boundary, boundary, '0', transpose_result>(result);
+                m_enter_detected = true;
             }
             else if ( op == overlay::operation_blocked )
             {
@@ -414,25 +463,46 @@ struct areal_areal
                   typename TurnIt,
                   typename Geometry,
                   typename OtherGeometry>
-        void apply(Result & res,
+        void apply(Result & result,
                    TurnIt first, TurnIt last,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry)
         {
             //BOOST_ASSERT( first != last );
 
-            // TODO
-                
-                
-            // Reset data before the analysis of the next Linestring
-            
-            // TODO
+            if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
+            {
+                update_exit(result);
+                m_exit_detected = false;
+            }
+
+            if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
+            {
+                update_enter(result);
+                m_enter_detected = false;
+            }
+        }
+
+        template <typename Result>
+        static inline void update_exit(Result & result)
+        {
+            update<interior, exterior, '2', transpose_result>(result);
+            update<boundary, exterior, '1', transpose_result>(result);
+        }
+
+        template <typename Result>
+        static inline void update_enter(Result & result)
+        {
+            update<boundary, interior, '1', transpose_result>(result);
+            update<exterior, interior, '2', transpose_result>(result);
         }
 
     private:
         segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
+        bool m_enter_detected;
+        bool m_exit_detected;
     };
 
     // call analyser.apply() for each turn in range

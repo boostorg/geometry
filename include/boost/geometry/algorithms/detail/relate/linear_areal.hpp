@@ -424,9 +424,9 @@ struct linear_areal
             overlay::operation_type op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
-                && op != overlay::operation_intersection
-                && op != overlay::operation_blocked
-                && op != overlay::operation_continue ) // operation_boundary / operation_boundary_intersection
+              && op != overlay::operation_intersection
+              && op != overlay::operation_blocked
+              && op != overlay::operation_continue ) // operation_boundary / operation_boundary_intersection
             {
                 return;
             }
@@ -519,7 +519,7 @@ struct linear_areal
 
             // i/u, c/u
             if ( op == overlay::operation_intersection
-                || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
+              || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
             {
                 bool no_enters_detected = m_exit_watcher.is_outside();
                 m_exit_watcher.enter(*it);
@@ -565,8 +565,8 @@ struct linear_areal
 
                     // if we didn't enter in the past, we were outside
                     if ( no_enters_detected
-                        && !fake_enter_detected
-                        && it->operations[op_id].position != overlay::position_front )
+                      && ! fake_enter_detected
+                      && it->operations[op_id].position != overlay::position_front )
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                         bool from_inside = first_in_range
@@ -692,7 +692,7 @@ struct linear_areal
 
                 // if we're going along a boundary, we exit only if the linestring was collinear
                 if ( m_boundary_counter == 0
-                    || it->operations[op_id].is_collinear )
+                  || it->operations[op_id].is_collinear )
                 {
                     // notify the exit watcher about the possible exit
                     m_exit_watcher.exit(*it);
