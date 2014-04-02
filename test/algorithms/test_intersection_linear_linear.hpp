@@ -131,6 +131,7 @@ private:
         bg::intersection(geometry2, geometry1, mls21_output);
         bg::intersection(geometry2, geometry1, mp21_output);
 
+#ifdef GEOMETRY_TEST_DEBUG
         std::cout << "************************************" << std::endl;
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
@@ -147,6 +148,7 @@ private:
         std::cout << "************************************" << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
+#endif
     }
 
 
