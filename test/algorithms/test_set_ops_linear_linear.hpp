@@ -7,8 +7,8 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_TEST_SET_OPS_COMMON_HPP
-#define BOOST_GEOMETRY_TEST_SET_OPS_COMMON_HPP
+#ifndef BOOST_GEOMETRY_TEST_SET_OPS_LINEAR_LINEAR_HPP
+#define BOOST_GEOMETRY_TEST_SET_OPS_LINEAR_LINEAR_HPP
 
 
 #include <string>
@@ -304,4 +304,4 @@ void set_operation_output(std::string const& set_op_id,
 }
 
 
-#endif // BOOST_GEOMETRY_TEST_SET_OPS_COMMON_HPP
+#endif // BOOST_GEOMETRY_TEST_SET_OPS_LINEAR_LINEAR_HPP
