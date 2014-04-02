@@ -318,6 +318,7 @@ struct areal_areal
         template <std::size_t OpId, typename Turn>
         inline void per_turn(Turn const& turn)
         {
+            static const std::size_t other_op_id = (OpId + 1) % 2;
             static const bool transpose_result = OpId != 0;
 
             overlay::operation_type op = turn.operations[OpId].operation;
@@ -330,8 +331,13 @@ struct areal_areal
             }
             else if ( op == overlay::operation_intersection )
             {
-                update<interior, interior, '2', transpose_result>(m_result);
-                //update<boundary, interior, '1', transpose_result>(m_result);
+                // ignore i/i
+                if ( turn.operations[other_op_id].operation != overlay::operation_intersection )
+                {
+                    update<interior, interior, '2', transpose_result>(m_result);
+                    //update<boundary, interior, '1', transpose_result>(m_result);
+                }
+
                 update<boundary, boundary, '0', transpose_result>(m_result);
             }
             else if ( op == overlay::operation_continue )
@@ -391,12 +397,10 @@ struct areal_areal
                 return;
             }
 
-            segment_identifier const& seg_id = it->operations[op_id].seg_id;
-            segment_identifier const& other_id = it->operations[other_op_id].seg_id;
+            //segment_identifier const& seg_id = it->operations[op_id].seg_id;
+            //segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
-            const bool first_in_range = m_seg_watcher.update(seg_id);
-
-            // TODO
+            //const bool first_in_range = m_seg_watcher.update(seg_id);
 
             if ( m_previous_turn_ptr )
             {
@@ -434,22 +438,28 @@ struct areal_areal
 
             if ( op == overlay::operation_union )
             {
+                // already set in interrupt policy
                 //update<boundary, boundary, '0', transpose_result>(m_result);
                 m_exit_detected = true;
             }
             else if ( op == overlay::operation_intersection )
             {
-                //update<interior, interior, '2', transpose_result>(result);
-                //update<boundary, boundary, '0', transpose_result>(result);
-                m_enter_detected = true;
+                // ignore i/i
+                if ( it->operations[other_op_id].operation != overlay::operation_intersection )
+                {
+                    // already set in interrupt policy
+                    //update<interior, interior, '2', transpose_result>(result);
+                    //update<boundary, boundary, '0', transpose_result>(result);
+                    m_enter_detected = true;
+                }
             }
             else if ( op == overlay::operation_blocked )
             {
-                // TODO
+                // already set in interrupt policy
             }
             else // if ( op == overlay::operation_continue )
             {
-                // TODO
+                // already set in interrupt policy
             }
 
             // store ref to previously analysed (valid) turn
@@ -498,7 +508,7 @@ struct areal_areal
         }
 
     private:
-        segment_watcher m_seg_watcher;
+        //segment_watcher m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         bool m_enter_detected;

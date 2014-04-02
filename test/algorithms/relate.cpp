@@ -389,6 +389,23 @@ void test_linestring_multi_linestring()
 }
 
 template <typename P>
+void test_multi_linestring_multi_linestring()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
+    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
+                     "mls_mls1.svg");
+    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
+                     "mls_mls2.svg");
+    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(0 0,0 0,0 10,0 10))",
+                     "mls_mls3.svg");
+}
+
+template <typename P>
 void test_linestring_polygon()
 {
     typedef bg::model::linestring<P> ls;
@@ -709,6 +726,9 @@ void polygon_polygon()
                               "POLYGON((0 0,0 10,10 10,9 5,10 0,0 0))",
                               "2121112F2");
 
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,9 5,5 6,5 5))",
+                       "POLYGON((0 0,0 10,10 10,9 5,10 0,0 0))",
+                       "c0.svg");
     to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
                         "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                        "c1.svg");
@@ -725,6 +745,18 @@ void polygon_polygon()
     to_svg<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
                        "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5),(5 5,8 4,8 6,5 5))",
                        "c5.svg");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
+                       "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
+                       "c6.svg");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 3,10 5,5 7,5 3))",
+                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 3,10 5,5 7,5 3))",
+                       "c7.svg");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 3,10 5,5 7,5 3))",
+                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(6 4,10 5,6 6,6 4))",
+                       "c8.svg");
+    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 3,10 5,5 7,5 3))",
+                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 2,10 5,4 8,4 2))",
+                       "c9.svg");
 }
 
 template <typename P>
@@ -758,6 +790,7 @@ void test_all()
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
+    test_multi_linestring_multi_linestring<P>();
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
     test_multi_linestring_multi_polygon<P>();
