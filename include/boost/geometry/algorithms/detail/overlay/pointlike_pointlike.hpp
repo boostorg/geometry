@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
+
 
 namespace boost { namespace geometry
 {
