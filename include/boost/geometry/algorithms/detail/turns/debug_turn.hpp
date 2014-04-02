@@ -12,6 +12,7 @@
 
 #include <boost/range.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace boost { namespace geometry
 {
