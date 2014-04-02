@@ -97,16 +97,14 @@ static inline bool is_leaving(Turn const& turn,
 template <typename Turn, typename Operation>
 static inline bool is_isolated_point(Turn const& turn,
                                      Operation const& operation,
-                                     bool entered,
-                                     bool is_point1,
-                                     bool is_point2)
+                                     bool entered)
 {
     if ( entered )
     {
         return false;
     }
 
-    if ( turn.method == method_collinear && (is_point1 || is_point2) )
+    if ( turn.method == method_collinear )
     {
         BOOST_ASSERT( operation.operation == operation_continue );
         return true;
@@ -138,33 +136,6 @@ static inline bool is_isolated_point(Turn const& turn,
 
 
 
-template <bool Enable>
-struct is_point
-{
-    template <typename Linestring>
-    static inline bool apply(Linestring const& linestring)
-    {
-        return false;
-    }
-};
-
-
-template<>
-struct is_point<true>
-{
-    template <typename Linestring>
-    static inline bool apply(Linestring const& linestring)
-    {
-        BOOST_ASSERT( boost::size(linestring) >= 2 );
-
-        return boost::size(linestring) == 2
-            && geometry::equals(*boost::begin(linestring),
-                                *(++boost::begin(linestring))
-                                );
-    }
-};
-
-
 
 
 
@@ -172,13 +143,14 @@ struct is_point<true>
 
 template
 <
-    typename LineStringOut,
-    typename LineString1,
-    typename LineString2,
+    typename LinestringOut,
+    typename Linestring,
+    typename Linear,
     overlay_type OverlayType,
-    bool FollowIsolatedPoints
+    bool FollowIsolatedPoints,
+    bool FollowContinueTurns
 >
-class follow_linestring_linestring_linestring
+class follow_linestring_linear_linestring
 {
 protected:
     typedef following::action_selector<OverlayType> action;
@@ -195,14 +167,28 @@ protected:
                  TurnOperationIterator op_it,
                  bool& first, bool& entered,
                  std::size_t& enter_count,
-                 LineString1 const& linestring1,
-                 LineString2 const& linestring2,
-                 bool is_point1,
-                 bool is_point2,
-                 LineStringOut& current_piece,
+                 Linestring const& linestring,
+                 Linear const& /* linear */,
+                 LinestringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
     {
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "checking conditions: " << std::endl;
+        std::cout << "turn point: " << geometry::dsv(it->point) << std::endl;
+        std::cout << std::boolalpha;
+        std::cout << "entering? " << is_entering(*it, *op_it)
+                  << std::endl;
+        std::cout << "leaving?  " << is_leaving(*it, *op_it, entered)
+                  << std::endl;
+        std::cout << "isolated? "
+                  << is_isolated_point(*it, *op_it, entered)
+                  << std::endl;
+        std::cout << "staying?  " << is_staying_inside(*it, *op_it, entered)
+                  << std::endl;
+        std::cout << std::noboolalpha << std::endl;
+#endif
+
         if ( is_entering(*it, *op_it) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -212,7 +198,7 @@ protected:
             entered = true;
             if ( enter_count == 0 )
             {
-                action::enter(current_piece, linestring1,
+                action::enter(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
                               it->point, *op_it, oit);
@@ -229,7 +215,7 @@ protected:
             if ( enter_count == 0 )
             {
                 entered = false;
-                action::leave(current_piece, linestring1,
+                action::leave(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
                               it->point, *op_it, oit);
@@ -237,19 +223,20 @@ protected:
         }
 #ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
         else if ( FollowIsolatedPoints
-                  && is_isolated_point(*it, *op_it, entered, is_point1, is_point2) )
+                  && is_isolated_point(*it, *op_it, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Isolated point");
 #endif
 
-            action::isolated_point(current_piece, linestring1,
+            action::isolated_point(current_piece, linestring,
                                    current_segment_id,
                                    op_it->seg_id.segment_index,
                                    it->point, *op_it, oit);
         }
 #endif
-        else if ( is_staying_inside(*it, *op_it, entered) )
+        else if ( FollowContinueTurns
+                  && is_staying_inside(*it, *op_it, entered) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Staying inside");
@@ -268,16 +255,16 @@ protected:
     >
     static inline OutputIterator
     process_end(bool entered,
-                LineString1 const& linestring1,
+                Linestring const& linestring,
                 SegmentIdentifier const& current_segment_id,
-                LineStringOut& current_piece,
+                LinestringOut& current_piece,
                 OutputIterator oit)
     {
         if ( action::is_entered(entered) )
         {
-            geometry::copy_segments<false>(linestring1,
+            geometry::copy_segments<false>(linestring,
                                            current_segment_id,
-                                           boost::size(linestring1) - 1,
+                                           boost::size(linestring) - 1,
                                            current_piece);
         }
 
@@ -291,47 +278,44 @@ protected:
     }
 
 public:
-    template <typename Turns, typename OutputIterator>
-    static inline OutputIterator apply(LineString1 const& linestring1,
-                                       LineString2 const& linestring2,
-                                       Turns const& turns,
-                                       OutputIterator oit)
+    template <typename TurnIterator, typename OutputIterator>
+    static inline OutputIterator
+    apply(Linestring const& linestring, Linear const& linear,
+          TurnIterator start, TurnIterator beyond,
+          OutputIterator oit)
     {
-        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
-        typedef typename boost::range_value<Turns>::type TurnInfo;
         typedef typename boost::range_iterator
             <
-                typename TurnInfo::container_type const
-            >::type TurnOperationIterator;
+                typename std::iterator_traits
+                    <
+                        TurnIterator
+                    >::value_type::container_type const
+            >::type turn_operation_iterator;
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        LineStringOut current_piece;
+        LinestringOut current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
 
         bool entered = false;
         bool first = true;
         std::size_t enter_count = 0;
 
-        bool is_point1 = is_point<FollowIsolatedPoints>::apply(linestring1);
-        bool is_point2 = is_point<FollowIsolatedPoints>::apply(linestring2);
-
-        for (TurnIterator it = boost::begin(turns); it != boost::end(turns); ++it)
+        for (TurnIterator it = start; it != beyond; ++it)
         {
-            TurnOperationIterator op_it = boost::begin(it->operations);
+            turn_operation_iterator op_it = boost::begin(it->operations);
 
             oit = process_turn(it, op_it,
                                first, entered, enter_count, 
-                               linestring1, linestring2,
-                               is_point1, is_point2,
+                               linestring, linear,
                                current_piece, current_segment_id,
                                oit);
         }
 
         BOOST_ASSERT( enter_count == 0 );
 
-        return process_end(entered, linestring1,
+        return process_end(entered, linestring,
                            current_segment_id, current_piece,
                            oit);
     }
@@ -339,429 +323,212 @@ public:
 
 
 
+
 template
 <
-    typename LineStringOut,
-    typename LineString,
-    typename MultiLineString,
+    typename LinestringOut,
+    typename MultiLinestring,
+    typename Linear,
     overlay_type OverlayType,
-    bool FollowIsolatedPoints
+    bool FollowIsolatedPoints,
+    bool FollowContinueTurns
 >
-class follow_linestring_multilinestring_linestring
-    : follow_linestring_linestring_linestring
+class follow_multilinestring_linear_linestring
+    : follow_linestring_linear_linestring
         <
-            LineStringOut,
-            LineString,
-            typename boost::range_value<MultiLineString>::type,
+            LinestringOut,
+            typename boost::range_value<MultiLinestring>::type,
+            Linear,
             OverlayType,
-            FollowIsolatedPoints
+            FollowIsolatedPoints,
+            FollowContinueTurns
         >
 {
 protected:
-    typedef typename boost::range_value<MultiLineString>::type LineString2;
+    typedef typename boost::range_value<MultiLinestring>::type Linestring;
 
-    typedef follow_linestring_linestring_linestring
+    typedef follow_linestring_linear_linestring
         <
-            LineStringOut, LineString, LineString2,
-            OverlayType, FollowIsolatedPoints
+            LinestringOut, Linestring, Linear,
+            OverlayType, FollowIsolatedPoints, FollowContinueTurns
         > Base;
 
     typedef following::action_selector<OverlayType> action;
 
-public:
-    template <typename Turns, typename OutputIterator>
-    static inline OutputIterator apply(LineString const& linestring,
-                                       MultiLineString const& multilinestring,
-                                       Turns const& turns,
-                                       OutputIterator oit)
+    typedef typename boost::range_iterator
+        <
+            MultiLinestring const
+        >::type linestring_iterator;
+
+
+    template <typename OutputIt, overlay_type OT>
+    struct copy_linestrings_in_range
     {
-        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
-        typedef typename boost::range_value<Turns>::type TurnInfo;
-        typedef typename boost::range_iterator
-            <
-                typename TurnInfo::container_type const
-            >::type TurnOperationIterator;
-
-        // Iterate through all intersection points (they are
-        // ordered along the each line)
-
-        LineStringOut current_piece;
-        geometry::segment_identifier current_segment_id(0, -1, -1, -1);
-
-        bool entered = false;
-        bool first = true;
-        std::size_t enter_count = 0;
-
-        bool is_point1 = is_point<FollowIsolatedPoints>::apply(linestring);
-        
-        for (TurnIterator it = boost::begin(turns); it != boost::end(turns); ++it)
+        static inline OutputIt
+        apply(linestring_iterator begin, linestring_iterator beyond,
+              OutputIt oit)
         {
-            TurnOperationIterator op_it = boost::begin(it->operations);
-
-            LineString2 const* linestring2 =
-                &*(boost::begin(multilinestring) + op_it->other_id.multi_index);
-
-            oit = Base::process_turn(it, op_it,
-                                     first, entered, enter_count,
-                                     linestring, *linestring2, 
-                                     is_point1,
-                                     is_point<FollowIsolatedPoints>::apply(*linestring2),
-                                     current_piece, current_segment_id,
-                                     oit);
+            return oit;
         }
+    };
 
-        BOOST_ASSERT( enter_count == 0 );
-
-        return Base::process_end(entered, linestring,
-                                 current_segment_id, current_piece,
-                                 oit);
-    }
-};
-
-
-
-
-
-template
-<
-    typename LineStringOut,
-    typename MultiLineString,
-    typename LineString,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-class follow_multilinestring_linestring_linestring
-    : follow_linestring_linestring_linestring
-        <
-            LineStringOut,
-            typename boost::range_value<MultiLineString>::type,
-            LineString,
-            OverlayType,
-            FollowIsolatedPoints
-        >
-{
-protected:
-    typedef typename boost::range_value<MultiLineString>::type LineString1;
-
-    typedef follow_linestring_linestring_linestring
-        <
-            LineStringOut, LineString1, LineString,
-            OverlayType, FollowIsolatedPoints
-        > Base;
-
-    typedef following::action_selector<OverlayType> action;
+    template <typename OutputIt>
+    struct copy_linestrings_in_range<OutputIt, overlay_difference>
+    {
+        static inline OutputIt
+        apply(linestring_iterator begin, linestring_iterator beyond,
+              OutputIt oit)
+        {
+            for (linestring_iterator ls_it = begin; ls_it != beyond; ++ls_it)
+            {
+                LinestringOut line_out;
+                geometry::convert(*ls_it, line_out);
+                *oit++ = line_out;
+            }
+            return oit;
+        }
+    };
 
 public:
-    template <typename Turns, typename OutputIterator>
-    static inline OutputIterator apply(MultiLineString const& multilinestring,
-                                       LineString const& linestring,
-                                       Turns const& turns,
-                                       OutputIterator oit)
+    template <typename TurnIterator, typename OutputIterator>
+    static inline OutputIterator
+    apply(MultiLinestring const& multilinestring, Linear const& linear,
+          TurnIterator start, TurnIterator beyond,
+          OutputIterator oit)
     {
-        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
-        typedef typename boost::range_value<Turns>::type TurnInfo;
         typedef typename boost::range_iterator
             <
-                typename TurnInfo::container_type const
-            >::type TurnOperationIterator;
+                typename std::iterator_traits
+                    <
+                        TurnIterator
+                    >::value_type::container_type const
+            >::type turn_operation_iterator;
+
+        typedef copy_linestrings_in_range
+            <
+                OutputIterator, OverlayType
+            > copy_linestrings;
+
+        linestring_iterator ls_begin = boost::begin(multilinestring);
+        linestring_iterator ls_end = boost::end(multilinestring);
 
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        LineStringOut current_piece;
+        LinestringOut current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
         int current_multi_id = -1;
 
-        bool entered = false;
-        bool first = true;
-        bool first_turn = true;
-        std::size_t enter_count = 0;
+        turn_operation_iterator op_it = boost::begin(start->operations);
+        current_multi_id = op_it->seg_id.multi_index;
 
-        // dummy initialization
-        LineString1 const* linestring1 = &*boost::begin(multilinestring);
+        oit = copy_linestrings::apply(ls_begin,
+                                      ls_begin + current_multi_id,
+                                      oit);
 
-        bool is_point1 = is_point<FollowIsolatedPoints>::apply(*linestring1);
-        bool is_point2 = is_point<FollowIsolatedPoints>::apply(linestring);
-
-        TurnIterator it = boost::begin(turns);
-        for (TurnIterator it = boost::begin(turns); it != boost::end(turns); ++it)
-        {
-            TurnOperationIterator op_it = boost::begin(it->operations);
-
-            if ( op_it->seg_id.multi_index != current_multi_id )
+        TurnIterator turns_begin = start, turns_end;
+        Linestring const* linestring;
+        do {
+            // find last turn with this multi-index
+            turns_end = turns_begin;
+            do
             {
-                if ( first_turn )
-                {
-                    first_turn = false;
-                }
-                else
-                {
-                    oit = Base::process_end(entered, *linestring1,
-                                            current_segment_id, current_piece,
-                                            oit);
-
-                    // reset values
-                    first = true;
-                    entered = false;
-                    enter_count = 0;
-                    current_segment_id
-                        = geometry::segment_identifier(0, -1, -1, -1);
-                    geometry::clear(current_piece);
-                }
-                current_multi_id = op_it->seg_id.multi_index;
-                linestring1 =
-                    &*(boost::begin(multilinestring) + current_multi_id);
-                is_point1 = is_point<FollowIsolatedPoints>::apply(*linestring1);
+                ++turns_end;
+                op_it = boost::begin(turns_end->operations);
             }
+            while ( turns_end != beyond
+                    && op_it->seg_id.multi_index == current_multi_id );
 
-            oit = Base::process_turn(it, op_it,
-                                     first, entered, enter_count, 
-                                     *linestring1, linestring,
-                                     is_point1, is_point2,
-                                     current_piece, current_segment_id,
-                                     oit);
+            linestring = &*(boost::begin(multilinestring) + current_multi_id);
+
+            oit = Base::apply(*linestring, linear, turns_begin, turns_end, oit);
+
+            int new_multi_id(0);
+            linestring_iterator ls_beyond_last = ls_end;
+            if ( turns_end != beyond )
+            {
+                op_it = boost::begin(turns_end->operations);
+                new_multi_id = op_it->seg_id.multi_index;
+                ls_beyond_last = ls_begin + new_multi_id;
+            }
+            oit = copy_linestrings::apply(ls_begin + current_multi_id + 1,
+                                          ls_beyond_last,
+                                          oit);
+
+            current_multi_id = new_multi_id;
+            turns_begin = turns_end;
         }
+        while ( turns_end != beyond );
 
-        BOOST_ASSERT( enter_count == 0 );
-
-        return Base::process_end(entered, *linestring1,
-                                 current_segment_id, current_piece,
-                                 oit);
+        return oit;
     }
 };
 
 
 
-template
-<
-    typename LineStringOut,
-    typename MultiLineString1,
-    typename MultiLineString2,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-class follow_multilinestring_multilinestring_linestring
-    : follow_linestring_linestring_linestring
-        <
-            LineStringOut,
-            typename boost::range_value<MultiLineString1>::type,
-            typename boost::range_value<MultiLineString2>::type,
-            OverlayType,
-            FollowIsolatedPoints
-        >
-{
-protected:
-    typedef typename boost::range_value<MultiLineString1>::type LineString1;
-    typedef typename boost::range_value<MultiLineString2>::type LineString2;
-
-    typedef follow_linestring_linestring_linestring
-        <
-            LineStringOut, LineString1, LineString2,
-            OverlayType, FollowIsolatedPoints
-        > Base;
-
-    typedef following::action_selector<OverlayType> action;
-
-public:
-    template <typename Turns, typename OutputIterator>
-    static inline OutputIterator apply(MultiLineString1 const& multilinestring1,
-                                       MultiLineString2 const& multilinestring2,
-                                       Turns const& turns,
-                                       OutputIterator oit)
-    {
-        typedef typename boost::range_iterator<Turns const>::type TurnIterator;
-        typedef typename boost::range_value<Turns>::type TurnInfo;
-        typedef typename boost::range_iterator
-            <
-                typename TurnInfo::container_type const
-            >::type TurnOperationIterator;
-
-        // Iterate through all intersection points (they are
-        // ordered along the each line)
-
-        LineStringOut current_piece;
-        geometry::segment_identifier current_segment_id(0, -1, -1, -1);
-        int current_multi_id = -1;
-
-        bool entered = false;
-        bool first = true;
-        bool first_turn = true;
-        std::size_t enter_count = 0;
-
-        // dummy initialization
-        LineString1 const* linestring1 = &*boost::begin(multilinestring1);
-
-        bool is_point1 = is_point<FollowIsolatedPoints>::apply(*linestring1);
-        
-        for (TurnIterator it = boost::begin(turns); it != boost::end(turns); ++it)
-        {
-            TurnOperationIterator op_it = boost::begin(it->operations);
-
-            if ( op_it->seg_id.multi_index != current_multi_id )
-            {
-                if ( first_turn )
-                {
-                    first_turn = false;
-                }
-                else
-                {
-                    oit = Base::process_end(entered, *linestring1,
-                                            current_segment_id, current_piece,
-                                            oit);
-
-                    // reset values
-                    first = true;
-                    entered = false;
-                    enter_count = 0;
-                    current_segment_id
-                        = geometry::segment_identifier(0, -1, -1, -1);
-                    geometry::clear(current_piece);
-                }
-                current_multi_id = op_it->seg_id.multi_index;
-                linestring1 =
-                    &*(boost::begin(multilinestring1) + current_multi_id);
-                is_point1 = is_point<FollowIsolatedPoints>::apply(*linestring1);
-            }
-
-            LineString2 const* linestring2 =
-                &*(boost::begin(multilinestring2) + op_it->other_id.multi_index);
-            oit = Base::process_turn(it, op_it,
-                                     first, entered, enter_count, 
-                                     *linestring1, *linestring2,
-                                     is_point1,
-                                     is_point<FollowIsolatedPoints>::apply(*linestring2),
-                                     current_piece, current_segment_id,
-                                     oit);
-        }
-
-        BOOST_ASSERT( enter_count == 0 );
-
-        return Base::process_end(entered, *linestring1,
-                                 current_segment_id, current_piece,
-                                 oit);
-    }
-};
 
 
 
 template
 <
-    typename GeometryOut,
+    typename LinestringOut,
     typename Geometry1,
     typename Geometry2,
     overlay_type OverlayType,
     bool FollowIsolatedPoints,
-    typename TagOut = typename tag<GeometryOut>::type,
-    typename TagIn1 = typename tag<Geometry1>::type,
-    typename TagIn2 = typename tag<Geometry2>::type
->
-struct follow_dispatch
-    : not_implemented<GeometryOut, Geometry1, Geometry2>
-{};
-
-
-template
-<
-    typename LineStringOut,
-    typename Linestring1,
-    typename Linestring2,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-struct follow_dispatch
-    <
-        LineStringOut, Linestring1, Linestring2,
-        OverlayType, FollowIsolatedPoints,
-        linestring_tag, linestring_tag, linestring_tag
-    > : follow_linestring_linestring_linestring
-        <
-            LineStringOut, Linestring1, Linestring2,
-            OverlayType, FollowIsolatedPoints
-        >
-{};
-
-
-template
-<
-    typename LineStringOut,
-    typename Linestring,
-    typename MultiLinestring,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-struct follow_dispatch
-    <
-        LineStringOut, Linestring, MultiLinestring,
-        OverlayType, FollowIsolatedPoints,
-        linestring_tag, linestring_tag, multi_linestring_tag
-    > : follow_linestring_multilinestring_linestring
-        <
-            LineStringOut, Linestring, MultiLinestring,
-            OverlayType, FollowIsolatedPoints
-        >
-{};
-
-
-
-template
-<
-    typename LineStringOut,
-    typename MultiLinestring,
-    typename Linestring,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-struct follow_dispatch
-    <
-        LineStringOut, MultiLinestring, Linestring,
-        OverlayType, FollowIsolatedPoints,
-        linestring_tag, multi_linestring_tag, linestring_tag
-    > : follow_multilinestring_linestring_linestring
-        <
-            LineStringOut, MultiLinestring, Linestring,
-            OverlayType, FollowIsolatedPoints
-        >
-{};
-
-
-
-template
-<
-    typename LineStringOut,
-    typename MultiLinestring1,
-    typename MultiLinestring2,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
->
-struct follow_dispatch
-    <
-        LineStringOut, MultiLinestring1, MultiLinestring2,
-        OverlayType, FollowIsolatedPoints,
-        linestring_tag, multi_linestring_tag, multi_linestring_tag
-    > : follow_multilinestring_multilinestring_linestring
-        <
-            LineStringOut, MultiLinestring1, MultiLinestring2,
-            OverlayType, FollowIsolatedPoints
-        >
-{};
-
-
-
-template
-<
-    typename LineStringOut,
-    typename Geometry1,
-    typename Geometry2,
-    overlay_type OverlayType,
-    bool FollowIsolatedPoints
+    bool FollowContinueTurns,
+    typename TagOut = typename tag<LinestringOut>::type,
+    typename TagIn1 = typename tag<Geometry1>::type
 >
 struct follow
-    : follow_dispatch
+    : not_implemented<LinestringOut, Geometry1>
+{};
+
+
+
+template
+<
+    typename LinestringOut,
+    typename Linestring,
+    typename Linear,
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints,
+    bool FollowContinueTurns
+>
+struct follow
+    <
+        LinestringOut, Linestring, Linear,
+        OverlayType, FollowIsolatedPoints, FollowContinueTurns,
+        linestring_tag, linestring_tag
+    > : follow_linestring_linear_linestring
         <
-            LineStringOut, Geometry1, Geometry2,
-            OverlayType, FollowIsolatedPoints
+            LinestringOut, Linestring, Linear,
+            OverlayType, FollowIsolatedPoints, FollowContinueTurns
         >
 {};
+
+
+template
+<
+    typename LinestringOut,
+    typename MultiLinestring,
+    typename Linear,
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints,
+    bool FollowContinueTurns
+>
+struct follow
+    <
+        LinestringOut, MultiLinestring, Linear,
+        OverlayType, FollowIsolatedPoints, FollowContinueTurns,
+        linestring_tag, multi_linestring_tag
+    > : follow_multilinestring_linear_linestring
+        <
+            LinestringOut, MultiLinestring, Linear,
+            OverlayType, FollowIsolatedPoints, FollowContinueTurns
+        >
+{};
+
 
 
 }} // namespace following::linear
