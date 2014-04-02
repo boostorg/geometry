@@ -77,17 +77,12 @@ private:
             bg::sym_difference(geometry1, geometry2, ls_vector_output);
             bg::sym_difference(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK((multilinestring_equals
-                         <
-                             MultiLineString, linestring_vector
-                         >::apply(mls_sym_diff, ls_vector_output)
-                         ));
+            BOOST_CHECK(multilinestring_equals<false>::apply(mls_sym_diff,
+                                                      ls_vector_output));
 
-            BOOST_CHECK((multilinestring_equals
-                         <
-                             MultiLineString, linestring_deque
-                         >::apply(mls_sym_diff, ls_deque_output)
-                         ));
+            BOOST_CHECK(multilinestring_equals<false>::apply(mls_sym_diff, 
+                                                             ls_deque_output));
+
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
 #endif

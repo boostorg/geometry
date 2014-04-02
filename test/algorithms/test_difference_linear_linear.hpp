@@ -55,11 +55,7 @@ private:
             bg::reverse(mls_output);
         }
 
-        BOOST_CHECK((multilinestring_equals
-                     <
-                         MultiLineString, MultiLineString
-                     >::apply(mls_diff, mls_output)
-                     ));
+        BOOST_CHECK( equals::apply(mls_diff, mls_output) );
 
         set_operation_output("difference", case_id,
                              geometry1, geometry2, mls_output);
@@ -75,17 +71,12 @@ private:
             bg::difference(geometry1, geometry2, ls_vector_output);
             bg::difference(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK((multilinestring_equals
-                         <
-                             MultiLineString, linestring_vector
-                         >::apply(mls_diff, ls_vector_output)
-                         ));
+            BOOST_CHECK(multilinestring_equals<false>::apply(mls_diff,
+                                                             ls_vector_output));
 
-            BOOST_CHECK((multilinestring_equals
-                         <
-                             MultiLineString, linestring_deque
-                         >::apply(mls_diff, ls_deque_output)
-                         ));
+            BOOST_CHECK(multilinestring_equals<false>::apply(mls_diff,
+                                                             ls_deque_output));
+
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
 #endif
@@ -95,6 +86,7 @@ private:
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "difference : " << bg::wkt(mls_output) << std::endl;
+        std::cout << "expected difference : " << bg::wkt(mls_diff) << std::endl;
         std::cout << std::endl;
         std::cout << "************************************" << std::endl;
         std::cout << std::endl;
