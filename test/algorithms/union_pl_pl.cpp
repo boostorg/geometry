@@ -22,6 +22,7 @@
 
 #include "test_set_ops_pl_pl.hpp"
 
+#include <boost/geometry/multi/geometries/multi_point.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::multi_point<point_type>  multi_point_type;
