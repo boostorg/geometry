@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
+#include <boost/geometry/util/range.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -56,6 +58,36 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
                              Geometry const& geometry,
                              Pred & pred)
     {
+        if ( first != last )
+            return for_turns(first, last, geometry, pred);
+        else
+            return for_empty(geometry, pred);
+    }
+
+    template <typename Pred>
+    static inline bool for_empty(Geometry const& geometry,
+                                 Pred & pred)
+    {
+        typedef typename boost::range_iterator<Geometry const>::type iterator;
+
+        // O(N)
+        // check predicate for each contained geometry without generated turn
+        for ( iterator it = boost::begin(geometry) ;
+              it != boost::end(geometry) ; ++it )
+        {
+            bool cont = pred(*it);
+            if ( !cont )
+                break;
+        }
+        
+        return !boost::empty(geometry);
+    }
+
+    template <typename TurnIt, typename Pred>
+    static inline bool for_turns(TurnIt first, TurnIt last,
+                                 Geometry const& geometry,
+                                 Pred & pred)
+    {
         BOOST_ASSERT(first != last);
 
         const std::size_t count = boost::size(geometry);
@@ -84,9 +116,8 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
             if ( *it == false )
             {
                 found = true;
-                bool cont = pred(
-                                *(boost::begin(geometry)
-                                    + std::distance(detected_intersections.begin(), it)));
+                bool cont = pred(range::at(geometry,
+                                           std::distance(detected_intersections.begin(), it)));
                 if ( !cont )
                     break;
             }
@@ -95,6 +126,9 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
         return found;
     }
 };
+
+// WARNING! This class stores pointers!
+// Passing a reference to local variable will result in undefined behavior!
 
 // TODO: rename to point_id_ref?
 template <typename Point>
@@ -128,6 +162,8 @@ private:
     const Point * pt_ptr;
 };
 
+// WARNING! This class stores pointers!
+// Passing a reference to local variable will result in undefined behavior!
 class same_multi_index
 {
 public:
@@ -150,6 +186,8 @@ private:
     const segment_identifier * sid_ptr;
 };
 
+// WARNING! This class stores pointers!
+// Passing a reference to local variable will result in undefined behavior!
 class segment_watcher
 {
 public:
@@ -168,25 +206,35 @@ private:
     const segment_identifier * m_seg_id_ptr;
 };
 
-template <typename Point>
+// WARNING! This class stores pointers!
+// Passing a reference to local variable will result in undefined behavior!
+template <typename TurnInfo, std::size_t OpId>
 class exit_watcher
 {
-    typedef point_identifier<Point> point_info;
+    static const std::size_t op_id = OpId;
+    static const std::size_t other_op_id = (OpId + 1) % 2;
+
+    typedef typename TurnInfo::point_type point_type;
+    typedef point_identifier<point_type> point_info;
 
 public:
     exit_watcher()
         : exit_operation(overlay::operation_none)
+        , exit_turn(0)
     {}
 
-    void enter(Point const& point, segment_identifier const& other_id)
+    void enter(TurnInfo const& turn)
     {
-        other_entry_points.push_back(point_info(other_id, point));
+        other_entry_points.push_back(
+            point_info(turn.operations[other_op_id].seg_id, turn.point) );
     }
 
-    void exit(Point const& point,
-              segment_identifier const& other_id,
-              overlay::operation_type exit_op)
+    void exit(TurnInfo const& turn)
     {
+        segment_identifier const& seg_id = turn.operations[op_id].seg_id;
+        segment_identifier const& other_id = turn.operations[other_op_id].seg_id;
+        overlay::operation_type exit_op = turn.operations[op_id].operation;
+
         typedef typename std::vector<point_info>::iterator point_iterator;
         // search for the entry point in the same range of other geometry
         point_iterator entry_it = std::find_if(other_entry_points.begin(),
@@ -199,7 +247,7 @@ public:
             // here we know that we possibly left LS
             // we must still check if we didn't get back on the same point
             exit_operation = exit_op;
-            exit_id = point_info(other_id, point);
+            exit_turn = boost::addressof(turn);
 
             // erase the corresponding entry point
             other_entry_points.erase(entry_it);
@@ -217,10 +265,18 @@ public:
         return exit_operation;
     }
 
-    Point const& get_exit_point() const
+    point_type const& get_exit_point() const
     {
         BOOST_ASSERT(exit_operation != overlay::operation_none);
-        return exit_id.point();
+        BOOST_ASSERT(exit_turn);
+        return exit_turn->point;
+    }
+
+    TurnInfo const& get_exit_turn() const
+    {
+        BOOST_ASSERT(exit_operation != overlay::operation_none);
+        BOOST_ASSERT(exit_turn);
+        return *exit_turn;
     }
 
     void reset_detected_exit()
@@ -236,9 +292,31 @@ public:
 
 private:
     overlay::operation_type exit_operation;
-    point_info exit_id;
+    const TurnInfo * exit_turn;
     std::vector<point_info> other_entry_points; // TODO: use map here or sorted vector?
 };
+
+template <std::size_t OpId, typename Turn>
+inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn)
+{
+    segment_identifier const& prev_seg_id = prev_turn.operations[OpId].seg_id;
+    segment_identifier const& curr_seg_id = curr_turn.operations[OpId].seg_id;
+
+    if ( prev_seg_id.multi_index != curr_seg_id.multi_index
+      || prev_seg_id.ring_index != curr_seg_id.ring_index )
+    {
+        return false;
+    }
+
+    if ( prev_seg_id.segment_index != curr_seg_id.segment_index
+      && ( ! geometry::math::equals(curr_turn.operations[OpId].enriched.distance, 0)
+        || prev_seg_id.segment_index + 1 != curr_seg_id.segment_index ) )
+    {
+        return false;
+    }
+
+    return detail::equals::equals_point_point(prev_turn.point, curr_turn.point);
+}
 
 template <boundary_query BoundaryQuery,
           typename Point,

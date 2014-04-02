@@ -364,7 +364,7 @@ struct get_turn_info_linear_areal
         method_type m_method;
     };
 
-    static inline void replace_operations_i(operation_type & op0, operation_type & op1)
+    static inline void replace_operations_i(operation_type & /*op0*/, operation_type & op1)
     {
         // assuming Linear is always the first one
         op1 = operation_union;
@@ -385,7 +385,7 @@ struct get_turn_info_linear_areal
                             bool is_q_first, bool is_q_last,
                             TurnInfo const& tp_model,
                             IntersectionResult const& result,
-                            method_type method,
+                            method_type /*method*/,
                             OutputIterator out)
     {
         namespace ov = overlay;

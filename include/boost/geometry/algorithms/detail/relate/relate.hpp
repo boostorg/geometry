@@ -47,6 +47,7 @@
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/relate/linear_areal.hpp>
+#include <boost/geometry/algorithms/detail/relate/areal_areal.hpp>
 
 namespace boost { namespace geometry
 {
@@ -101,6 +102,7 @@ struct relate<Geometry, Point, Tag1, point_tag>
     : detail::relate::geometry_point<Geometry, Point>
 {};
 
+
 template <typename Linestring1, typename Linestring2>
 struct relate<Linestring1, Linestring2, linestring_tag, linestring_tag>
     : detail::relate::linear_linear<Linestring1, Linestring2>
@@ -120,6 +122,7 @@ template <typename MultiLinestring1, typename MultiLinestring2>
 struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
     : detail::relate::linear_linear<MultiLinestring1, MultiLinestring2>
 {};
+
 
 template <typename Linestring, typename Polygon>
 struct relate<Linestring, Polygon, linestring_tag, polygon_tag>
@@ -175,6 +178,52 @@ struct relate<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon
 template <typename MultiPolygon, typename MultiLinestring>
 struct relate<MultiPolygon, MultiLinestring, multi_polygon_tag, multi_linestring_tag>
     : detail::relate::areal_linear<MultiPolygon, MultiLinestring>
+{};
+
+
+template <typename Polygon1, typename Polygon2>
+struct relate<Polygon1, Polygon2, polygon_tag, polygon_tag>
+    : detail::relate::areal_areal<Polygon1, Polygon2>
+{};
+
+template <typename Ring, typename Polygon>
+struct relate<Ring, Polygon, ring_tag, polygon_tag>
+    : detail::relate::areal_areal<Ring, Polygon>
+{};
+
+template <typename Polygon, typename Ring>
+struct relate<Polygon, Ring, polygon_tag, ring_tag>
+    : detail::relate::areal_areal<Polygon, Ring>
+{};
+
+template <typename Ring1, typename Ring2>
+struct relate<Ring1, Ring2, ring_tag, ring_tag>
+    : detail::relate::areal_areal<Ring1, Ring2>
+{};
+
+template <typename Polygon, typename MultiPolygon>
+struct relate<Polygon, MultiPolygon, polygon_tag, multi_polygon_tag>
+    : detail::relate::areal_areal<Polygon, MultiPolygon>
+{};
+
+template <typename MultiPolygon, typename Polygon>
+struct relate<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
+    : detail::relate::areal_areal<MultiPolygon, Polygon>
+{};
+
+template <typename Ring, typename MultiPolygon>
+struct relate<Ring, MultiPolygon, ring_tag, multi_polygon_tag>
+    : detail::relate::areal_areal<Ring, MultiPolygon>
+{};
+
+template <typename MultiPolygon, typename Ring>
+struct relate<MultiPolygon, Ring, multi_polygon_tag, ring_tag>
+    : detail::relate::areal_areal<MultiPolygon, Ring>
+{};
+
+template <typename MultiPolygon1, typename MultiPolygon2>
+struct relate<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
+    : detail::relate::areal_areal<MultiPolygon1, MultiPolygon2>
 {};
 
 }} // namespace detail_dispatch::relate

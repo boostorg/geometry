@@ -116,9 +116,14 @@ struct get_turns
 
 // TURNS SORTING AND SEARCHING
 
+struct less_ignore_other {};
+struct less_greater_op_for_other_same_m_diff_r {};
+
 // sort turns by G1 - source_index == 0 by:
 // seg_id -> distance -> operation
-template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0, std::size_t OpId = 0>
+template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0,
+          std::size_t OpId = 0,
+          typename HandleOtherTag = less_greater_op_for_other_same_m_diff_r>
 struct less_seg_dist_op
 {
     BOOST_STATIC_ASSERT(OpId < 2);
@@ -151,8 +156,34 @@ struct less_seg_dist_op
     }
 
     template <typename Op> static inline
+    bool use_other_multi_ring_id_dispatch(Op const& left, Op const& right,
+                                          less_ignore_other)
+    {
+        return less_operation(left, right);
+    }
+
+    template <typename Op> static inline
+    bool use_other_multi_ring_id_dispatch(Op const& left, Op const& right,
+                                          less_greater_op_for_other_same_m_diff_r)
+    {
+        if ( left.other_id.multi_index == right.other_id.multi_index )
+        {
+            if ( left.other_id.ring_index == right.other_id.ring_index )
+                return less_operation(left, right);
+            else
+                return greater_operation(left, right);
+        }
+        else
+        {
+            return less_operation(left, right);
+        }
+    }
+
+    template <typename Op> static inline
     bool use_other_multi_ring_id(Op const& left, Op const& right)
     {
+        return use_other_multi_ring_id_dispatch(left, right, HandleOtherTag());
+
         // VER1
         //return left.other_id.ring_index < right.other_id.ring_index;
         
@@ -179,19 +210,6 @@ struct less_seg_dist_op
         //            )
         //        );
         //}
-
-        // VER3
-        if ( left.other_id.multi_index == right.other_id.multi_index )
-        {
-            if ( left.other_id.ring_index == right.other_id.ring_index )
-                return less_operation(left, right);
-            else
-                return greater_operation(left, right);
-        }
-        else
-        {
-            return less_operation(left, right);
-        }
     }
 
     template <typename Op> static inline
