@@ -173,22 +173,6 @@ protected:
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
     {
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "checking conditions: " << std::endl;
-        std::cout << "turn point: " << geometry::dsv(it->point) << std::endl;
-        std::cout << std::boolalpha;
-        std::cout << "entering? " << is_entering(*it, *op_it)
-                  << std::endl;
-        std::cout << "leaving?  " << is_leaving(*it, *op_it, entered)
-                  << std::endl;
-        std::cout << "isolated? "
-                  << is_isolated_point(*it, *op_it, entered)
-                  << std::endl;
-        std::cout << "staying?  " << is_staying_inside(*it, *op_it, entered)
-                  << std::endl;
-        std::cout << std::noboolalpha << std::endl;
-#endif
-
         if ( is_entering(*it, *op_it) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
