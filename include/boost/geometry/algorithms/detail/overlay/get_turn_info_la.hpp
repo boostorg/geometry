@@ -235,12 +235,13 @@ struct get_turn_info_linear_areal
                             equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                            spike_detector<Point1, Point2> spike_detect(side_calc);
+                            // TODO: This isn't correct handling, hence commented out
+                            /*spike_detector<Point1, Point2> spike_detect(side_calc);
                             if ( tp.operations[0].operation == operation_union
                               && spike_detect.is_spike_p())
                             {
                                 tp.operations[0].operation = operation_continue;
-                            }
+                            }*/
 
                             replacer_of_method_and_operations_ec<false> replacer(method_touch);
                             replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
@@ -508,9 +509,7 @@ struct get_turn_info_linear_areal
         // IP on the last point of Linear Geometry
         if ( EnableLast
           && is_p_last
-          && ( ip_count > 1 ? p1j : p0j )
-          && (!q0i || (q0i && q1j))         // prevents duplication
-          && !q1i )                         // prevents duplication
+          && ( ip_count > 1 ? (p1j && !q1i) : (p0j && !q0i) ) ) // prevents duplication
         {
             TurnInfo tp = tp_model;
             

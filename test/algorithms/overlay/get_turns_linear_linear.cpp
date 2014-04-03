@@ -22,14 +22,15 @@
 
 //TEST
 //#include <to_svg.hpp>
-//#include <boost/geometry.hpp>
-//#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 template <typename T>
 void test_all()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> pt;
     typedef bg::model::linestring<pt> ls;
+    typedef bg::model::multi_linestring<ls> mls;
 
     test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(0 0,2 0)", "tii", "txx");
     test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(2 0,0 0)", "tix", "txi");
@@ -120,6 +121,14 @@ void test_all()
     //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)", "test33.svg");
     //    to_svg<ls, ls>("LINESTRING(31 0,15 0,10 5,5 5,4 0,1 0,0 0,-1 1)", "LINESTRING(30 0,3 0,2.5 1,2 0,1 0,0 0,-1 -1)", "test34.svg");
     //}
+
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,30 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(2 0,2 0),(3 0,3 0,3 0))",
+                            expected("mii")("ccc")("ccc")("txx"));
+
+    test_geometry<ls, ls>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)",
+                          "LINESTRING(30 0,19 0,18 0,0 0)",
+                          expected("iuu")("iuu")("tiu")("mxi"));
 }
 
 int test_main(int, char* [])

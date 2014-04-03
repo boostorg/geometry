@@ -294,7 +294,7 @@ struct sectionalize_part
         section_type section;
 
         bool mark_first_non_duplicated = true;
-        std::size_t last_non_duplicate_index = 0;
+        std::size_t last_non_duplicate_index = sections.size();
 
         iterator_type it = boost::begin(range);
         
