@@ -325,8 +325,13 @@ struct areal_areal
 
             if ( op == overlay::operation_union )
             {
-                //update<interior, exterior, '2', transpose_result>(m_result);
-                //update<boundary, exterior, '1', transpose_result>(m_result);
+                // ignore u/u
+                /*if ( turn.operations[other_op_id].operation != overlay::operation_union )
+                {
+                    update<interior, exterior, '2', transpose_result>(m_result);
+                    update<boundary, exterior, '1', transpose_result>(m_result);
+                }*/
+
                 update<boundary, boundary, '0', transpose_result>(m_result);
             }
             else if ( op == overlay::operation_intersection )
@@ -440,7 +445,12 @@ struct areal_areal
             {
                 // already set in interrupt policy
                 //update<boundary, boundary, '0', transpose_result>(m_result);
-                m_exit_detected = true;
+
+                // ignore u/u
+                //if ( it->operations[other_op_id].operation != overlay::operation_union )
+                {
+                    m_exit_detected = true;
+                }
             }
             else if ( op == overlay::operation_intersection )
             {
