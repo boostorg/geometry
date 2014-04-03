@@ -122,7 +122,7 @@ template
     typename LinestringOut,
     overlay_type OverlayType,
     bool EnableFilterContinueTurns = false,
-    bool EnableRemoveDuplicateTurns = true,
+    bool EnableRemoveDuplicateTurns = false,
     bool EnableDegenerateTurns = true
 >
 class linear_linear_linestring
