@@ -110,52 +110,6 @@ struct linear_linear_no_intersections
 };
 
 
-template
-<
-    typename Geometry,
-    bool Enable = false,
-    typename GeometryTag = typename tag<Geometry>::type
->
-struct remove_extra_points
-{
-    static inline void apply(Geometry& ) {}
-};
-
-
-template <typename Linestring>
-struct remove_extra_points<Linestring, true, linestring_tag>
-{
-    static inline void apply(Linestring& linestring)
-    {
-        geometry::unique(linestring);
-        if ( boost::size(linestring) == 1 )
-        {
-            geometry::append(linestring, *boost::begin(linestring));
-        }
-    }
-};
-
-
-template <typename MultiLinestring>
-struct remove_extra_points<MultiLinestring, true, multi_linestring_tag>
-{
-    static inline void apply(MultiLinestring& multilinestring)
-    {
-        BOOST_AUTO_TPL(it, boost::begin(multilinestring));
-        for (; it != boost::end(multilinestring); ++it)
-        {
-            remove_extra_points
-                <
-                    typename boost::range_value<MultiLinestring>::type,
-                    true
-                >::apply(*it);
-        }
-    }
-};
-
-
-
-
 
 
 
@@ -167,7 +121,6 @@ template
     typename Linear2,
     typename LinestringOut,
     overlay_type OverlayType,
-    bool EnableRemoveExtraPoints = false,
     bool EnableFilterContinueTurns = false,
     bool EnableRemoveDuplicateTurns = true,
     bool EnableDegenerateTurns = true
@@ -271,8 +224,8 @@ public:
     <
         typename OutputIterator, typename Strategy
     >
-    static inline OutputIterator apply(Linear1 const& lineargeometry1,
-                                       Linear2 const& lineargeometry2,
+    static inline OutputIterator apply(Linear1 const& linear1,
+                                       Linear2 const& linear2,
                                        OutputIterator oit,
                                        Strategy const& )
     {
@@ -282,12 +235,6 @@ public:
             >::turn_info turn_info;
 
         typedef std::vector<turn_info> turns_container;
-
-        Linear1 linear1(lineargeometry1);
-        Linear2 linear2(lineargeometry2);
-
-        remove_extra_points<Linear1, EnableRemoveExtraPoints>::apply(linear1);
-        remove_extra_points<Linear2, EnableRemoveExtraPoints>::apply(linear2);
 
         turns_container turns;
         compute_turns(turns, linear1, linear2);
@@ -322,7 +269,6 @@ template
     typename Linear1,
     typename Linear2,
     typename LinestringOut,
-    bool EnableRemoveExtraPoints,
     bool EnableFilterContinueTurns,
     bool EnableRemoveDuplicateTurns,
     bool EnableDegenerateTurns
@@ -330,25 +276,19 @@ template
 struct linear_linear_linestring
     <
         Linear1, Linear2, LinestringOut, overlay_union,
-        EnableRemoveExtraPoints, EnableFilterContinueTurns,
-        EnableRemoveDuplicateTurns, EnableDegenerateTurns
+        EnableFilterContinueTurns, EnableRemoveDuplicateTurns,
+        EnableDegenerateTurns
     >
 {
     template
     <
         typename OutputIterator, typename Strategy
     >
-    static inline OutputIterator apply(Linear1 const& lineargeometry1,
-                                       Linear2 const& lineargeometry2,
+    static inline OutputIterator apply(Linear1 const& linear1,
+                                       Linear2 const& linear2,
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        Linear1 linear1(lineargeometry1);
-        Linear2 linear2(lineargeometry2);
-
-        remove_extra_points<Linear1, EnableRemoveExtraPoints>::apply(linear1);
-        remove_extra_points<Linear2, EnableRemoveExtraPoints>::apply(linear2);
-
         oit = linear_linear_no_intersections
             <
                 LinestringOut,
@@ -360,8 +300,8 @@ struct linear_linear_linestring
         return linear_linear_linestring
             <
                 Linear2, Linear1, LinestringOut, overlay_difference,
-                false, EnableFilterContinueTurns,
-                EnableRemoveDuplicateTurns, EnableDegenerateTurns
+                EnableFilterContinueTurns, EnableRemoveDuplicateTurns,
+                EnableDegenerateTurns
             >::apply(linear2, linear1, oit, strategy);
     }
 };
