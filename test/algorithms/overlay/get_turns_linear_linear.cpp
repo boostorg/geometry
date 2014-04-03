@@ -125,6 +125,10 @@ void test_all()
     test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(2 0,2 0),(3 0,3 0,3 0))",
                             expected("mii")("ccc")("ccc")("txx"));
+
+    test_geometry<ls, ls>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)",
+                          "LINESTRING(30 0,19 0,18 0,0 0)",
+                          expected("iuu")("iuu")("tiu")("mxi"));
 }
 
 int test_main(int, char* [])

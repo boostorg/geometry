@@ -821,15 +821,17 @@ public:
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
                 SidePolicy const& side,
-                MethodAndOperationsReplacer method_and_operations_replacer)
+                MethodAndOperationsReplacer method_and_operations_replacer,
+                bool const is_pk_valid = true, bool const is_qk_valid = true)
     {
         TurnInfo tp = tp_model;
 
         tp.method = method_collinear;
 
         // If P arrives within Q, there is a turn dependent on P
-        if (dir_info.arrival[0] == 1
-            && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, intersection_info))
+        if ( dir_info.arrival[0] == 1
+          && is_pk_valid
+          && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, intersection_info) )
         {
             method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
@@ -838,8 +840,9 @@ public:
         }
 
         // If Q arrives within P, there is a turn dependent on Q
-        if (dir_info.arrival[1] == 1
-            && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, intersection_info))
+        if ( dir_info.arrival[1] == 1
+          && is_qk_valid
+          && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, intersection_info) )
         {
             method_and_operations_replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
