@@ -254,69 +254,6 @@ protected:
                 Turns, EnableRemoveDuplicateTurns
             >::apply(turns);
 
-#ifdef GEOMETRY_TEST_DEBUG
-        Linear2 linear2_reverse(linear2);
-        geometry::reverse(linear2_reverse);
-
-        Turns turns_all, rturns_all;
-        compute_turns(turns_all, linear1, linear2);
-        compute_turns(rturns_all, linear1, linear2_reverse);
-
-        Turns turns_wo_cont(turns_all);
-        Turns rturns_wo_cont(rturns_all);
-
-        turns::filter_continue_turns<Turns, true>::apply(turns_wo_cont);
-        turns::filter_continue_turns<Turns, true>::apply(rturns_wo_cont);
-
-        std::sort(boost::begin(turns_all), boost::end(turns_all),
-                  detail::turns::less_seg_dist_other_op<>());
-
-        std::sort(boost::begin(turns_wo_cont), boost::end(turns_wo_cont),
-                  detail::turns::less_seg_dist_other_op<>());
-
-        std::sort(boost::begin(rturns_all), boost::end(rturns_all),
-                  detail::turns::less_seg_dist_other_op<std::greater<int> >());
-
-        std::sort(boost::begin(rturns_wo_cont), boost::end(rturns_wo_cont),
-                  detail::turns::less_seg_dist_other_op<std::greater<int> >());
-
-        turns::remove_duplicate_turns
-            <
-                Turns, EnableRemoveDuplicateTurns
-            >::apply(turns_all);
-
-        turns::remove_duplicate_turns
-            <
-                Turns, EnableRemoveDuplicateTurns
-            >::apply(turns_wo_cont);
-
-        turns::remove_duplicate_turns
-            <
-                Turns, EnableRemoveDuplicateTurns
-            >::apply(rturns_all);
-
-        turns::remove_duplicate_turns
-            <
-                Turns, EnableRemoveDuplicateTurns
-            >::apply(rturns_wo_cont);
-
-        std::cout << std::endl << std::endl;
-        std::cout << "### ORIGINAL TURNS ###" << std::endl;
-        detail::turns::print_turns(linear1, linear2, turns_all);
-        std::cout << std::endl << std::endl;
-        std::cout << "### ORIGINAL REVERSE TURNS ###" << std::endl;
-        detail::turns::print_turns(linear1, linear2_reverse, rturns_all);
-        std::cout << std::endl << std::endl;
-        std::cout << "### TURNS W/O CONTINUE TURNS ###" << std::endl;
-        detail::turns::print_turns(linear1, linear2, turns_wo_cont);
-        std::cout << std::endl << std::endl;
-        std::cout << "### REVERSE TURNS W/O CONTINUE TURNS ###" << std::endl;
-        detail::turns::print_turns(linear1, linear2_reverse, rturns_wo_cont);
-        std::cout << std::endl << std::endl;
-
-        BOOST_ASSERT(boost::size(turns_wo_cont) == boost::size(rturns_wo_cont));
-#endif
-
         return detail::overlay::following::linear::follow
             <
                 LinestringOut,
