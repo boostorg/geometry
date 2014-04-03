@@ -184,10 +184,10 @@ struct get_turn_info_for_endpoint
                                             p_operation0, q_operation0,
                                             tp_model, result, out);
 
-        bool result_ignore_ip0 = !opposite ? // <=> ip_count == 1 || ip_count == 2 && !opposite
-                append0_last :
-                (append0_last && (p0j || (is_q_last && q0j && q1i)));
-                // NOTE: based on how collinear is calculated for opposite segments
+        // NOTE: opposite && ip_count == 1 may be true!
+
+        // don't ignore only for collinear opposite
+        bool result_ignore_ip0 = append0_last && ( ip_count == 1 || !opposite );
 
         if ( p_operation1 == operation_none )
             return result_ignore_ip0;
@@ -200,11 +200,8 @@ struct get_turn_info_for_endpoint
                                             p_operation1, q_operation1,
                                             tp_model, result, out);
 
-        bool result_ignore_ip1 = !opposite ? // <=> ip_count == 2 && !opposite
-                append1_last :
-                (append1_last && (q1j || (is_p_last && p1j && p0i)));
-                // NOTE: based on how collinear is calculated for opposite segments
-                //       this condition is symmetric to the one above
+        // don't ignore only for collinear opposite
+        bool result_ignore_ip1 = append1_last && !opposite /*&& ip_count == 2*/;
 
         return result_ignore_ip0 || result_ignore_ip1;
     }
