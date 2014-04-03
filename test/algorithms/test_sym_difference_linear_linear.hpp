@@ -130,6 +130,14 @@ public:
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
+        test_get_turns_ll_invariance<>::apply(geometry1, geometry2);
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << std::endl
+                  << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+                  << std::endl << std::endl;
+#endif
+        test_get_turns_ll_invariance<>::apply(rg1, geometry2);
+
         base_test(geometry1, geometry2, mls_sym_diff, case_id, true);
         //        base_test(geometry1, rg2, mls_sym_diff);
         //        base_test(rg1, geometry2, mls_sym_diff);

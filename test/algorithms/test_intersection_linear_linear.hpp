@@ -169,6 +169,15 @@ public:
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
+        test_get_turns_ll_invariance<>::apply(geometry1, geometry2);
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << std::endl
+                  << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+                  << std::endl << std::endl;
+#endif
+        test_get_turns_ll_invariance<>::apply(rg1, geometry2);
+
+
         base_test(geometry1, geometry2, mls_int1, mls_int2, case_id);
         //        base_test(rg1, rg2, mls_int1, mls_int2);
         base_test_all(geometry1, geometry2);

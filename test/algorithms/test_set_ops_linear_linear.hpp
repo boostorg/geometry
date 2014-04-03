@@ -22,7 +22,7 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/multi/algorithms/reverse.hpp>
 
-
+#include "test_get_turns_ll_invariance.hpp"
 
 namespace bg = ::boost::geometry;
 
