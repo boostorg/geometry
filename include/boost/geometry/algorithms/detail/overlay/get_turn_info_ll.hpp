@@ -351,7 +351,7 @@ struct get_turn_info_linear_linear
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, result.template get<0>(), result.template get<1>(), side_calc,
-                                replacer);
+                                replacer, !is_p_last, !is_q_last);
                     }
                 }
             }
