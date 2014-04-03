@@ -10,7 +10,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LESS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LESS_HPP
