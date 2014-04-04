@@ -55,7 +55,7 @@ template <typename Geometry>
 void test_simple(Geometry const& g, bool simple_geometry)
 {
 #ifdef GEOMETRY_TEST_DEBUG
-    std::cout << "======================================" << std::endl;
+    std::cout << "=======" << std::endl;
 #endif
 
     bool simple = bg::ogc::is_simple(g);
@@ -66,7 +66,7 @@ void test_simple(Geometry const& g, bool simple_geometry)
     std::cout << std::boolalpha;
     std::cout << "is simple: " << simple << std::endl;
     std::cout << "expected result: " << simple_geometry << std::endl;
-    std::cout << "======================================" << std::endl;
+    std::cout << "=======" << std::endl;
     std::cout << std::endl << std::endl;
     std::cout << std::noboolalpha;
 #endif
@@ -133,6 +133,20 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
     test_simple(from_wkt<G>("LINESTRING(0 0,0 0,1 0,1 0,1 1,0 0)"), true);
 }
 
+BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_simple: MULTIPOINT " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+    typedef multi_point_type G;
+
+    test_simple(from_wkt<G>("MULTIPOINT()"), true);
+    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
+    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), false);
+}
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
 {
@@ -179,31 +193,9 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
 #if 0
 BOOST_AUTO_TEST_CASE( test_is_simple_rest )
 {
-    typedef multi_linestring_type mls;
     typedef open_polygon_type op;
     typedef closed_polygon_type cp;
-    typedef multi_point_type mpt;
     typedef multi_polygon_type mpl;
-
-    test_simple(from_wkt<mls>("MULTILINESTRING()"), true);
-    test_simple(from_wkt<mls>("MULTILINESTRING(())"), true);
-    test_simple(from_wkt<mls>("MULTILINESTRING((),(),())"), true);
-    test_simple(from_wkt<mls>("MULTILINESTRING((),(0 1,1 0))"), true);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0),(0 1,1 0))"), true);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0),(1 0))"), true);
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    //    test_simple(from_wkt<mls>("MULTILINESTRING((0 0),(0 0))"), false);
-#endif
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 0,0 0),(5 0))"), false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 0,0 0),\
-                              (5 0,1 0,4 1))"), false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 0,0 0),\
-                              (5 0,1 0,4 0))"), false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 0,0 0),(1 0,2 0))"),
-                false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 1),(0 1,1 0))"), false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,1 1),(1 1,1 0))"), false);
-    test_simple(from_wkt<mls>("MULTILINESTRING((0 0,2 0),(1 0,0 1))"), false);
 
     test_simple(from_wkt<op>("POLYGON(())"), true);
     test_simple(from_wkt<op>("POLYGON((),())"), true);
@@ -239,10 +231,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_rest )
     test_simple(from_wkt<cp>("POLYGON((0 0,10 0,10 10,0 10,0 0),\
                               (1 1,1 2,2 2,2 1,1 1))"), false);
 
-
-    test_simple(from_wkt<mpt>("MULTIPOINT()"), true);
-    test_simple(from_wkt<mpt>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
-    test_simple(from_wkt<mpt>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), false);
 
     test_simple(from_wkt<mpl>("MULTIPOLYGON()"), true);
     test_simple(from_wkt<mpl>("MULTIPOLYGON( ((),()) )"), true);
