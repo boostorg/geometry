@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_point )
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " IS_SIMPLE: POINT " << std::endl;
+    std::cout << " is_simple: POINT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_segment )
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " IS_SIMPLE: SEGMENT " << std::endl;
+    std::cout << " is_simple: SEGMENT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " IS_SIMPLE: LINESTRING " << std::endl;
+    std::cout << " is_simple: LINESTRING " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
@@ -136,6 +136,13 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
 {
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_simple: MULTILINESTRING " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
     typedef multi_linestring_type G;
 
     test_simple(from_wkt<G>("MULTILINESTRING()"), true);
