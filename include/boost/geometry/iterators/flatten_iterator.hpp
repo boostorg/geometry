@@ -30,7 +30,7 @@ template
     typename AccessInnerBegin,
     typename AccessInnerEnd
 >
-struct flatten_iterator
+class flatten_iterator
     : public boost::iterator_facade
         <
             flatten_iterator
@@ -83,9 +83,17 @@ public:
                          OtherAccessInnerBegin,
                          OtherAccessInnerEnd
                      > const& other,
-                     typename boost::enable_if
+                     typename boost::enable_if_c
                      <
-                         boost::is_convertible<OtherValue*, Value*>, 
+                         boost::is_convertible
+                         <
+                             OtherOuterIterator, OuterIterator
+                         >::value
+                         &&
+                         boost::is_convertible
+                         <
+                             OtherInnerIterator, InnerIterator
+                         >::value,
                          enabler
                      >::type = enabler())
         : m_outer_it(other.m_outer_it),

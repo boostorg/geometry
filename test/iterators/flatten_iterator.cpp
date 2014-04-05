@@ -23,6 +23,7 @@
 #include <list>
 
 #include <boost/mpl/if.hpp>
+#include <boost/typeof/typeof.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/std/list.hpp>
 #include <boost/assign/std/set.hpp>

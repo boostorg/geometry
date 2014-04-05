@@ -23,7 +23,7 @@ namespace boost { namespace geometry
 
 
 template <typename Iterator1, typename Iterator2, typename Value>
-struct concatenate_iterator
+class concatenate_iterator
     : public boost::iterator_facade
         <
             concatenate_iterator<Iterator1, Iterator2, Value>,
