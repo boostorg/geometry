@@ -58,6 +58,8 @@ public:
             return true;
 
         // check if the areal is inside the other_areal
+        // TODO: This is O(N)
+        // Run in a loop O(NM) - optimize!
         int pig = detail::within::point_in_geometry(pt, *m_other_areal_ptr);
         //BOOST_ASSERT( pig != 0 );
         
@@ -66,6 +68,7 @@ public:
         {
             update<interior, interior, '2', TransposeResult>(*m_result_ptr);
             update<boundary, interior, '1', TransposeResult>(*m_result_ptr);
+            update<exterior, interior, '2', TransposeResult>(*m_result_ptr);
             m_flags |= 1;
         }
         // outside
@@ -74,6 +77,34 @@ public:
             update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
             update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
             m_flags |= 2;
+
+            // If the exterior ring is outside, interior rings must be checked
+            ring_identifier ring_id(0, -1, 0);
+            for ( ; ring_id.ring_index < boost::numeric_cast<int>(geometry::num_interior_rings(areal)) ;
+                    ++ring_id.ring_index )
+            {
+                typename detail::sub_range_return_type<Areal const>::type
+                    range_ref = detail::sub_range(areal, ring_id);
+
+                if ( boost::empty(range_ref) )
+                {
+                    // TODO: throw exception?
+                    continue; // ignore
+                }
+
+                // TODO: O(N)
+                // Optimize!
+                int pig = detail::within::point_in_geometry(range::front(range_ref), *m_other_areal_ptr);
+
+                // hole inside
+                if ( pig > 0 )
+                {
+                    update<interior, interior, '2', TransposeResult>(*m_result_ptr);
+                    update<boundary, interior, '1', TransposeResult>(*m_result_ptr);
+                    update<exterior, interior, '2', TransposeResult>(*m_result_ptr);
+                    m_flags |= 1;
+                }
+            }
         }
                     
         return m_flags != 3 && !m_result_ptr->interrupt;
@@ -147,6 +178,12 @@ struct areal_areal
 
             if ( result.interrupt )
                 return;
+
+            uncertain_rings_analyser<0, Result, Geometry1, Geometry2> rings_analyser(result, geometry1, geometry2);
+            analyse_uncertain_rings<0>::apply(rings_analyser, turns.begin(), turns.end());
+
+            if ( result.interrupt )
+                return;
         }
 
         {
@@ -163,123 +200,13 @@ struct areal_areal
 
             if ( result.interrupt )
                 return;
-        }
 
-//// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
-////       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
-//
-//        if ( !interrupt_policy.is_boundary_found )
-//        {
-//            set<exterior, boundary, '1', TransposeResult>(result);
-//        }
-//        else
-//        {
-//            // sort by multi_index and rind_index
-//            std::sort(turns.begin(), turns.end(), less_ring());
-//
-//            typedef typename std::vector<turn_type>::iterator turn_iterator;
-//
-//            turn_iterator it = turns.begin();
-//            segment_identifier * prev_seg_id_ptr = NULL;
-//            // for each ring
-//            for ( ; it != turns.end() ; )
-//            {
-//                // it's the next single geometry
-//                if ( prev_seg_id_ptr == NULL
-//                  || prev_seg_id_ptr->multi_index != it->operations[1].seg_id.multi_index )
-//                {
-//                    // if the first ring has no IPs
-//                    if ( it->operations[1].seg_id.ring_index > -1 )
-//                    {
-//                        // we can be sure that the exterior overlaps the boundary
-//                        set<exterior, boundary, '1', TransposeResult>(result);                    
-//                        break;
-//                    }
-//                    // if there was some previous ring
-//                    if ( prev_seg_id_ptr != NULL )
-//                    {
-//                        int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-//                        BOOST_ASSERT(next_ring_index >= 0);
-//                        
-//                        // if one of the last rings of previous single geometry was ommited
-//                        if ( static_cast<std::size_t>(next_ring_index)
-//                                < geometry::num_interior_rings(
-//                                    single_geometry(geometry2, *prev_seg_id_ptr)) )
-//                        {
-//                            // we can be sure that the exterior overlaps the boundary
-//                            set<exterior, boundary, '1', TransposeResult>(result);                    
-//                        }
-//                    }
-//                }
-//                // if it's the same single geometry
-//                else /*if ( previous_multi_index == it->operations[1].seg_id.multi_index )*/
-//                {
-//                    // and we jumped over one of the rings
-//                    if ( prev_seg_id_ptr != NULL // just in case
-//                      && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
-//                    {
-//                        // we can be sure that the exterior overlaps the boundary
-//                        set<exterior, boundary, '1', TransposeResult>(result);                    
-//                        break;
-//                    }
-//                }
-//
-//                prev_seg_id_ptr = boost::addressof(it->operations[1].seg_id);
-//
-//                // find the next ring first iterator and check if the analysis should be performed
-//                has_boundary_intersection has_boundary_inters;
-//                turn_iterator next = find_next_ring(it, turns.end(), has_boundary_inters);
-//
-//                // if there is no 1d overlap with the boundary
-//                if ( !has_boundary_inters.result )
-//                {
-//                    // we can be sure that the exterior overlaps the boundary
-//                    set<exterior, boundary, '1', TransposeResult>(result);                    
-//                    break;
-//                }
-//                // else there is 1d overlap with the boundary so we must analyse the boundary
-//                else
-//                {
-//                    // u, c
-//                    std::sort(it, next, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
-//
-//                    // analyse
-//                    areal_boundary_analyser<turn_type> analyser;
-//                    for ( turn_iterator rit = it ; rit != next ; ++rit )
-//                    {
-//                        // if the analyser requests, break the search
-//                        if ( !analyser.apply(it, rit, next) )
-//                            break;
-//                    }
-//
-//                    // if the boundary of Areal goes out of the Linear
-//                    if ( analyser.is_union_detected )
-//                    {
-//                        // we can be sure that the boundary of Areal overlaps the exterior of Linear
-//                        set<exterior, boundary, '1', TransposeResult>(result);
-//                        break;
-//                    }
-//                }
-//
-//                it = next;
-//            }
-//
-//            // if there was some previous ring
-//            if ( prev_seg_id_ptr != NULL )
-//            {
-//                int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
-//                BOOST_ASSERT(next_ring_index >= 0);
-//
-//                // if one of the last rings of previous single geometry was ommited
-//                if ( static_cast<std::size_t>(next_ring_index)
-//                        < geometry::num_interior_rings(
-//                            single_geometry(geometry2, *prev_seg_id_ptr)) )
-//                {
-//                    // we can be sure that the exterior overlaps the boundary
-//                    set<exterior, boundary, '1', TransposeResult>(result);                    
-//                }
-//            }
-//        }
+            uncertain_rings_analyser<1, Result, Geometry2, Geometry1> rings_analyser(result, geometry2, geometry1);
+            analyse_uncertain_rings<1>::apply(rings_analyser, turns.begin(), turns.end());
+
+            //if ( result.interrupt )
+            //    return;
+        }
     }
 
     // interrupt policy which may be passed to get_turns to interrupt the analysis
@@ -402,17 +329,18 @@ struct areal_areal
                 return;
             }
 
-            //segment_identifier const& seg_id = it->operations[op_id].seg_id;
+            segment_identifier const& seg_id = it->operations[op_id].seg_id;
             //segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
-            //const bool first_in_range = m_seg_watcher.update(seg_id);
+            const bool first_in_range = m_seg_watcher.update(seg_id);
 
             if ( m_previous_turn_ptr )
             {
                 if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
                 {
                     // real exit point - may be multiple
-                    if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                    if ( first_in_range
+                      || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
                     {
                         update_exit(result);
                         m_exit_detected = false;
@@ -422,11 +350,13 @@ struct areal_areal
                     {
                         m_exit_detected = false;
                     }
-                }
-                else if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
+                }                
+                /*else*/
+                if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
                 {
                     // real entry point
-                    if ( op == overlay::operation_union // optimization
+                    if ( first_in_range
+                      || op == overlay::operation_union // optimization
                       || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
                     {
                         update_enter(result);
@@ -518,7 +448,7 @@ struct areal_areal
         }
 
     private:
-        //segment_watcher m_seg_watcher;
+        segment_watcher<same_ring> m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         bool m_enter_detected;
@@ -554,120 +484,354 @@ struct areal_areal
                        geometry, other_geometry);
     }
 
-    // less comparator comparing multi_index then ring_index
-    // may be used to sort turns by ring
-    struct less_ring
+    template <std::size_t OpId, typename Result, typename Geometry, typename OtherGeometry>
+    class uncertain_rings_analyser
     {
-        template <typename Turn>
-        inline bool operator()(Turn const& left, Turn const& right) const
+        static const bool transpose_result = OpId != 0;
+        static const int other_id = (OpId + 1) % 2;
+
+        static const iterate_direction direction = order_as_direction<geometry::point_order<Geometry const>::value>::value;
+        static const closure_selector closure = geometry::closure<Geometry const>::value;
+
+        typedef typename ring_type<Geometry const>::type ring_type;
+        typedef typename reversible_view<ring_type const, direction>::type reversible_type;
+        typedef typename closeable_view<reversible_type const, closure>::type closeable_type;
+
+    public:
+        inline uncertain_rings_analyser(Result & result,
+                                        Geometry const& geom,
+                                        OtherGeometry const& other_geom)
+            : geometry(geom), other_geometry(other_geom)
+            , interrupt(result.interrupt) // just in case, could be false as well
+            , m_result(result)
+            , m_flags(0)
         {
-            return left.operations[1].seg_id.multi_index < right.operations[1].seg_id.multi_index
-                || ( left.operations[1].seg_id.multi_index == right.operations[1].seg_id.multi_index
-                  && left.operations[1].seg_id.ring_index < right.operations[1].seg_id.ring_index );
+            // TODO: initialize flags with the result
+
+// TODO: WOULD IT BE POSSIBLE TO DISABLE SOME PARTS OF ANALYSIS DEPENDING ON WHAT IS THE STATE OF THE RESULT?
+// E.G. IF I^I IS SET TO SOME MAX IT'S NOT REQUIRED TO ANALYSE THINGS THAT MAY SET THE I^I
         }
-    };
 
-    // policy/functor checking if a turn's operation is operation_continue
-    struct has_boundary_intersection
-    {
-        has_boundary_intersection()
-            : result(false) {}
-
-        template <typename Turn>
-        inline void operator()(Turn const& turn)
+        inline void no_turns(segment_identifier const& seg_id)
         {
-            if ( turn.operations[1].operation == overlay::operation_continue )
-                result = true;
-        }
-
-        bool result;
-    };
-
-    // iterate through the range and search for the different multi_index or ring_index
-    // also call fun for each turn in the current range
-    template <typename It, typename Fun>
-    static inline It find_next_ring(It first, It last, Fun & fun)
-    {
-        if ( first == last )
-            return last;
-
-        int const multi_index = first->operations[1].seg_id.multi_index;
-        int const ring_index = first->operations[1].seg_id.ring_index;
-
-        fun(*first);
-        ++first;
-
-        for ( ; first != last ; ++first )
-        {
-            if ( multi_index != first->operations[1].seg_id.multi_index
-              || ring_index != first->operations[1].seg_id.ring_index )
+            // if those flags are set nothing will change
+            if ( (m_flags & 3) == 3 )
             {
-                return first;
+                return;
             }
 
-            fun(*first);
-        }
+            typename detail::sub_range_return_type<Geometry const>::type
+                range_ref = detail::sub_range(geometry, seg_id);
 
-        return last;
-    }
-
-    // analyser which called for turns sorted by seg/distance/operation
-    // checks if the boundary of Areal geometry really got out
-    // into the exterior of Linear geometry
-    template <typename TurnInfo>
-    class areal_boundary_analyser
-    {
-    public:
-        areal_boundary_analyser()
-            : is_union_detected(false)
-            , m_previous_turn_ptr(NULL)
-        {}
-
-        template <typename TurnIt>
-        bool apply(TurnIt /*first*/, TurnIt it, TurnIt last)
-        {
-            overlay::operation_type op = it->operations[1].operation;
-
-            if ( it != last )
+            if ( boost::empty(range_ref) )
             {
-                if ( op != overlay::operation_union
-                  && op != overlay::operation_continue )
-                {
-                    return true;
-                }
+                // TODO: throw an exception?
+                return; // ignore
+            }
+                
+            // TODO: possible optimization
+            // if the range is an interior ring we may use other IPs generated for this single geometry
+            // to know which other single geometries should be checked
 
-                if ( is_union_detected )
-                {
-                    BOOST_ASSERT(m_previous_turn_ptr != NULL);
-                    if ( !detail::equals::equals_point_point(it->point, m_previous_turn_ptr->point) )
-                    {
-                        // break
-                        return false;
-                    }
-                    else if ( op == overlay::operation_continue ) // operation_boundary
-                    {
-                        is_union_detected = false;
-                    }
-                }
+            // TODO: optimize! e.g. use spatial index
+            // O(N) - running it in a loop would gives O(NM)
+            int pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
-                if ( op == overlay::operation_union )
-                {
-                    is_union_detected = true;
-                    m_previous_turn_ptr = boost::addressof(*it);
-                }
-
-                return true;
+            //BOOST_ASSERT(pig != 0);
+            if ( pig > 0 )
+            {
+                update<boundary, interior, '1', transpose_result>(m_result);
+                update<interior, interior, '2', transpose_result>(m_result);
+                m_flags |= 1;
             }
             else
             {
-                return false;
-            }            
+                update<boundary, exterior, '1', transpose_result>(m_result);
+                update<interior, exterior, '2', transpose_result>(m_result);
+                m_flags |= 2;
+            }
+
+// TODO: break if all things are set
+// also some of them could be checked outside, before the analysis
+// In this case we shouldn't relay just on dummy flags
+// Flags should be initialized with proper values
+// or the result should be checked directly
+// THIS IS ALSO TRUE FOR OTHER ANALYSERS! in L/L and L/A
+
+            interrupt = m_flags == 7 || m_result.interrupt;
         }
 
-        bool is_union_detected;
+        template <typename TurnIt>
+        inline void turns(TurnIt first, TurnIt last)
+        {
+            // if those flags are set nothing will change
+            if ( (m_flags & 6) == 6 )
+            {
+                return;
+            }
+
+            bool found_ii = false;
+            bool found_uu = false;
+
+            for ( TurnIt it = first ; it != last ; ++it )
+            {
+                if ( it->operations[0].operation == overlay::operation_intersection 
+                  && it->operations[1].operation == overlay::operation_intersection )
+                {
+                    // ignore exterior ring
+                    if ( it->operations[OpId].seg_id.ring_index >= 0 )
+                    {
+                        found_ii = true;
+                    }
+                }
+                else if ( it->operations[0].operation == overlay::operation_union 
+                       && it->operations[1].operation == overlay::operation_union )
+                {
+                    // ignore if u/u is for holes
+                    //if ( it->operations[OpId].seg_id.ring_index >= 0
+                    //  && it->operations[other_id].seg_id.ring_index >= 0 )
+                    {
+                        found_uu = true;
+                    }
+                }
+                else // ignore
+                {
+                    return; // don't interrupt
+                }
+            }
+
+            // only i/i was generated for this ring
+            if ( found_ii )
+            {
+                //update<interior, interior, '0', transpose_result>(m_result);
+                //update<boundary, boundary, '0', transpose_result>(m_result);
+                update<boundary, interior, '1', transpose_result>(m_result);
+                update<exterior, interior, '2', transpose_result>(m_result);
+                m_flags |= 4;
+            }
+
+            // only u/u was generated for this ring
+            if ( found_uu )
+            {
+                update<boundary, exterior, '1', transpose_result>(m_result);
+                update<interior, exterior, '2', transpose_result>(m_result);
+                m_flags |= 2;
+
+                // not necessary since this will be checked in the next iteration
+                // but increases the pruning strength
+                // WARNING: this is not reflected in flags
+                update<exterior, boundary, '1', transpose_result>(m_result);
+                update<exterior, interior, '2', transpose_result>(m_result);
+            }
+
+            interrupt = m_flags == 7 || m_result.interrupt; // interrupt if the result won't be changed in the future
+        }
+
+//        template <typename TurnIt>
+//        inline bool turns(TurnIt first, TurnIt last)
+//        {
+//            std::set<int> other_multi_indexes_ii;
+//            bool found_uu = false;
+//
+//            for ( TurnIt it = first ; it != last ; ++it )
+//            {
+//                if ( it->operations[0].operation == overlay::operation_intersection 
+//                  && it->operations[1].operation == overlay::operation_intersection )
+//                {
+//                    // ignore exterior ring
+//                    if ( it->operations[OpId].seg_id.ring_index >= 0 )
+//                    {
+//                        other_multi_indexes_ii.insert(it->operations[other_id].seg_id.multi_index);
+//                    }
+//                }
+//                else if ( it->operations[0].operation == overlay::operation_union 
+//                       && it->operations[1].operation == overlay::operation_union )
+//                {
+//                    // ignore if u/u is for holes
+//                    //if ( it->operations[OpId].seg_id.ring_index >= 0
+//                    //  && it->operations[other_id].seg_id.ring_index >= 0 )
+//                    {
+//                        found_uu = true;
+//                    }
+//                }
+//                else // ignore
+//                {
+//                    return true; // don't interrupt
+//                }
+//            }
+//
+//            // If we're here there was no other than i/i or u/u turns generated
+//            // i/i generated for holes of current geometry are stored only
+//
+//            // for each i/i other index test if there is no hole inside current ring
+//            if ( !other_multi_indexes_ii.empty() )
+//            {
+//                reversible_type rev_view(detail::sub_range(geometry, first->operations[OpId].seg_id));
+//                closeable_type ring_view(rev_view);
+//
+//                // NOTE that it doesn't matter if the tested hole is partially contained
+//                for ( std::set<int>::iterator it = other_multi_indexes_ii.begin() ;
+//                      it != other_multi_indexes_ii.end() ; ++it )
+//                {
+//                    ring_identifier other_ring_id(other_id, multi_index, 0);
+//
+//                    typename detail::single_geometry_return_type<OtherGeometry const>::type
+//                        other_single_ref = detail::single_geometry(other_geometry, other_ring_id);
+//
+//                    bool found_inside = false;
+//
+//                    // for each interior ring of other geometry
+//                    for ( ; other_ring_id.ring_index < geometry::num_interior_rings(other_single_ref) ;
+//                            ++other_ring_id.ring_index )
+//                    {
+//// TODO: not very optimal since single geometry must be indexed for each ring
+//                        typename detail::sub_range_return_type<OtherGeometry const>::type
+//                            other_range_ref = detail::sub_range(other_geometry, other_ring_id);
+//
+//                        if ( boost::empty(other_range_ref) )
+//                        {
+//                            continue;
+//                        }
+//
+//                        typename point_type<OtherGeometry>::type const&
+//                            pt = range::front(other_range_ref);
+//
+//                        int pig = detail::within::point_in_range<Geometry>(pt, ring_view);
+//
+//                        if ( pig > 0 )
+//                        {
+//                            found_inside = true;
+//                            break;
+//                        }
+//                    }
+//
+//                    // nothing is inside the hole, ... WRONG!
+//                    if ( !found_inside )
+//                    {
+//                        update<boundary, interior, '1', transpose_result>(m_result);
+//                        update<exterior, interior, '2', transpose_result>(m_result);
+//                    }
+//                }
+//            }
+//
+//            // if u/u were found this means that only u/u were generated for this ring
+//            if ( found_uu )
+//            {
+//                update<boundary, exterior, '1', transpose_result>(m_result);
+//                update<interior, exterior, '2', transpose_result>(m_result);
+//                m_flags |= 2;
+//
+//                // not necessary since this will be checked in the next iteration
+//                // but increases the pruning strength
+//                // NOTE that this is not reflected in flags on purpose
+//                update<exterior, boundary, '1', transpose_result>(m_result);
+//                update<exterior, interior, '2', transpose_result>(m_result);
+//            }
+//
+//            return m_flags != 3; // interrupt if the result won't be changed in the future
+//        }
+
+        Geometry const& geometry;
+        OtherGeometry const& other_geometry;
+        bool interrupt;
 
     private:
-        const TurnInfo * m_previous_turn_ptr;
+        Result & m_result;
+        int m_flags;
+    };
+
+    template <std::size_t OpId>
+    class analyse_uncertain_rings
+    {
+    public:
+        template <typename Analyser, typename TurnIt>
+        static inline void apply(Analyser & analyser, TurnIt first, TurnIt last)
+        {
+            if ( first == last )
+                return;
+
+            for_preceding_rings(analyser, *first);
+            //analyser.per_turn(*first);
+
+            TurnIt prev = first;
+            for ( ++first ; first != last ; ++first, ++prev )
+            {
+                // same multi
+                if ( prev->operations[OpId].seg_id.multi_index
+                  == first->operations[OpId].seg_id.multi_index )
+                {
+                    // same ring
+                    if ( prev->operations[OpId].seg_id.ring_index
+                      == first->operations[OpId].seg_id.ring_index )
+                    {
+                        //analyser.per_turn(*first);
+                    }
+                    // same multi, next ring
+                    else
+                    {
+                        //analyser.end_ring(*prev);
+                        analyser.turns(prev, first);
+
+                        //if ( prev->operations[OpId].seg_id.ring_index + 1
+                        //   < first->operations[OpId].seg_id.ring_index)
+                        {
+                            for_no_turns_rings(analyser,
+                                               *first,
+                                               prev->operations[OpId].seg_id.ring_index + 1,
+                                               first->operations[OpId].seg_id.ring_index);
+                        }
+
+                        //analyser.per_turn(*first);
+                    }
+                }
+                // next multi
+                else
+                {
+                    //analyser.end_ring(*prev);
+                    analyser.turns(prev, first);
+                    for_following_rings(analyser, *prev);
+                    for_preceding_rings(analyser, *first);
+                    //analyser.per_turn(*first);
+                }
+
+                if ( analyser.interrupt )
+                {
+                    return;
+                }
+            }
+
+            //analyser.end_ring(*prev);
+            analyser.turns(prev, first); // first == last
+            for_following_rings(analyser, *prev);
+        }
+
+    private:
+        template <typename Analyser, typename Turn>
+        static inline void for_preceding_rings(Analyser & analyser, Turn const& turn)
+        {
+            for_no_turns_rings(analyser, turn, -1, turn.operations[OpId].seg_id.ring_index);
+        }
+
+        template <typename Analyser, typename Turn>
+        static inline void for_following_rings(Analyser & analyser, Turn const& turn)
+        {
+            std::size_t count = geometry::num_interior_rings(
+                                    detail::single_geometry(analyser.geometry,
+                                                            turn.operations[OpId].seg_id));
+            for_no_turns_rings(analyser, turn, turn.operations[OpId].seg_id.ring_index + 1, count);
+        }
+
+        template <typename Analyser, typename Turn>
+        static inline void for_no_turns_rings(Analyser & analyser, Turn const& turn, int first, int last)
+        {
+            segment_identifier seg_id = turn.operations[OpId].seg_id;
+            static const bool transpose_result = OpId != 0;
+
+            for ( seg_id.ring_index = first ; seg_id.ring_index < last ; ++seg_id.ring_index )
+            {
+                analyser.no_turns(seg_id);
+            }
+        }
     };
 };
 

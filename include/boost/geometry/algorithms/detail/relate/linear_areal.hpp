@@ -904,7 +904,7 @@ struct linear_areal
 
     private:
         exit_watcher<TurnInfo, op_id> m_exit_watcher;
-        segment_watcher m_seg_watcher;
+        segment_watcher<same_single_geometry> m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         unsigned m_boundary_counter;
