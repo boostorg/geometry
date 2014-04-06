@@ -212,7 +212,7 @@ struct areal_areal
         static bool const enabled = true;
 
         interrupt_policy_areal_areal(Geometry1 const& geometry1,
-                                     Geometry1 const& geometry2,
+                                     Geometry2 const& geometry2,
                                      Result & result)
             : m_result(result)
             , m_geometry1(geometry1)

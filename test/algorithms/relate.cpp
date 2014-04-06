@@ -394,15 +394,16 @@ void test_multi_linestring_multi_linestring()
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
 
-    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
-                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
-                     "mls_mls1.svg");
-    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
-                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
-                     "mls_mls2.svg");
-    to_svg<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
-                     "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(0 0,0 0,0 10,0 10))",
-                     "mls_mls3.svg");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
+                            "1F1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            //"MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
+                            "1F100F102");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(0 0,0 0,0 10,0 10))",
+                            "1F1F0F1F2");
 }
 
 template <typename P>
@@ -654,6 +655,7 @@ template <typename P>
 void polygon_polygon()
 {
     typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
 
     // touching
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
@@ -696,6 +698,12 @@ void polygon_polygon()
 
     // overlapping
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<ring, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<ring, ring>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((5 0,5 10,20 10,20 0,5 0))",
                               "212111212");
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,15 5,10 0,0 0))",
