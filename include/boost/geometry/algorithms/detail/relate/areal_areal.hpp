@@ -165,10 +165,7 @@ struct areal_areal
             return;
 
         {
-            typedef turns::less_seg_dist_op<0,1,2,3,4,0, 0,
-                                turns::less_ignore_other> less;
-
-            // u, i, x, c
+            typedef turns::less<0, turns::less_op_areal_areal> less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 0> analyser;
@@ -187,10 +184,7 @@ struct areal_areal
         }
 
         {
-            typedef turns::less_seg_dist_op<0,1,2,3,4,0, 1,
-                                turns::less_ignore_other> less;
-
-            // u, i, x, c
+            typedef turns::less<1, turns::less_op_areal_areal> less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 1> analyser;
@@ -356,15 +350,13 @@ struct areal_areal
                 {
                     // real entry point
                     if ( first_in_range
-                      || op == overlay::operation_union // optimization
                       || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
                     {
                         update_enter(result);
                         m_enter_detected = false;
                     }
-                    // fake exit point, reset state
-                    else if ( op == overlay::operation_continue
-                           || op == overlay::operation_blocked )
+                    // fake entry point, reset state
+                    else if ( op != overlay::operation_intersection )
                     {
                         m_enter_detected = false;
                     }

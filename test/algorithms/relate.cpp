@@ -761,40 +761,60 @@ void polygon_polygon()
                               "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,3 8,3 2,10 5))",
                               "212F11FF2");
 
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 0,0 0))",
-                       "c20.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 5,5 6,5 4,10 5,10 0,0 0))",
-                       "c21.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 5,3 8,3 2,10 5,10 0,0 0))",
-                       "c22.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
-                       "c23.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,5 6,5 4,10 5))",
-                       "c24.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,3 8,3 2,10 5))",
-                       "c25.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
-                       "c26.svg");
+    // within non-simple hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "2FF11F2F2");
+    // within non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 4,10 5,10 0,0 0))",
+                              "2FF11F212");
+    // containing non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,3 8,3 2,10 5,10 0,0 0))",
+                              "212F11FF2");
+    // equal non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "2FFF1FFF2");
+    // within non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,5 6,5 4,10 5))",
+                              "2FF11F212");
+    // containing non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,3 8,3 2,10 5))",
+                              "212F11FF2");
+    // equal non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "2FFF1FFF2");
 
-    to_svg<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
-                       "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 5,5 4,5 5,0 5))",
-                       "c3.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0))",
-                       "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
-                       "c4.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
-                       "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5),(5 5,8 4,8 6,5 5))",
-                       "c5.svg");
-    to_svg<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
-                       "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
-                       "c6.svg");
+    // intersecting non-simple hole / non-simple hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 5,5 4,5 5,0 5))",
+                              "21211F2F2");
+    // intersecting non-simple fake hole / non-simple hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 5,5 4,5 5,0 5))",
+                              "21211F2F2");
+    // intersecting non-simple fake hole / non-simple fake hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 5,5 4,5 5,0 5,0 10,10 10,10 0,0 0))",
+                              "21211F2F2");
+
+    // intersecting simple - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
+                              "212101212");
+    // intersecting non-simple hole / non-simple hole - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5),(5 5,8 4,8 6,5 5))",
+                              "212101212");
+    // intersecting non-simple hole / simple - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
+                              "212101212");
 }
 
 template <typename P>

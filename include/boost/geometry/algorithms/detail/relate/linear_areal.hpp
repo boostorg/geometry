@@ -203,7 +203,14 @@ struct linear_areal
         {
             // for different multi or same ring id: x, u, i, c
             // for same multi and different ring id: c, i, u, x
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
+            typedef turns::less
+                <
+                    0, turns::less_greater_op_for_other_same_m_diff_r
+                        <
+                            turns::op_to_int<0,2,3,1,4,0>
+                        >
+                > less;
+            std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
@@ -291,7 +298,14 @@ struct linear_areal
                 else
                 {
                     // u, c
-                    std::sort(it, next, turns::less_seg_dist_op<0,1,0,0,2,0,1>());
+                    typedef turns::less
+                        <
+                            1, turns::less_greater_op_for_other_same_m_diff_r
+                                <
+                                    turns::op_to_int<0,1,0,0,2,0>
+                                >
+                        > less;
+                    std::sort(it, next, less());
 
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;

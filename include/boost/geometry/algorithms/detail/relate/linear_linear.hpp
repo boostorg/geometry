@@ -243,7 +243,14 @@ struct linear_linear
 
         {
             // x, u, i, c
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
+            typedef turns::less
+                <
+                    0, turns::less_greater_op_for_other_same_m_diff_r
+                        <
+                            turns::op_to_int<0,2,3,1,4,0>
+                        >
+                > less;
+            std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 0> analyser;
             analyse_each_turn(result, analyser,
@@ -257,7 +264,14 @@ struct linear_linear
         
         {
             // x, u, i, c
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
+            typedef turns::less
+                <
+                    1, turns::less_greater_op_for_other_same_m_diff_r
+                        <
+                            turns::op_to_int<0,2,3,1,4,0>
+                        >
+                > less;
+            std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 1> analyser;
             analyse_each_turn(result, analyser,
