@@ -41,10 +41,25 @@ class no_turns_aa_pred
 {
 public:
     no_turns_aa_pred(OtherAreal const& other_areal, Result & res)
-        : m_result_ptr(boost::addressof(res))
-        , m_other_areal_ptr(boost::addressof(other_areal))
+        : m_result(res)
+        , m_other_areal(other_areal)
         , m_flags(0)
-    {}
+    {
+        // check which relations must be analysed
+
+        if ( ! may_update<interior, interior, '2', TransposeResult>(m_result)
+          && ! may_update<boundary, interior, '1', TransposeResult>(m_result)
+          && ! may_update<exterior, interior, '2', TransposeResult>(m_result) )
+        {
+            m_flags |= 1;
+        }
+
+        if ( ! may_update<interior, exterior, '2', TransposeResult>(m_result)
+          && ! may_update<boundary, exterior, '1', TransposeResult>(m_result) )
+        {
+            m_flags |= 2;
+        }
+    }
 
     template <typename Areal>
     bool operator()(Areal const& areal)
@@ -55,27 +70,35 @@ public:
 
         // TODO: for now ignore, later throw an exception?
         if ( !ok )
+        {
             return true;
+        }
+
+        // if those flags are set nothing will change
+        if ( m_flags == 3 )
+        {
+            return false;
+        }
 
         // check if the areal is inside the other_areal
         // TODO: This is O(N)
         // Run in a loop O(NM) - optimize!
-        int pig = detail::within::point_in_geometry(pt, *m_other_areal_ptr);
+        int pig = detail::within::point_in_geometry(pt, m_other_areal);
         //BOOST_ASSERT( pig != 0 );
         
         // inside
         if ( pig > 0 )
         {
-            update<interior, interior, '2', TransposeResult>(*m_result_ptr);
-            update<boundary, interior, '1', TransposeResult>(*m_result_ptr);
-            update<exterior, interior, '2', TransposeResult>(*m_result_ptr);
+            update<interior, interior, '2', TransposeResult>(m_result);
+            update<boundary, interior, '1', TransposeResult>(m_result);
+            update<exterior, interior, '2', TransposeResult>(m_result);
             m_flags |= 1;
         }
         // outside
         else
         {
-            update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
-            update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
+            update<interior, exterior, '2', TransposeResult>(m_result);
+            update<boundary, exterior, '1', TransposeResult>(m_result);
             m_flags |= 2;
 
             // If the exterior ring is outside, interior rings must be checked
@@ -94,25 +117,25 @@ public:
 
                 // TODO: O(N)
                 // Optimize!
-                int pig = detail::within::point_in_geometry(range::front(range_ref), *m_other_areal_ptr);
+                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
 
                 // hole inside
                 if ( pig > 0 )
                 {
-                    update<interior, interior, '2', TransposeResult>(*m_result_ptr);
-                    update<boundary, interior, '1', TransposeResult>(*m_result_ptr);
-                    update<exterior, interior, '2', TransposeResult>(*m_result_ptr);
+                    update<interior, interior, '2', TransposeResult>(m_result);
+                    update<boundary, interior, '1', TransposeResult>(m_result);
+                    update<exterior, interior, '2', TransposeResult>(m_result);
                     m_flags |= 1;
                 }
             }
         }
                     
-        return m_flags != 3 && !m_result_ptr->interrupt;
+        return m_flags != 3 && !m_result.interrupt;
     }
 
 private:
-    Result * m_result_ptr;
-    const OtherAreal * m_other_areal_ptr;
+    Result & m_result;
+    OtherAreal const& m_other_areal;
     int m_flags;
 };
 
@@ -164,42 +187,86 @@ struct areal_areal
         if ( turns.empty() )
             return;
 
+        if ( may_update<interior, interior, '2'>(result)
+          || may_update<interior, exterior, '2'>(result)
+          || may_update<boundary, interior, '1'>(result)
+          || may_update<boundary, exterior, '1'>(result)
+          || may_update<exterior, interior, '2'>(result) )
         {
+            // sort turns
             typedef turns::less<0, turns::less_op_areal_areal> less;
             std::sort(turns.begin(), turns.end(), less());
 
-            turns_analyser<turn_type, 0> analyser;
-            analyse_each_turn(result, analyser,
-                              turns.begin(), turns.end(),
-                              geometry1, geometry2);
+            /*if ( may_update<interior, exterior, '2'>(result)
+              || may_update<boundary, exterior, '1'>(result)
+              || may_update<boundary, interior, '1'>(result)
+              || may_update<exterior, interior, '2'>(result) )*/
+            {
+                // analyse sorted turns
+                turns_analyser<turn_type, 0> analyser;
+                analyse_each_turn(result, analyser,
+                                  turns.begin(), turns.end(),
+                                  geometry1, geometry2);
 
-            if ( result.interrupt )
-                return;
+                if ( result.interrupt )
+                    return;
+            }
 
-            uncertain_rings_analyser<0, Result, Geometry1, Geometry2> rings_analyser(result, geometry1, geometry2);
-            analyse_uncertain_rings<0>::apply(rings_analyser, turns.begin(), turns.end());
+            if ( may_update<interior, interior, '2'>(result)
+              || may_update<interior, exterior, '2'>(result)
+              || may_update<boundary, interior, '1'>(result)
+              || may_update<boundary, exterior, '1'>(result)
+              || may_update<exterior, interior, '2'>(result) )
+            {
+                // analyse rings for which turns were not generated
+                // or only i/i or u/u was generated
+                uncertain_rings_analyser<0, Result, Geometry1, Geometry2> rings_analyser(result, geometry1, geometry2);
+                analyse_uncertain_rings<0>::apply(rings_analyser, turns.begin(), turns.end());
 
-            if ( result.interrupt )
-                return;
+                if ( result.interrupt )
+                    return;
+            }
         }
 
+        if ( may_update<interior, interior, '2', true>(result)
+          || may_update<interior, exterior, '2', true>(result)
+          || may_update<boundary, interior, '1', true>(result)
+          || may_update<boundary, exterior, '1', true>(result)
+          || may_update<exterior, interior, '2', true>(result) )
         {
+            // sort turns
             typedef turns::less<1, turns::less_op_areal_areal> less;
             std::sort(turns.begin(), turns.end(), less());
 
-            turns_analyser<turn_type, 1> analyser;
-            analyse_each_turn(result, analyser,
-                              turns.begin(), turns.end(),
-                              geometry2, geometry1);
+            /*if ( may_update<interior, exterior, '2', true>(result)
+              || may_update<boundary, exterior, '1', true>(result)
+              || may_update<boundary, interior, '1', true>(result)
+              || may_update<exterior, interior, '2', true>(result) )*/
+            {
+                // analyse sorted turns
+                turns_analyser<turn_type, 1> analyser;
+                analyse_each_turn(result, analyser,
+                                  turns.begin(), turns.end(),
+                                  geometry2, geometry1);
 
-            if ( result.interrupt )
-                return;
+                if ( result.interrupt )
+                    return;
+            }
 
-            uncertain_rings_analyser<1, Result, Geometry2, Geometry1> rings_analyser(result, geometry2, geometry1);
-            analyse_uncertain_rings<1>::apply(rings_analyser, turns.begin(), turns.end());
+            if ( may_update<interior, interior, '2', true>(result)
+              || may_update<interior, exterior, '2', true>(result)
+              || may_update<boundary, interior, '1', true>(result)
+              || may_update<boundary, exterior, '1', true>(result)
+              || may_update<exterior, interior, '2', true>(result) )
+            {
+                // analyse rings for which turns were not generated
+                // or only i/i or u/u was generated
+                uncertain_rings_analyser<1, Result, Geometry2, Geometry1> rings_analyser(result, geometry2, geometry1);
+                analyse_uncertain_rings<1>::apply(rings_analyser, turns.begin(), turns.end());
 
-            //if ( result.interrupt )
-            //    return;
+                //if ( result.interrupt )
+                //    return;
+            }
         }
     }
 
@@ -218,8 +285,6 @@ struct areal_areal
             , m_geometry1(geometry1)
             , m_geometry2(geometry2)
         {}
-
-// TODO: since we update result for some operations here, we may not do it in the analyser!
 
         template <typename Range>
         inline bool apply(Range const& turns)
@@ -498,10 +563,25 @@ struct areal_areal
             , m_result(result)
             , m_flags(0)
         {
-            // TODO: initialize flags with the result
+            // check which relations must be analysed
 
-// TODO: WOULD IT BE POSSIBLE TO DISABLE SOME PARTS OF ANALYSIS DEPENDING ON WHAT IS THE STATE OF THE RESULT?
-// E.G. IF I^I IS SET TO SOME MAX IT'S NOT REQUIRED TO ANALYSE THINGS THAT MAY SET THE I^I
+            if ( ! may_update<interior, interior, '2', transpose_result>(m_result)
+              && ! may_update<boundary, interior, '1', transpose_result>(m_result) )
+            {
+                m_flags |= 1;
+            }
+
+            if ( ! may_update<interior, exterior, '2', transpose_result>(m_result)
+              && ! may_update<boundary, exterior, '1', transpose_result>(m_result) )
+            {
+                m_flags |= 2;
+            }
+
+            if ( ! may_update<boundary, interior, '1', transpose_result>(m_result)
+              && ! may_update<exterior, interior, '2', transpose_result>(m_result) )
+            {
+                m_flags |= 4;
+            }
         }
 
         inline void no_turns(segment_identifier const& seg_id)
@@ -618,110 +698,6 @@ struct areal_areal
 
             interrupt = m_flags == 7 || m_result.interrupt; // interrupt if the result won't be changed in the future
         }
-
-//        template <typename TurnIt>
-//        inline bool turns(TurnIt first, TurnIt last)
-//        {
-//            std::set<int> other_multi_indexes_ii;
-//            bool found_uu = false;
-//
-//            for ( TurnIt it = first ; it != last ; ++it )
-//            {
-//                if ( it->operations[0].operation == overlay::operation_intersection 
-//                  && it->operations[1].operation == overlay::operation_intersection )
-//                {
-//                    // ignore exterior ring
-//                    if ( it->operations[OpId].seg_id.ring_index >= 0 )
-//                    {
-//                        other_multi_indexes_ii.insert(it->operations[other_id].seg_id.multi_index);
-//                    }
-//                }
-//                else if ( it->operations[0].operation == overlay::operation_union 
-//                       && it->operations[1].operation == overlay::operation_union )
-//                {
-//                    // ignore if u/u is for holes
-//                    //if ( it->operations[OpId].seg_id.ring_index >= 0
-//                    //  && it->operations[other_id].seg_id.ring_index >= 0 )
-//                    {
-//                        found_uu = true;
-//                    }
-//                }
-//                else // ignore
-//                {
-//                    return true; // don't interrupt
-//                }
-//            }
-//
-//            // If we're here there was no other than i/i or u/u turns generated
-//            // i/i generated for holes of current geometry are stored only
-//
-//            // for each i/i other index test if there is no hole inside current ring
-//            if ( !other_multi_indexes_ii.empty() )
-//            {
-//                reversible_type rev_view(detail::sub_range(geometry, first->operations[OpId].seg_id));
-//                closeable_type ring_view(rev_view);
-//
-//                // NOTE that it doesn't matter if the tested hole is partially contained
-//                for ( std::set<int>::iterator it = other_multi_indexes_ii.begin() ;
-//                      it != other_multi_indexes_ii.end() ; ++it )
-//                {
-//                    ring_identifier other_ring_id(other_id, multi_index, 0);
-//
-//                    typename detail::single_geometry_return_type<OtherGeometry const>::type
-//                        other_single_ref = detail::single_geometry(other_geometry, other_ring_id);
-//
-//                    bool found_inside = false;
-//
-//                    // for each interior ring of other geometry
-//                    for ( ; other_ring_id.ring_index < geometry::num_interior_rings(other_single_ref) ;
-//                            ++other_ring_id.ring_index )
-//                    {
-//// TODO: not very optimal since single geometry must be indexed for each ring
-//                        typename detail::sub_range_return_type<OtherGeometry const>::type
-//                            other_range_ref = detail::sub_range(other_geometry, other_ring_id);
-//
-//                        if ( boost::empty(other_range_ref) )
-//                        {
-//                            continue;
-//                        }
-//
-//                        typename point_type<OtherGeometry>::type const&
-//                            pt = range::front(other_range_ref);
-//
-//                        int pig = detail::within::point_in_range<Geometry>(pt, ring_view);
-//
-//                        if ( pig > 0 )
-//                        {
-//                            found_inside = true;
-//                            break;
-//                        }
-//                    }
-//
-//                    // nothing is inside the hole, ... WRONG!
-//                    if ( !found_inside )
-//                    {
-//                        update<boundary, interior, '1', transpose_result>(m_result);
-//                        update<exterior, interior, '2', transpose_result>(m_result);
-//                    }
-//                }
-//            }
-//
-//            // if u/u were found this means that only u/u were generated for this ring
-//            if ( found_uu )
-//            {
-//                update<boundary, exterior, '1', transpose_result>(m_result);
-//                update<interior, exterior, '2', transpose_result>(m_result);
-//                m_flags |= 2;
-//
-//                // not necessary since this will be checked in the next iteration
-//                // but increases the pruning strength
-//                // NOTE that this is not reflected in flags on purpose
-//                update<exterior, boundary, '1', transpose_result>(m_result);
-//                update<exterior, interior, '2', transpose_result>(m_result);
-//            }
-//
-//            return m_flags != 3; // interrupt if the result won't be changed in the future
-//        }
 
         Geometry const& geometry;
         OtherGeometry const& other_geometry;

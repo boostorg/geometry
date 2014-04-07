@@ -823,6 +823,27 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
                               "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
                               "212101212");
+
+    {
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 10,6 5,5 5))",
+                              "212F11FF2");
+
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                                  "POLYGON((10 0,10 10,20 10,20 0,10 0))",
+                                  "FF2F11212");
+
+        namespace bgdr = bg::detail::relate;
+        poly p1, p2, p3;
+        bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", p1);
+        bg::read_wkt("POLYGON((10 0,10 10,20 10,20 0,10 0))", p2);
+        bg::read_wkt("POLYGON((5 5,5 10,6 10,6 5,5 5))", p3);
+        BOOST_CHECK(bgdr::relate(p1, p2, bgdr::mask9("FT*******")
+                                      || bgdr::mask9("F**T*****")
+                                      || bgdr::mask9("F***T****"))); // touches()
+        BOOST_CHECK(bgdr::relate(p1, p3, bgdr::mask9("T*****FF*"))); // contains()
+        BOOST_CHECK(bgdr::relate(p2, p3, bgdr::mask9("FF*FF****"))); // disjoint()
+    }
 }
 
 template <typename P>
