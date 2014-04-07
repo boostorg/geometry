@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
 #include <boost/type_traits.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -30,7 +29,7 @@ template
     typename AccessInnerBegin,
     typename AccessInnerEnd
 >
-struct flatten_iterator
+class flatten_iterator
     : public boost::iterator_facade
         <
             flatten_iterator
@@ -47,8 +46,6 @@ struct flatten_iterator
 private:
     OuterIterator m_outer_it, m_outer_end;
     InnerIterator m_inner_it;
-
-    struct enabler {};
 
 public:
     typedef OuterIterator outer_iterator_type;
@@ -82,16 +79,21 @@ public:
                          OtherValue,
                          OtherAccessInnerBegin,
                          OtherAccessInnerEnd
-                     > const& other,
-                     typename boost::enable_if
-                     <
-                         boost::is_convertible<OtherValue*, Value*>, 
-                         enabler
-                     >::type = enabler())
+                     > const& other)
         : m_outer_it(other.m_outer_it),
           m_outer_end(other.m_outer_end),
           m_inner_it(other.m_inner_it)
-    {}
+    {
+        BOOST_STATIC_ASSERT( boost::is_convertible
+                             <
+                                 OtherOuterIterator, OuterIterator
+                             >::value
+                             && boost::is_convertible
+                             <
+                                 OtherInnerIterator, InnerIterator
+                             >::value );
+             
+    }
 
     template
     <
@@ -110,6 +112,15 @@ public:
                                    OtherAccessInnerEnd
                                > const& other)
     {
+        BOOST_STATIC_ASSERT( boost::is_convertible
+                             <
+                                 OtherOuterIterator, OuterIterator
+                             >::value
+                             && boost::is_convertible
+                             <
+                                 OtherInnerIterator, InnerIterator
+                             >::value );
+             
         m_outer_it = other.m_outer_it;
         m_outer_end = other.m_outer_end;
         m_inner_it = other.m_inner_it;
@@ -148,7 +159,7 @@ private:
         }
     }
 
-    Value& dereference() const
+    inline Value& dereference() const
     {
         BOOST_ASSERT( m_outer_it != m_outer_end );
         BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
