@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 
 #include <boost/type_traits.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -35,8 +34,6 @@ private:
     Iterator1 m_it1, m_end1;
     Iterator2 m_it2;
 
-    struct enabler {};
-
 public:
     typedef Iterator1 first_iterator_type;
     typedef Iterator2 second_iterator_type;
@@ -57,17 +54,27 @@ public:
 
     template <typename OtherIt1, typename OtherIt2, typename OtherValue>
     concatenate_iterator
-    (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other,
-     typename boost::enable_if_c
-         <
-             boost::is_convertible<OtherIt1, Iterator1>::value
-             && boost::is_convertible<OtherIt2, Iterator2>::value,
-             enabler
-         >::type = enabler())
+    (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other)
         : m_it1(other.m_it1), m_end1(other.m_end1), m_it2(other.m_it2)
-    {}
+    {
+        BOOST_STATIC_ASSERT
+            ( boost::is_convertible<OtherIt1, Iterator1>::value
+              && boost::is_convertible<OtherIt2, Iterator2>::value );
+    }
 
+    template <typename OtherIt1, typename OtherIt2, typename OtherValue>
+    concatenate_iterator
+    operator=(concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other)
+    {
+        BOOST_STATIC_ASSERT
+            ( boost::is_convertible<OtherIt1, Iterator1>::value
+              && boost::is_convertible<OtherIt2, Iterator2>::value );
 
+        m_it1 = other.m_it1;
+        m_end1 = other.m_end1;
+        m_it2 = other.m_it2;
+        return *this;
+    }
 
 private:
     friend class boost::iterator_core_access;
@@ -75,7 +82,7 @@ private:
     template <typename It1, typename It2, typename V>
     friend class concatenate_iterator;
 
-    Value& dereference() const
+    inline Value& dereference() const
     {
         if ( m_it1 == m_end1 )
         {
@@ -84,12 +91,18 @@ private:
         return *m_it1;
     }
 
-    bool equal(concatenate_iterator const& other) const
+    template <typename OtherIt1, typename OtherIt2, typename OtherValue>
+    inline bool equal(concatenate_iterator
+                      <
+                          OtherIt1,
+                          OtherIt2,
+                          OtherValue
+                      > const& other) const
     {
         return m_it1 == other.m_it1 && m_it2 == other.m_it2;
     }
 
-    void increment()
+    inline void increment()
     {
         if ( m_it1 == m_end1 )
         {
