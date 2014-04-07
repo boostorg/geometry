@@ -35,6 +35,12 @@ namespace detail { namespace relate {
 
 enum field { interior = 0, boundary = 1, exterior = 2 };
 
+// TODO: IF THE RESULT IS UPDATED WITH THE MAX POSSIBLE VALUE FOR SOME PAIR OF GEOEMTRIES
+// THE VALUE ALREADY STORED MUSN'T BE CHECKED
+// update() calls chould be replaced with set() in those cases
+// but for safety reasons (STATIC_ASSERT) we should check if parameter D is valid and set() doesn't do that
+// so some additional function could be added, e.g. set_dim()
+
 // matrix
 
 // TODO add height?

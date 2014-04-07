@@ -35,13 +35,28 @@ class disjoint_linestring_pred
 public:
     disjoint_linestring_pred(Result & res,
                              BoundaryChecker const& boundary_checker)
-        : m_result_ptr(boost::addressof(res))
-        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
-    {}
+        : m_result(res)
+        , m_boundary_checker(boundary_checker)
+        , m_flags(0)
+    {
+        if ( ! may_update<interior, exterior, '1', TransposeResult>(m_result) )
+        {
+            m_flags |= 1;
+        }
+        if ( ! may_update<boundary, exterior, '0', TransposeResult>(m_result) )
+        {
+            m_flags |= 2;
+        }
+    }
 
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
     {
+        if ( m_flags == 3 )
+        {
+            return false;
+        }
+
         std::size_t count = boost::size(linestring);
         
         // invalid input
@@ -52,25 +67,28 @@ public:
             return true;
         }
 
-        update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
+        update<interior, exterior, '1', TransposeResult>(m_result);
+        m_flags |= 1;
 
         // check if there is a boundary
-        if ( m_boundary_checker_ptr->template
+        if ( m_flags < 2
+          && ( m_boundary_checker.template
                 is_endpoint_boundary<boundary_front>(range::front(linestring))
-          || m_boundary_checker_ptr->template
-                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+            || m_boundary_checker.template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) ) )
         {
-            update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
-                    
-            return false;
+            update<boundary, exterior, '0', TransposeResult>(m_result);
+            m_flags |= 2;
         }
 
-        return !m_result_ptr->interrupt;
+        return m_flags != 3
+            && ! m_result.interrupt;
     }
 
 private:
-    Result * m_result_ptr;
-    const BoundaryChecker * m_boundary_checker_ptr;
+    Result & m_result;
+    BoundaryChecker const& m_boundary_checker;
+    unsigned m_flags;
 };
 
 //enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
@@ -239,8 +257,12 @@ struct linear_linear
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
 
-// TODO: ADD A CHECK TO THE RESULT INDICATING IF THE FIRST AND/OR SECOND GEOMETRY MUST BE ANALYSED
-
+        if ( may_update<interior, interior, '1'>(result)
+          || may_update<interior, boundary, '0'>(result)
+          || may_update<interior, exterior, '1'>(result)
+          || may_update<boundary, interior, '0'>(result)
+          || may_update<boundary, boundary, '0'>(result)
+          || may_update<boundary, exterior, '0'>(result) )
         {
             // x, u, i, c
             typedef turns::less
@@ -262,6 +284,12 @@ struct linear_linear
         if ( result.interrupt )
             return;
         
+        if ( may_update<interior, interior, '1', true>(result)
+          || may_update<interior, boundary, '0', true>(result)
+          || may_update<interior, exterior, '1', true>(result)
+          || may_update<boundary, interior, '0', true>(result)
+          || may_update<boundary, boundary, '0', true>(result)
+          || may_update<boundary, exterior, '0', true>(result) )
         {
             // x, u, i, c
             typedef turns::less

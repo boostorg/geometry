@@ -348,10 +348,11 @@ void test_linestring_linestring()
     // OTHER MASKS
     {
         namespace bgdr = bg::detail::relate;
-        ls ls1, ls2, ls3;
+        ls ls1, ls2, ls3, ls4;
         bg::read_wkt("LINESTRING(0 0,2 0)", ls1);
         bg::read_wkt("LINESTRING(2 0,4 0)", ls2);
         bg::read_wkt("LINESTRING(1 0,1 1)", ls3);
+        bg::read_wkt("LINESTRING(1 0,4 0)", ls4);
         BOOST_CHECK(bgdr::relate(ls1, ls2, bgdr::mask9("FT*******")
                                         || bgdr::mask9("F**T*****")
                                         || bgdr::mask9("F***T****")));
@@ -361,6 +362,7 @@ void test_linestring_linestring()
         BOOST_CHECK(bgdr::relate(ls3, ls1, bgdr::mask9("FT*******")
                                         || bgdr::mask9("F**T*****")
                                         || bgdr::mask9("F***T****")));
+        BOOST_CHECK(bgdr::relate(ls2, ls4, bgdr::mask9("T*F**F***"))); // within
     }
 }
 
