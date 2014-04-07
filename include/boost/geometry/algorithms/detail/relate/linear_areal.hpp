@@ -44,10 +44,30 @@ public:
                                 Result & res,
                                 BoundaryChecker const& boundary_checker)
         : m_geometry2(geometry2)
-        , m_result_ptr(boost::addressof(res))
-        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
+        , m_result(res)
+        , m_boundary_checker(boundary_checker)
         , m_interrupt_flags(0)
-    {}
+    {
+        if ( ! may_update<interior, interior, '1', TransposeResult>(m_result) )
+        {
+            m_interrupt_flags |= 1;
+        }
+
+        if ( ! may_update<interior, exterior, '1', TransposeResult>(m_result) )
+        {
+            m_interrupt_flags |= 2;
+        }
+
+        if ( ! may_update<boundary, interior, '0', TransposeResult>(m_result) )
+        {
+            m_interrupt_flags |= 4;
+        }
+
+        if ( ! may_update<boundary, exterior, '0', TransposeResult>(m_result) )
+        {
+            m_interrupt_flags |= 8;
+        }
+    }
 
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
@@ -62,47 +82,53 @@ public:
             return true;
         }
 
+        // if those flags are set nothing will change
+        if ( m_interrupt_flags == 0xF )
+        {
+            return false;
+        }
+
         int pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
-        BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
+        //BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
 
         if ( pig > 0 )
         {
-            update<interior, interior, '1', TransposeResult>(*m_result_ptr);
+            update<interior, interior, '1', TransposeResult>(m_result);
             m_interrupt_flags |= 1;
         }
         else
         {
-            update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
+            update<interior, exterior, '1', TransposeResult>(m_result);
             m_interrupt_flags |= 2;
         }
 
         // check if there is a boundary
-        if ( m_boundary_checker_ptr->template
+        if ( ( m_interrupt_flags & 0xC ) != 0xC // if wasn't already set
+          && ( m_boundary_checker.template
                 is_endpoint_boundary<boundary_front>(range::front(linestring))
-          || m_boundary_checker_ptr->template
-                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+            || m_boundary_checker.template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) ) )
         {
             if ( pig > 0 )
             {
-                update<boundary, interior, '0', TransposeResult>(*m_result_ptr);
+                update<boundary, interior, '0', TransposeResult>(m_result);
                 m_interrupt_flags |= 4;
             }
             else
             {
-                update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
+                update<boundary, exterior, '0', TransposeResult>(m_result);
                 m_interrupt_flags |= 8;
             }
-
-            return m_interrupt_flags != 0xF && !m_result_ptr->interrupt;
         }
 
-        return !m_result_ptr->interrupt;
+        return m_interrupt_flags != 0xF
+            && ! m_result.interrupt;
     }
 
 private:
     Geometry2 const& m_geometry2;
-    Result * m_result_ptr;
-    const BoundaryChecker * m_boundary_checker_ptr;
+    Result & m_result;
+    BoundaryChecker const& m_boundary_checker;
     unsigned m_interrupt_flags;
 };
 
@@ -112,14 +138,21 @@ class no_turns_la_areal_pred
 {
 public:
     no_turns_la_areal_pred(Result & res)
-        : m_result_ptr(boost::addressof(res))
+        : m_result(res)
+        , interrupt(! may_update<interior, exterior, '2', TransposeResult>(m_result)
+                 && ! may_update<boundary, exterior, '1', TransposeResult>(m_result) )
     {}
 
     template <typename Areal>
     bool operator()(Areal const& areal)
     {
+        if ( interrupt )
+        {
+            return false;
+        }
+
         // TODO:
-        // handle empty/invalid geometries in a different way than this:
+        // handle empty/invalid geometries in a different way than below?
 
         typedef typename geometry::point_type<Areal>::type point_type;
         point_type dummy;
@@ -127,16 +160,19 @@ public:
 
         // TODO: for now ignore, later throw an exception?
         if ( !ok )
+        {
             return true;
+        }
 
-        update<interior, exterior, '2', TransposeResult>(*m_result_ptr);
-        update<boundary, exterior, '1', TransposeResult>(*m_result_ptr);
+        update<interior, exterior, '2', TransposeResult>(m_result);
+        update<boundary, exterior, '1', TransposeResult>(m_result);
                     
         return false;
     }
 
 private:
-    Result * m_result_ptr;
+    Result & m_result;
+    bool const interrupt;
 };
 
 // The implementation of an algorithm calculating relate() for L/A
@@ -222,15 +258,22 @@ struct linear_areal
                 return;
         }
 
-// TODO: CALCULATE THE FOLLOWING ONLY IF IT'S REQUIRED BY THE RESULT!
-//       AND ONLY IF IT WAS NOT SET BY THE no_turns_la_areal_pred
-
+        // If 'c' (insersection_boundary) was not found we know that any Ls isn't equal to one of the Rings
         if ( !interrupt_policy.is_boundary_found )
         {
             set<exterior, boundary, '1', TransposeResult>(result);
         }
-        else
+        // Don't calculate it if it's required
+        else if ( may_update<exterior, boundary, '1', TransposeResult>(result) )
         {
+// TODO: REVISE THIS CODE AND PROBABLY REWRITE SOME PARTS TO BE MORE HUMAN-READABLE
+//       IN GENERAL IT ANALYSES THE RINGS OF AREAL GEOMETRY AND DETECTS THE ONES THAT
+//       MAY OVERLAP THE INTERIOR OF LINEAR GEOMETRY (NO IPs OR NON-FAKE 'u' OPERATION)
+// NOTE: For one case std::sort may be called again to sort data by operations for data already sorted by ring index
+//       In the worst case scenario the complexity will be O( NlogN + R*(N/R)log(N/R) )
+//       So always should remain O(NlogN) -> for R==1 <-> 1(N/1)log(N/1), for R==N <-> N(N/N)log(N/N)
+//       Some benchmarking should probably be done to check if only one std::sort should be used
+
             // sort by multi_index and rind_index
             std::sort(turns.begin(), turns.end(), less_ring());
 
@@ -264,7 +307,8 @@ struct linear_areal
                                     single_geometry(geometry2, *prev_seg_id_ptr)) )
                         {
                             // we can be sure that the exterior overlaps the boundary
-                            set<exterior, boundary, '1', TransposeResult>(result);                    
+                            set<exterior, boundary, '1', TransposeResult>(result);
+                            break;
                         }
                     }
                 }
@@ -340,7 +384,7 @@ struct linear_areal
                             single_geometry(geometry2, *prev_seg_id_ptr)) )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);                    
+                    set<exterior, boundary, '1', TransposeResult>(result);
                 }
             }
         }

@@ -64,6 +64,12 @@ public:
     template <typename Areal>
     bool operator()(Areal const& areal)
     {
+        // if those flags are set nothing will change
+        if ( m_flags == 3 )
+        {
+            return false;
+        }
+
         typedef typename geometry::point_type<Areal>::type point_type;
         point_type pt;
         bool ok = boost::geometry::point_on_border(pt, areal);
@@ -72,12 +78,6 @@ public:
         if ( !ok )
         {
             return true;
-        }
-
-        // if those flags are set nothing will change
-        if ( m_flags == 3 )
-        {
-            return false;
         }
 
         // check if the areal is inside the other_areal
