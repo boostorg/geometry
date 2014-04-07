@@ -228,6 +228,15 @@ struct test_point_iterator_of_geometry
         const_begin = begin;
         const_end = end;
 
+        // testing equality/inequality comparison
+        BOOST_CHECK ( begin == const_begin );
+        BOOST_CHECK ( end == const_end );
+        if ( begin != end )
+        {
+            BOOST_CHECK ( begin != const_end );
+            BOOST_CHECK ( const_begin != end );
+        }
+
         // testing dereferencing/assignment
         if ( begin != end )
         {
