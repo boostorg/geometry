@@ -250,7 +250,7 @@ public:
 
     void exit(TurnInfo const& turn)
     {
-        segment_identifier const& seg_id = turn.operations[op_id].seg_id;
+        //segment_identifier const& seg_id = turn.operations[op_id].seg_id;
         segment_identifier const& other_id = turn.operations[other_op_id].seg_id;
         overlay::operation_type exit_op = turn.operations[op_id].operation;
 

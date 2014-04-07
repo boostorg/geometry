@@ -490,7 +490,7 @@ struct linear_areal
             }
 
             segment_identifier const& seg_id = it->operations[op_id].seg_id;
-            segment_identifier const& other_id = it->operations[other_op_id].seg_id;
+            //segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
 

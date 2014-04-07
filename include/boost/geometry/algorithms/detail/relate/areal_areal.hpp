@@ -793,7 +793,6 @@ struct areal_areal
         static inline void for_no_turns_rings(Analyser & analyser, Turn const& turn, int first, int last)
         {
             segment_identifier seg_id = turn.operations[OpId].seg_id;
-            static const bool transpose_result = OpId != 0;
 
             for ( seg_id.ring_index = first ; seg_id.ring_index < last ; ++seg_id.ring_index )
             {
