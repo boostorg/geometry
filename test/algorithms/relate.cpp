@@ -843,6 +843,15 @@ void polygon_polygon()
                               "POLYGON((1 1,1 9,9 9,9 1,1 1),(3 3,7 3,7 7,3 7,3 3))",
                               "2121F1212");
 
+    // no-turns ring - for exteriors
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(2 2,8 2,8 8,2 8,2 2))",
+                              "212F11FF2");
+    // no-turns ring - for interiors
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "212F11FF2");
+
     {
         test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((5 5,5 10,6 10,6 5,5 5))",
