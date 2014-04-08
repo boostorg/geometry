@@ -1138,8 +1138,8 @@ struct static_mask_crosses_type<Geometry1, Geometry2, Dim, Dim, D1LessD2/*false*
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == 1 && dim(G2) == 1 - L/L
-template <typename Geometry1, typename Geometry2, bool D1LessD2>
-struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, D1LessD2>
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, false>
 {
     typedef static_mask<'0', '*', '*', '*', '*', '*', '*', '*', '*'> type;
 };
