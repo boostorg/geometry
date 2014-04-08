@@ -696,7 +696,7 @@ void polygon_polygon()
     // fully containing, both with holes
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
                               "POLYGON((1 1,1 9,9 9,9 1,1 1),(4 4,6 4,6 6,4 6,4 4))",
-                              "2121F12F2");
+                              "2121F1212");
 
     // overlapping
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
@@ -825,6 +825,23 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
                               "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
                               "212101212");
+
+    // no turns - disjoint inside a hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))",
+                              "POLYGON((3 3,3 7,7 7,7 3,3 3))",
+                              "FF2FF1212");
+    // no turns - within
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))",
+                              "POLYGON((-1 -1,-1 11,11 11,11 -1,-1 -1))",
+                              "2FF1FF212");
+    // no-turns - intersects
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1))",
+                              "2121F12F2");
+    // no-turns - intersects, hole in a hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(3 3,7 3,7 7,3 7,3 3))",
+                              "2121F1212");
 
     {
         test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",

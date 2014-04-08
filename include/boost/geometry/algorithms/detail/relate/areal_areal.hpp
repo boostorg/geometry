@@ -93,6 +93,38 @@ public:
             update<boundary, interior, '1', TransposeResult>(m_result);
             update<exterior, interior, '2', TransposeResult>(m_result);
             m_flags |= 1;
+
+            // TODO: OPTIMIZE!
+            // Only the interior rings of other ONE single geometry must be checked
+            // NOT all geometries
+
+            // Check if any interior ring is outside
+            ring_identifier ring_id(0, -1, 0);
+            for ( ; ring_id.ring_index < boost::numeric_cast<int>(geometry::num_interior_rings(areal)) ;
+                    ++ring_id.ring_index )
+            {
+                typename detail::sub_range_return_type<Areal const>::type
+                    range_ref = detail::sub_range(areal, ring_id);
+
+                if ( boost::empty(range_ref) )
+                {
+                    // TODO: throw exception?
+                    continue; // ignore
+                }
+
+                // TODO: O(N)
+                // Optimize!
+                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
+
+                // hole outside
+                if ( pig < 0 )
+                {
+                    update<interior, exterior, '2', TransposeResult>(m_result);
+                    update<boundary, exterior, '1', TransposeResult>(m_result);
+                    m_flags |= 2;
+                    break;
+                }
+            }
         }
         // outside
         else
@@ -101,7 +133,7 @@ public:
             update<boundary, exterior, '1', TransposeResult>(m_result);
             m_flags |= 2;
 
-            // If the exterior ring is outside, interior rings must be checked
+            // Check if any interior ring is inside
             ring_identifier ring_id(0, -1, 0);
             for ( ; ring_id.ring_index < boost::numeric_cast<int>(geometry::num_interior_rings(areal)) ;
                     ++ring_id.ring_index )
@@ -126,6 +158,7 @@ public:
                     update<boundary, interior, '1', TransposeResult>(m_result);
                     update<exterior, interior, '2', TransposeResult>(m_result);
                     m_flags |= 1;
+                    break;
                 }
             }
         }
