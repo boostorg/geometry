@@ -872,6 +872,46 @@ void polygon_polygon()
         BOOST_CHECK(bgdr::relate(p1, p3, bgdr::mask9("T*****FF*"))); // contains()
         BOOST_CHECK(bgdr::relate(p2, p3, bgdr::mask9("FF*FF****"))); // disjoint()
     }
+
+    // CCW
+    {
+        typedef bg::model::polygon<P, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,10 0,10 10,0 10,0 0),(5 5,5 6,10 5,5 5))",
+                                  "POLYGON((0 0,10 0,10 5,5 5,0 0))",
+                                  "212F11FF2");
+    }
+    // OPEN
+    {
+        typedef bg::model::polygon<P, true, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0),(5 5,10 5,5 6))",
+                                  "POLYGON((0 0,5 5,10 5,10 0))",
+                                  "212F11FF2");
+    }
+    // CCW, OPEN
+    {
+        typedef bg::model::polygon<P, false, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,10 0,10 10,0 10),(5 5,5 6,10 5))",
+                                  "POLYGON((0 0,10 0,10 5,5 5))",
+                                  "212F11FF2");
+    }
+}
+
+template <typename P>
+void polygon_multi_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<poly, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                               "212F11212");
+    test_geometry<ring, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                               "212F11212");
 }
 
 template <typename P>
@@ -910,6 +950,7 @@ void test_all()
     test_linestring_multi_polygon<P>();
     test_multi_linestring_multi_polygon<P>();
     polygon_polygon<P>();
+    polygon_multi_polygon<P>();
     multi_polygon_multi_polygon<P>();
 }
 
