@@ -23,54 +23,12 @@
 
 #include <boost/geometry/core/access.hpp>
 
-#include <boost/geometry/algorithms/not_implemented.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/relate.hpp>
 
 namespace boost { namespace geometry
 {
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace crosses
-{
-
-struct use_relate
-{
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
-    {
-        typedef typename detail::relate::
-            static_mask_crosses_type<Geometry1, Geometry2>::type static_mask;
-
-        return detail::relate::relate<static_mask>(g1, g2);
-    }
-};
-
-}} // namespace detail::crosses
-#endif // DOXYGEN_NO_DETAIL
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-template
-<
-    typename Geometry1,
-    typename Geometry2,
-    typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type
->
-struct crosses
-    : detail::crosses::use_relate
-{};
-
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
 
 /*!
 \brief \brief_check2{crosses}
@@ -89,11 +47,10 @@ inline bool crosses(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return dispatch::crosses
-        <
-            Geometry1,
-            Geometry2
-        >::apply(geometry1, geometry2);
+    typedef typename detail::relate::
+        static_mask_crosses_type<Geometry1, Geometry2>::type static_mask;
+
+    return detail::relate::relate<static_mask>(geometry1, geometry2);
 }
 
 }} // namespace boost::geometry

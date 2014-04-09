@@ -100,8 +100,9 @@ public:
 
             // Check if any interior ring is outside
             ring_identifier ring_id(0, -1, 0);
-            for ( ; ring_id.ring_index < boost::numeric_cast<int>(geometry::num_interior_rings(areal)) ;
-                    ++ring_id.ring_index )
+            int const irings_count = boost::numeric_cast<int>(
+                                        geometry::num_interior_rings(areal) );
+            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
@@ -135,8 +136,9 @@ public:
 
             // Check if any interior ring is inside
             ring_identifier ring_id(0, -1, 0);
-            for ( ; ring_id.ring_index < boost::numeric_cast<int>(geometry::num_interior_rings(areal)) ;
-                    ++ring_id.ring_index )
+            int const irings_count = boost::numeric_cast<int>(
+                                        geometry::num_interior_rings(areal) );
+            for ( ; ring_id.ring_index < irings_count ; ++ring_id.ring_index )
             {
                 typename detail::sub_range_return_type<Areal const>::type
                     range_ref = detail::sub_range(areal, ring_id);
@@ -237,9 +239,7 @@ struct areal_areal
             {
                 // analyse sorted turns
                 turns_analyser<turn_type, 0> analyser;
-                analyse_each_turn(result, analyser,
-                                  turns.begin(), turns.end(),
-                                  geometry1, geometry2);
+                analyse_each_turn(result, analyser, turns.begin(), turns.end());
 
                 if ( result.interrupt )
                     return;
@@ -278,9 +278,7 @@ struct areal_areal
             {
                 // analyse sorted turns
                 turns_analyser<turn_type, 1> analyser;
-                analyse_each_turn(result, analyser,
-                                  turns.begin(), turns.end(),
-                                  geometry2, geometry1);
+                analyse_each_turn(result, analyser, turns.begin(), turns.end());
 
                 if ( result.interrupt )
                     return;
@@ -401,13 +399,8 @@ struct areal_areal
         {}
 
         template <typename Result,
-                  typename TurnIt,
-                  typename Geometry,
-                  typename OtherGeometry>
-        void apply(Result & result,
-                   TurnIt first, TurnIt it, TurnIt last,
-                   Geometry const& geometry,
-                   OtherGeometry const& other_geometry)
+                  typename TurnIt>
+        void apply(Result & result, TurnIt it)
         {
             //BOOST_ASSERT( it != last );
 
@@ -499,14 +492,8 @@ struct areal_areal
         }
 
         // it == last
-        template <typename Result,
-                  typename TurnIt,
-                  typename Geometry,
-                  typename OtherGeometry>
-        void apply(Result & result,
-                   TurnIt first, TurnIt last,
-                   Geometry const& geometry,
-                   OtherGeometry const& other_geometry)
+        template <typename Result>
+        void apply(Result & result)
         {
             //BOOST_ASSERT( first != last );
 
@@ -548,30 +535,24 @@ struct areal_areal
     // call analyser.apply() for each turn in range
     // IMPORTANT! The analyser is also called for the end iterator - last
     template <typename Result,
-              typename TurnIt,
               typename Analyser,
-              typename Geometry,
-              typename OtherGeometry>
+              typename TurnIt>
     static inline void analyse_each_turn(Result & res,
                                          Analyser & analyser,
-                                         TurnIt first, TurnIt last,
-                                         Geometry const& geometry,
-                                         OtherGeometry const& other_geometry)
+                                         TurnIt first, TurnIt last)
     {
         if ( first == last )
             return;
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            analyser.apply(res, first, it, last,
-                           geometry, other_geometry);
+            analyser.apply(res, it);
 
             if ( res.interrupt )
                 return;
         }
 
-        analyser.apply(res, first, last,
-                       geometry, other_geometry);
+        analyser.apply(res);
     }
 
     template <std::size_t OpId, typename Result, typename Geometry, typename OtherGeometry>
@@ -810,16 +791,21 @@ struct areal_areal
         template <typename Analyser, typename Turn>
         static inline void for_preceding_rings(Analyser & analyser, Turn const& turn)
         {
-            for_no_turns_rings(analyser, turn, -1, turn.operations[OpId].seg_id.ring_index);
+            segment_identifier const& seg_id = turn.operations[OpId].seg_id;
+
+            for_no_turns_rings(analyser, turn, -1, seg_id.ring_index);
         }
 
         template <typename Analyser, typename Turn>
         static inline void for_following_rings(Analyser & analyser, Turn const& turn)
         {
-            std::size_t count = geometry::num_interior_rings(
-                                    detail::single_geometry(analyser.geometry,
-                                                            turn.operations[OpId].seg_id));
-            for_no_turns_rings(analyser, turn, turn.operations[OpId].seg_id.ring_index + 1, count);
+            segment_identifier const& seg_id = turn.operations[OpId].seg_id;
+
+            int count = boost::numeric_cast<int>(
+                            geometry::num_interior_rings(
+                                detail::single_geometry(analyser.geometry, seg_id)));
+            
+            for_no_turns_rings(analyser, turn, seg_id.ring_index + 1, count);
         }
 
         template <typename Analyser, typename Turn>
