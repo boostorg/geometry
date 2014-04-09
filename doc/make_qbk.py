@@ -77,7 +77,7 @@ call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "difference", "disjoint", "distance" 
+    , "convex_hull", "crosses", "difference", "disjoint", "distance" 
     , "envelope", "equals", "expand", "for_each", "intersection", "intersects" 
     , "length", "num_geometries", "num_interior_rings", "num_points" 
     , "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 

@@ -75,6 +75,10 @@ struct crosses
 /*!
 \brief \brief_check2{crosses}
 \ingroup crosses
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
 \return \return_check2{crosses}
 
 \qbk{[include reference/algorithms/crosses.qbk]}

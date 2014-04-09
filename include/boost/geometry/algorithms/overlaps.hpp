@@ -177,6 +177,10 @@ struct overlaps<Box1, Box2, box_tag, box_tag>
 /*!
 \brief \brief_check2{overlap}
 \ingroup overlaps
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
 \return \return_check2{overlap}
 
 \qbk{[include reference/algorithms/overlaps.qbk]}
