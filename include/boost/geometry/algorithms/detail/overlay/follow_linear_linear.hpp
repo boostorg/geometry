@@ -10,8 +10,27 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 
+#include <cstddef>
+#include <iterator>
+
+#include <boost/assert.hpp>
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+
 #include <boost/geometry/algorithms/detail/turns/debug_turn.hpp>
+
+#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -168,7 +187,6 @@ protected:
                  bool& first, bool& entered,
                  std::size_t& enter_count,
                  Linestring const& linestring,
-                 Linear const& /* linear */,
                  LinestringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
@@ -292,7 +310,7 @@ public:
 
             oit = process_turn(it, op_it,
                                first, entered, enter_count, 
-                               linestring, linear,
+                               linestring,
                                current_piece, current_segment_id,
                                oit);
         }
@@ -399,8 +417,6 @@ public:
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        LinestringOut current_piece;
-        geometry::segment_identifier current_segment_id(0, -1, -1, -1);
         int current_multi_id = -1;
 
         turn_operation_iterator op_it = boost::begin(start->operations);
@@ -411,7 +427,6 @@ public:
                                       oit);
 
         TurnIterator turns_begin = start, turns_end;
-        Linestring const* linestring;
         do {
             // find last turn with this multi-index
             turns_end = turns_begin;
@@ -423,9 +438,9 @@ public:
             while ( turns_end != beyond
                     && op_it->seg_id.multi_index == current_multi_id );
 
-            linestring = &*(boost::begin(multilinestring) + current_multi_id);
-
-            oit = Base::apply(*linestring, linear, turns_begin, turns_end, oit);
+            oit = Base::apply(*(boost::begin(multilinestring)
+                                + current_multi_id),
+                              linear, turns_begin, turns_end, oit);
 
             int new_multi_id(0);
             linestring_iterator ls_beyond_last = ls_end;
