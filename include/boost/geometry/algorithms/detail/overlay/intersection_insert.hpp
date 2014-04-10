@@ -565,30 +565,6 @@ struct intersection_insert
 
 // dispatch for difference/intersection of point-like geometries
 
-#if 0
-// CANNOT USE THE FOLLOWING GENERIC DISPATCH
-// CLASHES WITH SPECIALIZATION ABOVE THAT TAKES POINT OUTPUT
-// pointlike-pointlike
-template
-<
-    typename Point1, typename Point2, typename PointOut,
-    overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
->
-struct intersection_insert
-    <
-        Point1, Point2, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
-        pointlike_tag, pointlike_tag, point_tag,
-        false, false, false
-    > : detail::overlay::difference_intersection_pointlike_pointlike_point
-        <
-            Point1, Point2, PointOut, OverlayType
-        >
-{};
-#endif
-
-// point-point
 template
 <
     typename Point1, typename Point2, typename PointOut,
@@ -607,7 +583,7 @@ struct intersection_insert
         >
 {};
 
-// multipoint-point
+
 template
 <
     typename MultiPoint, typename Point, typename PointOut,
@@ -626,7 +602,7 @@ struct intersection_insert
         >
 {};
 
-// point-multipoint
+
 template
 <
     typename Point, typename MultiPoint, typename PointOut,
@@ -645,7 +621,7 @@ struct intersection_insert
         >
 {};
 
-// multipoint-multipoint
+
 template
 <
     typename MultiPoint1, typename MultiPoint2, typename PointOut,
