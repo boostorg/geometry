@@ -369,10 +369,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_linestring )
                       (25 0,25 25,50 0,40 0))"),
          "llsdf20a");
 
-#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
-    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-    // the following example produces duplicate turns (when the order
-    // is reversed and the 2nd LS is reversed)
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
@@ -380,7 +376,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_linestring )
                       (2 2,5 -1,15 2,18 0))"),
          "llsdf21"
          );
-#endif
 }
 
 
@@ -596,9 +591,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          "lmlsdf18a"
          );
 
-#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
-    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-    // the following example produces duplicate turns
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
@@ -607,7 +599,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
                       (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "lmlsdf18b"
          );
-#endif
 
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
@@ -942,10 +933,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          "mlmlsdf18"
          );
 
-#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
-    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-    // the following example produces duplicate turns (when
-    // considering the difference of the ML minus the reversed L)
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,18 0,19 0,30 0))"),
          from_wkt<ML>("MULTILINESTRING((0 1,1 0,19 0,20 1),\
@@ -954,5 +941,4 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                       (0 1,1 0),(19 0,20 1),(2 2,5 -1,15 2,18 0))"),
          "mlmlsdf18a"
          );
-#endif
 }

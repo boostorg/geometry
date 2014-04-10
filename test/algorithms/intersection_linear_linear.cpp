@@ -431,10 +431,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
 #endif
          "lli20a");
 
-#if !defined(BOOST_GEOMETRY_DIFFERENCE_DO_NOT_REMOVE_DUPLICATE_TURNS) \
-    || defined(GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-    // the following example produces duplicate turns (when the 2nd LS
-    // is reversed)
+
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,18 0,19 0,30 0)"),
          from_wkt<L>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)"),
@@ -449,7 +446,6 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
 #endif
          "lli21"
          );
-#endif
 
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,10 0)"),
