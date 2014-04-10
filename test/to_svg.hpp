@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_TEST_TO_SVG_HPP
 #define BOOST_GEOMETRY_TEST_TO_SVG_HPP
 
+#include <fstream>
+
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
