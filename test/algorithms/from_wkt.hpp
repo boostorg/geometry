@@ -1,5 +1,5 @@
-#ifndef BOOST_GEOMETRY_TEST_MYSQL_FROM_WKT_HPP
-#define BOOST_GEOMETRY_TEST_MYSQL_FROM_WKT_HPP
+#ifndef BOOST_GEOMETRY_TEST_FROM_WKT_HPP
+#define BOOST_GEOMETRY_TEST_FROM_WKT_HPP
 
 #include <boost/geometry/io/wkt/read.hpp>
 
@@ -11,4 +11,4 @@ Geometry from_wkt(std::string const& wkt)
     return res;
 }
 
-#endif // BOOST_GEOMETRY_TEST_MYSQL_FROM_WKT_HPP
+#endif // BOOST_GEOMETRY_TEST_FROM_WKT_HPP
