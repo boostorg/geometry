@@ -34,7 +34,7 @@ template
 class test_get_turns_ll_invariance
 {
 private:
-    struct AssignPolicy
+    struct assign_policy
     {
         static bool const include_no_turn = false;
         static bool const include_degenerate = EnableDegenerateTurns;
@@ -77,7 +77,7 @@ private:
                 <
                     LinearGeometry1,
                     LinearGeometry2,
-                    AssignPolicy
+                    assign_policy
                 >
             >::apply(turns, linear1, linear2);
     }
