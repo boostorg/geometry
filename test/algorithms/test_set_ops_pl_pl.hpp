@@ -19,6 +19,7 @@ namespace bg = ::boost::geometry;
 #include "to_svg.hpp"
 
 #include <algorithm>
+#include <fstream>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 
