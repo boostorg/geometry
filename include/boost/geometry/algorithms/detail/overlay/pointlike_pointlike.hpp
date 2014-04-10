@@ -12,10 +12,23 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_POINTLIKE_HPP
 
 #include <algorithm>
+#include <vector>
+
+#include <boost/assert.hpp>
+#include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
+
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -117,8 +130,6 @@ struct action_selector_pl_pl<PointOut, overlay_difference>
 };
 
 
-//===========================================================================
-//===========================================================================
 //===========================================================================
 
 // difference/intersection of point-point
@@ -268,12 +279,16 @@ struct multipoint_multipoint_point
     }
 };
 
+}} // namespace detail::overlay
+#endif // DOXYGEN_NO_DETAIL
 
 
 //===========================================================================
-//===========================================================================
-//===========================================================================
 
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace detail_dispatch { namespace overlay
+{
 
 // dispatch struct for pointlike-pointlike difference/intersection
 // computation
@@ -302,7 +317,10 @@ struct pointlike_pointlike_point
     <
         Point1, Point2, PointOut, OverlayType,
         point_tag, point_tag
-    > : point_point_point<Point1, Point2, PointOut, OverlayType>
+    > : detail::overlay::point_point_point
+        <
+            Point1, Point2, PointOut, OverlayType
+        >
 {};
 
 
@@ -317,7 +335,10 @@ struct pointlike_pointlike_point
     <
         Point, MultiPoint, PointOut, OverlayType,
         point_tag, multi_point_tag
-    > : point_multipoint_point<Point, MultiPoint, PointOut, OverlayType>
+    > : detail::overlay::point_multipoint_point
+        <
+            Point, MultiPoint, PointOut, OverlayType
+        >
 {};
 
 
@@ -332,7 +353,10 @@ struct pointlike_pointlike_point
     <
         MultiPoint, Point, PointOut, OverlayType,
         multi_point_tag, point_tag
-    > : multipoint_point_point<MultiPoint, Point, PointOut, OverlayType>
+    > : detail::overlay::multipoint_point_point
+        <
+            MultiPoint, Point, PointOut, OverlayType
+        >
 {};
 
 
@@ -347,17 +371,24 @@ struct pointlike_pointlike_point
     <
         MultiPoint1, MultiPoint2, PointOut, OverlayType,
         multi_point_tag, multi_point_tag
-    > : multipoint_multipoint_point
+    > : detail::overlay::multipoint_multipoint_point
         <
             MultiPoint1, MultiPoint2, PointOut, OverlayType
         >
 {};
 
 
+}} // namespace detail_dispatch::overlay
+#endif // DOXYGEN_NO_DISPATCH
+
 
 //===========================================================================
-//===========================================================================
-//===========================================================================
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace overlay
+{
+
 
 // generic pointlike-pointlike union implementation
 template
@@ -376,7 +407,7 @@ struct union_pointlike_pointlike_point
     {
         copy_points<PointOut, PointLike1>::apply(pointlike1, oit);
 
-        return pointlike_pointlike_point
+        return detail_dispatch::overlay::pointlike_pointlike_point
             <
                 PointLike2, PointLike1, PointOut, overlay_difference,
                 typename tag<PointLike2>::type,
@@ -387,32 +418,11 @@ struct union_pointlike_pointlike_point
 };
 
 
-// generic pointlike-pointlike difference/intersection implementation
-// this is just a wrapper class
-template
-<
-    typename PointLike1,
-    typename PointLike2,
-    typename PointOut,
-    overlay_type OverlayType
->
-struct difference_intersection_pointlike_pointlike_point
-    : pointlike_pointlike_point
-        <
-            PointLike1, PointLike2, PointOut, OverlayType,
-            typename tag<PointLike1>::type,
-            typename tag<PointLike2>::type
-        >
-{};
-
-
-
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry
-
 
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_POINTLIKE_HPP
