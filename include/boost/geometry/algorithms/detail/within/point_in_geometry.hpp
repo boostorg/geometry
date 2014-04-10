@@ -71,6 +71,53 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
     return check_result_type(strategy.result(state));
 }
 
+template <typename Geometry, typename Point, typename Range>
+inline int point_in_range(Point const& point, Range const& range)
+{
+    typedef typename point_type<Point>::type point_type1;
+    typedef typename point_type<Geometry>::type point_type2;
+
+    typedef typename strategy::within::services::default_strategy
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag<Point>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            Point,
+            Geometry
+        >::type strategy_type;
+
+    typedef typename strategy::covered_by::services::default_strategy
+        <
+            typename tag<Point>::type,
+            typename tag<Geometry>::type,
+            typename tag<Point>::type,
+            typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type1>::type, spherical_tag
+                >::type,
+            typename tag_cast
+                <
+                    typename cs_tag<point_type2>::type, spherical_tag
+                >::type,
+            Point,
+            Geometry
+        >::type strategy_type2;
+
+    BOOST_STATIC_ASSERT(boost::is_same<strategy_type, strategy_type2>::value);
+
+    return point_in_range(point, range, strategy_type());
+}
+
 }} // namespace detail::within
 
 namespace detail_dispatch { namespace within {

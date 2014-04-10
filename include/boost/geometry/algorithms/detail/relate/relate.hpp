@@ -53,180 +53,137 @@ namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail_dispatch { namespace relate {
+namespace detail { namespace relate {
+
+// Those are used only to allow dispatch::relate to produce compile-time error
+
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
+struct is_supported_by_generic
+{
+    static const bool value
+        = boost::is_same<Tag, linestring_tag>::value
+       || boost::is_same<Tag, multi_linestring_tag>::value
+       || boost::is_same<Tag, ring_tag>::value
+       || boost::is_same<Tag, polygon_tag>::value
+       || boost::is_same<Tag, multi_polygon_tag>::value;
+};
 
 template <typename Geometry1,
           typename Geometry2,
           typename Tag1 = typename geometry::tag<Geometry1>::type,
           typename Tag2 = typename geometry::tag<Geometry2>::type>
+struct is_generic
+{
+    static const bool value = is_supported_by_generic<Geometry1>::value
+                           && is_supported_by_generic<Geometry2>::value;
+};
+
+
+template <typename Point, typename Geometry, typename Tag>
+struct is_generic<Point, Geometry, point_tag, Tag>
+{
+    static const bool value = is_supported_by_generic<Geometry>::value;
+};
+
+template <typename Geometry, typename Point, typename Tag>
+struct is_generic<Geometry, Point, Tag, point_tag>
+{
+    static const bool value = is_supported_by_generic<Geometry>::value;
+};
+
+template <typename Point1, typename Point2>
+struct is_generic<Point1, Point2, point_tag, point_tag>
+{
+    static const bool value = false;
+};
+
+
+}} // namespace detail::relate
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace detail_dispatch { namespace relate {
+
+
+template <typename Geometry1,
+          typename Geometry2,
+          typename Tag1 = typename geometry::tag<Geometry1>::type,
+          typename Tag2 = typename geometry::tag<Geometry2>::type,
+          int TopDim1 = geometry::topological_dimension<Geometry1>::value,
+          int TopDim2 = geometry::topological_dimension<Geometry2>::value,
+          bool IsGeneric = detail::relate::is_generic<Geometry1, Geometry2>::value
+>
 struct relate : not_implemented<Tag1, Tag2>
 {};
 
+
 template <typename Point1, typename Point2>
-struct relate<Point1, Point2, point_tag, point_tag>
+struct relate<Point1, Point2, point_tag, point_tag, 0, 0, false>
     : detail::relate::point_point<Point1, Point2>
 {};
 
 template <typename Point, typename MultiPoint>
-struct relate<Point, MultiPoint, point_tag, multi_point_tag>
+struct relate<Point, MultiPoint, point_tag, multi_point_tag, 0, 0, false>
     : detail::relate::point_multipoint<Point, MultiPoint>
 {};
 
 template <typename MultiPoint, typename Point>
-struct relate<MultiPoint, Point, multi_point_tag, point_tag>
+struct relate<MultiPoint, Point, multi_point_tag, point_tag, 0, 0, false>
     : detail::relate::multipoint_point<MultiPoint, Point>
 {};
 
 template <typename MultiPoint1, typename MultiPoint2>
-struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag>
+struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag, 0, 0, false>
     : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
 {};
 
-//template <typename Point, typename Box>
-//struct relate<Point, Box, point_tag, box_tag>
+//template <typename Point, typename Box, int TopDim2>
+//struct relate<Point, Box, point_tag, box_tag, 0, TopDim2, false>
 //    : detail::relate::point_box<Point, Box>
 //{};
 //
-//template <typename Box, typename Point>
-//struct relate<Box, Point, box_tag, point_tag>
+//template <typename Box, typename Point, int TopDim1>
+//struct relate<Box, Point, box_tag, point_tag, TopDim1, 0, false>
 //    : detail::relate::box_point<Box, Point>
 //{};
 
-template <typename Point, typename Geometry, typename Tag2>
-struct relate<Point, Geometry, point_tag, Tag2>
+
+template <typename Point, typename Geometry, typename Tag2, int TopDim2>
+struct relate<Point, Geometry, point_tag, Tag2, 0, TopDim2, true>
     : detail::relate::point_geometry<Point, Geometry>
 {};
 
-template <typename Geometry, typename Point, typename Tag1>
-struct relate<Geometry, Point, Tag1, point_tag>
+template <typename Geometry, typename Point, typename Tag1, int TopDim1>
+struct relate<Geometry, Point, Tag1, point_tag, TopDim1, 0, true>
     : detail::relate::geometry_point<Geometry, Point>
 {};
 
 
-template <typename Linestring1, typename Linestring2>
-struct relate<Linestring1, Linestring2, linestring_tag, linestring_tag>
-    : detail::relate::linear_linear<Linestring1, Linestring2>
-{};
-
-template <typename Linestring, typename MultiLinestring>
-struct relate<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
-    : detail::relate::linear_linear<Linestring, MultiLinestring>
-{};
-
-template <typename MultiLinestring, typename Linestring>
-struct relate<MultiLinestring, Linestring, multi_linestring_tag, linestring_tag>
-    : detail::relate::linear_linear<MultiLinestring, Linestring>
-{};
-
-template <typename MultiLinestring1, typename MultiLinestring2>
-struct relate<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
-    : detail::relate::linear_linear<MultiLinestring1, MultiLinestring2>
+template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
+struct relate<Linear1, Linear2, Tag1, Tag2, 1, 1, true>
+    : detail::relate::linear_linear<Linear1, Linear2>
 {};
 
 
-template <typename Linestring, typename Polygon>
-struct relate<Linestring, Polygon, linestring_tag, polygon_tag>
-    : detail::relate::linear_areal<Linestring, Polygon>
-{};
-template <typename Linestring, typename Ring>
-struct relate<Linestring, Ring, linestring_tag, ring_tag>
-    : detail::relate::linear_areal<Linestring, Ring>
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct relate<Linear, Areal, Tag1, Tag2, 1, 2, true>
+    : detail::relate::linear_areal<Linear, Areal>
 {};
 
-template <typename Polygon, typename Linestring>
-struct relate<Polygon, Linestring, polygon_tag, linestring_tag>
-    : detail::relate::areal_linear<Polygon, Linestring>
-{};
-template <typename Ring, typename Linestring>
-struct relate<Ring, Linestring, ring_tag, linestring_tag>
-    : detail::relate::areal_linear<Ring, Linestring>
-{};
-
-template <typename Linestring, typename MultiPolygon>
-struct relate<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
-    : detail::relate::linear_areal<Linestring, MultiPolygon>
-{};
-
-template <typename MultiPolygon, typename Linestring>
-struct relate<MultiPolygon, Linestring, multi_polygon_tag, linestring_tag>
-    : detail::relate::areal_linear<MultiPolygon, Linestring>
-{};
-
-template <typename MultiLinestring, typename Polygon>
-struct relate<MultiLinestring, Polygon, multi_linestring_tag, polygon_tag>
-    : detail::relate::linear_areal<MultiLinestring, Polygon>
-{};
-template <typename MultiLinestring, typename Ring>
-struct relate<MultiLinestring, Ring, multi_linestring_tag, ring_tag>
-    : detail::relate::linear_areal<MultiLinestring, Ring>
-{};
-
-template <typename Polygon, typename MultiLinestring>
-struct relate<Polygon, MultiLinestring, polygon_tag, multi_linestring_tag>
-    : detail::relate::areal_linear<Polygon, MultiLinestring>
-{};
-template <typename Ring, typename MultiLinestring>
-struct relate<Ring, MultiLinestring, ring_tag, multi_linestring_tag>
-    : detail::relate::areal_linear<Ring, MultiLinestring>
-{};
-
-template <typename MultiLinestring, typename MultiPolygon>
-struct relate<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon_tag>
-    : detail::relate::linear_areal<MultiLinestring, MultiPolygon>
-{};
-
-template <typename MultiPolygon, typename MultiLinestring>
-struct relate<MultiPolygon, MultiLinestring, multi_polygon_tag, multi_linestring_tag>
-    : detail::relate::areal_linear<MultiPolygon, MultiLinestring>
+template <typename Areal, typename Linear, typename Tag1, typename Tag2>
+struct relate<Areal, Linear, Tag1, Tag2, 2, 1, true>
+    : detail::relate::areal_linear<Areal, Linear>
 {};
 
 
-template <typename Polygon1, typename Polygon2>
-struct relate<Polygon1, Polygon2, polygon_tag, polygon_tag>
-    : detail::relate::areal_areal<Polygon1, Polygon2>
+template <typename Areal1, typename Areal2, typename Tag1, typename Tag2>
+struct relate<Areal1, Areal2, Tag1, Tag2, 2, 2, true>
+    : detail::relate::areal_areal<Areal1, Areal2>
 {};
 
-template <typename Ring, typename Polygon>
-struct relate<Ring, Polygon, ring_tag, polygon_tag>
-    : detail::relate::areal_areal<Ring, Polygon>
-{};
-
-template <typename Polygon, typename Ring>
-struct relate<Polygon, Ring, polygon_tag, ring_tag>
-    : detail::relate::areal_areal<Polygon, Ring>
-{};
-
-template <typename Ring1, typename Ring2>
-struct relate<Ring1, Ring2, ring_tag, ring_tag>
-    : detail::relate::areal_areal<Ring1, Ring2>
-{};
-
-template <typename Polygon, typename MultiPolygon>
-struct relate<Polygon, MultiPolygon, polygon_tag, multi_polygon_tag>
-    : detail::relate::areal_areal<Polygon, MultiPolygon>
-{};
-
-template <typename MultiPolygon, typename Polygon>
-struct relate<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
-    : detail::relate::areal_areal<MultiPolygon, Polygon>
-{};
-
-template <typename Ring, typename MultiPolygon>
-struct relate<Ring, MultiPolygon, ring_tag, multi_polygon_tag>
-    : detail::relate::areal_areal<Ring, MultiPolygon>
-{};
-
-template <typename MultiPolygon, typename Ring>
-struct relate<MultiPolygon, Ring, multi_polygon_tag, ring_tag>
-    : detail::relate::areal_areal<MultiPolygon, Ring>
-{};
-
-template <typename MultiPolygon1, typename MultiPolygon2>
-struct relate<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
-    : detail::relate::areal_areal<MultiPolygon1, MultiPolygon2>
-{};
 
 }} // namespace detail_dispatch::relate
+#endif // DOXYGEN_NO_DISPATCH
 
 namespace detail { namespace relate {
 

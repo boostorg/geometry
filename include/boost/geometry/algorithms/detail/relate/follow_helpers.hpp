@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
 #include <boost/geometry/util/range.hpp>
+//#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 namespace boost { namespace geometry
 {
@@ -164,10 +165,10 @@ private:
 
 // WARNING! This class stores pointers!
 // Passing a reference to local variable will result in undefined behavior!
-class same_multi_index
+class same_single_geometry
 {
 public:
-    same_multi_index(segment_identifier const& sid)
+    same_single_geometry(segment_identifier const& sid)
         : sid_ptr(boost::addressof(sid))
     {}
 
@@ -186,8 +187,26 @@ private:
     const segment_identifier * sid_ptr;
 };
 
+class same_ring
+{
+public:
+    same_ring(segment_identifier const& sid)
+        : sid_ptr(boost::addressof(sid))
+    {}
+
+    bool operator()(segment_identifier const& sid) const
+    {
+        return sid.multi_index == sid_ptr->multi_index
+            && sid.ring_index == sid_ptr->ring_index;
+    }
+
+private:
+    const segment_identifier * sid_ptr;
+};
+
 // WARNING! This class stores pointers!
 // Passing a reference to local variable will result in undefined behavior!
+template <typename SameRange = same_single_geometry>
 class segment_watcher
 {
 public:
@@ -197,7 +216,7 @@ public:
 
     bool update(segment_identifier const& seg_id)
     {
-        bool result = m_seg_id_ptr == 0 || !same_multi_index(*m_seg_id_ptr)(seg_id);
+        bool result = m_seg_id_ptr == 0 || !SameRange(*m_seg_id_ptr)(seg_id);
         m_seg_id_ptr = boost::addressof(seg_id);
         return result;
     }
@@ -231,7 +250,7 @@ public:
 
     void exit(TurnInfo const& turn)
     {
-        segment_identifier const& seg_id = turn.operations[op_id].seg_id;
+        //segment_identifier const& seg_id = turn.operations[op_id].seg_id;
         segment_identifier const& other_id = turn.operations[other_op_id].seg_id;
         overlay::operation_type exit_op = turn.operations[op_id].operation;
 
@@ -239,7 +258,7 @@ public:
         // search for the entry point in the same range of other geometry
         point_iterator entry_it = std::find_if(other_entry_points.begin(),
                                                other_entry_points.end(),
-                                               same_multi_index(other_id));
+                                               same_single_geometry(other_id));
 
         // this end point has corresponding entry point
         if ( entry_it != other_entry_points.end() )
@@ -373,6 +392,66 @@ static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
             
     return res;
 }
+
+// TODO: The tool like this would be useful but this can't be done with the current implementation of
+// reversible and closeable views because the reference to local variable would be returned!
+
+//template <typename Geometry>
+//struct normalized_range_type
+//{
+//    static const iterate_direction direction = order_as_direction<geometry::point_order<Geometry>::value>::value;
+//    static const closure_selector closure = geometry::closure<Geometry>::value;
+//
+//    typedef typename ring_type<Geometry>::type ring_type;
+//    typedef typename reversible_view
+//        <
+//            typename boost::mpl::if_c
+//                <
+//                    boost::is_const<Geometry>::value,
+//                    ring_type const,
+//                    ring_type
+//                >::type,
+//            direction
+//        >::type reversible_type;
+//    typedef typename closeable_view
+//        <
+//            typename boost::mpl::if_c
+//                <
+//                    boost::is_const<Geometry>::value,
+//                    reversible_type const,
+//                    reversible_type
+//                >::type,
+//            closure
+//        >::type closeable_type;
+//
+//    typedef closeable_type type;
+//};
+//
+//template <typename Geometry>
+//struct normalized_range
+//{
+//    template <typename Range>
+//    static inline
+//    typename normalized_range_type<Geometry>::type
+//    apply(Range & rng)
+//    {
+//        typename normalized_range_type<Geometry>::reversible_type
+//            rev_view(rng);
+//        typename normalized_range_type<Geometry>::closeable_type
+//            view(rev_view);
+//
+//// ERROR! HERE THE REFERENCE TO LOCAL rev_view IS RETURNED!
+//        return view;
+//    }
+//};
+//
+//template <typename Geometry, typename Id>
+//inline
+//typename normalized_range_type<Geometry>::type
+//normalized_sub_range(Geometry & geometry, Id const& id)
+//{
+//    return normalized_range<Geometry>::apply(detail::sub_range(geometry, id));
+//}
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL

@@ -1,0 +1,58 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
+#ifndef BOOST_GEOMETRY_ALGORITHMS_CROSSES_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_CROSSES_HPP
+
+#include <cstddef>
+
+#include <boost/geometry/core/access.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+
+namespace boost { namespace geometry
+{
+
+/*!
+\brief \brief_check2{crosses}
+\ingroup crosses
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return \return_check2{crosses}
+
+\qbk{[include reference/algorithms/crosses.qbk]}
+*/
+template <typename Geometry1, typename Geometry2>
+inline bool crosses(Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    concept::check<Geometry1 const>();
+    concept::check<Geometry2 const>();
+
+    typedef typename detail::relate::
+        static_mask_crosses_type<Geometry1, Geometry2>::type static_mask;
+
+    return detail::relate::relate<static_mask>(geometry1, geometry2);
+}
+
+}} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_CROSSES_HPP

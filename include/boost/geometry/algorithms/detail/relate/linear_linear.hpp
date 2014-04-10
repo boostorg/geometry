@@ -35,13 +35,28 @@ class disjoint_linestring_pred
 public:
     disjoint_linestring_pred(Result & res,
                              BoundaryChecker const& boundary_checker)
-        : m_result_ptr(boost::addressof(res))
-        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
-    {}
+        : m_result(res)
+        , m_boundary_checker(boundary_checker)
+        , m_flags(0)
+    {
+        if ( ! may_update<interior, exterior, '1', TransposeResult>(m_result) )
+        {
+            m_flags |= 1;
+        }
+        if ( ! may_update<boundary, exterior, '0', TransposeResult>(m_result) )
+        {
+            m_flags |= 2;
+        }
+    }
 
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
     {
+        if ( m_flags == 3 )
+        {
+            return false;
+        }
+
         std::size_t count = boost::size(linestring);
         
         // invalid input
@@ -52,25 +67,28 @@ public:
             return true;
         }
 
-        update<interior, exterior, '1', TransposeResult>(*m_result_ptr);
+        update<interior, exterior, '1', TransposeResult>(m_result);
+        m_flags |= 1;
 
         // check if there is a boundary
-        if ( m_boundary_checker_ptr->template
+        if ( m_flags < 2
+          && ( m_boundary_checker.template
                 is_endpoint_boundary<boundary_front>(range::front(linestring))
-          || m_boundary_checker_ptr->template
-                is_endpoint_boundary<boundary_back>(range::back(linestring)) )
+            || m_boundary_checker.template
+                is_endpoint_boundary<boundary_back>(range::back(linestring)) ) )
         {
-            update<boundary, exterior, '0', TransposeResult>(*m_result_ptr);
-                    
-            return false;
+            update<boundary, exterior, '0', TransposeResult>(m_result);
+            m_flags |= 2;
         }
 
-        return !m_result_ptr->interrupt;
+        return m_flags != 3
+            && ! m_result.interrupt;
     }
 
 private:
-    Result * m_result_ptr;
-    const BoundaryChecker * m_boundary_checker_ptr;
+    Result & m_result;
+    BoundaryChecker const& m_boundary_checker;
+    unsigned m_flags;
 };
 
 //enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
@@ -239,11 +257,22 @@ struct linear_linear
         // TODO: turns must be sorted and followed only if it's possible to go out and in on the same point
         // for linear geometries union operation must be detected which I guess would be quite often
 
-// TODO: ADD A CHECK TO THE RESULT INDICATING IF THE FIRST AND/OR SECOND GEOMETRY MUST BE ANALYSED
-
+        if ( may_update<interior, interior, '1'>(result)
+          || may_update<interior, boundary, '0'>(result)
+          || may_update<interior, exterior, '1'>(result)
+          || may_update<boundary, interior, '0'>(result)
+          || may_update<boundary, boundary, '0'>(result)
+          || may_update<boundary, exterior, '0'>(result) )
         {
             // x, u, i, c
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,0>());
+            typedef turns::less
+                <
+                    0, turns::less_greater_op_for_other_same_m_diff_r
+                        <
+                            turns::op_to_int<0,2,3,1,4,0>
+                        >
+                > less;
+            std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 0> analyser;
             analyse_each_turn(result, analyser,
@@ -255,9 +284,22 @@ struct linear_linear
         if ( result.interrupt )
             return;
         
+        if ( may_update<interior, interior, '1', true>(result)
+          || may_update<interior, boundary, '0', true>(result)
+          || may_update<interior, exterior, '1', true>(result)
+          || may_update<boundary, interior, '0', true>(result)
+          || may_update<boundary, boundary, '0', true>(result)
+          || may_update<boundary, exterior, '0', true>(result) )
         {
             // x, u, i, c
-            std::sort(turns.begin(), turns.end(), turns::less_seg_dist_op<0,2,3,1,4,0,1>());
+            typedef turns::less
+                <
+                    1, turns::less_greater_op_for_other_same_m_diff_r
+                        <
+                            turns::op_to_int<0,2,3,1,4,0>
+                        >
+                > less;
+            std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 1> analyser;
             analyse_each_turn(result, analyser,
@@ -344,8 +386,8 @@ struct linear_linear
             overlay::operation_type op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
-                && op != overlay::operation_intersection
-                && op != overlay::operation_blocked )
+              && op != overlay::operation_intersection
+              && op != overlay::operation_blocked )
             {
                 return;
             }
@@ -652,7 +694,7 @@ struct linear_linear
 
     private:
         exit_watcher<TurnInfo, OpId> m_exit_watcher;
-        segment_watcher m_seg_watcher;
+        segment_watcher<same_single_geometry> m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
     };
