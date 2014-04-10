@@ -15,13 +15,6 @@
 
 import testing ;
 
-project boost-geometry-algorithms-test
-    :
-    requirements
-        <include>.
-        <library>/boost/test//boost_unit_test_framework
-    ;
-
 test-suite boost-geometry-algorithms
     :
     [ run append.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
@@ -36,8 +29,8 @@ test-suite boost-geometry-algorithms
     [ run covered_by.cpp ]
     [ run crosses.cpp ]
     [ run difference.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run difference_linear_linear.cpp ]
-    [ run difference_pl_pl.cpp ]
+    [ run difference_linear_linear.cpp /boost/test//boost_unit_test_framework ]
+    [ run difference_pl_pl.cpp /boost/test//boost_unit_test_framework ]
     [ run disjoint.cpp ]
     [ run distance.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run envelope.cpp ]
@@ -45,8 +38,8 @@ test-suite boost-geometry-algorithms
     [ run expand.cpp ]
     [ run for_each.cpp ]
     [ run intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run intersection_linear_linear.cpp ]
-    [ run intersection_pl_pl.cpp ]
+    [ run intersection_linear_linear.cpp /boost/test//boost_unit_test_framework ]
+    [ run intersection_pl_pl.cpp /boost/test//boost_unit_test_framework ]
     [ run intersects.cpp ]
     [ run length.cpp ]
     [ run make.cpp ]
@@ -57,12 +50,12 @@ test-suite boost-geometry-algorithms
     [ run remove_spikes.cpp ]
     [ run reverse.cpp ]
     [ run simplify.cpp ]
-    [ run sym_difference_linear_linear.cpp ]
+    [ run sym_difference_linear_linear.cpp /boost/test//boost_unit_test_framework ]
     [ run touches.cpp ]
     [ run transform.cpp ]
     [ run union.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
-    [ run union_linear_linear.cpp ]
-    [ run union_pl_pl.cpp ]
+    [ run union_linear_linear.cpp /boost/test//boost_unit_test_framework ]
+    [ run union_pl_pl.cpp /boost/test//boost_unit_test_framework ]
     [ run unique.cpp ]
     [ run within.cpp ]
     ;
