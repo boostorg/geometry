@@ -30,6 +30,31 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type
+>
+struct crosses
+    : detail::relate::relate_base
+        <
+            detail::relate::static_mask_crosses_type,
+            Geometry1,
+            Geometry2
+        >
+{};
+
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
 /*!
 \brief \brief_check2{crosses}
 \ingroup crosses
@@ -47,10 +72,7 @@ inline bool crosses(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    typedef typename detail::relate::
-        static_mask_crosses_type<Geometry1, Geometry2>::type static_mask;
-
-    return detail::relate::relate<static_mask>(geometry1, geometry2);
+    return dispatch::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 }} // namespace boost::geometry

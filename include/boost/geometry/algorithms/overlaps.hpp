@@ -131,18 +131,6 @@ struct box_box
     }
 };
 
-struct use_relate
-{
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
-    {
-        typedef typename detail::relate::
-            static_mask_overlaps_type<Geometry1, Geometry2>::type static_mask;
-
-        return detail::relate::relate<static_mask>(g1, g2);
-    }
-};
-
 }} // namespace detail::overlaps
 #endif // DOXYGEN_NO_DETAIL
 
@@ -161,7 +149,12 @@ template
     typename Tag2 = typename tag<Geometry2>::type
 >
 struct overlaps
-    : detail::overlaps::use_relate
+    : detail::relate::relate_base
+        <
+            detail::relate::static_mask_overlaps_type,
+            Geometry1,
+            Geometry2
+        >
 {};
 
 
