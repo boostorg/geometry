@@ -223,7 +223,6 @@ protected:
                               it->point, *op_it, oit);
             }
         }
-#ifndef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
         else if ( FollowIsolatedPoints
                   && is_isolated_point(*it, *op_it, entered) )
         {
@@ -236,7 +235,6 @@ protected:
                                    op_it->seg_id.segment_index,
                                    it->point, *op_it, oit);
         }
-#endif
         else if ( FollowContinueTurns
                   && is_staying_inside(*it, *op_it, entered) )
         {
