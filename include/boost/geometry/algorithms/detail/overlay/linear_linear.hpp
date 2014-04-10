@@ -12,19 +12,26 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_LINEAR_LINEAR_HPP
 
 #include <algorithm>
+#include <vector>
 
-#include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/unique.hpp>
+#include <boost/typeof/typeof.hpp>
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
-#include <boost/geometry/algorithms/detail/turns/print_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/filter_continue_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/remove_duplicate_turns.hpp>
+#include <boost/geometry/algorithms/detail/turns/print_turns.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow_linear_linear.hpp>
+
+#include <boost/geometry/algorithms/convert.hpp>
 
 
 
@@ -35,11 +42,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-
-//===========================================================================
-//===========================================================================
-//===========================================================================
 
 
 template
@@ -128,7 +130,7 @@ template
 class linear_linear_linestring
 {
 protected:
-    struct AssignPolicy
+    struct assign_policy
     {
         static bool const include_no_turn = false;
         static bool const include_degenerate = EnableDegenerateTurns;
@@ -169,7 +171,7 @@ protected:
                 <
                     LinearGeometry1,
                     LinearGeometry2,
-                    AssignPolicy
+                    assign_policy
                 >
             >::apply(turns, linear1, linear2);
     }
