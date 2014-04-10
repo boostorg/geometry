@@ -10,7 +10,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_DEBUG_TURN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_DEBUG_TURN_HPP
 
-#include <boost/range.hpp>
+#include <iostream>
+#include <string>
+
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 

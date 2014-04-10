@@ -10,11 +10,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_PRINT_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_PRINT_TURNS_HPP
 
+#include <iostream>
+
+#include <boost/foreach.hpp>
+#include <boost/range.hpp>
+
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#include <boost/foreach.hpp>
-#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
@@ -38,7 +41,6 @@ static inline void print_turns(Geometry1 const& g1,
     int index = 0;
     BOOST_FOREACH(turn_info const& turn, turns)
     {
-        //            std::ostringstream out;
         std::ostream& out = std::cout;
         out << index
             << ": " << geometry::method_char(turn.method);

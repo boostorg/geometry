@@ -11,8 +11,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_COMPARE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_COMPARE_TURNS_HPP
 
+#include <cstddef>
+#include <functional>
 
-#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
