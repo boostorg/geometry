@@ -716,6 +716,10 @@ void polygon_polygon()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((10 10,10 5,10 0,5 0,0 0,0 10,5 10,10 10))",
                               "2FFF1FFF2");
+    // hole-sized
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,6 5,6 6,5 6,5 5))",
+                              "POLYGON((5 5,5 6,6 6,6 5,5 5))",
+                              "FF2F112F2");
 
     // disjoint
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",

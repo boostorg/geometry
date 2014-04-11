@@ -4,10 +4,14 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_WITHIN_HPP
 #define BOOST_GEOMETRY_TEST_WITHIN_HPP
@@ -18,7 +22,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -27,7 +31,12 @@
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_point.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
+#include <boost/geometry/strategies/agnostic/relate.hpp>
+
+#include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>

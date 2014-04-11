@@ -22,6 +22,7 @@
 #include <boost/assert.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
@@ -129,7 +130,8 @@ namespace detail_dispatch { namespace within {
 
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
-struct point_in_geometry : not_implemented<Tag>
+struct point_in_geometry
+    : not_implemented<Tag>
 {};
 
 template <typename Point2>
@@ -206,7 +208,7 @@ struct point_in_geometry<Ring, ring_tag>
     }
 };
 
-//// Polygon: in exterior ring, and if so, not within interior ring(s)
+// Polygon: in exterior ring, and if so, not within interior ring(s)
 template <typename Polygon>
 struct point_in_geometry<Polygon, polygon_tag>
 {
@@ -242,6 +244,115 @@ struct point_in_geometry<Polygon, polygon_tag>
             }
         }
         return code;
+    }
+};
+
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_point_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
+    {
+        typedef typename boost::range_value<Geometry>::type point_type;
+        typedef typename boost::range_const_iterator<Geometry>::type iterator;
+        for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
+        {
+            int pip = point_in_geometry<point_type>::apply(point, *it, strategy);
+
+            //BOOST_ASSERT(pip != 0);
+            if ( pip > 0 ) // inside
+                return 1;
+        }
+
+        return -1; // outside
+    }
+};
+
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_linestring_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
+    {
+        int pip = -1; // outside
+
+        typedef typename boost::range_value<Geometry>::type linestring_type;
+        typedef typename boost::range_value<linestring_type>::type point_type;
+        typedef typename boost::range_iterator<Geometry const>::type iterator;
+        iterator it = boost::begin(geometry);
+        for ( ; it != boost::end(geometry) ; ++it )
+        {
+            pip = point_in_geometry<linestring_type>::apply(point, *it, strategy);
+
+            // inside or on the boundary
+            if ( pip >= 0 )
+            {
+                ++it;
+                break;
+            }
+        }
+
+        // outside
+        if ( pip < 0 )
+            return -1;
+
+        // TODO: the following isn't needed for covered_by()
+
+        unsigned boundaries = pip == 0 ? 1 : 0;
+
+        for ( ; it != boost::end(geometry) ; ++it )
+        {
+            if ( boost::size(*it) < 2 )
+                continue;
+
+            point_type const& front = *boost::begin(*it);
+            point_type const& back = *(--boost::end(*it));
+
+            // is closed_ring - no boundary
+            if ( detail::equals::equals_point_point(front, back) )
+                continue;
+
+            // is point on boundary
+            if ( detail::equals::equals_point_point(point, front)
+              || detail::equals::equals_point_point(point, back) )
+            {
+                ++boundaries;
+            }
+        }
+
+        // if the number of boundaries is odd, the point is on the boundary
+        return boundaries % 2 ? 0 : 1;
+    }
+};
+
+template <typename Geometry>
+struct point_in_geometry<Geometry, multi_polygon_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Geometry const& geometry, Strategy const& strategy)
+    {
+        // For invalid multipolygons
+        //int res = -1; // outside
+
+        typedef typename boost::range_value<Geometry>::type polygon_type;
+        typedef typename boost::range_const_iterator<Geometry>::type iterator;
+        for ( iterator it = boost::begin(geometry) ; it != boost::end(geometry) ; ++it )
+        {
+            int pip = point_in_geometry<polygon_type>::apply(point, *it, strategy);
+
+            // inside or on the boundary
+            if ( pip >= 0 )
+                return pip;
+
+            // For invalid multi-polygons
+            //if ( 1 == pip ) // inside polygon
+            //    return 1;
+            //else if ( res < pip ) // point must be inside at least one polygon
+            //    res = pip;
+        }
+
+        return -1; // for valid multipolygons
+        //return res; // for invalid multipolygons
     }
 };
 

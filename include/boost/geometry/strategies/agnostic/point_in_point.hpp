@@ -41,10 +41,34 @@ struct point_in_point
 namespace services
 {
 
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, point_tag, point_tag, point_tag, cartesian_tag, cartesian_tag, Point1, Point2>
+{
+    typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, point_tag, point_tag, point_tag, spherical_tag, spherical_tag, Point1, Point2>
+{
+    typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
 template <typename Point1, typename Point2, typename AnyCS1, typename AnyCS2>
 struct default_strategy<point_tag, point_tag, point_tag, point_tag, AnyCS1, AnyCS2, Point1, Point2>
 {
     typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
+template <typename Point, typename MultiPoint>
+struct default_strategy<point_tag, multi_point_tag, point_tag, multi_point_tag, cartesian_tag, cartesian_tag, Point, MultiPoint>
+{
+    typedef strategy::within::point_in_point<Point, typename point_type<MultiPoint>::type> type;
+};
+
+template <typename Point, typename MultiPoint>
+struct default_strategy<point_tag, multi_point_tag, point_tag, multi_point_tag, spherical_tag, spherical_tag, Point, MultiPoint>
+{
+    typedef strategy::within::point_in_point<Point, typename point_type<MultiPoint>::type> type;
 };
 
 template <typename Point, typename MultiPoint, typename AnyCS1, typename AnyCS2>
@@ -66,10 +90,34 @@ struct default_strategy<point_tag, multi_point_tag, point_tag, multi_point_tag, 
 namespace strategy { namespace covered_by { namespace services
 {
 
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, point_tag, point_tag, point_tag, cartesian_tag, cartesian_tag, Point1, Point2>
+{
+    typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
+template <typename Point1, typename Point2>
+struct default_strategy<point_tag, point_tag, point_tag, point_tag, spherical_tag, spherical_tag, Point1, Point2>
+{
+    typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
 template <typename Point1, typename Point2, typename AnyCS1, typename AnyCS2>
 struct default_strategy<point_tag, point_tag, point_tag, point_tag, AnyCS1, AnyCS2, Point1, Point2>
 {
     typedef strategy::within::point_in_point<Point1, Point2> type;
+};
+
+template <typename Point, typename MultiPoint>
+struct default_strategy<point_tag, multi_point_tag, point_tag, multi_point_tag, cartesian_tag, cartesian_tag, Point, MultiPoint>
+{
+    typedef strategy::within::point_in_point<Point, typename point_type<MultiPoint>::type> type;
+};
+
+template <typename Point, typename MultiPoint>
+struct default_strategy<point_tag, multi_point_tag, point_tag, multi_point_tag, spherical_tag, spherical_tag, Point, MultiPoint>
+{
+    typedef strategy::within::point_in_point<Point, typename point_type<MultiPoint>::type> type;
 };
 
 template <typename Point, typename MultiPoint, typename AnyCS1, typename AnyCS2>
