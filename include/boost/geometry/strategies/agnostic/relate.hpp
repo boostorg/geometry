@@ -41,26 +41,14 @@ namespace services
 {
 
 
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, cartesian_tag, cartesian_tag, Geometry1, Geometry2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_within> type;
 };
 
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, spherical_tag, spherical_tag, Geometry1, Geometry2>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, cartesian_tag, cartesian_tag, Geometry1, Geometry2>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, spherical_tag, spherical_tag, Geometry1, Geometry2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_within> type;
 };
@@ -80,26 +68,14 @@ namespace strategy { namespace covered_by { namespace services
 {
 
 
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, cartesian_tag, cartesian_tag, Geometry1, Geometry2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
 };
 
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, spherical_tag, spherical_tag, Geometry1, Geometry2>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, cartesian_tag, cartesian_tag, Geometry1, Geometry2>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2>
-struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, spherical_tag, spherical_tag, Geometry1, Geometry2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
 };
