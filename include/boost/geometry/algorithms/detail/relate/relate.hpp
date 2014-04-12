@@ -19,6 +19,10 @@
 #include <boost/concept_check.hpp>
 #include <boost/range.hpp>
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
@@ -273,6 +277,42 @@ relate(Geometry1 const& geometry1,
     detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
     return handler.result();
 }
+
+struct implemented_tag {};
+
+template <template <typename, typename> class StaticMaskTrait,
+          typename Geometry1,
+          typename Geometry2>
+struct relate_base
+    : boost::mpl::if_
+        <
+            boost::mpl::or_
+                <
+                    boost::is_base_of
+                        <
+                            nyi::not_implemented_tag,
+                            StaticMaskTrait<Geometry1, Geometry2>
+                        >,
+                    boost::is_base_of
+                        <
+                            nyi::not_implemented_tag,
+                            detail_dispatch::relate::relate<Geometry1, Geometry2>
+                        >
+                >,
+            not_implemented
+                <
+                    typename geometry::tag<Geometry1>::type,
+                    typename geometry::tag<Geometry2>::type
+                >,
+            implemented_tag
+        >::type
+{
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        typedef typename StaticMaskTrait<Geometry1, Geometry2>::type static_mask;
+        return detail::relate::relate<static_mask>(g1, g2);
+    }
+};
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL

@@ -1116,7 +1116,7 @@ template <typename Geometry1,
           std::size_t Dim2 = topological_dimension<Geometry2>::value,
           bool D1LessD2 = (Dim1 < Dim2)
 >
-struct static_mask_crosses_type
+struct static_mask_crosses_impl
 {
     typedef static_mask<'T', '*', 'T', '*', '*', '*', '*', '*', '*'> type;
 };
@@ -1125,24 +1125,29 @@ struct static_mask_crosses_type
 template <typename Geometry1, typename Geometry2,
           std::size_t Dim1, std::size_t Dim2
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dim1, Dim2, false>
+struct static_mask_crosses_impl<Geometry1, Geometry2, Dim1, Dim2, false>
 {
     typedef static_mask<'T', '*', '*', '*', '*', '*', 'T', '*', '*'> type;
 };
 // dim(G1) == dim(G2) - P/P A/A
 template <typename Geometry1, typename Geometry2,
-          std::size_t Dim, bool D1LessD2
+          std::size_t Dim
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dim, Dim, D1LessD2/*false*/>
+struct static_mask_crosses_impl<Geometry1, Geometry2, Dim, Dim, false>
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == 1 && dim(G2) == 1 - L/L
 template <typename Geometry1, typename Geometry2>
-struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, false>
+struct static_mask_crosses_impl<Geometry1, Geometry2, 1, 1, false>
 {
     typedef static_mask<'0', '*', '*', '*', '*', '*', '*', '*', '*'> type;
 };
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_type
+    : static_mask_crosses_impl<Geometry1, Geometry2>
+{};
 
 // OVERLAPS
 
@@ -1152,22 +1157,27 @@ template <typename Geometry1,
           std::size_t Dim1 = topological_dimension<Geometry1>::value,
           std::size_t Dim2 = topological_dimension<Geometry2>::value
 >
-struct static_mask_overlaps_type
+struct static_mask_overlaps_impl
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == D && dim(G2) == D - P/P A/A
 template <typename Geometry1, typename Geometry2, std::size_t Dim>
-struct static_mask_overlaps_type<Geometry1, Geometry2, Dim, Dim>
+struct static_mask_overlaps_impl<Geometry1, Geometry2, Dim, Dim>
 {
     typedef static_mask<'T', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
 };
 // dim(G1) == 1 && dim(G2) == 1 - L/L
 template <typename Geometry1, typename Geometry2>
-struct static_mask_overlaps_type<Geometry1, Geometry2, 1, 1>
+struct static_mask_overlaps_impl<Geometry1, Geometry2, 1, 1>
 {
     typedef static_mask<'1', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
 };
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_overlaps_type
+    : static_mask_overlaps_impl<Geometry1, Geometry2>
+{};
 
 // RESULTS/HANDLERS UTILS
 
