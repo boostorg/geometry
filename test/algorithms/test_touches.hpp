@@ -28,7 +28,6 @@
 #include <boost/geometry/multi/core/point_order.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
 
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
