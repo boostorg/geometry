@@ -396,13 +396,7 @@ public:
           TurnIterator start, TurnIterator beyond,
           OutputIterator oit)
     {
-        typedef typename boost::range_iterator
-            <
-                typename std::iterator_traits
-                    <
-                        TurnIterator
-                    >::value_type::container_type const
-            >::type turn_operation_iterator;
+        BOOST_ASSERT( start != beyond );
 
         typedef copy_linestrings_in_range
             <
@@ -415,10 +409,8 @@ public:
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        int current_multi_id = -1;
-
-        turn_operation_iterator op_it = boost::begin(start->operations);
-        current_multi_id = op_it->seg_id.multi_index;
+        int current_multi_id =
+            boost::begin(start->operations)->seg_id.multi_index;
 
         oit = copy_linestrings::apply(ls_begin,
                                       ls_begin + current_multi_id,
@@ -428,13 +420,16 @@ public:
         do {
             // find last turn with this multi-index
             turns_end = turns_begin;
-            do
+            ++turns_end;
+            while ( turns_end != beyond )
             {
+                if ( boost::begin(turns_end->operations)->seg_id.multi_index
+                     != current_multi_id )
+                {
+                    break;
+                }
                 ++turns_end;
-                op_it = boost::begin(turns_end->operations);
             }
-            while ( turns_end != beyond
-                    && op_it->seg_id.multi_index == current_multi_id );
 
             oit = Base::apply(*(boost::begin(multilinestring)
                                 + current_multi_id),
@@ -444,8 +439,8 @@ public:
             linestring_iterator ls_beyond_last = ls_end;
             if ( turns_end != beyond )
             {
-                op_it = boost::begin(turns_end->operations);
-                new_multi_id = op_it->seg_id.multi_index;
+                new_multi_id =
+                    boost::begin(turns_end->operations)->seg_id.multi_index;
                 ls_beyond_last = ls_begin + new_multi_id;
             }
             oit = copy_linestrings::apply(ls_begin + current_multi_id + 1,
