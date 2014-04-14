@@ -14,9 +14,14 @@
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 
 #include <boost/range.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/mpl/if.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
+
 #include <boost/geometry/iterators/flatten_iterator.hpp>
 #include <boost/geometry/iterators/concatenate_iterator.hpp>
 
@@ -107,12 +112,12 @@ private:
     typedef typename detail_dispatch::point_iterator_inner_range_type
         <
             Polygon
-        >::type InnerRange;
+        >::type inner_range;
 
 public:
     typedef concatenate_iterator
         <
-            typename boost::range_iterator<InnerRange>::type,
+            typename boost::range_iterator<inner_range>::type,
             flatten_iterator
                 <
                     typename boost::range_iterator
@@ -121,14 +126,14 @@ public:
                         >::type,
                     typename dispatch::point_iterator_type
                         <
-                            InnerRange
+                            inner_range
                         >::type,
                     typename detail_dispatch::point_iterator_value_type
                         <
                             Polygon
                         >::type,
-                    dispatch::points_begin<InnerRange>,
-                    dispatch::points_end<InnerRange>
+                    dispatch::points_begin<inner_range>,
+                    dispatch::points_end<inner_range>
                 >,
             typename detail_dispatch::point_iterator_value_type<Polygon>::type
         > type;
@@ -149,19 +154,19 @@ private:
     typedef typename detail_dispatch::point_iterator_inner_range_type
         <
             MultiLinestring
-        >::type InnerRange;
+        >::type inner_range;
 
 public:
     typedef flatten_iterator
         <
             typename boost::range_iterator<MultiLinestring>::type,
-            typename dispatch::point_iterator_type<InnerRange>::type,
+            typename dispatch::point_iterator_type<inner_range>::type,
             typename detail_dispatch::point_iterator_value_type
                 <
                     MultiLinestring
                 >::type,
-            dispatch::points_begin<InnerRange>,
-            dispatch::points_end<InnerRange>
+            dispatch::points_begin<inner_range>,
+            dispatch::points_end<inner_range>
         > type;
 };
 
@@ -173,19 +178,19 @@ private:
     typedef typename detail_dispatch::point_iterator_inner_range_type
         <
             MultiPolygon
-        >::type InnerRange;
+        >::type inner_range;
 
 public:
     typedef flatten_iterator
         <
             typename boost::range_iterator<MultiPolygon>::type,
-            typename dispatch::point_iterator_type<InnerRange>::type,
+            typename dispatch::point_iterator_type<inner_range>::type,
             typename detail_dispatch::point_iterator_value_type
                 <
                     MultiPolygon
                 >::type,
-            dispatch::points_begin<InnerRange>,
-            dispatch::points_end<InnerRange>
+            dispatch::points_begin<inner_range>,
+            dispatch::points_end<inner_range>
         > type;
 };
 
