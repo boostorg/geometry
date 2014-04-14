@@ -51,10 +51,15 @@ private:
 
         bg::intersection(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_int1, mls_output)
-                     || equals::apply(mls_int2, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output)
+                             || equals::apply(mls_int2, mls_output),
+                             "intersection L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_int1)
+                             << " or: " << bg::wkt(mls_int2)
+                             << " computed: " << bg::wkt(mls_output) );
 
-       set_operation_output("intersection", case_id,
+        set_operation_output("intersection", case_id,
                              geometry1, geometry2, mls_output);
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
@@ -95,8 +100,13 @@ private:
         bg::clear(mls_output);
         bg::intersection(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_int1, mls_output)
-                     || equals::apply(mls_int2, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output)
+                             || equals::apply(mls_int2, mls_output),
+                             "intersection L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_int1)
+                             << " or: " << bg::wkt(mls_int2)
+                             << " computed: " << bg::wkt(mls_output) );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;
