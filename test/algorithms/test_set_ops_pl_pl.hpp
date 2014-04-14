@@ -196,9 +196,14 @@ private:
 
         set_op<OverlayType>::apply(geometry1, geometry2, mp_output);
 
-        BOOST_CHECK( equals::apply(mp_expected, mp_output) );
-
         std::string op_name = set_op<OverlayType>::name();
+
+        BOOST_CHECK_MESSAGE( equals::apply(mp_expected, mp_output),
+                             op_name << " P/P: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mp_expected)
+                             << " computed: " << bg::wkt(mp_output) );
+
         set_operation_output(op_name, case_id,
                              geometry1, geometry2, mp_output);
 

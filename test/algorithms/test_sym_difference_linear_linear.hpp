@@ -49,7 +49,12 @@ private:
 
         bg::sym_difference(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_sym_diff, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output),
+                             "sym diff L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_sym_diff)
+                             << " computed: " << bg::wkt(mls_output) );
+
 
         set_operation_output("sym_difference", case_id,
                              geometry1, geometry2, mls_output);
@@ -93,7 +98,11 @@ private:
         bg::clear(mls_output);
         bg::sym_difference(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_sym_diff, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output),
+                             "sym diff L/L: " << bg::wkt(geometry2)
+                             << " " << bg::wkt(geometry1)
+                             << " -> Expected: " << bg::wkt(mls_sym_diff)
+                             << " computed: " << bg::wkt(mls_output) );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;

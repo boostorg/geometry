@@ -50,9 +50,13 @@ private:
 
         bg::union_(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_union1, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_union1, mls_output),
+                             "union L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_union1)
+                             << " computed: " << bg::wkt(mls_output) );
 
-       set_operation_output("union", case_id,
+        set_operation_output("union", case_id,
                              geometry1, geometry2, mls_output);
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -94,7 +98,11 @@ private:
         bg::clear(mls_output);
         bg::union_(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK( equals::apply(mls_union2, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_union2, mls_output),
+                             "union L/L: " << bg::wkt(geometry2)
+                             << " " << bg::wkt(geometry1)
+                             << " -> Expected: " << bg::wkt(mls_union2)
+                             << " computed: " << bg::wkt(mls_output) );
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;
