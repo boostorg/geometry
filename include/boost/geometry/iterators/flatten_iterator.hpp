@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
+#include <boost/assert.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -184,17 +185,17 @@ private:
                           OtherAccessInnerEnd
                       > const& other) const
     {
-        if ( this->m_outer_it != other.m_outer_it )
+        if ( m_outer_it != other.m_outer_it )
         {
             return false;
         }
 
-        if ( this->m_outer_it == m_outer_end )
+        if ( m_outer_it == m_outer_end )
         {
             return true;
         }
 
-        return this->m_inner_it == other.m_inner_it;
+        return m_inner_it == other.m_inner_it;
     }
 
     inline void increment()

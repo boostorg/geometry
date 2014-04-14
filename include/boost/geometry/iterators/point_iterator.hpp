@@ -10,6 +10,13 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 #include <boost/geometry/iterators/point_iterator_type.hpp>
 
