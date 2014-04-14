@@ -244,9 +244,6 @@ public:
         if ( turns.empty() )
         {
             // the two linear geometries are disjoint
-#ifdef GEOMETRY_TEST_DEBUG
-            std::cout << "NO INTERSECTIONS" << std::endl;
-#endif
             return linear_linear_no_intersections
                 <
                     LinestringOut,
