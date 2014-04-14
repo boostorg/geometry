@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 
 #include <cstddef>
+#include <algorithm>
 #include <iterator>
 
 #include <boost/assert.hpp>
@@ -382,6 +383,23 @@ protected:
         return boost::begin(it->operations)->seg_id.multi_index;
     }
 
+    class has_other_multi_id
+    {
+    private:
+        int m_multi_id;
+
+    public:
+        has_other_multi_id(int multi_id)
+            : m_multi_id(multi_id) {}
+
+        template <typename Turn>
+        bool operator()(Turn const& turn) const
+        {
+            return boost::begin(turn.operations)->seg_id.multi_index
+                != m_multi_id;
+        }
+    };
+
 public:
     template <typename TurnIterator, typename OutputIterator>
     static inline OutputIterator
@@ -408,25 +426,22 @@ public:
                                       ls_first + current_multi_id,
                                       oit);
 
-        TurnIterator per_ls_first, per_ls_beyond = first;
+        TurnIterator per_ls_next = first;
         do {
-            // find last turn with this multi-index
-            per_ls_first = per_ls_beyond;
-            do
-            {
-                ++per_ls_beyond;
-            }
-            while ( per_ls_beyond != beyond
-                    && get_multi_index(per_ls_beyond) == current_multi_id );
+            TurnIterator per_ls_current = per_ls_next;
+
+            // find turn with different multi-index
+            per_ls_next = std::find_if(per_ls_current, beyond,
+                                       has_other_multi_id(current_multi_id));
 
             oit = Base::apply(*(ls_first + current_multi_id),
-                              linear, per_ls_first, per_ls_beyond, oit);
+                              linear, per_ls_current, per_ls_next, oit);
 
             int next_multi_id(-1);
             linestring_iterator ls_next = ls_beyond;
-            if ( per_ls_beyond != beyond )
+            if ( per_ls_next != beyond )
             {
-                next_multi_id = get_multi_index(per_ls_beyond);
+                next_multi_id = get_multi_index(per_ls_next);
                 ls_next = ls_first + next_multi_id;
             }
             oit = copy_linestrings::apply(ls_first + current_multi_id + 1,
@@ -435,7 +450,7 @@ public:
 
             current_multi_id = next_multi_id;
         }
-        while ( per_ls_beyond != beyond );
+        while ( per_ls_next != beyond );
 
         return oit;
     }
