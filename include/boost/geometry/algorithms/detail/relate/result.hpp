@@ -35,6 +35,14 @@ namespace detail { namespace relate {
 
 enum field { interior = 0, boundary = 1, exterior = 2 };
 
+// TODO: IF THE RESULT IS UPDATED WITH THE MAX POSSIBLE VALUE FOR SOME PAIR OF GEOEMTRIES
+// THE VALUE ALREADY STORED MUSN'T BE CHECKED
+// update() calls chould be replaced with set() in those cases
+// but for safety reasons (STATIC_ASSERT) we should check if parameter D is valid and set() doesn't do that
+// so some additional function could be added, e.g. set_dim()
+
+// matrix
+
 // TODO add height?
 
 template <std::size_t Width>
@@ -119,6 +127,8 @@ private:
 struct matrix9 {};
 //struct matrix4 {};
 
+// matrix_width
+
 template <typename MatrixOrMask>
 struct matrix_width
     : not_implemented<MatrixOrMask>
@@ -129,6 +139,8 @@ struct matrix_width<matrix9>
 {
     static const std::size_t value = 3;
 };
+
+// matrix_handler
 
 template <typename Matrix>
 class matrix_handler
@@ -150,6 +162,21 @@ public:
                            this->data() + base_t::size);
     }
 
+    template <field F1, field F2, char D>
+    inline bool may_update() const
+    {
+        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+
+        char const c = static_cast<base_t const&>(*this).template get<F1, F2>();
+        return D > c || c > '9';
+    }
+
+    //template <field F1, field F2>
+    //inline char get() const
+    //{
+    //    return static_cast<base_t const&>(*this).template get<F1, F2>();
+    //}
+
     template <field F1, field F2, char V>
     inline void set()
     {
@@ -164,6 +191,8 @@ public:
 };
 
 // RUN-TIME MASKS
+
+// mask9
 
 class mask9
 {
@@ -186,6 +215,8 @@ public:
 private:
     char m_mask[9];
 };
+
+// interrupt()
 
 template <typename Mask, bool InterruptEnabled>
 struct interrupt_dispatch
@@ -276,6 +307,94 @@ inline bool interrupt(Mask const& mask)
     return interrupt_dispatch<Mask, InterruptEnabled>
                 ::template apply<F1, F2, V>(mask);
 }
+
+// may_update()
+
+template <typename Mask>
+struct may_update_dispatch
+{
+    template <field F1, field F2, char D, typename Matrix>
+    static inline bool apply(Mask const& mask, Matrix const& matrix)
+    {
+        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+
+        char const m = mask.template get<F1, F2>();
+        
+        if ( m == 'F' )
+        {
+            return true;
+        }
+        else if ( m == 'T' )
+        {
+            char const c = matrix.template get<F1, F2>();
+            return c == 'F'; // if it's T or between 0 and 9, the result will be the same
+        }
+        else if ( m >= '0' && m <= '9' )
+        {
+            char const c = matrix.template get<F1, F2>();
+            return D > c || c > '9';
+        }
+
+        return false;
+    }
+};
+
+template <typename Masks, int I = 0, int N = boost::tuples::length<Masks>::value>
+struct may_update_dispatch_tuple
+{
+    template <field F1, field F2, char D, typename Matrix>
+    static inline bool apply(Masks const& masks, Matrix const& matrix)
+    {
+        typedef typename boost::tuples::element<I, Masks>::type mask_type;
+        mask_type const& mask = boost::get<I>(masks);
+        return may_update_dispatch<mask_type>::template apply<F1, F2, D>(mask, matrix)
+            || may_update_dispatch_tuple<Masks, I+1>::template apply<F1, F2, D>(masks, matrix);
+    }
+};
+
+template <typename Masks, int N>
+struct may_update_dispatch_tuple<Masks, N, N>
+{
+    template <field F1, field F2, char D, typename Matrix>
+    static inline bool apply(Masks const& , Matrix const& )
+    {
+        return false;
+    }
+};
+
+template <typename T0, typename T1, typename T2, typename T3, typename T4,
+          typename T5, typename T6, typename T7, typename T8, typename T9>
+struct may_update_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
+{
+    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> mask_type;
+
+    template <field F1, field F2, char D, typename Matrix>
+    static inline bool apply(mask_type const& mask, Matrix const& matrix)
+    {
+        return may_update_dispatch_tuple<mask_type>::template apply<F1, F2, D>(mask, matrix);
+    }
+};
+
+template <typename Head, typename Tail>
+struct may_update_dispatch< boost::tuples::cons<Head, Tail> >
+{
+    typedef boost::tuples::cons<Head, Tail> mask_type;
+
+    template <field F1, field F2, char D, typename Matrix>
+    static inline bool apply(mask_type const& mask, Matrix const& matrix)
+    {
+        return may_update_dispatch_tuple<mask_type>::template apply<F1, F2, D>(mask, matrix);
+    }
+};
+
+template <field F1, field F2, char D, typename Mask, typename Matrix>
+inline bool may_update(Mask const& mask, Matrix const& matrix)
+{
+    return may_update_dispatch<Mask>
+                ::template apply<F1, F2, D>(mask, matrix);
+}
+
+// check()
 
 template <typename Mask>
 struct check_dispatch
@@ -371,6 +490,8 @@ inline bool check(Mask const& mask, Matrix const& matrix)
     return check_dispatch<Mask>::apply(mask, matrix);
 }
 
+// matrix_width
+
 template <>
 struct matrix_width<mask9>
 {
@@ -404,6 +525,8 @@ struct matrix_width< boost::tuples::cons<Head, Tail> >
         value = matrix_width_tuple< boost::tuples::cons<Head, Tail> >::value;
 };
 
+// matrix_handler
+
 template <typename Mask, bool Interrupt>
 class mask_handler
     : private matrix<matrix_width<Mask>::value>
@@ -425,6 +548,20 @@ public:
         return !interrupt
             && check(m_mask, static_cast<base_t const&>(*this));
     }
+
+    template <field F1, field F2, char D>
+    inline bool may_update() const
+    {
+        return detail::relate::may_update<F1, F2, D>(
+                    m_mask, static_cast<base_t const&>(*this)
+               );
+    }
+
+    //template <field F1, field F2>
+    //inline char get() const
+    //{
+    //    return static_cast<base_t const&>(*this).template get<F1, F2>();
+    //}
 
     template <field F1, field F2, char V>
     inline void set()
@@ -456,7 +593,9 @@ private:
     Mask const& m_mask;
 };
 
-// STATIC MASK
+// STATIC MASKS
+
+// static_mask
 
 template <char II, char IB, char IE,
           char BI, char BB, char BE,
@@ -479,6 +618,8 @@ public:
     };
 };
 
+// static_should_handle_element
+
 template <typename StaticMask, field F1, field F2>
 struct static_should_handle_element
 {
@@ -488,14 +629,16 @@ struct static_should_handle_element
                            || ( mask_el >= '0' && mask_el <= '9' );
 };
 
-template <typename StaticMask, char V, field F1, field F2, bool InterruptEnabled, bool IsNotSequence>
+// static_interrupt
+
+template <typename StaticMask, char V, field F1, field F2, bool InterruptEnabled, bool IsSequence>
 struct static_interrupt_dispatch
 {
     static const bool value = false;
 };
 
-template <typename StaticMask, char V, field F1, field F2, bool IsNotSequence>
-struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, IsNotSequence>
+template <typename StaticMask, char V, field F1, field F2, bool IsSequence>
+struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, IsSequence>
 {
     static const char mask_el = StaticMask::template get<F1, F2>::value;
 
@@ -516,7 +659,7 @@ struct static_interrupt_sequence
                 StaticMask,
                 V, F1, F2,
                 true,
-                !boost::mpl::is_sequence<StaticMask>::value
+                boost::mpl::is_sequence<StaticMask>::value
             >::value
        && static_interrupt_sequence
             <
@@ -533,7 +676,7 @@ struct static_interrupt_sequence<Last, Last, V, F1, F2>
 };
 
 template <typename StaticMask, char V, field F1, field F2>
-struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, false>
+struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, true>
 {
     static const bool value
         = static_interrupt_sequence
@@ -553,11 +696,122 @@ struct static_interrupt
                 StaticMask,
                 V, F1, F2,
                 EnableInterrupt,
-                !boost::mpl::is_sequence<StaticMask>::value
+                boost::mpl::is_sequence<StaticMask>::value
             >::value;
 };
 
-template <typename StaticMask, bool IsNotSequence>
+// static_may_update
+
+template <typename StaticMask, char D, field F1, field F2, bool IsSequence>
+struct static_may_update_dispatch
+{
+    static const char mask_el = StaticMask::template get<F1, F2>::value;
+    static const int version
+                        = mask_el == 'F' ? 0
+                        : mask_el == 'T' ? 1
+                        : mask_el >= '0' && mask_el <= '9' ? 2
+                        : 3;
+
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return apply_dispatch(matrix, integral_constant<int, version>());
+    }
+
+    // mask_el == 'F'
+    template <typename Matrix>
+    static inline bool apply_dispatch(Matrix const& , integral_constant<int, 0>)
+    {
+        return true;
+    }
+    // mask_el == 'T'
+    template <typename Matrix>
+    static inline bool apply_dispatch(Matrix const& matrix, integral_constant<int, 1>)
+    {
+        char const c = matrix.template get<F1, F2>();
+        return c == 'F'; // if it's T or between 0 and 9, the result will be the same
+    }
+    // mask_el >= '0' && mask_el <= '9'
+    template <typename Matrix>
+    static inline bool apply_dispatch(Matrix const& matrix, integral_constant<int, 2>)
+    {
+        char const c = matrix.template get<F1, F2>();
+        return D > c || c > '9';
+    }
+    // else
+    template <typename Matrix>
+    static inline bool apply_dispatch(Matrix const&, integral_constant<int, 3>)
+    {
+        return false;
+    }
+};
+
+template <typename First, typename Last, char D, field F1, field F2>
+struct static_may_update_sequence
+{
+    typedef typename boost::mpl::deref<First>::type StaticMask;
+
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_may_update_dispatch
+                <
+                    StaticMask,
+                    D, F1, F2,
+                    boost::mpl::is_sequence<StaticMask>::value
+                >::apply(matrix)
+            || static_may_update_sequence
+                <
+                    typename boost::mpl::next<First>::type,
+                    Last,
+                    D, F1, F2
+                >::apply(matrix);
+    }
+};
+
+template <typename Last, char D, field F1, field F2>
+struct static_may_update_sequence<Last, Last, D, F1, F2>
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return false;
+    }
+};
+
+template <typename StaticMask, char D, field F1, field F2>
+struct static_may_update_dispatch<StaticMask, D, F1, F2, true>
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_may_update_sequence
+                <
+                    typename boost::mpl::begin<StaticMask>::type,
+                    typename boost::mpl::end<StaticMask>::type,
+                    D, F1, F2
+                >::apply(matrix);
+    }
+};
+
+template <typename StaticMask, char D, field F1, field F2>
+struct static_may_update
+{
+    template <typename Matrix>
+    static inline bool apply(Matrix const& matrix)
+    {
+        return static_may_update_dispatch
+                <
+                    StaticMask,
+                    D, F1, F2,
+                    boost::mpl::is_sequence<StaticMask>::value
+                >::apply(matrix);
+    }
+};
+
+// static_check
+
+template <typename StaticMask, bool IsSequence>
 struct static_check_dispatch
 {
     template <typename Matrix>
@@ -625,7 +879,7 @@ struct static_check_sequence
         return static_check_dispatch
                 <
                     StaticMask,
-                    !boost::mpl::is_sequence<StaticMask>::value
+                    boost::mpl::is_sequence<StaticMask>::value
                 >::apply(matrix)
             || static_check_sequence
                 <
@@ -646,7 +900,7 @@ struct static_check_sequence<Last, Last>
 };
 
 template <typename StaticMask>
-struct static_check_dispatch<StaticMask, false>
+struct static_check_dispatch<StaticMask, true>
 {
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)
@@ -668,10 +922,12 @@ struct static_check
         return static_check_dispatch
                 <
                     StaticMask,
-                    !boost::mpl::is_sequence<StaticMask>::value
+                    boost::mpl::is_sequence<StaticMask>::value
                 >::apply(matrix);
     }
 };
+
+// static_mask_handler
 
 template <typename StaticMask, bool Interrupt>
 class static_mask_handler
@@ -691,8 +947,28 @@ public:
     result_type result() const
     {
         return (!Interrupt || !interrupt)
-            && static_check<StaticMask>::apply(static_cast<base_t const&>(*this));
+            && static_check<StaticMask>::
+                    apply(static_cast<base_t const&>(*this));
     }
+
+    template <field F1, field F2, char D>
+    inline bool may_update() const
+    {
+        return static_may_update<StaticMask, D, F1, F2>::
+                    apply(static_cast<base_t const&>(*this));
+    }
+
+    template <field F1, field F2>
+    static inline bool expects()
+    {
+        return static_should_handle_element<StaticMask, F1, F2>::value;
+    }
+
+    //template <field F1, field F2>
+    //inline char get() const
+    //{
+    //    return base_t::template get<F1, F2>();
+    //}
 
     template <field F1, field F2, char V>
     inline void set()
@@ -840,7 +1116,7 @@ template <typename Geometry1,
           std::size_t Dim2 = topological_dimension<Geometry2>::value,
           bool D1LessD2 = (Dim1 < Dim2)
 >
-struct static_mask_crosses_type
+struct static_mask_crosses_impl
 {
     typedef static_mask<'T', '*', 'T', '*', '*', '*', '*', '*', '*'> type;
 };
@@ -849,24 +1125,29 @@ struct static_mask_crosses_type
 template <typename Geometry1, typename Geometry2,
           std::size_t Dim1, std::size_t Dim2
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dim1, Dim2, false>
+struct static_mask_crosses_impl<Geometry1, Geometry2, Dim1, Dim2, false>
 {
     typedef static_mask<'T', '*', '*', '*', '*', '*', 'T', '*', '*'> type;
 };
 // dim(G1) == dim(G2) - P/P A/A
 template <typename Geometry1, typename Geometry2,
-          std::size_t Dim, bool D1LessD2
+          std::size_t Dim
 >
-struct static_mask_crosses_type<Geometry1, Geometry2, Dim, Dim, D1LessD2/*false*/>
+struct static_mask_crosses_impl<Geometry1, Geometry2, Dim, Dim, false>
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == 1 && dim(G2) == 1 - L/L
-template <typename Geometry1, typename Geometry2, bool D1LessD2>
-struct static_mask_crosses_type<Geometry1, Geometry2, 1, 1, D1LessD2>
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_impl<Geometry1, Geometry2, 1, 1, false>
 {
     typedef static_mask<'0', '*', '*', '*', '*', '*', '*', '*', '*'> type;
 };
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_type
+    : static_mask_crosses_impl<Geometry1, Geometry2>
+{};
 
 // OVERLAPS
 
@@ -876,22 +1157,27 @@ template <typename Geometry1,
           std::size_t Dim1 = topological_dimension<Geometry1>::value,
           std::size_t Dim2 = topological_dimension<Geometry2>::value
 >
-struct static_mask_overlaps_type
+struct static_mask_overlaps_impl
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
 {};
 // dim(G1) == D && dim(G2) == D - P/P A/A
 template <typename Geometry1, typename Geometry2, std::size_t Dim>
-struct static_mask_overlaps_type<Geometry1, Geometry2, Dim, Dim>
+struct static_mask_overlaps_impl<Geometry1, Geometry2, Dim, Dim>
 {
     typedef static_mask<'T', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
 };
 // dim(G1) == 1 && dim(G2) == 1 - L/L
 template <typename Geometry1, typename Geometry2>
-struct static_mask_overlaps_type<Geometry1, Geometry2, 1, 1>
+struct static_mask_overlaps_impl<Geometry1, Geometry2, 1, 1>
 {
     typedef static_mask<'1', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
 };
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_overlaps_type
+    : static_mask_overlaps_impl<Geometry1, Geometry2>
+{};
 
 // RESULTS/HANDLERS UTILS
 
@@ -985,6 +1271,38 @@ template <field F1, field F2, char D, bool Transpose, typename Result>
 inline void update(Result & res)
 {
     update_result_dispatch<F1, F2, D, Transpose>::apply(res);
+}
+
+template <field F1, field F2, char D, typename Result>
+inline bool may_update(Result const& res)
+{
+    return res.template may_update<F1, F2, D>();
+}
+
+template <field F1, field F2, char D, bool Transpose>
+struct may_update_result_dispatch
+{
+    template <typename Result>
+    static inline bool apply(Result const& res)
+    {
+        return may_update<F1, F2, D>(res);
+    }
+};
+
+template <field F1, field F2, char D>
+struct may_update_result_dispatch<F1, F2, D, true>
+{
+    template <typename Result>
+    static inline bool apply(Result const& res)
+    {
+        return may_update<F2, F1, D>(res);
+    }
+};
+
+template <field F1, field F2, char D, bool Transpose, typename Result>
+inline bool may_update(Result const& res)
+{
+    return may_update_result_dispatch<F1, F2, D, Transpose>::apply(res);
 }
 
 template <typename Result, char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE>

@@ -95,7 +95,8 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct within: not_implemented<Tag1, Tag2>
+struct within
+    : not_implemented<Tag1, Tag2>
 {};
 
 
@@ -122,6 +123,30 @@ struct within<Box1, Box2, box_tag, box_tag>
     }
 };
 
+// P/P
+
+template <typename Point1, typename Point2>
+struct within<Point1, Point2, point_tag, point_tag>
+    : public detail::within::use_point_in_geometry
+{};
+
+template <typename Point, typename MultiPoint>
+struct within<Point, MultiPoint, point_tag, multi_point_tag>
+    : public detail::within::use_point_in_geometry
+{};
+
+// P/L
+
+template <typename Point, typename Linestring>
+struct within<Point, Linestring, point_tag, linestring_tag>
+    : public detail::within::use_point_in_geometry
+{};
+
+template <typename Point, typename MultiLinestring>
+struct within<Point, MultiLinestring, point_tag, multi_linestring_tag>
+    : public detail::within::use_point_in_geometry
+{};
+
 // P/A
 
 template <typename Point, typename Ring>
@@ -134,10 +159,8 @@ struct within<Point, Polygon, point_tag, polygon_tag>
     : public detail::within::use_point_in_geometry
 {};
 
-// P/L
-
-template <typename Point, typename Linestring>
-struct within<Point, Linestring, point_tag, linestring_tag>
+template <typename Point, typename MultiPolygon>
+struct within<Point, MultiPolygon, point_tag, multi_polygon_tag>
     : public detail::within::use_point_in_geometry
 {};
 
@@ -155,6 +178,11 @@ struct within<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
 
 template <typename MultiLinestring, typename Linestring>
 struct within<MultiLinestring, Linestring, multi_linestring_tag, linestring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiLinestring1, typename MultiLinestring2>
+struct within<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
     : public detail::within::use_relate
 {};
 
@@ -187,6 +215,53 @@ struct within<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
 
 template <typename MultiLinestring, typename MultiPolygon>
 struct within<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon_tag>
+    : public detail::within::use_relate
+{};
+
+// A/A
+
+template <typename Ring1, typename Ring2>
+struct within<Ring1, Ring2, ring_tag, ring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Ring, typename Polygon>
+struct within<Ring, Polygon, ring_tag, polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Polygon, typename Ring>
+struct within<Polygon, Ring, polygon_tag, ring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Polygon1, typename Polygon2>
+struct within<Polygon1, Polygon2, polygon_tag, polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Ring, typename MultiPolygon>
+struct within<Ring, MultiPolygon, ring_tag, multi_polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiPolygon, typename Ring>
+struct within<MultiPolygon, Ring, multi_polygon_tag, ring_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename Polygon, typename MultiPolygon>
+struct within<Polygon, MultiPolygon, polygon_tag, multi_polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiPolygon, typename Polygon>
+struct within<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
+    : public detail::within::use_relate
+{};
+
+template <typename MultiPolygon1, typename MultiPolygon2>
+struct within<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
     : public detail::within::use_relate
 {};
 

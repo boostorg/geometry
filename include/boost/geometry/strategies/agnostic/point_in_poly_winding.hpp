@@ -202,26 +202,14 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
 
 // TODO: use linear_tag and pointlike_tag the same way how areal_tag is used
 
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, cartesian_tag, cartesian_tag, Point, Geometry>
 {
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, spherical_tag, spherical_tag, Point, Geometry>
-{
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
-{
-    typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, spherical_tag, spherical_tag, Point, Geometry>
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, spherical_tag, spherical_tag, Point, Geometry>
 {
     typedef winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
@@ -254,26 +242,14 @@ struct default_strategy<point_tag, AnyTag, point_tag, areal_tag, spherical_tag, 
 
 // TODO: use linear_tag and pointlike_tag the same way how areal_tag is used
 
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, cartesian_tag, cartesian_tag, Point, Geometry>
 {
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };
 
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, spherical_tag, spherical_tag, Point, Geometry>
-{
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, cartesian_tag, cartesian_tag, Point, Geometry>
-{
-    typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
-};
-
-template <typename Point, typename Geometry>
-struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, spherical_tag, spherical_tag, Point, Geometry>
+template <typename Point, typename Geometry, typename AnyTag>
+struct default_strategy<point_tag, AnyTag, point_tag, AnyTag, spherical_tag, spherical_tag, Point, Geometry>
 {
     typedef strategy::within::winding<Point, typename geometry::point_type<Geometry>::type> type;
 };

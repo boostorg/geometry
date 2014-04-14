@@ -116,15 +116,11 @@ struct get_turns
 
 // TURNS SORTING AND SEARCHING
 
-// sort turns by G1 - source_index == 0 by:
-// seg_id -> distance -> operation
-template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0, std::size_t OpId = 0>
-struct less_seg_dist_op
+template <int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0>
+struct op_to_int
 {
-    BOOST_STATIC_ASSERT(OpId < 2);
-
-    template <typename Op> static inline
-    int order_op(Op const& op)
+    template <typename Op>
+    inline int operator()(Op const& op) const
     {
         switch(op.operation)
         {
@@ -137,68 +133,86 @@ struct less_seg_dist_op
         }
         return -1;
     }
+};
 
-    template <typename Op> static inline
-    bool less_operation(Op const& left, Op const& right)
+template <typename OpToInt = op_to_int<> >
+struct less_greater_op_for_other_same_m_diff_r
+{
+    template <typename Op>
+    inline bool operator()(Op const& left, Op const& right)
     {
-        return order_op(left) < order_op(right);
-    }
+        static OpToInt op_to_int;
 
-    template <typename Op> static inline
-    bool greater_operation(Op const& left, Op const& right)
-    {
-        return order_op(left) > order_op(right);
-    }
-
-    template <typename Op> static inline
-    bool use_other_multi_ring_id(Op const& left, Op const& right)
-    {
-        // VER1
-        //return left.other_id.ring_index < right.other_id.ring_index;
-        
-        // VER2
-        //if ( left.other_id.ring_index == -1 )
-        //{
-        //    if ( right.other_id.ring_index == -1 )
-        //        return less_operation(left, right); // sort by operation
-        //    else
-        //        return true; // right always greater
-        //}
-        //else // left.other_id.ring_index != -1
-        //{
-        //    if ( right.other_id.ring_index == -1 )
-        //        return false; // left always greater
-
-        //    // here both ring_indexes are greater than -1
-        //    // so first, sort also by multi_index
-        //    return left.other_id.multi_index < right.other_id.multi_index || (
-        //               left.other_id.multi_index == right.other_id.multi_index && (
-        //               left.other_id.ring_index < right.other_id.ring_index || (
-        //                   left.other_id.ring_index == right.other_id.ring_index &&
-        //                   less_operation(left, right) )
-        //            )
-        //        );
-        //}
-
-        // VER3
         if ( left.other_id.multi_index == right.other_id.multi_index )
         {
             if ( left.other_id.ring_index == right.other_id.ring_index )
-                return less_operation(left, right);
+                return op_to_int(left) < op_to_int(right);
             else
-                return greater_operation(left, right);
+                return op_to_int(left) > op_to_int(right);
         }
         else
         {
-            return less_operation(left, right);
+            return op_to_int(left) < op_to_int(right);
         }
     }
+};
+
+struct less_op_areal_areal
+{
+    template <typename Op>
+    inline bool operator()(Op const& left, Op const& right)
+    {
+        static op_to_int<0, 1, 2, 3, 4, 0> op_to_int_uixc;
+        static op_to_int<0, 2, 1, 3, 4, 0> op_to_int_iuxc;
+
+        if ( left.other_id.multi_index == right.other_id.multi_index )
+        {
+            if ( left.other_id.ring_index == right.other_id.ring_index )
+            {
+                return op_to_int_uixc(left) < op_to_int_uixc(right);
+            }
+            else
+            {
+                if ( left.other_id.ring_index == -1 )
+                {
+                    if ( left.operation == overlay::operation_union )
+                        return false;
+                    else if ( left.operation == overlay::operation_intersection )
+                        return true;
+                }
+                else if ( right.other_id.ring_index == -1 )
+                {
+                    if ( right.operation == overlay::operation_union )
+                        return true;
+                    else if ( right.operation == overlay::operation_intersection )
+                        return false;
+                }
+                
+                return op_to_int_iuxc(left) < op_to_int_iuxc(right);
+            }
+        }
+        else
+        {
+            return op_to_int_uixc(left) < op_to_int_uixc(right);
+        }
+    }
+};
+
+// sort turns by G1 - source_index == 0 by:
+// seg_id -> distance -> operation
+template <std::size_t OpId = 0,
+          typename LessOp = less_greater_op_for_other_same_m_diff_r<> >
+struct less
+{
+    BOOST_STATIC_ASSERT(OpId < 2);
 
     template <typename Op> static inline
     bool use_distance(Op const& left, Op const& right)
     {
+        static LessOp less_op;
+
         if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
-            return use_other_multi_ring_id(left, right);
+            return less_op(left, right);
         else
             return left.enriched.distance < right.enriched.distance;
     }
@@ -212,86 +226,6 @@ struct less_seg_dist_op
         return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
     }
 };
-
-//template <typename Turn> inline
-//bool is_valid_method(Turn const& turn)
-//{
-//    return turn.method != detail::overlay::method_none
-//        && turn.method != detail::overlay::method_disjoint
-//        && turn.method != detail::overlay::method_error;
-//}
-//
-//template <typename Turn> inline
-//bool is_valid_operation(Turn const& turn)
-//{
-//    BOOST_ASSERT(!turn.has(detail::overlay::operation_opposite));
-//    return !turn.both(detail::overlay::operation_none);
-//}
-//
-//template <typename Turn> inline
-//bool is_valid_turn(Turn const& turn)
-//{
-//    return is_valid_method(turn) && is_valid_operation(turn);
-//}
-//
-//template <bool IsCyclic, typename TurnIt, typename Cond> inline
-//TurnIt find_next_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
-//{
-//    if ( first == last )
-//        return last;
-//
-//    if ( current != last )
-//    {
-//        TurnIt it = current;
-//        ++it;
-//
-//        for ( ; it != last ; ++it )
-//            if ( cond(*it) )
-//                return it;
-//    }
-//
-//    if ( IsCyclic )
-//    {
-//        for ( TurnIt it = first ; it != current ; ++it )
-//            if ( cond(*it) )
-//                return it;
-//    }
-//
-//    return last;
-//}
-//
-//template <bool IsCyclic, typename TurnIt, typename Cond> inline
-//TurnIt find_previous_if(TurnIt first, TurnIt current, TurnIt last, Cond cond)
-//{
-//    typedef std::reverse_iterator<TurnIt> Rit;
-//    Rit rlast = Rit(first);
-//    if ( current == last )
-//        return last;
-//    ++current;
-//    Rit res = find_next_if<IsCyclic>(Rit(last), Rit(current), rlast, cond);
-//    if ( res == rlast )
-//        return last;
-//    else
-//        return --res.base();
-//}
-//
-//template <typename TurnIt, typename Cond> inline
-//TurnIt find_first_if(TurnIt first, TurnIt last, Cond cond)
-//{
-//    return std::find_if(first, last, cond);
-//}
-//
-//template <typename TurnIt, typename Cond> inline
-//TurnIt find_last_if(TurnIt first, TurnIt last, Cond cond)
-//{
-//    typedef std::reverse_iterator<TurnIt> Rit;
-//    Rit rlast = Rit(first);
-//    Rit res = std::find_if(Rit(last), rlast, cond);
-//    if ( res == rlast )
-//        return last;
-//    else
-//        return --res.base();
-//}
 
 }}} // namespace detail::relate::turns
 #endif // DOXYGEN_NO_DETAIL

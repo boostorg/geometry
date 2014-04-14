@@ -40,7 +40,7 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 namespace bgdr = bg::detail::relate;
 
@@ -318,6 +318,10 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(1 0,5 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,4 -1)",
                           "1F10F0102");
 
+    // self-IP going out and in on the same point
+    test_geometry<ls, ls>("LINESTRING(2 0,5 0,5 5,6 5,5 0,8 0)", "LINESTRING(1 0,9 0)",
+                          "1F10FF102");
+
     // duplicated points
     test_geometry<ls, ls>("LINESTRING(1 1, 2 2, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
     test_geometry<ls, ls>("LINESTRING(1 1, 1 1, 2 2)", "LINESTRING(0 0, 2 2, 4 2)", "1FF0FF102");
@@ -344,10 +348,11 @@ void test_linestring_linestring()
     // OTHER MASKS
     {
         namespace bgdr = bg::detail::relate;
-        ls ls1, ls2, ls3;
+        ls ls1, ls2, ls3, ls4;
         bg::read_wkt("LINESTRING(0 0,2 0)", ls1);
         bg::read_wkt("LINESTRING(2 0,4 0)", ls2);
         bg::read_wkt("LINESTRING(1 0,1 1)", ls3);
+        bg::read_wkt("LINESTRING(1 0,4 0)", ls4);
         BOOST_CHECK(bgdr::relate(ls1, ls2, bgdr::mask9("FT*******")
                                         || bgdr::mask9("F**T*****")
                                         || bgdr::mask9("F***T****")));
@@ -357,6 +362,7 @@ void test_linestring_linestring()
         BOOST_CHECK(bgdr::relate(ls3, ls1, bgdr::mask9("FT*******")
                                         || bgdr::mask9("F**T*****")
                                         || bgdr::mask9("F***T****")));
+        BOOST_CHECK(bgdr::relate(ls2, ls4, bgdr::mask9("T*F**F***"))); // within
     }
 }
 
@@ -382,6 +388,24 @@ void test_linestring_multi_linestring()
     //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0))", "101FF0FF2");
     //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0))", "101FF0FF2");
     //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,9 0),(2 0,2 0,2 0))", "101FF0FF2");
+}
+
+template <typename P>
+void test_multi_linestring_multi_linestring()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
+                            "1F1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            //"MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
+                            "1F100F102");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
+                            "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(0 0,0 0,0 10,0 10))",
+                            "1F1F0F1F2");
 }
 
 template <typename P>
@@ -530,6 +554,13 @@ void test_linestring_polygon()
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,5 5,2 8,2 2))",
                             "F1FFFF212");
 
+    // self-IP going on the boundary then into the exterior and to the boundary again
+    test_geometry<ls, poly>("LINESTRING(2 10,5 10,5 15,6 15,5 10,8 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "F11F0F212");
+    // self-IP going on the boundary then into the interior and to the boundary again
+    test_geometry<ls, poly>("LINESTRING(2 10,5 10,5 5,6 5,5 10,8 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            "11FF0F212");
+
     // ccw
     {
         typedef bg::model::polygon<P, false> ccwpoly;
@@ -615,6 +646,297 @@ void test_multi_linestring_multi_polygon()
     test_geometry<mls, mpoly>("MULTILINESTRING((0 0,10 0,10 10),(10 10,0 10,0 0),(20 20,50 50,20 80,20 20))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
                               "F11FFF2F2");
+
+    // disjoint
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 20,30 30),(30 30,40 40))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                              "FF1FF0212");
+}
+
+template <typename P>
+void polygon_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
+
+    // touching
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 0,10 10,20 10,20 0,10 0))",
+                              "FF2F11212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((0 -10,0 0,10 0,10 -10,0 -10))",
+                              "FF2F11212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 0,15 10,20 10,20 0,10 0))",
+                              "FF2F01212");
+
+    // containing
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 10,6 5,5 5))",
+                              "212F11FF2");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 5,5 5))",
+                              "212F01FF2");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 6,6 6,6 5,5 5))",
+                              "212FF1FF2");
+
+    // fully containing
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 9,6 9,6 5,5 5))",
+                              "212FF1FF2");
+    // fully containing, with a hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1))",
+                              "2121F12F2");
+    // fully containing, both with holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(2 2,8 2,8 8,2 8,2 2))",
+                              "212FF1FF2");
+    // fully containing, both with holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(4 4,6 4,6 6,4 6,4 4))",
+                              "2121F1212");
+
+    // overlapping
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<ring, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<ring, ring>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 0,5 10,20 10,20 0,5 0))",
+                              "212111212");
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,15 5,10 0,0 0))",
+                              "POLYGON((10 0,5 5,10 10,20 10,20 0,10 0))",
+                              "212101212");
+
+    // equal
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((10 10,10 5,10 0,5 0,0 0,0 10,5 10,10 10))",
+                              "2FFF1FFF2");
+    // hole-sized
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,6 5,6 6,5 6,5 5))",
+                              "POLYGON((5 5,5 6,6 6,6 5,5 5))",
+                              "FF2F112F2");
+
+    // disjoint
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((0 20,0 30,10 30,10 20,0 20))",
+                              "FF2FF1212");
+    // disjoint
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((0 20,0 30,10 30,10 20,0 20))",
+                              "FF2FF1212");
+
+    // equal non-simple / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "2FFF1FFF2");
+
+    // within non-simple / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,5 5,10 5,10 0,0 0))",
+                              "212F11FF2");
+    // within non-simple hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,5 5,10 5,10 0,0 0))",
+                              "212F11FF2");
+
+
+    // not within non-simple / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "2FF11F2F2");
+    // not within non-simple hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "2FF11F2F2");
+    // not within simple hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,9 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,9 5,10 0,0 0))",
+                              "2121112F2");
+
+    // within non-simple fake hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "2FF11F2F2");
+    // within non-simple fake hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 4,10 5,10 0,0 0))",
+                              "2FF11F212");
+    // within non-simple fake hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,5 6,5 4,10 5))",
+                              "2FF11F212");
+    // containing non-simple fake hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,3 8,3 2,10 5))",
+                              "212F11FF2");
+
+    // within non-simple hole / simple
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "2FF11F2F2");
+    // within non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,5 6,5 4,10 5,10 0,0 0))",
+                              "2FF11F212");
+    // containing non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,3 8,3 2,10 5,10 0,0 0))",
+                              "212F11FF2");
+    // equal non-simple hole / non-simple fake hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 5,4 7,4 3,10 5,10 0,0 0))",
+                              "2FFF1FFF2");
+    // within non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,5 6,5 4,10 5))",
+                              "2FF11F212");
+    // containing non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,3 8,3 2,10 5))",
+                              "212F11FF2");
+    // equal non-simple hole / non-simple hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(10 5,4 7,4 3,10 5))",
+                              "2FFF1FFF2");
+
+    // intersecting non-simple hole / non-simple hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,10 5,5 6,5 5))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 5,5 4,5 5,0 5))",
+                              "21211F2F2");
+    // intersecting non-simple fake hole / non-simple hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 5,5 4,5 5,0 5))",
+                              "21211F2F2");
+    // intersecting non-simple fake hole / non-simple fake hole - touching holes
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 5,5 6,5 5,10 5,10 0,0 0))",
+                              "POLYGON((0 0,0 5,5 4,5 5,0 5,0 10,10 10,10 0,0 0))",
+                              "21211F2F2");
+
+    // intersecting simple - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
+                              "212101212");
+    // intersecting non-simple hole / non-simple hole - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5),(5 5,8 4,8 6,5 5))",
+                              "212101212");
+    // intersecting non-simple hole / simple - i/i
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,4 10,6 8,5 5,6 2,4 0,0 0),(5 5,2 6,2 4,5 5))",
+                              "POLYGON((5 5,4 8,6 10,10 10,10 0,6 0,4 2,5 5))",
+                              "212101212");
+
+    // no turns - disjoint inside a hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))",
+                              "POLYGON((3 3,3 7,7 7,7 3,3 3))",
+                              "FF2FF1212");
+    // no turns - within
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))",
+                              "POLYGON((-1 -1,-1 11,11 11,11 -1,-1 -1))",
+                              "2FF1FF212");
+    // no-turns - intersects
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1))",
+                              "2121F12F2");
+    // no-turns - intersects, hole in a hole
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(3 3,7 3,7 7,3 7,3 3))",
+                              "2121F1212");
+
+    // no-turns ring - for exteriors
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "POLYGON((1 1,1 9,9 9,9 1,1 1),(2 2,8 2,8 8,2 8,2 2))",
+                              "212F11FF2");
+    // no-turns ring - for interiors
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,7 3,7 7,3 7,3 3))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                              "212F11FF2");
+
+    {
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((5 5,5 10,6 10,6 5,5 5))",
+                              "212F11FF2");
+
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                                  "POLYGON((10 0,10 10,20 10,20 0,10 0))",
+                                  "FF2F11212");
+
+        namespace bgdr = bg::detail::relate;
+        poly p1, p2, p3;
+        bg::read_wkt("POLYGON((0 0,0 10,10 10,10 0,0 0))", p1);
+        bg::read_wkt("POLYGON((10 0,10 10,20 10,20 0,10 0))", p2);
+        bg::read_wkt("POLYGON((5 5,5 10,6 10,6 5,5 5))", p3);
+        BOOST_CHECK(bgdr::relate(p1, p2, bgdr::mask9("FT*******")
+                                      || bgdr::mask9("F**T*****")
+                                      || bgdr::mask9("F***T****"))); // touches()
+        BOOST_CHECK(bgdr::relate(p1, p3, bgdr::mask9("T*****FF*"))); // contains()
+        BOOST_CHECK(bgdr::relate(p2, p3, bgdr::mask9("FF*FF****"))); // disjoint()
+    }
+
+    // CCW
+    {
+        typedef bg::model::polygon<P, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,10 0,10 10,0 10,0 0),(5 5,5 6,10 5,5 5))",
+                                  "POLYGON((0 0,10 0,10 5,5 5,0 0))",
+                                  "212F11FF2");
+    }
+    // OPEN
+    {
+        typedef bg::model::polygon<P, true, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0),(5 5,10 5,5 6))",
+                                  "POLYGON((0 0,5 5,10 5,10 0))",
+                                  "212F11FF2");
+    }
+    // CCW, OPEN
+    {
+        typedef bg::model::polygon<P, false, false> poly;
+        // within non-simple hole / simple
+        test_geometry<poly, poly>("POLYGON((0 0,10 0,10 10,0 10),(5 5,5 6,10 5))",
+                                  "POLYGON((0 0,10 0,10 5,5 5))",
+                                  "212F11FF2");
+    }
+}
+
+template <typename P>
+void polygon_multi_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<poly, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                               "212F11212");
+    test_geometry<ring, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                               "212F11212");
+}
+
+template <typename P>
+void multi_polygon_multi_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                                "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "212F11212");
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)))",
+                                "212F11FF2");
+
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
+                                "MULTIPOLYGON(((5 5,5 6,6 6,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "212FF1212");
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 20,0 30,10 30,10 20,0 20)))",
+                                "MULTIPOLYGON(((5 5,5 6,6 6,6 5,5 5)))",
+                                "212FF1FF2");
 }
 
 template <typename P>
@@ -627,9 +949,13 @@ void test_all()
     test_point_multilinestring<P>();
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
+    test_multi_linestring_multi_linestring<P>();
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
     test_multi_linestring_multi_polygon<P>();
+    polygon_polygon<P>();
+    polygon_multi_polygon<P>();
+    multi_polygon_multi_polygon<P>();
 }
 
 int test_main( int , char* [] )

@@ -14,6 +14,7 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/policies/compare.hpp>
 
 namespace boost { namespace geometry {
 

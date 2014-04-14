@@ -3,20 +3,97 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include <algorithms/test_within.hpp>
 
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/multi/multi.hpp>
+#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 template <typename P>
-void test_linestring_linestring()
+void test_p_p()
+{
+    typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", true);
+    test_geometry<P, P>("POINT(0 0)", "POINT(1 1)", false);
+
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 1)", true);
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(1 1, 2 2)", false);
+}
+
+template <typename P>
+void test_p_l()
 {
     typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(3 3)", "LINESTRING(0 0,1 1,2 2)", false);
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0,2 2,3 3)", true);
+
+    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0, 2 2)", true);
+    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0, 1 1)", false);
+
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
+    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", false);
+    
+    test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(1 1, 2 2))", true);
+    test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(2 2, 3 3))", false);
+}
+
+template <typename P>
+void test_p_a()
+{
+    // trivial case
+    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true, false);
+
+    // on border/corner
+    test_ring<P>("POINT(0 0)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
+    test_ring<P>("POINT(0 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
+
+    // aligned to segment/vertex
+    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", true, false);
+    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", true, false);
+
+    // same polygon, but point on border
+    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", false, true);
+    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", false, true);
+
+    // holes
+    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
+        "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
+
+    // Real-life problem (solved now), point is in the middle, 409623 is also a coordinate
+    // on the border, has been wrong in the past (2009)
+    test_ring<P>("POINT(146383 409623)",
+        "POLYGON((146351 410597,146521 410659,147906 410363,148088 410420"
+        ",148175 410296,148281 409750,148215 409623,148154 409666,148154 409666"
+        ",148130 409625,148035 409626,148035 409626,148008 409544,147963 409510"
+        ",147993 409457,147961 409352,147261 408687,147008 408586,145714 408840"
+        ",145001 409033,144486 409066,144616 409308,145023 410286,145254 410488"
+        ",145618 410612,145618 410612,146015 410565,146190 410545,146351 410597))",
+        true, false);
+}
+
+template <typename P>
+void test_l_l()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+
     test_geometry<ls, ls>("LINESTRING(0 0, 2 2, 3 2)", "LINESTRING(0 0, 2 2, 3 2)", true);
 
     test_geometry<ls, ls>("LINESTRING(0 0, 1 1, 2 2, 3 2)", "LINESTRING(0 0, 2 2, 3 2)", true);
@@ -63,42 +140,108 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,4 4,6 3)", "LINESTRING(0 0,2 2,3 3,1 1)", false);
     
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1,5 3)", "LINESTRING(0 0,3 3,6 3)", false);*/
+
+    test_geometry<ls, mls>("LINESTRING(1 1, 2 2)", "MULTILINESTRING((0 0, 2 2),(3 3, 4 4))", true);
+
+    test_geometry<mls, ls>("MULTILINESTRING((0 0, 2 2),(3 3, 4 4))", "LINESTRING(0 0, 5 5)", true);
+
+    test_geometry<mls, mls>("MULTILINESTRING((1 1, 2 2),(3 3, 4 4))", "MULTILINESTRING((1 1, 2 2),(2 2, 5 5))", true);
+}
+
+template <typename P>
+void test_l_a()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    // B,I
+    test_geometry<ls, ring>("LINESTRING(0 0, 2 2)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+
+    // B,I
+    test_geometry<ls, poly>("LINESTRING(0 0, 2 2)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    // I
+    test_geometry<ls, poly>("LINESTRING(1 1, 2 2)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    // I,E
+    test_geometry<ls, poly>("LINESTRING(1 1, 6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+    // B
+    test_geometry<ls, poly>("LINESTRING(0 0, 5 0)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+    test_geometry<ls, poly>("LINESTRING(0 0, 0 5)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+    // E
+    test_geometry<ls, poly>("LINESTRING(6 0, 6 5)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+
+    // BIBIB
+    test_geometry<ls, mpoly>("LINESTRING(0 0, 10 10)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))", true);
+    // BIBEBIB
+    test_geometry<ls, mpoly>("LINESTRING(0 0, 10 10)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((6 6,5 10,10 10,10 5,6 6)))", false);
+
+    // BI
+    test_geometry<mls, poly>("MULTILINESTRING((0 0,2 2),(2 2,3 3))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    // I E
+    test_geometry<mls, poly>("MULTILINESTRING((1 1,2 2),(6 6,7 7))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+
+    // I I
+    test_geometry<mls, mpoly>("MULTILINESTRING((1 1,5 5),(6 6,7 7))",
+                              "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))",
+                              true);
+    // I E
+    test_geometry<mls, mpoly>("MULTILINESTRING((1 1,5 5),(11 11,12 12))",
+                              "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))",
+                              false);
+}
+
+template <typename P>
+void test_a_a()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::ring<P> ring;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<ring, ring>("POLYGON((0 0,0 2,2 2,2 0,0 0))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<ring, poly>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<poly, ring>("POLYGON((0 0,0 6,6 6,6 0,0 0))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
+
+    test_geometry<poly, poly>("POLYGON((0 0,0 9,9 9,9 0,0 0),(3 3,6 3,6 6,3 6,3 3))",
+                              "POLYGON((0 0,0 9,9 9,9 0,0 0),(3 3,6 3,6 6,3 6,3 3))", true);
+    test_geometry<poly, poly>("POLYGON((0 0,0 9,9 9,9 0,0 0),(3 3,6 3,6 6,3 6,3 3))",
+                              "POLYGON((0 0,0 9,9 9,9 0,0 0),(4 4,5 4,5 5,4 5,4 4))", true);
+    test_geometry<poly, poly>("POLYGON((1 1,1 8,8 8,8 1,1 1),(3 3,6 3,6 6,3 6,3 3))",
+                              "POLYGON((0 0,0 9,9 9,9 0,0 0),(3 3,6 3,6 6,3 6,3 3))", true);
+    test_geometry<poly, poly>("POLYGON((1 1,1 8,8 8,8 1,1 1),(3 3,6 3,6 6,3 6,3 3))",
+                              "POLYGON((0 0,0 9,9 9,9 0,0 0),(4 4,5 4,5 5,4 5,4 4))", true);
+    
+    test_geometry<ring, mpoly>("POLYGON((0 0,0 2,2 2,2 0,0 0))",
+                               "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))", true);
+    test_geometry<poly, mpoly>("POLYGON((0 0,0 2,2 2,2 0,0 0))",
+                               "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))", true);
+
+    test_geometry<mpoly, ring>("MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))",
+                               "POLYGON((0 0,0 10,10 10,10 0,0 0))", true);
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((15 15,15 110,110 110,110 15,15 15)))",
+                               "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
+
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))",
+                               "POLYGON((0 0,0 10,10 10,10 0,0 0),(3 3,4 3,4 4,3 4,3 3))", false);
+
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))",
+                                "MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))", true);
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))",
+                                "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))", true);
+    test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))",
+                                "MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))", false);
 }
 
 template <typename P>
 void test_all()
 {
-    test_linestring_linestring<P>();
-
-    // trivial case
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true, false);
-
-    // on border/corner
-    test_ring<P>("POINT(0 0)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
-    test_ring<P>("POINT(0 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
-
-    // aligned to segment/vertex
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", true, false);
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", true, false);
-
-    // same polygon, but point on border
-    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", false, true);
-    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", false, true);
-
-    // holes
-    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
-        "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
-
-    // linestrings
-    typedef bg::model::linestring<P> ls;
-    test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", false);
-    test_geometry<P, ls>("POINT(3 3)", "LINESTRING(0 0,1 1,2 2)", false);
-    test_geometry<P, ls>("POINT(1 1)", "LINESTRING(0 0,2 2,3 3)", true);
-
-    // multi_linestrings
-    typedef bg::model::multi_linestring<ls> mls;
-    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
-    test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", false);
+    test_p_p<P>();
+    test_p_l<P>();
+    test_p_a<P>();
+    test_l_l<P>();
+    test_l_a<P>();
+    test_a_a<P>();
 
     typedef bg::model::box<P> box_type;
 
@@ -128,17 +271,6 @@ void test_all()
     test_within_code<box_type, box_type>("BOX(1 1,3 2)", "BOX(0 0,3 3)", 0);
     test_within_code<box_type, box_type>("BOX(1 1,3 4)", "BOX(0 0,3 3)", -1);
     */
-
-    // Real-life problem (solved now), point is in the middle, 409623 is also a coordinate
-    // on the border, has been wrong in the past (2009)
-    test_ring<P>("POINT(146383 409623)",
-        "POLYGON((146351 410597,146521 410659,147906 410363,148088 410420"
-        ",148175 410296,148281 409750,148215 409623,148154 409666,148154 409666"
-        ",148130 409625,148035 409626,148035 409626,148008 409544,147963 409510"
-        ",147993 409457,147961 409352,147261 408687,147008 408586,145714 408840"
-        ",145001 409033,144486 409066,144616 409308,145023 410286,145254 410488"
-        ",145618 410612,145618 410612,146015 410565,146190 410545,146351 410597))",
-        true, false);
 }
 
 template <typename Point>

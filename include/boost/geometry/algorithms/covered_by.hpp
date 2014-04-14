@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -13,6 +13,8 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_COVERED_BY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_COVERED_BY_HPP
@@ -34,6 +36,30 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace covered_by {
+
+struct use_point_in_geometry
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    {
+        return detail::within::point_in_geometry(geometry1, geometry2, strategy) >= 0;
+    }
+};
+
+struct use_relate
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& /*strategy*/)
+    {
+        return Strategy::apply(geometry1, geometry2);
+    }
+};
+
+}} // namespace detail::covered_by
+#endif // DOXYGEN_NO_DETAIL
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -45,7 +71,8 @@ template
     typename Tag1 = typename tag<Geometry1>::type,
     typename Tag2 = typename tag<Geometry2>::type
 >
-struct covered_by: not_implemented<Tag1, Tag2>
+struct covered_by
+    : not_implemented<Tag1, Tag2>
 {};
 
 
@@ -73,36 +100,147 @@ struct covered_by<Box1, Box2, box_tag, box_tag>
 };
 
 
+// P/P
 
-template <typename Point, typename Ring>
-struct covered_by<Point, Ring, point_tag, ring_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Point const& point, Ring const& ring, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, ring, strategy) >= 0;
-    }
-};
+template <typename Point1, typename Point2>
+struct covered_by<Point1, Point2, point_tag, point_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
 
-template <typename Point, typename Polygon>
-struct covered_by<Point, Polygon, point_tag, polygon_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Point const& point, Polygon const& polygon, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, polygon, strategy) >= 0;
-    }
-};
+template <typename Point, typename MultiPoint>
+struct covered_by<Point, MultiPoint, point_tag, multi_point_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+// P/L
 
 template <typename Point, typename Linestring>
 struct covered_by<Point, Linestring, point_tag, linestring_tag>
-{
-    template <typename Strategy> static inline
-    bool apply(Point const& point, Linestring const& linestring, Strategy const& strategy)
-    {
-        return detail::within::point_in_geometry(point, linestring, strategy) >= 0;
-    }
-};
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+template <typename Point, typename MultiLinestring>
+struct covered_by<Point, MultiLinestring, point_tag, multi_linestring_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+// P/A
+
+template <typename Point, typename Ring>
+struct covered_by<Point, Ring, point_tag, ring_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+template <typename Point, typename Polygon>
+struct covered_by<Point, Polygon, point_tag, polygon_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+template <typename Point, typename MultiPolygon>
+struct covered_by<Point, MultiPolygon, point_tag, multi_polygon_tag>
+    : public detail::covered_by::use_point_in_geometry
+{};
+
+// L/L
+
+template <typename Linestring1, typename Linestring2>
+struct covered_by<Linestring1, Linestring2, linestring_tag, linestring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Linestring, typename MultiLinestring>
+struct covered_by<Linestring, MultiLinestring, linestring_tag, multi_linestring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiLinestring, typename Linestring>
+struct covered_by<MultiLinestring, Linestring, multi_linestring_tag, linestring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiLinestring1, typename MultiLinestring2>
+struct covered_by<MultiLinestring1, MultiLinestring2, multi_linestring_tag, multi_linestring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+// L/A
+
+template <typename Linestring, typename Ring>
+struct covered_by<Linestring, Ring, linestring_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiLinestring, typename Ring>
+struct covered_by<MultiLinestring, Ring, multi_linestring_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Linestring, typename Polygon>
+struct covered_by<Linestring, Polygon, linestring_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiLinestring, typename Polygon>
+struct covered_by<MultiLinestring, Polygon, multi_linestring_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Linestring, typename MultiPolygon>
+struct covered_by<Linestring, MultiPolygon, linestring_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiLinestring, typename MultiPolygon>
+struct covered_by<MultiLinestring, MultiPolygon, multi_linestring_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+// A/A
+
+template <typename Ring1, typename Ring2>
+struct covered_by<Ring1, Ring2, ring_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Ring, typename Polygon>
+struct covered_by<Ring, Polygon, ring_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Polygon, typename Ring>
+struct covered_by<Polygon, Ring, polygon_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Polygon1, typename Polygon2>
+struct covered_by<Polygon1, Polygon2, polygon_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Ring, typename MultiPolygon>
+struct covered_by<Ring, MultiPolygon, ring_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiPolygon, typename Ring>
+struct covered_by<MultiPolygon, Ring, multi_polygon_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Polygon, typename MultiPolygon>
+struct covered_by<Polygon, MultiPolygon, polygon_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiPolygon, typename Polygon>
+struct covered_by<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename MultiPolygon1, typename MultiPolygon2>
+struct covered_by<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
