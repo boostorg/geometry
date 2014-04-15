@@ -264,14 +264,7 @@ struct linear_linear
           || may_update<boundary, boundary, '0'>(result)
           || may_update<boundary, exterior, '0'>(result) )
         {
-            // x, u, i, c
-            typedef turns::less
-                <
-                    0, turns::less_greater_op_for_other_same_m_diff_r
-                        <
-                            turns::op_to_int<0,2,3,1,4,0>
-                        >
-                > less;
+            typedef turns::less<0, turns::less_op_linear_linear> less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 0> analyser;
@@ -291,14 +284,7 @@ struct linear_linear
           || may_update<boundary, boundary, '0', true>(result)
           || may_update<boundary, exterior, '0', true>(result) )
         {
-            // x, u, i, c
-            typedef turns::less
-                <
-                    1, turns::less_greater_op_for_other_same_m_diff_r
-                        <
-                            turns::op_to_int<0,2,3,1,4,0>
-                        >
-                > less;
+            typedef turns::less<1, turns::less_op_linear_linear> less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 1> analyser;

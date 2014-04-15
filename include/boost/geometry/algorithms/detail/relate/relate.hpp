@@ -198,19 +198,22 @@ struct interruption_enabled
         detail_dispatch::relate::relate<Geometry1, Geometry2>::interruption_enabled;
 };
 
-template <typename Geometry1, typename Geometry2, typename Result>
+template <typename Geometry1,
+          typename Geometry2,
+          typename Result,
+          bool IsSequence = boost::mpl::is_sequence<Result>::value>
 struct result_handler_type
     : not_implemented<Result>
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, matrix9>
+struct result_handler_type<Geometry1, Geometry2, matrix9, false>
 {
     typedef matrix_handler<matrix9> type;
 };
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, mask9>
+struct result_handler_type<Geometry1, Geometry2, mask9, false>
 {
     typedef mask_handler
         <
@@ -224,7 +227,7 @@ struct result_handler_type<Geometry1, Geometry2, mask9>
 };
 
 template <typename Geometry1, typename Geometry2, typename Head, typename Tail>
-struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail> >
+struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail>, false>
 {
     typedef mask_handler
         <
@@ -241,11 +244,25 @@ template <typename Geometry1, typename Geometry2,
           char II, char IB, char IE,
           char BI, char BB, char BE,
           char EI, char EB, char EE>
-struct result_handler_type<Geometry1, Geometry2, static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE> >
+struct result_handler_type<Geometry1, Geometry2, static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>, false>
 {
     typedef static_mask_handler
         <
             static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+            interruption_enabled
+                <
+                    Geometry1,
+                    Geometry2
+                >::value
+        > type;
+};
+
+template <typename Geometry1, typename Geometry2, typename StaticSequence>
+struct result_handler_type<Geometry1, Geometry2, StaticSequence, true>
+{
+    typedef static_mask_handler
+        <
+            StaticSequence,
             interruption_enabled
                 <
                     Geometry1,

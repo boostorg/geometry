@@ -561,6 +561,10 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(2 10,5 10,5 5,6 5,5 10,8 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "11FF0F212");
 
+    // self-IP with a hole -> B to I to B to E
+    test_geometry<ls, poly>("LINESTRING(0 0,3 3)", "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0))",
+                            "FF1F00212");
+
     // ccw
     {
         typedef bg::model::polygon<P, false> ccwpoly;
@@ -620,6 +624,18 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((20 0,20 10,30 20,20 0)))",
                              "F1FFFF212");
+
+    // self-IP polygon with a hole and second polygon with a hole -> B to I to B to B to I to B to E
+    test_geometry<ls, mpoly>("LINESTRING(0 0,3 3)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)),((0 0,2 8,8 8,8 2,0 0),(0 0,7 3,7 7,3 7,0 0)))",
+                             "FF1F00212");
+    // self-IP polygon with a hole and second polygon -> B to I to B to B to I
+    test_geometry<ls, mpoly>("LINESTRING(0 0,3 3)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)),((0 0,2 8,8 8,8 2,0 0)))",
+                             "1FF00F212");
+    test_geometry<ls, mpoly>("LINESTRING(0 0,3 3)",
+                             "MULTIPOLYGON(((0 0,2 8,8 8,8 2,0 0)),((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))",
+                             "1FF00F212");
 }
 
 template <typename P>

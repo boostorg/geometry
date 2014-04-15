@@ -14,12 +14,13 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-
+#include <boost/geometry.hpp>
 
 
 template <typename P>
 void test_all()
 {
+    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_polygon<polygon> mpolygon;
@@ -134,6 +135,7 @@ void test_all()
         );
 
     // Point-Polygon
+    test_touches<P, ring>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
     test_touches<P, polygon>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
     test_touches<P, polygon>("POINT(60 60)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
     test_touches<P, polygon>("POINT(50 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", false);
@@ -179,13 +181,24 @@ void test_all()
     test_touches<linestring, linestring>("LINESTRING(0 0,1 1,2 2)", "LINESTRING(1 1,1 2,2 2,2 0)", true);
     test_touches<linestring, linestring>("LINESTRING(2 2,1 1,0 0)", "LINESTRING(1 1,1 2,2 2,2 0)", true);
 
+    test_touches<linestring, linestring>("LINESTRING(0 0,1 1,0 1)", "LINESTRING(1 1,2 2,1 2,1 1)", false);
+
+    test_touches<linestring, mlinestring>("LINESTRING(0 0,1 1,0 1)", "MULTILINESTRING((1 1,2 2),(1 2,1 1))", false);
+
     //Linestring-Polygon
     test_touches<linestring, polygon>("LINESTRING(10 0,15 5,10 10,5 15,5 10,0 10,5 15,5 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", true);
     test_touches<linestring, polygon>("LINESTRING(5 10,5 15,0 10,5 10,5 15,10 10,15 5,10 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", true);
     test_touches<linestring, polygon>("LINESTRING(5 10,5 15,0 10,5 10,5 15,10 10,5 5,10 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
+    test_touches<linestring, ring>("LINESTRING(0 15,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
     test_touches<linestring, polygon>("LINESTRING(0 15,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
     test_touches<linestring, polygon>("LINESTRING(0 15,5 10,5 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
     test_touches<linestring, polygon>("LINESTRING(10 15,5 10,0 5)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
+
+    test_touches<linestring, polygon>("LINESTRING(0 0,3 3)", "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0))", true);
+    
+    test_touches<linestring, mpolygon>("LINESTRING(-1 -1,3 3)", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", true);
+
+    test_touches<mlinestring, mpolygon>("MULTILINESTRING((0 0,11 11))", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", false);
 }
 
 

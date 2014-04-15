@@ -620,13 +620,63 @@ public:
 
 // static_should_handle_element
 
-template <typename StaticMask, field F1, field F2>
-struct static_should_handle_element
+template <typename StaticMask, field F1, field F2, bool IsSequence>
+struct static_should_handle_element_dispatch
 {
     static const char mask_el = StaticMask::template get<F1, F2>::value;
     static const bool value = mask_el == 'F'
                            || mask_el == 'T'
                            || ( mask_el >= '0' && mask_el <= '9' );
+};
+
+template <typename First, typename Last, field F1, field F2>
+struct static_should_handle_element_sequence
+{
+    typedef typename boost::mpl::deref<First>::type StaticMask;
+
+    static const bool value
+        = static_should_handle_element_dispatch
+            <
+                StaticMask,
+                F1, F2,
+                boost::mpl::is_sequence<StaticMask>::value
+            >::value
+       || static_should_handle_element_sequence
+            <
+                typename boost::mpl::next<First>::type,
+                Last,
+                F1, F2
+            >::value;
+};
+
+template <typename Last, field F1, field F2>
+struct static_should_handle_element_sequence<Last, Last, F1, F2>
+{
+    static const bool value = false;
+};
+
+template <typename StaticMask, field F1, field F2>
+struct static_should_handle_element_dispatch<StaticMask, F1, F2, true>
+{
+    static const bool value
+        = static_should_handle_element_sequence
+            <
+                typename boost::mpl::begin<StaticMask>::type,
+                typename boost::mpl::end<StaticMask>::type,
+                F1, F2
+            >::value;
+};
+
+template <typename StaticMask, field F1, field F2>
+struct static_should_handle_element
+{
+    static const bool value
+        = static_should_handle_element_dispatch
+            <
+                StaticMask,
+                F1, F2,
+                boost::mpl::is_sequence<StaticMask>::value
+            >::value;
 };
 
 // static_interrupt

@@ -135,27 +135,47 @@ struct op_to_int
     }
 };
 
-template <typename OpToInt = op_to_int<> >
-struct less_greater_op_for_other_same_m_diff_r
+template <typename OpToInt>
+struct less_op_xxx_linear
 {
     template <typename Op>
     inline bool operator()(Op const& left, Op const& right)
     {
         static OpToInt op_to_int;
+        return op_to_int(left) < op_to_int(right);
+    }
+};
+
+struct less_op_linear_linear
+    : less_op_xxx_linear< op_to_int<0,2,3,1,4,0> >
+{};
+
+struct less_op_linear_areal
+{
+    template <typename Op>
+    inline bool operator()(Op const& left, Op const& right)
+    {
+        static turns::op_to_int<0,2,3,1,4,0> op_to_int_xuic;
+        static turns::op_to_int<0,3,2,1,4,0> op_to_int_xiuc;
 
         if ( left.other_id.multi_index == right.other_id.multi_index )
         {
             if ( left.other_id.ring_index == right.other_id.ring_index )
-                return op_to_int(left) < op_to_int(right);
+                return op_to_int_xuic(left) < op_to_int_xuic(right);
             else
-                return op_to_int(left) > op_to_int(right);
+                return op_to_int_xiuc(left) < op_to_int_xiuc(right);
         }
         else
         {
-            return op_to_int(left) < op_to_int(right);
+            //return op_to_int_xuic(left) < op_to_int_xuic(right);
+            return left.other_id.multi_index < right.other_id.multi_index;
         }
     }
 };
+
+struct less_op_areal_linear
+    : less_op_xxx_linear< op_to_int<0,1,0,0,2,0> >
+{};
 
 struct less_op_areal_areal
 {
@@ -201,7 +221,7 @@ struct less_op_areal_areal
 // sort turns by G1 - source_index == 0 by:
 // seg_id -> distance -> operation
 template <std::size_t OpId = 0,
-          typename LessOp = less_greater_op_for_other_same_m_diff_r<> >
+          typename LessOp = less_op_xxx_linear< op_to_int<> > >
 struct less
 {
     BOOST_STATIC_ASSERT(OpId < 2);
