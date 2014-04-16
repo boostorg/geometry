@@ -52,8 +52,8 @@ test-suite boost-geometry-algorithms
     [ run touches.cpp ]
     [ run transform.cpp ]
     [ run union.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
-    [ run union_linear_linear.cpp /boost/test//boost_unit_test_framework ]
-    [ run union_pl_pl.cpp /boost/test//boost_unit_test_framework ]
+    [ run union_linear_linear.cpp ]
+    [ run union_pl_pl.cpp ]
     [ run unique.cpp ]
     [ run within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     ;
