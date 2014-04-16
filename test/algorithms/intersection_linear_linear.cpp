@@ -18,7 +18,7 @@
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #endif
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "test_intersection_linear_linear.hpp"
 
