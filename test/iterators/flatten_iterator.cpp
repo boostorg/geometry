@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE test_flatten_iterator
 #endif
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <iostream>
 #include <string>
