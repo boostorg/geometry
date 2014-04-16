@@ -194,7 +194,7 @@ struct linear_areal
 // TODO: If Areal geometry may have infinite size, change the following line:
 
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
+        relate::set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( result.interrupt )
             return;
@@ -232,7 +232,7 @@ struct linear_areal
 
         // This is set here because in the case if empty Areal geometry were passed
         // those shouldn't be set
-        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+        relate::set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
         if ( result.interrupt )
             return;
 
@@ -255,7 +255,7 @@ struct linear_areal
         // If 'c' (insersection_boundary) was not found we know that any Ls isn't equal to one of the Rings
         if ( !interrupt_policy.is_boundary_found )
         {
-            set<exterior, boundary, '1', TransposeResult>(result);
+            relate::set<exterior, boundary, '1', TransposeResult>(result);
         }
         // Don't calculate it if it's required
         else if ( may_update<exterior, boundary, '1', TransposeResult>(result) )
@@ -286,7 +286,7 @@ struct linear_areal
                     if ( it->operations[1].seg_id.ring_index > -1 )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                         break;
                     }
                     // if there was some previous ring
@@ -301,7 +301,7 @@ struct linear_areal
                                     single_geometry(geometry2, *prev_seg_id_ptr)) )
                         {
                             // we can be sure that the exterior overlaps the boundary
-                            set<exterior, boundary, '1', TransposeResult>(result);
+                            relate::set<exterior, boundary, '1', TransposeResult>(result);
                             break;
                         }
                     }
@@ -314,7 +314,7 @@ struct linear_areal
                       && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                         break;
                     }
                 }
@@ -329,7 +329,7 @@ struct linear_areal
                 if ( !has_boundary_inters.result )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);                    
+                    relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                     break;
                 }
                 // else there is 1d overlap with the boundary so we must analyse the boundary
@@ -352,7 +352,7 @@ struct linear_areal
                     if ( analyser.is_union_detected )
                     {
                         // we can be sure that the boundary of Areal overlaps the exterior of Linear
-                        set<exterior, boundary, '1', TransposeResult>(result);
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);
                         break;
                     }
                 }
@@ -372,7 +372,7 @@ struct linear_areal
                             single_geometry(geometry2, *prev_seg_id_ptr)) )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);
+                    relate::set<exterior, boundary, '1', TransposeResult>(result);
                 }
             }
         }

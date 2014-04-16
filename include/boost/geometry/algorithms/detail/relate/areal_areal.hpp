@@ -193,7 +193,7 @@ struct areal_areal
 // TODO: If Areal geometry may have infinite size, change the following line:
 
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        relate::set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( result.interrupt )
             return;

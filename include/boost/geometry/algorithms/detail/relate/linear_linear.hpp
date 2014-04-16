@@ -223,7 +223,7 @@ struct linear_linear
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
     {
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        relate::set<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
         if ( result.interrupt )
             return;
 
