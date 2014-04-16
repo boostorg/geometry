@@ -16,6 +16,7 @@
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/multi/core/closure.hpp>
 #include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/multi/core/topological_dimension.hpp>
 #include <boost/geometry/multi/core/ring_type.hpp>
 #include <boost/geometry/multi/views/detail/range_type.hpp>
 
