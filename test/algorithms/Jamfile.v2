@@ -56,6 +56,10 @@ test-suite boost-geometry-algorithms
     [ run union_pl_pl.cpp ]
     [ run unique.cpp ]
     [ run within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run within_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run within_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run within_linear_linear.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run within_pointlike_xxx.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]    
     ;
 
 build-project overlay 
