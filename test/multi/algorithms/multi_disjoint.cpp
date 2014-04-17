@@ -29,7 +29,7 @@
 
 #include <test_common/test_point.hpp>
 
-#include <algorithms/test_relate.hpp>
+#include <algorithms/predef_relop.hpp>
 
 
 template <typename P>
