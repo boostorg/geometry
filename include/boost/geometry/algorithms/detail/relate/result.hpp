@@ -468,7 +468,7 @@ struct check_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
     template <typename Matrix>
     static inline bool apply(mask_type const& mask, Matrix const& matrix)
     {
-        return check_dispatch_tuple<mask_type>::template apply(mask, matrix);
+        return check_dispatch_tuple<mask_type>::apply(mask, matrix);
     }
 };
 
@@ -480,7 +480,7 @@ struct check_dispatch< boost::tuples::cons<Head, Tail> >
     template <typename Matrix>
     static inline bool apply(mask_type const& mask, Matrix const& matrix)
     {
-        return check_dispatch_tuple<mask_type>::template apply(mask, matrix);
+        return check_dispatch_tuple<mask_type>::apply(mask, matrix);
     }
 };
 

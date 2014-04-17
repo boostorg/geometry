@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -241,12 +243,15 @@ public:
     point_iterator(point_iterator<OtherGeometry> const& other)
         : base(*other.base_ptr())
     {
-        BOOST_STATIC_ASSERT
-            ( boost::is_convertible
-              <
-                  typename dispatch::point_iterator_type<OtherGeometry>::type,
-                  typename dispatch::point_iterator_type<Geometry>::type
-              >::value );
+        static const bool is_conv
+            = boost::is_convertible<
+                typename dispatch::point_iterator_type<OtherGeometry>::type,
+                typename dispatch::point_iterator_type<Geometry>::type
+            >::value;
+
+        BOOST_MPL_ASSERT_MSG((is_conv),
+                             NOT_CONVERTIBLE,
+                             (point_iterator<OtherGeometry>));
     }
 };
 

@@ -11,7 +11,8 @@
 #define BOOST_GEOMETRY_ITERATORS_CONCATENATE_ITERATOR_HPP
 
 #include <boost/assert.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -58,18 +59,26 @@ public:
     (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other)
         : m_it1(other.m_it1), m_end1(other.m_end1), m_it2(other.m_it2)
     {
-        BOOST_STATIC_ASSERT
-            ( boost::is_convertible<OtherIt1, Iterator1>::value
-              && boost::is_convertible<OtherIt2, Iterator2>::value );
+        static const bool are_conv
+            = boost::is_convertible<OtherIt1, Iterator1>::value
+           && boost::is_convertible<OtherIt2, Iterator2>::value;
+
+        BOOST_MPL_ASSERT_MSG((are_conv),
+                             NOT_CONVERTIBLE,
+                             (types<OtherIt1, OtherIt2>));
     }
 
     template <typename OtherIt1, typename OtherIt2, typename OtherValue>
     concatenate_iterator
     operator=(concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other)
     {
-        BOOST_STATIC_ASSERT
-            ( boost::is_convertible<OtherIt1, Iterator1>::value
-              && boost::is_convertible<OtherIt2, Iterator2>::value );
+        static const bool are_conv
+            = boost::is_convertible<OtherIt1, Iterator1>::value
+           && boost::is_convertible<OtherIt2, Iterator2>::value;
+
+        BOOST_MPL_ASSERT_MSG((are_conv),
+                             NOT_CONVERTIBLE,
+                             (types<OtherIt1, OtherIt2>));
 
         m_it1 = other.m_it1;
         m_end1 = other.m_end1;
