@@ -248,7 +248,7 @@ public:
             point_info(turn.operations[other_op_id].seg_id, turn.point) );
     }
 
-    void exit(TurnInfo const& turn)
+    void exit(TurnInfo const& turn, bool exit_per_geometry = true)
     {
         //segment_identifier const& seg_id = turn.operations[op_id].seg_id;
         segment_identifier const& other_id = turn.operations[other_op_id].seg_id;
@@ -263,13 +263,16 @@ public:
         // this end point has corresponding entry point
         if ( entry_it != other_entry_points.end() )
         {
-            // here we know that we possibly left LS
-            // we must still check if we didn't get back on the same point
-            exit_operation = exit_op;
-            exit_turn = boost::addressof(turn);
-
             // erase the corresponding entry point
             other_entry_points.erase(entry_it);
+
+            if ( exit_per_geometry || other_entry_points.empty() )
+            {
+                // here we know that we possibly left LS
+                // we must still check if we didn't get back on the same point
+                exit_operation = exit_op;
+                exit_turn = boost::addressof(turn);
+            }
         }
     }
 

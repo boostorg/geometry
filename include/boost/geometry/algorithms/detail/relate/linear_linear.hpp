@@ -496,7 +496,9 @@ struct linear_linear
                 else
                 {
                     // if we didn't enter in the past, we were outside
-                    if ( was_outside && !fake_enter_detected )
+                    if ( was_outside
+                      && ! fake_enter_detected
+                      && it->operations[op_id].position != overlay::position_front )
                     {
                         update<interior, exterior, '1', transpose_result>(res);
 
@@ -528,7 +530,7 @@ struct linear_linear
                 // to exit we must be currently inside and the current segment must be collinear
                 if ( !was_outside && is_collinear )
                 {
-                    m_exit_watcher.exit(*it);
+                    m_exit_watcher.exit(*it, false);
                 }
 
                 bool op_blocked = op == overlay::operation_blocked;

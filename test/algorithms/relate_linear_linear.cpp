@@ -243,6 +243,35 @@ void test_linestring_multi_linestring()
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      // |--------------|
                            "MULTILINESTRING((1 0, 2 0),(0 0, 0 0))",    // *  |------|
                            "1010F0FF2");
+
+    // for consistency
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      // |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(0 0, 2 0))",    // |--------------|
+                           "10F00FFF2");                                // |------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      // |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(3 0, 5 0))",    // |--------------|
+                           "10F00FFF2");                                //         |------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      // |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(0 0, 6 0))",    // |--------------|
+                           "1FF00F102");                                // |----------------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(-1 0, 5 0))",   //   |--------------|
+                           "1FF00F102");                                // |----------------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(-1 0, 6 0))",   //   |--------------|
+                           "1FF00F102");                                // |------------------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(-1 0, 2 0))",   //   |--------------|
+                           "10F00F102");                                // |-------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(2 0, 6 0))",    //   |--------------|
+                           "10F00F102");                                //            |-------|
 }
 
 template <typename P>
