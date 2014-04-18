@@ -66,12 +66,19 @@ struct enriched_turn_operation_linear
     enriched_info<P> enriched;
 };
 
+template <bool IncludeDegenerate = false>
+struct assign_policy
+    : overlay::calculate_distance_policy
+{
+    static bool const include_degenerate = IncludeDegenerate;
+};
+
 // GET_TURNS
 
 template <typename Geometry1,
           typename Geometry2,
           typename GetTurnPolicy
-            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::calculate_distance_policy> >
+            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy<> > >
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;

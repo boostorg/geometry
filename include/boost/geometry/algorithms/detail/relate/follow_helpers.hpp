@@ -279,6 +279,16 @@ public:
         return other_entry_points.empty();
     }
 
+    bool is_outside(TurnInfo const& turn) const
+    {
+        return other_entry_points.empty()
+            || std::find_if(other_entry_points.begin(),
+                            other_entry_points.end(),
+                            same_single_geometry(
+                                turn.operations[other_op_id].seg_id))
+                    == other_entry_points.end();
+    }
+
     overlay::operation_type get_exit_operation() const
     {
         return exit_operation;

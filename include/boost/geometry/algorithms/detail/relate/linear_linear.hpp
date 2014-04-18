@@ -17,6 +17,7 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
+#include <boost/geometry/algorithms/detail/single_geometry.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
@@ -67,18 +68,28 @@ public:
             return true;
         }
 
-        update<interior, exterior, '1', TransposeResult>(m_result);
-        m_flags |= 1;
-
-        // check if there is a boundary
-        if ( m_flags < 2
-          && ( m_boundary_checker.template
-                is_endpoint_boundary<boundary_front>(range::front(linestring))
-            || m_boundary_checker.template
-                is_endpoint_boundary<boundary_back>(range::back(linestring)) ) )
+        // point-like linestring
+        if ( count == 2
+          && equals::equals_point_point(range::front(linestring),
+                                        range::back(linestring)) )
         {
-            update<boundary, exterior, '0', TransposeResult>(m_result);
-            m_flags |= 2;
+            update<interior, exterior, '0', TransposeResult>(m_result);
+        }
+        else
+        {
+            update<interior, exterior, '1', TransposeResult>(m_result);
+            m_flags |= 1;
+
+            // check if there is a boundary
+            if ( m_flags < 2
+              && ( m_boundary_checker.template
+                    is_endpoint_boundary<boundary_front>(range::front(linestring))
+                || m_boundary_checker.template
+                    is_endpoint_boundary<boundary_back>(range::back(linestring)) ) )
+            {
+                update<boundary, exterior, '0', TransposeResult>(m_result);
+                m_flags |= 2;
+            }
         }
 
         return m_flags != 3
@@ -234,7 +245,12 @@ struct linear_linear
 
         interrupt_policy_linear_linear<Result> interrupt_policy(result);
 
-        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
+        turns::get_turns
+            <
+                Geometry1,
+                Geometry2,
+                detail::get_turns::get_turn_info_type<Geometry1, Geometry2, turns::assign_policy<true> >
+            >::apply(turns, geometry1, geometry2, interrupt_policy);
 
         if ( result.interrupt )
             return;
@@ -350,8 +366,9 @@ struct linear_linear
 
     public:
         turns_analyser()
-            : m_previous_turn_ptr(0)
+            : m_previous_turn_ptr(NULL)
             , m_previous_operation(overlay::operation_none)
+            , m_degenerated_turn_ptr(NULL)
         {}
 
         template <typename Result,
@@ -363,7 +380,7 @@ struct linear_linear
         void apply(Result & res,
                    TurnIt first, TurnIt it, TurnIt last,
                    Geometry const& geometry,
-                   OtherGeometry const& /*other_geometry*/,
+                   OtherGeometry const& other_geometry,
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& other_boundary_checker)
         {
@@ -371,17 +388,46 @@ struct linear_linear
 
             overlay::operation_type op = it->operations[op_id].operation;
 
-            if ( op != overlay::operation_union
-              && op != overlay::operation_intersection
-              && op != overlay::operation_blocked )
-            {
-                return;
-            }
-
             segment_identifier const& seg_id = it->operations[op_id].seg_id;
             segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
+
+            if ( op != overlay::operation_union
+              && op != overlay::operation_intersection
+              && op != overlay::operation_blocked )
+            {
+                // degenerated turn
+                if ( op == overlay::operation_continue
+                  && it->method == overlay::method_collinear
+                  && m_exit_watcher.is_outside(*it) 
+                  /*&& ( m_exit_watcher.get_exit_operation() == overlay::operation_none 
+                    || ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )*/ )
+                {
+                    // TODO: rewrite the above condition
+
+                    // WARNING! For spikes the above condition may be TRUE
+                    // When degenerated turns are be marked in a different way than c,c/c
+                    // different condition will be checked
+
+                    handle_degenerated(res, *it,
+                                       geometry, other_geometry,
+                                       boundary_checker, other_boundary_checker,
+                                       first_in_range);
+
+                    // TODO: not elegant solution! should be rewritten.
+                    if ( it->operations[op_id].position == overlay::position_back )
+                    {
+                        m_previous_operation = overlay::operation_blocked;
+                        m_exit_watcher.reset_detected_exit();
+                    }
+                }
+
+                return;
+            }
+
+            // reset
+            m_degenerated_turn_ptr = NULL;
 
             // handle possible exit
             bool fake_enter_detected = false;
@@ -411,31 +457,6 @@ struct linear_linear
 
                 m_exit_watcher.reset_detected_exit();
             }
-
-            // if the new linestring started just now,
-            // but the previous one went out on the previous point,
-            // we must check if the boundary of the previous segment is outside
-            // NOTE: couldn't it be integrated with the handling of the union above?
-            // THIS IS REDUNDANT WITH THE HANDLING OF THE END OF THE RANGE
-            //if ( first_in_range
-            //  && ! fake_enter_detected
-            //  && m_previous_operation == overlay::operation_union )
-            //{
-            //    BOOST_ASSERT(it != first);
-            //    BOOST_ASSERT(m_previous_turn_ptr);
-
-            //    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
-
-            //    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-            //                            range::back(sub_geometry::get(geometry, prev_seg_id)),
-            //                            boundary_checker);
-
-            //    // if there is a boundary on the last point
-            //    if ( prev_back_b )
-            //    {
-            //        update<boundary, exterior, '0', transpose_result>(res);
-            //    }
-            //}
 
             // i/i, i/x, i/u
             if ( op == overlay::operation_intersection )
@@ -651,24 +672,33 @@ struct linear_linear
             // here, the possible exit is the real one
             // we know that we entered and now we exit
             if ( /*m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                ||*/ m_previous_operation == overlay::operation_union )
+                ||*/ m_previous_operation == overlay::operation_union
+                || m_degenerated_turn_ptr )
             {
-                // for sure
                 update<interior, exterior, '1', transpose_result>(res);
 
                 BOOST_ASSERT(first != last);
-                BOOST_ASSERT(m_previous_turn_ptr);
 
-                segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
-
-                bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                        range::back(sub_range(geometry, prev_seg_id)),
-                                        boundary_checker);
-
-                // if there is a boundary on the last point
-                if ( prev_back_b )
+                const TurnInfo * turn_ptr = NULL;
+                if ( m_degenerated_turn_ptr )
+                    turn_ptr = m_degenerated_turn_ptr;
+                else if ( m_previous_turn_ptr )
+                    turn_ptr = m_previous_turn_ptr;
+                
+                if ( turn_ptr )
                 {
-                    update<boundary, exterior, '0', transpose_result>(res);
+                    segment_identifier const& prev_seg_id = turn_ptr->operations[op_id].seg_id;
+
+                    //BOOST_ASSERT(!boost::empty(sub_range(geometry, prev_seg_id)));
+                    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_range(geometry, prev_seg_id)),
+                                            boundary_checker);
+
+                    // if there is a boundary on the last point
+                    if ( prev_back_b )
+                    {
+                        update<boundary, exterior, '0', transpose_result>(res);
+                    }
                 }
             }
 
@@ -676,13 +706,127 @@ struct linear_linear
             // reset exit watcher before the analysis of the next Linestring
             // note that if there are some enters stored there may be some error above
             m_exit_watcher.reset();
+
+            m_previous_turn_ptr = NULL;
+            m_previous_operation = overlay::operation_none;
+            m_degenerated_turn_ptr = NULL;
+        }
+
+        template <typename Result,
+                  typename Turn,
+                  typename Geometry,
+                  typename OtherGeometry,
+                  typename BoundaryChecker,
+                  typename OtherBoundaryChecker>
+        void handle_degenerated(Result & res,
+                                Turn const& turn,
+                                Geometry const& geometry,
+                                OtherGeometry const& other_geometry,
+                                BoundaryChecker const& boundary_checker,
+                                OtherBoundaryChecker const& other_boundary_checker,
+                                bool first_in_range)
+        {
+            typename detail::single_geometry_return_type<Geometry const>::type
+                ls1_ref = detail::single_geometry(geometry, turn.operations[op_id].seg_id);
+            typename detail::single_geometry_return_type<OtherGeometry const>::type
+                ls2_ref = detail::single_geometry(other_geometry, turn.operations[op_id].other_id);
+
+            // only one of those should be true:
+
+            if ( turn.operations[op_id].position == overlay::position_front )
+            {
+                // valid, point-sized
+                if ( boost::size(ls2_ref) == 2 )
+                {
+                    bool front_b = is_endpoint_on_boundary<boundary_front>(turn.point, boundary_checker);
+
+                    if ( front_b )
+                    {
+                        update<boundary, interior, '0', transpose_result>(res);
+                    }
+                    else
+                    {
+                        update<interior, interior, '0', transpose_result>(res);
+                    }
+
+                    // 'c' should be last for the same IP so we know that the next point won't be the same
+                    update<interior, exterior, '1', transpose_result>(res);
+
+                    m_degenerated_turn_ptr = boost::addressof(turn);
+                }
+            }
+            else if ( turn.operations[op_id].position == overlay::position_back )
+            {
+                // valid, point-sized
+                if ( boost::size(ls2_ref) == 2 )
+                {
+                    update<interior, exterior, '1', transpose_result>(res);
+
+                    bool back_b = is_endpoint_on_boundary<boundary_back>(turn.point, boundary_checker);
+
+                    if ( back_b )
+                    {
+                        update<boundary, interior, '0', transpose_result>(res);
+                    }
+                    else
+                    {
+                        update<interior, interior, '0', transpose_result>(res);
+                    }
+
+                    if ( first_in_range )
+                    {
+                        //BOOST_ASSERT(!boost::empty(ls1_ref));
+                        bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                range::front(ls1_ref), boundary_checker);
+                        if ( front_b )
+                        {
+                            update<boundary, exterior, '0', transpose_result>(res);
+                        }
+                    }
+                }
+            }
+            else if ( turn.operations[op_id].position == overlay::position_middle
+                   && turn.operations[other_op_id].position == overlay::position_middle )
+            {
+                update<interior, interior, '0', transpose_result>(res);
+
+                // here we don't know which one is degenerated
+
+                bool is_point1 = boost::size(ls1_ref) == 2
+                              && equals::equals_point_point(range::front(ls1_ref), range::back(ls1_ref));
+                bool is_point2 = boost::size(ls2_ref) == 2
+                              && equals::equals_point_point(range::front(ls2_ref), range::back(ls2_ref));
+
+                // if the second one is degenerated
+                if ( !is_point1 && is_point2 )
+                {
+                    update<interior, exterior, '1', transpose_result>(res);
+
+                    if ( first_in_range )
+                    {
+                        //BOOST_ASSERT(!boost::empty(ls1_ref));
+                        bool front_b = is_endpoint_on_boundary<boundary_front>(
+                                                range::front(ls1_ref), boundary_checker);
+                        if ( front_b )
+                        {
+                            update<boundary, exterior, '0', transpose_result>(res);
+                        }
+                    }
+
+                    m_degenerated_turn_ptr = boost::addressof(turn);
+                }
+            }
+
+            // NOTE: other.position == front and other.position == back
+            //       will be handled later, for the other geometry
         }
 
     private:
         exit_watcher<TurnInfo, OpId> m_exit_watcher;
         segment_watcher<same_single_geometry> m_seg_watcher;
-        TurnInfo * m_previous_turn_ptr;
+        const TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
+        const TurnInfo * m_degenerated_turn_ptr;
     };
 
     template <typename Result,
