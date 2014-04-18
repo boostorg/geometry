@@ -279,6 +279,19 @@ struct get_turn_info_linear_areal
                 if (AssignPolicy::include_degenerate)
                 {
                     only_convert<TurnInfo>::apply(tp, result.template get<0>());
+
+                    if ( is_p_first
+                      && equals::equals_point_point(pi, tp.point) )
+                    {
+                        tp.operations[0].position = position_front;
+                    }
+                    else if ( is_p_last
+                           && equals::equals_point_point(pj, tp.point) )
+                    {
+                        tp.operations[0].position = position_back;
+                    }
+                    // tp.operations[1].position = position_middle;
+
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
