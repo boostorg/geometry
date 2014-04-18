@@ -244,6 +244,10 @@ void test_linestring_multi_linestring()
                            "MULTILINESTRING((1 0, 2 0),(0 0, 0 0))",    // *  |------|
                            "1010F0FF2");
 
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((2 0, 2 0),(2 0, 2 2))",    //            *
+                           "001FF0102");                                //            |
+
     // for consistency
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      // |--------------|
                            "MULTILINESTRING((0 0, 5 0),(0 0, 2 0))",    // |--------------|
@@ -272,6 +276,11 @@ void test_linestring_multi_linestring()
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 6 0))",    //   |--------------|
                            "10F00F102");                                //            |-------|
+
+    test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
+                           "MULTILINESTRING((0 0, 5 0),(2 0, 2 2))",    //   |--------------|
+                           "10FF0F102");                                //            |
+                                                                        //            |
 }
 
 template <typename P>
