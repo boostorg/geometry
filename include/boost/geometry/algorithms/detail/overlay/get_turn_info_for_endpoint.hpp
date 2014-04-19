@@ -21,6 +21,8 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
+// TURN_OPERATION
+
 enum turn_position { position_middle, position_front, position_back };
 
 struct turn_operation_linear
@@ -34,6 +36,73 @@ struct turn_operation_linear
     turn_position position;
     bool is_collinear; // valid only for Linear geometry
 };
+
+// IS_SPIKE
+    
+template <typename Point>
+inline bool is_spike_of_collinear(model::referring_segment<Point const> const& s1,
+                                  model::referring_segment<Point const> const& s2)
+{
+    typedef strategy_intersection
+        <
+            typename cs_tag<Point>::type, Point, Point, Point
+        > si;
+        
+    typedef typename si::segment_intersection_strategy_type strategy;
+        
+    typename strategy::return_type result = strategy::apply(s1, s2);
+        
+    return result.template get<0>().count == 2;
+}
+
+template <typename Point1, typename Point2>
+inline bool is_spike_p(side_calculator<Point1, Point2> const& side_calc,
+                       model::referring_segment<Point1 const> const& p1,
+                       model::referring_segment<Point1 const> const& p2)
+{
+    if ( side_calc.pk_wrt_p1() == 0 )
+    {
+        int const qk_p1 = side_calc.qk_wrt_p1();
+        int const qk_p2 = side_calc.qk_wrt_p2();
+                
+        if ( qk_p1 == -qk_p2 )
+        {
+            if ( qk_p1 == 0 )
+            {
+                return is_spike_of_collinear(p1, p2);
+            }
+                        
+            return true;
+        }
+    }
+        
+    return false;
+}
+
+template <typename Point1, typename Point2>
+inline bool is_spike_q(side_calculator<Point1, Point2> const& side_calc,
+                       model::referring_segment<Point2 const> const& q1,
+                       model::referring_segment<Point2 const> const& q2)
+{
+    if ( side_calc.qk_wrt_q1() == 0 )
+    {
+        int const pk_q1 = side_calc.pk_wrt_q1();
+        int const pk_q2 = side_calc.pk_wrt_q2();
+                
+        if ( pk_q1 == -pk_q2 )
+        {
+            if ( pk_q1 == 0 )
+            {
+                return is_spike_of_collinear(q1, q2);
+            }
+                        
+            return true;
+        }
+    }
+        
+    return false;
+}
+
 
 // SEGMENT_INTERSECTION RESULT
 

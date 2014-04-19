@@ -22,65 +22,11 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
-template <typename Point1,
-          typename Point2,
-          typename SideCalc = side_calculator<Point1, Point2> >
-class spike_detector
-{
-public:
-    explicit spike_detector(SideCalc const& side_calc)
-        : m_side_calc(side_calc)
-    {}
-
-    inline bool is_spike_p() const
-    {
-        if ( m_side_calc.pk_wrt_p1() == 0 )
-        {
-            int const qk_p1 = m_side_calc.qk_wrt_p1();
-            int const qk_p2 = m_side_calc.qk_wrt_p2();
-
-            if ( qk_p1 == -qk_p2 )
-            {
-                if ( qk_p1 == 0 )
-                {
-                    // TODO check additional things
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    inline bool is_spike_q() const
-    {
-        if ( m_side_calc.qk_wrt_q1() == 0 )
-        {
-            int const pk_q1 = m_side_calc.pk_wrt_q1();
-            int const pk_q2 = m_side_calc.pk_wrt_q2();
-
-            if ( pk_q1 == -pk_q2 )
-            {
-                if ( pk_q1 == 0 )
-                {
-                    // TODO check additional things
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-private:
-    SideCalc const& m_side_calc;
-};
-
 template<typename AssignPolicy>
 struct get_turn_info_linear_linear
 {
+    static const bool handle_spikes = true;
+
     template
     <
         typename Point1,
@@ -222,6 +168,8 @@ struct get_turn_info_linear_linear
 
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
+                    // TODO: HANDLE SPIKES!
+
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -247,28 +195,26 @@ struct get_turn_info_linear_linear
                         // or collinear-and-ending at intersection point
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, result.template get<0>(), result.template get<1>(), side_calc);
+                        // for spikes u/i or i/u is returned
 
                         replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                        // TODO: This isn't correct handling, hence commented out
-                        /*spike_detector<Point1, Point2> spike_detect(side_calc);
-                        if ( tp.operations[0].operation == operation_union
-                          && spike_detect.is_spike_p())
-                        {
-                            tp.operations[0].operation = operation_continue;
-                        }
-                        if ( tp.operations[1].operation == operation_union
-                            && spike_detect.is_spike_q())
-                        {
-                            tp.operations[1].operation = operation_continue;
-                        }*/
-                    
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                        *out++ = tp;
+
+                        // conditionally handle spikes
+                        if ( ! handle_spikes
+                          || ! append_collinear_spikes(tp, side_calc, p1, p2, q1, q2,
+                                                       is_p_last, is_q_last,
+                                                       method_touch, operation_union, out) )
+                        {
+                            *out++ = tp; // no spikes
+                        }
                     }
                     else
                     {
+                        // TODO: HANDLE SPIKES!
+
                         equal_opposite
                             <
                                 TurnInfo,
@@ -295,55 +241,56 @@ struct get_turn_info_linear_linear
                     tp.operations[1].is_collinear = true;
 
                     if (! result.template get<1>().opposite)
-                    {                    
+                    {
+                        method_type method_replace = method_touch_interior;
+                        operation_type spike_op = operation_continue;
+
                         if (result.template get<1>().arrival[0] == 0)
                         {
                             // Collinear, but similar thus handled as equal
                             equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
+                            // for spikes u/i or i/u is returned
 
                             // NOTE: don't change the method only if methods are WRT IPs, not segments!
                             // (currently this approach is used)
                             // override assigned method
                             //tp.method = method_collinear;
 
-                            replacer_of_method_and_operations_ec replacer(method_touch);
-                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
-
-                            // TODO: This isn't correct handling, hence commented out
-                            /*spike_detector<Point1, Point2> spike_detect(side_calc);
-                            if ( tp.operations[0].operation == operation_union
-                              && spike_detect.is_spike_p())
-                            {
-                                tp.operations[0].operation = operation_continue;
-                            }
-                            if ( tp.operations[1].operation == operation_union
-                                && spike_detect.is_spike_q())
-                            {
-                                tp.operations[1].operation = operation_continue;
-                            }*/
+                            method_replace = method_touch;
+                            spike_op = operation_union;
                         }
                         else
                         {
                             collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
+                            // for spikes c,c/c is returned
 
-                            replacer_of_method_and_operations_ec replacer(method_touch_interior);
-                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
-
-                            // TEST
-                            //spike_detector<Point1, Point2> spike_detect(side_calc);
-                            //spike_detect.is_spike_p();
-                            //spike_detect.is_spike_q();
+                            //method_replace = method_touch_interior;
+                            //spike_op = operation_continue;
                         }
 
+                        replacer_of_method_and_operations_ec replacer(method_replace);
+                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                        *out++ = tp;
+
+                        // conditionally handle spikes
+                        if ( ! handle_spikes
+                          || ! append_collinear_spikes(tp, side_calc, p1, p2, q1, q2,
+                                                       is_p_last, is_q_last,
+                                                       method_replace, spike_op, out) )
+                        {
+                            // no spikes
+                            *out++ = tp;
+                        }
                     }
                     else
                     {
                         // If this always 'm' ?
                         replacer_of_method_and_operations_ec replacer(method_touch_interior);
+
+                        // TODO: HANDLE SPIKES!
 
                         collinear_opposite
                             <
@@ -403,6 +350,67 @@ struct get_turn_info_linear_linear
         }
 
         return out;
+    }
+
+    template <typename TurnInfo,
+              typename SideCalc,
+              typename SegmentP,
+              typename SegmentQ,
+              typename OutIt>
+    static inline bool append_collinear_spikes(TurnInfo & tp,
+                                               SideCalc const& side_calc,
+                                               SegmentP const& p1, SegmentP const& p2,
+                                               SegmentQ const& q1, SegmentQ const& q2,
+                                               bool is_p_last, bool is_q_last,
+                                               method_type method, operation_type spike_op,
+                                               OutIt out)
+    {
+        // method == touch || touch_interior
+        // both position == middle
+
+        bool is_p_spike = tp.operations[0].operation == spike_op
+                       && ! is_p_last
+                       && is_spike_p(side_calc, p1, p2);
+        bool is_q_spike = tp.operations[1].operation == spike_op
+                       && ! is_q_last
+                       && is_spike_q(side_calc, q1, q2);
+
+        if ( is_p_spike && is_q_spike )
+        {
+            tp.method = method;
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_blocked;
+            *out++ = tp;
+            tp.operations[0].operation = operation_intersection;
+            tp.operations[1].operation = operation_intersection;
+            *out++ = tp;
+
+            return true;
+        }
+        else if ( is_p_spike )
+        {
+            tp.method = method;
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_union;
+            *out++ = tp;
+            tp.operations[0].operation = operation_intersection;
+            *out++ = tp;
+
+            return true;
+        }
+        else if ( is_q_spike )
+        {
+            tp.method = method;
+            tp.operations[0].operation = operation_union;
+            tp.operations[1].operation = operation_blocked;
+            *out++ = tp;
+            tp.operations[1].operation = operation_intersection;
+            *out++ = tp;
+
+            return true;
+        }
+        
+        return false;
     }
 
     static inline void replace_method_and_operations_tm(method_type & method,

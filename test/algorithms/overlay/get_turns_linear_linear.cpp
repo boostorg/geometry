@@ -109,6 +109,30 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(1 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,5 0,4 1)",
                           expected("mii")("muu")("muu"));
 
+    // spike - c2
+    test_geometry<ls, ls>("LINESTRING(2 2,4 4,1 1)", "LINESTRING(0 0,4 4,6 3)",
+                          expected("mii")("txu")("tiu")("mxi"));
+    // spike - e
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,1 1)", "LINESTRING(0 0,4 4,6 3)",
+                          expected("tii")("txu")("tiu")("mxi"));
+    // spike - c1
+    test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(0 0,4 4,6 3)",
+                          expected("tii")("mxu")("miu")("mxi"));
+    // opposite e
+    //test_geometry<ls, ls>("LINESTRING(4 4,0 0,2 2)", "LINESTRING(0 0,4 4,6 3)",
+    //                      expected("tiu")("txi")("tii")("mxu"));
+
+    // TODO:
+    //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
+    //test_geometry<ls, ls>("LINESTRING(2 0,0 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
+
+    //test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(3 0,3 3,3 1)", "0F1FF0102");
+    //test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(2 0,2 3,2 1)", "0F1FF0102");
+    //test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(2 0,2 2,2 1)", "0F1FF0102");
+
+    //test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,4 4)", "LINESTRING(0 0,1 1,4 4)", "1FFF0FFF2");
+
+
     //if ( boost::is_same<T, double>::value )
     //{
     //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(0 0,2 0,2.5 0,3 1)", "test11.svg");

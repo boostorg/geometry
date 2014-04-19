@@ -466,8 +466,9 @@ struct linear_linear
 
                 // interiors overlaps
                 update<interior, interior, '1', transpose_result>(res);
-                
-                bool this_b = is_ip_on_boundary<boundary_front>(it->point,
+
+                bool this_b = it->operations[op_id].position == overlay::position_front // ignore spikes!
+                           && is_ip_on_boundary<boundary_front>(it->point,
                                                                 it->operations[op_id],
                                                                 boundary_checker,
                                                                 seg_id);
@@ -539,7 +540,8 @@ struct linear_linear
                 // possibly going out right now
                 if ( ! was_outside && is_collinear )
                 {
-                    if ( op_blocked )
+                    if ( op_blocked
+                      && it->operations[op_id].position == overlay::position_back ) // ignore spikes!
                     {
                         // check if this is indeed the boundary point
                         // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
