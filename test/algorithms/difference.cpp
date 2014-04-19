@@ -277,13 +277,15 @@ void test_all()
 
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
-        16, -1, 0.30859375,
-        12, -1, 0.025390625);
+        21, -1, 0.31640625,
+         9, -1, 0.01953125);
+    // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
+    // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
 
     test_one<polygon, polygon, polygon>("geos_2",
         geos_2[0], geos_2[1],
         1, -1, 138.6923828,
-        1, -1, 211.8588867);
+        1, -1, 211.859375);
 
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
@@ -367,7 +369,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
             1, 10, 0.0334529710902111,
-            1, 4, 6.22453685816815e-10); // Output should be discarded
+            0, 0, 0);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_9081_314",
@@ -535,8 +537,8 @@ void test_specific()
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
-        1, 11, 3370866.2295081965,
-        1, 5, 384, 0.01);
+        1, 11, 3371540,
+        0, 0, 0, 0.001); // output is discarded
 }
 
 

@@ -43,49 +43,54 @@ struct segments_intersection_points
 
     template
     <
+        typename Point,
+        typename Segment,
+        typename SegmentRatio,
+        typename T
+    >
+    static inline void assign(Point& point,
+                Segment const& segment,
+                SegmentRatio const& ratio,
+                T const& dx, T const& dy)
+    {
+        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+
+        // Calculate the intersection point based on segment_ratio
+        // Up to know, division was postponed. Here we divide using numerator/
+        // denominator. In case of integer this might result in an integer
+        // division.
+        BOOST_ASSERT(ratio.denominator() != 0);
+        set<0>(point, boost::numeric_cast<coordinate_type>(
+                get<0, 0>(segment)
+                    + ratio.numerator() * dx / ratio.denominator()));
+        set<1>(point, boost::numeric_cast<coordinate_type>(
+                get<0, 1>(segment)
+                    + ratio.numerator() * dy / ratio.denominator()));
+    }
+
+
+    template
+    <
         typename Segment1,
         typename Segment2,
         typename SegmentIntersectionInfo
     >
     static inline return_type segments_crosses(side_info const&,
                     SegmentIntersectionInfo const& sinfo,
-                    Segment1 const& s1, Segment2 const& )
+                    Segment1 const& s1, Segment2 const& s2)
     {
-        typedef typename geometry::coordinate_type
-            <
-                typename return_type::point_type
-            >::type return_coordinate_type;
-
-        typedef typename SegmentIntersectionInfo::promoted_type promoted_type;
-
         return_type result;
         result.count = 1;
 
-        promoted_type const s1x = get<0, 0>(s1);
-        promoted_type const s1y = get<0, 1>(s1);
-        promoted_type const dx = sinfo.dx_a;
-        promoted_type const dy = sinfo.dy_a;
-        // We now always use the robust-ratio because next check was not enough:
-        // if (sinfo.r < 0 || sinfo.r > 1)
-        // It also would need this check:
-        // if (sinfo.rB < 0 || sinfo.rB > 1) for the other segment
-        // TODO: these comments can be removed.
-        // NOTE: in case of integer, the robust one is identical to the original one (but more precise)
-        // in case of float, the robust one is nearly always as precise (or more) than the FP one
-        // It does not change the result of the floating-point intersection point
+        if (sinfo.robust_ra < sinfo.robust_rb)
         {
-            // Because we calculate side/info test from rescaled coordinates, we now
-            // use the ratio based on rescaled too. This is in 99.999% cases exactly the same.
-            // Where it is not the same, the FP one is off. Sometimes it is outside
-            // the range, so we have to use it...
-            // For now we only use that if the FP r is off.
-            assert(sinfo.robust_ra.denominator() != 0);
-            promoted_type const num = sinfo.robust_ra.numerator();
-            promoted_type const den = sinfo.robust_ra.denominator();
-            set<0>(result.intersections[0],
-                boost::numeric_cast<return_coordinate_type>(s1x + num * dx / den));
-            set<1>(result.intersections[0],
-                boost::numeric_cast<return_coordinate_type>(s1y + num * dy / den));
+            assign(result.intersections[0], s1, sinfo.robust_ra,
+                sinfo.dx_a, sinfo.dy_a);
+        }
+        else
+        {
+            assign(result.intersections[0], s2, sinfo.robust_rb,
+                sinfo.dx_b, sinfo.dy_b);
         }
 
         result.fractions[0].assign(sinfo);
