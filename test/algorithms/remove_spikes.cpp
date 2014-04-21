@@ -134,6 +134,32 @@ void test_polygons()
     test_geometry<polygon>("spike_with_corner",
             "POLYGON((0 0,0 4,4 4,4 2,6 2,6 4,6 2,4 2,4 0,0 0))",
             16, 16);
+
+    test_geometry<polygon>("triangle0",
+            "POLYGON((0 0,0 4,2 0,4 0,0 0))",
+            4, 6 + sqrt(20.0));
+    test_geometry<polygon>("triangle1",
+            "POLYGON((0 4,2 0,4 0,0 0,0 4))",
+            4, 6 + sqrt(20.0));
+    test_geometry<polygon>("triangle2",
+            "POLYGON((2 0,4 0,0 0,0 4,2 0))",
+            4, 6 + sqrt(20.0));
+    test_geometry<polygon>("triangle3",
+            "POLYGON((4 0,0 0,0 4,2 0,4 0))",
+            4, 6 + sqrt(20.0));
+
+    test_geometry<polygon>("only_spike1",
+            "POLYGON((0 0,2 2,0 0))",
+            0, 0);
+    test_geometry<polygon>("only_spike2",
+            "POLYGON((0 0,2 2,4 4,2 2,0 0))",
+            0, 0);
+    test_geometry<polygon>("only_spike3",
+            "POLYGON((0 0,2 2,4 4,0 0))",
+            0, 0);
+    test_geometry<polygon>("only_spike4",
+            "POLYGON((0 0,4 4,2 2,0 0))",
+            0, 0);
 }
 
 
