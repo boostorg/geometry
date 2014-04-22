@@ -119,6 +119,22 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(0 0,4 4,6 3)",
                           expected("tii")("mxu")("miu")("mxi"));
     // opposite e
+    test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-1 -1,0 0,4 4,6 3)",
+                          expected("tiu")("txi")("tii")("mxu"));
+    test_geometry<ls, ls>("LINESTRING(-1 -1,0 0,4 4,6 3)", "LINESTRING(6 6,4 4,0 0,2 2)",
+                          expected("tui")("tix")("tii")("mux"));
+    // opposite c
+    test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-1 -1,0 0,5 5,6 3)",
+                          expected("miu")("txi")("tii")("mxu"));
+
+    test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,4 4,6 3)",
+                          expected("tiu")("mxi")("mii")("mxu"));
+    test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,6 3)",
+                          expected("miu")("mxi")("mii")("mxu"));
+    test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,5 5,6 3)",
+                          expected("miu")("mxi")("mii")("mxu"));
+
+    // opposite e - first
     //test_geometry<ls, ls>("LINESTRING(4 4,0 0,2 2)", "LINESTRING(0 0,4 4,6 3)",
     //                      expected("tiu")("txi")("tii")("mxu"));
 

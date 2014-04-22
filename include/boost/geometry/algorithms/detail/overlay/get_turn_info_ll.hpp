@@ -156,6 +156,7 @@ struct get_turn_info_linear_linear
                 {
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
+                    // for spike x/x is returned
 
                     if ( tp.operations[0].operation == operation_blocked )
                     {
@@ -168,10 +169,17 @@ struct get_turn_info_linear_linear
 
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
-                    // TODO: HANDLE SPIKES!
-
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                    *out++ = tp;
+
+                    // after replacement the spike will be e,c/c
+                    if ( ! handle_spikes
+                      || ! append_opposite_spikes(tp, result, side_calc,
+                                                  p1, p2, q1, q2,
+                                                  is_p_last, is_q_last,
+                                                  operation_continue, out) )
+                    {
+                        *out++ = tp;
+                    }
                 }
             }
             break;
@@ -213,7 +221,7 @@ struct get_turn_info_linear_linear
                     }
                     else
                     {
-                        // TODO: HANDLE SPIKES!
+                        // TODO: ignore for spikes or generate something else than opposite?
 
                         equal_opposite
                             <
@@ -290,7 +298,18 @@ struct get_turn_info_linear_linear
                         // If this always 'm' ?
                         replacer_of_method_and_operations_ec replacer(method_touch_interior);
 
-                        // TODO: HANDLE SPIKES!
+                        // conditionally handle spikes
+                        if ( handle_spikes )
+                        {
+                            append_opposite_spikes(tp, result, side_calc,
+                                                   p1, p2, q1, q2,
+                                                   is_p_last, is_q_last,
+                                                   operation_none, out, true);
+                        }
+
+                        // TODO: ignore for spikes?
+                        //       E.g. pass is_p_valid = !is_p_last && !is_pj_spike,
+                        //       the same with is_q_valid
 
                         collinear_opposite
                             <
@@ -406,6 +425,74 @@ struct get_turn_info_linear_linear
             *out++ = tp;
             tp.operations[1].operation = operation_intersection;
             *out++ = tp;
+
+            return true;
+        }
+        
+        return false;
+    }
+
+    template <typename TurnInfo,
+              typename Result,
+              typename SideCalc,
+              typename SegmentP,
+              typename SegmentQ,
+              typename OutIt>
+    static inline bool append_opposite_spikes(TurnInfo & tp,
+                                              Result const& result,
+                                              SideCalc const& side_calc,
+                                              SegmentP const& p1, SegmentP const& p2,
+                                              SegmentQ const& q1, SegmentQ const& q2,
+                                              bool is_p_last, bool is_q_last,
+                                              operation_type spike_op, OutIt out,
+                                              bool collinear_opposite = false)
+    {
+        bool is_p_spike = tp.operations[0].operation == spike_op
+                       && ! is_p_last
+                       && is_spike_p(side_calc, p1, p2);
+        bool is_q_spike = tp.operations[1].operation == spike_op
+                       && ! is_q_last
+                       && is_spike_q(side_calc, q1, q2);
+
+        if ( is_p_spike || is_q_spike )
+        {
+            tp.method = method_touch;
+
+            // arrivals 0 and 1 are handled by touches? 
+
+            if ( is_p_spike && ( !collinear_opposite || result.template get<1>().arrival[0] == 1 ) )
+            {
+                if ( collinear_opposite )
+                {
+                    tp.method = method_touch_interior; // only because arrival != 0
+                    BOOST_ASSERT(result.template get<0>().count > 1);
+                    geometry::convert(result.template get<0>().intersections[1], tp.point);
+                    AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
+                }
+
+                tp.operations[0].operation = operation_blocked;
+                tp.operations[1].operation = operation_intersection;
+                *out++ = tp;
+                tp.operations[0].operation = operation_intersection;
+                *out++ = tp;
+            }
+
+            if ( is_q_spike && ( !collinear_opposite || result.template get<1>().arrival[1] == 1 ) )
+            {
+                if ( collinear_opposite )
+                {
+                    tp.method = method_touch_interior; // only because arrival != 0
+                    BOOST_ASSERT(result.template get<0>().count > 0);
+                    geometry::convert(result.template get<0>().intersections[0], tp.point);
+                    AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
+                }
+
+                tp.operations[0].operation = operation_intersection;
+                tp.operations[1].operation = operation_blocked;
+                *out++ = tp;
+                tp.operations[1].operation = operation_intersection;
+                *out++ = tp;
+            }
 
             return true;
         }
