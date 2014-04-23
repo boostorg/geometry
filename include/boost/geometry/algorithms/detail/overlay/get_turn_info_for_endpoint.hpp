@@ -386,7 +386,7 @@ struct get_turn_info_for_endpoint
                                        int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
-        boost::ignore_unused_variable_warning(ip);
+        boost::ignore_unused_variable_warning(ip_index);
         boost::ignore_unused_variable_warning(tp_model);
 
         if ( !first2 && !last2 )
