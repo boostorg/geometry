@@ -23,6 +23,7 @@
 #include <list>
 
 #include <boost/mpl/if.hpp>
+#include <boost/typeof/typeof.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/std/list.hpp>
 #include <boost/assign/std/set.hpp>
@@ -145,7 +146,7 @@ struct test_flatten_iterator
     {
 #ifdef GEOMETRY_TEST_DEBUG
         std::stringstream sstream;
-        sstream << case_id << " " << "[" << container_id << "]";
+        sstream << case_id << " [" << container_id << "]";
 
         std::cout << "case id: " << sstream.str() << std::endl;
 #endif

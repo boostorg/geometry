@@ -1,10 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
@@ -34,6 +39,10 @@
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/views/segment_view.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
+
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
 #include <boost/foreach.hpp>
@@ -563,6 +572,132 @@ struct intersection_insert_reversed
     }
 };
 
+
+
+// dispatch for non-areal geometries
+template
+<
+    typename Geometry1, typename Geometry2, typename GeometryOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut,
+    typename TagIn1, typename TagIn2
+>
+struct intersection_insert
+    <
+        Geometry1, Geometry2, GeometryOut,
+        OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        TagIn1, TagIn2, linestring_tag,
+        false, false, false
+    > : intersection_insert
+        <
+           Geometry1, Geometry2, GeometryOut,
+           OverlayType,
+           Reverse1, Reverse2, ReverseOut,
+           typename tag_cast<TagIn1, pointlike_tag, linear_tag>::type,
+           typename tag_cast<TagIn2, pointlike_tag, linear_tag>::type,
+           linestring_tag,
+           false, false, false
+        >
+{};
+
+
+// dispatch for difference/intersection of linear geometries
+template
+<
+    typename Linear1, typename Linear2, typename LineStringOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Linear1, Linear2, LineStringOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        linear_tag, linear_tag, linestring_tag,
+        false, false, false
+    > : detail::overlay::linear_linear_linestring
+        <
+            Linear1, Linear2, LineStringOut, OverlayType
+        >
+{};
+
+
+// dispatch for difference/intersection of point-like geometries
+
+template
+<
+    typename Point1, typename Point2, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Point1, Point2, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        point_tag, point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::point_point_point
+        <
+            Point1, Point2, PointOut, OverlayType
+        >
+{};
+
+
+template
+<
+    typename MultiPoint, typename Point, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiPoint, Point, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        multi_point_tag, point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::multipoint_point_point
+        <
+            MultiPoint, Point, PointOut, OverlayType
+        >
+{};
+
+
+template
+<
+    typename Point, typename MultiPoint, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        Point, MultiPoint, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        point_tag, multi_point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::point_multipoint_point
+        <
+            Point, MultiPoint, PointOut, OverlayType
+        >
+{};
+
+
+template
+<
+    typename MultiPoint1, typename MultiPoint2, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct intersection_insert
+    <
+        MultiPoint1, MultiPoint2, PointOut, OverlayType,
+        Reverse1, Reverse2, ReverseOut,
+        multi_point_tag, multi_point_tag, point_tag,
+        false, false, false
+    > : detail::overlay::multipoint_multipoint_point
+        <
+            MultiPoint1, MultiPoint2, PointOut, OverlayType
+        >
+{};
 
 
 } // namespace dispatch

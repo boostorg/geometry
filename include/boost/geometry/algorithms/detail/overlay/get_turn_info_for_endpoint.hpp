@@ -135,7 +135,7 @@ struct get_turn_info_for_endpoint
                              bool is_q_first, bool is_q_last,
                              TurnInfo const& tp_model,
                              IntersectionResult const& result,
-                             method_type method,
+                             method_type /*method*/,
                              OutputIterator out)
     {
         std::size_t ip_count = result.template get<0>().count;
@@ -386,6 +386,9 @@ struct get_turn_info_for_endpoint
                                        int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
+        boost::ignore_unused_variable_warning(ip);
+        boost::ignore_unused_variable_warning(tp_model);
+
         if ( !first2 && !last2 )
         {
             if ( first1 )

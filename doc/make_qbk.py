@@ -40,9 +40,14 @@ def run_command(command):
     if os.system(command) != 0:
         raise Exception("Error running %s" % command)
 
+def remove_all_files(dir):
+    if os.path.exists(dir):
+        for f in os.listdir(dir):
+            os.remove(dir+f)
+
 def call_doxygen():
-    os.chdir("doxy");
-    run_command("rm -f doxygen_output/xml/*.xml")
+    os.chdir("doxy")
+    remove_all_files("doxygen_output/xml/")
     run_command(doxygen_cmd)
     os.chdir("..")
 
@@ -77,7 +82,7 @@ call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "difference", "disjoint", "distance" 
+    , "convex_hull", "crosses", "difference", "disjoint", "distance" 
     , "envelope", "equals", "expand", "for_each", "intersection", "intersects" 
     , "length", "num_geometries", "num_interior_rings", "num_points" 
     , "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 

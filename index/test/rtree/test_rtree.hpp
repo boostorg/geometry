@@ -968,7 +968,7 @@ struct NearestKTransform
 };
 
 template <typename Rtree, typename Value, typename Point, typename Distance>
-void compare_nearest_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output, Point const& pt, Distance greatest_distance)
+inline void compare_nearest_outputs(Rtree const& rtree, std::vector<Value> const& output, std::vector<Value> const& expected_output, Point const& pt, Distance greatest_distance)
 {
     // check output
     bool are_sizes_ok = (expected_output.size() == output.size());
@@ -990,7 +990,21 @@ void compare_nearest_outputs(Rtree const& rtree, std::vector<Value> const& outpu
 }
 
 template <typename Rtree, typename Value, typename Point>
-void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
+inline void check_sorted_by_distance(Rtree const& rtree, std::vector<Value> const& output, Point const& pt)
+{
+    typedef typename bg::default_distance_result<Point, typename Rtree::indexable_type>::type D;
+
+    D prev_dist = 0;
+    BOOST_FOREACH(Value const& v, output)
+    {
+        D d = bgi::detail::comparable_distance_near(pt, rtree.indexable_get()(v));
+        BOOST_CHECK(prev_dist <= d);
+        prev_dist = d;
+    }
+}
+
+template <typename Rtree, typename Value, typename Point>
+inline void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point const& pt, unsigned int k)
 {
     // TODO: Nearest object may not be the same as found by the rtree if distances are equal
     // All objects with the same closest distance should be picked
@@ -1043,15 +1057,16 @@ void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input, Point 
     std::copy(rtree.qbegin(bgi::nearest(pt, k)), rtree.qend(), std::back_inserter(output3));
 
     compare_nearest_outputs(rtree, output3, expected_output, pt, greatest_distance);
+    check_sorted_by_distance(rtree, output3, pt);
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
     {
         std::vector<Value> output4;
         std::copy(rtree.qbegin_(bgi::nearest(pt, k)), rtree.qend_(bgi::nearest(pt, k)), std::back_inserter(output4));
-        compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
+        exactly_the_same_outputs(rtree, output4, output3);
         output4.clear();
         copy_alt(rtree.qbegin_(bgi::nearest(pt, k)), rtree.qend_(), std::back_inserter(output4));
-        compare_nearest_outputs(rtree, output4, expected_output, pt, greatest_distance);
+        exactly_the_same_outputs(rtree, output4, output3);
     }
 #endif
 }

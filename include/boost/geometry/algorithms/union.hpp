@@ -1,10 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
@@ -19,6 +24,9 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 
 namespace boost { namespace geometry
@@ -52,13 +60,14 @@ template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
     typename TagIn1, typename TagIn2, typename TagOut,
+    bool Areal1, bool Areal2, bool ArealOut,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct union_insert
     <
         Geometry1, Geometry2, GeometryOut,
         TagIn1, TagIn2, TagOut,
-        true, true, true,
+        Areal1, Areal2, ArealOut,
         Reverse1, Reverse2, ReverseOut,
         true
     >: union_insert<Geometry2, Geometry1, GeometryOut>
@@ -93,6 +102,73 @@ struct union_insert
         false
     > : detail::overlay::overlay
         <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, GeometryOut, overlay_union>
+{};
+
+
+// dispatch for union of non-areal geometries
+template
+<
+    typename Geometry1, typename Geometry2, typename GeometryOut,
+    typename TagIn1, typename TagIn2, typename TagOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        Geometry1, Geometry2, GeometryOut,
+        TagIn1, TagIn2, TagOut,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : union_insert
+        <
+            Geometry1, Geometry2, GeometryOut,
+            typename tag_cast<TagIn1, pointlike_tag, linear_tag>::type,
+            typename tag_cast<TagIn2, pointlike_tag, linear_tag>::type,
+            TagOut,
+            false, false, false,
+            Reverse1, Reverse2, ReverseOut,
+            false
+        >
+{};
+
+
+// dispatch for union of linear geometries
+template
+<
+    typename Linear1, typename Linear2, typename LineStringOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        Linear1, Linear2, LineStringOut,
+        linear_tag, linear_tag, linestring_tag,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : detail::overlay::linear_linear_linestring
+        <
+            Linear1, Linear2, LineStringOut, overlay_union
+        >
+{};
+
+
+// dispatch for point-like geometries
+template
+<
+    typename PointLike1, typename PointLike2, typename PointOut,
+    bool Reverse1, bool Reverse2, bool ReverseOut
+>
+struct union_insert
+    <
+        PointLike1, PointLike2, PointOut,
+        pointlike_tag, pointlike_tag, point_tag,
+        false, false, false,
+        Reverse1, Reverse2, ReverseOut,
+        false
+    > : detail::overlay::union_pointlike_pointlike_point
+        <
+            PointLike1, PointLike2, PointOut
+        >
 {};
 
 

@@ -1,10 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
@@ -198,6 +203,30 @@ struct action_selector<overlay_intersection>
         geometry::clear(current_piece);
     }
 
+    template
+    <
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
+        typename Operation
+    >
+    static inline void isolated_point(LineStringOut&,
+                LineString const&,
+                segment_identifier&,
+                int, Point const& point,
+                Operation const& , OutputIterator& out)
+    {
+        LineStringOut isolated_point_ls;
+        geometry::append(isolated_point_ls, point);
+
+#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+        geometry::append(isolated_point_ls, point);
+#endif // BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+
+        *out++ = isolated_point_ls;
+    }
+
     static inline bool is_entered(bool entered)
     {
         return entered;
@@ -264,6 +293,22 @@ struct action_selector<overlay_difference>
     {
         normal_action::enter(current_piece, linestring, segment_id, index,
                     point, operation, robust_policy, out);
+    }
+
+    template
+    <
+        typename OutputIterator,
+        typename LineStringOut,
+        typename LineString,
+        typename Point,
+        typename Operation
+    >
+    static inline void isolated_point(LineStringOut&,
+                LineString const&,
+                segment_identifier&,
+                int, Point const&,
+                Operation const&, OutputIterator&)
+    {
     }
 
     static inline bool is_entered(bool entered)

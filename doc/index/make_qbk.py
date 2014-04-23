@@ -21,6 +21,13 @@ def run_command(command):
     if os.system(command) != 0:
         raise Exception("Error running %s" % command)
 
+def remove_all_files(dir):
+    if os.path.exists(dir):
+        for f in os.listdir(dir):
+            os.remove(dir+f)
+
+remove_all_files("xml/")
+
 run_command("doxygen Doxyfile")
 run_command(cmd % ("classboost_1_1geometry_1_1index_1_1rtree", "rtree"))
 run_command(cmd % ("group__rtree__functions", "rtree_functions"))

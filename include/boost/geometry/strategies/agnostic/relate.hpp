@@ -40,77 +40,19 @@ namespace within
 namespace services
 {
 
-// P/L
 
-//template <typename Point, typename Linestring, typename AnyCS1, typename AnyCS2>
-//struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, AnyCS1, AnyCS2, Point, Linestring>
-//{
-//    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-//};
-//
-//template <typename Point, typename MultiLinestring, typename AnyCS1, typename AnyCS2>
-//struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, AnyCS1, AnyCS2, Point, MultiLinestring>
-//{
-//    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-//};
-
-// L/L
-
-template <typename Linestring1, typename Linestring2, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, linestring_tag, linestring_tag, linestring_tag, AnyCS1, AnyCS2, Linestring1, Linestring2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_within> type;
 };
 
-template <typename Linestring, typename MultiLinestring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, multi_linestring_tag, linestring_tag, multi_linestring_tag, AnyCS1, AnyCS2, Linestring, MultiLinestring>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_within> type;
 };
 
-template <typename MultiLinestring, typename Linestring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, linestring_tag, multi_linestring_tag, linestring_tag, AnyCS1, AnyCS2, MultiLinestring, Linestring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-// L/A
-
-template <typename Linestring, typename Ring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, ring_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, Ring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename MultiLinestring, typename Ring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, ring_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, Ring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename Linestring, typename Polygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, polygon_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, Polygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename MultiLinestring, typename Polygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, polygon_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, Polygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename Linestring, typename MultiPolygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, multi_polygon_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, MultiPolygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
-
-template <typename MultiLinestring, typename MultiPolygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, multi_polygon_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, MultiPolygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_within> type;
-};
 
 } // namespace services
 
@@ -125,77 +67,19 @@ struct default_strategy<multi_linestring_tag, multi_polygon_tag, multi_linestrin
 namespace strategy { namespace covered_by { namespace services
 {
 
-// P/L
 
-//template <typename Point, typename Linestring, typename AnyCS1, typename AnyCS2>
-//struct default_strategy<point_tag, linestring_tag, point_tag, linestring_tag, AnyCS1, AnyCS2, Point, Linestring>
-//{
-//    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-//};
-//
-//template <typename Point, typename MultiLinestring, typename AnyCS1, typename AnyCS2>
-//struct default_strategy<point_tag, multi_linestring_tag, point_tag, multi_linestring_tag, AnyCS1, AnyCS2, Point, MultiLinestring>
-//{
-//    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-//};
-
-// L/L
-
-template <typename Linestring1, typename Linestring2, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, linestring_tag, linestring_tag, linestring_tag, AnyCS1, AnyCS2, Linestring1, Linestring2>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
 };
 
-template <typename Linestring, typename MultiLinestring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, multi_linestring_tag, linestring_tag, multi_linestring_tag, AnyCS1, AnyCS2, Linestring, MultiLinestring>
+template <typename Geometry1, typename Geometry2, typename AnyTag1, typename AnyTag2, typename AnyCS>
+struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geometry1, Geometry2>
 {
     typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
 };
 
-template <typename MultiLinestring, typename Linestring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, linestring_tag, multi_linestring_tag, linestring_tag, AnyCS1, AnyCS2, MultiLinestring, Linestring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-// L/A
-
-template <typename Linestring, typename Ring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, ring_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, Ring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename MultiLinestring, typename Ring, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, ring_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, Ring>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename Linestring, typename Polygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, polygon_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, Polygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename MultiLinestring, typename Polygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, polygon_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, Polygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename Linestring, typename MultiPolygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<linestring_tag, multi_polygon_tag, linestring_tag, areal_tag, AnyCS1, AnyCS2, Linestring, MultiPolygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
-
-template <typename MultiLinestring, typename MultiPolygon, typename AnyCS1, typename AnyCS2>
-struct default_strategy<multi_linestring_tag, multi_polygon_tag, multi_linestring_tag, areal_tag, AnyCS1, AnyCS2, MultiLinestring, MultiPolygon>
-{
-    typedef strategy::relate::relate<detail::relate::static_mask_covered_by> type;
-};
 
 }}} // namespace strategy::covered_by::services
 #endif

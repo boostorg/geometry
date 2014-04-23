@@ -89,6 +89,8 @@
 [include generated/covered_by.qbk]
 [endsect]
 
+[include generated/crosses.qbk]
+
 [include generated/difference.qbk]
 [include generated/disjoint.qbk]
 

@@ -10,7 +10,15 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
 
-#include <boost/utility/enable_if.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 #include <boost/geometry/iterators/point_iterator_type.hpp>
 
@@ -222,17 +230,6 @@ private:
         return this;
     }
 
-    template <typename G1, typename G2>
-    struct is_convertible
-        : boost::is_convertible
-            <
-                typename dispatch::point_iterator_type<G1>::type,
-                typename dispatch::point_iterator_type<G2>::type
-            >
-    {};
-
-    struct enabler {};
-
     template <typename OtherGeometry> friend class point_iterator;
     template <typename G> friend inline point_iterator<G> points_begin(G&);
     template <typename G> friend inline point_iterator<G> points_end(G&);
@@ -243,15 +240,19 @@ public:
     point_iterator() {}
 
     template <typename OtherGeometry>
-    point_iterator(point_iterator<OtherGeometry> const& other,
-                   typename boost::enable_if
-                       <
-                           is_convertible<OtherGeometry, Geometry>,
-                           enabler
-                       >::type = enabler())
-                   
+    point_iterator(point_iterator<OtherGeometry> const& other)
         : base(*other.base_ptr())
-    {}
+    {
+        static const bool is_conv
+            = boost::is_convertible<
+                typename dispatch::point_iterator_type<OtherGeometry>::type,
+                typename dispatch::point_iterator_type<Geometry>::type
+            >::value;
+
+        BOOST_MPL_ASSERT_MSG((is_conv),
+                             NOT_CONVERTIBLE,
+                             (point_iterator<OtherGeometry>));
+    }
 };
 
 

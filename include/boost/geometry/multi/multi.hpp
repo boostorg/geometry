@@ -52,7 +52,6 @@
 #include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>

@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_TEST_TO_SVG_HPP
 #define BOOST_GEOMETRY_TEST_TO_SVG_HPP
 
+#include <fstream>
+
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -288,7 +290,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
 
     if ( sort )
     {
-        typedef bg::detail::relate::turns::less_seg_dist_op<> less;
+        typedef bg::detail::relate::turns::less<> less;
         std::sort(boost::begin(turns), boost::end(turns), less());
     }
 

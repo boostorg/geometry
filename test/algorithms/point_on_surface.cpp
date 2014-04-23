@@ -34,7 +34,7 @@
 
 // Include from unit tests
 #include <algorithms/test_overlay.hpp>
-#include <algorithms/test_relate.hpp>
+#include <algorithms/predef_relop.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
