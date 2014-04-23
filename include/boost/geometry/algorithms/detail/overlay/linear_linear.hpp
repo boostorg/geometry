@@ -144,10 +144,10 @@ protected:
             typename IntersectionInfo,
             typename DirInfo
         >
-        static inline void apply(Info& info, Point1 const& p1, Point2 const& p2,
-                                 IntersectionInfo const& ii, DirInfo const& di)
+        static inline void apply(Info& , Point1 const& , Point2 const& ,
+                                 IntersectionInfo const& , DirInfo const& )
         {
-            calculate_distance_policy::apply(info, p1, p2, ii, di);
+            //calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
 
