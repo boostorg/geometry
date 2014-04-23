@@ -39,7 +39,6 @@
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -47,6 +46,10 @@
 
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/views/segment_view.hpp>
+
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -116,8 +119,12 @@ struct disjoint_linear
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
         typedef typename geometry::point_type<Geometry1>::type point_type;
-
-        typedef overlay::turn_info<point_type> turn_info;
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef overlay::turn_info
+        <
+            point_type,
+            typename segment_ratio_type<point_type, rescale_policy_type>::type
+        > turn_info;
         std::deque<turn_info> turns;
 
         static const bool reverse1 = overlay::do_reverse<geometry::point_order<Geometry1>::value>::value; // should be false
@@ -127,11 +134,12 @@ struct disjoint_linear
         // 1) Stop at any intersection
         // 2) In assignment, include also degenerate points (which are normally skipped)
         disjoint_interrupt_policy policy;
+        rescale_policy_type rescale_policy;
         geometry::get_turns
             <
                 reverse1, reverse2,
                 assign_disjoint_policy
-            >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+            >(geometry1, geometry2, rescale_policy, turns, policy);
 
         return !policy.has_intersections;
     }
@@ -144,16 +152,28 @@ struct disjoint_segment
     {
         typedef typename point_type<Segment1>::type point_type;
 
-        segment_intersection_points<point_type> is
+        // We don't need to rescale to detect disjointness
+        typedef no_rescale_policy rescale_policy_type;
+        rescale_policy_type rescale_policy;
+
+        typedef segment_intersection_points
+                <
+                    point_type,
+                    typename segment_ratio_type
+                    <
+                        point_type,
+                        rescale_policy_type
+                    >::type
+                > intersection_return_type;
+
+        intersection_return_type is
             = strategy::intersection::relate_cartesian_segments
             <
                 policies::relate::segments_intersection_points
                     <
-                        Segment1,
-                        Segment2,
-                        segment_intersection_points<point_type>
+                        intersection_return_type
                     >
-            >::apply(segment1, segment2);
+            >::apply(segment1, segment2, rescale_policy);
 
         return is.count == 0;
     }

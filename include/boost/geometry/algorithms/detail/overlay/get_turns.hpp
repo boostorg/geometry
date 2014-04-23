@@ -51,6 +51,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
@@ -321,24 +322,42 @@ private :
     template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
     static inline bool preceding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
-        return (dir == 1  && get<Dim>(point) < get<min_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(point) > get<max_corner, Dim>(box));
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typename robust_point_type<Point, RescalePolicy>::type robust_point;
+        geometry::recalculate(robust_point, point, rescale_policy);
+#else
+        Point const& robust_point = point;
+#endif
+
+        return (dir == 1  && get<Dim>(robust_point) < get<min_corner, Dim>(box))
+            || (dir == -1 && get<Dim>(robust_point) > get<max_corner, Dim>(box));
     }
 
     template <size_t Dim, typename Point, typename Box, typename RescalePolicy>
     static inline bool exceeding(int dir, Point const& point, Box const& box, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
-        return (dir == 1  && get<Dim>(point) > get<max_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(point) < get<min_corner, Dim>(box));
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typename robust_point_type<Point, RescalePolicy>::type robust_point;
+        geometry::recalculate(robust_point, point, rescale_policy);
+#else
+        Point const& robust_point = point;
+#endif
+        return (dir == 1  && get<Dim>(robust_point) > get<max_corner, Dim>(box))
+            || (dir == -1 && get<Dim>(robust_point) < get<min_corner, Dim>(box));
     }
 
     template <typename Iterator, typename RangeIterator, typename Section, typename RescalePolicy>
     static inline void advance_to_non_duplicate_next(Iterator& next,
             RangeIterator const& it, Section const& section, RescalePolicy const& rescale_policy)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename robust_point_type<point1_type, RescalePolicy>::type robust_point_type;
+        robust_point_type robust_point_from_it;
+        robust_point_type robust_point_from_next;
+        geometry::recalculate(robust_point_from_it, *it, rescale_policy);
+        geometry::recalculate(robust_point_from_next, *next, rescale_policy);
+#endif
+
         // To see where the next segments bend to, in case of touch/intersections
         // on end points, we need (in case of degenerate/duplicate points) an extra
         // iterator which moves to the REAL next point, so non duplicate.
@@ -349,10 +368,20 @@ private :
         // So advance to the "non duplicate next"
         // (the check is defensive, to avoid endless loops)
         std::size_t check = 0;
-        while(! detail::disjoint::disjoint_point_point(*it, *next)
+        while(! detail::disjoint::disjoint_point_point
+                (
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+                    robust_point_from_it, robust_point_from_next
+#else
+                    *it, *next
+#endif
+                )
             && check++ < section.range_count)
         {
             next++;
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+            geometry::recalculate(robust_point_from_next, *next, rescale_policy);
+#endif
         }
     }
 
@@ -476,7 +505,18 @@ public:
         // First create monotonic sections...
         typedef typename boost::range_value<Turns>::type ip_type;
         typedef typename ip_type::point_type point_type;
+
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef model::box
+            <
+                typename geometry::robust_point_type
+                <
+                    point_type, RescalePolicy
+                >::type
+            > box_type;
+#else
         typedef model::box<point_type> box_type;
+#endif
         typedef typename geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
@@ -772,24 +812,24 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
     : overlay::get_turn_info_linear_areal<AssignPolicy>
 {};
 
-template <typename Geometry1, typename Geometry2,
+template <typename Geometry1, typename Geometry2, typename SegmentRatio,
           typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
           typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
-    typedef overlay::turn_operation type;
+    typedef overlay::turn_operation<SegmentRatio> type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, linear_tag>
+template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
+struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, linear_tag>
 {
-    typedef overlay::turn_operation_linear type;
+    typedef overlay::turn_operation_linear<SegmentRatio> type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Tag1, typename Tag2>
-struct turn_operation_type<Geometry1, Geometry2, Tag1, Tag2, linear_tag, areal_tag>
+template <typename Geometry1, typename Geometry2, typename SegmentRatio, typename Tag1, typename Tag2>
+struct turn_operation_type<Geometry1, Geometry2, SegmentRatio, Tag1, Tag2, linear_tag, areal_tag>
 {
-    typedef overlay::turn_operation_linear type;
+    typedef overlay::turn_operation_linear<SegmentRatio> type;
 };
 
 }} // namespace detail::get_turns
@@ -924,14 +964,6 @@ inline void get_turns(Geometry1 const& geometry1,
             InterruptPolicy& interrupt_policy)
 {
     concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
-
-    //typedef typename strategy_intersection
-    //    <
-    //        typename cs_tag<Geometry1>::type,
-    //        Geometry1,
-    //        Geometry2,
-    //        typename boost::range_value<Turns>::type
-    //    >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
     //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;

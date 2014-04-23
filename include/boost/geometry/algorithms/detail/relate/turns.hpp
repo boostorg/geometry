@@ -15,9 +15,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -59,11 +59,11 @@ struct enriched_info
 // turn_operation_linear_with_distance
 // distance_enriched_turn_operation_linear
 
-template <typename P>
+template <typename Point, typename SegmentRatio>
 struct enriched_turn_operation_linear
-    : public overlay::turn_operation_linear
+    : public overlay::turn_operation_linear<SegmentRatio>
 {
-    enriched_info<P> enriched;
+    enriched_info<Point> enriched;
 };
 
 // GET_TURNS
@@ -71,16 +71,21 @@ struct enriched_turn_operation_linear
 template <typename Geometry1,
           typename Geometry2,
           typename GetTurnPolicy
-            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::calculate_distance_policy> >
+            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::assign_null_policy> >
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;
 
     typedef overlay::turn_info
-        <
-            point1_type,
-            enriched_turn_operation_linear<point1_type>
-        > turn_info;
+            <
+                point1_type,
+                typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type,
+                enriched_turn_operation_linear
+                <
+                    point1_type,
+                    typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
+                >
+            > turn_info;
 
     template <typename Turns>
     static inline void apply(Turns & turns,
@@ -98,6 +103,8 @@ struct get_turns
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy)
     {
+        typedef typename geometry::point_type<Geometry1>::type point1_type;
+
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
@@ -227,14 +234,14 @@ struct less
     BOOST_STATIC_ASSERT(OpId < 2);
 
     template <typename Op> static inline
-    bool use_distance(Op const& left, Op const& right)
+    bool use_fraction(Op const& left, Op const& right)
     {
         static LessOp less_op;
 
-        if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
+        if ( left.fraction == right.fraction )
             return less_op(left, right);
         else
-            return left.enriched.distance < right.enriched.distance;
+            return left.fraction < right.fraction;
     }
 
     template <typename Turn>
@@ -243,7 +250,7 @@ struct less
         segment_identifier const& sl = left.operations[OpId].seg_id;
         segment_identifier const& sr = right.operations[OpId].seg_id;
 
-        return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
+        return sl < sr || ( sl == sr && use_fraction(left.operations[OpId], right.operations[OpId]) );
     }
 };
 

@@ -53,12 +53,14 @@
 
 #if defined(TEST_WITH_SVG)
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-template <typename Geometry, typename Mapper>
-void post_map(Geometry const& geometry, Mapper& mapper)
+template <typename Geometry, typename Mapper, typename RescalePolicy>
+void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
 {
+    typedef typename bg::point_type<Geometry>::type point_type;
     typedef bg::detail::overlay::turn_info
     <
-        typename bg::point_type<Geometry>::type
+        point_type,
+        typename bg::segment_ratio_type<point_type, RescalePolicy>::type
     > turn_info;
 
     std::vector<turn_info> turns;
@@ -67,7 +69,7 @@ void post_map(Geometry const& geometry, Mapper& mapper)
     bg::self_turns
         <
             bg::detail::overlay::assign_null_policy
-        >(geometry, turns, policy);
+        >(geometry, rescale_policy, turns, policy);
 
     BOOST_FOREACH(turn_info const& turn, turns)
     {
@@ -218,12 +220,20 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > 
     distance_strategy(distance_left, distance_right);
 
+        typedef typename bg::point_type<Geometry>::type point_type;
+        typedef typename bg::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = bg::get_rescale_policy<rescale_policy_type>(geometry);
+
     std::vector<GeometryOut> buffered;
 
     bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
                         distance_strategy, 
                         join_strategy,
-                        end_strategy
+                        end_strategy,
+                        rescale_policy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                         , mapper
 #endif
@@ -299,7 +309,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
         //mapper.map(polygon, "opacity:0.2;fill:none;stroke:rgb(255,0,0);stroke-width:3");
-        post_map(polygon, mapper);
+        post_map(polygon, mapper, rescale_policy);
     }
 #endif
 }

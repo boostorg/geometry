@@ -20,38 +20,44 @@
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/strategies/cartesian/cart_intersect.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 namespace boost { namespace geometry
 {
 
 
-// The intersection strategy is a "compound strategy",
-// it contains a segment-intersection-strategy
-// and a side-strategy
 /*!
-\tparam CalculationType \tparam_calculation
-*/
+\brief "compound strategy", containing a segment-intersection-strategy
+       and a side-strategy
+ */
 template
 <
     typename Tag,
     typename Geometry1,
     typename Geometry2,
     typename IntersectionPoint,
+    typename RescalePolicy,
     typename CalculationType = void
 >
 struct strategy_intersection
 {
 private :
+    // for development BOOST_STATIC_ASSERT((! boost::is_same<RescalePolicy, void>::type::value));
+
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
     typedef typename model::referring_segment<point1_type const> segment1_type;
     typedef typename model::referring_segment<point2_type const> segment2_type;
 
     typedef segment_intersection_points
+    <
+        IntersectionPoint,
+        typename geometry::segment_ratio_type
         <
-            IntersectionPoint
-        > ip_type;
+            IntersectionPoint, RescalePolicy
+        >::type
+    > ip_type;
 
 public:
     typedef strategy::intersection::relate_cartesian_segments
@@ -60,18 +66,9 @@ public:
                     <
                         policies::relate::segments_intersection_points
                             <
-                                segment1_type,
-                                segment2_type,
-                                ip_type,
-                                CalculationType
+                                ip_type
                             > ,
                         policies::relate::segments_direction
-                            <
-                                segment1_type,
-                                segment2_type,
-                                CalculationType
-                            >,
-                        CalculationType
                     >,
                 CalculationType
             > segment_intersection_strategy_type;
@@ -81,6 +78,8 @@ public:
             Tag,
             CalculationType
         >::type side_strategy_type;
+
+    typedef RescalePolicy rescale_policy_type;
 };
 
 

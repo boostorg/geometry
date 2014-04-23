@@ -11,6 +11,10 @@
 #include <string>
 #include <iomanip>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
@@ -136,12 +140,13 @@ void test_all()
         1, 5, 1.0,
         1, 5, 1.0);
 
+    // The too small one might be discarded (depending on point-type / compiler)
+    // We check area only
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        2, -1, 8.7048386,
-        if_typed<ct, float>(1, 2), // The too small one is discarded for floating point
-        -1, 0.0098387);
-
+        -1, -1, 8.7048386,
+        -1, -1, 0.0098387,
+        0.001);
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
@@ -233,10 +238,12 @@ void test_all()
         1, 5, 1,
         1, 5, 1);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<polygon, polygon, polygon>("buffer_mp1",
         buffer_mp1[0], buffer_mp1[1],
         1, 61, 10.2717,
         1, 61, 10.2717);
+#endif
 
     if (boost::is_same<ct, double>::value)
     {
@@ -258,14 +265,37 @@ void test_all()
         1, 0, 13);
     ***/
 
+    // Isovist - the # output polygons differ per compiler/pointtype, (very) small
+    // rings might be discarded. We check area only
     test_one<polygon, polygon, polygon>("isovist",
         isovist1[0], isovist1[1],
-        if_typed_tt<ct>(4, 2), -1, 0.279121,
-        4, -1, 224.8892,
-        if_typed_tt<ct>(0.001, 0.1));
-
+        -1, -1, 0.279121,
+        -1, -1, 224.8892,
+        0.001);
     // SQL Server gives: 0.279121891701124 and 224.889211358929
     // PostGIS gives:    0.279121991127244 and 224.889205853156
+
+    test_one<polygon, polygon, polygon>("geos_1",
+        geos_1[0], geos_1[1],
+        21, -1, 0.31640625,
+         9, -1, 0.01953125);
+    // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
+    // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
+
+    test_one<polygon, polygon, polygon>("geos_2",
+        geos_2[0], geos_2[1],
+        1, -1, 138.6923828,
+        1, -1, 211.859375);
+
+    test_one<polygon, polygon, polygon>("geos_3",
+        geos_3[0], geos_3[1],
+        1, -1, 16211128.5,
+        1, -1, 13180420.0);
+
+    test_one<polygon, polygon, polygon>("geos_4",
+        geos_4[0], geos_4[1],
+        1, -1, 971.9163115,
+        1, -1, 1332.4163115);
 
     test_one<polygon, polygon, polygon>("ggl_list_20110306_javier",
         ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
@@ -335,6 +365,24 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<polygon, polygon, polygon>("ticket_9081_15",
+            ticket_9081_15[0], ticket_9081_15[1],
+            1, 10, 0.0334529710902111,
+            0, 0, 0);
+#endif
+
+    test_one<polygon, polygon, polygon>("ticket_9081_314",
+            ticket_9081_314[0], ticket_9081_314[1],
+            2, 12, 0.0451236449624935,
+            0, 0, 0);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<polygon, polygon, polygon>("ticket_9563",
+            ticket_9563[0], ticket_9563[1],
+            0, 0, 0,
+            6, 24, 20.096189);
+#endif
 
     // Other combi's
     {
@@ -370,8 +418,6 @@ void test_all()
                 "star_ring_ccw2", example_star, example_ring,
                 5, 22, 1.1901714, 5, 27, 1.6701714);
     }
-
-
 
     // Multi/box (should be moved to multi)
     {
@@ -491,8 +537,8 @@ void test_specific()
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
-        1, 11, 3370866.2295081965,
-        1, 5, 384, 0.01);
+        1, 11, 3371540,
+        0, 0, 0, 0.001); // output is discarded
 }
 
 

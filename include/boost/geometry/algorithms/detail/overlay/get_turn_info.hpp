@@ -16,8 +16,11 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
+
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
 
 // Silence warning C4127: conditional expression is constant
@@ -124,6 +127,26 @@ struct base_turn_handler
     {
         both(ti, condition ? operation_union : operation_intersection);
     }
+
+    template <typename TurnInfo, typename IntersectionInfo>
+    static inline void assign_point(TurnInfo& ti,
+                method_type method,
+                IntersectionInfo const& info, int index)
+    {
+        ti.method = method;
+        assert(index < info.count); // TODO  remove this
+        geometry::convert(info.intersections[index], ti.point);
+        ti.operations[0].fraction = info.fractions[index].robust_ra;
+        ti.operations[1].fraction = info.fractions[index].robust_rb;
+    }
+
+    template <typename IntersectionInfo>
+    static inline int non_opposite_to_index(IntersectionInfo const& info)
+    {
+        return info.fractions[0].robust_rb < info.fractions[1].robust_rb
+            ? 1 : 0;
+    }
+
 };
 
 
@@ -151,8 +174,7 @@ struct touch_interior : public base_turn_handler
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
-        ti.method = method_touch_interior;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        assign_point(ti, method_touch_interior, intersection_info, 0);
 
         // Both segments of q touch segment p somewhere in its interior
         // 1) We know: if q comes from LEFT or RIGHT
@@ -271,8 +293,7 @@ struct touch : public base_turn_handler
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
-        ti.method = method_touch;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        assign_point(ti, method_touch, intersection_info, 0);
 
         int const side_qi_p1 = dir_info.sides.template get<1, 0>();
         int const side_qk_p1 = side.qk_wrt_p1();
@@ -286,13 +307,17 @@ struct touch : public base_turn_handler
             int const side_pk_p  = side.pk_wrt_p1();
             int const side_qk_q  = side.qk_wrt_q1();
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             bool const both_continue = side_pk_p == 0 && side_qk_q == 0;
             bool const robustness_issue_in_continue = both_continue && side_pk_q2 != 0;
+#endif
 
             bool const q_turns_left = side_qk_q == 1;
             bool const block_q = side_qk_p1 == 0
                         && ! same(side_qi_p1, side_qk_q)
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                         && ! robustness_issue_in_continue
+#endif
                         ;
 
             // If Pk at same side as Qi/Qk
@@ -464,13 +489,12 @@ struct equal : public base_turn_handler
                 Point1 const& , Point1 const& , Point1 const& ,
                 Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
-                IntersectionInfo const& intersection_info,
-                DirInfo const& ,
+                IntersectionInfo const& info,
+                DirInfo const&  ,
                 SidePolicy const& side)
     {
-        ti.method = method_equal;
-        // Copy the SECOND intersection point
-        geometry::convert(intersection_info.intersections[1], ti.point);
+        // Copy the intersection point in TO direction
+        assign_point(ti, method_equal, info, non_opposite_to_index(info));
 
         int const side_pk_q2 = side.pk_wrt_q2();
         int const side_pk_p = side.pk_wrt_p1();
@@ -538,7 +562,7 @@ struct equal_opposite : public base_turn_handler
             }
             for (unsigned int i = 0; i < intersection_info.count; i++)
             {
-                geometry::convert(intersection_info.intersections[i], tp.point);
+                assign_point(tp, method_none, intersection_info, i);
                 AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
                 *out++ = tp;
             }
@@ -596,12 +620,12 @@ struct collinear : public base_turn_handler
                 Point1 const& , Point1 const& , Point1 const& ,
                 Point2 const& , Point2 const& , Point2 const& ,
                 TurnInfo& ti,
-                IntersectionInfo const& intersection_info,
+                IntersectionInfo const& info,
                 DirInfo const& dir_info,
                 SidePolicy const& side)
     {
-        ti.method = method_collinear;
-        geometry::convert(intersection_info.intersections[1], ti.point);
+        // Copy the intersection point in TO direction
+        assign_point(ti, method_collinear, info, non_opposite_to_index(info));
 
         int const arrival = dir_info.arrival[0];
         // Should not be 0, this is checked before
@@ -616,8 +640,10 @@ struct collinear : public base_turn_handler
             : side_q
             ;
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         int const side_pk = side.pk_wrt_q1();
         int const side_qk = side.qk_wrt_p1();
+#endif
 
         // See comments above,
         // resulting in a strange sort of mathematic rule here:
@@ -626,6 +652,7 @@ struct collinear : public base_turn_handler
 
         int const product = arrival * side_p_or_q;
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         // Robustness: side_p is supposed to be equal to side_pk (because p/q are collinear)
         // and side_q to side_qk
         bool const robustness_issue = side_pk != side_p || side_qk != side_q;
@@ -634,7 +661,10 @@ struct collinear : public base_turn_handler
         {
             handle_robustness(ti, arrival, side_p, side_q, side_pk, side_qk);
         }
-        else if(product == 0)
+        else
+#endif
+
+        if(product == 0)
         {
             both(ti, operation_continue);
         }
@@ -644,6 +674,7 @@ struct collinear : public base_turn_handler
         }
     }
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     static inline void handle_robustness(TurnInfo& ti, int arrival,
                     int side_p, int side_q, int side_pk, int side_qk)
     {
@@ -674,6 +705,7 @@ struct collinear : public base_turn_handler
 
         ui_else_iu(use_p_for_union, ti);
     }
+#endif
 
 };
 
@@ -716,9 +748,11 @@ private :
         typename IntersectionInfo
     >
     static inline bool set_tp(Point const& , Point const& , Point const& , int side_rk_r,
-                bool const handle_robustness, Point const& , Point const& , int side_rk_s,
+                bool const handle_robustness,
+                Point const& , Point const& , int side_rk_s,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         if (handle_robustness)
         {
             // For Robustness: also calculate rk w.r.t. the other line. Because they are collinear opposite, that direction should be the reverse of the first direction.
@@ -731,6 +765,10 @@ private :
                 side_rk_r = 0;
             }
         }
+#else
+        boost::ignore_unused_variable_warning(handle_robustness);
+        boost::ignore_unused_variable_warning(side_rk_s);
+#endif
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)
@@ -768,7 +806,7 @@ private :
         // If P arrives within Q, set info on P (which is done above, index=0),
         // this turn-info belongs to the second intersection point, index=1
         // (see e.g. figure CLO1)
-        geometry::convert(intersection_info.intersections[1 - Index], tp.point);
+        assign_point(tp, method_collinear, intersection_info, 1 - Index);
         return true;
     }
 
@@ -826,8 +864,6 @@ public:
     {
         TurnInfo tp = tp_model;
 
-        tp.method = method_collinear;
-
         // If P arrives within Q, there is a turn dependent on P
         if ( dir_info.arrival[0] == 1
           && is_pk_valid
@@ -862,7 +898,7 @@ public:
                 }
                 for (unsigned int i = 0; i < intersection_info.count; i++)
                 {
-                    geometry::convert(intersection_info.intersections[i], tp.point);
+                    assign_point(tp, method_collinear, intersection_info, i);
                     AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
                     *out++ = tp;
                 }
@@ -893,8 +929,7 @@ struct crosses : public base_turn_handler
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info)
     {
-        ti.method = method_crosses;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        assign_point(ti, method_crosses, intersection_info, 0);
 
         // In all casees:
         // If Q crosses P from left to right
@@ -908,14 +943,12 @@ struct crosses : public base_turn_handler
     }
 };
 
-template<typename TurnInfo>
-struct only_convert
+struct only_convert : public base_turn_handler
 {
-    template<typename IntersectionInfo>
+    template<typename TurnInfo, typename IntersectionInfo>
     static inline void apply(TurnInfo& ti, IntersectionInfo const& intersection_info)
     {
-        ti.method = method_collinear;
-        geometry::convert(intersection_info.intersections[0], ti.point);
+        assign_point(ti, method_none, intersection_info, 0); // was collinear
         ti.operations[0].operation = operation_continue;
         ti.operations[1].operation = operation_continue;
     }
@@ -981,27 +1014,50 @@ struct get_turn_info
                 bool /*is_p_first*/, bool /*is_p_last*/,
                 bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& tp_model,
-                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        typedef typename geometry::robust_point_type
+            <
+                Point1, RescalePolicy
+            >::type robust_point_type;
+
+        robust_point_type pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob;
+        geometry::recalculate(pi_rob, pi, rescale_policy);
+        geometry::recalculate(pj_rob, pj, rescale_policy);
+        geometry::recalculate(pk_rob, pk, rescale_policy);
+        geometry::recalculate(qi_rob, qi, rescale_policy);
+        geometry::recalculate(qj_rob, qj, rescale_policy);
+        geometry::recalculate(qk_rob, qk, rescale_policy);
+#endif
+
+
+
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
-        segment_type1 p1(pi, pj), p2(pj, pk);
-        segment_type2 q1(qi, qj), q2(qj, qk);
+        segment_type1 p1(pi, pj);
+        segment_type2 q1(qi, qj);
 
+#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
+        side_calculator<robust_point_type, robust_point_type> side_calc(pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob);
+#else
         side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+#endif
 
         typedef strategy_intersection
             <
                 typename cs_tag<typename TurnInfo::point_type>::type,
                 Point1,
                 Point2,
-                typename TurnInfo::point_type
+                typename TurnInfo::point_type,
+                RescalePolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1);
+        typename strategy::return_type result = strategy::apply(p1, q1,
+                    rescale_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         char const method = result.template get<1>().how;
 
@@ -1017,7 +1073,7 @@ struct get_turn_info
                 if (AssignPolicy::include_no_turn
                     && result.template get<0>().count > 0)
                 {
-                    only_convert<TurnInfo>::apply(tp,
+                    only_convert::apply(tp,
                                 result.template get<0>());
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
@@ -1132,7 +1188,7 @@ struct get_turn_info
                 // degenerate points
                 if (AssignPolicy::include_degenerate)
                 {
-                    only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    only_convert::apply(tp, result.template get<0>());
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }

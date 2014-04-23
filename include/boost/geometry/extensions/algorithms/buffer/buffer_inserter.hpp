@@ -447,7 +447,8 @@ template
     typename OutputIterator,
     typename DistanceStrategy,
     typename JoinStrategy,
-    typename EndStrategy
+    typename EndStrategy,
+    typename RescalePolicy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     , typename Mapper
 #endif
@@ -455,7 +456,8 @@ template
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
         DistanceStrategy const& distance_strategy,
         JoinStrategy const& join_strategy,
-        EndStrategy const& end_strategy
+        EndStrategy const& end_strategy,
+        RescalePolicy const& rescale_policy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
@@ -467,8 +469,9 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     detail::buffer::buffered_piece_collection
 #endif
         <
-            typename geometry::ring_type<GeometryOutput>::type
-        > collection;
+            typename geometry::ring_type<GeometryOutput>::type,
+            RescalePolicy
+        > collection(rescale_policy);
 
     dispatch::buffer_inserter
         <
@@ -495,7 +498,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     //collection.map_turns(mapper);
-    collection.map_pieces<geometry::polygon_tag>(mapper); //, false, true);
+    collection.template map_pieces<geometry::polygon_tag>(mapper); //, false, true);
     //collection.map_traverse(mapper);
 #endif
 

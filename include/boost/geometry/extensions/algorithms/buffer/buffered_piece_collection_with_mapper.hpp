@@ -26,18 +26,24 @@ namespace detail { namespace buffer
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 
-template <typename Ring>
+template <typename Ring, typename RescalePolicy>
 struct buffered_piece_collection_with_mapper
-        : public buffered_piece_collection<Ring>
+        : public buffered_piece_collection<Ring, RescalePolicy>
 {
+    typedef buffered_piece_collection<Ring, RescalePolicy> super_type;
+
+    buffered_piece_collection_with_mapper(RescalePolicy const& rescale_policy)
+        : super_type(rescale_policy)
+    {}
 
 
     template <typename Mapper>
     inline void map_opposite_locations(Mapper& mapper)
     {
+        typedef typename super_type::occupation_map_type occupation_map_type;
         for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
-            boost::begin(m_occupation_map.map);
-            it != boost::end(m_occupation_map.map); ++it)
+            boost::begin(this->m_occupation_map.map);
+            it != boost::end(this->m_occupation_map.map); ++it)
         {
             mapper.map(it->first, it->second.occupied() ? "fill:rgb(255,0,255);" : "fill:rgb(0,192,0);", 7);
 
@@ -54,6 +60,8 @@ struct buffered_piece_collection_with_mapper
                 double const angle = it->second.angles[i].angle;
                 bool const incoming = it->second.angles[i].incoming;
                 segment_identifier seg_id = it->second.angles[i].seg_id;
+
+                typedef typename super_type::point_type point_type;
 
                 geometry::model::linestring<point_type> line;
                 point_type p1, p2;
@@ -90,13 +98,16 @@ struct buffered_piece_collection_with_mapper
     template <typename Mapper>
     inline void map_turns(Mapper& mapper)
     {
+        typedef typename super_type::point_type point_type;
+        typedef typename super_type::turn_vector_type turn_vector_type;
+
         typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
         std::map<std::pair<coordinate_type, coordinate_type>, int> offsets;
 
 
         int index = 0;
         for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
+            boost::begin(this->m_turns); it != boost::end(this->m_turns); ++it)
         {
             if (! it->opposite())
             {
@@ -152,8 +163,9 @@ struct buffered_piece_collection_with_mapper
     template <typename Tag, typename Mapper>
     inline void map_pieces(Mapper& mapper, bool pieces = true, bool indices = true)
     {
-        for(typename piece_vector::const_iterator it = boost::begin(m_pieces);
-            it != boost::end(m_pieces);
+        typedef typename super_type::piece_vector piece_vector;
+        for(typename piece_vector::const_iterator it = boost::begin(this->m_pieces);
+            it != boost::end(this->m_pieces);
             ++it)
         {
             Ring corner;
@@ -162,7 +174,7 @@ struct buffered_piece_collection_with_mapper
 
             if (seg_id.segment_index >= 0)
             {
-                buffered_ring<Ring> const& ring = offsetted_rings[seg_id.multi_index];
+                buffered_ring<Ring> const& ring = this->offsetted_rings[seg_id.multi_index];
 
                 std::copy(boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + it->last_segment_index,
@@ -207,6 +219,8 @@ struct buffered_piece_collection_with_mapper
             {
 
                 // Put starting piece_index / segment_index in centroid
+                typedef typename super_type::point_type point_type;
+
                 point_type centroid;
                 if (corner.size() > 3)
                 {
@@ -227,8 +241,10 @@ struct buffered_piece_collection_with_mapper
     template <typename Mapper>
     inline void map_offsetted_points(Mapper& mapper)
     {
-        for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator oit = boost::begin(offsetted_rings);
-            oit != boost::end(offsetted_rings);
+        typedef typename super_type::point_type point_type;
+
+        for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator oit = boost::begin(this->offsetted_rings);
+            oit != boost::end(this->offsetted_rings);
             ++oit)
         {
             int index = 0;
@@ -245,8 +261,8 @@ struct buffered_piece_collection_with_mapper
     template <typename Mapper>
     inline void map_traverse(Mapper& mapper)
     {
-        for(typename buffered_ring_collection<Ring>::const_iterator it = boost::begin(traversed_rings);
-            it != boost::end(traversed_rings);
+        for(typename buffered_ring_collection<Ring>::const_iterator it = boost::begin(this->traversed_rings);
+            it != boost::end(this->traversed_rings);
             ++it)
         {
             mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
@@ -256,8 +272,8 @@ struct buffered_piece_collection_with_mapper
     template <typename Mapper>
     inline void map_offsetted(Mapper& mapper)
     {
-        for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator it = boost::begin(offsetted_rings);
-            it != boost::end(offsetted_rings);
+        for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator it = boost::begin(this->offsetted_rings);
+            it != boost::end(this->offsetted_rings);
             ++it)
         {
             if (it->discarded())

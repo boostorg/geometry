@@ -179,33 +179,15 @@ struct copy_segment_point
 {};
 
 
-template
-<
-    typename MultiRing,
-    bool Reverse,
-    typename SegmentIdentifier,
-    typename RangeOut
->
+template<bool Reverse>
 struct copy_segments
     <
         detail::buffer::buffered_ring_collection_tag,
-        MultiRing,
-        Reverse,
-        SegmentIdentifier,
-        RangeOut
+        Reverse
     >
     : detail::copy_segments::copy_segments_multi
         <
-            MultiRing,
-            SegmentIdentifier,
-            RangeOut,
-            detail::copy_segments::copy_segments_ring
-                <
-                    typename boost::range_value<MultiRing>::type,
-                    Reverse,
-                    SegmentIdentifier,
-                    RangeOut
-                >
+            detail::copy_segments::copy_segments_ring<Reverse>
         >
 {};
 

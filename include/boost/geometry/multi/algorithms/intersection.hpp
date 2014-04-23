@@ -45,10 +45,13 @@ struct intersection_multi_linestring_multi_linestring_point
     template
     <
         typename MultiLinestring1, typename MultiLinestring2,
+        typename RobustPolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(MultiLinestring1 const& ml1,
-            MultiLinestring2 const& ml2, OutputIterator out,
+            MultiLinestring2 const& ml2,
+            RobustPolicy const& robust_policy,
+            OutputIterator out,
             Strategy const& strategy)
     {
         // Note, this loop is quadratic w.r.t. number of linestrings per input.
@@ -68,7 +71,7 @@ struct intersection_multi_linestring_multi_linestring_point
                 ++it2)
             {
                 out = intersection_linestring_linestring_point<PointOut>
-                      ::apply(*it1, *it2, out, strategy);
+                      ::apply(*it1, *it2, robust_policy, out, strategy);
             }
         }
 
@@ -83,10 +86,13 @@ struct intersection_linestring_multi_linestring_point
     template
     <
         typename Linestring, typename MultiLinestring,
+        typename RobustPolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linestring const& linestring,
-            MultiLinestring const& ml, OutputIterator out,
+            MultiLinestring const& ml,
+            RobustPolicy const& robust_policy,
+            OutputIterator out,
             Strategy const& strategy)
     {
         for (typename boost::range_iterator
@@ -97,7 +103,7 @@ struct intersection_linestring_multi_linestring_point
             ++it)
         {
             out = intersection_linestring_linestring_point<PointOut>
-                  ::apply(linestring, *it, out, strategy);
+                  ::apply(linestring, *it, robust_policy, out, strategy);
         }
 
         return out;
@@ -118,9 +124,11 @@ struct intersection_of_multi_linestring_with_areal
     template
     <
         typename MultiLinestring, typename Areal,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(MultiLinestring const& ml, Areal const& areal,
+            RescalePolicy const& rescale_policy,
             OutputIterator out,
             Strategy const& strategy)
     {
@@ -134,7 +142,7 @@ struct intersection_of_multi_linestring_with_areal
             out = intersection_of_linestring_with_areal
                 <
                     ReverseAreal, LineStringOut, OverlayType
-                >::apply(*it, areal, out, strategy);
+                >::apply(*it, areal, rescale_policy, out, strategy);
         }
 
         return out;
@@ -154,16 +162,18 @@ struct intersection_of_areal_with_multi_linestring
     template
     <
         typename Areal, typename MultiLinestring,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Areal const& areal, MultiLinestring const& ml,
+            RescalePolicy const& rescale_policy,
             OutputIterator out,
             Strategy const& strategy)
     {
         return intersection_of_multi_linestring_with_areal
             <
                 ReverseAreal, LineStringOut, OverlayType
-            >::apply(ml, areal, out, strategy);
+            >::apply(ml, areal, rescale_policy, out, strategy);
     }
 };
 
@@ -175,10 +185,13 @@ struct clip_multi_linestring
     template
     <
         typename MultiLinestring, typename Box,
+        typename RescalePolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(MultiLinestring const& multi_linestring,
-            Box const& box, OutputIterator out, Strategy const& )
+            Box const& box,
+            RescalePolicy const& rescale_policy,
+            OutputIterator out, Strategy const& )
     {
         typedef typename point_type<LinestringOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
@@ -187,7 +200,7 @@ struct clip_multi_linestring
             it != boost::end(multi_linestring); ++it)
         {
             out = detail::intersection::clip_range_with_box
-                <LinestringOut>(box, *it, out, lb_strategy);
+                <LinestringOut>(box, *it, rescale_policy, out, lb_strategy);
         }
         return out;
     }

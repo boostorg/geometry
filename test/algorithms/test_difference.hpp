@@ -57,6 +57,9 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
         filename << "difference_"
             << caseid << "_"
             << string_from_type<coordinate_type>::name()
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            << "_no_rob"
+#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -82,7 +85,7 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
 
 template <typename OutputType, typename G1, typename G2>
 void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
-        std::size_t expected_count, int expected_point_count,
+        int expected_count, int expected_point_count,
         double expected_area,
         double percentage = 0.0001,
         bool sym = false)
@@ -120,15 +123,26 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
+        typedef typename bg::point_type<G1>::type point_type;
+        typedef typename bg::rescale_policy_type<point_type>::type
+            rescale_policy_type;
+
+        rescale_policy_type rescale_policy
+                = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
+
         std::vector<OutputType> inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
         if (sym)
         {
-            boost::copy(array_with_one_empty_geometry, bg::detail::sym_difference::sym_difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry,
+                bg::detail::sym_difference::sym_difference_insert<OutputType>
+                    (g1, g2, rescale_policy, std::back_inserter(inserted)));
         }
         else
         {
-            boost::copy(array_with_one_empty_geometry, bg::detail::difference::difference_insert<OutputType>(g1, g2, std::back_inserter(inserted)));
+            boost::copy(array_with_one_empty_geometry,
+                bg::detail::difference::difference_insert<OutputType>(
+                    g1, g2, rescale_policy, std::back_inserter(inserted)));
         }
 
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
@@ -148,9 +162,9 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
                 );
     }
 
-    if (expected_count > 0)
+    if (expected_count >= 0)
     {
-        BOOST_CHECK_MESSAGE(clip.size() == expected_count,
+        BOOST_CHECK_MESSAGE(int(clip.size()) == expected_count,
                 "difference: " << caseid
                 << " #outputs expected: " << expected_count
                 << " detected: " << clip.size()
@@ -173,11 +187,11 @@ static int counter = 0;
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count1,
+        int expected_count1,
         int expected_point_count1,
         double expected_area1,
 
-        std::size_t expected_count2,
+        int expected_count2,
         int expected_point_count2,
         double expected_area2,
 
@@ -216,7 +230,8 @@ void test_one(std::string const& caseid,
         expected_area2, percentage);
     test_difference<OutputType>(caseid + "_s", g1, g2,
         expected_count1 + expected_count2,
-        expected_point_count1 + expected_point_count2,
+        expected_point_count1 >= 0 && expected_point_count2 >= 0
+            ? (expected_point_count1 + expected_point_count2) : -1,
         expected_area1 + expected_area2,
         percentage, true);
 

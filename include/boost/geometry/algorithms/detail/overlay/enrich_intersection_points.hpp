@@ -30,6 +30,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
 #include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
+#include <boost/geometry/policies/robustness/robust_type.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -79,9 +80,9 @@ template
     bool Reverse1, bool Reverse2,
     typename Strategy
 >
-struct sort_on_segment_and_distance
+struct sort_on_segment_and_ratio
 {
-    inline sort_on_segment_and_distance(TurnPoints const& turn_points
+    inline sort_on_segment_and_ratio(TurnPoints const& turn_points
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
             , Strategy const& strategy
@@ -104,7 +105,7 @@ private :
 
     typedef model::point
         <
-            typename geometry::robust_type
+            typename detail::robust_type
                 <
                     typename select_coordinate_type<Geometry1, Geometry2>::type
                 >::type,
@@ -128,7 +129,7 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
-        geometry::zoom_to_robust(pi, pj, ri, rj, si, sj,
+        detail::zoom_to_robust(pi, pj, ri, rj, si, sj,
                                     pi_rob, pj_rob, ri_rob, rj_rob, si_rob, sj_rob);
     }
 
@@ -157,9 +158,7 @@ public :
         if (sl == sr)
         {
             // Both left and right are located on the SAME segment.
-            typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
-            coordinate_type diff = geometry::math::abs(left.subject.enriched.distance - right.subject.enriched.distance);
-            if (diff < geometry::math::relaxed_epsilon<coordinate_type>(10))
+            if (left.subject.fraction == right.subject.fraction)
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
@@ -173,13 +172,12 @@ public :
                 // Indicate that this is necessary.
                 *m_clustered = true;
 
-                return left.subject.enriched.distance < right.subject.enriched.distance;
+                return left.subject.fraction < right.subject.fraction;
             }
         }
         return sl == sr
-            ? left.subject.enriched.distance < right.subject.enriched.distance
+            ? left.subject.fraction < right.subject.fraction
             : sl < sr;
-
     }
 };
 
@@ -232,7 +230,7 @@ inline void enrich_sort(Container& operations,
     bool clustered = false;
     std::sort(boost::begin(operations),
                 boost::end(operations),
-                sort_on_segment_and_distance
+                sort_on_segment_and_ratio
                     <
                         TurnPoints,
                         IndexType,
@@ -262,8 +260,7 @@ inline void enrich_sort(Container& operations,
             if (prev_op.seg_id == op.seg_id
                 && (turn_points[prev->index].method != method_crosses
                     || turn_points[it->index].method != method_crosses)
-                && geometry::math::equals(prev_op.enriched.distance,
-                        op.enriched.distance))
+                && prev_op.fraction == op.fraction)
             {
                 if (begin_cluster == boost::end(operations))
                 {
@@ -370,7 +367,7 @@ inline void enrich_assign(Container& operations,
             std::cout << it->index
                 << " meth: " << method_char(turn_points[it->index].method)
                 << " seg: " << op.seg_id
-                << " dst: " << boost::numeric_cast<double>(op.enriched.distance)
+                << " dst: " << op.fraction // needs define
                 << " op: " << operation_char(turn_points[it->index].operations[0].operation)
                 << operation_char(turn_points[it->index].operations[1].operation)
                 << " dsc: " << (turn_points[it->index].discarded ? "T" : "F")

@@ -16,7 +16,10 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
@@ -61,7 +64,11 @@ template <typename Geometry, typename RescalePolicy>
 inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const& rescale_policy)
 {
     typedef typename point_type<Geometry>::type point_type;
-    typedef detail::overlay::turn_info<point_type> turn_info;
+    typedef turn_info
+    <
+        point_type,
+        typename segment_ratio_type<point_type, RescalePolicy>::type
+    > turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
@@ -115,7 +122,14 @@ inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const
 template <typename Geometry>
 inline bool has_self_intersections(Geometry const& geometry)
 {
-    return has_self_intersections(geometry, detail::no_rescale_policy());
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef typename geometry::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+
+    return has_self_intersections(geometry, rescale_policy);
 }
 
 

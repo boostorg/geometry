@@ -42,17 +42,23 @@ void test_with_point(std::string const& caseid,
     P qj = bg::make<P>(qj_x, qj_y);
     P qk = bg::make<P>(qk_x, qk_y);
 
+    typedef typename bg::detail::no_rescale_policy rescale_policy_type;
 
-    typedef bg::detail::overlay::turn_info<P> turn_info;
+    typedef bg::detail::overlay::turn_info
+        <
+            P,
+            typename bg::segment_ratio_type<P, rescale_policy_type>::type
+        > turn_info;
     typedef std::vector<turn_info> tp_vector;
     turn_info model;
     tp_vector info;
+    rescale_policy_type rescale_policy;
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
         >::apply(pi, pj, pk, qi, qj, qk,
                  false, false, false, false, // dummy parameters
-        model, bg::detail::no_rescale_policy(), std::back_inserter(info));
+        model, rescale_policy, std::back_inserter(info));
 
 
     if (info.size() == 0)

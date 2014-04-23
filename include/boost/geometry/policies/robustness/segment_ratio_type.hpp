@@ -9,24 +9,20 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
+#ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_TYPE_HPP
+#define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_TYPE_HPP
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 namespace boost { namespace geometry
 {
 
-#ifndef DOXYGEN_NO_DETAIL
+// Meta-function to access segment-ratio for a policy
+template <typename Point, typename Policy>
+struct segment_ratio_type {}; // : not_implemented<> {};
 
-// To be removed later, when we will initialize a real policy
-namespace detail
-{
-struct no_rescale_policy {};
-}
-
-#endif
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RESCALE_HPP
+#endif // BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_TYPE_HPP

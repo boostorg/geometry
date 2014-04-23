@@ -42,7 +42,7 @@ struct get_turn_info_linear_areal
                 bool is_p_first, bool is_p_last,
                 bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
-                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -57,12 +57,13 @@ struct get_turn_info_linear_areal
                 typename cs_tag<typename TurnInfo::point_type>::type,
                 Point1,
                 Point2,
-                typename TurnInfo::point_type
+                typename TurnInfo::point_type,
+                RescalePolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1);
+        typename strategy::return_type result = strategy::apply(p1, q1, rescale_policy);
 
         char const method = result.template get<1>().how;
 
@@ -278,7 +279,7 @@ struct get_turn_info_linear_areal
                 // degenerate points
                 if (AssignPolicy::include_degenerate)
                 {
-                    only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    only_convert::apply(tp, result.template get<0>());
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
                 }
@@ -488,7 +489,8 @@ struct get_turn_info_linear_areal
 
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
-            geometry::convert(result.template get<0>().intersections[0], tp.point);
+            //geometry::convert(result.template get<0>().intersections[0], tp.point);
+            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), 0);
 
             // NOTE: not really needed especially for the first point
             // for which there is no preceding segment (but consistent with the L/L)
@@ -546,7 +548,8 @@ struct get_turn_info_linear_areal
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
             std::size_t ip_index = ip_count > 1 ? 1 : 0;
-            geometry::convert(result.template get<0>().intersections[ip_index], tp.point);
+            //geometry::convert(result.template get<0>().intersections[ip_index], tp.point);
+            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), ip_index);
 
             AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
             *out++ = tp;

@@ -52,9 +52,11 @@ inline bool collinear_point_on_segment(P0 const& subject, P1 const& p1, P2 const
 }
 
 
-template <typename SideStrategy, typename Point, typename Range>
-inline int side_on_convex_range(Point const& subject, Range const& range)
+template <typename SideStrategy, typename Point, typename Range, typename RobustPolicy>
+inline int side_on_convex_range(Point const& subject,
+                Range const& range, RobustPolicy const& robust_policy)
 {
+    // TODO merge this implementation with next function with same name
     if (boost::empty(range))
     {
         return 1;
@@ -62,17 +64,26 @@ inline int side_on_convex_range(Point const& subject, Range const& range)
 
     bool has_collinear = false;
 
-    typedef typename boost::range_iterator
-        <
-            Range const
-        >::type iterator_type;
+    typedef typename geometry::robust_point_type
+    <
+        Point,
+        RobustPolicy
+    >::type robust_point_type;
+
+    typedef typename boost::range_iterator<Range const>::type iterator_type;
 
     iterator_type it = boost::begin(range);
-    for (iterator_type prev = it++;
-        it != boost::end(range);
-        prev = it++)
+
+    robust_point_type subject_rob, previous_rob;
+    geometry::recalculate(subject_rob, subject, robust_policy);
+    geometry::recalculate(previous_rob, *it, robust_policy);
+
+    for (++it; it != boost::end(range); ++it)
     {
-        int const side = SideStrategy::apply(subject, *prev, *it);
+        robust_point_type current_rob;
+        geometry::recalculate(current_rob, *it, robust_policy);
+
+        int const side = SideStrategy::apply(subject_rob, previous_rob, current_rob);
         switch(side)
         {
             case 1 :
@@ -81,28 +92,50 @@ inline int side_on_convex_range(Point const& subject, Range const& range)
                 // Check if it is really on the segment.
                 // If not, it is either on the left (because polygon is convex)
                 // or it is still on one of the other segments (if segments are collinear)
-                if (collinear_point_on_segment(subject, *prev, *it))
+                if (collinear_point_on_segment(subject_rob, previous_rob, current_rob))
                 {
                     return 0;
                 }
                 has_collinear = true;
                 break;
         }
+        previous_rob = current_rob;
     }
     return has_collinear ? 1 : -1;
 }
 
-template <typename SideStrategy, typename Point, typename Iterator>
+template <typename SideStrategy, typename Point, typename Iterator, typename RobustPolicy>
 static inline int side_on_convex_range(Point const& subject,
             Iterator first, Iterator last,
             /* by value: */ segment_identifier seg_id,
-            segment_identifier& on_segment_seg_id)
+            segment_identifier& on_segment_seg_id,
+            RobustPolicy const& robust_policy)
 {
+
+    typedef typename geometry::robust_point_type
+    <
+        Point,
+        RobustPolicy
+    >::type robust_point_type;
+
     bool has_collinear = false;
     Iterator it = first;
-    for (Iterator prev = it++; it != last; prev = it++, seg_id.segment_index++)
+
+    if (it == last)
     {
-        int side = SideStrategy::apply(subject, *prev, *it);
+        return 1;
+    }
+
+    robust_point_type subject_rob, previous_rob;
+    geometry::recalculate(subject_rob, subject, robust_policy);
+    geometry::recalculate(previous_rob, *it, robust_policy);
+
+    for (++it; it != last; ++it, seg_id.segment_index++)
+    {
+        robust_point_type current_rob;
+        geometry::recalculate(current_rob, *it, robust_policy);
+
+        int const side = SideStrategy::apply(subject_rob, previous_rob, current_rob);
         switch(side)
         {
             case 1 :
@@ -111,7 +144,7 @@ static inline int side_on_convex_range(Point const& subject,
                 // Check if it is REALLY on the segment.
                 // If not, it is either on the left (because polygon is convex)
                 // or it is still on one of the other segments (if segments are collinear)
-                if (collinear_point_on_segment(subject, *prev, *it))
+                if (collinear_point_on_segment(subject_rob, previous_rob, current_rob))
                 {
                     on_segment_seg_id = seg_id;
                     return 0;
@@ -119,6 +152,7 @@ static inline int side_on_convex_range(Point const& subject,
                 has_collinear = true;
                 break;
         }
+        previous_rob = current_rob;
     }
     return has_collinear ? 1 : -1;
 }

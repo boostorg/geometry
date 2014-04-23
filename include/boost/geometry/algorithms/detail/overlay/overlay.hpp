@@ -18,7 +18,6 @@
 #include <boost/mpl/assert.hpp>
 
 
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -27,7 +26,7 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
@@ -37,6 +36,9 @@
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+
 
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 #  include <boost/geometry/io/dsv/write.hpp>
@@ -156,9 +158,10 @@ template
 >
 struct overlay
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
+                RescalePolicy const& rescale_policy,
                 OutputIterator out,
                 Strategy const& )
     {
@@ -177,8 +180,13 @@ struct overlay
                 >(geometry1, geometry2, out);
         }
 
+        typedef typename geometry::coordinate_type<GeometryOut>::type coordinate_type;
         typedef typename geometry::point_type<GeometryOut>::type point_type;
-        typedef detail::overlay::traversal_turn_info<point_type> turn_info;
+        typedef detail::overlay::traversal_turn_info
+        <
+            point_type,
+            typename geometry::segment_ratio_type<point_type, RescalePolicy>::type
+        > turn_info;
         typedef std::deque<turn_info> container_type;
 
         typedef std::deque
@@ -192,8 +200,6 @@ struct overlay
         boost::timer timer;
 #endif
 
-		detail::no_rescale_policy rescale_policy;
-
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "get turns" << std::endl;
 #endif
@@ -201,7 +207,7 @@ std::cout << "get turns" << std::endl;
         geometry::get_turns
             <
                 Reverse1, Reverse2,
-                detail::overlay::calculate_distance_policy
+                detail::overlay::assign_null_policy
             >(geometry1, geometry2, rescale_policy, turn_points, policy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
