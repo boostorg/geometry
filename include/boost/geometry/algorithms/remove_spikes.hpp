@@ -69,7 +69,7 @@ struct range_remove_spikes
         std::size_t const min_num_points = core_detail::closure::minimum_ring_size
             <
                 geometry::closure<Range>::value
-            >::value;
+            >::value - 1; // subtract one: a polygon with only one spike should result into one point
         if (n < min_num_points)
         {
             return;
@@ -104,19 +104,26 @@ struct range_remove_spikes
             found = false;
             // Check for spike in first point
             int const penultimate = 2;
-            while(cleaned.size() > 3 && detail::point_is_spike_or_equal(cleaned.front(), *(cleaned.end() - penultimate), cleaned.back()))
+            while(cleaned.size() >= 3 && detail::point_is_spike_or_equal(cleaned.front(), *(cleaned.end() - penultimate), cleaned.back()))
             {
                 cleaned.pop_back();
                 found = true;
             }
             // Check for spike in second point
-            while(cleaned.size() > 3 && detail::point_is_spike_or_equal(*(cleaned.begin() + 1), cleaned.back(), cleaned.front()))
+            while(cleaned.size() >= 3 && detail::point_is_spike_or_equal(*(cleaned.begin() + 1), cleaned.back(), cleaned.front()))
             {
                 cleaned.pop_front();
                 found = true;
             }
         }
         while (found);
+
+        if (cleaned.size() == 2)
+        {
+            // Ticket #9871: open polygon with only two points.
+            // the second point forms, by definition, a spike
+            cleaned.pop_back();
+        }
 
         // Close if necessary
         if (geometry::closure<Range>::value == geometry::closed)

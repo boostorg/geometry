@@ -15,6 +15,10 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <algorithms/test_union.hpp>
 #include <algorithms/test_overlay.hpp>
 
@@ -221,17 +225,11 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, 0,
-        if_typed<ct, double>(5, if_typed_tt<ct>(8, 8)),
-        14729.07145);
+        1, 0, 8, 14729.07145);
 
-
-    // FP might return different amount of points
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-        1, 1,
-        if_typed<ct, double>(18, if_typed<ct, float>(-1, 17)),
-        129904.197692871);
+        1, 1, 15, 129904.197692871);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
@@ -272,14 +270,37 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
             1, 0, 5, 10.5000019595);
 
+    test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
+            ticket_9081_15[0], ticket_9081_15[1],
+            1, 0, 7, 0.0403425433);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
+            1, 0, 13, 150.0);
+#endif
+
+    test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
+            1, 0, 10, 1289.08374);
+
+    test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
+            1, 0, -1, 3461.3203125);
+    test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
+            1, 0, -1, 350.55102539);
+    test_one<Polygon, Polygon, Polygon>("geos_3", geos_3[0], geos_3[1],
+            1, 0, -1, 29391548.4998779);
+    test_one<Polygon, Polygon, Polygon>("geos_4", geos_4[0], geos_4[1],
+            1, 0, -1, 2304.4163115);
+
     test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
                 1, 0, 265, 19.280667);
 
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
                 1, 0, if_typed<ct, double>(21, 23), 4.60853);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, if_typed<ct, float>(18, 17), 16.571);
@@ -288,31 +309,20 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, if_typed<ct, float>(14, 13), 13.6569);
-
-    bool test_rt_i_rev = true;
-#ifndef _MSC_VER
-    if (boost::is_same<ct, float>::type::value)
-    {
-        // TODO: this case has to be fixed for gcc/float on non-Windows
-        test_rt_i_rev = false;
-    }
-
-#endif
-    if (test_rt_i_rev)
-    {
-        test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
+    test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, 13, 13.6569);
-    }
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
                 1, 0, -1, 16.5711);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
                 1, 0, -1, 16.5711);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
                 1, 0, -1, 19.3995);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
                 1, 0, -1, 19.3995);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
                 1, 0, if_typed_tt<ct>(14, 13), 19.4852);
@@ -329,18 +339,24 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, 18, 18.5710);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, 19, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
                 1, 0, if_typed_tt<ct>(20, 19), 21.07612);
+#endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
                 1, 0, if_typed_tt<ct>(16, 14), 15.6569);
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_ref", buffer_rt_t[1], buffer_rt_t[0],
                 1, 0, if_typed_tt<ct>(16, if_typed<ct, float>(15, 14)), 15.6569);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 0, 217, 36.752837);
@@ -409,7 +425,10 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_all<bg::model::d2::point_xy<float> >();
+#endif
     //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)

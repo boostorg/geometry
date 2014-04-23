@@ -98,8 +98,14 @@ template <> struct string_from_type<double>
 template <> struct string_from_type<long double>
 { static std::string name() { return "e"; }  };
 
+template <> struct string_from_type<short int>
+{ static std::string name() { return "s"; }  };
+
 template <> struct string_from_type<int>
 { static std::string name() { return "i"; }  };
+
+template <> struct string_from_type<boost::long_long_type>
+{ static std::string name() { return "l"; }  };
 
 #if defined(HAVE_TTMATH)
     template <> struct string_from_type<ttmath_big>
@@ -129,6 +135,7 @@ inline T1 if_typed_tt(T1 value_tt, T2 value)
 #if defined(HAVE_TTMATH)
     return boost::is_same<CoordinateType, ttmath_big>::type::value ? value_tt : value;
 #else
+    boost::ignore_unused_variable_warning(value_tt);
     return value;
 #endif
 }

@@ -32,7 +32,7 @@ struct get_turn_info_linear_linear
         typename Point1,
         typename Point2,
         typename TurnInfo,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
@@ -41,7 +41,7 @@ struct get_turn_info_linear_linear
                 bool is_p_first, bool is_p_last,
                 bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
-                RescalePolicy const& , // TODO: this will be used. rescale_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -56,12 +56,13 @@ struct get_turn_info_linear_linear
                 typename cs_tag<typename TurnInfo::point_type>::type,
                 Point1,
                 Point2,
-                typename TurnInfo::point_type
+                typename TurnInfo::point_type,
+                RobustPolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1);
+        typename strategy::return_type result = strategy::apply(p1, q1, robust_policy);
 
         char const method = result.template get<1>().how;
 
@@ -77,7 +78,7 @@ struct get_turn_info_linear_linear
                 get_turn_info_for_endpoint<AssignPolicy, true, true>
                     ::apply(pi, pj, pk, qi, qj, qk,
                             is_p_first, is_p_last, is_q_first, is_q_last,
-                            tp_model, result, method_none, out);
+                            tp_model, result, robust_policy, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -88,7 +89,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, result, method_touch_interior, out) )
+                                tp_model, result, robust_policy, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -152,7 +153,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, false, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, result, method_touch, out) )
+                                tp_model, result, robust_policy, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -171,7 +172,9 @@ struct get_turn_info_linear_linear
                         tp.operations[0].is_collinear = true;
                     }
 
-                    replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    replace_method_and_operations_tm(tp.method,
+                                                     tp.operations[0].operation,
+                                                     tp.operations[1].operation);
 
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
 
@@ -180,7 +183,8 @@ struct get_turn_info_linear_linear
                       || ! append_opposite_spikes<append_touches>(
                                 tp, result, side_calc,
                                 p1, p2, q1, q2,
-                                is_p_last, is_q_last, out) )
+                                is_p_last, is_q_last,
+                                robust_policy, out) )
                     {
                         *out++ = tp;
                     }
@@ -192,7 +196,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, result, method_equal, out) )
+                                tp_model, result, robust_policy, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -218,7 +222,8 @@ struct get_turn_info_linear_linear
                         if ( ! handle_spikes
                           || ! append_collinear_spikes(tp, side_calc, p1, p2, q1, q2,
                                                        is_p_last, is_q_last,
-                                                       method_touch, operation_union, out) )
+                                                       method_touch, operation_union,
+                                                       robust_policy, out) )
                         {
                             *out++ = tp; // no spikes
                         }
@@ -243,7 +248,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<AssignPolicy, true, true>
                         ::apply(pi, pj, pk, qi, qj, qk,
                                 is_p_first, is_p_last, is_q_first, is_q_last,
-                                tp_model, result, method_collinear, out) )
+                                tp_model, result, robust_policy, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -291,7 +296,8 @@ struct get_turn_info_linear_linear
                         if ( ! handle_spikes
                           || ! append_collinear_spikes(tp, side_calc, p1, p2, q1, q2,
                                                        is_p_last, is_q_last,
-                                                       method_replace, spike_op, out) )
+                                                       method_replace, spike_op,
+                                                       robust_policy, out) )
                         {
                             // no spikes
                             *out++ = tp;
@@ -308,7 +314,8 @@ struct get_turn_info_linear_linear
                             append_opposite_spikes<append_collinear_opposite>(
                                     tp, result, side_calc,
                                     p1, p2, q1, q2,
-                                    is_p_last, is_q_last, out);
+                                    is_p_last, is_q_last,
+                                    robust_policy, out);
                         }
 
                         // TODO: ignore for spikes?
@@ -331,7 +338,7 @@ struct get_turn_info_linear_linear
                 // degenerate points
                 if (AssignPolicy::include_degenerate)
                 {
-                    only_convert<TurnInfo>::apply(tp, result.template get<0>());
+                    only_convert::apply(tp, result.template get<0>());
 
                     // if any, only one of those should be true
                     if ( is_p_first
@@ -379,6 +386,7 @@ struct get_turn_info_linear_linear
               typename SideCalc,
               typename SegmentP,
               typename SegmentQ,
+              typename RobustPolicy,
               typename OutIt>
     static inline bool append_collinear_spikes(TurnInfo & tp,
                                                SideCalc const& side_calc,
@@ -386,17 +394,17 @@ struct get_turn_info_linear_linear
                                                SegmentQ const& q1, SegmentQ const& q2,
                                                bool is_p_last, bool is_q_last,
                                                method_type method, operation_type spike_op,
-                                               OutIt out)
+                                               RobustPolicy const& robust_policy, OutIt out)
     {
         // method == touch || touch_interior
         // both position == middle
 
         bool is_p_spike = tp.operations[0].operation == spike_op
                        && ! is_p_last
-                       && is_spike_p(side_calc, p1, p2);
+                       && is_spike_p(side_calc, p1, p2, robust_policy);
         bool is_q_spike = tp.operations[1].operation == spike_op
                        && ! is_q_last
-                       && is_spike_q(side_calc, q1, q2);
+                       && is_spike_q(side_calc, q1, q2, robust_policy);
 
         if ( is_p_spike && is_q_spike )
         {
@@ -444,26 +452,28 @@ struct get_turn_info_linear_linear
               typename SideCalc,
               typename SegmentP,
               typename SegmentQ,
+              typename RobustPolicy,
               typename OutIt>
     static inline bool append_opposite_spikes(TurnInfo & tp,
                                               Result const& result,
                                               SideCalc const& side_calc,
                                               SegmentP const& p1, SegmentP const& p2,
                                               SegmentQ const& q1, SegmentQ const& q2,
-                                              bool is_p_last, bool is_q_last, OutIt out)
+                                              bool is_p_last, bool is_q_last,
+                                              RobustPolicy const& robust_policy, OutIt out)
     {
         bool is_p_spike = ( Version == append_touches ?
                             ( tp.operations[0].operation == operation_continue
                            || tp.operations[0].operation == operation_intersection ) :
                             true )
                        && ! is_p_last
-                       && is_spike_p(side_calc, p1, p2);
+                       && is_spike_p(side_calc, p1, p2, robust_policy);
         bool is_q_spike = ( Version == append_touches ?
                             ( tp.operations[1].operation == operation_continue
                            || tp.operations[1].operation == operation_intersection ) :
                             true )
                        && ! is_q_last
-                       && is_spike_q(side_calc, q1, q2);
+                       && is_spike_q(side_calc, q1, q2, robust_policy);
 
         if ( is_p_spike || is_q_spike )
         {

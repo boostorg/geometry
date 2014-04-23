@@ -15,6 +15,10 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// Test which would fail then are disabled automatically
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
@@ -162,6 +166,20 @@ void test_areal()
     // SQL Server gives: 88.1920416352664
     // PostGIS gives:    88.19203677911
 
+    test_one<Polygon, Polygon, Polygon>("geos_1",
+        geos_1[0], geos_1[1],
+            1, -1, 3461.0214843);
+    test_one<Polygon, Polygon, Polygon>("geos_2",
+        geos_2[0], geos_2[1],
+            0, 0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("geos_3",
+        geos_3[0], geos_3[1],
+            0, -0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("geos_4",
+        geos_4[0], geos_4[1],
+            1, -1, 0.08368849);
+
+
     if (! ccw && open)
     {
         // Pointcount for ttmath/double (both 5) or float (4)
@@ -183,20 +201,17 @@ void test_areal()
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
 
-#ifdef _MSC_VER // gcc/linux behaves differently
-    if (! boost::is_same<ct, float>::value)
-    {
-        test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
-            ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
-            3,
-            if_typed<ct, double>(21, 20),
-            35723.8506317139);
-    }
-#endif
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
+        ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
+        3, 16, 35723.8506317139);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20131119_james",
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
         1, 4, 6.6125873045, 0.1);
+
+    test_one<Polygon, Polygon, Polygon>("ggl_list_20140223_shalabuda",
+        ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
+        1, 4, 3.77106);
 
 #if 0
     // TODO: fix this testcase, it should give 0 but instead it gives one of the input polygons
@@ -206,30 +221,47 @@ void test_areal()
         0, 0, 0, 0.1);
 #endif
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, 0.01);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.63593e-08, 0.01);
+                1, 4, 3.6334e-08, 0.01);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
                 1, 4, 4.34355e-05, 0.01);
 
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
-                1, 4, 0.0003, 0.00001);
+                1, 4, 0.0003);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
-                1, 5, 0.3843747, 0.00001);
+                1, 5, 0.3843747);
     test_one<Polygon, Polygon, Polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1],
-                1, 5, 0.3734379, 0.00001);
+                1, 5, 0.3734379);
     test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
-                1, 5, 0.4689541, 0.00001);
+                1, 5, 0.4689541);
 
+    test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
+                ticket_9081_15[0], ticket_9081_15[1],
+                1, 4, 0.0068895780745301394);
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
+                1, 8, 129.90381);
+#endif
+
+#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, 29, 0.457126);
@@ -385,20 +417,25 @@ void test_all()
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal_linear<polygon_open, linestring>();
     test_areal_linear<polygon_ccw, linestring>();
     test_areal_linear<polygon_ccw_open, linestring>();
+#endif
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<polygon_ccw>();
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
-
+#endif
 
     test_areal_clip<polygon, box>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal_clip<polygon_ccw, box>();
+#endif
 
 #if defined(TEST_FAIL_DIFFERENT_ORIENTATIONS)
     // Should NOT compile
@@ -542,7 +579,9 @@ int test_main(int, char* [])
 
     test_exception<bg::model::d2::point_xy<double> >();
     test_pointer_version();
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
+#endif
 
     return 0;
 }

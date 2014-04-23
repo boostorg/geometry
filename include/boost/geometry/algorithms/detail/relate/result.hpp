@@ -1131,7 +1131,7 @@ template <typename Geometry1,
           typename Geometry2,
           std::size_t Dim1 = topological_dimension<Geometry1>::value,
           std::size_t Dim2 = topological_dimension<Geometry2>::value>
-struct static_mask_touches_type
+struct static_mask_touches_impl
 {
     typedef boost::mpl::vector<
                 static_mask<'F', 'T', '*', '*', '*', '*', '*', '*', '*'>,
@@ -1142,9 +1142,14 @@ struct static_mask_touches_type
 // According to OGC, doesn't apply to P/P
 // Using the above mask the result would be always false
 template <typename Geometry1, typename Geometry2>
-struct static_mask_touches_type<Geometry1, Geometry2, 0, 0>
+struct static_mask_touches_impl<Geometry1, Geometry2, 0, 0>
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_touches_type
+    : static_mask_touches_impl<Geometry1, Geometry2>
 {};
 
 // WITHIN

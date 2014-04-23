@@ -43,11 +43,11 @@ struct sectionalize_multi
     template
     <
         typename MultiGeometry,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename Sections
     >
     static inline void apply(MultiGeometry const& multi,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 bool make_rescaled_boxes,
                 Sections& sections, ring_identifier ring_id, std::size_t max_count)
     {
@@ -57,7 +57,7 @@ struct sectionalize_multi
             it != boost::end(multi);
             ++it, ++ring_id.multi_index)
         {
-            Policy::apply(*it, rescale_policy, make_rescaled_boxes, sections, ring_id, max_count);
+            Policy::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
         }
     }
 };

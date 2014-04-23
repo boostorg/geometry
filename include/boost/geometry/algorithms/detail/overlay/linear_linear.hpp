@@ -144,10 +144,10 @@ protected:
             typename IntersectionInfo,
             typename DirInfo
         >
-        static inline void apply(Info& info, Point1 const& p1, Point2 const& p2,
-                                 IntersectionInfo const& ii, DirInfo const& di)
+        static inline void apply(Info& , Point1 const& , Point2 const& ,
+                                 IntersectionInfo const& , DirInfo const& )
         {
-            calculate_distance_policy::apply(info, p1, p2, ii, di);
+            //calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
 
@@ -224,10 +224,11 @@ protected:
 public:
     template
     <
-        typename OutputIterator, typename Strategy
+        typename RobustPolicy, typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linear1 const& linear1,
                                        Linear2 const& linear2,
+                                       RobustPolicy const&,
                                        OutputIterator oit,
                                        Strategy const& )
     {
@@ -281,10 +282,11 @@ struct linear_linear_linestring
 {
     template
     <
-        typename OutputIterator, typename Strategy
+        typename RobustPolicy, typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linear1 const& linear1,
                                        Linear2 const& linear2,
+                                       RobustPolicy const& robust_policy,
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
@@ -301,7 +303,7 @@ struct linear_linear_linestring
                 Linear2, Linear1, LinestringOut, overlay_difference,
                 EnableFilterContinueTurns, EnableRemoveDuplicateTurns,
                 EnableDegenerateTurns
-            >::apply(linear2, linear1, oit, strategy);
+            >::apply(linear2, linear1, robust_policy, oit, strategy);
     }
 };
 

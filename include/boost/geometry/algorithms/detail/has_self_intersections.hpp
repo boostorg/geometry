@@ -16,7 +16,10 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-#include <boost/geometry/algorithms/detail/rescale.hpp>
+
+#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
@@ -57,15 +60,19 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Geometry, typename RescalePolicy>
-inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const& rescale_policy)
+template <typename Geometry, typename RobustPolicy>
+inline bool has_self_intersections(Geometry const& geometry, RobustPolicy const& robust_policy)
 {
     typedef typename point_type<Geometry>::type point_type;
-    typedef detail::overlay::turn_info<point_type> turn_info;
+    typedef turn_info
+    <
+        point_type,
+        typename segment_ratio_type<point_type, RobustPolicy>::type
+    > turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
-    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, rescale_policy, turns, policy);
+    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, robust_policy, turns, policy);
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;
@@ -115,7 +122,14 @@ inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const
 template <typename Geometry>
 inline bool has_self_intersections(Geometry const& geometry)
 {
-    return has_self_intersections(geometry, detail::no_rescale_policy());
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef typename geometry::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+
+    return has_self_intersections(geometry, robust_policy);
 }
 
 

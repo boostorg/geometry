@@ -23,6 +23,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
@@ -71,15 +72,17 @@ struct union_insert
         true
     >: union_insert<Geometry2, Geometry1, GeometryOut>
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
-            Geometry2 const& g2, OutputIterator out,
+            Geometry2 const& g2,
+            RobustPolicy const& robust_policy,
+            OutputIterator out,
             Strategy const& strategy)
     {
         return union_insert
             <
                 Geometry2, Geometry1, GeometryOut
-            >::apply(g2, g1, out, strategy);
+            >::apply(g2, g1, robust_policy, out, strategy);
     }
 };
 
@@ -180,18 +183,20 @@ template
 <
     typename GeometryOut,
     typename Geometry1, typename Geometry2,
+    typename RobustPolicy,
     typename OutputIterator,
     typename Strategy
 >
 inline OutputIterator insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
+            RobustPolicy const& robust_policy,
             OutputIterator out,
             Strategy const& strategy)
 {
     return dispatch::union_insert
            <
                Geometry1, Geometry2, GeometryOut
-           >::apply(geometry1, geometry2, out, strategy);
+           >::apply(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 /*!
@@ -229,7 +234,11 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    return detail::union_::insert<GeometryOut>(geometry1, geometry2, out, strategy);
+    typedef typename Strategy::rescale_policy_type rescale_policy_type;
+    rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+
+    return detail::union_::insert<GeometryOut>(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 /*!
@@ -261,12 +270,18 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
+    typedef typename geometry::rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type // TODO from both
+        >::type rescale_policy_type;
+
     typedef strategy_intersection
         <
             typename cs_tag<GeometryOut>::type,
             Geometry1,
             Geometry2,
-            typename geometry::point_type<GeometryOut>::type
+            typename geometry::point_type<GeometryOut>::type,
+            rescale_policy_type
         > strategy;
 
     return union_insert<GeometryOut>(geometry1, geometry2, out, strategy());

@@ -142,9 +142,10 @@ template
 >
 struct point_point_point
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Point1 const& point1,
                                        Point2 const& point2,
+                                       RobustPolicy const& ,
                                        OutputIterator oit,
                                        Strategy const&)
     {
@@ -175,9 +176,10 @@ template
 >
 struct multipoint_point_point
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(MultiPoint const& multipoint,
                                        Point const& point,
+                                       RobustPolicy const& ,
                                        OutputIterator oit,
                                        Strategy const&)
     {
@@ -209,9 +211,10 @@ template
 >
 struct point_multipoint_point
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Point const& point,
                                        MultiPoint const& multipoint,
+                                       RobustPolicy const& ,
                                        OutputIterator oit,
                                        Strategy const&)
     {
@@ -244,9 +247,10 @@ template
 >
 struct multipoint_multipoint_point
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(MultiPoint1 const& multipoint1,
                                        MultiPoint2 const& multipoint2,
+                                       RobustPolicy const& robust_policy,
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
@@ -256,7 +260,7 @@ struct multipoint_multipoint_point
             return multipoint_multipoint_point
                 <
                     MultiPoint2, MultiPoint1, PointOut, OverlayType
-                >::apply(multipoint2, multipoint1, oit, strategy);
+                >::apply(multipoint2, multipoint1, robust_policy, oit, strategy);
         }
 
         std::vector<typename point_type<MultiPoint2>::type>
@@ -399,9 +403,10 @@ template
 >
 struct union_pointlike_pointlike_point
 {
-    template <typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(PointLike1 const& pointlike1,
                                        PointLike2 const& pointlike2,
+                                       RobustPolicy const& robust_policy,
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
@@ -412,7 +417,7 @@ struct union_pointlike_pointlike_point
                 PointLike2, PointLike1, PointOut, overlay_difference,
                 typename tag<PointLike2>::type,
                 typename tag<PointLike1>::type
-            >::apply(pointlike2, pointlike1, oit, strategy);
+            >::apply(pointlike2, pointlike1, robust_policy, oit, strategy);
     }
 
 };

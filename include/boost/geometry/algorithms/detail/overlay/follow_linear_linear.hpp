@@ -192,6 +192,9 @@ protected:
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
     {
+        // We don't rescale linear/linear
+        detail::no_rescale_policy robust_policy;
+
         if ( is_entering(*it, *op_it) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -204,7 +207,7 @@ protected:
                 action::enter(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, oit);
+                              it->point, *op_it, robust_policy, oit);
             }
             ++enter_count;
         }
@@ -221,7 +224,7 @@ protected:
                 action::leave(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, oit);
+                              it->point, *op_it, robust_policy, oit);
             }
         }
         else if ( FollowIsolatedPoints
@@ -262,9 +265,13 @@ protected:
     {
         if ( action::is_entered(entered) )
         {
+            // We don't rescale linear/linear
+            detail::no_rescale_policy robust_policy;
+
             geometry::copy_segments<false>(linestring,
                                            current_segment_id,
                                            boost::size(linestring) - 1,
+                                           robust_policy,
                                            current_piece);
         }
 

@@ -21,7 +21,6 @@
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 
@@ -46,14 +45,14 @@ class backtrack_for_buffer
 public :
     typedef detail::overlay::backtrack_state state_type;
 
-    template <typename Operation, typename Rings, typename Turns, typename Geometry, typename RescalePolicy>
+    template <typename Operation, typename Rings, typename Turns, typename Geometry, typename RobustPolicy>
     static inline void apply(std::size_t size_at_start,
                 Rings& rings, typename boost::range_value<Rings>::type& ring,
                 Turns& turns, Operation& operation,
                 std::string const& /*reason*/,
                 Geometry const& ,
                 Geometry const& ,
-                RescalePolicy const& ,
+                RobustPolicy const& ,
                 state_type& state
                 )
     {
@@ -88,8 +87,6 @@ struct turn_assign_for_buffer
     template <typename Point1, typename Point2, typename Turn, typename IntersectionInfo, typename DirInfo>
     static inline void apply(Turn& turn, Point1 const& p1, Point2 const& p2, IntersectionInfo const& intersection_info, DirInfo const& dir_info)
     {
-        detail::overlay::calculate_distance_policy::apply(turn, p1, p2,
-                        intersection_info, dir_info);
         if (dir_info.opposite && intersection_info.count == 2)
         {
             turn.is_opposite = true;
@@ -99,8 +96,9 @@ struct turn_assign_for_buffer
 
 // Should follow traversal-turn-concept (enrichment, visit structure)
 // and adds index in piece vector to find it back
-template <typename Point>
-struct buffer_turn_operation : public detail::overlay::traversal_turn_operation<Point>
+template <typename Point, typename SegmentRatio>
+struct buffer_turn_operation
+    : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     int piece_index;
     bool include_in_occupation_map;
@@ -112,8 +110,14 @@ struct buffer_turn_operation : public detail::overlay::traversal_turn_operation<
 };
 
 // Version for buffer including type of location, is_opposite, and helper variables
-template <typename Point>
-struct buffer_turn_info : public detail::overlay::turn_info<Point, buffer_turn_operation<Point> >
+template <typename Point, typename SegmentRatio>
+struct buffer_turn_info
+    : public detail::overlay::turn_info
+        <
+            Point,
+            SegmentRatio,
+            buffer_turn_operation<Point, SegmentRatio>
+        >
 {
     bool is_opposite;
 

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,6 +14,8 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
@@ -29,6 +31,7 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -42,6 +45,85 @@ namespace boost { namespace geometry
 namespace detail { namespace touches
 {
 
+// Box/Box
+
+template
+<
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct box_box_loop
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& b1, Box2 const& b2, bool & touch)
+    {
+        typedef typename coordinate_type<Box1>::type coordinate_type1;
+        typedef typename coordinate_type<Box2>::type coordinate_type2;
+
+        coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
+        coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);
+        coordinate_type2 const& min2 = get<min_corner, Dimension>(b2);
+        coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
+
+        // TODO assert or exception?
+        //BOOST_ASSERT(min1 <= max1 && min2 <= max2);
+
+        if ( max1 < min2 || max2 < min1 )
+        {
+            return false;
+        }
+
+        if ( max1 == min2 || max2 == min1 )
+        {
+            touch = true;
+        }
+        
+        return box_box_loop
+                <
+                    Dimension + 1,
+                    DimensionCount
+                >::apply(b1, b2, touch);
+    }
+};
+
+template
+<
+    std::size_t DimensionCount
+>
+struct box_box_loop<DimensionCount, DimensionCount>
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& , Box2 const&, bool &)
+    {
+        return true;
+    }
+};
+
+struct box_box
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& b1, Box2 const& b2)
+    {
+        BOOST_STATIC_ASSERT((boost::is_same
+                                <
+                                    typename geometry::coordinate_system<Box1>::type,
+                                    typename geometry::coordinate_system<Box2>::type
+                                >::value
+                           ));
+        assert_dimension_equal<Box1, Box2>();
+
+        bool touches = false;
+        bool ok = box_box_loop
+                    <
+                        0,
+                        dimension<Box1>::type::value
+                    >::apply(b1, b2, touches);
+
+        return ok && touches;
+    }
+};
+
+// Areal/Areal
 
 struct areal_interrupt_policy
 {
@@ -158,9 +240,12 @@ struct areal_areal
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry1>::type point_type;
         typedef detail::overlay::turn_info
             <
-                typename geometry::point_type<Geometry1>::type
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
             > turn_info;
 
         typedef detail::overlay::get_turn_info
@@ -170,12 +255,13 @@ struct areal_areal
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
+        rescale_policy_type robust_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, detail::no_rescale_policy(), turns, policy);
+                >(geometry1, geometry2, robust_policy, turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
@@ -183,6 +269,7 @@ struct areal_areal
     }
 };
 
+// P/*
 
 struct use_point_in_geometry
 {
@@ -190,22 +277,6 @@ struct use_point_in_geometry
     static inline bool apply(Point const& point, Geometry const& geometry)
     {
         return detail::within::point_in_geometry(point, geometry) == 0;
-    }
-};
-
-struct use_relate
-{
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
-    {
-        typedef typename
-            detail::relate::static_mask_touches_type
-                <
-                    Geometry1,
-                    Geometry2
-                >::type static_mask;
-
-        return detail::relate::relate<static_mask>(geometry1, geometry2);
     }
 };
 
@@ -226,7 +297,8 @@ template
     typename CastedTag2 = typename tag_cast<Tag2, pointlike_tag, linear_tag, areal_tag>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct touches : not_implemented<Tag1, Tag2>
+struct touches
+    : not_implemented<Tag1, Tag2>
 {};
 
 // If reversal is needed, perform it
@@ -265,23 +337,51 @@ struct touches<Point, Geometry, point_tag, Tag2, pointlike_tag, CastedTag2, fals
 
 // TODO: support touches(MPt, Linear/Areal)
 
+// Box/Box
+
+template <typename Box1, typename Box2, typename CastedTag1, typename CastedTag2>
+struct touches<Box1, Box2, box_tag, box_tag, CastedTag1, CastedTag2, false>
+    : detail::touches::box_box
+{};
+
+template <typename Box1, typename Box2>
+struct touches<Box1, Box2, box_tag, box_tag, areal_tag, areal_tag, false>
+    : detail::touches::box_box
+{};
+
 // L/L
 
 template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
 struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, linear_tag, false>
-    : detail::touches::use_relate
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Linear1,
+        Linear2
+    >
 {};
 
 // L/A
 
-template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
-struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, areal_tag, true>
-    : detail::touches::use_relate
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Linear,
+        Areal
+    >
 {};
 
-template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
-struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, areal_tag, false>
-    : detail::touches::use_relate
+// A/L
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Areal,
+        Linear
+    >
 {};
 
 // A/A
@@ -388,10 +488,13 @@ struct self_touches
     {
         concept::check<Geometry const>();
 
+        typedef detail::no_rescale_policy rescale_policy_type;
+        typedef typename geometry::point_type<Geometry>::type point_type;
         typedef detail::overlay::turn_info
-        <
-            typename geometry::point_type<Geometry>::type
-        > turn_info;
+            <
+                point_type,
+                typename segment_ratio_type<point_type, rescale_policy_type>::type
+            > turn_info;
 
         typedef detail::overlay::get_turn_info
         <
@@ -400,10 +503,11 @@ struct self_touches
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
+        rescale_policy_type robust_policy;
         detail::self_get_turn_points::get_turns
         <
             policy_type
-        >::apply(geometry, detail::no_rescale_policy(), turns, policy);
+        >::apply(geometry, robust_policy, turns, policy);
 
         return policy.result();
     }
