@@ -29,6 +29,8 @@
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/rescale_policy.hpp>
 
+#include <boost/geometry/util/promote_floating_point.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -46,14 +48,22 @@ static inline void init_rescale_policy(Geometry const& geometry,
     model::box<Point> env = geometry::return_envelope<model::box<Point> >(geometry);
 
     // Scale this to integer-range
-    typename geometry::coordinate_type<Point>::type diff = detail::get_max_size(env);
-    double range = 10000000.0; // Define a large range to get precise integer coordinates
-    factor = double(boost::long_long_type(0.5 + range / double(diff)));
-    //factor = range / diff;
+    typedef typename promote_floating_point
+        <
+            typename geometry::coordinate_type<Point>::type
+        >::type num_type;
+    num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
+    num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const half = 0.5;
+    factor = boost::numeric_cast<num_type>(
+            boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
+    num_type const two = 2;
+    boost::long_long_type const min_coordinate
+        = boost::numeric_cast<boost::long_long_type>(-range / two);
+    assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
 template <typename Point, typename RobustPoint, typename Geometry1, typename Geometry2, typename Factor>
@@ -68,15 +78,24 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     model::box<Point> env2 = geometry::return_envelope<model::box<Point> >(geometry2);
     geometry::expand(env, env2);
 
+    // TODO: merge this with implementation above
     // Scale this to integer-range
-    typename geometry::coordinate_type<Point>::type diff = detail::get_max_size(env);
-    double range = 10000000.0; // Define a large range to get precise integer coordinates
-    factor = double(boost::long_long_type(0.5 + range / double(diff)));
-    //factor = range / diff;
+    typedef typename promote_floating_point
+        <
+            typename geometry::coordinate_type<Point>::type
+        >::type num_type;
+    num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
+    num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const half = 0.5;
+    factor = boost::numeric_cast<num_type>(
+            boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
+    num_type const two = 2;
+    boost::long_long_type const min_coordinate
+        = boost::numeric_cast<boost::long_long_type>(-range / two);
+    assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
 
@@ -97,15 +116,15 @@ template
 >
 struct rescale_policy_type<Point, true>
 {
-private:
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
     typedef model::point
     <
-        typename detail::robust_type<typename geometry::coordinate_type<Point>::type>::type,
+        typename detail::robust_type<coordinate_type>::type,
         geometry::dimension<Point>::value,
         typename geometry::coordinate_system<Point>::type
     > robust_point_type;
-public:
-    typedef detail::rescale_policy<Point, robust_point_type, double> type;
+    typedef typename promote_floating_point<coordinate_type>::type factor_type;
+    typedef detail::robust_policy<Point, robust_point_type, factor_type> type;
 };
 
 template <typename Policy>
@@ -116,6 +135,7 @@ struct get_rescale_policy
     {
         typedef typename point_type<Geometry>::type point_type;
         typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+        typedef typename promote_floating_point<coordinate_type>::type factor_type;
         typedef model::point
         <
             typename detail::robust_type<coordinate_type>::type,
@@ -125,7 +145,7 @@ struct get_rescale_policy
 
         point_type min_point;
         robust_point_type min_robust_point;
-        double factor;
+        factor_type factor;
         init_rescale_policy(geometry, min_point, min_robust_point, factor);
 
         return Policy(min_point, min_robust_point, factor);
@@ -136,6 +156,7 @@ struct get_rescale_policy
     {
         typedef typename point_type<Geometry1>::type point_type;
         typedef typename geometry::coordinate_type<Geometry1>::type coordinate_type;
+        typedef typename promote_floating_point<coordinate_type>::type factor_type;
         typedef model::point
         <
             typename detail::robust_type<coordinate_type>::type,
@@ -145,7 +166,7 @@ struct get_rescale_policy
 
         point_type min_point;
         robust_point_type min_robust_point;
-        double factor;
+        factor_type factor;
         init_rescale_policy(geometry1, geometry2, min_point, min_robust_point, factor);
 
         return Policy(min_point, min_robust_point, factor);
@@ -159,15 +180,13 @@ struct get_rescale_policy<no_rescale_policy>
     template <typename Geometry>
     static inline no_rescale_policy apply(Geometry const& )
     {
-        no_rescale_policy result;
-        return result;
+        return no_rescale_policy();
     }
 
     template <typename Geometry1, typename Geometry2>
     static inline no_rescale_policy apply(Geometry1 const& , Geometry2 const& )
     {
-        no_rescale_policy result;
-        return result;
+        return no_rescale_policy();
     }
 };
 

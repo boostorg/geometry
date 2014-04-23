@@ -14,11 +14,6 @@
 #ifndef BOOST_GEOMETRY_CORE_TAG_HPP
 #define BOOST_GEOMETRY_CORE_TAG_HPP
 
-// TEMP HERE such that always defined:
-#ifndef BOOST_GEOMETRY_RESCALE_TO_ROBUST
-#define BOOST_GEOMETRY_RESCALE_TO_ROBUST
-#endif
-
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/tags.hpp>

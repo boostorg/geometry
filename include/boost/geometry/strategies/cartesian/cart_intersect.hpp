@@ -133,10 +133,6 @@ struct relate_cartesian_segments
 
         typedef side::side_by_triangle<coordinate_type> side;
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        coordinate_type const zero = 0;
-#endif
-
         if(a_is_point && b_is_point)
         {
             return equals_point_point(robust_a1, robust_b2)

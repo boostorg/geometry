@@ -72,17 +72,17 @@ struct union_insert
         true
     >: union_insert<Geometry2, Geometry1, GeometryOut>
 {
-    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
             Geometry2 const& g2,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             OutputIterator out,
             Strategy const& strategy)
     {
         return union_insert
             <
                 Geometry2, Geometry1, GeometryOut
-            >::apply(g2, g1, rescale_policy, out, strategy);
+            >::apply(g2, g1, robust_policy, out, strategy);
     }
 };
 
@@ -183,20 +183,20 @@ template
 <
     typename GeometryOut,
     typename Geometry1, typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename OutputIterator,
     typename Strategy
 >
 inline OutputIterator insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             OutputIterator out,
             Strategy const& strategy)
 {
     return dispatch::union_insert
            <
                Geometry1, Geometry2, GeometryOut
-           >::apply(geometry1, geometry2, rescale_policy, out, strategy);
+           >::apply(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 /*!
@@ -235,10 +235,10 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concept::check<GeometryOut>();
 
     typedef typename Strategy::rescale_policy_type rescale_policy_type;
-    rescale_policy_type rescale_policy
+    rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
-    return detail::union_::insert<GeometryOut>(geometry1, geometry2, rescale_policy, out, strategy);
+    return detail::union_::insert<GeometryOut>(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 /*!

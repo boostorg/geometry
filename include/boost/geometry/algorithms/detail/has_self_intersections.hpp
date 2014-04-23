@@ -60,19 +60,19 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Geometry, typename RescalePolicy>
-inline bool has_self_intersections(Geometry const& geometry, RescalePolicy const& rescale_policy)
+template <typename Geometry, typename RobustPolicy>
+inline bool has_self_intersections(Geometry const& geometry, RobustPolicy const& robust_policy)
 {
     typedef typename point_type<Geometry>::type point_type;
     typedef turn_info
     <
         point_type,
-        typename segment_ratio_type<point_type, RescalePolicy>::type
+        typename segment_ratio_type<point_type, RobustPolicy>::type
     > turn_info;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 
-    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, rescale_policy, turns, policy);
+    geometry::self_turns<detail::overlay::assign_null_policy>(geometry, robust_policy, turns, policy);
 
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
     bool first = true;
@@ -126,10 +126,10 @@ inline bool has_self_intersections(Geometry const& geometry)
     typedef typename geometry::rescale_policy_type<point_type>::type
         rescale_policy_type;
 
-    rescale_policy_type rescale_policy
+    rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
-    return has_self_intersections(geometry, rescale_policy);
+    return has_self_intersections(geometry, robust_policy);
 }
 
 

@@ -158,10 +158,10 @@ template
 >
 struct overlay
 {
-    template <typename RescalePolicy, typename OutputIterator, typename Strategy>
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out,
                 Strategy const& )
     {
@@ -185,7 +185,7 @@ struct overlay
         typedef detail::overlay::traversal_turn_info
         <
             point_type,
-            typename geometry::segment_ratio_type<point_type, RescalePolicy>::type
+            typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
         > turn_info;
         typedef std::deque<turn_info> container_type;
 
@@ -208,7 +208,7 @@ std::cout << "get turns" << std::endl;
             <
                 Reverse1, Reverse2,
                 detail::overlay::assign_null_policy
-            >(geometry1, geometry2, rescale_policy, turn_points, policy);
+            >(geometry1, geometry2, robust_policy, turn_points, policy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "get_turns: " << timer.elapsed() << std::endl;
@@ -223,7 +223,7 @@ std::cout << "enrich" << std::endl;
                     ? geometry::detail::overlay::operation_union
                     : geometry::detail::overlay::operation_intersection,
                     geometry1, geometry2,
-                    rescale_policy,
+                    robust_policy,
                     side_strategy);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
@@ -244,7 +244,7 @@ std::cout << "traverse" << std::endl;
                     Direction == overlay_union
                         ? geometry::detail::overlay::operation_union
                         : geometry::detail::overlay::operation_intersection,
-                    rescale_policy,
+                    robust_policy,
                     turn_points, rings
                 );
 

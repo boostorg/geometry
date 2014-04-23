@@ -255,13 +255,13 @@ struct areal_areal
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
-        rescale_policy_type rescale_policy;
+        rescale_policy_type robust_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, rescale_policy, turns, policy);
+                >(geometry1, geometry2, robust_policy, turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2)
@@ -503,11 +503,11 @@ struct self_touches
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
-        rescale_policy_type rescale_policy;
+        rescale_policy_type robust_policy;
         detail::self_get_turn_points::get_turns
         <
             policy_type
-        >::apply(geometry, rescale_policy, turns, policy);
+        >::apply(geometry, robust_policy, turns, policy);
 
         return policy.result();
     }

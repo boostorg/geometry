@@ -134,12 +134,12 @@ struct disjoint_linear
         // 1) Stop at any intersection
         // 2) In assignment, include also degenerate points (which are normally skipped)
         disjoint_interrupt_policy policy;
-        rescale_policy_type rescale_policy;
+        rescale_policy_type robust_policy;
         geometry::get_turns
             <
                 reverse1, reverse2,
                 assign_disjoint_policy
-            >(geometry1, geometry2, rescale_policy, turns, policy);
+            >(geometry1, geometry2, robust_policy, turns, policy);
 
         return !policy.has_intersections;
     }
@@ -154,7 +154,7 @@ struct disjoint_segment
 
         // We don't need to rescale to detect disjointness
         typedef no_rescale_policy rescale_policy_type;
-        rescale_policy_type rescale_policy;
+        rescale_policy_type robust_policy;
 
         typedef segment_intersection_points
                 <
@@ -173,7 +173,7 @@ struct disjoint_segment
                     <
                         intersection_return_type
                     >
-            >::apply(segment1, segment2, rescale_policy);
+            >::apply(segment1, segment2, robust_policy);
 
         return is.count == 0;
     }

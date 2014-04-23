@@ -72,14 +72,14 @@ inline bool intersects(Geometry const& geometry)
             rescale_policy_type
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
-    rescale_policy_type rescale_policy
+    rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
             <
                 TurnPolicy
-            >::apply(geometry, rescale_policy, turns, policy);
+            >::apply(geometry, robust_policy, turns, policy);
     return policy.has_intersections;
 }
 

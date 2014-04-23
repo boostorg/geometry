@@ -26,14 +26,14 @@ namespace detail { namespace buffer
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 
-template <typename Ring, typename RescalePolicy>
+template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection_with_mapper
-        : public buffered_piece_collection<Ring, RescalePolicy>
+        : public buffered_piece_collection<Ring, RobustPolicy>
 {
-    typedef buffered_piece_collection<Ring, RescalePolicy> super_type;
+    typedef buffered_piece_collection<Ring, RobustPolicy> super_type;
 
-    buffered_piece_collection_with_mapper(RescalePolicy const& rescale_policy)
-        : super_type(rescale_policy)
+    buffered_piece_collection_with_mapper(RobustPolicy const& robust_policy)
+        : super_type(robust_policy)
     {}
 
 

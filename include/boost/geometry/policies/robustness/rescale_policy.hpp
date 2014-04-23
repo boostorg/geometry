@@ -27,13 +27,13 @@ namespace detail
 {
 
 template <typename FpPoint, typename IntPoint, typename CalculationType>
-struct rescale_policy
+struct robust_policy
 {
     static bool const enabled = true;
 
     typedef typename geometry::coordinate_type<IntPoint>::type output_ct;
 
-    rescale_policy(FpPoint const& fp_min, IntPoint const& int_min, CalculationType const& the_factor)
+    robust_policy(FpPoint const& fp_min, IntPoint const& int_min, CalculationType const& the_factor)
         : m_fp_min(fp_min)
         , m_int_min(int_min)
         , m_multiplier(the_factor)
@@ -63,14 +63,14 @@ struct rescale_policy
 
 // Define the IntPoint as a robust-point type
 template <typename Point, typename FpPoint, typename IntPoint, typename CalculationType>
-struct robust_point_type<Point, detail::rescale_policy<FpPoint, IntPoint, CalculationType> >
+struct robust_point_type<Point, detail::robust_policy<FpPoint, IntPoint, CalculationType> >
 {
     typedef IntPoint type;
 };
 
 // Meta function for rescaling, if rescaling is done segment_ratio is based on long long
 template <typename Point, typename FpPoint, typename IntPoint, typename CalculationType>
-struct segment_ratio_type<Point, detail::rescale_policy<FpPoint, IntPoint, CalculationType> >
+struct segment_ratio_type<Point, detail::robust_policy<FpPoint, IntPoint, CalculationType> >
 {
     typedef segment_ratio<boost::long_long_type> type;
 };

@@ -261,27 +261,25 @@ struct sectionalize_part
     template
     <
         typename Range,  // Can be closeable_view
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Sections& sections,
                              Range const& range,
-                             RescalePolicy const& rescale_policy,
+                             RobustPolicy const& robust_policy,
                              bool make_rescaled_boxes,
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-        boost::ignore_unused_variable_warning(rescale_policy);
+        boost::ignore_unused_variable_warning(robust_policy);
         boost::ignore_unused_variable_warning(make_rescaled_boxes);
 
         typedef model::referring_segment<Point const> segment_type;
         typedef typename boost::range_value<Sections>::type section_type;
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         typedef model::segment
             <
-                typename robust_point_type<Point, RescalePolicy>::type
+                typename robust_point_type<Point, RobustPolicy>::type
             > robust_segment_type;
-#endif
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         if ( boost::empty(range) )
@@ -303,12 +301,8 @@ struct sectionalize_part
             ++previous, ++it, index++)
         {
             segment_type segment(*previous, *it);
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
             robust_segment_type robust_segment;
-            geometry::recalculate(robust_segment, segment, rescale_policy);
-#else
-            segment_type const& robust_segment = segment;
-#endif
+            geometry::recalculate(robust_segment, segment, robust_policy);
 
             int direction_classes[DimensionCount] = {0};
             get_direction_loop
@@ -381,10 +375,10 @@ struct sectionalize_part
                         int, 0, DimensionCount
                     >::apply(direction_classes, section.directions);
 
-                expand_box(*previous, rescale_policy, section);
+                expand_box(*previous, robust_policy, section);
             }
 
-            expand_box(*it, rescale_policy, section);
+            expand_box(*it, robust_policy, section);
             section.end_index = index + 1;
             section.count++;
             if (! duplicate)
@@ -411,19 +405,14 @@ struct sectionalize_part
         }
     }
 
-    template <typename InputPoint, typename RescalePolicy, typename Section>
+    template <typename InputPoint, typename RobustPolicy, typename Section>
     static inline void expand_box(InputPoint const& point,
-                        RescalePolicy const& rescale_policy,
+                        RobustPolicy const& robust_policy,
                         Section& section)
     {
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
                 typename geometry::point_type<typename Section::box_type>::type robust_point;
-
-                geometry::recalculate(robust_point, point, rescale_policy);
+                geometry::recalculate(robust_point, point, robust_policy);
                 geometry::expand(section.bounding_box, robust_point);
-#else
-                geometry::expand(section.bounding_box, point);
-#endif
     }
 };
 
@@ -439,11 +428,11 @@ struct sectionalize_range
     template
     <
         typename Range,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Range const& range,
-                             RescalePolicy const& rescale_policy,
+                             RobustPolicy const& robust_policy,
                              bool make_rescaled_boxes,
                              Sections& sections,
                              ring_identifier ring_id,
@@ -473,7 +462,7 @@ struct sectionalize_range
         }
 
         sectionalize_part<Point, DimensionCount>
-                ::apply(sections, view, rescale_policy, make_rescaled_boxes, ring_id, max_count);
+                ::apply(sections, view, robust_policy, make_rescaled_boxes, ring_id, max_count);
     }
 };
 
@@ -487,11 +476,11 @@ struct sectionalize_polygon
     template
     <
         typename Polygon,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Polygon const& poly,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 bool make_rescaled_boxes,
                 Sections& sections,
                 ring_identifier ring_id, std::size_t max_count)
@@ -505,7 +494,7 @@ struct sectionalize_polygon
             > per_range;
 
         ring_id.ring_index = -1;
-        per_range::apply(exterior_ring(poly), rescale_policy, make_rescaled_boxes, sections, ring_id, max_count);
+        per_range::apply(exterior_ring(poly), robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
 
         ring_id.ring_index++;
         typename interior_return_type<Polygon const>::type rings
@@ -513,7 +502,7 @@ struct sectionalize_polygon
         for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
              ++it, ++ring_id.ring_index)
         {
-            per_range::apply(*it, rescale_policy, make_rescaled_boxes, sections, ring_id, max_count);
+            per_range::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
         }
     }
 };
@@ -527,11 +516,11 @@ struct sectionalize_box
     template
     <
         typename Box,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Box const& box,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 bool make_rescaled_boxes,
                 Sections& sections,
                 ring_identifier const& ring_id, std::size_t max_count)
@@ -563,7 +552,7 @@ struct sectionalize_box
                 closed, false,
                 point_type,
                 DimensionCount
-            >::apply(points, rescale_policy, make_rescaled_boxes, sections,
+            >::apply(points, robust_policy, make_rescaled_boxes, sections,
                      ring_id, max_count);
     }
 };
@@ -700,9 +689,9 @@ struct sectionalize<polygon_tag, Polygon, Reverse, DimensionCount>
     \param sections structure with sections
     \param source_index index to assign to the ring_identifiers
  */
-template<bool Reverse, typename Geometry, typename Sections, typename RescalePolicy>
+template<bool Reverse, typename Geometry, typename Sections, typename RobustPolicy>
 inline void sectionalize(Geometry const& geometry,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 bool make_rescaled_boxes,
                 Sections& sections,
                 int source_index = 0)
@@ -721,7 +710,7 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             Sections::value
-        >::apply(geometry, rescale_policy, make_rescaled_boxes, sections, ring_id, 10);
+        >::apply(geometry, robust_policy, make_rescaled_boxes, sections, ring_id, 10);
 
     detail::sectionalize::set_section_unique_ids(sections);
     if (! make_rescaled_boxes)
@@ -731,7 +720,7 @@ inline void sectionalize(Geometry const& geometry,
 }
 
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST) || defined(BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE)
+#if defined(BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE)
 // Backwards compatibility
 template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry,

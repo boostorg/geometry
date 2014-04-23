@@ -42,7 +42,7 @@ template
     typename TurnPoints,
     typename Indexed,
     typename Geometry1, typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     bool Reverse1, bool Reverse2,
     typename Strategy
 >
@@ -51,12 +51,12 @@ struct sort_in_cluster
     inline sort_in_cluster(TurnPoints const& turn_points
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
-            , RescalePolicy const& rescale_policy
+            , RobustPolicy const& robust_policy
             , Strategy const& strategy)
         : m_turn_points(turn_points)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
-        , m_rescale_policy(rescale_policy)
+        , m_rescale_policy(robust_policy)
         , m_strategy(strategy)
     {}
 
@@ -65,7 +65,7 @@ private :
     TurnPoints const& m_turn_points;
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
-    RescalePolicy const& m_rescale_policy;
+    RobustPolicy const& m_rescale_policy;
     Strategy const& m_strategy;
 
     typedef typename Indexed::type turn_operation_type;
@@ -101,19 +101,12 @@ private :
             right.subject.other_id,
             si, sj);
 
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         geometry::recalculate(pi_rob, pi, m_rescale_policy);
         geometry::recalculate(pj_rob, pj, m_rescale_policy);
         geometry::recalculate(ri_rob, ri, m_rescale_policy);
         geometry::recalculate(rj_rob, rj, m_rescale_policy);
         geometry::recalculate(si_rob, si, m_rescale_policy);
         geometry::recalculate(sj_rob, sj, m_rescale_policy);
-#else
-        detail::zoom_to_robust(pi, pj, ri, rj, si, sj,
-                                 pi_rob, pj_rob,
-                                 ri_rob, rj_rob,
-                                 si_rob, sj_rob);
-#endif
     }
 
 #if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
@@ -140,7 +133,7 @@ private :
                     point_type,
                     typename segment_ratio_type
                     <
-                        point_type, RescalePolicy
+                        point_type, RobustPolicy
                     >::type
                 > intersection_return_type;
 
@@ -706,14 +699,14 @@ template
     typename TurnPoints,
     typename Geometry1,
     typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename Strategy
 >
 inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
             TurnPoints& turn_points,
             operation_type for_operation,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
-            RescalePolicy& rescale_policy,
+            RobustPolicy& robust_policy,
             Strategy const& strategy)
 {
     // First inspect and (possibly) discard rows
@@ -728,10 +721,10 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
-                        RescalePolicy,
+                        RobustPolicy,
                         Reverse1, Reverse2,
                         Strategy
-                    >(turn_points, geometry1, geometry2, rescale_policy, strategy));
+                    >(turn_points, geometry1, geometry2, robust_policy, strategy));
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
     typedef typename IndexType::type operations_type;

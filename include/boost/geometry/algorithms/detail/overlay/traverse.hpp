@@ -94,7 +94,7 @@ template
     typename G2,
     typename Turns,
     typename IntersectionInfo,
-    typename RescalePolicy
+    typename RobustPolicy
 >
 inline bool assign_next_ip(G1 const& g1, G2 const& g2,
             Turns& turns,
@@ -102,7 +102,7 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
             GeometryOut& current_output,
             IntersectionInfo& info,
             segment_identifier& seg_id,
-            RescalePolicy const& rescale_policy)
+            RobustPolicy const& robust_policy)
 {
     info.visited.set_visited();
     set_visited_for_continue(*ip, info);
@@ -123,14 +123,14 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
         {
             geometry::copy_segments<Reverse1>(g1, info.seg_id,
                     info.enriched.travels_to_vertex_index,
-                    rescale_policy,
+                    robust_policy,
                     current_output);
         }
         else
         {
             geometry::copy_segments<Reverse2>(g2, info.seg_id,
                     info.enriched.travels_to_vertex_index,
-                    rescale_policy,
+                    robust_policy,
                     current_output);
         }
         seg_id = info.seg_id;
@@ -143,7 +143,7 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
     }
 
     detail::overlay::append_no_dups_or_spikes(current_output, ip->point,
-        rescale_policy);
+        robust_policy);
 
     return true;
 }
@@ -234,11 +234,11 @@ template
 class traverse
 {
 public :
-    template <typename RescalePolicy, typename Turns, typename Rings>
+    template <typename RobustPolicy, typename Turns, typename Rings>
     static inline void apply(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 detail::overlay::operation_type operation,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 Turns& turns, Rings& rings)
     {
         typedef typename boost::range_value<Rings>::type ring_type;
@@ -284,7 +284,7 @@ public :
 
                             ring_type current_output;
                             detail::overlay::append_no_dups_or_spikes(current_output,
-                                it->point, rescale_policy);
+                                it->point, robust_policy);
 
                             turn_iterator current = it;
                             turn_operation_iterator_type current_iit = iit;
@@ -295,13 +295,13 @@ public :
                                         turns,
                                         current, current_output,
                                         *iit, current_seg_id,
-                                        rescale_policy))
+                                        robust_policy))
                             {
                                 Backtrack::apply(
                                     size_at_start,
                                     rings, current_output, turns, *current_iit,
                                     "No next IP",
-                                    geometry1, geometry2, rescale_policy, state);
+                                    geometry1, geometry2, robust_policy, state);
                             }
 
                             if (! detail::overlay::select_next_ip(
@@ -314,7 +314,7 @@ public :
                                     size_at_start,
                                     rings, current_output, turns, *iit,
                                     "Dead end at start",
-                                    geometry1, geometry2, rescale_policy, state);
+                                    geometry1, geometry2, robust_policy, state);
                             }
                             else
                             {
@@ -336,7 +336,7 @@ public :
                                             size_at_start,
                                             rings,  current_output, turns, *iit,
                                             "Visit again",
-                                            geometry1, geometry2, rescale_policy, state);
+                                            geometry1, geometry2, robust_policy, state);
                                     }
                                     else
                                     {
@@ -356,7 +356,7 @@ public :
                                             geometry1, geometry2,
                                             turns, current, current_output,
                                             *current_iit, current_seg_id,
-                                            rescale_policy);
+                                            robust_policy);
 
                                         if (! detail::overlay::select_next_ip(
                                                     operation,
@@ -371,7 +371,7 @@ public :
                                                 size_at_start,
                                                 rings,  current_output, turns, *iit,
                                                 "Dead end",
-                                                geometry1, geometry2, rescale_policy, state);
+                                                geometry1, geometry2, robust_policy, state);
                                         }
                                         else
                                         {
@@ -387,7 +387,7 @@ public :
                                                 size_at_start,
                                                 rings,  current_output, turns, *iit,
                                                 "Endless loop",
-                                                geometry1, geometry2, rescale_policy, state);
+                                                geometry1, geometry2, robust_policy, state);
                                         }
                                     }
                                 }
@@ -398,7 +398,7 @@ public :
                                     detail::overlay::debug_traverse(*current, *iit, "->Finished");
                                     if (geometry::num_points(current_output) >= min_num_points)
                                     {
-                                        clean_closing_dups_and_spikes(current_output, rescale_policy);
+                                        clean_closing_dups_and_spikes(current_output, robust_policy);
                                         rings.push_back(current_output);
                                     }
                                 }
