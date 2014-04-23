@@ -103,6 +103,25 @@ inline bool is_spike_q(side_calculator<Point1, Point2> const& side_calc,
     return false;
 }
 
+template <typename Point1, typename Point2>
+inline bool is_spike_p(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                       Point2 const& qi, Point2 const& qj, Point2 const& qk)
+{
+    typedef model::referring_segment<Point1 const> segment_type1;
+    segment_type1 p1(pi, pj), p2(pj, pk);
+    side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+    return is_spike_p(side_calc, p1, p2);
+}
+
+template <typename Point1, typename Point2>
+inline bool is_spike_q(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                       Point2 const& qi, Point2 const& qj, Point2 const& qk)
+{
+    typedef model::referring_segment<Point2 const> segment_type2;
+    segment_type2 q1(qi, qj), q2(qj, qk);
+    side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
+    return is_spike_q(side_calc, q1, q2);
+}
 
 // SEGMENT_INTERSECTION RESULT
 
@@ -424,12 +443,38 @@ struct get_turn_info_for_endpoint
 
             if ( p_operation != operation_none )
             {
-                assign(pi, qi, result, ip,
-                       endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip),
-                       p_operation, q_operation,
-                       ip_position(is_p_first_ip, is_p_last_ip),
-                       ip_position(is_q_first_ip, is_q_last_ip),
-                       tp_model, out);
+                method_type method = endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip);
+                turn_position p_pos = ip_position(is_p_first_ip, is_p_last_ip);
+                turn_position q_pos = ip_position(is_q_first_ip, is_q_last_ip);
+
+                // handle spikes
+
+                // P is spike and should be handled
+                if ( !is_p_last && is_pj_ip
+                  && result.template get<0>().count == 2
+                  && is_spike_p(pi, pj, pk, qi, qj, qk) )
+                {
+                    assign(pi, qi, result, ip, method, operation_blocked, q_operation,
+                           p_pos, q_pos, tp_model, out);
+                    assign(pi, qi, result, ip, method, operation_intersection, q_operation,
+                           p_pos, q_pos, tp_model, out);
+                }
+                // Q is spike and should be handled
+                else if ( !is_q_last && is_qj_ip
+                       && result.template get<0>().count == 2
+                       && is_spike_q(pi, pj, pk, qi, qj, qk) )
+                {
+                    assign(pi, qi, result, ip, method, p_operation, operation_blocked,
+                           p_pos, q_pos, tp_model, out);
+                    assign(pi, qi, result, ip, method, p_operation, operation_intersection,
+                           p_pos, q_pos, tp_model, out);
+                }
+                // no spikes
+                else
+                {
+                    assign(pi, qi, result, ip, method, p_operation, q_operation,
+                        p_pos, q_pos, tp_model, out);
+                }
             }
         }
 
