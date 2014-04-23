@@ -20,6 +20,7 @@
 template <typename P>
 void test_all()
 {
+    typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::linestring<P> linestring;
@@ -199,6 +200,10 @@ void test_all()
     test_touches<linestring, mpolygon>("LINESTRING(-1 -1,3 3)", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", true);
 
     test_touches<mlinestring, mpolygon>("MULTILINESTRING((0 0,11 11))", "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))", false);
+
+    //test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((5 1,5 2,6 2,6 1,5 1))", true);
+    //test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((4 1,4 2,5 2,5 1,4 1))", false);
+    //test_touches<box, box>("POLYGON((0 0,0 5,5 5,5 0,0 0))", "POLYGON((4 1,4 2,6 2,6 1,4 1))", false);
 }
 
 

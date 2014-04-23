@@ -193,22 +193,6 @@ struct use_point_in_geometry
     }
 };
 
-struct use_relate
-{
-    template <typename Geometry1, typename Geometry2>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
-    {
-        typedef typename
-            detail::relate::static_mask_touches_type
-                <
-                    Geometry1,
-                    Geometry2
-                >::type static_mask;
-
-        return detail::relate::relate<static_mask>(geometry1, geometry2);
-    }
-};
-
 }}
 #endif // DOXYGEN_NO_DETAIL
 
@@ -226,7 +210,8 @@ template
     typename CastedTag2 = typename tag_cast<Tag2, pointlike_tag, linear_tag, areal_tag>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
-struct touches : not_implemented<Tag1, Tag2>
+struct touches
+    : not_implemented<Tag1, Tag2>
 {};
 
 // If reversal is needed, perform it
@@ -269,19 +254,35 @@ struct touches<Point, Geometry, point_tag, Tag2, pointlike_tag, CastedTag2, fals
 
 template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
 struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, linear_tag, false>
-    : detail::touches::use_relate
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Linear1,
+        Linear2
+    >
 {};
 
 // L/A
 
-template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
-struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, areal_tag, true>
-    : detail::touches::use_relate
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Linear,
+        Areal
+    >
 {};
 
-template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
-struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, areal_tag, false>
-    : detail::touches::use_relate
+// A/L
+template <typename Linear, typename Areal, typename Tag1, typename Tag2>
+struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
+    : detail::relate::relate_base
+    <
+        detail::relate::static_mask_touches_type,
+        Areal,
+        Linear
+    >
 {};
 
 // A/A
