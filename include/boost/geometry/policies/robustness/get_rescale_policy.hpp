@@ -52,17 +52,18 @@ static inline void init_rescale_policy(Geometry const& geometry,
         <
             typename geometry::coordinate_type<Point>::type
         >::type num_type;
-    num_type diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
-    num_type range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
+    num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const half = 0.5;
     factor = boost::numeric_cast<num_type>(
-            boost::long_long_type(0.5 + range / diff));
+            boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
-    num_type const two = 2;
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point,
-        boost::long_long_type(-range/two),
-        boost::long_long_type(-range/two));
+    num_type const two = 2;
+    boost::long_long_type const min_coordinate
+        = boost::numeric_cast<boost::long_long_type>(-range / two);
+    assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
 template <typename Point, typename RobustPoint, typename Geometry1, typename Geometry2, typename Factor>
@@ -83,17 +84,18 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
         <
             typename geometry::coordinate_type<Point>::type
         >::type num_type;
-    num_type diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
-    num_type range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
+    num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
+    num_type const half = 0.5;
     factor = boost::numeric_cast<num_type>(
-            boost::long_long_type(0.5 + range / diff));
+            boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
-    num_type const two = 2;
     detail::assign_point_from_index<0>(env, min_point);
-    assign_values(min_robust_point,
-        boost::long_long_type(-range/two),
-        boost::long_long_type(-range/two));
+    num_type const two = 2;
+    boost::long_long_type const min_coordinate
+        = boost::numeric_cast<boost::long_long_type>(-range / two);
+    assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
 
