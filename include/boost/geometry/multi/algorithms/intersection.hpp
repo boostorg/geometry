@@ -45,10 +45,13 @@ struct intersection_multi_linestring_multi_linestring_point
     template
     <
         typename MultiLinestring1, typename MultiLinestring2,
+        typename RobustPolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(MultiLinestring1 const& ml1,
-            MultiLinestring2 const& ml2, OutputIterator out,
+            MultiLinestring2 const& ml2,
+            RobustPolicy const& robust_policy,
+            OutputIterator out,
             Strategy const& strategy)
     {
         // Note, this loop is quadratic w.r.t. number of linestrings per input.
@@ -68,7 +71,7 @@ struct intersection_multi_linestring_multi_linestring_point
                 ++it2)
             {
                 out = intersection_linestring_linestring_point<PointOut>
-                      ::apply(*it1, *it2, out, strategy);
+                      ::apply(*it1, *it2, robust_policy, out, strategy);
             }
         }
 
@@ -83,10 +86,13 @@ struct intersection_linestring_multi_linestring_point
     template
     <
         typename Linestring, typename MultiLinestring,
+        typename RobustPolicy,
         typename OutputIterator, typename Strategy
     >
     static inline OutputIterator apply(Linestring const& linestring,
-            MultiLinestring const& ml, OutputIterator out,
+            MultiLinestring const& ml,
+            RobustPolicy const& robust_policy,
+            OutputIterator out,
             Strategy const& strategy)
     {
         for (typename boost::range_iterator
@@ -97,7 +103,7 @@ struct intersection_linestring_multi_linestring_point
             ++it)
         {
             out = intersection_linestring_linestring_point<PointOut>
-                  ::apply(linestring, *it, out, strategy);
+                  ::apply(linestring, *it, robust_policy, out, strategy);
         }
 
         return out;
