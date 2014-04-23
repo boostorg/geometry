@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>

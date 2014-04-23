@@ -17,6 +17,8 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/geometry/algorithms/detail/single_geometry.hpp>
 
