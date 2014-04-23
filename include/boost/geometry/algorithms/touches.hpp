@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,6 +14,8 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_TOUCHES_HPP
@@ -43,6 +45,85 @@ namespace boost { namespace geometry
 namespace detail { namespace touches
 {
 
+// Box/Box
+
+template
+<
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct box_box_loop
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& b1, Box2 const& b2, bool & touch)
+    {
+        typedef typename coordinate_type<Box1>::type coordinate_type1;
+        typedef typename coordinate_type<Box2>::type coordinate_type2;
+
+        coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
+        coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);
+        coordinate_type2 const& min2 = get<min_corner, Dimension>(b2);
+        coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
+
+        // TODO assert or exception?
+        //BOOST_ASSERT(min1 <= max1 && min2 <= max2);
+
+        if ( max1 < min2 || max2 < min1 )
+        {
+            return false;
+        }
+
+        if ( max1 == min2 || max2 == min1 )
+        {
+            touch = true;
+        }
+        
+        return box_box_loop
+                <
+                    Dimension + 1,
+                    DimensionCount
+                >::apply(b1, b2, touch);
+    }
+};
+
+template
+<
+    std::size_t DimensionCount
+>
+struct box_box_loop<DimensionCount, DimensionCount>
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& , Box2 const&, bool &)
+    {
+        return true;
+    }
+};
+
+struct box_box
+{
+    template <typename Box1, typename Box2>
+    static inline bool apply(Box1 const& b1, Box2 const& b2)
+    {
+        BOOST_STATIC_ASSERT((boost::is_same
+                                <
+                                    typename geometry::coordinate_system<Box1>::type,
+                                    typename geometry::coordinate_system<Box2>::type
+                                >::value
+                           ));
+        assert_dimension_equal<Box1, Box2>();
+
+        bool touches = false;
+        bool ok = box_box_loop
+                    <
+                        0,
+                        dimension<Box1>::type::value
+                    >::apply(b1, b2, touches);
+
+        return ok && touches;
+    }
+};
+
+// Areal/Areal
 
 struct areal_interrupt_policy
 {
@@ -188,6 +269,7 @@ struct areal_areal
     }
 };
 
+// P/*
 
 struct use_point_in_geometry
 {
@@ -254,6 +336,18 @@ struct touches<Point, Geometry, point_tag, Tag2, pointlike_tag, CastedTag2, fals
 {};
 
 // TODO: support touches(MPt, Linear/Areal)
+
+// Box/Box
+
+template <typename Box1, typename Box2, typename CastedTag1, typename CastedTag2>
+struct touches<Box1, Box2, box_tag, box_tag, CastedTag1, CastedTag2, false>
+    : detail::touches::box_box
+{};
+
+template <typename Box1, typename Box2>
+struct touches<Box1, Box2, box_tag, box_tag, areal_tag, areal_tag, false>
+    : detail::touches::box_box
+{};
 
 // L/L
 
