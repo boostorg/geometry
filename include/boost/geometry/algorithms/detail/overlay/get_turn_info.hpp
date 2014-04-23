@@ -307,17 +307,9 @@ struct touch : public base_turn_handler
             int const side_pk_p  = side.pk_wrt_p1();
             int const side_qk_q  = side.qk_wrt_q1();
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-            bool const both_continue = side_pk_p == 0 && side_qk_q == 0;
-            bool const robustness_issue_in_continue = both_continue && side_pk_q2 != 0;
-#endif
-
             bool const q_turns_left = side_qk_q == 1;
             bool const block_q = side_qk_p1 == 0
                         && ! same(side_qi_p1, side_qk_q)
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-                        && ! robustness_issue_in_continue
-#endif
                         ;
 
             // If Pk at same side as Qi/Qk
@@ -640,29 +632,12 @@ struct collinear : public base_turn_handler
             : side_q
             ;
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        int const side_pk = side.pk_wrt_q1();
-        int const side_qk = side.qk_wrt_p1();
-#endif
-
         // See comments above,
         // resulting in a strange sort of mathematic rule here:
         // The arrival-info multiplied by the relevant side
         // delivers a consistent result.
 
         int const product = arrival * side_p_or_q;
-
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        // Robustness: side_p is supposed to be equal to side_pk (because p/q are collinear)
-        // and side_q to side_qk
-        bool const robustness_issue = side_pk != side_p || side_qk != side_q;
-
-        if (robustness_issue)
-        {
-            handle_robustness(ti, arrival, side_p, side_q, side_pk, side_qk);
-        }
-        else
-#endif
 
         if(product == 0)
         {
@@ -673,39 +648,6 @@ struct collinear : public base_turn_handler
             ui_else_iu(product == 1, ti);
         }
     }
-
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-    static inline void handle_robustness(TurnInfo& ti, int arrival,
-                    int side_p, int side_q, int side_pk, int side_qk)
-    {
-        // We take the longer one, i.e. if q arrives in p (arrival == -1),
-        // then p exceeds q and we should take p for a union...
-
-        bool use_p_for_union = arrival == -1;
-
-        // ... unless one of the sides consistently directs to the other side
-        int const consistent_side_p = side_p == side_pk ? side_p : 0;
-        int const consistent_side_q = side_q == side_qk ? side_q : 0;
-        if (arrival == -1 && (consistent_side_p == -1 || consistent_side_q == 1))
-        {
-            use_p_for_union = false;
-        }
-        if (arrival == 1 && (consistent_side_p == 1 || consistent_side_q == -1))
-        {
-            use_p_for_union = true;
-        }
-
-        //std::cout << "ROBUSTNESS -> Collinear "
-        //    << " arr: " << arrival
-        //    << " dir: " << side_p << " " << side_q
-        //    << " rev: " << side_pk << " " << side_qk
-        //    << " cst: " << cside_p << " " << cside_q
-        //    << std::boolalpha << " " << use_p_for_union
-        //    << std::endl;
-
-        ui_else_iu(use_p_for_union, ti);
-    }
-#endif
 
 };
 
@@ -752,23 +694,8 @@ private :
                 Point const& , Point const& , int side_rk_s,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
-        if (handle_robustness)
-        {
-            // For Robustness: also calculate rk w.r.t. the other line. Because they are collinear opposite, that direction should be the reverse of the first direction.
-            // If this is not the case, we make it all-collinear, so zero
-            if (side_rk_r != 0 && side_rk_r != -side_rk_s)
-            {
-#ifdef BOOST_GEOMETRY_DEBUG_ROBUSTNESS
-                std::cout << "Robustness correction: " << side_rk_r << " / " << side_rk_s << std::endl;
-#endif
-                side_rk_r = 0;
-            }
-        }
-#else
         boost::ignore_unused_variable_warning(handle_robustness);
         boost::ignore_unused_variable_warning(side_rk_s);
-#endif
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)
@@ -1005,7 +932,7 @@ struct get_turn_info
         typename Point1,
         typename Point2,
         typename TurnInfo,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
@@ -1014,36 +941,28 @@ struct get_turn_info
                 bool /*is_p_first*/, bool /*is_p_last*/,
                 bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& tp_model,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         typedef typename geometry::robust_point_type
             <
-                Point1, RescalePolicy
+                Point1, RobustPolicy
             >::type robust_point_type;
 
         robust_point_type pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob;
-        geometry::recalculate(pi_rob, pi, rescale_policy);
-        geometry::recalculate(pj_rob, pj, rescale_policy);
-        geometry::recalculate(pk_rob, pk, rescale_policy);
-        geometry::recalculate(qi_rob, qi, rescale_policy);
-        geometry::recalculate(qj_rob, qj, rescale_policy);
-        geometry::recalculate(qk_rob, qk, rescale_policy);
-#endif
-
-
+        geometry::recalculate(pi_rob, pi, robust_policy);
+        geometry::recalculate(pj_rob, pj, robust_policy);
+        geometry::recalculate(pk_rob, pk, robust_policy);
+        geometry::recalculate(qi_rob, qi, robust_policy);
+        geometry::recalculate(qj_rob, qj, robust_policy);
+        geometry::recalculate(qk_rob, qk, robust_policy);
 
         typedef model::referring_segment<Point1 const> segment_type1;
         typedef model::referring_segment<Point2 const> segment_type2;
         segment_type1 p1(pi, pj);
         segment_type2 q1(qi, qj);
 
-#if defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
         side_calculator<robust_point_type, robust_point_type> side_calc(pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob);
-#else
-        side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
-#endif
 
         typedef strategy_intersection
             <
@@ -1051,13 +970,13 @@ struct get_turn_info
                 Point1,
                 Point2,
                 typename TurnInfo::point_type,
-                RescalePolicy
+                RobustPolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
         typename strategy::return_type result = strategy::apply(p1, q1,
-                    rescale_policy, pi_rob, pj_rob, qi_rob, qj_rob);
+                    robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
 
         char const method = result.template get<1>().how;
 

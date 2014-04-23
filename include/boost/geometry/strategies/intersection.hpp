@@ -37,13 +37,13 @@ template
     typename Geometry1,
     typename Geometry2,
     typename IntersectionPoint,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename CalculationType = void
 >
 struct strategy_intersection
 {
 private :
-    // for development BOOST_STATIC_ASSERT((! boost::is_same<RescalePolicy, void>::type::value));
+    // for development BOOST_STATIC_ASSERT((! boost::is_same<RobustPolicy, void>::type::value));
 
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
@@ -55,7 +55,7 @@ private :
         IntersectionPoint,
         typename geometry::segment_ratio_type
         <
-            IntersectionPoint, RescalePolicy
+            IntersectionPoint, RobustPolicy
         >::type
     > ip_type;
 
@@ -79,7 +79,7 @@ public:
             CalculationType
         >::type side_strategy_type;
 
-    typedef RescalePolicy rescale_policy_type;
+    typedef RobustPolicy rescale_policy_type;
 };
 
 

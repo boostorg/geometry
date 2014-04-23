@@ -100,7 +100,7 @@ struct zoom_to_robust<boost::true_type>
         point2_type min_point2;
         assign_values(min_point2, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 
-        detail::rescale_policy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
+        detail::robust_policy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
 
         geometry::recalculate(og1, g1, strategy);
         geometry::recalculate(og2, g2, strategy);
@@ -143,7 +143,7 @@ inline void zoom_to_robust(Geometry1 const& g1a, Geometry1 const& g1b, Geometry2
     detail::assign_point_from_index<0>(env, min_point1);
     assign_values(min_point2, boost::long_long_type(-range/2.0), boost::long_long_type(-range/2.0));
 
-    detail::rescale_policy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
+    detail::robust_policy<point1_type, point2_type, double> strategy(min_point1, min_point2, factor);
     geometry::recalculate(g2a, g1a, strategy);
     geometry::recalculate(g2b, g1b, strategy);
 }

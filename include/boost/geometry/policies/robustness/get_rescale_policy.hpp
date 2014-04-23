@@ -124,7 +124,7 @@ struct rescale_policy_type<Point, true>
         typename geometry::coordinate_system<Point>::type
     > robust_point_type;
     typedef typename promote_floating_point<coordinate_type>::type factor_type;
-    typedef detail::rescale_policy<Point, robust_point_type, factor_type> type;
+    typedef detail::robust_policy<Point, robust_point_type, factor_type> type;
 };
 
 template <typename Policy>

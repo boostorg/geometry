@@ -215,14 +215,14 @@ template
     typename Container,
     typename TurnPoints,
     typename Geometry1, typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename Strategy
 >
 inline void enrich_sort(Container& operations,
             TurnPoints& turn_points,
             operation_type for_operation,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             Strategy const& strategy)
 {
     typedef typename IndexType::type operations_type;
@@ -270,14 +270,14 @@ inline void enrich_sort(Container& operations,
             else if (begin_cluster != boost::end(operations))
             {
                 handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
-                        for_operation, geometry1, geometry2, rescale_policy, strategy);
+                        for_operation, geometry1, geometry2, robust_policy, strategy);
                 begin_cluster = boost::end(operations);
             }
         }
         if (begin_cluster != boost::end(operations))
         {
             handle_cluster<IndexType, Reverse1, Reverse2>(begin_cluster, it, turn_points,
-                    for_operation, geometry1, geometry2, rescale_policy, strategy);
+                    for_operation, geometry1, geometry2, robust_policy, strategy);
         }
     }
 
@@ -450,13 +450,13 @@ template
     bool Reverse1, bool Reverse2,
     typename TurnPoints,
     typename Geometry1, typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename Strategy
 >
 inline void enrich_intersection_points(TurnPoints& turn_points,
     detail::overlay::operation_type for_operation,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
-    RescalePolicy const& rescale_policy,
+    RobustPolicy const& robust_policy,
     Strategy const& strategy)
 {
     typedef typename boost::range_value<TurnPoints>::type turn_point_type;
@@ -511,7 +511,7 @@ inline void enrich_intersection_points(TurnPoints& turn_points,
         << mit->first << std::endl;
 #endif
         detail::overlay::enrich_sort<indexed_turn_operation, Reverse1, Reverse2>(mit->second, turn_points, for_operation,
-                    geometry1, geometry2, rescale_policy, strategy);
+                    geometry1, geometry2, robust_policy, strategy);
     }
 
     for (typename mapped_vector_type::iterator mit

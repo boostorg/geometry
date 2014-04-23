@@ -55,18 +55,18 @@ template
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename InterruptPolicy
 >
 struct self_section_visitor
 {
     Geometry const& m_geometry;
-    RescalePolicy const& m_rescale_policy;
+    RobustPolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
 
     inline self_section_visitor(Geometry const& g,
-            RescalePolicy const& rp,
+            RobustPolicy const& rp,
             Turns& turns, InterruptPolicy& ip)
         : m_geometry(g)
         , m_rescale_policy(rp)
@@ -110,10 +110,10 @@ struct self_section_visitor
 template<typename TurnPolicy>
 struct get_turns
 {
-    template <typename Geometry, typename RescalePolicy, typename Turns, typename InterruptPolicy>
+    template <typename Geometry, typename RobustPolicy, typename Turns, typename InterruptPolicy>
     static inline bool apply(
             Geometry const& geometry,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
@@ -127,13 +127,13 @@ struct get_turns
             > sections_type;
 
         sections_type sec;
-        geometry::sectionalize<false>(geometry, rescale_policy, false, sec);
+        geometry::sectionalize<false>(geometry, robust_policy, false, sec);
 
         self_section_visitor
             <
                 Geometry,
-                Turns, TurnPolicy, RescalePolicy, InterruptPolicy
-            > visitor(geometry, rescale_policy, turns, interrupt_policy);
+                Turns, TurnPolicy, RobustPolicy, InterruptPolicy
+            > visitor(geometry, robust_policy, turns, interrupt_policy);
 
         try
         {
@@ -198,10 +198,10 @@ struct self_get_turn_points
         TurnPolicy
     >
 {
-    template <typename RescalePolicy, typename Turns, typename InterruptPolicy>
+    template <typename RobustPolicy, typename Turns, typename InterruptPolicy>
     static inline bool apply(
             Box const& ,
-            RescalePolicy const& ,
+            RobustPolicy const& ,
             Turns& ,
             InterruptPolicy& )
     {
@@ -243,12 +243,12 @@ template
 <
     typename AssignPolicy,
     typename Geometry,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename Turns,
     typename InterruptPolicy
 >
 inline void self_turns(Geometry const& geometry,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             Turns& turns, InterruptPolicy& interrupt_policy)
 {
     concept::check<Geometry const>();
@@ -260,7 +260,7 @@ inline void self_turns(Geometry const& geometry,
                 typename tag<Geometry>::type,
                 Geometry,
                 TurnPolicy
-            >::apply(geometry, rescale_policy, turns, interrupt_policy);
+            >::apply(geometry, robust_policy, turns, interrupt_policy);
 }
 
 

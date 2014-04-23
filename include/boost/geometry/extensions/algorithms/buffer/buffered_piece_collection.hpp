@@ -103,7 +103,7 @@ struct check_original<point_tag>
 };
 
 
-template <typename Ring, typename RescalePolicy>
+template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type point_type;
@@ -146,7 +146,7 @@ struct buffered_piece_collection
     typedef typename geometry::segment_ratio_type
     <
         point_type,
-        RescalePolicy
+        RobustPolicy
     >::type segment_ratio_type;
 
     typedef buffer_turn_info
@@ -172,7 +172,7 @@ struct buffered_piece_collection
     // To check clustered locations we keep track of segments being opposite somewhere
     std::set<segment_identifier> m_in_opposite_segments;
 
-    RescalePolicy const& m_rescale_policy;
+    RobustPolicy const& m_rescale_policy;
 
     struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
     {
@@ -194,8 +194,8 @@ struct buffered_piece_collection
         }
     };
 
-    buffered_piece_collection(RescalePolicy const& rescale_policy)
-        : m_rescale_policy(rescale_policy)
+    buffered_piece_collection(RobustPolicy const& robust_policy)
+        : m_rescale_policy(robust_policy)
     {}
 
 
@@ -660,7 +660,7 @@ struct buffered_piece_collection
         typedef typename geometry::robust_point_type
         <
             point_type,
-            RescalePolicy
+            RobustPolicy
         >::type robust_point_type;
 
         robust_point_type p1_rob, p2_rob, prev1_rob, prev2_rob, cur1_rob, cur2_rob;

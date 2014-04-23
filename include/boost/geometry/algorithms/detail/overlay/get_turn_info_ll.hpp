@@ -86,7 +86,7 @@ struct get_turn_info_linear_linear
         typename Point1,
         typename Point2,
         typename TurnInfo,
-        typename RescalePolicy,
+        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
@@ -95,7 +95,7 @@ struct get_turn_info_linear_linear
                 bool is_p_first, bool is_p_last,
                 bool is_q_first, bool is_q_last,
                 TurnInfo const& tp_model,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef model::referring_segment<Point1 const> segment_type1;
@@ -111,12 +111,12 @@ struct get_turn_info_linear_linear
                 Point1,
                 Point2,
                 typename TurnInfo::point_type,
-                RescalePolicy
+                RobustPolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
 
-        typename strategy::return_type result = strategy::apply(p1, q1, rescale_policy);
+        typename strategy::return_type result = strategy::apply(p1, q1, robust_policy);
 
         char const method = result.template get<1>().how;
 

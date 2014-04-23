@@ -36,14 +36,14 @@ template
 >
 struct get_turn_without_info
 {
-    template <typename RescalePolicy, typename OutputIterator>
+    template <typename RobustPolicy, typename OutputIterator>
     static inline OutputIterator apply(
                 Point1 const& pi, Point1 const& pj, Point1 const& pk,
                 Point2 const& qi, Point2 const& qj, Point2 const& qk,
                 bool /*is_p_first*/, bool /*is_p_last*/,
                 bool /*is_q_first*/, bool /*is_q_last*/,
                 TurnInfo const& ,
-                RescalePolicy const& rescale_policy,
+                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef strategy_intersection
@@ -52,7 +52,7 @@ struct get_turn_without_info
                 Point1,
                 Point2,
                 typename TurnInfo::point_type,
-                RescalePolicy
+                RobustPolicy
             > si;
 
         typedef typename si::segment_intersection_strategy_type strategy;
@@ -64,16 +64,16 @@ struct get_turn_without_info
 
         typedef typename geometry::robust_point_type
             <
-                Point1, RescalePolicy
+                Point1, RobustPolicy
             >::type robust_point_type;
 
         robust_point_type pi_rob, pj_rob, qi_rob, qj_rob;
-        geometry::recalculate(pi_rob, pi, rescale_policy);
-        geometry::recalculate(pj_rob, pj, rescale_policy);
-        geometry::recalculate(qi_rob, qi, rescale_policy);
-        geometry::recalculate(qj_rob, qj, rescale_policy);
+        geometry::recalculate(pi_rob, pi, robust_policy);
+        geometry::recalculate(pj_rob, pj, robust_policy);
+        geometry::recalculate(qi_rob, qi, robust_policy);
+        geometry::recalculate(qj_rob, qj, robust_policy);
         typename strategy::return_type result
-            = strategy::apply(p1, q1, rescale_policy,
+            = strategy::apply(p1, q1, robust_policy,
                               pi_rob, pj_rob, qi_rob, qj_rob);
 
         for (std::size_t i = 0; i < result.template get<0>().count; i++)
@@ -98,12 +98,12 @@ template
 <
     typename Geometry1,
     typename Geometry2,
-    typename RescalePolicy,
+    typename RobustPolicy,
     typename Turns
 >
 inline void get_intersection_points(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            RescalePolicy const& rescale_policy,
+            RobustPolicy const& robust_policy,
             Turns& turns)
 {
     concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
@@ -121,7 +121,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             Geometry1,
             Geometry2,
             typename point_type<Geometry1>::type, // TODO from both
-            RescalePolicy
+            RobustPolicy
         >::segment_intersection_strategy_type segment_intersection_strategy_type;
 
     detail::get_turns::no_interrupt_policy interrupt_policy;
@@ -148,7 +148,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
         >::type::apply(
             0, geometry1,
             1, geometry2,
-            rescale_policy,
+            robust_policy,
             turns, interrupt_policy);
 }
 

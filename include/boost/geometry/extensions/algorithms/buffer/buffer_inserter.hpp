@@ -448,7 +448,7 @@ template
     typename DistanceStrategy,
     typename JoinStrategy,
     typename EndStrategy,
-    typename RescalePolicy
+    typename RobustPolicy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     , typename Mapper
 #endif
@@ -457,7 +457,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         DistanceStrategy const& distance_strategy,
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
-        RescalePolicy const& rescale_policy
+        RobustPolicy const& robust_policy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
             , Mapper& mapper
 #endif
@@ -470,8 +470,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 #endif
         <
             typename geometry::ring_type<GeometryOutput>::type,
-            RescalePolicy
-        > collection(rescale_policy);
+            RobustPolicy
+        > collection(robust_policy);
 
     dispatch::buffer_inserter
         <
