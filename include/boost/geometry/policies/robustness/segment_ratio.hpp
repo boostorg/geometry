@@ -9,11 +9,12 @@
 #ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 #define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 
-
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/rational.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -46,10 +47,10 @@ struct less<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        assert(lhs.denominator() != 0);
-        assert(rhs.denominator() != 0);
-        return lhs.numerator() / lhs.denominator()
-             < rhs.numerator() / rhs.denominator();
+        BOOST_ASSERT(lhs.denominator() != 0);
+        BOOST_ASSERT(rhs.denominator() != 0);
+        return lhs.numerator() * rhs.denominator()
+             < rhs.numerator() * lhs.denominator();
     }
 };
 
@@ -77,12 +78,12 @@ struct equal<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        assert(lhs.denominator() != 0);
-        assert(rhs.denominator() != 0);
+        BOOST_ASSERT(lhs.denominator() != 0);
+        BOOST_ASSERT(rhs.denominator() != 0);
         return geometry::math::equals
             (
-                lhs.numerator() / lhs.denominator()
-              , rhs.numerator() / rhs.denominator()
+                lhs.numerator() * rhs.denominator(),
+                rhs.numerator() * lhs.denominator()
             );
     }
 };
@@ -117,8 +118,8 @@ public :
         initialize();
     }
 
-    inline Type numerator() const { return m_numerator; }
-    inline Type denominator() const { return m_denominator; }
+    inline Type const& numerator() const { return m_numerator; }
+    inline Type const& denominator() const { return m_denominator; }
 
     inline void assign(const Type& nominator, const Type& denominator)
     {
@@ -137,10 +138,15 @@ public :
             m_denominator = -m_denominator;
         }
 
-        static const double scale = 1000000.0;
+        typedef typename promote_floating_point<Type>::type num_type;
+        static const num_type scale = 1000000.0;
         m_approximation =
             m_denominator == 0 ? 0
-            : int(double(m_numerator) * scale / double(m_denominator));
+            : boost::numeric_cast<int>
+                (
+                    boost::numeric_cast<num_type>(m_numerator) * scale
+                  / boost::numeric_cast<num_type>(m_denominator)
+                );
     }
 
     inline bool is_zero() const { return math::equals(m_numerator, 0); }
