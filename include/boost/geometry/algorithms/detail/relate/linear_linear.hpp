@@ -399,7 +399,7 @@ struct linear_linear
             {
                 // degenerated turn
                 if ( op == overlay::operation_continue
-                  && it->method == overlay::method_collinear
+                  && it->method == overlay::method_none
                   && m_exit_watcher.is_outside(*it) 
                   /*&& ( m_exit_watcher.get_exit_operation() == overlay::operation_none 
                     || ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )*/ )
@@ -759,7 +759,7 @@ struct linear_linear
                         update<interior, interior, '0', transpose_result>(res);
                     }
 
-                    // 'c' should be last for the same IP so we know that the next point won't be the same
+                    // operation 'c' should be last for the same IP so we know that the next point won't be the same
                     update<interior, exterior, '1', transpose_result>(res);
 
                     m_degenerated_turn_ptr = boost::addressof(turn);
