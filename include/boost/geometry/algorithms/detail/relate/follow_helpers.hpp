@@ -374,33 +374,17 @@ static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
 
     // IP on the last point of the linestring
     if ( (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
-        && operation_info.operation == overlay::operation_blocked )
+      && operation_info.position == overlay::position_back )
     {
-        BOOST_ASSERT(operation_info.position == overlay::position_back);
         // check if this point is a boundary
         res = boundary_checker.template is_endpoint_boundary<boundary_back>(ip);
-
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_back>(ip, seg_id));
-#endif
     }
     // IP on the last point of the linestring
     else if ( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
-            && operation_info.position == overlay::position_front )
+           && operation_info.position == overlay::position_front )
     {
         // check if this point is a boundary
         res = boundary_checker.template is_endpoint_boundary<boundary_front>(ip);
-
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_front>(ip, seg_id));
-#endif
-    }
-    // IP somewhere in the interior
-    else
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_any>(ip, seg_id));
-#endif
     }
             
     return res;

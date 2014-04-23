@@ -177,10 +177,10 @@ struct get_turn_info_linear_linear
 
                     // after replacement the spike will be e,c/c
                     if ( ! handle_spikes
-                      || ! append_opposite_spikes(tp, result, side_calc,
-                                                  p1, p2, q1, q2,
-                                                  is_p_last, is_q_last,
-                                                  operation_continue, out) )
+                      || ! append_opposite_spikes<append_touches>(
+                                tp, result, side_calc,
+                                p1, p2, q1, q2,
+                                is_p_last, is_q_last, out) )
                     {
                         *out++ = tp;
                     }
@@ -305,10 +305,10 @@ struct get_turn_info_linear_linear
                         // conditionally handle spikes
                         if ( handle_spikes )
                         {
-                            append_opposite_spikes(tp, result, side_calc,
-                                                   p1, p2, q1, q2,
-                                                   is_p_last, is_q_last,
-                                                   operation_none, out, true);
+                            append_opposite_spikes<append_collinear_opposite>(
+                                    tp, result, side_calc,
+                                    p1, p2, q1, q2,
+                                    is_p_last, is_q_last, out);
                         }
 
                         // TODO: ignore for spikes?
@@ -436,7 +436,10 @@ struct get_turn_info_linear_linear
         return false;
     }
 
-    template <typename TurnInfo,
+    enum append_version { append_touches, append_collinear_opposite };
+
+    template <append_version Version,
+              typename TurnInfo,
               typename Result,
               typename SideCalc,
               typename SegmentP,
@@ -447,14 +450,18 @@ struct get_turn_info_linear_linear
                                               SideCalc const& side_calc,
                                               SegmentP const& p1, SegmentP const& p2,
                                               SegmentQ const& q1, SegmentQ const& q2,
-                                              bool is_p_last, bool is_q_last,
-                                              operation_type spike_op, OutIt out,
-                                              bool collinear_opposite = false)
+                                              bool is_p_last, bool is_q_last, OutIt out)
     {
-        bool is_p_spike = tp.operations[0].operation == spike_op
+        bool is_p_spike = ( Version == append_touches ?
+                            ( tp.operations[0].operation == operation_continue
+                           || tp.operations[0].operation == operation_intersection ) :
+                            true )
                        && ! is_p_last
                        && is_spike_p(side_calc, p1, p2);
-        bool is_q_spike = tp.operations[1].operation == spike_op
+        bool is_q_spike = ( Version == append_touches ?
+                            ( tp.operations[1].operation == operation_continue
+                           || tp.operations[1].operation == operation_intersection ) :
+                            true )
                        && ! is_q_last
                        && is_spike_q(side_calc, q1, q2);
 
@@ -464,10 +471,17 @@ struct get_turn_info_linear_linear
 
             // arrivals 0 and 1 are handled by touches? 
 
-            if ( is_p_spike && ( !collinear_opposite || result.template get<1>().arrival[0] == 1 ) )
+            if ( is_p_spike && ( Version == append_touches || result.template get<1>().arrival[0] == 1 ) )
             {
-                if ( collinear_opposite )
+                if ( Version == append_touches )
                 {
+                    tp.operations[0].is_collinear = true;
+                    //tp.operations[1].is_collinear = ???
+                }
+                else
+                {
+                    //tp.operations[0].is_collinear = true;
+                    //tp.operations[1].is_collinear = true;
                     tp.method = method_touch_interior; // only because arrival != 0
                     BOOST_ASSERT(result.template get<0>().count > 1);
                     geometry::convert(result.template get<0>().intersections[1], tp.point);
@@ -481,10 +495,17 @@ struct get_turn_info_linear_linear
                 *out++ = tp;
             }
 
-            if ( is_q_spike && ( !collinear_opposite || result.template get<1>().arrival[1] == 1 ) )
+            if ( is_q_spike && ( Version == append_touches || result.template get<1>().arrival[1] == 1 ) )
             {
-                if ( collinear_opposite )
+                if ( Version == append_touches )
                 {
+                    //tp.operations[0].is_collinear = ???
+                    tp.operations[1].is_collinear = true;
+                }
+                else
+                {
+                    //tp.operations[0].is_collinear = true;
+                    //tp.operations[1].is_collinear = true;
                     tp.method = method_touch_interior; // only because arrival != 0
                     BOOST_ASSERT(result.template get<0>().count > 0);
                     geometry::convert(result.template get<0>().intersections[0], tp.point);

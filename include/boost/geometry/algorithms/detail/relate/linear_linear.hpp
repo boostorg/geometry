@@ -455,6 +455,12 @@ struct linear_linear
                 if ( op == overlay::operation_blocked )
                     return;
 
+                if ( op == overlay::operation_intersection
+                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                {
+                    fake_enter_detected = true;
+                }
+
                 m_exit_watcher.reset_detected_exit();
             }
 

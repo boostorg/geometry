@@ -75,6 +75,8 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1,5 3)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
     test_geometry<ls, ls>("LINESTRING(5 3,1 1,3 3,2 2,0 0)", "LINESTRING(6 3,3 3,0 0)", "1F100F102");
 
+    test_geometry<ls, ls>("LINESTRING(6 3,3 3,0 0)", "LINESTRING(0 0,2 2,3 3,1 1,5 3)", "101F001F2");
+
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(1 0,9 0,2 0)", "101FF0FF2");
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,1 1)", "LINESTRING(0 0,3 3,6 3)", "1FF00F102");
     // TODO: REWRITE MATRICES
@@ -219,6 +221,10 @@ void test_linestring_multi_linestring()
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2,1 1))", "101FF01F2");
     // 2xLS forming non-simple linear ring disjoint
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1,2 2),(1 1,2 2))", "101FF01F2");
+
+    test_geometry<ls, mls>("LINESTRING(0 0,10 0)",
+                           "MULTILINESTRING((1 0,9 0),(9 0,2 0))",
+                           "101FF0FF2");
 
     // INVALID LINESTRINGS
     // 1-point LS (a Point) disjoint

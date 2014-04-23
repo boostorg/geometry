@@ -158,6 +158,9 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,5 5,6 3)",
                           expected("miu")("mxi")("mii")("mxu"));
 
+    test_geometry<ls, ls>("LINESTRING(6 3,3 3,0 0)", "LINESTRING(0 0,2 2,3 3,1 1)",
+                          expected("txi")("tix")("tii")("mux"));
+
     // SPIKE - ENDPOINT - NON-OPPOSITE
 
     // spike - neq eq
