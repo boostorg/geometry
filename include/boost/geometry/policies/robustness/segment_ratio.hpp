@@ -30,7 +30,7 @@ template
 >
 struct less {};
 
-template<typename Type>
+template <typename Type>
 struct less<Type, true>
 {
     template <typename Ratio>
@@ -41,7 +41,7 @@ struct less<Type, true>
     }
 };
 
-template<typename Type>
+template <typename Type>
 struct less<Type, false>
 {
     template <typename Ratio>
@@ -61,7 +61,7 @@ template
 >
 struct equal {};
 
-template<typename Type>
+template <typename Type>
 struct equal<Type, true>
 {
     template <typename Ratio>
@@ -72,7 +72,7 @@ struct equal<Type, true>
     }
 };
 
-template<typename Type>
+template <typename Type>
 struct equal<Type, false>
 {
     template <typename Ratio>
