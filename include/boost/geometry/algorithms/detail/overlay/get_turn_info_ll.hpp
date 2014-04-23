@@ -114,6 +114,7 @@ struct get_turn_info_linear_linear
                                     tp, result.template get<0>(), result.template get<1>(),
                                     swapped_side_calc);
                     }
+                    // for spike !,-/- or theoretically m,c/c
 
                     if ( tp.operations[0].operation == operation_blocked )
                     {
@@ -125,6 +126,9 @@ struct get_turn_info_linear_linear
                     }
 
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    // after replacement the spike will be m,u/u or theoretically m,i/i
+                    
+                    // TODO: should m,i/i be handled?
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
@@ -528,6 +532,14 @@ struct get_turn_info_linear_linear
             }
             else if ( op1 == operation_intersection )
             {
+                op1 = operation_union;
+            }
+
+            // spikes in 'm'
+            if ( method == method_error )
+            {
+                method = method_touch_interior;
+                op0 = operation_union;
                 op1 = operation_union;
             }
         }

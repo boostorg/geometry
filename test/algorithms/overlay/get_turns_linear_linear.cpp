@@ -109,15 +109,39 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(1 0,7 0,8 1)", "LINESTRING(0 0,10 0,10 10,5 0,4 1)",
                           expected("mii")("muu")("muu"));
 
-    // spike - c2
+    // SPIKE - NON-ENDPOINT - NON-OPPOSITE
+
+    // spike - neq eq
     test_geometry<ls, ls>("LINESTRING(2 2,4 4,1 1)", "LINESTRING(0 0,4 4,6 3)",
                           expected("mii")("txu")("tiu")("mxi"));
-    // spike - e
+    // spike - eq eq
     test_geometry<ls, ls>("LINESTRING(0 0,4 4,1 1)", "LINESTRING(0 0,4 4,6 3)",
                           expected("tii")("txu")("tiu")("mxi"));
-    // spike - c1
+    // spike - eq neq
     test_geometry<ls, ls>("LINESTRING(0 0,3 3,1 1)", "LINESTRING(0 0,4 4,6 3)",
                           expected("tii")("mxu")("miu")("mxi"));
+    // spike - neq neq
+    test_geometry<ls, ls>("LINESTRING(1 1,3 3,2 2)", "LINESTRING(0 0,4 4,6 3)",
+                          expected("mii")("mxu")("miu")("mxi"));
+    // spike - out neq
+    test_geometry<ls, ls>("LINESTRING(0 0,3 3,2 2)", "LINESTRING(1 1,4 4,6 3)",
+                          expected("mii")("mxu")("miu")("mxi"));
+    // spike - out eq
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(1 1,4 4,6 3)",
+                          expected("mii")("txu")("tiu")("mxi"));
+    // spike - out out/eq
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(1 0,4 4,6 3)",
+                          expected("tuu"));
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(0 1,4 4,6 3)",
+                          expected("tuu"));
+    // spike - out out/neq
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(4 0,4 5,6 3)",
+                          expected("muu"));
+    test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(0 4,5 4,6 3)",
+                          expected("muu"));
+    
+    // SPIKE - NON-ENDPOINT - OPPOSITE
+
     // opposite e
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-1 -1,0 0,4 4,6 3)",
                           expected("tiu")("txi")("tii")("mxu"));
@@ -133,6 +157,12 @@ void test_all()
                           expected("miu")("mxi")("mii")("mxu"));
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,5 5,6 3)",
                           expected("miu")("mxi")("mii")("mxu"));
+
+    // SPIKE vs ENDPOINT
+
+    // spike - out out/firsteq
+    //test_geometry<ls, ls>("LINESTRING(0 0,2 2,1 1)", "LINESTRING(2 2,4 4,6 3)",
+    //                      expected("tuu"));
 
     // opposite e - first
     //test_geometry<ls, ls>("LINESTRING(4 4,0 0,2 2)", "LINESTRING(0 0,4 4,6 3)",
