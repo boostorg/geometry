@@ -213,7 +213,8 @@ inline void to_svg(G const& g, std::string const& filename, bool sort = true)
 
     // GET TURNS
 
-    typedef bg::detail::overlay::traversal_turn_info<P> turn_info;
+    typedef bg::segment_ratio<double> sr;
+    typedef bg::detail::overlay::traversal_turn_info<P, sr> turn_info;
     typedef bg::detail::overlay::assign_null_policy AssignPolicy;
     //typedef to_svg_assign_policy AssignPolicy;    
 
