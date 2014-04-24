@@ -134,7 +134,7 @@ struct base_turn_handler
                 IntersectionInfo const& info, int index)
     {
         ti.method = method;
-        assert(index < info.count); // TODO  remove this
+        BOOST_ASSERT(index >= 0 && unsigned(index) < info.count); // TODO  remove this
         geometry::convert(info.intersections[index], ti.point);
         ti.operations[0].fraction = info.fractions[index].robust_ra;
         ti.operations[1].fraction = info.fractions[index].robust_rb;

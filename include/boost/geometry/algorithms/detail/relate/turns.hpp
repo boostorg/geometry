@@ -26,46 +26,6 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
 
-// TURN_INFO
-
-// distance_info
-// enriched_distance_info
-// distance_enriched_info
-// distance_enrichment_info
-
-template<typename P>
-struct enriched_info
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            typename strategy::distance::services::comparable_type
-                <
-                    typename strategy::distance::services::default_strategy
-                        <
-                            point_tag,
-                            P
-                        >::type
-                >::type,
-            P, P
-        >::type distance_type;
-
-    inline enriched_info()
-        : distance(distance_type())
-    {}
-
-    distance_type distance; // distance-measurement from segment.first to IP
-};
-
-// turn_operation_linear_with_distance
-// distance_enriched_turn_operation_linear
-
-template <typename Point, typename SegmentRatio>
-struct enriched_turn_operation_linear
-    : public overlay::turn_operation_linear<SegmentRatio>
-{
-    enriched_info<Point> enriched;
-};
-
 template <bool IncludeDegenerate = false>
 struct assign_policy
     : overlay::assign_null_policy
@@ -87,11 +47,11 @@ struct get_turns
             <
                 point1_type,
                 typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type,
-                enriched_turn_operation_linear
-                <
-                    point1_type,
-                    typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
-                >
+                typename detail::get_turns::turn_operation_type
+                    <
+                        Geometry1, Geometry2,
+                        typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
+                    >::type
             > turn_info;
 
     template <typename Turns>
