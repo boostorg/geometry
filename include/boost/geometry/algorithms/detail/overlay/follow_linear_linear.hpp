@@ -124,7 +124,7 @@ static inline bool is_isolated_point(Turn const& turn,
         return false;
     }
 
-    if ( turn.method == method_collinear )
+    if ( turn.method == method_none )
     {
         BOOST_ASSERT( operation.operation == operation_continue );
         return true;

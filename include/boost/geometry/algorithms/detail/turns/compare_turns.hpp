@@ -79,11 +79,10 @@ struct less_seg_dist_other_op
     }
 
     template <typename Op>
-    static inline bool use_distance(Op const& left, Op const& right)
+    static inline bool use_fraction(Op const& left, Op const& right)
     {
-        return left.enriched.distance < right.enriched.distance
-           || ( geometry::math::equals(left.enriched.distance,
-                                       right.enriched.distance) 
+        return left.fraction < right.fraction
+           || ( geometry::math::equals(left.fraction, right.fraction) 
                 && use_other_id(left, right)
               );
     }
@@ -94,7 +93,7 @@ struct less_seg_dist_other_op
         segment_identifier const& sl = left.operations[OpId].seg_id;
         segment_identifier const& sr = right.operations[OpId].seg_id;
 
-        return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
+        return sl < sr || ( sl == sr && use_fraction(left.operations[OpId], right.operations[OpId]) );
     }
 };
 
