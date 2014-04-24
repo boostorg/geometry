@@ -58,17 +58,6 @@ struct relate_cartesian_segments
 {
     typedef typename Policy::return_type return_type;
 
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-    static inline void debug_segments(std::string const& header, segment_type1 const& a, segment_type2 const& b)
-    {
-        std::cout << "Robustness issue: " << header << std::endl;
-        std::cout
-            << "A: " << wkt(a) << std::endl
-            << "B: " << wkt(b) << std::endl
-            ;
-    }
-#endif
-
     template <typename D, typename W, typename ResultType>
     static inline void cramers_rule(D const& dx_a, D const& dy_a,
         D const& dx_b, D const& dy_b, W const& wx, W const& wy,
@@ -224,13 +213,11 @@ struct relate_cartesian_segments
 
             if (robust_da0 == 0)
             {
-                // This is still a collinear case (because of FP imprecision this could, in the past, occur here)
-                // Note it should NOT occur anymore
-                // sides.debug();
+                // If this is the case, no rescaling is done for FP precision.
+                // We set it to collinear, but it indicates a robustness issue.
                 sides.set<0>(0,0);
                 sides.set<1>(0,0);
                 collinear = true;
-                std::cout << "Warning: robust_d=0, SHOULD NOT OCCUR" << std::endl;
             }
             else
             {
