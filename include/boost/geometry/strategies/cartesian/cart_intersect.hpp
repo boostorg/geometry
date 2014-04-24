@@ -191,13 +191,14 @@ struct relate_cartesian_segments
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
-            robust_coordinate_type const robust_wx = get<0>(robust_a1) - get<0>(robust_b1);
-            robust_coordinate_type const robust_wy = get<1>(robust_a1) - get<1>(robust_b1);
             robust_coordinate_type robust_da0, robust_da;
-            cramers_rule(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b,
-                robust_wx, robust_wy, robust_da0, robust_da);
-
             robust_coordinate_type robust_db0, robust_db;
+
+            cramers_rule(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b,
+                get<0>(robust_a1) - get<0>(robust_b1),
+                get<1>(robust_a1) - get<1>(robust_b1),
+                robust_da0, robust_da);
+
             cramers_rule(robust_dx_b, robust_dy_b, robust_dx_a, robust_dy_a,
                 get<0>(robust_b1) - get<0>(robust_a1),
                 get<1>(robust_b1) - get<1>(robust_a1),
@@ -220,7 +221,7 @@ struct relate_cartesian_segments
 
         if(collinear)
         {
-            bool collinear_use_first
+            bool const collinear_use_first
                     = geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b)
                     >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
             if (collinear_use_first)
