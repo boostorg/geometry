@@ -340,8 +340,10 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn)
         return false;
     }
 
+    // TODO: will this work if between segments there will be some number of degenerated ones?
+
     if ( prev_seg_id.segment_index != curr_seg_id.segment_index
-      && ( ! geometry::math::equals(curr_turn.operations[OpId].enriched.distance, 0)
+      && ( ! curr_turn.operations[OpId].fraction.is_zero()
         || prev_seg_id.segment_index + 1 != curr_seg_id.segment_index ) )
     {
         return false;

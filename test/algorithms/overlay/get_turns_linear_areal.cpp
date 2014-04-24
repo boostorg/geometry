@@ -106,6 +106,13 @@ void test_all()
                             expected("muu"));
     test_geometry<ls, poly>("LINESTRING(0 0,4 4,2 2)", "POLYGON((0 4,5 4,6 3,6 0,-1 -1,0 4))",
                             expected("miu"));
+
+    test_geometry<ls, poly>("LINESTRING(0 1,1 1,0 1)", "POLYGON((0 0,3 3,3 0,0 0))",
+                            expected("muu"));
+    test_geometry<ls, poly>("LINESTRING(0 1,3 3,0 1)", "POLYGON((0 0,3 3,3 0,0 0))",
+                            expected("tuu"));
+    test_geometry<ls, poly>("LINESTRING(0 1,0 0,0 1)", "POLYGON((0 0,3 3,3 0,0 0))",
+                            expected("tuu"));
     
     // SPIKE - NON-ENDPOINT - OPPOSITE
 

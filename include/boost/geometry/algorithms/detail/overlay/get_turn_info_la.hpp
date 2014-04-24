@@ -387,7 +387,7 @@ struct get_turn_info_linear_areal
         // we don't know where the spike is going since for both directions 'u' is set
         if ( is_p_spike )
         {
-            if ( side_calc.pk_wrt_q1() < 0 )
+            if ( side_calc.pk_wrt_q1() < 0 && side_calc.pk_wrt_q2() < 0 )
             {
                 op = operation_intersection;
                 return true;
@@ -488,9 +488,12 @@ struct get_turn_info_linear_areal
             {
                 //tp.operations[0].is_collinear = true;
                 //tp.operations[1].is_collinear = true;
-                tp.method = method_touch_interior; // only because arrival != 0
+                
+                //tp.method = method_touch_interior; // only because arrival != 0
                 BOOST_ASSERT(result.template get<0>().count > 1);
-                geometry::convert(result.template get<0>().intersections[1], tp.point);
+                //geometry::convert(result.template get<0>().intersections[1], tp.point);
+                base_turn_handler::assign_point(tp, method_touch_interior, result.template get<0>(), 1);
+
                 AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
             }
 

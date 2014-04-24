@@ -512,6 +512,13 @@ struct linear_areal
                 if ( op == overlay::operation_blocked )
                     return;
 
+                if ( ( op == overlay::operation_intersection
+                    || op == overlay::operation_continue )
+                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                {
+                    fake_enter_detected = true;
+                }
+
                 m_exit_watcher.reset_detected_exit();
             }
 
@@ -659,7 +666,8 @@ struct linear_areal
                 // we're inside, possibly going out right now
                 if ( ! no_enters_detected )
                 {
-                    if ( op_blocked )
+                    if ( op_blocked
+                      && it->operations[op_id].position == overlay::position_back ) // ignore spikes!
                     {
                         // check if this is indeed the boundary point
                         // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same

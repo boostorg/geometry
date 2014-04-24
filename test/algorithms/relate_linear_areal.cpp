@@ -193,7 +193,30 @@ void test_linestring_polygon()
         test_geometry<ls, ccwpoly>("LINESTRING(5 5,10 5,10 1,11 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1110F0212");
 
     }
-    
+
+    {
+        // SPIKES
+
+        test_geometry<ls, poly>("LINESTRING(0 0,2 2,3 3,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(0 0,3 3,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(0 0,2 2,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(1 1,3 3,2 2)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(1 1,2 2,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FFFF212");
+
+        test_geometry<ls, poly>("LINESTRING(3 3,1 1,0 0,2 2)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(3 3,0 0,2 2)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(2 2,0 0,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(3 3,1 1,2 2)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FF0F212");
+        test_geometry<ls, poly>("LINESTRING(2 2,1 1,2 2)", "POLYGON((0 0,3 3,3 0,0 0))", "F1FFFF212");
+
+        test_geometry<ls, poly>("LINESTRING(0 0,2 2,4 4,1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F11F0F212");
+
+        test_geometry<ls, poly>("LINESTRING(0 1,1 1,0 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F01FFF212");
+        test_geometry<ls, poly>("LINESTRING(0 1,3 3,0 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F01FFF212");
+        test_geometry<ls, poly>("LINESTRING(0 1,0 0,0 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F01FFF212");
+        
+        test_geometry<ls, poly>("LINESTRING(0 1,1 1,-1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F01FF0212");
+    }
 }
 
 template <typename P>
@@ -236,6 +259,11 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(0 0,10 0,10 10,0 10,0 0)",
                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((20 0,20 10,30 20,20 0)))",
                              "F1FFFF212");
+
+    // degenerated points
+    test_geometry<ls, mpoly>("LINESTRING(5 5,10 10,10 10,10 10,15 15)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((10 10,10 20,20 20,20 10,10 10)))",
+                             "10F0FF212");
 
     // self-IP polygon with a hole and second polygon with a hole -> B to I to B to B to I to B to E
     test_geometry<ls, mpoly>("LINESTRING(0 0,3 3)",
