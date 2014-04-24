@@ -191,14 +191,6 @@ struct relate_cartesian_segments
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
-            // Calculate determinants - Cramers rule
-            coordinate_type const wx = get<0, 0>(a) - get<0, 0>(b);
-            coordinate_type const wy = get<0, 1>(a) - get<0, 1>(b);
-
-            promoted_type d, da;
-            cramers_rule(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b,
-                wx, wy, d, da);
-
             robust_coordinate_type const robust_wx = get<0>(robust_a1) - get<0>(robust_b1);
             robust_coordinate_type const robust_wy = get<1>(robust_a1) - get<1>(robust_b1);
             robust_coordinate_type robust_da0, robust_da;
