@@ -319,7 +319,7 @@ private:
         typedef typename strategy::side::services::default_strategy<cs_tag>::type side;
 
         output.push_back(p);
-        register std::size_t output_size = output.size();
+        std::size_t output_size = output.size();
         while (output_size >= 3)
         {
             rev_iterator rit = output.rbegin();
