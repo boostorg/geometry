@@ -28,6 +28,8 @@ namespace detail { namespace overlay {
 template<typename AssignPolicy>
 struct get_turn_info_linear_areal
 {
+    static const bool handle_spikes = true;
+
     template
     <
         typename Point1,
@@ -122,9 +124,17 @@ struct get_turn_info_linear_areal
                         tp.operations[0].is_collinear = true;
                     }
 
-                    replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    replace_method_and_operations_tm(tp.method,
+                                                     tp.operations[0].operation,
+                                                     tp.operations[1].operation);
+                    
+                    // this function assumes that 'u' must be set for a spike
+                    calculate_spike_operation(tp.operations[0].operation,
+                                              side_calc, p1, p2,
+                                              is_p_last, robust_policy);
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+
                     *out++ = tp;
                 }
             }
@@ -160,10 +170,29 @@ struct get_turn_info_linear_areal
                         tp.operations[0].is_collinear = true;
                     }
 
-                    replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                    replace_method_and_operations_tm(tp.method,
+                                                     tp.operations[0].operation,
+                                                     tp.operations[1].operation);
 
+                    // this function assumes that 'u' must be set for a spike
+                    bool ignore_spike
+                        = calculate_spike_operation(tp.operations[0].operation,
+                                                    side_calc, p1, p2,
+                                                    is_p_last, robust_policy);
+
+// TODO: move this into the append_xxx and call for each turn?
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                    *out++ = tp;
+
+                    if ( ! handle_spikes
+                      || ignore_spike
+                      || ! append_opposite_spikes<append_touches>( // for 'i' or 'c'
+                                tp, result, side_calc,
+                                p1, p2, q1, q2,
+                                is_p_last, is_q_last,
+                                robust_policy, out) )
+                    {
+                        *out++ = tp;
+                    }
                 }
             }
             break;
@@ -190,16 +219,19 @@ struct get_turn_info_linear_areal
                         replacer_of_method_and_operations_ec<false> replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                     
-                        // TODO: This isn't correct handling, hence commented out
-                        /*spike_detector<Point1, Point2> spike_detect(side_calc);
-                        if ( tp.operations[0].operation == operation_union
-                          && spike_detect.is_spike_p())
-                        {
-                            tp.operations[0].operation = operation_continue;
-                        }*/
-
+// TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                        *out++ = tp;
+                        
+                        // conditionally handle spikes
+                        if ( ! handle_spikes
+                          || ! append_collinear_spikes(
+                                    tp, side_calc, p1, p2, q1, q2,
+                                    is_p_last, is_q_last,
+                                    method_touch, append_equal,
+                                    robust_policy, out) )
+                        {
+                            *out++ = tp; // no spikes
+                        }
                     }
                     else
                     {
@@ -229,39 +261,63 @@ struct get_turn_info_linear_areal
 
                     if (! result.template get<1>().opposite)
                     {
+                        method_type method_replace = method_touch_interior;
+                        append_version_c version = append_collinear;
+
                         if (result.template get<1>().arrival[0] == 0)
                         {
                             // Collinear, but similar thus handled as equal
                             equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                            // TODO: This isn't correct handling, hence commented out
-                            /*spike_detector<Point1, Point2> spike_detect(side_calc);
-                            if ( tp.operations[0].operation == operation_union
-                              && spike_detect.is_spike_p())
-                            {
-                                tp.operations[0].operation = operation_continue;
-                            }*/
-
-                            replacer_of_method_and_operations_ec<false> replacer(method_touch);
-                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                            method_replace = method_touch;
+                            version = append_equal;
                         }
                         else
                         {
                             collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
 
-                            replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
-                            replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                            //method_replace = method_touch_interior;
+                            //version = append_collinear;
                         }
 
+                        replacer_of_method_and_operations_ec<false> replacer(method_replace);
+                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+
+// TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
-                        *out++ = tp;
+                        
+                        // conditionally handle spikes
+                        if ( ! handle_spikes
+                          || ! append_collinear_spikes(
+                                    tp, side_calc, p1, p2, q1, q2,
+                                    is_p_last, is_q_last,
+                                    method_replace, version,
+                                    robust_policy, out) )
+                        {
+                            // no spikes
+                            *out++ = tp;
+                        }
                     }
                     else
                     {
                         // Is this always 'm' ?
                         replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
+
+                        // conditionally handle spikes
+                        if ( handle_spikes )
+                        {
+                            append_opposite_spikes<append_collinear_opposite>(
+                                    tp, result, side_calc,
+                                    p1, p2, q1, q2,
+                                    is_p_last, is_q_last,
+                                    robust_policy, out);
+                        }
+
+                        // TODO: ignore for spikes?
+                        //       E.g. pass is_p_valid = !is_p_last && !is_pj_spike,
+                        //       the same with is_q_valid
 
                         collinear_opposite
                             <
@@ -313,6 +369,144 @@ struct get_turn_info_linear_areal
         return out;
     }
 
+    template <typename Operation,
+              typename SideCalc,
+              typename PSegment,
+              typename RobustPolicy>
+    static inline bool calculate_spike_operation(Operation & op,
+                                                 SideCalc const& side_calc,
+                                                 PSegment const& p1,
+                                                 PSegment const& p2,
+                                                 bool is_p_last,
+                                                 RobustPolicy const& robust_policy)
+    {
+        bool is_p_spike = op == operation_union
+                       && ! is_p_last
+                       && is_spike_p(side_calc, p1, p2, robust_policy);
+
+        // we don't know where the spike is going since for both directions 'u' is set
+        if ( is_p_spike )
+        {
+            if ( side_calc.pk_wrt_q1() < 0 )
+            {
+                op = operation_intersection;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    enum append_version_c { append_equal, append_collinear };
+
+    template <typename TurnInfo,
+              typename SideCalc,
+              typename SegmentP,
+              typename SegmentQ,
+              typename RobustPolicy,
+              typename OutIt>
+    static inline bool append_collinear_spikes(TurnInfo & tp,
+                                               SideCalc const& side_calc,
+                                               SegmentP const& p1, SegmentP const& p2,
+                                               SegmentQ const& q1, SegmentQ const& q2,
+                                               bool is_p_last, bool is_q_last,
+                                               method_type method, append_version_c version,
+                                               RobustPolicy const& robust_policy, OutIt out)
+    {
+        // method == touch || touch_interior
+        // both position == middle
+
+        bool is_p_spike = ( version == append_equal ?
+                            ( tp.operations[0].operation == operation_union
+                           || tp.operations[0].operation == operation_intersection ) :
+                            tp.operations[0].operation == operation_continue )
+                       && ! is_p_last
+                       && is_spike_p(side_calc, p1, p2, robust_policy);
+
+        // TODO: throw an exception for spike in Areal?
+        /*bool is_q_spike = tp.operations[1].operation == spike_op
+                       && ! is_q_last
+                       && is_spike_q(side_calc, q1, q2, robust_policy);*/
+
+        if ( is_p_spike )
+        {
+            tp.method = method;
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_union;
+            *out++ = tp;
+            tp.operations[0].operation = operation_continue; // boundary
+            //tp.operations[1].operation = operation_union;
+            *out++ = tp;
+
+            return true;
+        }
+        
+        return false;
+    }
+
+    enum append_version_o { append_touches, append_collinear_opposite };
+
+    template <append_version_o Version,
+              typename TurnInfo,
+              typename Result,
+              typename SideCalc,
+              typename SegmentP,
+              typename SegmentQ,
+              typename RobustPolicy,
+              typename OutIt>
+    static inline bool append_opposite_spikes(TurnInfo & tp,
+                                              Result const& result,
+                                              SideCalc const& side_calc,
+                                              SegmentP const& p1, SegmentP const& p2,
+                                              SegmentQ const& q1, SegmentQ const& q2,
+                                              bool is_p_last, bool is_q_last,
+                                              RobustPolicy const& robust_policy, OutIt out)
+    {
+        bool is_p_spike = ( Version == append_touches ?
+                            ( tp.operations[0].operation == operation_continue
+                           || tp.operations[0].operation == operation_intersection ) :
+                            true )
+                       && ! is_p_last
+                       && is_spike_p(side_calc, p1, p2, robust_policy);
+        // TODO: throw an exception for spike in Areal?
+        /*bool is_q_spike = ( Version == append_touches ?
+                            ( tp.operations[1].operation == operation_continue
+                           || tp.operations[1].operation == operation_intersection ) :
+                            true )
+                       && ! is_q_last
+                       && is_spike_q(side_calc, q1, q2, robust_policy);*/
+
+        if ( is_p_spike && ( Version == append_touches || result.template get<1>().arrival[0] == 1 ) )
+        {
+            if ( Version == append_touches )
+            {
+                tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = ???
+                tp.method = method_touch;
+            }
+            else
+            {
+                //tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = true;
+                tp.method = method_touch_interior; // only because arrival != 0
+                BOOST_ASSERT(result.template get<0>().count > 1);
+                geometry::convert(result.template get<0>().intersections[1], tp.point);
+                AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
+            }
+
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_continue; // boundary
+            *out++ = tp;
+            tp.operations[0].operation = operation_continue; // boundary
+            //tp.operations[1].operation = operation_continue; // boundary
+            *out++ = tp;
+
+            return true;
+        }
+
+        return false;
+    }
+
     static inline void replace_method_and_operations_tm(method_type & method,
                                                         operation_type & op0,
                                                         operation_type & op1)
@@ -335,6 +529,14 @@ struct get_turn_info_linear_areal
         }
         else if ( op1 == operation_intersection )
         {
+            op1 = operation_union;
+        }
+
+        // spikes in 'm'
+        if ( method == method_error )
+        {
+            method = method_touch_interior;
+            op0 = operation_union;
             op1 = operation_union;
         }
     }
@@ -385,6 +587,10 @@ struct get_turn_info_linear_areal
         op1 = operation_union;
     }
 
+    // NOTE: Spikes may NOT be handled for Linear endpoints because it's not
+    //       possible to define a spike on an endpoint. Areal geometries must
+    //       NOT have spikes at all. One thing that could be done is to throw
+    //       an exception when spike is detected in Areal geometry.
     
     template <bool EnableFirst,
               bool EnableLast,

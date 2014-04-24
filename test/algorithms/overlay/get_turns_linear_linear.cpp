@@ -142,22 +142,24 @@ void test_all()
     
     // SPIKE - NON-ENDPOINT - OPPOSITE
 
-    // opposite e
+    // opposite - eq eq
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-1 -1,0 0,4 4,6 3)",
                           expected("tiu")("txi")("tii")("mxu"));
     test_geometry<ls, ls>("LINESTRING(-1 -1,0 0,4 4,6 3)", "LINESTRING(6 6,4 4,0 0,2 2)",
                           expected("tui")("tix")("tii")("mux"));
-    // opposite c
+    // opposite - neq eq
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-1 -1,0 0,5 5,6 3)",
                           expected("miu")("txi")("tii")("mxu"));
-
+    // opposite - eq neq
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,4 4,6 3)",
                           expected("tiu")("mxi")("mii")("mxu"));
+    // opposite - neq neq
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,6 3)",
                           expected("miu")("mxi")("mii")("mxu"));
+    // opposite - neq neq
     test_geometry<ls, ls>("LINESTRING(6 6,4 4,0 0,2 2)", "LINESTRING(-2 -2,-1 -1,3 3,5 5,6 3)",
                           expected("miu")("mxi")("mii")("mxu"));
-
+    // opposite - neq eq
     test_geometry<ls, ls>("LINESTRING(6 3,3 3,0 0)", "LINESTRING(0 0,2 2,3 3,1 1)",
                           expected("txi")("tix")("tii")("mux"));
 

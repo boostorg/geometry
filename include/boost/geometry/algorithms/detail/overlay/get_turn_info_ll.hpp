@@ -115,8 +115,7 @@ struct get_turn_info_linear_linear
                                     tp, result.template get<0>(), result.template get<1>(),
                                     swapped_side_calc);
                     }
-                    // for spike !,-/- or theoretically m,c/c
-
+                    
                     if ( tp.operations[0].operation == operation_blocked )
                     {
                         tp.operations[1].is_collinear = true;
@@ -127,9 +126,6 @@ struct get_turn_info_linear_linear
                     }
 
                     replace_method_and_operations_tm(tp.method, tp.operations[0].operation, tp.operations[1].operation);
-                    // after replacement the spike will be m,u/u or theoretically m,i/i
-                    
-                    // TODO: should m,i/i be handled?
                     
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
                     *out++ = tp;
@@ -161,7 +157,6 @@ struct get_turn_info_linear_linear
                 {
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, result.template get<0>(), result.template get<1>(), side_calc);
-                    // for spike x/x is returned
 
                     if ( tp.operations[0].operation == operation_blocked )
                     {
@@ -176,9 +171,9 @@ struct get_turn_info_linear_linear
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
 
+// TODO: move this into the append_xxx and call for each turn?
                     AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
 
-                    // after replacement the spike will be e,c/c
                     if ( ! handle_spikes
                       || ! append_opposite_spikes<append_touches>(
                                 tp, result, side_calc,
@@ -211,11 +206,11 @@ struct get_turn_info_linear_linear
                         // or collinear-and-ending at intersection point
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, result.template get<0>(), result.template get<1>(), side_calc);
-                        // for spikes u/i or i/u is returned
 
                         replacer_of_method_and_operations_ec replacer(method_touch);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
 
+// TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
 
                         // conditionally handle spikes
@@ -267,12 +262,6 @@ struct get_turn_info_linear_linear
                             // Collinear, but similar thus handled as equal
                             equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
-                            // for spikes u/i or i/u is returned
-
-                            // NOTE: don't change the method only if methods are WRT IPs, not segments!
-                            // (currently this approach is used)
-                            // override assigned method
-                            //tp.method = method_collinear;
 
                             method_replace = method_touch;
                             spike_op = operation_union;
@@ -281,7 +270,6 @@ struct get_turn_info_linear_linear
                         {
                             collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                     tp, result.template get<0>(), result.template get<1>(), side_calc);
-                            // for spikes c,c/c is returned
 
                             //method_replace = method_touch_interior;
                             //spike_op = operation_continue;
@@ -290,6 +278,7 @@ struct get_turn_info_linear_linear
                         replacer_of_method_and_operations_ec replacer(method_replace);
                         replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
                         
+// TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
 
                         // conditionally handle spikes
@@ -425,6 +414,7 @@ struct get_turn_info_linear_linear
             tp.operations[1].operation = operation_union;
             *out++ = tp;
             tp.operations[0].operation = operation_intersection;
+            //tp.operations[1].operation = operation_union;
             *out++ = tp;
 
             return true;
@@ -435,6 +425,7 @@ struct get_turn_info_linear_linear
             tp.operations[0].operation = operation_union;
             tp.operations[1].operation = operation_blocked;
             *out++ = tp;
+            //tp.operations[0].operation = operation_union;
             tp.operations[1].operation = operation_intersection;
             *out++ = tp;
 
@@ -475,64 +466,65 @@ struct get_turn_info_linear_linear
                        && ! is_q_last
                        && is_spike_q(side_calc, q1, q2, robust_policy);
 
-        if ( is_p_spike || is_q_spike )
+        bool res = false;
+
+        if ( is_p_spike && ( Version == append_touches || result.template get<1>().arrival[0] == 1 ) )
         {
-            tp.method = method_touch;
-
-            // arrivals 0 and 1 are handled by touches? 
-
-            if ( is_p_spike && ( Version == append_touches || result.template get<1>().arrival[0] == 1 ) )
+            if ( Version == append_touches )
             {
-                if ( Version == append_touches )
-                {
-                    tp.operations[0].is_collinear = true;
-                    //tp.operations[1].is_collinear = ???
-                }
-                else
-                {
-                    //tp.operations[0].is_collinear = true;
-                    //tp.operations[1].is_collinear = true;
-                    tp.method = method_touch_interior; // only because arrival != 0
-                    BOOST_ASSERT(result.template get<0>().count > 1);
-                    geometry::convert(result.template get<0>().intersections[1], tp.point);
-                    AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
-                }
-
-                tp.operations[0].operation = operation_blocked;
-                tp.operations[1].operation = operation_intersection;
-                *out++ = tp;
-                tp.operations[0].operation = operation_intersection;
-                *out++ = tp;
+                tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = ???
+                tp.method = method_touch;
+            }
+            else
+            {
+                //tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = true;
+                tp.method = method_touch_interior; // only because arrival != 0
+                BOOST_ASSERT(result.template get<0>().count > 1);
+                geometry::convert(result.template get<0>().intersections[1], tp.point);
+                AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
             }
 
-            if ( is_q_spike && ( Version == append_touches || result.template get<1>().arrival[1] == 1 ) )
-            {
-                if ( Version == append_touches )
-                {
-                    //tp.operations[0].is_collinear = ???
-                    tp.operations[1].is_collinear = true;
-                }
-                else
-                {
-                    //tp.operations[0].is_collinear = true;
-                    //tp.operations[1].is_collinear = true;
-                    tp.method = method_touch_interior; // only because arrival != 0
-                    BOOST_ASSERT(result.template get<0>().count > 0);
-                    geometry::convert(result.template get<0>().intersections[0], tp.point);
-                    AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
-                }
+            tp.operations[0].operation = operation_blocked;
+            tp.operations[1].operation = operation_intersection;
+            *out++ = tp;
+            tp.operations[0].operation = operation_intersection;
+            //tp.operations[1].operation = operation_intersection;
+            *out++ = tp;
 
-                tp.operations[0].operation = operation_intersection;
-                tp.operations[1].operation = operation_blocked;
-                *out++ = tp;
-                tp.operations[1].operation = operation_intersection;
-                *out++ = tp;
+            res = true;
+        }
+
+        if ( is_q_spike && ( Version == append_touches || result.template get<1>().arrival[1] == 1 ) )
+        {
+            if ( Version == append_touches )
+            {
+                //tp.operations[0].is_collinear = ???
+                tp.operations[1].is_collinear = true;
+                tp.method = method_touch;
+            }
+            else
+            {
+                //tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = true;
+                tp.method = method_touch_interior; // only because arrival != 0
+                BOOST_ASSERT(result.template get<0>().count > 0);
+                geometry::convert(result.template get<0>().intersections[0], tp.point);
+                AssignPolicy::apply(tp, p1.first, q1.first, result.template get<0>(), result.template get<1>());
             }
 
-            return true;
+            tp.operations[0].operation = operation_intersection;
+            tp.operations[1].operation = operation_blocked;
+            *out++ = tp;
+            //tp.operations[0].operation = operation_intersection;
+            tp.operations[1].operation = operation_intersection;
+            *out++ = tp;
+
+            res = true;
         }
         
-        return false;
+        return res;
     }
 
     static inline void replace_method_and_operations_tm(method_type & method,
