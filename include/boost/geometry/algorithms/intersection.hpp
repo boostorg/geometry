@@ -196,9 +196,10 @@ inline bool intersection(Geometry1 const& geometry1,
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    typedef typename geometry::rescale_policy_type
+    typedef typename geometry::rescale_overlay_policy_type
         <
-            typename geometry::point_type<Geometry1>::type // TODO from both
+            Geometry1,
+            Geometry2
         >::type rescale_policy_type;
 
     rescale_policy_type robust_policy

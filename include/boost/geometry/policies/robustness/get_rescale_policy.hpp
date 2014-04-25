@@ -17,6 +17,8 @@
 
 #include <boost/type_traits.hpp>
 
+#include <boost/geometry/core/tag_cast.hpp>
+
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
@@ -95,6 +97,7 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     num_type const two = 2;
     boost::long_long_type const min_coordinate
         = boost::numeric_cast<boost::long_long_type>(-range / two);
+std::cout << "rescale from " << min_coordinate << " " << factor << std::endl;
     assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
@@ -220,6 +223,49 @@ struct rescale_policy_type
     );
 #endif
 };
+
+
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Tag1 = typename tag_cast
+    <
+        typename tag<Geometry1>::type,
+        pointlike_tag,
+        linear_tag,
+        areal_tag
+    >::type,
+    typename Tag2 = typename tag_cast
+    <
+        typename tag<Geometry2>::type,
+        pointlike_tag,
+        linear_tag,
+        areal_tag
+    >::type
+>
+struct rescale_overlay_policy_type
+    // Default: no rescaling
+    : public detail::get_rescale_policy::rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type,
+            false
+        >
+{};
+
+// Areal/areal: get rescale policy based on coordinate type
+template
+<
+    typename Geometry1,
+    typename Geometry2
+>
+struct rescale_overlay_policy_type<Geometry1, Geometry2, areal_tag, areal_tag>
+    : public rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type
+        >
+{};
+
 
 template <typename Policy, typename Geometry>
 inline Policy get_rescale_policy(Geometry const& geometry)
