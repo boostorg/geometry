@@ -97,7 +97,6 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     num_type const two = 2;
     boost::long_long_type const min_coordinate
         = boost::numeric_cast<boost::long_long_type>(-range / two);
-std::cout << "rescale from " << min_coordinate << " " << factor << std::endl;
     assign_values(min_robust_point, min_coordinate, min_coordinate);
 }
 
