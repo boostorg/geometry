@@ -110,7 +110,7 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // Swap p/q
-                        side_calculator<Point1, Point2> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                     tp, result.template get<0>(), result.template get<1>(),
                                     swapped_side_calc);
