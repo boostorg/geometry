@@ -627,38 +627,16 @@ struct get_turn_info_linear_areal
         if ( !is_p_first && !is_p_last )
             return false;
 
-        ov::operation_type p_operation0 = ov::operation_none;
-        ov::operation_type q_operation0 = ov::operation_none;
-        ov::operation_type p_operation1 = ov::operation_none;
-        ov::operation_type q_operation1 = ov::operation_none;
-        bool p0i, p0j, q0i, q0j; // assign false?
-        bool p1i, p1j, q1i, q1j; // assign false?
+        linear_intersections intersections(pi, qi, result, is_p_last, is_q_last);
+        linear_intersections::ip_info const& ip0 = intersections.template get<0>();
+        linear_intersections::ip_info const& ip1 = intersections.template get<1>();
 
         const bool opposite = result.template get<1>().opposite;
-        const bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
-
-        {
-            const int p_how = result.template get<1>().how_a;
-            const int q_how = result.template get<1>().how_b;
-            const int p_arrival = result.template get<1>().arrival[0];
-            const int q_arrival = result.template get<1>().arrival[1];
-
-            get_info_e::handle_segment(
-                           is_p_first, is_p_last, p_how, p_arrival,
-                           is_q_first, is_q_last, q_how, q_arrival,
-                           opposite, ip_count, same_dirs,
-                           result.template get<0>().intersections[0],
-                           result.template get<0>().intersections[1],
-                           p_operation0, q_operation0, p_operation1, q_operation1,
-                           p0i, p0j, q0i, q0j,
-                           p1i, p1j, q1i, q1j,
-                           pi, pj, pk, qi, qj, qk);
-        }
 
         // ANALYSE AND ASSIGN FIRST
 
         // IP on the first point of Linear Geometry
-        if ( EnableFirst && is_p_first && p0i && !q0i ) // !q0i prevents duplication
+        if ( EnableFirst && is_p_first && ip0.is_pi && !ip0.is_qi ) // !q0i prevents duplication
         {
             TurnInfo tp = tp_model;
             tp.operations[0].position = position_front;
@@ -668,7 +646,7 @@ struct get_turn_info_linear_areal
             {
                 tp.operations[0].operation = operation_continue;
                 tp.operations[1].operation = operation_union;
-                tp.method = q0j ? method_touch : method_touch_interior;
+                tp.method = ip0.is_qj ? method_touch : method_touch_interior;
             }
             else
             {
@@ -678,7 +656,7 @@ struct get_turn_info_linear_areal
 
                 method_type replaced_method = method_touch_interior;
 
-                if ( q0j )
+                if ( ip0.is_qj )
                 {
                     side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, qj, qk);
 
@@ -731,7 +709,7 @@ struct get_turn_info_linear_areal
         // IP on the last point of Linear Geometry
         if ( EnableLast
           && is_p_last
-          && ( ip_count > 1 ? (p1j && !q1i) : (p0j && !q0i) ) ) // prevents duplication
+          && ( ip_count > 1 ? (ip1.is_pj && !ip1.is_qi) : (ip0.is_pj && !ip0.is_qi) ) ) // prevents duplication
         {
             TurnInfo tp = tp_model;
             
@@ -762,7 +740,7 @@ struct get_turn_info_linear_areal
                 }
             }
 
-            tp.method = ( ip_count > 1 ? q1j : q0j ) ? method_touch : method_touch_interior;
+            tp.method = ( ip_count > 1 ? ip1.is_qj : ip0.is_qj ) ? method_touch : method_touch_interior;
             tp.operations[0].operation = operation_blocked;
             tp.operations[0].position = position_back;
             tp.operations[1].position = position_middle;
