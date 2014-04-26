@@ -541,10 +541,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-// NOTE: this conversion may be problematic
-                    Point1 i2_conv;
-                    geometry::convert(i2, i2_conv);
-                    side_calculator<Point1, Point2> side_calc(i2_conv, i1, j1, i2, j2, k2);
+                    side_calculator<Point1, Point2, Point2> side_calc(i2, i1, j1, i2, j2, k2);
 
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);
@@ -589,11 +586,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-// NOTE: this conversion may be problematic
-                    Point1 i2_conv;
-                    geometry::convert(i2, i2_conv);
-                    
-                    side_calculator<Point1, Point2> side_calc(i2_conv, j1, i1, i2, j2, k2);
+                    side_calculator<Point1, Point2, Point2> side_calc(i2, j1, i1, i2, j2, k2);
                     
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);

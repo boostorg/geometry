@@ -600,15 +600,11 @@ struct get_turn_info_linear_areal
             }
             else
             {
-                // NOTE: the conversion may be problematic
-                Point1 qi_conv;
-                geometry::convert(qi, qi_conv);
-
                 method_type replaced_method = method_touch_interior;
 
                 if ( ip0.is_qj )
                 {
-                    side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, qj, qk);
+                    side_calculator<Point1, Point2, Point2> side_calc(qi, pi, pj, qi, qj, qk);
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -620,11 +616,9 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-// NOTE: the conversion may be problematic
-                    Point2 pi_conv;
-                    geometry::convert(pi, pi_conv);
-
-                    side_calculator<Point1, Point2> side_calc(qi_conv, pi, pj, qi, pi_conv, qj);
+                    side_calculator<Point1, Point2,
+                                    Point2, Point1, Point1,
+                                    Point2, Point1, Point2> side_calc(qi, pi, pj, qi, pi, qj);
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -639,7 +633,6 @@ struct get_turn_info_linear_areal
 
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
-            //geometry::convert(result.template get<0>().intersections[0], tp.point);
             base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), 0);
 
             // NOTE: not really needed especially for the first point
@@ -671,9 +664,7 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                Point1 qi_conv;
-                geometry::convert(qi, qi_conv);
-                side_calculator<Point1, Point2> side_calc(qi_conv, pj, pi, qi, qj, qk);
+                side_calculator<Point1, Point2, Point2> side_calc(qi, pj, pi, qi, qj, qk);
 
                 std::pair<operation_type, operation_type>
                     operations = get_info_e::operations_of_equal(side_calc);
@@ -698,7 +689,6 @@ struct get_turn_info_linear_areal
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
             std::size_t ip_index = ip_count > 1 ? 1 : 0;
-            //geometry::convert(result.template get<0>().intersections[ip_index], tp.point);
             base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), ip_index);
 
             AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
