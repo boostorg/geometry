@@ -231,6 +231,7 @@ template
     typename Tag1 = typename tag_cast
     <
         typename tag<Geometry1>::type,
+        box_tag,
         pointlike_tag,
         linear_tag,
         areal_tag
@@ -238,6 +239,7 @@ template
     typename Tag2 = typename tag_cast
     <
         typename tag<Geometry2>::type,
+        box_tag,
         pointlike_tag,
         linear_tag,
         areal_tag
