@@ -270,9 +270,10 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    typedef typename geometry::rescale_policy_type
+    typedef typename geometry::rescale_overlay_policy_type
         <
-            typename geometry::point_type<Geometry1>::type // TODO from both
+            Geometry1,
+            Geometry2
         >::type rescale_policy_type;
 
     typedef strategy_intersection

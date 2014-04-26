@@ -156,9 +156,10 @@ inline void sym_difference(Geometry1 const& geometry1,
     typedef typename boost::range_value<Collection>::type geometry_out;
     concept::check<geometry_out>();
 
-    typedef typename geometry::rescale_policy_type
+    typedef typename geometry::rescale_overlay_policy_type
         <
-            typename geometry::point_type<Geometry1>::type // TODO from both
+            Geometry1,
+            Geometry2
         >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
