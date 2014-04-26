@@ -93,8 +93,7 @@ public:
             {
                 if ( qk_p1 == 0 )
                 {
-                    return is_spike_of_collinear(segment_type1(pi(), pj()),
-                                                 segment_type1(pj(), pk()));
+                    return is_spike_of_collinear(pi(), pj(), pk());
                 }
                         
                 return true;
@@ -115,8 +114,7 @@ public:
             {
                 if ( pk_q1 == 0 )
                 {
-                    return is_spike_of_collinear(segment_type2(qi(), qj()),
-                                                 segment_type2(qj(), qk()));
+                    return is_spike_of_collinear(qi(), qj(), qk());
                 }
                         
                 return true;
@@ -128,10 +126,10 @@ public:
 
 private:
     template <typename Point>
-    inline bool is_spike_of_collinear(
-                            model::referring_segment<Point const> const& s1,
-                            model::referring_segment<Point const> const& s2) const
+    inline bool is_spike_of_collinear(Point const& i, Point const& j, Point const& k) const
     {
+        typedef model::referring_segment<Point const> seg_t;
+
         typedef strategy_intersection
             <
                 typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
@@ -139,7 +137,8 @@ private:
         
         typedef typename si::segment_intersection_strategy_type strategy;
         
-        typename strategy::return_type result = strategy::apply(s1, s2, m_robust_policy);
+        typename strategy::return_type result
+            = strategy::apply(seg_t(i, j), seg_t(j, k), m_robust_policy);
         
         return result.template get<0>().count == 2;
     }
