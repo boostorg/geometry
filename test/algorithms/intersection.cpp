@@ -335,7 +335,6 @@ void test_boxes(std::string const& wkt1, std::string const& wkt2, double expecte
     }
 }
 
-
 template <typename P>
 void test_point_output()
 {
@@ -400,7 +399,6 @@ void test_areal_linear()
     test_one<LineString, bg::model::ring<Point>, LineString>("simplex", poly_simplex, "LINESTRING(0 2,4 2)", 1, 2, 2.0);
 
 }
-
 
 template <typename P>
 void test_all()
@@ -563,6 +561,37 @@ void test_rational()
 }
 
 
+template <typename P>
+void test_boxes_per_d(P const& min1, P const& max1, P const& min2, P const& max2, bool expected_result)
+{
+    typedef bg::model::box<P> box;
+    
+    box box_out;
+    bool detected = bg::intersection(box(min1, max1), box(min2, max2), box_out);
+
+    BOOST_CHECK_EQUAL(detected, expected_result);
+    if ( detected && expected_result )
+    {
+        BOOST_CHECK( bg::equals(box_out, box(min2,max1)) );
+    }
+}
+
+template <typename CoordinateType>
+void test_boxes_nd()
+{
+    typedef bg::model::point<CoordinateType, 1, bg::cs::cartesian> p1;
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> p2;
+    typedef bg::model::point<CoordinateType, 3, bg::cs::cartesian> p3;
+    typedef bg::model::box<p1> b1;
+    typedef bg::model::box<p1> b2;
+    typedef bg::model::box<p1> b3;
+
+    test_boxes_per_d(p1(0), p1(5), p1(3), p1(6), true);
+    test_boxes_per_d(p2(0,0), p2(5,5), p2(3,3), p2(6,6), true);
+    test_boxes_per_d(p3(0,0,0), p3(5,5,5), p3(3,3,3), p3(6,6,6), true);
+}
+
+
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
@@ -582,6 +611,8 @@ int test_main(int, char* [])
 #if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
 #endif
+
+    test_boxes_nd<double>();
 
     return 0;
 }
