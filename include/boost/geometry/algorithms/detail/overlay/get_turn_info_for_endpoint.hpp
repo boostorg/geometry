@@ -38,96 +38,116 @@ struct turn_operation_linear
     bool is_collinear; // valid only for Linear geometry
 };
 
-// IS_SPIKE
-    
-template <typename Point, typename RobustPolicy>
-inline bool is_spike_of_collinear(model::referring_segment<Point const> const& s1,
-                                  model::referring_segment<Point const> const& s2,
-                                  RobustPolicy const& robust_policy)
+template <typename Point1, typename Point2, typename TurnPoint, typename RobustPolicy>
+class intersection_info
 {
-    typedef strategy_intersection
+    typedef typename strategy_intersection
         <
-            typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
-        > si;
-        
-    typedef typename si::segment_intersection_strategy_type strategy;
-        
-    typename strategy::return_type result = strategy::apply(s1, s2, robust_policy);
-        
-    return result.template get<0>().count == 2;
-}
+            typename cs_tag<TurnPoint>::type,
+            Point1,
+            Point2,
+            TurnPoint,
+            RobustPolicy
+        >::segment_intersection_strategy_type strategy;
 
-template <typename Point1, typename Point2, typename RobustPolicy>
-inline bool is_spike_p(side_calculator<Point1, Point2> const& side_calc,
-                       model::referring_segment<Point1 const> const& p1,
-                       model::referring_segment<Point1 const> const& p2,
-                       RobustPolicy const& robust_policy)
-{
-    if ( side_calc.pk_wrt_p1() == 0 )
-    {
-        int const qk_p1 = side_calc.qk_wrt_p1();
-        int const qk_p2 = side_calc.qk_wrt_p2();
-                
-        if ( qk_p1 == -qk_p2 )
-        {
-            if ( qk_p1 == 0 )
-            {
-                return is_spike_of_collinear(p1, p2, robust_policy);
-            }
-                        
-            return true;
-        }
-    }
-        
-    return false;
-}
-
-template <typename Point1, typename Point2, typename RobustPolicy>
-inline bool is_spike_q(side_calculator<Point1, Point2> const& side_calc,
-                       model::referring_segment<Point2 const> const& q1,
-                       model::referring_segment<Point2 const> const& q2,
-                       RobustPolicy const& robust_policy)
-{
-    if ( side_calc.qk_wrt_q1() == 0 )
-    {
-        int const pk_q1 = side_calc.pk_wrt_q1();
-        int const pk_q2 = side_calc.pk_wrt_q2();
-                
-        if ( pk_q1 == -pk_q2 )
-        {
-            if ( pk_q1 == 0 )
-            {
-                return is_spike_of_collinear(q1, q2, robust_policy);
-            }
-                        
-            return true;
-        }
-    }
-        
-    return false;
-}
-
-template <typename Point1, typename Point2, typename RobustPolicy>
-inline bool is_spike_p(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                       Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                       RobustPolicy const& robust_policy)
-{
+public:
     typedef model::referring_segment<Point1 const> segment_type1;
-    segment_type1 p1(pi, pj), p2(pj, pk);
-    side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
-    return is_spike_p(side_calc, p1, p2, robust_policy);
-}
-
-template <typename Point1, typename Point2, typename RobustPolicy>
-inline bool is_spike_q(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                       Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                       RobustPolicy const& robust_policy)
-{
     typedef model::referring_segment<Point2 const> segment_type2;
-    segment_type2 q1(qi, qj), q2(qj, qk);
-    side_calculator<Point1, Point2> side_calc(pi, pj, pk, qi, qj, qk);
-    return is_spike_q(side_calc, q1, q2, robust_policy);
-}
+    typedef side_calculator<Point1, Point2> side_calculator_type;
+    
+    typedef typename strategy::return_type result_type;
+    typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
+    typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
+
+    intersection_info(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                      Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                      RobustPolicy const& robust_policy)
+        : m_result(strategy::apply(segment_type1(pi, pj),
+                                   segment_type2(qi, qj),
+                                   robust_policy))
+        , m_side_calc(pi, pj, pk, qi, qj, qk)
+        , m_robust_policy(robust_policy)
+    {}
+
+    inline Point1 const& pi() const { return m_side_calc.m_pi; }
+    inline Point1 const& pj() const { return m_side_calc.m_pj; }
+    inline Point1 const& pk() const { return m_side_calc.m_pk; }
+
+    inline Point2 const& qi() const { return m_side_calc.m_qi; }
+    inline Point2 const& qj() const { return m_side_calc.m_qj; }
+    inline Point2 const& qk() const { return m_side_calc.m_qk; }
+
+    inline side_calculator_type const& sides() const { return m_side_calc; }
+    inline result_type const& result() const { return m_result; }
+    inline i_info_type const& i_info() const { return m_result.template get<0>(); }
+    inline d_info_type const& d_info() const { return m_result.template get<1>(); }
+
+    inline bool is_spike_p() const
+    {
+        if ( m_side_calc.pk_wrt_p1() == 0 )
+        {
+            int const qk_p1 = m_side_calc.qk_wrt_p1();
+            int const qk_p2 = m_side_calc.qk_wrt_p2();
+                
+            if ( qk_p1 == -qk_p2 )
+            {
+                if ( qk_p1 == 0 )
+                {
+                    return is_spike_of_collinear(segment_type1(pi(), pj()),
+                                                 segment_type1(pj(), pk()));
+                }
+                        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    inline bool is_spike_q() const
+    {
+        if ( m_side_calc.qk_wrt_q1() == 0 )
+        {
+            int const pk_q1 = m_side_calc.pk_wrt_q1();
+            int const pk_q2 = m_side_calc.pk_wrt_q2();
+                
+            if ( pk_q1 == -pk_q2 )
+            {
+                if ( pk_q1 == 0 )
+                {
+                    return is_spike_of_collinear(segment_type2(qi(), qj()),
+                                                 segment_type2(qj(), qk()));
+                }
+                        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+private:
+    template <typename Point>
+    inline bool is_spike_of_collinear(
+                            model::referring_segment<Point const> const& s1,
+                            model::referring_segment<Point const> const& s2) const
+    {
+        typedef strategy_intersection
+            <
+                typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
+            > si;
+        
+        typedef typename si::segment_intersection_strategy_type strategy;
+        
+        typename strategy::return_type result = strategy::apply(s1, s2, m_robust_policy);
+        
+        return result.template get<0>().count == 2;
+    }
+
+    result_type m_result;
+    side_calculator_type m_side_calc;
+    RobustPolicy const& m_robust_policy;
+};
 
 // SEGMENT_INTERSECTION RESULT
 
@@ -335,8 +355,7 @@ struct get_turn_info_for_endpoint
     template<typename Point1,
              typename Point2,
              typename TurnInfo,
-             typename IntersectionResult,
-             typename RobustPolicy,
+             typename IntersectionInfo,
              typename OutputIterator
     >
     static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -344,12 +363,11 @@ struct get_turn_info_for_endpoint
                              bool is_p_first, bool is_p_last,
                              bool is_q_first, bool is_q_last,
                              TurnInfo const& tp_model,
-                             IntersectionResult const& result,
-                             RobustPolicy const& robust_policy,
+                             IntersectionInfo const& inters,
                              method_type /*method*/,
                              OutputIterator out)
     {
-        std::size_t ip_count = result.template get<0>().count;
+        std::size_t ip_count = inters.i_info().count;
         // no intersection points
         if ( ip_count == 0 )
             return false;
@@ -361,17 +379,16 @@ struct get_turn_info_for_endpoint
         if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
             return false;
 
-        linear_intersections intersections(pi, qi, result, is_p_last, is_q_last);
+        linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
 
         bool append0_last
             = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
                                             is_p_first, is_p_last, is_q_first, is_q_last,
                                             intersections.template get<0>(),
-                                            tp_model, result, 0,
-                                            robust_policy, out);
+                                            tp_model, inters, 0, out);
 
         // NOTE: opposite && ip_count == 1 may be true!
-        bool opposite = result.template get<1>().opposite;
+        bool opposite = inters.d_info().opposite;
 
         // don't ignore only for collinear opposite
         bool result_ignore_ip0 = append0_last && ( ip_count == 1 || !opposite );
@@ -383,8 +400,7 @@ struct get_turn_info_for_endpoint
             = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
                                             is_p_first, is_p_last, is_q_first, is_q_last,
                                             intersections.template get<1>(),
-                                            tp_model, result, 1,
-                                            robust_policy, out);
+                                            tp_model, inters, 1, out);
 
         // don't ignore only for collinear opposite
         bool result_ignore_ip1 = append1_last && !opposite /*&& ip_count == 2*/;
@@ -395,8 +411,7 @@ struct get_turn_info_for_endpoint
     template <typename Point1,
               typename Point2,
               typename TurnInfo,
-              typename IntersectionResult,
-              typename RobustPolicy,
+              typename IntersectionInfo,
               typename OutputIterator>
     static inline
     bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -405,9 +420,8 @@ struct get_turn_info_for_endpoint
                                        bool is_q_first, bool is_q_last,
                                        linear_intersections::ip_info const& ip_info,
                                        TurnInfo const& tp_model,
-                                       IntersectionResult const& result,
+                                       IntersectionInfo const& inters,
                                        int ip_index,
-                                       RobustPolicy const& robust_policy,
                                        OutputIterator out)
     {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
@@ -437,14 +451,16 @@ struct get_turn_info_for_endpoint
                                            is_p_first_ip, is_p_last_ip,
                                            is_q_first_ip, is_q_last_ip,
                                            ip_info.is_qi, ip_info.is_qj,
-                                           tp_model, result, ip_index, p_operation, q_operation);
+                                           tp_model, inters.result(), ip_index,
+                                           p_operation, q_operation);
             if ( !handled )
             {
                 handle_internal(qi, qj, qk, pi, pj, pk,
                                 is_q_first_ip, is_q_last_ip,
                                 is_p_first_ip, is_p_last_ip,
                                 ip_info.is_pi, ip_info.is_pj,
-                                tp_model, result, ip_index, q_operation, p_operation);
+                                tp_model, inters.result(), ip_index,
+                                q_operation, p_operation);
             }
 
             if ( p_operation != operation_none )
@@ -458,28 +474,28 @@ struct get_turn_info_for_endpoint
 
                 // P is spike and should be handled
                 if ( !is_p_last && ip_info.is_pj
-                  && result.template get<0>().count == 2
-                  && is_spike_p(pi, pj, pk, qi, qj, qk, robust_policy) )
+                  && inters.i_info().count == 2
+                  && inters.is_spike_p() )
                 {
-                    assign(pi, qi, result, ip_index, method, operation_blocked, q_operation,
+                    assign(pi, qi, inters.result(), ip_index, method, operation_blocked, q_operation,
                            p_pos, q_pos, tp_model, out);
-                    assign(pi, qi, result, ip_index, method, operation_intersection, q_operation,
+                    assign(pi, qi, inters.result(), ip_index, method, operation_intersection, q_operation,
                            p_pos, q_pos, tp_model, out);
                 }
                 // Q is spike and should be handled
                 else if ( !is_q_last && ip_info.is_qj
-                       && result.template get<0>().count == 2
-                       && is_spike_q(pi, pj, pk, qi, qj, qk, robust_policy) )
+                       && inters.i_info().count == 2
+                       && inters.is_spike_q() )
                 {
-                    assign(pi, qi, result, ip_index, method, p_operation, operation_blocked,
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_blocked,
                            p_pos, q_pos, tp_model, out);
-                    assign(pi, qi, result, ip_index, method, p_operation, operation_intersection,
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_intersection,
                            p_pos, q_pos, tp_model, out);
                 }
                 // no spikes
                 else
                 {
-                    assign(pi, qi, result, ip_index, method, p_operation, q_operation,
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, q_operation,
                            p_pos, q_pos, tp_model, out);
                 }
             }
@@ -498,12 +514,9 @@ struct get_turn_info_for_endpoint
     >
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
-                                       bool first1, bool last1,
-                                       bool first2, bool last2,
-                                       bool ip_i2, bool ip_j2,
-                                       TurnInfo const& tp_model,
-                                       IntersectionResult const& result,
-                                       int ip_index,
+                                       bool first1, bool last1, bool first2, bool last2,
+                                       bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
+                                       IntersectionResult const& result, int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
         boost::ignore_unused_variable_warning(ip_index);
