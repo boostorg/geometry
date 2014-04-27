@@ -60,13 +60,16 @@ public:
 namespace detail { namespace overlay
 {
 
-template <typename Point1, typename Point2>
+template <typename PointP, typename PointQ,
+          typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
+          typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
+>
 struct side_calculator
 {
     typedef boost::geometry::strategy::side::side_by_triangle<> side; // todo: get from coordinate system
 
-    inline side_calculator(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                 Point2 const& qi, Point2 const& qj, Point2 const& qk)
+    inline side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
+                           Qi const& qi, Qj const& qj, Qk const& qk)
         : m_pi(pi), m_pj(pj), m_pk(pk)
         , m_qi(qi), m_qj(qj), m_qk(qk)
     {}
@@ -79,12 +82,12 @@ struct side_calculator
     inline int pk_wrt_q2() const { return side::apply(m_qj, m_qk, m_pk); }
     inline int qk_wrt_p2() const { return side::apply(m_pj, m_pk, m_qk); }
 
-    Point1 const& m_pi;
-    Point1 const& m_pj;
-    Point1 const& m_pk;
-    Point2 const& m_qi;
-    Point2 const& m_qj;
-    Point2 const& m_qk;
+    Pi const& m_pi;
+    Pj const& m_pj;
+    Pk const& m_pk;
+    Qi const& m_qi;
+    Qj const& m_qj;
+    Qk const& m_qk;
 };
 
 struct base_turn_handler

@@ -102,126 +102,6 @@ private:
     unsigned m_flags;
 };
 
-//enum linestring_kind { linestring_exterior, linestring_point, linestring_closed, linestring_open };
-//
-//template <typename Linestring>
-//linestring_kind check_linestring_kind(Linestring const& ls)
-//{
-//    std::size_t count = boost::size(ls);
-//    if ( count == 0 )
-//        return linestring_exterior;
-//    else if ( count == 1 )
-//        return linestring_point;
-//    else
-//    {
-//        bool equal_fb = equals::equals_point_point(range::front(ls), range::back(ls));
-//        if ( equal_fb )
-//        {
-//            typedef typename boost::range_iterator<Linestring const>::type iterator;
-//            iterator first = boost::begin(ls);
-//            ++first;
-//            iterator last = boost::end(ls);
-//            --last;
-//            for ( iterator it = first ; it != last ; ++it )
-//            {
-//                if ( !equals::equals_point_point(range::front(ls), *it) )
-//                    return linestring_closed;
-//            }
-//
-//            return linestring_point;
-//        }
-//        else
-//            return linestring_open;
-//    }
-//}
-
-// Called in a loop for:
-// Ls/Ls - worst O(N) - 1x point_in_geometry(MLs)
-// Ls/MLs - worst O(N) - 1x point_in_geometry(MLs)
-// MLs/Ls - worst O(N^2) - Bx point_in_geometry(Ls)
-// MLs/MLs - worst O(N^2) - Bx point_in_geometry(Ls)
-// TODO: later use spatial index
-//template <std::size_t OpId, typename Result, typename BoundaryChecker, typename OtherGeometry>
-//class disjoint_linestring_pred_with_point_size_handling
-//{
-//    static const bool transpose_result = OpId != 0;
-//
-//public:
-//    disjoint_linestring_pred_with_point_size_handling(Result & res,
-//                                                      BoundaryChecker & boundary_checker,
-//                                                      OtherGeometry const& other_geometry)
-//        : m_result_ptr(boost::addressof(res))
-//        , m_boundary_checker_ptr(boost::addressof(boundary_checker))
-//        , m_other_geometry(boost::addressof(other_geometry))
-//        , m_detected_mask_point(0)
-//        , m_detected_open_boundary(false)
-//    {}
-//
-//    template <typename Linestring>
-//    bool operator()(Linestring const& linestring)
-//    {
-//        linestring_kind lk = check_linestring_kind(linestring);
-//
-//        if ( lk == linestring_point ) // just an optimization
-//        {
-//            if ( m_detected_mask_point != 7 )
-//            {
-//                // check the relation
-//                int pig = within::point_in_geometry(range::front(linestring), *m_other_geometry);
-//
-//                // point inside
-//                if ( pig > 0 )
-//                {
-//                    update<interior, interior, '0', transpose_result>(*m_result_ptr);
-//                    m_detected_mask_point |= 1;
-//                }
-//                // point on boundary
-//                else if ( pig == 0 )
-//                {
-//                    update<interior, boundary, '0', transpose_result>(*m_result_ptr);
-//                    m_detected_mask_point |= 2;
-//                }
-//                // point outside
-//                else
-//                {
-//                    update<interior, exterior, '0', transpose_result>(*m_result_ptr);
-//                    m_detected_mask_point |= 4;
-//                }
-//            }
-//        }
-//        // NOTE: For closed Linestrings I/I=1 could be set automatically
-//        // but for MultiLinestrings endpoints of closed Linestrings must also be checked for boundary
-//        else if ( lk == linestring_open || lk == linestring_closed )
-//        {
-//            if ( !m_detected_open_boundary ) // just an optimization
-//            {
-//                update<interior, exterior, '1', transpose_result>(*m_result_ptr);
-//
-//                // check if there is a boundary
-//                if ( m_boundary_checker_ptr->template
-//                        is_endpoint_boundary<boundary_front>(range::front(linestring))
-//                    || m_boundary_checker_ptr->template
-//                        is_endpoint_boundary<boundary_back>(range::back(linestring)) )
-//                {
-//                    update<boundary, exterior, '0', transpose_result>(*m_result_ptr);
-//                    
-//                    m_detected_open_boundary = true;
-//                }
-//            }
-//        }
-//
-//        bool all_detected = m_detected_mask_point == 7 && m_detected_open_boundary;
-//        return !all_detected && !m_result_ptr->interrupt;
-//    }
-//
-//private:
-//    Result * m_result_ptr;
-//    BoundaryChecker * m_boundary_checker_ptr;
-//    const OtherGeometry * m_other_geometry;
-//    char m_detected_mask_point;
-//    bool m_detected_open_boundary;
-//};
-
 template <typename Geometry1, typename Geometry2>
 struct linear_linear
 {
@@ -833,7 +713,7 @@ struct linear_linear
 
     private:
         exit_watcher<TurnInfo, OpId> m_exit_watcher;
-        segment_watcher<same_single_geometry> m_seg_watcher;
+        segment_watcher<same_single> m_seg_watcher;
         const TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         const TurnInfo * m_degenerated_turn_ptr;

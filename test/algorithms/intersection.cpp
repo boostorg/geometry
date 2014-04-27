@@ -582,9 +582,6 @@ void test_boxes_nd()
     typedef bg::model::point<CoordinateType, 1, bg::cs::cartesian> p1;
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> p2;
     typedef bg::model::point<CoordinateType, 3, bg::cs::cartesian> p3;
-    typedef bg::model::box<p1> b1;
-    typedef bg::model::box<p1> b2;
-    typedef bg::model::box<p1> b3;
 
     test_boxes_per_d(p1(0), p1(5), p1(3), p1(6), true);
     test_boxes_per_d(p2(0,0), p2(5,5), p2(3,3), p2(6,6), true);

@@ -724,12 +724,12 @@ inline void sectionalize(Geometry const& geometry,
 // Backwards compatibility
 template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry,
-                Sections& sections,
-                int source_index = 0)
+                         Sections& sections,
+                         int source_index = 0)
 {
-    return sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
-                                 false, sections,
-                                 source_index);
+    return geometry::sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
+                                           false, sections,
+                                           source_index);
 }
 #endif
 
