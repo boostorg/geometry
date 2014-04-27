@@ -563,13 +563,6 @@ struct areal_areal
         static const bool transpose_result = OpId != 0;
         static const int other_id = (OpId + 1) % 2;
 
-        static const iterate_direction direction = order_as_direction<geometry::point_order<Geometry const>::value>::value;
-        static const closure_selector closure = geometry::closure<Geometry const>::value;
-
-        typedef typename ring_type<Geometry const>::type ring_type;
-        typedef typename reversible_view<ring_type const, direction>::type reversible_type;
-        typedef typename closeable_view<reversible_type const, closure>::type closeable_type;
-
     public:
         inline uncertain_rings_analyser(Result & result,
                                         Geometry const& geom,

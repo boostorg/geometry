@@ -27,6 +27,8 @@
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 
+#include <boost/geometry/views/normalized_view.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -835,28 +837,13 @@ struct linear_areal
             if ( turn.operations[op_id].position == overlay::position_front )
                 return false;
 
-            static const bool reverse2 = detail::overlay::do_reverse<
-                                            geometry::point_order<Geometry2>::value
-                                         >::value;
-
-            typedef typename closeable_view
-                <
-                    typename range_type<Geometry2>::type const,
-                    closure<Geometry2>::value
-                >::type range2_cview;
-
-            typedef typename reversible_view
-                <
-                    range2_cview const,
-                    reverse2 ? iterate_reverse : iterate_forward
-                >::type range2_view;
-
-            typedef typename sub_range_return_type<Geometry1 const>::type range1_ref;
-
-            range1_ref range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
-            range2_cview const cview(sub_range(geometry2, turn.operations[other_op_id].seg_id));
-            range2_view const range2(cview);
-
+            typename sub_range_return_type<Geometry1 const>::type
+                range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
+            
+            typedef detail::normalized_view<Geometry2 const> const range2_type;
+            typedef typename boost::range_iterator<range2_type>::type range2_iterator;
+            range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
+            
             std::size_t s1 = boost::size(range1);
             std::size_t s2 = boost::size(range2);
             BOOST_ASSERT(s1 > 1 && s2 > 2);
@@ -884,10 +871,9 @@ struct linear_areal
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
 // TODO: the following function should return immediately, however the worst case complexity is O(N)
 // It would be good to replace it with some O(1) mechanism
-                typename boost::range_iterator<range2_view>::type
-                    qk_it = find_next_non_duplicated(boost::begin(range2),
-                                                     boost::begin(range2) + q_seg_jk,
-                                                     boost::end(range2));
+                range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
+                                                                 boost::begin(range2) + q_seg_jk,
+                                                                 boost::end(range2));
 
                 // Will this sequence of points be always correct?
                 overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
