@@ -211,16 +211,14 @@ struct rescale_policy_type
 #endif
     >
 {
-#if ! defined(_MSC_VER)
     BOOST_STATIC_ASSERT
-    (
+    ((
         boost::is_same
         <
             typename geometry::tag<Point>::type,
             geometry::point_tag
         >::type::value
-    );
-#endif
+    ));
 };
 
 
