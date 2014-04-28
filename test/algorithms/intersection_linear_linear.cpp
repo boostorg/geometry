@@ -667,6 +667,28 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 0,18 0,19 0))"),
          "lmli18a"
          );
+}
+
+
+
+
+
+
+#ifndef BOOST_GEOMETRY_TEST_NO_DEGENERATE
+BOOST_AUTO_TEST_CASE( test_intersection_l_ml_degenerate )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "*** LINESTRING / MULTILINESTRING INTERSECTION"
+              << " (DEGENERATE) ***"
+              << std::endl;
+    std::cout << std::endl;
+#endif
+
+    typedef linestring_type L;
+    typedef multi_linestring_type ML;
+
+    typedef test_intersection_of_geometries<L, ML, ML> tester;
 
     // the following test cases concern linestrings with duplicate
     // points and possibly linestrings with zero length.
@@ -719,7 +741,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
          "lmli20d"
          );
 }
-
+#endif // BOOST_GEOMETRY_TEST_NO_DEGENERATE
 
 
 
@@ -738,7 +760,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
 
     typedef test_intersection_of_geometries<ML, L, ML> tester;
 
-    // the inertsection code automatically reverses the order of the
+    // the intersection code automatically reverses the order of the
     // geometries according to the geometry IDs.
     // all calls below are actually reversed, and internally the
     // intersection of the linestring with the multi-linestring is
@@ -1071,7 +1093,27 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
 #endif
          "mlmli18a"
          );
+}
 
+
+
+
+
+
+#ifndef BOOST_GEOMETRY_TEST_NO_DEGENERATE
+BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING INTERSECTION"
+              << " (DEGENERATE) ***"
+              << std::endl;
+    std::cout << std::endl;
+#endif
+
+    typedef multi_linestring_type ML;
+
+    typedef test_intersection_of_geometries<ML, ML, ML> tester;
 
     // the following test cases concern linestrings with duplicate
     // points and possibly linestrings with zero length.
@@ -1165,3 +1207,4 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
          "mlmli20e"
          );
 }
+#endif // BOOST_GEOMETRY_TEST_NO_DEGENERATE
