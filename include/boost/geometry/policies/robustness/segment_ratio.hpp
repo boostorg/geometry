@@ -109,6 +109,7 @@ public :
     inline segment_ratio()
         : m_numerator(0)
         , m_denominator(1)
+        , m_approximation(0)
     {}
 
     inline segment_ratio(const Type& nominator, const Type& denominator)
