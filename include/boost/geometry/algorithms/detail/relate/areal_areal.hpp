@@ -17,6 +17,8 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/geometry/algorithms/detail/single_geometry.hpp>
 
@@ -193,7 +195,7 @@ struct areal_areal
 // TODO: If Areal geometry may have infinite size, change the following line:
 
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        relate::set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( result.interrupt )
             return;
@@ -560,13 +562,6 @@ struct areal_areal
     {
         static const bool transpose_result = OpId != 0;
         static const int other_id = (OpId + 1) % 2;
-
-        static const iterate_direction direction = order_as_direction<geometry::point_order<Geometry const>::value>::value;
-        static const closure_selector closure = geometry::closure<Geometry const>::value;
-
-        typedef typename ring_type<Geometry const>::type ring_type;
-        typedef typename reversible_view<ring_type const, direction>::type reversible_type;
-        typedef typename closeable_view<reversible_type const, closure>::type closeable_type;
 
     public:
         inline uncertain_rings_analyser(Result & result,

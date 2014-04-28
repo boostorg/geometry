@@ -15,9 +15,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -26,44 +26,11 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate { namespace turns {
 
-// TURN_INFO
-
-// distance_info
-// enriched_distance_info
-// distance_enriched_info
-// distance_enrichment_info
-
-template<typename P>
-struct enriched_info
+template <bool IncludeDegenerate = false>
+struct assign_policy
+    : overlay::assign_null_policy
 {
-    typedef typename strategy::distance::services::return_type
-        <
-            typename strategy::distance::services::comparable_type
-                <
-                    typename strategy::distance::services::default_strategy
-                        <
-                            point_tag,
-                            P
-                        >::type
-                >::type,
-            P, P
-        >::type distance_type;
-
-    inline enriched_info()
-        : distance(distance_type())
-    {}
-
-    distance_type distance; // distance-measurement from segment.first to IP
-};
-
-// turn_operation_linear_with_distance
-// distance_enriched_turn_operation_linear
-
-template <typename P>
-struct enriched_turn_operation_linear
-    : public overlay::turn_operation_linear
-{
-    enriched_info<P> enriched;
+    static bool const include_degenerate = IncludeDegenerate;
 };
 
 // GET_TURNS
@@ -71,16 +38,21 @@ struct enriched_turn_operation_linear
 template <typename Geometry1,
           typename Geometry2,
           typename GetTurnPolicy
-            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, overlay::calculate_distance_policy> >
+            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy<> > >
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;
 
     typedef overlay::turn_info
-        <
-            point1_type,
-            enriched_turn_operation_linear<point1_type>
-        > turn_info;
+            <
+                point1_type,
+                typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type,
+                typename detail::get_turns::turn_operation_type
+                    <
+                        Geometry1, Geometry2,
+                        typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
+                    >::type
+            > turn_info;
 
     template <typename Turns>
     static inline void apply(Turns & turns,
@@ -98,6 +70,8 @@ struct get_turns
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy)
     {
+        typedef typename geometry::point_type<Geometry1>::type point1_type;
+
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
@@ -135,27 +109,47 @@ struct op_to_int
     }
 };
 
-template <typename OpToInt = op_to_int<> >
-struct less_greater_op_for_other_same_m_diff_r
+template <typename OpToInt>
+struct less_op_xxx_linear
 {
     template <typename Op>
     inline bool operator()(Op const& left, Op const& right)
     {
         static OpToInt op_to_int;
+        return op_to_int(left) < op_to_int(right);
+    }
+};
+
+struct less_op_linear_linear
+    : less_op_xxx_linear< op_to_int<0,2,3,1,4,0> >
+{};
+
+struct less_op_linear_areal
+{
+    template <typename Op>
+    inline bool operator()(Op const& left, Op const& right)
+    {
+        static turns::op_to_int<0,2,3,1,4,0> op_to_int_xuic;
+        static turns::op_to_int<0,3,2,1,4,0> op_to_int_xiuc;
 
         if ( left.other_id.multi_index == right.other_id.multi_index )
         {
             if ( left.other_id.ring_index == right.other_id.ring_index )
-                return op_to_int(left) < op_to_int(right);
+                return op_to_int_xuic(left) < op_to_int_xuic(right);
             else
-                return op_to_int(left) > op_to_int(right);
+                return op_to_int_xiuc(left) < op_to_int_xiuc(right);
         }
         else
         {
-            return op_to_int(left) < op_to_int(right);
+            //return op_to_int_xuic(left) < op_to_int_xuic(right);
+            return left.other_id.multi_index < right.other_id.multi_index;
         }
     }
 };
+
+struct less_op_areal_linear
+    : less_op_xxx_linear< op_to_int<0,1,0,0,2,0> >
+{};
 
 struct less_op_areal_areal
 {
@@ -201,20 +195,20 @@ struct less_op_areal_areal
 // sort turns by G1 - source_index == 0 by:
 // seg_id -> distance -> operation
 template <std::size_t OpId = 0,
-          typename LessOp = less_greater_op_for_other_same_m_diff_r<> >
+          typename LessOp = less_op_xxx_linear< op_to_int<> > >
 struct less
 {
     BOOST_STATIC_ASSERT(OpId < 2);
 
     template <typename Op> static inline
-    bool use_distance(Op const& left, Op const& right)
+    bool use_fraction(Op const& left, Op const& right)
     {
         static LessOp less_op;
 
-        if ( geometry::math::equals(left.enriched.distance, right.enriched.distance) )
+        if ( left.fraction == right.fraction )
             return less_op(left, right);
         else
-            return left.enriched.distance < right.enriched.distance;
+            return left.fraction < right.fraction;
     }
 
     template <typename Turn>
@@ -223,7 +217,7 @@ struct less
         segment_identifier const& sl = left.operations[OpId].seg_id;
         segment_identifier const& sr = right.operations[OpId].seg_id;
 
-        return sl < sr || ( sl == sr && use_distance(left.operations[OpId], right.operations[OpId]) );
+        return sl < sr || ( sl == sr && use_fraction(left.operations[OpId], right.operations[OpId]) );
     }
 };
 

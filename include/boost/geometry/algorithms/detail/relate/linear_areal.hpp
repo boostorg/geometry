@@ -17,6 +17,8 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/geometry/algorithms/detail/single_geometry.hpp>
 
@@ -24,6 +26,8 @@
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
+
+#include <boost/geometry/views/normalized_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -194,7 +198,7 @@ struct linear_areal
 // TODO: If Areal geometry may have infinite size, change the following line:
 
         // The result should be FFFFFFFFF
-        set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
+        relate::set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( result.interrupt )
             return;
@@ -232,20 +236,14 @@ struct linear_areal
 
         // This is set here because in the case if empty Areal geometry were passed
         // those shouldn't be set
-        set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+        relate::set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
         if ( result.interrupt )
             return;
 
         {
             // for different multi or same ring id: x, u, i, c
             // for same multi and different ring id: c, i, u, x
-            typedef turns::less
-                <
-                    0, turns::less_greater_op_for_other_same_m_diff_r
-                        <
-                            turns::op_to_int<0,2,3,1,4,0>
-                        >
-                > less;
+            typedef turns::less<0, turns::less_op_linear_areal> less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type> analyser;
@@ -261,7 +259,7 @@ struct linear_areal
         // If 'c' (insersection_boundary) was not found we know that any Ls isn't equal to one of the Rings
         if ( !interrupt_policy.is_boundary_found )
         {
-            set<exterior, boundary, '1', TransposeResult>(result);
+            relate::set<exterior, boundary, '1', TransposeResult>(result);
         }
         // Don't calculate it if it's required
         else if ( may_update<exterior, boundary, '1', TransposeResult>(result) )
@@ -292,7 +290,7 @@ struct linear_areal
                     if ( it->operations[1].seg_id.ring_index > -1 )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                         break;
                     }
                     // if there was some previous ring
@@ -307,7 +305,7 @@ struct linear_areal
                                     single_geometry(geometry2, *prev_seg_id_ptr)) )
                         {
                             // we can be sure that the exterior overlaps the boundary
-                            set<exterior, boundary, '1', TransposeResult>(result);
+                            relate::set<exterior, boundary, '1', TransposeResult>(result);
                             break;
                         }
                     }
@@ -320,7 +318,7 @@ struct linear_areal
                       && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        set<exterior, boundary, '1', TransposeResult>(result);                    
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                         break;
                     }
                 }
@@ -335,20 +333,14 @@ struct linear_areal
                 if ( !has_boundary_inters.result )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);                    
+                    relate::set<exterior, boundary, '1', TransposeResult>(result);                    
                     break;
                 }
                 // else there is 1d overlap with the boundary so we must analyse the boundary
                 else
                 {
                     // u, c
-                    typedef turns::less
-                        <
-                            1, turns::less_greater_op_for_other_same_m_diff_r
-                                <
-                                    turns::op_to_int<0,1,0,0,2,0>
-                                >
-                        > less;
+                    typedef turns::less<1, turns::less_op_areal_linear> less;
                     std::sort(it, next, less());
 
                     // analyse
@@ -364,7 +356,7 @@ struct linear_areal
                     if ( analyser.is_union_detected )
                     {
                         // we can be sure that the boundary of Areal overlaps the exterior of Linear
-                        set<exterior, boundary, '1', TransposeResult>(result);
+                        relate::set<exterior, boundary, '1', TransposeResult>(result);
                         break;
                     }
                 }
@@ -384,7 +376,7 @@ struct linear_areal
                             single_geometry(geometry2, *prev_seg_id_ptr)) )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    set<exterior, boundary, '1', TransposeResult>(result);
+                    relate::set<exterior, boundary, '1', TransposeResult>(result);
                 }
             }
         }
@@ -460,10 +452,11 @@ struct linear_areal
 
     public:
         turns_analyser()
-            : m_previous_turn_ptr(0)
+            : m_previous_turn_ptr(NULL)
             , m_previous_operation(overlay::operation_none)
             , m_boundary_counter(0)
             , m_interior_detected(false)
+            , m_first_interior_other_id_ptr(NULL)
         {}
 
         template <typename Result,
@@ -490,7 +483,7 @@ struct linear_areal
             }
 
             segment_identifier const& seg_id = it->operations[op_id].seg_id;
-            //segment_identifier const& other_id = it->operations[other_op_id].seg_id;
+            segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
 
@@ -521,6 +514,13 @@ struct linear_areal
                 if ( op == overlay::operation_blocked )
                     return;
 
+                if ( ( op == overlay::operation_intersection
+                    || op == overlay::operation_continue )
+                  && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )
+                {
+                    fake_enter_detected = true;
+                }
+
                 m_exit_watcher.reset_detected_exit();
             }
 
@@ -548,32 +548,19 @@ struct linear_areal
                 {
                     m_interior_detected = false;
                 }
+                else if ( op == overlay::operation_union )
+                {
+// TODO: this probably is not a good way of handling the interiors/enters
+//       the solution similar to exit_watcher would be more robust
+//       all enters should be kept and handled.
+//       maybe integrate it with the exit_watcher -> enter_exit_watcher
+                    if ( m_first_interior_other_id_ptr
+                      && m_first_interior_other_id_ptr->multi_index == other_id.multi_index )
+                    {
+                        m_interior_detected = false;
+                    }
+                }
             }
-
-            // if the new linestring started just now,
-            // but the previous one went out on the previous point,
-            // we must check if the boundary of the previous segment is outside
-            // NOTE: couldn't it be integrated with the handling of the union above?
-            // THIS IS REDUNDANT WITH THE HANDLING OF THE END OF THE RANGE
-            //if ( first_in_range
-            //  && ! fake_enter_detected
-            //  && m_previous_operation == overlay::operation_union )
-            //{
-            //    BOOST_ASSERT(it != first);
-            //    BOOST_ASSERT(m_previous_turn_ptr);
-
-            //    segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
-
-            //    bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-            //                            range::back(sub_geometry::get(geometry, prev_seg_id)),
-            //                            boundary_checker);
-
-            //    // if there is a boundary on the last point
-            //    if ( prev_back_b )
-            //    {
-            //        update<boundary, exterior, '0', TransposeResult>(res);
-            //    }
-            //}
 
             // i/u, c/u
             if ( op == overlay::operation_intersection
@@ -592,9 +579,15 @@ struct linear_areal
                         // interiors overlaps
                         //update<interior, interior, '1', TransposeResult>(res);
 
-                        // don't update now
-                        // we might enter a boundary of some other ring on the same IP
-                        m_interior_detected = true;
+// TODO: think about the implementation of the more robust version
+//       this way only the first enter will be handled
+                        if ( !m_interior_detected )
+                        {
+                            // don't update now
+                            // we might enter a boundary of some other ring on the same IP
+                            m_interior_detected = true;
+                            m_first_interior_other_id_ptr = boost::addressof(other_id);
+                        }
                     }
                 }
                 else // operation_boundary
@@ -675,7 +668,8 @@ struct linear_areal
                 // we're inside, possibly going out right now
                 if ( ! no_enters_detected )
                 {
-                    if ( op_blocked )
+                    if ( op_blocked
+                      && it->operations[op_id].position == overlay::position_back ) // ignore spikes!
                     {
                         // check if this is indeed the boundary point
                         // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
@@ -780,7 +774,8 @@ struct linear_areal
             // here, the possible exit is the real one
             // we know that we entered and now we exit
             if ( /*m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
-                ||*/ m_previous_operation == overlay::operation_union )
+                ||*/ m_previous_operation == overlay::operation_union
+                && !m_interior_detected )
             {
                 // for sure
                 update<interior, exterior, '1', TransposeResult>(res);
@@ -801,10 +796,12 @@ struct linear_areal
                 }
             }
             // we might enter some Areal and didn't go out,
-            else if ( m_previous_operation == overlay::operation_intersection )
+            else if ( m_previous_operation == overlay::operation_intersection
+                   || m_interior_detected )
             {
                 // just in case
                 update<interior, interior, '1', TransposeResult>(res);
+                m_interior_detected = false;
 
                 BOOST_ASSERT(first != last);
                 BOOST_ASSERT(m_previous_turn_ptr);
@@ -820,14 +817,6 @@ struct linear_areal
                 {
                     update<boundary, interior, '0', TransposeResult>(res);
                 }
-            }
-
-            // handle the interior overlap
-            if ( m_interior_detected )
-            {
-                // just in case
-                update<interior, interior, '1', TransposeResult>(res);
-                m_interior_detected = false;
             }
 
             BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
@@ -848,28 +837,13 @@ struct linear_areal
             if ( turn.operations[op_id].position == overlay::position_front )
                 return false;
 
-            static const bool reverse2 = detail::overlay::do_reverse<
-                                            geometry::point_order<Geometry2>::value
-                                         >::value;
-
-            typedef typename closeable_view
-                <
-                    typename range_type<Geometry2>::type const,
-                    closure<Geometry2>::value
-                >::type range2_cview;
-
-            typedef typename reversible_view
-                <
-                    range2_cview const,
-                    reverse2 ? iterate_reverse : iterate_forward
-                >::type range2_view;
-
-            typedef typename sub_range_return_type<Geometry1 const>::type range1_ref;
-
-            range1_ref range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
-            range2_cview const cview(sub_range(geometry2, turn.operations[other_op_id].seg_id));
-            range2_view const range2(cview);
-
+            typename sub_range_return_type<Geometry1 const>::type
+                range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
+            
+            typedef detail::normalized_view<Geometry2 const> const range2_type;
+            typedef typename boost::range_iterator<range2_type>::type range2_iterator;
+            range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
+            
             std::size_t s1 = boost::size(range1);
             std::size_t s2 = boost::size(range2);
             BOOST_ASSERT(s1 > 1 && s2 > 2);
@@ -897,10 +871,9 @@ struct linear_areal
                 std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
 // TODO: the following function should return immediately, however the worst case complexity is O(N)
 // It would be good to replace it with some O(1) mechanism
-                typename boost::range_iterator<range2_view>::type
-                    qk_it = find_next_non_duplicated(boost::begin(range2),
-                                                     boost::begin(range2) + q_seg_jk,
-                                                     boost::end(range2));
+                range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
+                                                                 boost::begin(range2) + q_seg_jk,
+                                                                 boost::end(range2));
 
                 // Will this sequence of points be always correct?
                 overlay::side_calculator<point1_type, point2_type> side_calc(qi_conv, new_pj, pi, qi, qj, *qk_it);
@@ -962,11 +935,12 @@ struct linear_areal
 
     private:
         exit_watcher<TurnInfo, op_id> m_exit_watcher;
-        segment_watcher<same_single_geometry> m_seg_watcher;
+        segment_watcher<same_single> m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         unsigned m_boundary_counter;
         bool m_interior_detected;
+        const segment_identifier * m_first_interior_other_id_ptr;
     };
 
     // call analyser.apply() for each turn in range

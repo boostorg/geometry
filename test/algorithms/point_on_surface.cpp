@@ -34,7 +34,7 @@
 
 // Include from unit tests
 #include <algorithms/test_overlay.hpp>
-#include <algorithms/test_relate.hpp>
+#include <algorithms/predef_relop.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
@@ -265,7 +265,7 @@ void test_all()
     test_geometry<polygon>("dz_2", dz_2[0],  0, 0);
     test_geometry<polygon>("dz_3", dz_3[0],  0, 0);
     test_geometry<polygon>("dz_4", dz_4[0],  0, 0);
-    test_geometry<polygon>("geos_1_test_overlay", geos_1_test_overlay[0],  0, 0);
+    test_geometry<polygon>("geos_1", geos_1[0],  0, 0);
     test_geometry<polygon>("geos_2", geos_2[0],  0, 0);
     test_geometry<polygon>("geos_3", geos_3[0],  0, 0);
     test_geometry<polygon>("geos_4", geos_4[0],  0, 0);

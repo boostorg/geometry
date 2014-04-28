@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
@@ -54,34 +55,6 @@ public:
         return has_boundary;
     }
 
-    template <boundary_query BoundaryQuery>
-    bool is_boundary(point_type const& pt, segment_identifier const& sid) const
-    {
-        if ( !has_boundary )
-            return false;
-
-        if ( BoundaryQuery == boundary_front )
-        {
-            return sid.segment_index == 0
-                && detail::equals::equals_point_point(pt, range::front(geometry));
-        }
-        else if ( BoundaryQuery == boundary_back )
-        {
-            return sid.segment_index + 2 == geometry::num_points(geometry)
-                && detail::equals::equals_point_point(pt, range::back(geometry));
-        }
-        else if ( BoundaryQuery == boundary_any )
-        {
-            return ( sid.segment_index == 0
-                  && detail::equals::equals_point_point(pt, range::front(geometry)) )
-                || ( sid.segment_index + 2 == geometry::num_points(geometry)
-                  && detail::equals::equals_point_point(pt, range::back(geometry)) );
-        }
-
-        BOOST_ASSERT(false);
-        return false;
-    }
-
 private:
     bool has_boundary;
     Geometry const& geometry;
@@ -97,41 +70,10 @@ public:
         : is_filled(false), geometry(g)
     {}
 
-    template <boundary_query BoundaryQuery>
-    bool is_endpoint_boundary(point_type const& pt) const
-    {
-        return is_boundary_point(pt);
-    }
-
-    template <boundary_query BoundaryQuery>
-    bool is_boundary(point_type const& pt, segment_identifier const& sid) const
-    {
-        if ( BoundaryQuery == boundary_front )
-        {
-            if ( sid.segment_index != 0 )
-                return false;
-        }
-
-        if ( BoundaryQuery == boundary_back )
-        {
-            if ( sid.segment_index + 2 != geometry::num_points(sub_range(geometry, sid)) )
-                return false;
-        }
-
-        if ( BoundaryQuery == boundary_any )
-        {
-            if ( sid.segment_index != 0
-              && sid.segment_index + 2 != geometry::num_points(sub_range(geometry, sid)) )
-                return false;
-        }
-
-        return is_boundary_point(pt);                
-    }
-
-private:
     // First call O(NlogN)
     // Each next call O(logN)
-    bool is_boundary_point(point_type const& pt) const
+    template <boundary_query BoundaryQuery>
+    bool is_endpoint_boundary(point_type const& pt) const
     {
         typedef typename boost::range_size<Geometry>::type size_type;
         size_type multi_count = boost::size(geometry);
@@ -176,6 +118,7 @@ private:
         return equal_points_count % 2 != 0;// && equal_points_count > 0; // the number is odd and > 0
     }
 
+private:
     mutable bool is_filled;
     // TODO: store references/pointers instead of points?
     mutable std::vector<point_type> boundary_points;

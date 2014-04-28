@@ -23,9 +23,8 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-// TODO:
-// For 1-point linestrings or with all equal points turns won't be generated!
-// Check for those degenerated cases may be connected with this one!
+// NOTE: This iterates through single geometries for which turns were not generated.
+//       It doesn't mean that the geometry is disjoint, only that no turns were detected.
 
 template <std::size_t OpId,
           typename Geometry,
@@ -130,14 +129,12 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
 
 // WARNING! This class stores pointers!
 // Passing a reference to local variable will result in undefined behavior!
-
-// TODO: rename to point_id_ref?
 template <typename Point>
-class point_identifier
+class point_info
 {
 public:
-    point_identifier() : sid_ptr(0), pt_ptr(0) {}
-    point_identifier(segment_identifier const& sid, Point const& pt)
+    point_info() : sid_ptr(NULL), pt_ptr(NULL) {}
+    point_info(Point const& pt, segment_identifier const& sid)
         : sid_ptr(boost::addressof(sid))
         , pt_ptr(boost::addressof(pt))
     {}
@@ -165,10 +162,10 @@ private:
 
 // WARNING! This class stores pointers!
 // Passing a reference to local variable will result in undefined behavior!
-class same_single_geometry
+class same_single
 {
 public:
-    same_single_geometry(segment_identifier const& sid)
+    same_single(segment_identifier const& sid)
         : sid_ptr(boost::addressof(sid))
     {}
 
@@ -178,7 +175,7 @@ public:
     }
 
     template <typename Point>
-    bool operator()(point_identifier<Point> const& pid) const
+    bool operator()(point_info<Point> const& pid) const
     {
         return operator()(pid.seg_id());
     }
@@ -206,12 +203,12 @@ private:
 
 // WARNING! This class stores pointers!
 // Passing a reference to local variable will result in undefined behavior!
-template <typename SameRange = same_single_geometry>
+template <typename SameRange = same_single>
 class segment_watcher
 {
 public:
     segment_watcher()
-        : m_seg_id_ptr(0)
+        : m_seg_id_ptr(NULL)
     {}
 
     bool update(segment_identifier const& seg_id)
@@ -234,21 +231,24 @@ class exit_watcher
     static const std::size_t other_op_id = (OpId + 1) % 2;
 
     typedef typename TurnInfo::point_type point_type;
-    typedef point_identifier<point_type> point_info;
+    typedef detail::relate::point_info<point_type> point_info;
 
 public:
     exit_watcher()
-        : exit_operation(overlay::operation_none)
-        , exit_turn(0)
+        : m_exit_operation(overlay::operation_none)
+        , m_exit_turn_ptr(NULL)
     {}
 
     void enter(TurnInfo const& turn)
     {
-        other_entry_points.push_back(
-            point_info(turn.operations[other_op_id].seg_id, turn.point) );
+        m_other_entry_points.push_back(
+            point_info(turn.point, turn.operations[other_op_id].seg_id) );
     }
 
-    void exit(TurnInfo const& turn)
+    // TODO: exit_per_geometry parameter looks not very safe
+    //       wrong value may be easily passed
+
+    void exit(TurnInfo const& turn, bool exit_per_geometry = true)
     {
         //segment_identifier const& seg_id = turn.operations[op_id].seg_id;
         segment_identifier const& other_id = turn.operations[other_op_id].seg_id;
@@ -256,63 +256,76 @@ public:
 
         typedef typename std::vector<point_info>::iterator point_iterator;
         // search for the entry point in the same range of other geometry
-        point_iterator entry_it = std::find_if(other_entry_points.begin(),
-                                               other_entry_points.end(),
-                                               same_single_geometry(other_id));
+        point_iterator entry_it = std::find_if(m_other_entry_points.begin(),
+                                               m_other_entry_points.end(),
+                                               same_single(other_id));
 
         // this end point has corresponding entry point
-        if ( entry_it != other_entry_points.end() )
+        if ( entry_it != m_other_entry_points.end() )
         {
-            // here we know that we possibly left LS
-            // we must still check if we didn't get back on the same point
-            exit_operation = exit_op;
-            exit_turn = boost::addressof(turn);
-
             // erase the corresponding entry point
-            other_entry_points.erase(entry_it);
+            m_other_entry_points.erase(entry_it);
+
+            if ( exit_per_geometry || m_other_entry_points.empty() )
+            {
+                // here we know that we possibly left LS
+                // we must still check if we didn't get back on the same point
+                m_exit_operation = exit_op;
+                m_exit_turn_ptr = boost::addressof(turn);
+            }
         }
     }
 
     bool is_outside() const
     {
         // if we didn't entered anything in the past, we're outside
-        return other_entry_points.empty();
+        return m_other_entry_points.empty();
+    }
+
+    bool is_outside(TurnInfo const& turn) const
+    {
+        return m_other_entry_points.empty()
+            || std::find_if(m_other_entry_points.begin(),
+                            m_other_entry_points.end(),
+                            same_single(
+                                turn.operations[other_op_id].seg_id))
+                    == m_other_entry_points.end();
     }
 
     overlay::operation_type get_exit_operation() const
     {
-        return exit_operation;
+        return m_exit_operation;
     }
 
     point_type const& get_exit_point() const
     {
-        BOOST_ASSERT(exit_operation != overlay::operation_none);
-        BOOST_ASSERT(exit_turn);
-        return exit_turn->point;
+        BOOST_ASSERT(m_exit_operation != overlay::operation_none);
+        BOOST_ASSERT(m_exit_turn_ptr);
+        return m_exit_turn_ptr->point;
     }
 
     TurnInfo const& get_exit_turn() const
     {
-        BOOST_ASSERT(exit_operation != overlay::operation_none);
-        BOOST_ASSERT(exit_turn);
-        return *exit_turn;
+        BOOST_ASSERT(m_exit_operation != overlay::operation_none);
+        BOOST_ASSERT(m_exit_turn_ptr);
+        return *m_exit_turn_ptr;
     }
 
     void reset_detected_exit()
     {
-        exit_operation = overlay::operation_none;
+        m_exit_operation = overlay::operation_none;
     }
 
     void reset()
     {
-        exit_operation = overlay::operation_none;
-        other_entry_points.clear();
+        m_exit_operation = overlay::operation_none;
+        m_other_entry_points.clear();
     }
 
 private:
-    overlay::operation_type exit_operation;
-    const TurnInfo * exit_turn;
-    std::vector<point_info> other_entry_points; // TODO: use map here or sorted vector?
+    overlay::operation_type m_exit_operation;
+    const TurnInfo * m_exit_turn_ptr;
+    std::vector<point_info> m_other_entry_points; // TODO: use map here or sorted vector?
 };
 
 template <std::size_t OpId, typename Turn>
@@ -327,8 +340,10 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn)
         return false;
     }
 
+    // TODO: will this work if between segments there will be some number of degenerated ones?
+
     if ( prev_seg_id.segment_index != curr_seg_id.segment_index
-      && ( ! geometry::math::equals(curr_turn.operations[OpId].enriched.distance, 0)
+      && ( ! curr_turn.operations[OpId].fraction.is_zero()
         || prev_seg_id.segment_index + 1 != curr_seg_id.segment_index ) )
     {
         return false;
@@ -361,97 +376,22 @@ static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
 
     // IP on the last point of the linestring
     if ( (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
-        && operation_info.operation == overlay::operation_blocked )
+      && operation_info.position == overlay::position_back )
     {
-        BOOST_ASSERT(operation_info.position == overlay::position_back);
         // check if this point is a boundary
         res = boundary_checker.template is_endpoint_boundary<boundary_back>(ip);
-
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_back>(ip, seg_id));
-#endif
     }
     // IP on the last point of the linestring
     else if ( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
-            && operation_info.position == overlay::position_front )
+           && operation_info.position == overlay::position_front )
     {
         // check if this point is a boundary
         res = boundary_checker.template is_endpoint_boundary<boundary_front>(ip);
-
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_front>(ip, seg_id));
-#endif
-    }
-    // IP somewhere in the interior
-    else
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE
-        BOOST_ASSERT(res == boundary_checker.template is_boundary<boundary_any>(ip, seg_id));
-#endif
     }
             
     return res;
 }
 
-// TODO: The tool like this would be useful but this can't be done with the current implementation of
-// reversible and closeable views because the reference to local variable would be returned!
-
-//template <typename Geometry>
-//struct normalized_range_type
-//{
-//    static const iterate_direction direction = order_as_direction<geometry::point_order<Geometry>::value>::value;
-//    static const closure_selector closure = geometry::closure<Geometry>::value;
-//
-//    typedef typename ring_type<Geometry>::type ring_type;
-//    typedef typename reversible_view
-//        <
-//            typename boost::mpl::if_c
-//                <
-//                    boost::is_const<Geometry>::value,
-//                    ring_type const,
-//                    ring_type
-//                >::type,
-//            direction
-//        >::type reversible_type;
-//    typedef typename closeable_view
-//        <
-//            typename boost::mpl::if_c
-//                <
-//                    boost::is_const<Geometry>::value,
-//                    reversible_type const,
-//                    reversible_type
-//                >::type,
-//            closure
-//        >::type closeable_type;
-//
-//    typedef closeable_type type;
-//};
-//
-//template <typename Geometry>
-//struct normalized_range
-//{
-//    template <typename Range>
-//    static inline
-//    typename normalized_range_type<Geometry>::type
-//    apply(Range & rng)
-//    {
-//        typename normalized_range_type<Geometry>::reversible_type
-//            rev_view(rng);
-//        typename normalized_range_type<Geometry>::closeable_type
-//            view(rev_view);
-//
-//// ERROR! HERE THE REFERENCE TO LOCAL rev_view IS RETURNED!
-//        return view;
-//    }
-//};
-//
-//template <typename Geometry, typename Id>
-//inline
-//typename normalized_range_type<Geometry>::type
-//normalized_sub_range(Geometry & geometry, Id const& id)
-//{
-//    return normalized_range<Geometry>::apply(detail::sub_range(geometry, id));
-//}
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL

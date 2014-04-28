@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_LINEAR_LINEAR_HPP
 
 #include <cstddef>
+#include <algorithm>
 #include <iterator>
 
 #include <boost/assert.hpp>
@@ -123,7 +124,7 @@ static inline bool is_isolated_point(Turn const& turn,
         return false;
     }
 
-    if ( turn.method == method_collinear )
+    if ( turn.method == method_none )
     {
         BOOST_ASSERT( operation.operation == operation_continue );
         return true;
@@ -184,13 +185,16 @@ protected:
     static inline OutputIterator
     process_turn(TurnIterator it,
                  TurnOperationIterator op_it,
-                 bool& first, bool& entered,
+                 bool& entered,
                  std::size_t& enter_count,
                  Linestring const& linestring,
                  LinestringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit)
     {
+        // We don't rescale linear/linear
+        detail::no_rescale_policy robust_policy;
+
         if ( is_entering(*it, *op_it) )
         {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -203,7 +207,7 @@ protected:
                 action::enter(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, oit);
+                              it->point, *op_it, robust_policy, oit);
             }
             ++enter_count;
         }
@@ -220,7 +224,7 @@ protected:
                 action::leave(current_piece, linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, oit);
+                              it->point, *op_it, robust_policy, oit);
             }
         }
         else if ( FollowIsolatedPoints
@@ -244,7 +248,6 @@ protected:
 
             entered = true;
         }
-        first = false;
         return oit;
     }
 
@@ -262,9 +265,13 @@ protected:
     {
         if ( action::is_entered(entered) )
         {
+            // We don't rescale linear/linear
+            detail::no_rescale_policy robust_policy;
+
             geometry::copy_segments<false>(linestring,
                                            current_segment_id,
                                            boost::size(linestring) - 1,
+                                           robust_policy,
                                            current_piece);
         }
 
@@ -281,17 +288,9 @@ public:
     template <typename TurnIterator, typename OutputIterator>
     static inline OutputIterator
     apply(Linestring const& linestring, Linear const& linear,
-          TurnIterator start, TurnIterator beyond,
+          TurnIterator first, TurnIterator beyond,
           OutputIterator oit)
     {
-        typedef typename boost::range_iterator
-            <
-                typename std::iterator_traits
-                    <
-                        TurnIterator
-                    >::value_type::container_type const
-            >::type turn_operation_iterator;
-
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
@@ -299,15 +298,12 @@ public:
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
 
         bool entered = false;
-        bool first = true;
         std::size_t enter_count = 0;
 
-        for (TurnIterator it = start; it != beyond; ++it)
+        for (TurnIterator it = first; it != beyond; ++it)
         {
-            turn_operation_iterator op_it = boost::begin(it->operations);
-
-            oit = process_turn(it, op_it,
-                               first, entered, enter_count, 
+            oit = process_turn(it, boost::begin(it->operations),
+                               entered, enter_count, 
                                linestring,
                                current_piece, current_segment_id,
                                oit);
@@ -365,8 +361,7 @@ protected:
     struct copy_linestrings_in_range
     {
         static inline OutputIt
-        apply(linestring_iterator begin, linestring_iterator beyond,
-              OutputIt oit)
+        apply(linestring_iterator, linestring_iterator, OutputIt oit)
         {
             return oit;
         }
@@ -376,10 +371,10 @@ protected:
     struct copy_linestrings_in_range<OutputIt, overlay_difference>
     {
         static inline OutputIt
-        apply(linestring_iterator begin, linestring_iterator beyond,
+        apply(linestring_iterator first, linestring_iterator beyond,
               OutputIt oit)
         {
-            for (linestring_iterator ls_it = begin; ls_it != beyond; ++ls_it)
+            for (linestring_iterator ls_it = first; ls_it != beyond; ++ls_it)
             {
                 LinestringOut line_out;
                 geometry::convert(*ls_it, line_out);
@@ -389,68 +384,80 @@ protected:
         }
     };
 
+    template <typename TurnIterator>
+    static inline int get_multi_index(TurnIterator it)
+    {
+        return boost::begin(it->operations)->seg_id.multi_index;
+    }
+
+    class has_other_multi_id
+    {
+    private:
+        int m_multi_id;
+
+    public:
+        has_other_multi_id(int multi_id)
+            : m_multi_id(multi_id) {}
+
+        template <typename Turn>
+        bool operator()(Turn const& turn) const
+        {
+            return boost::begin(turn.operations)->seg_id.multi_index
+                != m_multi_id;
+        }
+    };
+
 public:
     template <typename TurnIterator, typename OutputIterator>
     static inline OutputIterator
     apply(MultiLinestring const& multilinestring, Linear const& linear,
-          TurnIterator start, TurnIterator beyond,
+          TurnIterator first, TurnIterator beyond,
           OutputIterator oit)
     {
-        BOOST_ASSERT( start != beyond );
+        BOOST_ASSERT( first != beyond );
 
         typedef copy_linestrings_in_range
             <
                 OutputIterator, OverlayType
             > copy_linestrings;
 
-        linestring_iterator ls_begin = boost::begin(multilinestring);
-        linestring_iterator ls_end = boost::end(multilinestring);
+        linestring_iterator ls_first = boost::begin(multilinestring);
+        linestring_iterator ls_beyond = boost::end(multilinestring);
 
         // Iterate through all intersection points (they are
-        // ordered along the each line)
+        // ordered along the each linestring)
 
-        int current_multi_id =
-            boost::begin(start->operations)->seg_id.multi_index;
+        int current_multi_id = get_multi_index(first);
 
-        oit = copy_linestrings::apply(ls_begin,
-                                      ls_begin + current_multi_id,
+        oit = copy_linestrings::apply(ls_first,
+                                      ls_first + current_multi_id,
                                       oit);
 
-        TurnIterator turns_begin = start, turns_end;
+        TurnIterator per_ls_next = first;
         do {
-            // find last turn with this multi-index
-            turns_end = turns_begin;
-            ++turns_end;
-            while ( turns_end != beyond )
-            {
-                if ( boost::begin(turns_end->operations)->seg_id.multi_index
-                     != current_multi_id )
-                {
-                    break;
-                }
-                ++turns_end;
-            }
+            TurnIterator per_ls_current = per_ls_next;
 
-            oit = Base::apply(*(boost::begin(multilinestring)
-                                + current_multi_id),
-                              linear, turns_begin, turns_end, oit);
+            // find turn with different multi-index
+            per_ls_next = std::find_if(per_ls_current, beyond,
+                                       has_other_multi_id(current_multi_id));
 
-            int new_multi_id(0);
-            linestring_iterator ls_beyond_last = ls_end;
-            if ( turns_end != beyond )
+            oit = Base::apply(*(ls_first + current_multi_id),
+                              linear, per_ls_current, per_ls_next, oit);
+
+            int next_multi_id(-1);
+            linestring_iterator ls_next = ls_beyond;
+            if ( per_ls_next != beyond )
             {
-                new_multi_id =
-                    boost::begin(turns_end->operations)->seg_id.multi_index;
-                ls_beyond_last = ls_begin + new_multi_id;
+                next_multi_id = get_multi_index(per_ls_next);
+                ls_next = ls_first + next_multi_id;
             }
-            oit = copy_linestrings::apply(ls_begin + current_multi_id + 1,
-                                          ls_beyond_last,
+            oit = copy_linestrings::apply(ls_first + current_multi_id + 1,
+                                          ls_next,
                                           oit);
 
-            current_multi_id = new_multi_id;
-            turns_begin = turns_end;
+            current_multi_id = next_multi_id;
         }
-        while ( turns_end != beyond );
+        while ( per_ls_next != beyond );
 
         return oit;
     }

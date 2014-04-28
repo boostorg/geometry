@@ -468,7 +468,7 @@ struct check_dispatch< boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
     template <typename Matrix>
     static inline bool apply(mask_type const& mask, Matrix const& matrix)
     {
-        return check_dispatch_tuple<mask_type>::template apply(mask, matrix);
+        return check_dispatch_tuple<mask_type>::apply(mask, matrix);
     }
 };
 
@@ -480,7 +480,7 @@ struct check_dispatch< boost::tuples::cons<Head, Tail> >
     template <typename Matrix>
     static inline bool apply(mask_type const& mask, Matrix const& matrix)
     {
-        return check_dispatch_tuple<mask_type>::template apply(mask, matrix);
+        return check_dispatch_tuple<mask_type>::apply(mask, matrix);
     }
 };
 
@@ -620,13 +620,63 @@ public:
 
 // static_should_handle_element
 
-template <typename StaticMask, field F1, field F2>
-struct static_should_handle_element
+template <typename StaticMask, field F1, field F2, bool IsSequence>
+struct static_should_handle_element_dispatch
 {
     static const char mask_el = StaticMask::template get<F1, F2>::value;
     static const bool value = mask_el == 'F'
                            || mask_el == 'T'
                            || ( mask_el >= '0' && mask_el <= '9' );
+};
+
+template <typename First, typename Last, field F1, field F2>
+struct static_should_handle_element_sequence
+{
+    typedef typename boost::mpl::deref<First>::type StaticMask;
+
+    static const bool value
+        = static_should_handle_element_dispatch
+            <
+                StaticMask,
+                F1, F2,
+                boost::mpl::is_sequence<StaticMask>::value
+            >::value
+       || static_should_handle_element_sequence
+            <
+                typename boost::mpl::next<First>::type,
+                Last,
+                F1, F2
+            >::value;
+};
+
+template <typename Last, field F1, field F2>
+struct static_should_handle_element_sequence<Last, Last, F1, F2>
+{
+    static const bool value = false;
+};
+
+template <typename StaticMask, field F1, field F2>
+struct static_should_handle_element_dispatch<StaticMask, F1, F2, true>
+{
+    static const bool value
+        = static_should_handle_element_sequence
+            <
+                typename boost::mpl::begin<StaticMask>::type,
+                typename boost::mpl::end<StaticMask>::type,
+                F1, F2
+            >::value;
+};
+
+template <typename StaticMask, field F1, field F2>
+struct static_should_handle_element
+{
+    static const bool value
+        = static_should_handle_element_dispatch
+            <
+                StaticMask,
+                F1, F2,
+                boost::mpl::is_sequence<StaticMask>::value
+            >::value;
 };
 
 // static_interrupt
@@ -1081,7 +1131,7 @@ template <typename Geometry1,
           typename Geometry2,
           std::size_t Dim1 = topological_dimension<Geometry1>::value,
           std::size_t Dim2 = topological_dimension<Geometry2>::value>
-struct static_mask_touches_type
+struct static_mask_touches_impl
 {
     typedef boost::mpl::vector<
                 static_mask<'F', 'T', '*', '*', '*', '*', '*', '*', '*'>,
@@ -1092,9 +1142,14 @@ struct static_mask_touches_type
 // According to OGC, doesn't apply to P/P
 // Using the above mask the result would be always false
 template <typename Geometry1, typename Geometry2>
-struct static_mask_touches_type<Geometry1, Geometry2, 0, 0>
+struct static_mask_touches_impl<Geometry1, Geometry2, 0, 0>
     : not_implemented<typename geometry::tag<Geometry1>::type,
                       typename geometry::tag<Geometry2>::type>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_touches_type
+    : static_mask_touches_impl<Geometry1, Geometry2>
 {};
 
 // WITHIN

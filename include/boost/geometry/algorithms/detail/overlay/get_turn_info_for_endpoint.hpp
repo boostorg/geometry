@@ -21,10 +21,13 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
 
+// TURN_OPERATION
+
 enum turn_position { position_middle, position_front, position_back };
 
+template <typename SegmentRatio>
 struct turn_operation_linear
-    : public turn_operation
+    : public turn_operation<SegmentRatio>
 {
     turn_operation_linear()
         : position(position_middle)
@@ -33,6 +36,154 @@ struct turn_operation_linear
 
     turn_position position;
     bool is_collinear; // valid only for Linear geometry
+};
+
+template <typename Point1, typename Point2, typename TurnPoint, typename RobustPolicy>
+class intersection_info
+{
+    typedef typename strategy_intersection
+        <
+            typename cs_tag<TurnPoint>::type,
+            Point1,
+            Point2,
+            TurnPoint,
+            RobustPolicy
+        >::segment_intersection_strategy_type strategy;
+
+public:
+    typedef model::referring_segment<Point1 const> segment_type1;
+    typedef model::referring_segment<Point2 const> segment_type2;
+    typedef side_calculator<Point1, Point2> side_calculator_type;
+    
+    typedef typename strategy::return_type result_type;
+    typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
+    typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
+
+    intersection_info(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                      Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                      RobustPolicy const& robust_policy)
+        : m_result(strategy::apply(segment_type1(pi, pj),
+                                   segment_type2(qi, qj),
+                                   robust_policy))
+        , m_side_calc(pi, pj, pk, qi, qj, qk)
+        , m_robust_policy(robust_policy)
+    {}
+
+    inline Point1 const& pi() const { return m_side_calc.m_pi; }
+    inline Point1 const& pj() const { return m_side_calc.m_pj; }
+    inline Point1 const& pk() const { return m_side_calc.m_pk; }
+
+    inline Point2 const& qi() const { return m_side_calc.m_qi; }
+    inline Point2 const& qj() const { return m_side_calc.m_qj; }
+    inline Point2 const& qk() const { return m_side_calc.m_qk; }
+
+    inline side_calculator_type const& sides() const { return m_side_calc; }
+    inline result_type const& result() const { return m_result; }
+    inline i_info_type const& i_info() const { return m_result.template get<0>(); }
+    inline d_info_type const& d_info() const { return m_result.template get<1>(); }
+
+    // TODO: not it's more like is_spike_ip_p
+    inline bool is_spike_p() const
+    {
+        if ( m_side_calc.pk_wrt_p1() == 0 )
+        {
+            if ( ! is_ip_j<0>() )
+                return false;
+
+            int const qk_p1 = m_side_calc.qk_wrt_p1();
+            int const qk_p2 = m_side_calc.qk_wrt_p2();
+                
+            if ( qk_p1 == -qk_p2 )
+            {
+                if ( qk_p1 == 0 )
+                {
+                    return is_spike_of_collinear(pi(), pj(), pk());
+                }
+                        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    // TODO: not it's more like is_spike_ip_q
+    inline bool is_spike_q() const
+    {
+        if ( m_side_calc.qk_wrt_q1() == 0 )
+        {
+            if ( ! is_ip_j<1>() )
+                return false;
+
+            int const pk_q1 = m_side_calc.pk_wrt_q1();
+            int const pk_q2 = m_side_calc.pk_wrt_q2();
+                
+            if ( pk_q1 == -pk_q2 )
+            {
+                if ( pk_q1 == 0 )
+                {
+                    return is_spike_of_collinear(qi(), qj(), qk());
+                }
+                        
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+private:
+    template <typename Point>
+    inline bool is_spike_of_collinear(Point const& i, Point const& j, Point const& k) const
+    {
+        typedef model::referring_segment<Point const> seg_t;
+
+        typedef strategy_intersection
+            <
+                typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
+            > si;
+        
+        typedef typename si::segment_intersection_strategy_type strategy;
+        
+        typename strategy::return_type result
+            = strategy::apply(seg_t(i, j), seg_t(j, k), m_robust_policy);
+        
+        return result.template get<0>().count == 2;
+    }
+
+    template <std::size_t OpId>
+    bool is_ip_j() const
+    {
+        int arrival = d_info().arrival[OpId];
+        bool same_dirs = d_info().dir_a == 0 && d_info().dir_b == 0;
+
+        if ( same_dirs )
+        {
+            if ( i_info().count == 2 )
+            {
+                if ( ! d_info().opposite )
+                {
+                    return arrival != -1;
+                }
+                else
+                {
+                    return arrival != -1;
+                }
+            }
+            else
+            {
+                return arrival == 0;
+            }
+        }
+        else
+        {
+            return arrival == 1;
+        }
+    }
+
+    result_type m_result;
+    side_calculator_type m_side_calc;
+    RobustPolicy const& m_robust_policy;
 };
 
 // SEGMENT_INTERSECTION RESULT
@@ -117,170 +268,99 @@ struct turn_operation_linear
 // |-------->        1   0   1   0   1   F              u/x  (P is vertical)
 //
 
-template <typename AssignPolicy, bool EnableFirst, bool EnableLast>
-struct get_turn_info_for_endpoint
+class linear_intersections
 {
-    BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
-
-    template<typename Point1,
-             typename Point2,
-             typename TurnInfo,
-             typename IntersectionResult,
-             typename OutputIterator
-    >
-    static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                             Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                             bool is_p_first, bool is_p_last,
-                             bool is_q_first, bool is_q_last,
-                             TurnInfo const& tp_model,
-                             IntersectionResult const& result,
-                             method_type /*method*/,
-                             OutputIterator out)
+public:
+    template <typename Point1, typename Point2, typename IntersectionResult>
+    linear_intersections(Point1 const& pi,
+                         Point2 const& qi,
+                         IntersectionResult const& result,
+                         bool is_p_last, bool is_q_last)
     {
-        std::size_t ip_count = result.template get<0>().count;
-        // no intersection points
-        if ( ip_count == 0 )
-            return false;
-
-        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
-        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
-        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
-
-        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
-            return false;
-
-        operation_type p_operation0 = operation_none;
-        operation_type q_operation0 = operation_none;
-        operation_type p_operation1 = operation_none;
-        operation_type q_operation1 = operation_none;
-        bool p0i, p0j, q0i, q0j; // assign false?
-        bool p1i, p1j, q1i, q1j; // assign false?
-
-        bool opposite = result.template get<1>().opposite;
-
-        {
-            int p_how = result.template get<1>().how_a;
-            int q_how = result.template get<1>().how_b;
-            int p_arrival = result.template get<1>().arrival[0];
-            int q_arrival = result.template get<1>().arrival[1];
-            bool same_dirs = result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0;
-
-            handle_segment(is_p_first, is_p_last, p_how, p_arrival,
-                           is_q_first, is_q_last, q_how, q_arrival,
-                           opposite, ip_count, same_dirs,
-                           result.template get<0>().intersections[0],
-                           result.template get<0>().intersections[1],
-                           p_operation0, q_operation0, p_operation1, q_operation1,
-                           p0i, p0j, q0i, q0j,
-                           p1i, p1j, q1i, q1j,
-                           pi, pj, pk, qi, qj, qk);
-        }
-
-        bool append0_last
-            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            result.template get<0>().intersections[0],
-                                            is_p_first, is_p_last, is_q_first, is_q_last,
-                                            p0i, p0j, q0i, q0j,
-                                            p_operation0, q_operation0,
-                                            tp_model, result, out);
-
-        // NOTE: opposite && ip_count == 1 may be true!
-
-        // don't ignore only for collinear opposite
-        bool result_ignore_ip0 = append0_last && ( ip_count == 1 || !opposite );
-
-        if ( p_operation1 == operation_none )
-            return result_ignore_ip0;
-        
-        bool append1_last
-            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
-                                            result.template get<0>().intersections[1],
-                                            is_p_first, is_p_last, is_q_first, is_q_last,
-                                            p1i, p1j, q1i, q1j,
-                                            p_operation1, q_operation1,
-                                            tp_model, result, out);
-
-        // don't ignore only for collinear opposite
-        bool result_ignore_ip1 = append1_last && !opposite /*&& ip_count == 2*/;
-
-        return result_ignore_ip0 || result_ignore_ip1;
-    }
-
-    template<typename Point, typename Point1, typename Point2>
-    static inline
-    void handle_segment(bool /*first_a*/, bool last_a, int how_a, int arrival_a,
-                        bool /*first_b*/, bool last_b, int how_b, int arrival_b,
-                        bool opposite, std::size_t ip_count, bool same_dirs/*collinear*/,
-                        Point const& ip0, Point const& /*ip1*/,
-                        operation_type & op0_a, operation_type & op0_b,
-                        operation_type & op1_a, operation_type & op1_b,
-                        bool & i0_a, bool & j0_a, bool & i0_b, bool & j0_b,
-                        bool & i1_a, bool & j1_a, bool & i1_b, bool & j1_b,
-                        Point1 const& pi, Point1 const& /*pj*/, Point1 const& /*pk*/,
-                        Point2 const& qi, Point2 const& /*qj*/, Point2 const& /*qk*/)
-    {
-        namespace ov = overlay;
-
-        i0_a = false; j0_a = false; i0_b = false; j0_b = false;
-        i1_a = false; j1_a = false; i1_b = false; j1_b = false;
+        int arrival_a = result.template get<1>().arrival[0];
+        int arrival_b = result.template get<1>().arrival[1];
+        bool same_dirs = result.template get<1>().dir_a == 0
+                      && result.template get<1>().dir_b == 0;
 
         if ( same_dirs )
         {
-            if ( ip_count == 2 )
+            if ( result.template get<0>().count == 2 )
             {
-                BOOST_ASSERT( how_a == 0 && how_b == 0 );
-
-                if ( !opposite )
+                if ( ! result.template get<1>().opposite )
                 {
-                    op0_a = operation_intersection;
-                    op0_b = operation_intersection;
-                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                    op1_b = arrival_to_union_or_blocked(arrival_b, last_b);
+                    ips[0].p_operation = operation_intersection;
+                    ips[0].q_operation = operation_intersection;
+                    ips[1].p_operation = union_or_blocked_same_dirs(arrival_a, is_p_last);
+                    ips[1].q_operation = union_or_blocked_same_dirs(arrival_b, is_q_last);
 
-                    i0_a = equals::equals_point_point(pi, ip0);
-                    i0_b = equals::equals_point_point(qi, ip0);
-                    j1_a = arrival_a != -1;
-                    j1_b = arrival_b != -1;
+                    ips[0].is_pi
+                        = equals::equals_point_point(
+                            pi, result.template get<0>().intersections[0]);
+                    ips[0].is_qi
+                        = equals::equals_point_point(
+                            qi, result.template get<0>().intersections[0]);
+                    ips[1].is_pj = arrival_a != -1;
+                    ips[1].is_qj = arrival_b != -1;
                 }
                 else
                 {
-                    op0_a = operation_intersection;
-                    op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
-                    op1_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                    op1_b = operation_intersection;
+                    ips[0].p_operation = operation_intersection;
+                    ips[0].q_operation = union_or_blocked_same_dirs(arrival_b, is_q_last);
+                    ips[1].p_operation = union_or_blocked_same_dirs(arrival_a, is_p_last);
+                    ips[1].q_operation = operation_intersection;
 
-                    i0_a = arrival_b != 1;
-                    j0_b = arrival_b != -1;
-                    j1_a = arrival_a != -1;
-                    i1_b = arrival_a != 1;
+                    ips[0].is_pi = arrival_b != 1;
+                    ips[0].is_qj = arrival_b != -1;
+                    ips[1].is_pj = arrival_a != -1;
+                    ips[1].is_qi = arrival_a != 1;
                 }
             }
             else
             {
-                BOOST_ASSERT(ip_count == 1);
-                op0_a = arrival_to_union_or_blocked(arrival_a, last_a);
-                op0_b = arrival_to_union_or_blocked(arrival_b, last_b);
+                BOOST_ASSERT(result.template get<0>().count == 1);
+                ips[0].p_operation = union_or_blocked_same_dirs(arrival_a, is_p_last);
+                ips[0].q_operation = union_or_blocked_same_dirs(arrival_b, is_q_last);
 
-                i0_a = how_a == -1;
-                i0_b = how_b == -1;
-                j0_a = arrival_a == 0;
-                j0_b = arrival_b == 0;
+                ips[0].is_pi = arrival_a == -1;
+                ips[0].is_qi = arrival_b == -1;
+                ips[0].is_pj = arrival_a == 0;
+                ips[0].is_qj = arrival_b == 0;
             }
         }
         else
         {
-            op0_a = how_to_union_or_blocked(how_a, last_a);
-            op0_b = how_to_union_or_blocked(how_b, last_b);
+            ips[0].p_operation = union_or_blocked_different_dirs(arrival_a, is_p_last);
+            ips[0].q_operation = union_or_blocked_different_dirs(arrival_b, is_q_last);
 
-            i0_a = how_a == -1;
-            i0_b = how_b == -1;
-            j0_a = how_a == 1;
-            j0_b = how_b == 1;
+            ips[0].is_pi = arrival_a == -1;
+            ips[0].is_qi = arrival_b == -1;
+            ips[0].is_pj = arrival_a == 1;
+            ips[0].is_qj = arrival_b == 1;
         }
     }
 
+    struct ip_info
+    {
+        inline ip_info()
+            : p_operation(operation_none), q_operation(operation_none)
+            , is_pi(false), is_pj(false), is_qi(false), is_qj(false)
+        {}
+
+        operation_type p_operation, q_operation;
+        bool is_pi, is_pj, is_qi, is_qj;
+    };
+
+    template <std::size_t I>
+    ip_info const& get() const
+    {
+        BOOST_STATIC_ASSERT(I < 2);
+        return ips[I];
+    }
+    
+private:
+
     // only if collinear (same_dirs)
-    static inline operation_type arrival_to_union_or_blocked(int arrival, bool is_last)
+    static inline operation_type union_or_blocked_same_dirs(int arrival, bool is_last)
     {
         if ( arrival == 1 )
             return operation_blocked;
@@ -292,75 +372,171 @@ struct get_turn_info_for_endpoint
     }
 
     // only if not collinear (!same_dirs)
-    static inline operation_type how_to_union_or_blocked(int how, bool is_last)
+    static inline operation_type union_or_blocked_different_dirs(int arrival, bool is_last)
     {
-        if ( how == 1 )
+        if ( arrival == 1 )
             //return operation_blocked;
             return is_last ? operation_blocked : operation_union;
         else
             return operation_union;
     }
 
+    ip_info ips[2];
+};
+
+template <typename AssignPolicy, bool EnableFirst, bool EnableLast>
+struct get_turn_info_for_endpoint
+{
+    BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
+
+    template<typename Point1,
+             typename Point2,
+             typename TurnInfo,
+             typename IntersectionInfo,
+             typename OutputIterator
+    >
+    static inline bool apply(Point1 const& pi, Point1 const& pj, Point1 const& pk,
+                             Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                             bool is_p_first, bool is_p_last,
+                             bool is_q_first, bool is_q_last,
+                             TurnInfo const& tp_model,
+                             IntersectionInfo const& inters,
+                             method_type /*method*/,
+                             OutputIterator out)
+    {
+        std::size_t ip_count = inters.i_info().count;
+        // no intersection points
+        if ( ip_count == 0 )
+            return false;
+
+        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
+        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
+        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
+
+        if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
+            return false;
+
+        linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
+
+        bool append0_last
+            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
+                                            is_p_first, is_p_last, is_q_first, is_q_last,
+                                            intersections.template get<0>(),
+                                            tp_model, inters, 0, out);
+
+        // NOTE: opposite && ip_count == 1 may be true!
+        bool opposite = inters.d_info().opposite;
+
+        // don't ignore only for collinear opposite
+        bool result_ignore_ip0 = append0_last && ( ip_count == 1 || !opposite );
+
+        if ( intersections.template get<1>().p_operation == operation_none )
+            return result_ignore_ip0;
+        
+        bool append1_last
+            = analyse_segment_and_assign_ip(pi, pj, pk, qi, qj, qk,
+                                            is_p_first, is_p_last, is_q_first, is_q_last,
+                                            intersections.template get<1>(),
+                                            tp_model, inters, 1, out);
+
+        // don't ignore only for collinear opposite
+        bool result_ignore_ip1 = append1_last && !opposite /*&& ip_count == 2*/;
+
+        return result_ignore_ip0 || result_ignore_ip1;
+    }
+
     template <typename Point1,
               typename Point2,
-              typename Point,              
               typename TurnInfo,
-              typename IntersectionResult,
+              typename IntersectionInfo,
               typename OutputIterator>
     static inline
     bool analyse_segment_and_assign_ip(Point1 const& pi, Point1 const& pj, Point1 const& pk,
                                        Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                                       Point const& ip,
                                        bool is_p_first, bool is_p_last,
                                        bool is_q_first, bool is_q_last,
-                                       bool is_pi_ip, bool is_pj_ip,
-                                       bool is_qi_ip, bool is_qj_ip,
-                                       operation_type p_operation,
-                                       operation_type q_operation,
+                                       linear_intersections::ip_info const& ip_info,
                                        TurnInfo const& tp_model,
-                                       IntersectionResult const& result,
+                                       IntersectionInfo const& inters,
+                                       int ip_index,
                                        OutputIterator out)
     {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
         // may this give false positives for INTs?
-        BOOST_ASSERT(is_pi_ip == equals::equals_point_point(pi, ip));
-        BOOST_ASSERT(is_qi_ip == equals::equals_point_point(qi, ip));
-        BOOST_ASSERT(is_pj_ip == equals::equals_point_point(pj, ip));
-        BOOST_ASSERT(is_qj_ip == equals::equals_point_point(qj, ip));
+        typename IntersectionResult::point_type const&
+            inters_pt = result.template get<0>().intersections[ip_index];
+        BOOST_ASSERT(ip_info.is_pi == equals::equals_point_point(pi, inters_pt));
+        BOOST_ASSERT(ip_info.is_qi == equals::equals_point_point(qi, inters_pt));
+        BOOST_ASSERT(ip_info.is_pj == equals::equals_point_point(pj, inters_pt));
+        BOOST_ASSERT(ip_info.is_qj == equals::equals_point_point(qj, inters_pt));
 #endif
 
         // TODO - calculate first/last only if needed
-        bool is_p_first_ip = is_p_first && is_pi_ip;
-        bool is_p_last_ip = is_p_last && is_pj_ip;
-        bool is_q_first_ip = is_q_first && is_qi_ip;
-        bool is_q_last_ip = is_q_last && is_qj_ip;
+        bool is_p_first_ip = is_p_first && ip_info.is_pi;
+        bool is_p_last_ip = is_p_last && ip_info.is_pj;
+        bool is_q_first_ip = is_q_first && ip_info.is_qi;
+        bool is_q_last_ip = is_q_last && ip_info.is_qj;
         bool append_first = EnableFirst && (is_p_first_ip || is_q_first_ip);
         bool append_last = EnableLast && (is_p_last_ip || is_q_last_ip);
 
+        operation_type p_operation = ip_info.p_operation;
+        operation_type q_operation = ip_info.q_operation;
+
         if ( append_first || append_last )
         {
-            bool handled = handle_internal(pi, pj, pk, qi, qj, qk, ip,
+            bool handled = handle_internal(pi, pj, pk, qi, qj, qk,
                                            is_p_first_ip, is_p_last_ip,
                                            is_q_first_ip, is_q_last_ip,
-                                           is_qi_ip, is_qj_ip,
-                                           tp_model, result, p_operation, q_operation);
+                                           ip_info.is_qi, ip_info.is_qj,
+                                           tp_model, inters.result(), ip_index,
+                                           p_operation, q_operation);
             if ( !handled )
             {
-                handle_internal(qi, qj, qk, pi, pj, pk, ip,
+                handle_internal(qi, qj, qk, pi, pj, pk,
                                 is_q_first_ip, is_q_last_ip,
                                 is_p_first_ip, is_p_last_ip,
-                                is_pi_ip, is_pj_ip,
-                                tp_model, result, q_operation, p_operation);
+                                ip_info.is_pi, ip_info.is_pj,
+                                tp_model, inters.result(), ip_index,
+                                q_operation, p_operation);
             }
 
             if ( p_operation != operation_none )
             {
-                assign(pi, qi, result, ip,
-                       endpoint_ip_method(is_pi_ip, is_pj_ip, is_qi_ip, is_qj_ip),
-                       p_operation, q_operation,
-                       ip_position(is_p_first_ip, is_p_last_ip),
-                       ip_position(is_q_first_ip, is_q_last_ip),
-                       tp_model, out);
+                method_type method = endpoint_ip_method(ip_info.is_pi, ip_info.is_pj,
+                                                        ip_info.is_qi, ip_info.is_qj);
+                turn_position p_pos = ip_position(is_p_first_ip, is_p_last_ip);
+                turn_position q_pos = ip_position(is_q_first_ip, is_q_last_ip);
+
+                // handle spikes
+
+                // P is spike and should be handled
+                if ( !is_p_last
+                  && ip_info.is_pj // this check is redundant (also in is_spike_p) but faster
+                  && inters.i_info().count == 2
+                  && inters.is_spike_p() )
+                {
+                    assign(pi, qi, inters.result(), ip_index, method, operation_blocked, q_operation,
+                           p_pos, q_pos, tp_model, out);
+                    assign(pi, qi, inters.result(), ip_index, method, operation_intersection, q_operation,
+                           p_pos, q_pos, tp_model, out);
+                }
+                // Q is spike and should be handled
+                else if ( !is_q_last
+                       && ip_info.is_qj // this check is redundant (also in is_spike_q) but faster
+                       && inters.i_info().count == 2
+                       && inters.is_spike_q() )
+                {
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_blocked,
+                           p_pos, q_pos, tp_model, out);
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_intersection,
+                           p_pos, q_pos, tp_model, out);
+                }
+                // no spikes
+                else
+                {
+                    assign(pi, qi, inters.result(), ip_index, method, p_operation, q_operation,
+                           p_pos, q_pos, tp_model, out);
+                }
             }
         }
 
@@ -372,21 +548,17 @@ struct get_turn_info_for_endpoint
 
     template<typename Point1,
              typename Point2,
-             typename Point,
              typename TurnInfo,
              typename IntersectionResult
     >
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
-                                       Point const& ip,
-                                       bool first1, bool last1,
-                                       bool first2, bool last2,
-                                       bool ip_i2, bool ip_j2,
-                                       TurnInfo const& tp_model,
-                                       IntersectionResult const& result,
+                                       bool first1, bool last1, bool first2, bool last2,
+                                       bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
+                                       IntersectionResult const& result, int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
-        boost::ignore_unused_variable_warning(ip);
+        boost::ignore_unused_variable_warning(ip_index);
         boost::ignore_unused_variable_warning(tp_model);
 
         if ( !first2 && !last2 )
@@ -395,8 +567,10 @@ struct get_turn_info_for_endpoint
             {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
-                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
-                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
+                typename IntersectionResult::point_type const&
+                    inters_pt = result.template get<0>().intersections[ip_index];
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
                 if ( ip_i2 )
                 {
@@ -407,10 +581,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-// NOTE: this conversion may be problematic
-                    Point1 i2_conv;
-                    geometry::convert(i2, i2_conv);
-                    side_calculator<Point1, Point2> side_calc(i2_conv, i1, j1, i2, j2, k2);
+                    side_calculator<Point1, Point2, Point2> side_calc(i2, i1, j1, i2, j2, k2);
 
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);
@@ -441,8 +612,10 @@ struct get_turn_info_for_endpoint
             {
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
-                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, ip));
-                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, ip));
+                typename IntersectionResult::point_type const&
+                    inters_pt = result.template get<0>().intersections[ip_index];
+                BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
+                BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
                 if ( ip_i2 )
                 {
@@ -453,11 +626,7 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-// NOTE: this conversion may be problematic
-                    Point1 i2_conv;
-                    geometry::convert(i2, i2_conv);
-                    
-                    side_calculator<Point1, Point2> side_calc(i2_conv, j1, i1, i2, j2, k2);
+                    side_calculator<Point1, Point2, Point2> side_calc(i2, j1, i1, i2, j2, k2);
                     
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);
@@ -507,12 +676,11 @@ struct get_turn_info_for_endpoint
     template <typename Point1,
               typename Point2,
               typename IntersectionResult,
-              typename Point,
               typename TurnInfo,
               typename OutputIterator>
     static inline void assign(Point1 const& pi, Point2 const& qi,
                               IntersectionResult const& result,
-                              Point const& ip,
+                              int ip_index,
                               method_type method,
                               operation_type op0, operation_type op1,
                               turn_position pos0, turn_position pos1,
@@ -520,8 +688,11 @@ struct get_turn_info_for_endpoint
                               OutputIterator out)
     {
         TurnInfo tp = tp_model;
-        geometry::convert(ip, tp.point);
-        tp.method = method;
+        
+        //geometry::convert(ip, tp.point);
+        //tp.method = method;
+        base_turn_handler::assign_point(tp, method, result.template get<0>(), ip_index);
+
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
         tp.operations[0].position = pos0;

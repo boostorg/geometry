@@ -1,5 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
-// Robustness Test
+// Boost.Geometry (aka GGL, Generic Geometry Library) // Robustness Test
 
 // Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
 
@@ -10,6 +9,7 @@
 // Adapted from: the attachment of ticket 9081
 
 #define CHECK_SELF_INTERSECTIONS
+#define LIST_WKT
 
  #include <iomanip>
  #include <iostream>
@@ -69,14 +69,16 @@ inline void debug_with_svg(int index, char method, Geometry const& a, Geometry c
 
     std::ostringstream out;
     out << headera << std::endl << headerb;
-    mapper.text(boost::geometry::return_centroid<pt>(a), out.str(),
-                "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
+    mapper.map(boost::geometry::return_centroid<pt>(a), "fill:rgb(152,204,0);stroke:rgb(153,204,0);stroke-width:0.1", 3);
+    mapper.map(boost::geometry::return_centroid<pt>(b), "fill:rgb(51,51,153);stroke:rgb(153,204,0);stroke-width:0.1", 3);
+    mapper.text(boost::geometry::return_centroid<pt>(a), headera, "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
+    mapper.text(boost::geometry::return_centroid<pt>(b), headerb, "fill:rgb(0,0,0);font-family:Arial;font-size:10px");
 }
 
 int main()
 {
     int num_orig = 50;
-    int num_rounds = 20000;
+    int num_rounds = 30000;
     srand(1234);
     std::cout << std::setprecision(16);
     std::map<int, std::string> genesis;
@@ -110,6 +112,10 @@ int main()
         out << "original " << poly_list.size();
         genesis[poly_list.size()] = out.str();
         poly_list.push_back(mp);
+
+#ifdef LIST_WKT
+        std::cout << "Original " << i << " " << boost::geometry::wkt(p) << std::endl;
+#endif
     }
 
 
@@ -120,7 +126,7 @@ int main()
         int a = rand() % poly_list.size();
         int b = rand() % poly_list.size();
 
-        //debug_with_svg(j, 'i', poly_list[a], poly_list[b], genesis[a], genesis[b]);
+        debug_with_svg(j, 'i', poly_list[a], poly_list[b], genesis[a], genesis[b]);
 
         { std::ostringstream out; out << boost::geometry::wkt(poly_list[a]); wkt1 = out.str(); }
         { std::ostringstream out; out << boost::geometry::wkt(poly_list[b]); wkt2 = out.str(); }
@@ -133,6 +139,16 @@ int main()
         operation = "difference";
         boost::geometry::difference(poly_list[a],poly_list[b],mp_d);
         boost::geometry::difference(poly_list[b],poly_list[a],mp_e);
+
+#ifdef LIST_WKT
+        std::cout << j << std::endl;
+        std::cout << "  Genesis a " << genesis[a] << std::endl;
+        std::cout << "  Genesis b " << genesis[b] << std::endl;
+        std::cout << "  Intersection " << boost::geometry::wkt(mp_i) << std::endl;
+        std::cout << "  Difference a " << boost::geometry::wkt(mp_d) << std::endl;
+        std::cout << "  Difference b " << boost::geometry::wkt(mp_e) << std::endl;
+#endif
+
 #ifdef CHECK_SELF_INTERSECTIONS
         try
         {
@@ -183,21 +199,21 @@ int main()
         if(boost::geometry::area(mp_i) > 0)
         {
             std::ostringstream out;
-            out << "intersection(" << genesis[a] << " , " << genesis[b] << ")";
+            out << j << " intersection(" << genesis[a] << " , " << genesis[b] << ")";
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_i);
         }
         if(boost::geometry::area(mp_d) > 0)
         {
             std::ostringstream out;
-            out << "difference(" << genesis[a] << " - " << genesis[b] << ")";
+            out << j << " difference(" << genesis[a] << " - " << genesis[b] << ")";
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_d);
         }
         if(boost::geometry::area(mp_e) > 0)
         {
             std::ostringstream out;
-            out << "difference(" << genesis[b] << ", " << genesis[a] << ")";
+            out << j << " difference(" << genesis[b] << " - " << genesis[a] << ")";
             genesis[poly_list.size()] = out.str();
             poly_list.push_back(mp_e);
         }

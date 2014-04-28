@@ -55,7 +55,11 @@ private:
             bg::reverse(mls_output);
         }
 
-        BOOST_CHECK( equals::apply(mls_diff, mls_output) );
+        BOOST_CHECK_MESSAGE( equals::apply(mls_diff, mls_output),
+                             "difference L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_diff)
+                             << " computed: " << bg::wkt(mls_output) );
 
         set_operation_output("difference", case_id,
                              geometry1, geometry2, mls_output);

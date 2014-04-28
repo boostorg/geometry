@@ -10,6 +10,10 @@
 #include <iostream>
 #include <string>
 
+// If defined, tests are run without rescaling-to-integer or robustness policy
+// This multi_intersection currently contains no tests for double then failing
+// #define BOOST_GEOMETRY_NO_ROBUSTNESS
+
 // #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 
 #include <algorithms/test_intersection.hpp>

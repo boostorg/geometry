@@ -30,7 +30,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
@@ -104,61 +103,7 @@ struct check_original<point_tag>
 };
 
 
-template <typename P>
-class relaxed_side
-{
-public :
-
-    // Template member function, because it is not always trivial
-    // or convenient to explicitly mention the typenames in the
-    // strategy-struct itself.
-
-    // Types can be all three different. Therefore it is
-    // not implemented (anymore) as "segment"
-
-    static inline int apply(P const& p1, P const& p2, P const& p)
-    {
-        typedef typename coordinate_type<P>::type coordinate_type;
-
-        coordinate_type const x = get<0>(p);
-        coordinate_type const y = get<1>(p);
-
-        coordinate_type const sx1 = get<0>(p1);
-        coordinate_type const sy1 = get<1>(p1);
-        coordinate_type const sx2 = get<0>(p2);
-        coordinate_type const sy2 = get<1>(p2);
-
-        // Promote float->double, small int->int
-        typedef typename geometry::select_most_precise
-            <
-                coordinate_type,
-                double
-            >::type promoted_type;
-
-        promoted_type const dx = sx2 - sx1;
-        promoted_type const dy = sy2 - sy1;
-        promoted_type const dpx = x - sx1;
-        promoted_type const dpy = y - sy1;
-
-        promoted_type const s
-            = geometry::detail::determinant<promoted_type>
-                (
-                    dx, dy,
-                    dpx, dpy
-                );
-
-        promoted_type const zero = promoted_type();
-        promoted_type const relaxed_epsilon = std::numeric_limits<double>::epsilon() * 5.0;
-
-        return math::abs(s) < relaxed_epsilon ? 0
-            : s > zero ? 1
-            : -1;
-    }
-};
-
-
-
-template <typename Ring>
+template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type point_type;
@@ -193,19 +138,41 @@ struct buffered_piece_collection
 
     std::map<std::pair<segment_identifier, segment_identifier>, std::set<int> > m_turn_indices_per_segment_pair;
 
+    typedef typename geometry::rescale_policy_type
+        <
+            typename geometry::point_type<Ring>::type
+        >::type rescale_policy_type;
 
-    typedef std::vector<buffer_turn_info<point_type> > turn_vector_type;
+    typedef typename geometry::segment_ratio_type
+    <
+        point_type,
+        RobustPolicy
+    >::type segment_ratio_type;
+
+    typedef buffer_turn_info
+    <
+        point_type,
+        segment_ratio_type
+    > buffer_turn_info_type;
+
+    typedef buffer_turn_operation
+    <
+        point_type,
+        segment_ratio_type
+    > buffer_turn_operation_type;
+
+    typedef std::vector<buffer_turn_info_type> turn_vector_type;
+
     typedef detail::overlay::get_turn_info
         <
             turn_assign_for_buffer
         > turn_policy;
     turn_vector_type m_turns;
 
-    geometry::detail::no_rescale_policy m_rescale_policy;
-
-
     // To check clustered locations we keep track of segments being opposite somewhere
     std::set<segment_identifier> m_in_opposite_segments;
+
+    RobustPolicy const& m_rescale_policy;
 
     struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
     {
@@ -216,10 +183,9 @@ struct buffered_piece_collection
     typedef occupation_map<point_type, buffer_occupation_info> occupation_map_type;
     occupation_map_type m_occupation_map;
 
-
     struct redundant_turn
     {
-        inline bool operator()(buffer_turn_info<point_type> const& turn) const
+        inline bool operator()(buffer_turn_info_type const& turn) const
         {
             // Erase discarded turns (location not OK) and the turns
             // only used to detect oppositeness.
@@ -227,6 +193,10 @@ struct buffered_piece_collection
                 || turn.opposite();
         }
     };
+
+    buffered_piece_collection(RobustPolicy const& robust_policy)
+        : m_rescale_policy(robust_policy)
+    {}
 
 
     inline bool is_neighbor(piece const& piece1, piece const& piece2) const
@@ -294,7 +264,7 @@ struct buffered_piece_collection
         iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
         iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
 
-        buffer_turn_info<point_type> the_model;
+        buffer_turn_info_type the_model;
         the_model.operations[0].piece_index = piece1.index;
         the_model.operations[0].seg_id = piece1.first_seg_id;
 
@@ -340,32 +310,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline segment_relation_code get_segment_relation(point_type const& point,
-                segment_identifier const& seg_id) const
-    {
-        typedef typename boost::range_iterator<std::vector<point_type> const>::type iterator_type;
-        iterator_type it = boost::begin(offsetted_rings[seg_id.multi_index]) + seg_id.segment_index;
-        iterator_type prev = it++;
-        int side = side_strategy::apply(point, *prev, *it);
-        if (side == 0)
-        {
-            if (geometry::equals(point, *prev))
-            {
-                return segment_relation_on_left;
-            }
-            else if (geometry::equals(point, *it))
-            {
-                return segment_relation_on_right;
-            }
-            else if (collinear_point_on_segment(point, *prev, *it))
-            {
-                return segment_relation_within;
-            }
-        }
-        return segment_relation_disjoint;
-    }
-
-    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation<point_type> const& operation)
+    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation_type const& operation)
     {
         point_type mapped_point;
         buffer_occupation_info& info = m_occupation_map.find_or_insert(point, mapped_point);
@@ -384,7 +329,7 @@ struct buffered_piece_collection
         {
             m_occupation_map.insert_turn_index(turn_index);
 
-            buffer_turn_info<point_type> const& turn = m_turns[turn_index];
+            buffer_turn_info_type const& turn = m_turns[turn_index];
 
 //std::cout << "Adding point " << turn_index << " " << geometry::wkt(turn.point) << std::endl;
 
@@ -395,7 +340,7 @@ struct buffered_piece_collection
 
 
 
-    inline void classify_turn(buffer_turn_info<point_type>& turn, piece const& pc) const
+    inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
     {
         if (pc.type == buffered_flat_end)
         {
@@ -440,10 +385,10 @@ struct buffered_piece_collection
         {
             // The piece is a full (pseudo) circle. There are no helper segments. We only check if it is the turn is inside the generated circle,
             // or on the border.
-            int const side_wrt_circle = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+            int const side_wrt_circle = side_on_convex_range<side_strategy>(turn.point,
                             boost::begin(ring) + seg_id.segment_index,
                             boost::begin(ring) + pc.last_segment_index,
-                            seg_id, on_segment_seg_id);
+                            seg_id, on_segment_seg_id, m_rescale_policy);
             switch (side_wrt_circle)
             {
                 case 0 : turn.count_on_offsetted++; break;
@@ -452,17 +397,17 @@ struct buffered_piece_collection
             return;
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
+        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments, m_rescale_policy);
         if (side_helper == 1)
         {
             // Left or outside
             return;
         }
 
-        int const side_offsetted = side_on_convex_range< /*relaxed_side<point_type> */ side_strategy >(turn.point,
+        int const side_offsetted = side_on_convex_range<side_strategy>(turn.point,
                         boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
-                        seg_id, on_segment_seg_id);
+                        seg_id, on_segment_seg_id, m_rescale_policy);
         if (side_offsetted == 1)
         {
             return;
@@ -479,8 +424,8 @@ struct buffered_piece_collection
         }
         if (side_helper == 0)
         {
-            if (geometry::equals(turn.point, pc.helper_segments.back())
-                || geometry::equals(turn.point, pc.helper_segments.front()))
+            if (detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.back(), m_rescale_policy)
+                || detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.front(), m_rescale_policy))
             {
                 turn.count_on_corner++;
             }
@@ -692,17 +637,6 @@ struct buffered_piece_collection
         }
     }
 
-#define BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-    inline int get_side(point_type const& point, Ring const& ring, int segment_index)
-    {
-        typedef typename boost::range_iterator<Ring const> iterator_type;
-        iterator_type it = boost::begin(ring) + segment_index;
-        iterator_type prev = it++;
-        return side_strategy::apply(point, *prev, *it);
-    }
-#endif
-
     template <typename Iterator>
     static inline point_type const& select_for_side(Iterator first, Iterator second, int index)
     {
@@ -723,53 +657,32 @@ struct buffered_piece_collection
         iterator_type prev1 = it1++;
         iterator_type prev2 = it2++;
 
-        int code1 = side_strategy::apply(select_for_side(prev1, it1, which), *prev2, *it2);
-        int code2 = side_strategy::apply(select_for_side(prev2, it2, which), *prev1, *it1);
+        typedef typename geometry::robust_point_type
+        <
+            point_type,
+            RobustPolicy
+        >::type robust_point_type;
+
+        robust_point_type p1_rob, p2_rob, prev1_rob, prev2_rob, cur1_rob, cur2_rob;
+        geometry::recalculate(p1_rob, select_for_side(prev1, it1, which), m_rescale_policy);
+        geometry::recalculate(p2_rob, select_for_side(prev2, it2, which), m_rescale_policy);
+        geometry::recalculate(prev1_rob, *prev1, m_rescale_policy);
+        geometry::recalculate(prev2_rob, *prev2, m_rescale_policy);
+        geometry::recalculate(cur1_rob, *it1, m_rescale_policy);
+        geometry::recalculate(cur2_rob, *it2, m_rescale_policy);
+
+        int const code1 = side_strategy::apply(p1_rob, prev2_rob, cur2_rob);
+        int const code2 = side_strategy::apply(p2_rob, prev1_rob, cur1_rob);
 
         if (code1 == 1 && code2 == -1) return 1;
         if (code1 == -1 && code2 == 1) return -1;
 
-        // ROBUSTNESS: in near collinear cases one might be zero, the other non-zero.
-        // This happens several times.
-        if (code1 != 0) return code1;
-        if (code2 != 0) return -code2;
-
-  //      // Check if the other side gives some more info
-  //      // (I've never seen this is the case though it might be so, if they are much longer.
-        //int code1f = side_strategy::apply(*prev1, *prev2, *it2);
-        //int code2f = side_strategy::apply(*prev2, *prev1, *it1);
-
-  //      if (code1f != 0 || code2f != 0)
-  //      {
-  //          std::cout << "From: " << code1f << " " << code2f << std::endl;
-  //          if (code1f != 0) return -code1f;
-  //          if (code2f != 0) return code2f;
-  //      }
-
-        // Collinear?
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_SITUATION_MAP
-        //std::cout << "Collinear: " << code1 << " " << code2 << std::endl;
-#endif
         return 0;
     }
 
-
-
-    inline void debug_segment(segment_identifier id)
-    {
-        typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
-
-        buffered_ring<Ring> const& ring = offsetted_rings[id.multi_index];
-        iterator it = boost::begin(ring) + id.segment_index;
-        iterator prev = it++;
-        geometry::model::referring_segment<point_type const&> segment(*prev, *it);
-        //std::cout << geometry::wkt(*prev) << " " << geometry::wkt(*it) << std::endl;
-    }
-
-
     struct cluster_info
     {
-        inline cluster_info(int i, point_type p, buffer_turn_operation<point_type> op)
+        inline cluster_info(int i, point_type p, buffer_turn_operation_type op)
             : turn_index(i)
             , point(p)
             , operation(op)
@@ -781,7 +694,7 @@ struct buffered_piece_collection
 
         int turn_index;
         point_type point;
-        buffer_turn_operation<point_type> operation;
+        buffer_turn_operation_type operation;
     };
 
     struct clustered_info
@@ -790,14 +703,6 @@ struct buffered_piece_collection
         std::set<segment_identifier> intersecting_ids;
         std::vector<cluster_info> intersecting_segments;
     };
-
-#ifdef OLD
-    struct situation_info
-    {
-        std::set<int> turn_indices;
-        std::set<segment_identifier> seg_ids;
-    };
-#endif
 
     static inline bool add_mutual_intersection(clustered_info const& cluster, segment_identifier const& seg_id)
     {
@@ -838,16 +743,9 @@ struct buffered_piece_collection
             return true;
         }
 
-        if (geometry::equals(a.point, b.point))
+        if (detail::overlay::points_equal_or_close(a.point, b.point, m_rescale_policy))
         {
             std::cout << "=";
-            return true;
-        }
-
-        relaxed_less<point_type> comparator;
-        if (comparator.equals(a.point, b.point))
-        {
-            std::cout << "*";
             return true;
         }
 
@@ -891,7 +789,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type> const& turn = *it;
+            buffer_turn_info_type const& turn = *it;
 
             // Take care with all the indices
             map[turn.operations[0].seg_id].piece_index = turn.operations[0].piece_index;
@@ -924,7 +822,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type>& turn = *it;
+            buffer_turn_info_type& turn = *it;
 //std::cout << "Referring to point " << geometry::wkt(turn.point) << std::endl;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
                 || m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
@@ -941,7 +839,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
-            buffer_turn_info<point_type>& turn = *it;
+            buffer_turn_info_type& turn = *it;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) == 0
                 && m_in_opposite_segments.count(turn.operations[1].seg_id) ==  0)
             {

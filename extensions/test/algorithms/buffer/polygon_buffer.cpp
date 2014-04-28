@@ -138,9 +138,13 @@ void test_all()
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("tipped_aitch9", tipped_aitch, 76.6457, 0.9);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("tipped_aitch13", tipped_aitch, 90.641, 1.3);
 
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake4", snake, 64.44, 0.4);
+#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake5", snake, 72, 0.5);
+#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake6", snake, 75.44, 0.6);
+#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake16", snake, 114.24, 1.6);
 
 	test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate2", funnelgate, 120.982, 2);

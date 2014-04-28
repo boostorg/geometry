@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/detail/turns/filter_continue_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/remove_duplicate_turns.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 namespace bg_detail = ::boost::geometry::detail;
 namespace bg_turns = bg_detail::turns;
@@ -48,11 +47,9 @@ private:
             typename IntersectionInfo,
             typename DirInfo
         >
-        static inline void apply(Info& info, Point1 const& p1, Point2 const& p2,
-                                 IntersectionInfo const& ii, DirInfo const& di)
+        static inline void apply(Info& , Point1 const& , Point2 const& ,
+                                 IntersectionInfo const& , DirInfo const& )
         {
-            bg_detail::overlay::calculate_distance_policy::apply
-                (info, p1, p2, ii, di);
         }
     };
 

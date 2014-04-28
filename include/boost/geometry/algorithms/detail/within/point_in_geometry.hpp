@@ -20,7 +20,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/range.hpp>
 
@@ -114,7 +114,10 @@ inline int point_in_range(Point const& point, Range const& range)
             Geometry
         >::type strategy_type2;
 
-    BOOST_STATIC_ASSERT(boost::is_same<strategy_type, strategy_type2>::value);
+    static const bool same_strategies = boost::is_same<strategy_type, strategy_type2>::value;
+    BOOST_MPL_ASSERT_MSG((same_strategies),
+                         DEFAULT_WITHIN_AND_COVERED_BY_STRATEGIES_NOT_COMPATIBLE,
+                         (strategy_type, strategy_type2));
 
     return point_in_range(point, range, strategy_type());
 }
@@ -419,7 +422,10 @@ inline int point_in_geometry(Point const& point, Geometry const& geometry)
             Geometry
         >::type strategy_type2;
 
-    BOOST_STATIC_ASSERT(boost::is_same<strategy_type, strategy_type2>::value);
+    static const bool same_strategies = boost::is_same<strategy_type, strategy_type2>::value;
+    BOOST_MPL_ASSERT_MSG((same_strategies),
+                         DEFAULT_WITHIN_AND_COVERED_BY_STRATEGIES_NOT_COMPATIBLE,
+                         (strategy_type, strategy_type2));
 
     return point_in_geometry(point, geometry, strategy_type());
 }

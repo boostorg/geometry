@@ -36,15 +36,10 @@ namespace detail { namespace overlay
 template <typename Point1>
 struct get_relative_order
 {
-    typedef strategy_intersection
+    typedef typename strategy::side::services::default_strategy
         <
-            typename cs_tag<Point1>::type,
-            Point1,
-            Point1,
-            Point1
-        > si;
-
-    typedef typename si::side_strategy_type strategy;
+            typename cs_tag<Point1>::type
+        >::type strategy;
 
     template <typename Point>
     static inline int value_via_product(Point const& ti, Point const& tj,

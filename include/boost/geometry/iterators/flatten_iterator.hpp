@@ -10,7 +10,9 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
-#include <boost/type_traits.hpp>
+#include <boost/assert.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
@@ -84,15 +86,19 @@ public:
           m_outer_end(other.m_outer_end),
           m_inner_it(other.m_inner_it)
     {
-        BOOST_STATIC_ASSERT( boost::is_convertible
-                             <
-                                 OtherOuterIterator, OuterIterator
-                             >::value
-                             && boost::is_convertible
-                             <
-                                 OtherInnerIterator, InnerIterator
-                             >::value );
-             
+        static const bool are_conv
+            = boost::is_convertible
+                <
+                    OtherOuterIterator, OuterIterator
+                >::value
+           && boost::is_convertible
+                <
+                    OtherInnerIterator, InnerIterator
+                >::value;
+
+        BOOST_MPL_ASSERT_MSG((are_conv),
+                             NOT_CONVERTIBLE,
+                             (types<OtherOuterIterator, OtherInnerIterator>));
     }
 
     template
@@ -112,14 +118,19 @@ public:
                                    OtherAccessInnerEnd
                                > const& other)
     {
-        BOOST_STATIC_ASSERT( boost::is_convertible
-                             <
-                                 OtherOuterIterator, OuterIterator
-                             >::value
-                             && boost::is_convertible
-                             <
-                                 OtherInnerIterator, InnerIterator
-                             >::value );
+        static const bool are_conv
+            = boost::is_convertible
+                <
+                    OtherOuterIterator, OuterIterator
+                >::value
+           && boost::is_convertible
+                <
+                    OtherInnerIterator, InnerIterator
+                >::value;
+
+        BOOST_MPL_ASSERT_MSG((are_conv),
+                             NOT_CONVERTIBLE,
+                             (types<OtherOuterIterator, OtherInnerIterator>));
              
         m_outer_it = other.m_outer_it;
         m_outer_end = other.m_outer_end;
@@ -184,17 +195,17 @@ private:
                           OtherAccessInnerEnd
                       > const& other) const
     {
-        if ( this->m_outer_it != other.m_outer_it )
+        if ( m_outer_it != other.m_outer_it )
         {
             return false;
         }
 
-        if ( this->m_outer_it == m_outer_end )
+        if ( m_outer_it == m_outer_end )
         {
             return true;
         }
 
-        return this->m_inner_it == other.m_inner_it;
+        return m_inner_it == other.m_inner_it;
     }
 
     inline void increment()

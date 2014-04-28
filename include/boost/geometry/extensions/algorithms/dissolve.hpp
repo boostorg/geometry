@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/calculate_distance_policy.hpp>
 
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
@@ -110,7 +109,7 @@ struct dissolve_ring_or_polygon
         detail::dissolve::no_interrupt_policy policy;
         geometry::self_turns
             <
-                detail::overlay::calculate_distance_policy
+                detail::overlay::assign_null_policy
             >(geometry, rescale_policy, turns, policy);
 
         // The dissolve process is not necessary if there are no turns at all

@@ -315,13 +315,13 @@ inline bool calculate_point_on_surface(Geometry const& geometry, Point& point)
 
 
 /*!
-\brief Returns point guaranteed to lie on the surface
+\brief Assigns a Point guaranteed to lie on the surface of the Geometry
 \tparam Geometry geometry type. This also defines the type of the output point
-\param point to assign
-\param geometry geometry to take point from
+\param geometry Geometry to take point from
+\param point Point to assign
  */
 template <typename Geometry, typename Point>
-inline void point_on_surface(Geometry const& geometry, Point& point)
+inline void point_on_surface(Geometry const& geometry, Point & point)
 {
     concept::check<Point>();
     concept::check<Geometry const>();
@@ -334,12 +334,18 @@ inline void point_on_surface(Geometry const& geometry, Point& point)
     }
 }
 
-
+/*!
+\brief Returns point guaranteed to lie on the surface of the Geometry
+\tparam Geometry geometry type. This also defines the type of the output point
+\param geometry Geometry to take point from
+\return The Point guaranteed to lie on the surface of the Geometry
+ */
 template<typename Geometry>
-inline typename geometry::point_type<Geometry>::type return_point_on_surface(Geometry const& geometry)
+inline typename geometry::point_type<Geometry>::type
+return_point_on_surface(Geometry const& geometry)
 {
     typename geometry::point_type<Geometry>::type result;
-    point_on_surface(geometry, result);
+    geometry::point_on_surface(geometry, result);
     return result;
 }
 

@@ -23,7 +23,7 @@
 
 #include <algorithms/overlay/overlay_cases.hpp>
 
-#include <algorithms/test_relate.hpp>
+#include <algorithms/predef_relop.hpp>
 
 
 template <typename P>
