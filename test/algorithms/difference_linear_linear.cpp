@@ -616,6 +616,13 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10))"),
          "lmldf19"
          );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(0 0,10 0)"),
+         from_wkt<ML>("MULTILINESTRING((-1 0,0 0),(10 0,12 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         "lmldf20"
+         );
 }
 
 
@@ -907,6 +914,34 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          "mlmldf18a"
          );
 
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((-1 0,0 0),(10 0,12 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         "mlmldf19"
+         );
+}
+
+
+
+
+
+
+#ifndef BOOST_GEOMETRY_TEST_NO_DEGENERATE
+BOOST_AUTO_TEST_CASE( test_difference_ml_ml_degenerate )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE" 
+              << " (DEGENERATE) ***"
+              << std::endl;
+    std::cout << std::endl;
+#endif
+
+    typedef multi_linestring_type ML;
+
+    typedef test_difference_of_geometries<ML, ML, ML> tester;
+
     // the following test cases concern linestrings with duplicate
     // points and possibly linestrings with zero length.
 
@@ -973,5 +1008,118 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          from_wkt<ML>("MULTILINESTRING((1 1,1 1))"),
          from_wkt<ML>("MULTILINESTRING((0 0,0 0),(2 2,2 2))"),
          "mlmldf23"
+         );
+}
+#endif // BOOST_GEOMETRY_TEST_NO_DEGENERATE
+
+
+
+
+BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE" 
+              << " (WITH SPIKES) ***"
+              << std::endl;
+    std::cout << std::endl;
+#endif
+
+    typedef multi_linestring_type ML;
+
+    typedef test_difference_of_geometries<ML, ML, ML> tester;
+
+    // the following test cases concern linestrings with spikes
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,9 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0))"),
+         "mlmldf-spikes-01"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((9 0,1 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0))"),
+         "mlmldf-spikes-02"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,9 0,2 0,8 0,3 0,7 0,4 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0))"),
+         "mlmldf-spikes-03"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,3 0,2 0,4 0,3 0,5 0,4 0,6 0,\
+                      5 0,7 0,6 0,8 0,7 0,9 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0))"),
+         "mlmldf-spikes-04"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,6 0,5 0),(7 0,8 0,7 0),\
+                      (9 1,9 0,9 2))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(6 0,7 0),(8 0,10 0))"),
+         "mlmldf-spikes-05"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,6 0,5 0),(7 0,8 0,7 0),\
+                      (9 0,9 2,9 1))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(6 0,7 0),(8 0,10 0))"),
+         "mlmldf-spikes-05a"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,6 0,5 0),(9 0,6 0,8 0),\
+                      (11 0,8 0,12 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0))"),
+         "mlmldf-spikes-06"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((-1 0,0 0,-2 0),(11 0,10 0,12 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         "mlmldf-spikes-07"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((-1 -1,0 0,-2 -2),(11 1,10 0,12 2))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         "mlmldf-spikes-07a"
+         );
+
+#if 0
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,6 0,5 0),(11 0,10 0,12 0),\
+                      (7 5,7 0,8 0,6.5 0,8.5 0,8.5 5))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(6 0,6.5 0),(8.5 0,10 0))"),
+         "mlmldf-spikes-08"
+         );
+#endif
+
+    // now the first geometry has a spike
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,8 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(8 0,10 0,8 0))"),
+         "mlmldf-spikes-10"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,8 0,4 0),(2 0,9 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0,9 0))"),
+         "mlmldf-spikes-11"
          );
 }
