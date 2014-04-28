@@ -201,7 +201,7 @@ protected:
 
         // sort by seg_id, distance, and operation
         std::sort(boost::begin(turns), boost::end(turns),
-                  detail::turns::less_seg_dist_other_op<>());
+                  detail::turns::less_seg_fraction_other_op<>());
 
         // remove duplicate turns
         turns::remove_duplicate_turns
