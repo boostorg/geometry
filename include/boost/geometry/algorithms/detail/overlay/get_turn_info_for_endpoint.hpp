@@ -82,10 +82,14 @@ public:
     inline i_info_type const& i_info() const { return m_result.template get<0>(); }
     inline d_info_type const& d_info() const { return m_result.template get<1>(); }
 
+    // TODO: not it's more like is_spike_ip_p
     inline bool is_spike_p() const
     {
         if ( m_side_calc.pk_wrt_p1() == 0 )
         {
+            if ( ! is_ip_j<0>() )
+                return false;
+
             int const qk_p1 = m_side_calc.qk_wrt_p1();
             int const qk_p2 = m_side_calc.qk_wrt_p2();
                 
@@ -103,10 +107,14 @@ public:
         return false;
     }
 
+    // TODO: not it's more like is_spike_ip_q
     inline bool is_spike_q() const
     {
         if ( m_side_calc.qk_wrt_q1() == 0 )
         {
+            if ( ! is_ip_j<1>() )
+                return false;
+
             int const pk_q1 = m_side_calc.pk_wrt_q1();
             int const pk_q2 = m_side_calc.pk_wrt_q2();
                 
@@ -141,6 +149,36 @@ private:
             = strategy::apply(seg_t(i, j), seg_t(j, k), m_robust_policy);
         
         return result.template get<0>().count == 2;
+    }
+
+    template <std::size_t OpId>
+    bool is_ip_j() const
+    {
+        int arrival = d_info().arrival[OpId];
+        bool same_dirs = d_info().dir_a == 0 && d_info().dir_b == 0;
+
+        if ( same_dirs )
+        {
+            if ( i_info().count == 2 )
+            {
+                if ( ! d_info().opposite )
+                {
+                    return arrival != -1;
+                }
+                else
+                {
+                    return arrival != -1;
+                }
+            }
+            else
+            {
+                return arrival == 0;
+            }
+        }
+        else
+        {
+            return arrival == 1;
+        }
     }
 
     result_type m_result;
@@ -472,7 +510,8 @@ struct get_turn_info_for_endpoint
                 // handle spikes
 
                 // P is spike and should be handled
-                if ( !is_p_last && ip_info.is_pj
+                if ( !is_p_last
+                  && ip_info.is_pj // this check is redundant (also in is_spike_p) but faster
                   && inters.i_info().count == 2
                   && inters.is_spike_p() )
                 {
@@ -482,7 +521,8 @@ struct get_turn_info_for_endpoint
                            p_pos, q_pos, tp_model, out);
                 }
                 // Q is spike and should be handled
-                else if ( !is_q_last && ip_info.is_qj
+                else if ( !is_q_last
+                       && ip_info.is_qj // this check is redundant (also in is_spike_q) but faster
                        && inters.i_info().count == 2
                        && inters.is_spike_q() )
                 {

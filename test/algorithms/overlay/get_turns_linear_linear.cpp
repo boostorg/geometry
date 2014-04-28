@@ -237,6 +237,14 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(2 2,5 -1,15 2,18 0,20 0)",
                           "LINESTRING(30 0,19 0,18 0,0 0)",
                           expected("iuu")("iuu")("tiu")("mxi"));
+
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,5 0))",
+                            "MULTILINESTRING((1 0,8 0,4 0))",
+                            expected("mii")("mix")("mux")("mui")("mix")("mii")("mxu")("mxi"));
+    
+    /*test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,5 0))",
+                            "MULTILINESTRING((1 0,8 0,4 0),(2 0,9 0,5 0))",
+                            expected("mii")("ccc")("ccc")("txx"));*/
 }
 
 int test_main(int, char* [])
