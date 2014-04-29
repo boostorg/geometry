@@ -133,27 +133,8 @@ void test_all()
                             expected("mcu")("mxc")("mcc")("mxu"));
 }
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/extensions/algorithms/dissolve.hpp>
-
-void test ()
-{
-    typedef boost::geometry::model::d2::point_xy<double> boostPoint;
-    typedef boost::geometry::model::polygon< boostPoint > boostPolygon;
-    typedef boostPolygon::ring_type boostRing;
-
-    boostRing ring1,ring2;
-    boost::geometry::dissolve(ring1,ring2);
-
-    return;
-}
-
 int test_main(int, char* [])
 {
-    test();
-
     test_all<float>();
     test_all<double>();
 
