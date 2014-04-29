@@ -37,7 +37,7 @@ struct is_valid_multi_range
                 return false;
             }
         }
-        return true;
+        return first != beyond;
     };
 };
 
