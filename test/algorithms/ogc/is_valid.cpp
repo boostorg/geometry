@@ -1,3 +1,12 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2014, Oracle and/or its affiliates.
+
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -5,7 +14,6 @@
 #endif
 
 #include <boost/test/included/unit_test.hpp>
-
 
 
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -16,6 +24,11 @@
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
+#include <boost/geometry/multi/io/wkt/write.hpp>
 
 #include <boost/geometry/algorithms/ogc/is_valid.hpp>
 
@@ -220,7 +233,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     typedef multi_linestring_type G;
 
     // empty multilinestring
-    test_valid(from_wkt<G>("MULTILINESTRING()"), true);
+    test_valid(from_wkt<G>("MULTILINESTRING()"), false);
 
     // multilinestring with empty linestring(s)
     test_valid(from_wkt<G>("MULTILINESTRING(())"), false);
