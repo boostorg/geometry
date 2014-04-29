@@ -10,17 +10,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_IS_VALID_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_OGC_IS_VALID_HPP
 
-#include <boost/geometry/geometry.hpp>
-#include <boost/geometry/policies/compare.hpp>
-#include <boost/geometry/algorithms/unique.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <deque>
-#include <algorithm>
-#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
 
@@ -29,6 +30,7 @@
 #include <boost/geometry/algorithms/ogc/detail/is_valid/linestring.hpp>
 #include <boost/geometry/algorithms/ogc/detail/is_valid/multi_range.hpp>
 #include <boost/geometry/algorithms/ogc/detail/is_valid/pointlike.hpp>
+#include <boost/geometry/algorithms/ogc/detail/is_valid/has_spikes.hpp>
 
 
 namespace boost { namespace geometry { namespace ogc
