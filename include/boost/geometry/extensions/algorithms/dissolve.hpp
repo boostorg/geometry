@@ -212,6 +212,7 @@ template
     typename GeometryOut
 >
 struct dissolve
+    : not_implemented<GeometryTag, GeometryOutTag>
 {};
 
 

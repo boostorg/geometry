@@ -16,6 +16,7 @@
 #include <cstddef>
 
 #include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/tag_cast.hpp>
 
@@ -211,14 +212,16 @@ struct rescale_policy_type
 #endif
     >
 {
-    BOOST_STATIC_ASSERT
-    ((
-        boost::is_same
-        <
-            typename geometry::tag<Point>::type,
-            geometry::point_tag
-        >::type::value
-    ));
+    static const bool is_point
+        = boost::is_same
+            <
+                typename geometry::tag<Point>::type,
+                geometry::point_tag
+            >::type::value;
+
+    BOOST_MPL_ASSERT_MSG((is_point),
+                         INVALID_INPUT_GEOMETRY,
+                         (typename geometry::tag<Point>::type));
 };
 
 
