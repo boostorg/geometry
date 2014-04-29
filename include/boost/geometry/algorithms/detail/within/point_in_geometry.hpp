@@ -37,13 +37,13 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
 
-int check_result_type(int result)
+inline int check_result_type(int result)
 {
     return result;
 }
 
 template <typename T>
-void check_result_type(T result)
+inline void check_result_type(T result)
 {
     BOOST_ASSERT(false);
 }
