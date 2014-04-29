@@ -11,14 +11,17 @@
 #define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_LINEAR_HPP
 
 #include <algorithm>
+#include <deque>
 
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 #include <boost/geometry/algorithms/ogc/is_valid.hpp>
 #include <boost/geometry/algorithms/ogc/detail/is_simple/has_duplicates.hpp>
@@ -171,14 +174,14 @@ struct is_simple_multilinestring
         typedef geometry::detail::overlay::get_turn_info
             <
                 geometry::detail::disjoint::assign_disjoint_policy
-            > TurnPolicy;
+            > turn_policy;
 
         geometry::detail::self_get_turn_points::no_interrupt_policy
             interrupt_policy;
 
         geometry::detail::self_get_turn_points::get_turns
             <
-                TurnPolicy
+                turn_policy
             >::apply(multilinestring,
                      geometry::detail::no_rescale_policy(),
                      turns,
