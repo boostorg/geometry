@@ -16,6 +16,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
@@ -31,35 +32,35 @@ namespace boost { namespace geometry
 namespace detail { namespace is_valid
 {
 
-template <typename Iterator>
-struct equal_point
+template <typename Point>
+struct equal_to
 {
-    Iterator m_it;
+    Point const& m_point;
 
-    equal_point(Iterator it)
-        : m_it(it)
+    equal_to(Point const& point)
+        : m_point(point)
     {}
 
-    template <typename Point>
-    inline bool operator()(Point const& p) const
+    template <typename OtherPoint>
+    inline bool operator()(OtherPoint const& other) const
     {
-        return geometry::equals(p, *m_it);
+        return geometry::equals(m_point, other);
     }
 };
 
-template <typename Iterator>
-struct not_equal_point
+template <typename Point>
+struct not_equal_to
 {
-    Iterator m_it;
+    Point const& m_point;
 
-    not_equal_point(Iterator it)
-        : m_it(it)
+    not_equal_to(Point const& point)
+        : m_point(point)
     {}
 
-    template <typename Point>
-    inline bool operator()(Point const& p) const
+    template <typename OtherPoint>
+    inline bool operator()(OtherPoint const& other) const
     {
-        return !geometry::equals(p, *m_it);
+        return !geometry::equals(other, m_point);
     }
 };
 
@@ -70,22 +71,19 @@ struct has_spikes
 {
     static inline bool apply(Range const& range)
     {
+        typedef typename point_type<Range>::type point; 
         typedef typename boost::range_iterator<Range const>::type iterator; 
-        typedef typename boost::range_reverse_iterator
-            <
-                Range const
-            >::type reverse_iterator; 
 
-        typedef not_equal_point<iterator> not_equal;
+        typedef not_equal_to<point> not_equal;
 
         BOOST_ASSERT( boost::size(range) > 2 );
 
         iterator prev = boost::begin(range);
 
-        iterator cur = std::find_if(prev, boost::end(range), not_equal(prev));
+        iterator cur = std::find_if(prev, boost::end(range), not_equal(*prev));
         BOOST_ASSERT( cur != boost::end(range) );
 
-        iterator next = std::find_if(cur, boost::end(range), not_equal(cur));
+        iterator next = std::find_if(cur, boost::end(range), not_equal(*cur));
         BOOST_ASSERT( next != boost::end(range) );
 
         while ( next != boost::end(range) )
@@ -98,21 +96,19 @@ struct has_spikes
             }
             prev = cur;
             cur = next;
-            next = std::find_if(cur, boost::end(range), not_equal(cur));
+            next = std::find_if(cur, boost::end(range), not_equal(*cur));
         }
 
         if ( geometry::equals(*boost::begin(range), *boost::rbegin(range)) )
         {
             iterator cur = boost::begin(range);
-            reverse_iterator prev =
-                std::find_if(boost::rbegin(range),
-                             boost::rend(range),
-                             not_equal_point
-                                 <
-                                     reverse_iterator
-                                 >(boost::rbegin(range))
-                             );
-            iterator next = std::find_if(cur, boost::end(range), not_equal(cur));
+            typename boost::range_reverse_iterator
+                <
+                    Range const
+                >::type prev = std::find_if(boost::rbegin(range),
+                                            boost::rend(range),
+                                            not_equal(*boost::rbegin(range)));
+            iterator next = std::find_if(cur, boost::end(range), not_equal(*cur));
             return detail::point_is_spike_or_equal(*prev, *next, *cur);
         }
 
@@ -126,10 +122,10 @@ struct has_spikes<Range, open>
 {
     static inline bool apply(Range const& range)
     {
-        typedef typename closeable_view<Range, open>::type ClosedRange;
+        typedef typename closeable_view<Range, open>::type closed_view_type;
 
-        ClosedRange crange(const_cast<Range&>(range));
-        return has_spikes<ClosedRange, closed>::apply(crange);
+        closed_view_type closed_range(const_cast<Range&>(range));
+        return has_spikes<closed_view_type, closed>::apply(closed_range);
     }
 
 };

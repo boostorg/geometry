@@ -38,13 +38,13 @@ struct is_single_point
 {
     static inline bool apply(Range const& range)
     {
-        typedef typename boost::range_iterator<Range const>::type iterator;
+        typedef typename point_type<Range>::type point;
 
         BOOST_ASSERT( boost::size(range) > 1 );
 
         return std::find_if(++boost::begin(range),
                             boost::end(range),
-                            not_equal_point<iterator>(boost::begin(range))
+                            not_equal_to<point>(*boost::begin(range))
                             )
             == boost::end(range);
     }
@@ -55,6 +55,7 @@ struct has_three_distinct_points
 {
     static inline bool apply(Range const& range)
     {
+        typedef typename point_type<Range>::type point;
         typedef typename boost::range_iterator<Range const>::type iterator;
 
         BOOST_ASSERT( boost::size(range) > 1 );
@@ -62,14 +63,14 @@ struct has_three_distinct_points
         iterator it1 =
             std::find_if(boost::begin(range),
                          boost::end(range),
-                         not_equal_point<iterator>(boost::begin(range)));
+                         not_equal_to<point>(*boost::begin(range)));
 
         BOOST_ASSERT( it1 != boost::end(range) );
 
         iterator it2 = 
             std::find_if(it1,
                          boost::end(range),
-                         not_equal_point<iterator>(it1));
+                         not_equal_to<point>(*it1));
 
         return it2 != boost::end(range)
             && !geometry::equals(*boost::begin(range), *it2);
