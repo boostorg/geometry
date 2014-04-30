@@ -5,11 +5,11 @@
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
@@ -193,7 +193,10 @@ struct action_selector<overlay_intersection>
     {
         // On leave, copy all segments from starting point, append the intersection point
         // and add the output piece
-        geometry::copy_segments<false>(linestring, segment_id, index, robust_policy, current_piece);
+        detail::copy_segments::copy_segments_linestring
+            <
+                false, false // do not reverse; do not remove spikes
+            >::apply(linestring, segment_id, index, robust_policy, current_piece);
         detail::overlay::append_no_duplicates(current_piece, point);
         if (::boost::size(current_piece) > 1)
         {
@@ -484,10 +487,12 @@ public :
 
         if (action::is_entered(entered))
         {
-            geometry::copy_segments<false>(linestring, current_segment_id,
-                    boost::size(linestring) - 1,
-                    robust_policy,
-                    current_piece);
+            detail::copy_segments::copy_segments_linestring
+                <
+                    false, false // do not reverse; do not remove spikes
+                >::apply(linestring, current_segment_id,
+                         boost::size(linestring) - 1, robust_policy,
+                         current_piece);
         }
 
         // Output the last one, if applicable

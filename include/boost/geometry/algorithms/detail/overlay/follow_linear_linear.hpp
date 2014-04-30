@@ -268,11 +268,12 @@ protected:
             // We don't rescale linear/linear
             detail::no_rescale_policy robust_policy;
 
-            geometry::copy_segments<false>(linestring,
-                                           current_segment_id,
-                                           boost::size(linestring) - 1,
-                                           robust_policy,
-                                           current_piece);
+            detail::copy_segments::copy_segments_linestring
+                <
+                    false, false // do not reverse; do not remove spikes
+                >::apply(linestring, current_segment_id,
+                         boost::size(linestring) - 1, robust_policy,
+                         current_piece);
         }
 
         // Output the last one, if applicable
