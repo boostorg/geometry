@@ -68,6 +68,18 @@ struct segments_tupled
             );
     }
 
+    template <typename Segment, typename Ratio>
+    static inline return_type one_degenerate(Segment const& segment,
+            Ratio const& ratio,
+            bool a_degenerate)
+    {
+        return boost::make_tuple
+            (
+                Policy1::one_degenerate(segment, ratio, a_degenerate),
+                Policy2::one_degenerate(segment, ratio, a_degenerate)
+            );
+    }
+
     static inline return_type disjoint()
     {
         return boost::make_tuple
