@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/is_valid/multi_range.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/pointlike.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/ring.hpp>
 
 
 namespace boost { namespace geometry
@@ -103,30 +104,6 @@ struct is_valid_multipolygon
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
-
-// A Ring is a Polygon.
-// A Polygon is always a simple geometric object provided that it is valid.
-//
-// Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
-template <typename Ring>
-struct is_valid<Ring, ring_tag>
-{
-    static inline bool apply(Ring const& ring)
-    {
-        if ( boost::size(ring) < 3 )
-        {
-            return false;
-        }
-
-        if ( detail::is_valid::has_spikes<Ring, closure<Ring>::value>(ring) )
-        {
-            return false;
-        }
-
-        return !geometry::intersects(ring);
-    }
-};
 
 
 // A Polygon is always a simple geometric object provided that it is valid.
