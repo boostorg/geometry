@@ -17,6 +17,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <iterator>
 
 #include <vector>
 #include <list>
@@ -80,12 +81,18 @@ struct test_concatenate_iterator
             > concat_iterator;
 
 
-        concat_iterator begin(c1.begin(), c1.end(), c2.begin());
-        concat_iterator end(c1.end(), c2.end());
+        // test constructors/assignment operators
+        concat_iterator begin(c1.begin(), c1.end(), c2.begin(), c2.begin());
+        concat_iterator end(c1.end(), c2.begin(), c2.end());
         const_concat_iterator const_begin(begin);
         const_concat_iterator const_end(end);
         const_begin = begin;
         const_end = end;
+
+        // test sizes (and std::distance)
+        BOOST_CHECK( c1.size() + c2.size() == std::distance(begin, end) );
+        BOOST_CHECK( c1.size() + c2.size()
+                     == std::distance(const_begin, const_end) );
 
         std::size_t size(0);
         for (const_concat_iterator it = const_begin; it != const_end; ++it)
@@ -100,6 +107,14 @@ struct test_concatenate_iterator
             ++size;
         }
         BOOST_CHECK( c1.size() + c2.size() == size );
+
+        size = 0;
+        for (concat_iterator it = end; it != begin; --it)
+        {
+            ++size;
+        }
+        BOOST_CHECK( c1.size() + c2.size() == size );
+
 
 #ifdef GEOMETRY_TEST_DEBUG
         print_container(std::cout, c1.begin(), c1.end(), "first   :")
@@ -120,6 +135,7 @@ struct test_concatenate_iterator
         }
 #endif
 
+        // test element equality of elements and dereferencing
         {
             const_iterator1 it1 = c1.begin();
             const_iterator2 it2 = c2.begin();
@@ -138,6 +154,43 @@ struct test_concatenate_iterator
             }
         }
 
+        if ( c1.begin() != c1.end() && c2.begin() != c2.end() )
+        {
+            const_iterator1 it1 = c1.end();
+            const_iterator2 it2 = --c2.end();
+            const_concat_iterator it = const_end;
+            for (--it; it != const_begin; --it)
+            {
+                if ( it2 != c2.begin() )
+                {
+                    BOOST_CHECK( *it == *it2 );
+                    --it2;
+                }
+                else if ( it1 == c1.end() && it2 == c2.begin() )
+                {
+                    BOOST_CHECK( *it == *it2 );
+                    --it1;
+                }
+                else
+                {
+                    BOOST_CHECK( *it == *it1 );
+                    --it1;
+                }
+            }
+            BOOST_CHECK( it == const_begin && *it == *it1 );
+        }
+
+        // perform reversals (std::reverse)
+        std::reverse(begin, end);
+#ifdef GEOMETRY_TEST_DEBUG
+        print_container(std::cout, begin, end, "reversed:") << std::endl;
+#endif
+        std::reverse(begin, end);
+#ifdef GEOMETRY_TEST_DEBUG
+        print_container(std::cout, begin, end, "re-reversed:") << std::endl;
+#endif
+
+        // test std::max_element and dereferencing
         typedef typename std::iterator_traits
             <
                 concat_iterator
@@ -207,6 +260,7 @@ struct test_concatenate_iterator
             BOOST_CHECK( *c2.begin() == old_value );
         }
 
+        // test std::remove_if
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << "odd elements removed:" << std::endl;

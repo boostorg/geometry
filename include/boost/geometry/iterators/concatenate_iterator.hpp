@@ -29,12 +29,12 @@ class concatenate_iterator
         <
             concatenate_iterator<Iterator1, Iterator2, Value>,
             Value,
-            boost::forward_traversal_tag
+            boost::bidirectional_traversal_tag
         >
 {
 private:
     Iterator1 m_it1, m_end1;
-    Iterator2 m_it2;
+    Iterator2 m_begin2, m_it2;
 
 public:
     typedef Iterator1 first_iterator_type;
@@ -45,19 +45,22 @@ public:
 
     // for begin
     concatenate_iterator(Iterator1 it1, Iterator1 end1,
-                         Iterator2 it2)
-        : m_it1(it1), m_end1(end1), m_it2(it2)
+                         Iterator2 begin2, Iterator2 it2)
+        : m_it1(it1), m_end1(end1), m_begin2(begin2), m_it2(it2)
     {}
 
     // for end
-    concatenate_iterator(Iterator1 end1, Iterator2 end2)
-        : m_it1(end1), m_end1(end1), m_it2(end2)
+    concatenate_iterator(Iterator1 end1, Iterator2 begin2, Iterator2 end2)
+        : m_it1(end1), m_end1(end1), m_begin2(begin2), m_it2(end2)
     {}
 
     template <typename OtherIt1, typename OtherIt2, typename OtherValue>
     concatenate_iterator
     (concatenate_iterator<OtherIt1, OtherIt2, OtherValue> const& other)
-        : m_it1(other.m_it1), m_end1(other.m_end1), m_it2(other.m_it2)
+        : m_it1(other.m_it1)
+        , m_end1(other.m_end1)
+        , m_begin2(other.m_begin2)
+        , m_it2(other.m_it2)
     {
         static const bool are_conv
             = boost::is_convertible<OtherIt1, Iterator1>::value
@@ -82,6 +85,7 @@ public:
 
         m_it1 = other.m_it1;
         m_end1 = other.m_end1;
+        m_begin2 = other.m_begin2;
         m_it2 = other.m_it2;
         return *this;
     }
@@ -121,6 +125,18 @@ private:
         else
         {
             ++m_it1;
+        }
+    }
+
+    inline void decrement()
+    {
+        if ( m_it2 == m_begin2 )
+        {
+            --m_it1;
+        }
+        else
+        {
+            --m_it2;
         }
     }
 };
