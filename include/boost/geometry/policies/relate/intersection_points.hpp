@@ -189,6 +189,7 @@ struct segments_intersection_points
         return return_type();
     }
 
+    // Both degenerate
     template <typename Segment>
     static inline return_type degenerate(Segment const& segment, bool)
     {
@@ -196,6 +197,27 @@ struct segments_intersection_points
         result.count = 1;
         set<0>(result.intersections[0], get<0, 0>(segment));
         set<1>(result.intersections[0], get<0, 1>(segment));
+        return result;
+    }
+
+    // One degenerate
+    template <typename Segment, typename Ratio>
+    static inline return_type one_degenerate(Segment const& degenerate_segment,
+            Ratio const& ratio, bool a_degenerate)
+    {
+        return_type result;
+        result.count = 1;
+        set<0>(result.intersections[0], get<0, 0>(degenerate_segment));
+        set<1>(result.intersections[0], get<0, 1>(degenerate_segment));
+        if (a_degenerate)
+        {
+            // IP lies on ratio w.r.t. segment b
+            result.fractions[0].assign(Ratio::zero(), ratio);
+        }
+        else
+        {
+            result.fractions[0].assign(ratio, Ratio::zero());
+        }
         return result;
     }
 };

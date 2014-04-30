@@ -144,16 +144,6 @@ struct relate_cartesian_segments
             return Policy::disjoint();
         }
 
-        // Degenerate cases: segments of single point, lying on other segment, are not disjoint
-        if (a_is_point)
-        {
-            return Policy::degenerate(a, true);
-        }
-        if (b_is_point)
-        {
-            return Policy::degenerate(b, false);
-        }
-
         typedef typename select_most_precise
             <
                 coordinate_type, double
@@ -219,19 +209,27 @@ struct relate_cartesian_segments
             }
         }
 
-        if(collinear)
+        if (collinear)
         {
             bool const collinear_use_first
                     = geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b)
                     >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
+
+            // Degenerate cases: segments of single point, lying on other segment, are not disjoint
+            // This situation is collinear too
+
             if (collinear_use_first)
             {
-                return relate_collinear<0, ratio_type>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<0, ratio_type>(a, b,
+                        robust_a1, robust_a2, robust_b1, robust_b2,
+                        a_is_point, b_is_point);
             }
             else
             {
                 // Y direction contains larger segments (maybe dx is zero)
-                return relate_collinear<1, ratio_type>(a, b, robust_a1, robust_a2, robust_b1, robust_b2);
+                return relate_collinear<1, ratio_type>(a, b,
+                        robust_a1, robust_a2, robust_b1, robust_b2,
+                        a_is_point, b_is_point);
             }
         }
 
@@ -250,8 +248,23 @@ private:
     static inline return_type relate_collinear(Segment1 const& a,
             Segment2 const& b,
             RobustPoint const& robust_a1, RobustPoint const& robust_a2,
-            RobustPoint const& robust_b1, RobustPoint const& robust_b2)
+            RobustPoint const& robust_b1, RobustPoint const& robust_b2,
+            bool a_is_point, bool b_is_point)
     {
+        if (a_is_point)
+        {
+            return relate_one_degenerate<RatioType>(a,
+                get<Dimension>(robust_a1),
+                get<Dimension>(robust_b1), get<Dimension>(robust_b2),
+                true);
+        }
+        if (b_is_point)
+        {
+            return relate_one_degenerate<RatioType>(b,
+                get<Dimension>(robust_b1),
+                get<Dimension>(robust_a1), get<Dimension>(robust_a2),
+                false);
+        }
         return relate_collinear<RatioType>(a, b,
                                 get<Dimension>(robust_a1),
                                 get<Dimension>(robust_a2),
@@ -317,6 +330,28 @@ private:
         }
 
         return Policy::segments_collinear(a, b, ra_from, ra_to, rb_from, rb_to);
+    }
+
+    /// Relate segments where one is degenerate
+    template
+    <
+        typename RatioType,
+        typename DegenerateSegment,
+        typename RobustType
+    >
+    static inline return_type relate_one_degenerate(
+            DegenerateSegment const& degenerate_segment
+            , RobustType d
+            , RobustType s1, RobustType s2
+            , bool a_degenerate
+            )
+    {
+        // Calculate the ratios where ds starts in s
+        //         a1--------->a2         (2..6)
+        //              b1/b2      (4..4)
+        // Ratio: (4-2)/(6-2)
+        RatioType const ratio(d - s1, s2 - s1);
+        return Policy::one_degenerate(degenerate_segment, ratio, a_degenerate);
     }
 };
 
