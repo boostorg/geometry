@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_HAS_SPIKES_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_HAS_SPIKES_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP
 
 #include <algorithm>
 
@@ -23,7 +23,7 @@
 #include <boost/geometry/views/closeable_view.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -113,9 +113,7 @@ struct has_spikes
                                  >(boost::rbegin(range))
                              );
             iterator next = std::find_if(cur, boost::end(range), not_equal(cur));
-            return geometry::detail::point_is_spike_or_equal(*prev,
-                                                             *next,
-                                                             *cur);
+            return detail::point_is_spike_or_equal(*prev, *next, *cur);
         }
 
         return false;
@@ -140,7 +138,7 @@ struct has_spikes<Range, open>
 #endif // DOXYGEN_NO_DETAIL
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_HAS_SPIKES_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP

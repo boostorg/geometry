@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_IS_VALID_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_IS_VALID_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP
 
 #include <boost/range.hpp>
 
@@ -23,17 +23,17 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
+#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
-#include <boost/geometry/algorithms/ogc/detail/is_valid/box.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_valid/segment.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_valid/linestring.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_valid/multi_range.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_valid/pointlike.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_valid/has_spikes.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/box.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/segment.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/linestring.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/multi_range.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/pointlike.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -163,8 +163,8 @@ inline bool is_valid(Geometry const& g)
 
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
 
-#endif // BOOST_GEOMETRY_MYSQL_ALGORITHMS_IS_VALID_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP

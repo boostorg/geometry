@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_SEGMENT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_SEGMENT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_SEGMENT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_SEGMENT_HPP
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -16,10 +16,10 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
+#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -43,8 +43,8 @@ struct is_valid<Segment, segment_tag>
     static inline bool apply(Segment const& segment)
     {
         typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
 
         return !geometry::equals(p[0], p[1]);
     }
@@ -55,7 +55,7 @@ struct is_valid<Segment, segment_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_SEGMENT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_SEGMENT_HPP

@@ -7,15 +7,15 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DISPATCH_IS_VALID_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DISPATCH_IS_VALID_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DISPATCH_IS_SIMPLE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DISPATCH_IS_SIMPLE_HPP
 
 #include <boost/geometry/core/tag.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -24,7 +24,7 @@ namespace dispatch
 
 
 template <typename Geometry, typename Tag = typename tag<Geometry>::type>
-struct is_valid
+struct is_simple
     : not_implemented<Geometry>
 {};
 
@@ -33,6 +33,6 @@ struct is_valid
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DISPATCH_IS_VALID_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DISPATCH_IS_SIMPLE_HPP

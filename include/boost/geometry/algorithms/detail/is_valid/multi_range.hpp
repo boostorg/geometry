@@ -7,17 +7,17 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_MULTI_RANGE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_MULTI_RANGE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP
 
 #include <boost/range.hpp>
 
 #include <boost/geometry/multi/core/tags.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
+#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -76,7 +76,7 @@ struct is_valid<MultiLinestring, multi_linestring_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_MULTI_RANGE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP

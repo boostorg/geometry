@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_POINTLIKE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_POINTLIKE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP
 
 #include <algorithm>
 
@@ -20,13 +20,13 @@
 
 #include <boost/geometry/policies/compare.hpp>
 
-#include <boost/geometry/algorithms/ogc/is_valid.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_simple/has_duplicates.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_simple.hpp>
+#include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -96,7 +96,7 @@ struct is_simple<MultiPoint, multi_point_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_POINTLIKE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP

@@ -30,7 +30,7 @@
 #include <boost/geometry/multi/io/wkt/read.hpp>
 #include <boost/geometry/multi/io/wkt/write.hpp>
 
-#include <boost/geometry/algorithms/ogc/is_valid.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 
 namespace bg = ::boost::geometry;
 
@@ -81,7 +81,7 @@ void test_valid(Geometry const& g, bool expected_result)
     std::cout << "=======" << std::endl;
 #endif
 
-    bool valid = bg::ogc::is_valid(g);
+    bool valid = bg::is_valid(g);
     BOOST_CHECK( valid == expected_result );
 
 #ifdef GEOMETRY_TEST_DEBUG

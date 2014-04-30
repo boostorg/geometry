@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_LINEAR_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_LINEAR_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_LINEAR_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_LINEAR_HPP
 
 #include <algorithm>
 #include <deque>
@@ -23,10 +23,10 @@
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
-#include <boost/geometry/algorithms/ogc/is_valid.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_simple/has_duplicates.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_simple.hpp>
+#include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
@@ -34,7 +34,7 @@
 
 #include <boost/geometry/io/dsv/write.hpp>
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -113,14 +113,14 @@ struct is_simple_multilinestring
     static inline bool is_acceptable_turn(Turn const& turn)
     {
         return check_turn(turn,
-                          geometry::detail::overlay::method_none,
-                          geometry::detail::overlay::operation_continue)
+                          detail::overlay::method_none,
+                          detail::overlay::operation_continue)
             || check_turn(turn,
-                          geometry::detail::overlay::method_touch,
-                          geometry::detail::overlay::operation_intersection)
+                          detail::overlay::method_touch,
+                          detail::overlay::operation_intersection)
             || check_turn(turn,
-                          geometry::detail::overlay::method_touch,
-                          geometry::detail::overlay::operation_blocked)
+                          detail::overlay::method_touch,
+                          detail::overlay::operation_blocked)
             ;
     }
 
@@ -160,7 +160,7 @@ struct is_simple_multilinestring
         typedef typename point_type<MultiLinestring>::type point_type;
         typedef point_type point;
 
-        typedef geometry::detail::overlay::turn_info
+        typedef detail::overlay::turn_info
             <
                 point_type,
                 geometry::segment_ratio
@@ -171,19 +171,19 @@ struct is_simple_multilinestring
 
         std::deque<turn_info> turns;
 
-        typedef geometry::detail::overlay::get_turn_info
+        typedef detail::overlay::get_turn_info
             <
-                geometry::detail::disjoint::assign_disjoint_policy
+                detail::disjoint::assign_disjoint_policy
             > turn_policy;
 
-        geometry::detail::self_get_turn_points::no_interrupt_policy
+        detail::self_get_turn_points::no_interrupt_policy
             interrupt_policy;
 
-        geometry::detail::self_get_turn_points::get_turns
+        detail::self_get_turn_points::get_turns
             <
                 turn_policy
             >::apply(multilinestring,
-                     geometry::detail::no_rescale_policy(),
+                     detail::no_rescale_policy(),
                      turns,
                      interrupt_policy);
 
@@ -306,7 +306,7 @@ struct is_simple<MultiLinestring, multi_linestring_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_SIMPLE_LINEAR_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_LINEAR_HPP

@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_LINESTRING_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_LINESTRING_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
 
 #include <algorithm>
 
@@ -20,12 +20,12 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 
-#include <boost/geometry/algorithms/ogc/detail/is_valid/has_spikes.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
+#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -152,7 +152,7 @@ struct is_valid<Linestring, linestring_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_LINESTRING_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP

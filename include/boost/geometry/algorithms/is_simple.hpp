@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_IS_SIMPLE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_IS_SIMPLE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_IS_SIMPLE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_IS_SIMPLE_HPP
 
 #include <algorithm>
 
@@ -20,14 +20,14 @@
 
 #include <boost/geometry/policies/compare.hpp>
 
-#include <boost/geometry/algorithms/ogc/is_valid.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 
-#include <boost/geometry/algorithms/ogc/detail/is_valid/has_spikes.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_simple.hpp>
+#include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
-#include <boost/geometry/algorithms/ogc/detail/is_simple/pointlike.hpp>
-#include <boost/geometry/algorithms/ogc/detail/is_simple/linear.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/pointlike.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/linear.hpp>
 
 
 
@@ -44,7 +44,7 @@
 
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -230,8 +230,8 @@ inline bool is_simple(Geometry const& g)
 
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
 
-#endif // BOOST_GEOMETRY_MYSQL_ALGORITHMS_IS_SIMPLE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_IS_SIMPLE_HPP

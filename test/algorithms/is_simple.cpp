@@ -29,8 +29,8 @@
 #include <boost/geometry/multi/io/wkt/read.hpp>
 #include <boost/geometry/multi/io/wkt/write.hpp>
 
-#include <boost/geometry/algorithms/ogc/is_valid.hpp>
-#include <boost/geometry/algorithms/ogc/is_simple.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
+#include <boost/geometry/algorithms/is_simple.hpp>
 
 namespace bg = ::boost::geometry;
 
@@ -72,13 +72,13 @@ void test_simple(Geometry const& g, bool simple_geometry)
     std::cout << "=======" << std::endl;
 #endif
 
-    bool simple = bg::ogc::is_simple(g);
+    bool simple = bg::is_simple(g);
     BOOST_CHECK(simple == simple_geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << "Geometry: " << bg::wkt(g) << std::endl;
     std::cout << std::boolalpha;
-    std::cout << "is valid : " << bg::ogc::is_valid(g) << std::endl;
+    std::cout << "is valid : " << bg::is_valid(g) << std::endl;
     std::cout << "is simple: " << simple << std::endl;
     std::cout << "expected result: " << simple_geometry << std::endl;
     std::cout << "=======" << std::endl;

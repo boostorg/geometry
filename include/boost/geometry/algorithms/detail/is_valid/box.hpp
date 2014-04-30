@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_BOX_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_BOX_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_BOX_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_BOX_HPP
 
 #include <cstddef>
 
@@ -16,10 +16,10 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
-#include <boost/geometry/algorithms/ogc/dispatch/is_valid.hpp>
+#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
-namespace boost { namespace geometry { namespace ogc
+namespace boost { namespace geometry
 {
 
 
@@ -80,7 +80,7 @@ struct is_valid<Box, box_tag>
 
 
 
-}}} // namespace boost::geometry::ogc
+}} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_OGC_DETAIL_IS_VALID_BOX_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_BOX_HPP
