@@ -71,6 +71,9 @@ struct points_begin<Polygon, polygon_tag>
              boost::end(geometry::exterior_ring(polygon)),
              flatten_iterator(boost::begin(geometry::interior_rings(polygon)),
                               boost::end(geometry::interior_rings(polygon))
+                              ),
+             flatten_iterator(boost::begin(geometry::interior_rings(polygon)),
+                              boost::end(geometry::interior_rings(polygon))
                               )
              );
     }
@@ -163,6 +166,9 @@ struct points_end<Polygon, polygon_tag>
 
         return return_type
             (boost::end(geometry::exterior_ring(polygon)),
+             flatten_iterator(boost::begin(geometry::interior_rings(polygon)),
+                              boost::end(geometry::interior_rings(polygon))
+                              ),
              flatten_iterator( boost::end(geometry::interior_rings(polygon)) )
              );
     }
