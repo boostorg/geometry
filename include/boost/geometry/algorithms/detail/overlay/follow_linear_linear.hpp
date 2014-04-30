@@ -173,7 +173,8 @@ template
 class follow_linestring_linear_linestring
 {
 protected:
-    typedef following::action_selector<OverlayType> action;
+    // allow spikes (false indicates: do not remove spikes)
+    typedef following::action_selector<OverlayType, false> action;
 
     template
     <
