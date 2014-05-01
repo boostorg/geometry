@@ -484,20 +484,20 @@ struct get_turn_info_for_endpoint
 
         if ( append_first || append_last )
         {
-            bool handled = handle_internal(pi, pj, pk, qi, qj, qk,
-                                           is_p_first_ip, is_p_last_ip,
-                                           is_q_first_ip, is_q_last_ip,
-                                           ip_info.is_qi, ip_info.is_qj,
-                                           tp_model, inters.result(), ip_index,
-                                           p_operation, q_operation);
+            bool handled = handle_internal<0>(pi, pj, pk, qi, qj, qk,
+                                              is_p_first_ip, is_p_last_ip,
+                                              is_q_first_ip, is_q_last_ip,
+                                              ip_info.is_qi, ip_info.is_qj,
+                                              tp_model, inters, ip_index,
+                                              p_operation, q_operation);
             if ( !handled )
             {
-                handle_internal(qi, qj, qk, pi, pj, pk,
-                                is_q_first_ip, is_q_last_ip,
-                                is_p_first_ip, is_p_last_ip,
-                                ip_info.is_pi, ip_info.is_pj,
-                                tp_model, inters.result(), ip_index,
-                                q_operation, p_operation);
+                handle_internal<1>(qi, qj, qk, pi, pj, pk,
+                                   is_q_first_ip, is_q_last_ip,
+                                   is_p_first_ip, is_p_last_ip,
+                                   ip_info.is_pi, ip_info.is_pj,
+                                   tp_model, inters, ip_index,
+                                   q_operation, p_operation);
             }
 
             if ( p_operation != operation_none )
@@ -546,16 +546,17 @@ struct get_turn_info_for_endpoint
     // TODO: IT'S ALSO PROBABLE THAT ALL THIS FUNCTION COULD BE INTEGRATED WITH handle_segment
     //       however now it's lazily calculated and then it would be always calculated
 
-    template<typename Point1,
+    template<std::size_t G1Index,
+             typename Point1,
              typename Point2,
              typename TurnInfo,
-             typename IntersectionResult
+             typename IntersectionInfo
     >
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
                                        bool first1, bool last1, bool first2, bool last2,
                                        bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
-                                       IntersectionResult const& result, int ip_index,
+                                       IntersectionInfo const& inters, int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
         boost::ignore_unused_variable_warning(ip_index);
@@ -568,7 +569,7 @@ struct get_turn_info_for_endpoint
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
                 typename IntersectionResult::point_type const&
-                    inters_pt = result.template get<0>().intersections[ip_index];
+                    inters_pt = inters.i_info().intersections[ip_index];
                 BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
                 BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
@@ -591,11 +592,16 @@ struct get_turn_info_for_endpoint
 
                     if ( operations_both(operations, operation_continue) )
                     {
-                        // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
-                        bool opposite = result.template get<1>().opposite;
+                        if ( op1 != operation_union 
+                          || op2 != operation_union
+                          || ! ( G1Index == 0 ? inters.is_spike_q() : inters.is_spike_p() ) )
+                        {
+                            // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
+                            bool opposite = inters.d_info().opposite;
 
-                        op1 = operation_intersection;
-                        op2 = opposite ? operation_union : operation_intersection;
+                            op1 = operation_intersection;
+                            op2 = opposite ? operation_union : operation_intersection;
+                        }
                     }
                     else
                     {
@@ -613,7 +619,7 @@ struct get_turn_info_for_endpoint
 #ifdef BOOST_GEOMETRY_DEBUG_GET_TURNS_LINEAR_LINEAR
                 // may this give false positives for INTs?
                 typename IntersectionResult::point_type const&
-                    inters_pt = result.template get<0>().intersections[ip_index];
+                    inters_pt = inters.i_info().intersections[ip_index];
                 BOOST_ASSERT(ip_i2 == equals::equals_point_point(i2, inters_pt));
                 BOOST_ASSERT(ip_j2 == equals::equals_point_point(j2, inters_pt));
 #endif
@@ -636,11 +642,16 @@ struct get_turn_info_for_endpoint
 
                     if ( operations_both(operations, operation_continue) )
                     {
-                        // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
-                        bool second_going_out = result.template get<0>().count > 1;
+                        if ( op1 != operation_blocked
+                          || op2 != operation_union
+                          || ! ( G1Index == 0 ? inters.is_spike_q() : inters.is_spike_p() ) )
+                        {
+                            // THIS IS WRT THE ORIGINAL SEGMENTS! NOT THE ONES ABOVE!
+                            bool second_going_out = inters.i_info().count > 1;
 
-                        op1 = operation_blocked;
-                        op2 = second_going_out ? operation_union : operation_intersection;
+                            op1 = operation_blocked;
+                            op2 = second_going_out ? operation_union : operation_intersection;
+                        }
                     }
                     else
                     {
