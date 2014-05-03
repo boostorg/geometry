@@ -38,7 +38,7 @@ struct points_end
 
 
 
-} // namespace core_dispatch
+} // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 
