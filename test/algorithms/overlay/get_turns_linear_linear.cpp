@@ -322,6 +322,14 @@ void test_all()
     test_geometry<mls, mls>("MULTILINESTRING((0 1,1 1,0 1))",
                             "MULTILINESTRING((1 0,1 1,0 1))",
                             expected("tix")("txi")("tii")("txx"));
+    // spike vs internal collinear
+    test_geometry<mls, mls>("MULTILINESTRING((0 1,1 1,0 1))",
+                            "MULTILINESTRING((2 1,1 1,0 1))",
+                            expected("tix")("txi")("tii")("txx"));
+    // internal collinear vs spike
+    test_geometry<mls, mls>("MULTILINESTRING((2 1,1 1,0 1))",
+                            "MULTILINESTRING((0 1,1 1,0 1))",
+                            expected("txi")("tix")("tii")("txx"));
     // non-spike similar
     test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0))",
                             "MULTILINESTRING((-1 0,0 0,2 0))",
