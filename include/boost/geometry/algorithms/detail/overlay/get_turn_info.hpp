@@ -21,7 +21,7 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
-
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
@@ -59,36 +59,6 @@ public:
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-template <typename PointP, typename PointQ,
-          typename Pi = PointP, typename Pj = PointP, typename Pk = PointP,
-          typename Qi = PointQ, typename Qj = PointQ, typename Qk = PointQ
->
-struct side_calculator
-{
-    typedef boost::geometry::strategy::side::side_by_triangle<> side; // todo: get from coordinate system
-
-    inline side_calculator(Pi const& pi, Pj const& pj, Pk const& pk,
-                           Qi const& qi, Qj const& qj, Qk const& qk)
-        : m_pi(pi), m_pj(pj), m_pk(pk)
-        , m_qi(qi), m_qj(qj), m_qk(qk)
-    {}
-
-    inline int pk_wrt_p1() const { return side::apply(m_pi, m_pj, m_pk); }
-    inline int pk_wrt_q1() const { return side::apply(m_qi, m_qj, m_pk); }
-    inline int qk_wrt_p1() const { return side::apply(m_pi, m_pj, m_qk); }
-    inline int qk_wrt_q1() const { return side::apply(m_qi, m_qj, m_qk); }
-
-    inline int pk_wrt_q2() const { return side::apply(m_qj, m_qk, m_pk); }
-    inline int qk_wrt_p2() const { return side::apply(m_pj, m_pk, m_qk); }
-
-    Pi const& m_pi;
-    Pj const& m_pj;
-    Pk const& m_pk;
-    Qi const& m_qi;
-    Qj const& m_qj;
-    Qk const& m_qk;
-};
 
 struct base_turn_handler
 {
@@ -947,41 +917,12 @@ struct get_turn_info
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        typedef typename geometry::robust_point_type
-            <
-                Point1, RobustPolicy
-            >::type robust_point_type;
+        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
+            inters_info;
 
-        robust_point_type pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob;
-        geometry::recalculate(pi_rob, pi, robust_policy);
-        geometry::recalculate(pj_rob, pj, robust_policy);
-        geometry::recalculate(pk_rob, pk, robust_policy);
-        geometry::recalculate(qi_rob, qi, robust_policy);
-        geometry::recalculate(qj_rob, qj, robust_policy);
-        geometry::recalculate(qk_rob, qk, robust_policy);
+        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
 
-        typedef model::referring_segment<Point1 const> segment_type1;
-        typedef model::referring_segment<Point2 const> segment_type2;
-        segment_type1 p1(pi, pj);
-        segment_type2 q1(qi, qj);
-
-        side_calculator<robust_point_type, robust_point_type> side_calc(pi_rob, pj_rob, pk_rob, qi_rob, qj_rob, qk_rob);
-
-        typedef strategy_intersection
-            <
-                typename cs_tag<typename TurnInfo::point_type>::type,
-                Point1,
-                Point2,
-                typename TurnInfo::point_type,
-                RobustPolicy
-            > si;
-
-        typedef typename si::segment_intersection_strategy_type strategy;
-
-        typename strategy::return_type result = strategy::apply(p1, q1,
-                    robust_policy, pi_rob, pj_rob, qi_rob, qj_rob);
-
-        char const method = result.template get<1>().how;
+        char const method = inters.d_info().how;
 
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
@@ -993,11 +934,10 @@ struct get_turn_info
             case 'f' : // collinear, "from"
             case 's' : // starts from the middle
                 if (AssignPolicy::include_no_turn
-                    && result.template get<0>().count > 0)
+                    && inters.i_info().count > 0)
                 {
-                    only_convert::apply(tp,
-                                result.template get<0>());
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    only_convert::apply(tp, inters.i_info());
+                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                     *out++ = tp;
                 }
                 break;
@@ -1013,29 +953,34 @@ struct get_turn_info
                     > policy;
 
                 // If Q (1) arrives (1)
-                if (result.template get<1>().arrival[1] == 1)
+                if ( inters.d_info().arrival[1] == 1 )
                 {
                     policy::template apply<0>(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(),
-                                side_calc);
+                                tp, inters.i_info(), inters.d_info(),
+                                inters.sides());
                 }
                 else
                 {
                     // Swap p/q
-                    side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                    side_calculator
+                        <
+                            typename inters_info::robust_point2_type,
+                            typename inters_info::robust_point1_type
+                        > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
+                                            inters.rpi(), inters.rpj(), inters.rpk());
                     policy::template apply<1>(qi, qj, qk, pi, pj, pk,
-                                tp, result.template get<0>(), result.template get<1>(),
+                                tp, inters.i_info(), inters.d_info(),
                                 swapped_side_calc);
                 }
-                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                 *out++ = tp;
             }
             break;
             case 'i' :
             {
                 crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                    tp, result.template get<0>(), result.template get<1>());
-                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    tp, inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                 *out++ = tp;
             }
             break;
@@ -1043,20 +988,20 @@ struct get_turn_info
             {
                 // Both touch (both arrive there)
                 touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                    tp, result.template get<0>(), result.template get<1>(), side_calc);
-                AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    tp, inters.i_info(), inters.d_info(), inters.sides());
+                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                 *out++ = tp;
             }
             break;
             case 'e':
             {
-                if (! result.template get<1>().opposite)
+                if ( ! inters.d_info().opposite )
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
                     equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                        tp, result.template get<0>(), result.template get<1>(), side_calc);
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                        tp, inters.i_info(), inters.d_info(), inters.sides());
+                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                     *out++ = tp;
                 }
                 else
@@ -1066,21 +1011,21 @@ struct get_turn_info
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, qi,
-                            tp, out, result.template get<0>(), result.template get<1>());
+                            tp, out, inters.i_info(), inters.d_info());
                 }
             }
             break;
             case 'c' :
             {
                 // Collinear
-                if (! result.template get<1>().opposite)
+                if ( ! inters.d_info().opposite )
                 {
 
-                    if (result.template get<1>().arrival[0] == 0)
+                    if ( inters.d_info().arrival[0] == 0 )
                     {
                         // Collinear, but similar thus handled as equal
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(), side_calc);
+                                tp, inters.i_info(), inters.d_info(), inters.sides());
 
                         // override assigned method
                         tp.method = method_collinear;
@@ -1088,10 +1033,10 @@ struct get_turn_info
                     else
                     {
                         collinear<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
-                                tp, result.template get<0>(), result.template get<1>(), side_calc);
+                                tp, inters.i_info(), inters.d_info(), inters.sides());
                     }
 
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                     *out++ = tp;
                 }
                 else
@@ -1101,7 +1046,7 @@ struct get_turn_info
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, pj, pk, qi, qj, qk,
-                            tp, out, result.template get<0>(), result.template get<1>(), side_calc);
+                            tp, out, inters.i_info(), inters.d_info(), inters.sides());
                 }
             }
             break;
@@ -1110,8 +1055,8 @@ struct get_turn_info
                 // degenerate points
                 if (AssignPolicy::include_degenerate)
                 {
-                    only_convert::apply(tp, result.template get<0>());
-                    AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+                    only_convert::apply(tp, inters.i_info());
+                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
                     *out++ = tp;
                 }
             }

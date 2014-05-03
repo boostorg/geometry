@@ -47,8 +47,10 @@ struct get_turn_info_linear_areal
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
-            inters(pi, pj, pk, qi, qj, qk, robust_policy);
+        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
+            inters_info;
+
+        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -64,7 +66,7 @@ struct get_turn_info_linear_areal
                 get_turn_info_for_endpoint<true, true>(
                     pi, pj, pk, qi, qj, qk,
                     is_p_first, is_p_last, is_q_first, is_q_last,
-                    tp_model, inters.result(), method_none, out);
+                    tp_model, inters, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -75,7 +77,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_touch_interior, out) )
+                        tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -96,7 +98,12 @@ struct get_turn_info_linear_areal
                     else
                     {
                         // Swap p/q
-                        side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator
+                            <
+                                typename inters_info::robust_point2_type,
+                                typename inters_info::robust_point1_type
+                            > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
+                                                inters.rpi(), inters.rpj(), inters.rpk());
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                     tp, inters.i_info(), inters.d_info(),
                                     swapped_side_calc);
@@ -138,7 +145,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_touch, out) )
+                        tp_model, inters, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -230,7 +237,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_equal, out) )
+                        tp_model, inters, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -277,7 +284,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_collinear, out) )
+                        tp_model, inters, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -621,7 +628,7 @@ struct get_turn_info_linear_areal
               typename Point1,
               typename Point2,
               typename TurnInfo,
-              typename IntersectionResult,
+              typename IntersectionInfo,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
                             Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -629,14 +636,14 @@ struct get_turn_info_linear_areal
                             bool is_p_first, bool is_p_last,
                             bool is_q_first, bool is_q_last,
                             TurnInfo const& tp_model,
-                            IntersectionResult const& result,
+                            IntersectionInfo const& inters,
                             method_type /*method*/,
                             OutputIterator out)
     {
         namespace ov = overlay;
         typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
 
-        const std::size_t ip_count = result.template get<0>().count;
+        const std::size_t ip_count = inters.i_info().count;
         // no intersection points
         if ( ip_count == 0 )
             return false;
@@ -648,11 +655,11 @@ struct get_turn_info_linear_areal
         if ( !is_p_first && !is_p_last )
             return false;
 
-        linear_intersections intersections(pi, qi, result, is_p_last, is_q_last);
+        linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();
         linear_intersections::ip_info const& ip1 = intersections.template get<1>();
 
-        const bool opposite = result.template get<1>().opposite;
+        const bool opposite = inters.d_info().opposite;
 
         // ANALYSE AND ASSIGN FIRST
 
@@ -675,7 +682,13 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
-                    side_calculator<Point1, Point2, Point2> side_calc(qi, pi, pj, qi, qj, qk);
+                    side_calculator
+                        <
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point2_type
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                                    inters.rqi(), inters.rqj(), inters.rqk());
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -687,9 +700,18 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    side_calculator<Point1, Point2,
-                                    Point2, Point1, Point1,
-                                    Point2, Point1, Point2> side_calc(qi, pi, pj, qi, pi, qj);
+                    side_calculator
+                        <
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                                    inters.rqi(), inters.rpi(), inters.rqj());
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -704,17 +726,17 @@ struct get_turn_info_linear_areal
 
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
-            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), 0);
+            base_turn_handler::assign_point(tp, tp.method, inters.i_info(), 0);
 
             // NOTE: not really needed especially for the first point
             // for which there is no preceding segment (but consistent with the L/L)
-            if ( result.template get<0>().count > 1 )
+            if ( inters.i_info().count > 1 )
             {
                 //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
                 tp.operations[0].is_collinear = true;
             }
 
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
         }
 
@@ -727,7 +749,7 @@ struct get_turn_info_linear_areal
         {
             TurnInfo tp = tp_model;
             
-            if ( result.template get<0>().count > 1 )
+            if ( inters.i_info().count > 1 )
             {
                 //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
                 tp.operations[0].is_collinear = true;
@@ -735,7 +757,13 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                side_calculator<Point1, Point2, Point2> side_calc(qi, pj, pi, qi, qj, qk);
+                side_calculator
+                    <
+                        typename IntersectionInfo::robust_point1_type,
+                        typename IntersectionInfo::robust_point2_type,
+                        typename IntersectionInfo::robust_point2_type
+                    > side_calc(inters.rqi(), inters.rpj(), inters.rpi(),
+                                inters.rqi(), inters.rqj(), inters.rqk());
 
                 std::pair<operation_type, operation_type>
                     operations = get_info_e::operations_of_equal(side_calc);
@@ -760,9 +788,9 @@ struct get_turn_info_linear_areal
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
             std::size_t ip_index = ip_count > 1 ? 1 : 0;
-            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), ip_index);
+            base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
 
             return true;

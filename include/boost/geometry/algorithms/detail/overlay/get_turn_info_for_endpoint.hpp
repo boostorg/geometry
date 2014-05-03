@@ -15,176 +15,12 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_FOR_ENDPOINT_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay {
-
-// TURN_OPERATION
-
-enum turn_position { position_middle, position_front, position_back };
-
-template <typename SegmentRatio>
-struct turn_operation_linear
-    : public turn_operation<SegmentRatio>
-{
-    turn_operation_linear()
-        : position(position_middle)
-        , is_collinear(false)
-    {}
-
-    turn_position position;
-    bool is_collinear; // valid only for Linear geometry
-};
-
-template <typename Point1, typename Point2, typename TurnPoint, typename RobustPolicy>
-class intersection_info
-{
-    typedef typename strategy_intersection
-        <
-            typename cs_tag<TurnPoint>::type,
-            Point1,
-            Point2,
-            TurnPoint,
-            RobustPolicy
-        >::segment_intersection_strategy_type strategy;
-
-public:
-    typedef model::referring_segment<Point1 const> segment_type1;
-    typedef model::referring_segment<Point2 const> segment_type2;
-    typedef side_calculator<Point1, Point2> side_calculator_type;
-    
-    typedef typename strategy::return_type result_type;
-    typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
-    typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
-
-    intersection_info(Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                      Point2 const& qi, Point2 const& qj, Point2 const& qk,
-                      RobustPolicy const& robust_policy)
-        : m_result(strategy::apply(segment_type1(pi, pj),
-                                   segment_type2(qi, qj),
-                                   robust_policy))
-        , m_side_calc(pi, pj, pk, qi, qj, qk)
-        , m_robust_policy(robust_policy)
-    {}
-
-    inline Point1 const& pi() const { return m_side_calc.m_pi; }
-    inline Point1 const& pj() const { return m_side_calc.m_pj; }
-    inline Point1 const& pk() const { return m_side_calc.m_pk; }
-
-    inline Point2 const& qi() const { return m_side_calc.m_qi; }
-    inline Point2 const& qj() const { return m_side_calc.m_qj; }
-    inline Point2 const& qk() const { return m_side_calc.m_qk; }
-
-    inline side_calculator_type const& sides() const { return m_side_calc; }
-    inline result_type const& result() const { return m_result; }
-    inline i_info_type const& i_info() const { return m_result.template get<0>(); }
-    inline d_info_type const& d_info() const { return m_result.template get<1>(); }
-
-    // TODO: not it's more like is_spike_ip_p
-    inline bool is_spike_p() const
-    {
-        if ( m_side_calc.pk_wrt_p1() == 0 )
-        {
-            if ( ! is_ip_j<0>() )
-                return false;
-
-            int const qk_p1 = m_side_calc.qk_wrt_p1();
-            int const qk_p2 = m_side_calc.qk_wrt_p2();
-                
-            if ( qk_p1 == -qk_p2 )
-            {
-                if ( qk_p1 == 0 )
-                {
-                    return is_spike_of_collinear(pi(), pj(), pk());
-                }
-                        
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    // TODO: not it's more like is_spike_ip_q
-    inline bool is_spike_q() const
-    {
-        if ( m_side_calc.qk_wrt_q1() == 0 )
-        {
-            if ( ! is_ip_j<1>() )
-                return false;
-
-            int const pk_q1 = m_side_calc.pk_wrt_q1();
-            int const pk_q2 = m_side_calc.pk_wrt_q2();
-                
-            if ( pk_q1 == -pk_q2 )
-            {
-                if ( pk_q1 == 0 )
-                {
-                    return is_spike_of_collinear(qi(), qj(), qk());
-                }
-                        
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-private:
-    template <typename Point>
-    inline bool is_spike_of_collinear(Point const& i, Point const& j, Point const& k) const
-    {
-        typedef model::referring_segment<Point const> seg_t;
-
-        typedef strategy_intersection
-            <
-                typename cs_tag<Point>::type, Point, Point, Point, RobustPolicy
-            > si;
-        
-        typedef typename si::segment_intersection_strategy_type strategy;
-        
-        typename strategy::return_type result
-            = strategy::apply(seg_t(i, j), seg_t(j, k), m_robust_policy);
-        
-        return result.template get<0>().count == 2;
-    }
-
-    template <std::size_t OpId>
-    bool is_ip_j() const
-    {
-        int arrival = d_info().arrival[OpId];
-        bool same_dirs = d_info().dir_a == 0 && d_info().dir_b == 0;
-
-        if ( same_dirs )
-        {
-            if ( i_info().count == 2 )
-            {
-                if ( ! d_info().opposite )
-                {
-                    return arrival != -1;
-                }
-                else
-                {
-                    return arrival != -1;
-                }
-            }
-            else
-            {
-                return arrival == 0;
-            }
-        }
-        else
-        {
-            return arrival == 1;
-        }
-    }
-
-    result_type m_result;
-    side_calculator_type m_side_calc;
-    RobustPolicy const& m_robust_policy;
-};
 
 // SEGMENT_INTERSECTION RESULT
 
@@ -485,6 +321,8 @@ struct get_turn_info_for_endpoint
         if ( append_first || append_last )
         {
             bool handled = handle_internal<0>(pi, pj, pk, qi, qj, qk,
+                                              inters.rpi(), inters.rpj(), inters.rpk(),
+                                              inters.rqi(), inters.rqj(), inters.rqk(),
                                               is_p_first_ip, is_p_last_ip,
                                               is_q_first_ip, is_q_last_ip,
                                               ip_info.is_qi, ip_info.is_qj,
@@ -493,6 +331,8 @@ struct get_turn_info_for_endpoint
             if ( !handled )
             {
                 handle_internal<1>(qi, qj, qk, pi, pj, pk,
+                                   inters.rqi(), inters.rqj(), inters.rqk(),
+                                   inters.rpi(), inters.rpj(), inters.rpk(),
                                    is_q_first_ip, is_q_last_ip,
                                    is_p_first_ip, is_p_last_ip,
                                    ip_info.is_pi, ip_info.is_pj,
@@ -549,11 +389,15 @@ struct get_turn_info_for_endpoint
     template<std::size_t G1Index,
              typename Point1,
              typename Point2,
+             typename RobustPoint1,
+             typename RobustPoint2,
              typename TurnInfo,
              typename IntersectionInfo
     >
     static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
                                        Point2 const& i2, Point2 const& j2, Point2 const& k2,
+                                       RobustPoint1 const& ri1, RobustPoint1 const& rj1, RobustPoint1 const& /*rk1*/,
+                                       RobustPoint2 const& ri2, RobustPoint2 const& rj2, RobustPoint2 const& rk2,
                                        bool first1, bool last1, bool first2, bool last2,
                                        bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
                                        IntersectionInfo const& inters, int ip_index,
@@ -582,7 +426,8 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<Point1, Point2, Point2> side_calc(i2, i1, j1, i2, j2, k2);
+                    side_calculator<RobustPoint1, RobustPoint2, RobustPoint2>
+                        side_calc(ri2, ri1, rj1, ri2, rj2, rk2);
 
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);
@@ -632,7 +477,8 @@ struct get_turn_info_for_endpoint
                 }
                 else if ( ip_j2 )
                 {
-                    side_calculator<Point1, Point2, Point2> side_calc(i2, j1, i1, i2, j2, k2);
+                    side_calculator<RobustPoint1, RobustPoint2, RobustPoint2>
+                        side_calc(ri2, rj1, ri1, ri2, rj2, rk2);
                     
                     std::pair<operation_type, operation_type>
                         operations = operations_of_equal(side_calc);

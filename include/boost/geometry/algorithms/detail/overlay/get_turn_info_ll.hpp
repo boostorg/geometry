@@ -44,8 +44,10 @@ struct get_turn_info_linear_linear
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
-            inters(pi, pj, pk, qi, qj, qk, robust_policy);
+        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
+            inters_info;
+
+        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -93,7 +95,13 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // Swap p/q
-                        side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator
+                            <
+                                typename inters_info::robust_point2_type,
+                                typename inters_info::robust_point1_type
+                            > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
+                                                inters.rpi(), inters.rpj(), inters.rpk());
+
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                                   tp, inters.i_info(), inters.d_info(),
                                                   swapped_side_calc);
