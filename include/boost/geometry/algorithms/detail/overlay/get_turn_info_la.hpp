@@ -395,7 +395,7 @@ struct get_turn_info_linear_areal
                                                  IntersectionInfo const& inters,
                                                  bool is_p_last)
     {
-        bool is_p_spike = op == operation_union || op == operation_intersection
+        bool is_p_spike = ( op == operation_union || op == operation_intersection )
                        && ! is_p_last
                        && inters.is_spike_p();
 
