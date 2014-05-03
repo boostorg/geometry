@@ -131,6 +131,30 @@ void test_all()
     // opposite - neq neq
     test_geometry<ls, poly>("LINESTRING(6 6,4 4,0 0,2 2)", "POLYGON((-2 -2,-1 -1,3 3,5 5,6 3,-2 -2))",
                             expected("mcu")("mxc")("mcc")("mxu"));
+
+    // spike vs internal
+    test_geometry<ls, poly>("LINESTRING(0 1,1 1,0 1)", // --
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tuu"));
+    test_geometry<ls, poly>("LINESTRING(1 2,1 1,1 2)", // |
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tuu"));
+    test_geometry<ls, poly>("LINESTRING(0 2,1 1,0 2)",
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tuu"));
+    test_geometry<ls, poly>("LINESTRING(2 0,1 1,2 0)",
+                            "POLYGON((1 0,1 1,2 1,2 0,1 0))",
+                            expected("tiu")("tiu")("txu")); // TODO: should spike point be duplicated?
+    test_geometry<ls, poly>("LINESTRING(0 0,1 1,0 0)", // /
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tuu"));
+    test_geometry<ls, poly>("LINESTRING(2 2,1 1,2 2)", // /
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tuu"));
+
+    test_geometry<ls, poly>("LINESTRING(2 1,1 1,2 1)",
+                            "POLYGON((1 0,1 1,2 1,1 0))",
+                            expected("tcu")("txc")("tcc")("txu"));
 }
 
 int test_main(int, char* [])

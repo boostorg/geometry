@@ -152,11 +152,62 @@ struct get_turn_info_linear_areal
                         tp.operations[0].is_collinear = true;
                     }
 
+                    // workarounds for touch<> not taking spikes into account starts here
+                    // those was discovered empirically
+                    // touch<> is not symmetrical!
+                    // P spikes and Q spikes may produce various operations!
+                    // Only P spikes are valid for L/A
+                    // TODO: this is not optimal solution - think about rewriting touch<>
+
+                    if ( tp.operations[0].operation == operation_blocked )
+                    {
+                        // a spike on P on the same line with Q1
+                        if ( inters.is_spike_p() )
+                        {
+                            if ( inters.sides().qk_wrt_p1() == 0 )
+                            {
+                                tp.operations[0].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[0].operation = operation_union;                                
+                            }
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_continue
+                           && tp.operations[1].operation == operation_continue )
+                    {
+                        // P spike on the same line with Q2 (opposite)
+                        if ( inters.sides().pk_wrt_q1() == -inters.sides().qk_wrt_q1()
+                          && inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union;
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_none
+                           && tp.operations[1].operation == operation_none )
+                    {
+                        // spike not handled by touch<>
+                        if ( inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_intersection;
+                            tp.operations[1].operation = operation_union;
+
+                            if ( inters.sides().pk_wrt_q2() == 0 )
+                            {
+                                tp.operations[0].operation = operation_continue; // will be converted to i
+                                tp.operations[0].is_collinear = true;
+                            }
+                        }
+                    }
+
+                    // workarounds for touch<> not taking spikes into account ends here
+
                     replace_method_and_operations_tm(tp.method,
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
 
-                    // this function assumes that 'u' must be set for a spike
                     bool ignore_spike
                         = calculate_spike_operation(tp.operations[0].operation,
                                                     inters, is_p_last);
@@ -166,7 +217,7 @@ struct get_turn_info_linear_areal
 
                     if ( ! handle_spikes
                       || ignore_spike
-                      || ! append_opposite_spikes<append_touches>( // for 'i' or 'c'
+                      || ! append_opposite_spikes<append_touches>( // for 'i' or 'c' i???
                                 tp, inters, is_p_last, is_q_last, out) )
                     {
                         *out++ = tp;
@@ -344,16 +395,36 @@ struct get_turn_info_linear_areal
                                                  IntersectionInfo const& inters,
                                                  bool is_p_last)
     {
-        bool is_p_spike = op == operation_union
+        bool is_p_spike = op == operation_union || op == operation_intersection
                        && ! is_p_last
                        && inters.is_spike_p();
 
-        // we don't know where the spike is going since for both directions 'u' is set
         if ( is_p_spike )
         {
-            if ( inters.sides().pk_wrt_q1() < 0 && inters.sides().pk_wrt_q2() < 0 )
+            bool going_in = false, going_out = false;
+                
+            int const pk_q1 = inters.sides().pk_wrt_q1();
+            int const pk_q2 = inters.sides().pk_wrt_q2();
+
+            if ( inters.sides().qk_wrt_q1() <= 0 ) // Q turning R or C
+            { 
+                going_in = pk_q1 < 0 && pk_q2 < 0; // Pk on the right of both
+                going_out = pk_q1 > 0 || pk_q2 > 0; // Pk on the left of one of them
+            }
+            else
+            {
+                going_in = pk_q1 < 0 || pk_q2 < 0; // Pk on the right of one of them
+                going_out = pk_q1 > 0 && pk_q2 > 0; // Pk on the left of both
+            }
+
+            if ( going_in )
             {
                 op = operation_intersection;
+                return true;
+            }
+            else if ( going_out )
+            {
+                op = operation_union;
                 return true;
             }
         }
@@ -416,7 +487,7 @@ struct get_turn_info_linear_areal
     {
         bool is_p_spike = ( Version == append_touches ?
                             ( tp.operations[0].operation == operation_continue
-                           || tp.operations[0].operation == operation_intersection ) :
+                           || tp.operations[0].operation == operation_intersection ) : // i ???
                             true )
                        && ! is_p_last
                        && inters.is_spike_p();

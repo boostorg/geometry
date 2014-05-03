@@ -143,14 +143,109 @@ struct get_turn_info_linear_linear
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                            tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                    if ( tp.operations[0].operation == operation_blocked )
+                    // workarounds for touch<> not taking spikes into account starts here
+                    // those was discovered empirically
+                    // touch<> is not symmetrical!
+                    // P spikes and Q spikes may produce various operations!
+                    // TODO: this is not optimal solution - think about rewriting touch<>
+
+                    if ( tp.operations[0].operation == operation_blocked
+                      && tp.operations[1].operation == operation_blocked )
                     {
-                        tp.operations[1].is_collinear = true;
+                        // two touching spikes on the same line
+                        if ( inters.is_spike_p() && inters.is_spike_q() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union; 
+                        }
+                        else
+                        {
+                            tp.operations[0].is_collinear = true;
+                            tp.operations[1].is_collinear = true;
+                        }
                     }
-                    if ( tp.operations[1].operation == operation_blocked )
+                    else if ( tp.operations[0].operation == operation_blocked )
                     {
-                        tp.operations[0].is_collinear = true;
+                        // a spike on P on the same line with Q1
+                        if ( inters.is_spike_p() )
+                        {
+                            if ( inters.sides().qk_wrt_p1() == 0 )
+                            {
+                                tp.operations[0].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[0].operation = operation_union;                                
+                            }
+                        }
+                        else
+                        {
+                            tp.operations[1].is_collinear = true;
+                        }
                     }
+                    else if ( tp.operations[1].operation == operation_blocked )
+                    {
+                        // a spike on Q on the same line with P1
+                        if ( inters.is_spike_q() )
+                        {
+                            if ( inters.sides().pk_wrt_q1() == 0 )
+                            {
+                                tp.operations[1].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[1].operation = operation_union;                                
+                            }
+                        }
+                        else
+                        {
+                            tp.operations[0].is_collinear = true;
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_continue
+                           && tp.operations[1].operation == operation_continue )
+                    {
+                        // P spike on the same line with Q2 (opposite)
+                        if ( inters.sides().pk_wrt_q1() == -inters.sides().qk_wrt_q1()
+                          && inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union; 
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_none
+                           && tp.operations[1].operation == operation_none )
+                    {
+                        // spike not handled by touch<>
+                        bool const is_p = inters.is_spike_p();
+                        bool const is_q = inters.is_spike_q();
+
+                        if ( is_p || is_q )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union;
+
+                            if ( inters.sides().pk_wrt_q2() == 0 )
+                            {
+                                tp.operations[0].operation = operation_continue; // will be converted to i
+                                if ( is_p )
+                                {
+                                    tp.operations[0].is_collinear = true;
+                                }
+                            }
+
+                            if ( inters.sides().qk_wrt_p2() == 0 )
+                            {
+                                tp.operations[1].operation = operation_continue; // will be converted to i
+                                if ( is_q )
+                                {
+                                    tp.operations[1].is_collinear = true;
+                                }
+                            }
+                        }
+                    }
+
+                    // workarounds for touch<> not taking spikes into account ends here
 
                     replace_method_and_operations_tm(tp.method,
                                                      tp.operations[0].operation,
