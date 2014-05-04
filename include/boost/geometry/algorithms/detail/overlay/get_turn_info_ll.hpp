@@ -293,8 +293,9 @@ struct get_turn_info_linear_linear
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                        replacer_of_method_and_operations_ec replacer(method_touch);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        // transform turn
+                        turn_transformer_ec transformer(method_touch);
+                        transformer(tp);
 
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -334,6 +335,7 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
+                    // NOTE: this is for spikes since those are set in the turn_transformer_ec
                     tp.operations[0].is_collinear = true;
                     tp.operations[1].is_collinear = true;
 
@@ -360,8 +362,9 @@ struct get_turn_info_linear_linear
                             //spike_op = operation_continue;
                         }
 
-                        replacer_of_method_and_operations_ec replacer(method_replace);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        // transform turn
+                        turn_transformer_ec transformer(method_replace);
+                        transformer(tp);
                         
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -380,7 +383,7 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // If this always 'm' ?
-                        replacer_of_method_and_operations_ec replacer(method_touch_interior);
+                        turn_transformer_ec transformer(method_touch_interior);
 
                         // conditionally handle spikes
                         if ( handle_spikes )
@@ -400,7 +403,7 @@ struct get_turn_info_linear_linear
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, inters.i_info(), inters.d_info(), inters.sides(),
-                                replacer, !is_p_last, !is_q_last);
+                                transformer, !is_p_last, !is_q_last);
                     }
                 }
             }
@@ -544,13 +547,13 @@ struct get_turn_info_linear_linear
             if ( Version == append_touches )
             {
                 tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = ???
+                tp.operations[1].is_collinear = false;
                 tp.method = method_touch;
             }
-            else
+            else // Version == append_collinear_opposite
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = true;
+                tp.operations[1].is_collinear = false;
                 
                 BOOST_ASSERT(inters.i_info().count > 1);
                 
@@ -575,14 +578,14 @@ struct get_turn_info_linear_linear
         {
             if ( Version == append_touches )
             {
-                //tp.operations[0].is_collinear = ???
+                tp.operations[0].is_collinear = false;
                 tp.operations[1].is_collinear = true;
                 tp.method = method_touch;
             }
-            else
+            else // Version == append_collinear_opposite
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = false;
+                tp.operations[1].is_collinear = true;
                 
                 BOOST_ASSERT(inters.i_info().count > 0);
 
@@ -646,17 +649,19 @@ struct get_turn_info_linear_linear
         }
     }
 
-    class replacer_of_method_and_operations_ec
+    class turn_transformer_ec
     {
     public:
-        explicit replacer_of_method_and_operations_ec(method_type method_t_or_m)
+        explicit turn_transformer_ec(method_type method_t_or_m)
             : m_method(method_t_or_m)
         {}
 
-       void operator()(method_type & method,
-                       operation_type & op0,
-                       operation_type & op1) const
+        template <typename Turn>
+        void operator()(Turn & turn) const
         {
+            operation_type & op0 = turn.operations[0].operation;
+            operation_type & op1 = turn.operations[1].operation;
+
             BOOST_ASSERT(op0 != operation_blocked || op1 != operation_blocked );
 
             if ( op0 == operation_blocked )
@@ -680,8 +685,13 @@ struct get_turn_info_linear_linear
             if ( op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
             {
-                method = m_method;
+                turn.method = m_method;
             }
+
+// TODO: is this correct?
+//       it's equivalent to comparing to operation_blocked at the beginning of the function
+            turn.operations[0].is_collinear = op0 != operation_intersection;
+            turn.operations[1].is_collinear = op1 != operation_intersection;
         }
 
     private:

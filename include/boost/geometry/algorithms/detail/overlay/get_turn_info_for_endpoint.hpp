@@ -356,9 +356,9 @@ struct get_turn_info_for_endpoint
                   && inters.is_spike_p() )
                 {
                     assign(pi, qi, inters.result(), ip_index, method, operation_blocked, q_operation,
-                           p_pos, q_pos, tp_model, out);
+                           p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
                     assign(pi, qi, inters.result(), ip_index, method, operation_intersection, q_operation,
-                           p_pos, q_pos, tp_model, out);
+                           p_pos, q_pos, is_p_first_ip, is_q_first_ip, true, false, tp_model, out);
                 }
                 // Q is spike and should be handled
                 else if ( !is_q_last
@@ -367,15 +367,15 @@ struct get_turn_info_for_endpoint
                        && inters.is_spike_q() )
                 {
                     assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_blocked,
-                           p_pos, q_pos, tp_model, out);
+                           p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
                     assign(pi, qi, inters.result(), ip_index, method, p_operation, operation_intersection,
-                           p_pos, q_pos, tp_model, out);
+                           p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, true, tp_model, out);
                 }
                 // no spikes
                 else
                 {
                     assign(pi, qi, inters.result(), ip_index, method, p_operation, q_operation,
-                           p_pos, q_pos, tp_model, out);
+                           p_pos, q_pos, is_p_first_ip, is_q_first_ip, false, false, tp_model, out);
                 }
             }
         }
@@ -541,6 +541,8 @@ struct get_turn_info_for_endpoint
                               method_type method,
                               operation_type op0, operation_type op1,
                               turn_position pos0, turn_position pos1,
+                              bool is_p_first_ip, bool is_q_first_ip,
+                              bool is_p_spike, bool is_q_spike,
                               TurnInfo const& tp_model,
                               OutputIterator out)
     {
@@ -555,13 +557,23 @@ struct get_turn_info_for_endpoint
         tp.operations[0].position = pos0;
         tp.operations[1].position = pos1;
 
-        // NOTE: this probably shouldn't be set for the first point
-        // for which there is no preceding segment
         if ( result.template get<0>().count > 1 )
         {
+            // NOTE: is_collinear is NOT set for the first endpoint
+            // for which there is no preceding segment
+
             //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
-            tp.operations[0].is_collinear = true;
-            tp.operations[1].is_collinear = true;
+            if ( ! is_p_first_ip )
+            {
+                tp.operations[0].is_collinear = op0 != operation_intersection
+                                             || is_p_spike;
+            }
+
+            if ( ! is_q_first_ip )
+            {
+                tp.operations[1].is_collinear = op1 != operation_intersection
+                                             || is_q_spike;
+            }
         }
         else //if ( result.template get<0>().count == 1 )
         {

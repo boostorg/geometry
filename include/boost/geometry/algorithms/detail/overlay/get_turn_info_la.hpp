@@ -252,8 +252,8 @@ struct get_turn_info_linear_areal
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                        replacer_of_method_and_operations_ec<false> replacer(method_touch);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        turn_transformer_ec<false> transformer(method_touch);
+                        transformer(tp);
                     
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -315,8 +315,8 @@ struct get_turn_info_linear_areal
                             //version = append_collinear;
                         }
 
-                        replacer_of_method_and_operations_ec<false> replacer(method_replace);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        turn_transformer_ec<false> transformer(method_replace);
+                        transformer(tp);
 
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -333,7 +333,7 @@ struct get_turn_info_linear_areal
                     else
                     {
                         // Is this always 'm' ?
-                        replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
+                        turn_transformer_ec<false> transformer(method_touch_interior);
 
                         // conditionally handle spikes
                         if ( handle_spikes )
@@ -352,7 +352,7 @@ struct get_turn_info_linear_areal
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, inters.i_info(), inters.d_info(),
-                                inters.sides(), replacer);
+                                inters.sides(), transformer);
                     }
                 }
             }
@@ -511,13 +511,13 @@ struct get_turn_info_linear_areal
             if ( Version == append_touches )
             {
                 tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = ???
+                //tp.operations[1].is_collinear = false;
                 tp.method = method_touch;
             }
             else
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = false;
                 
                 BOOST_ASSERT(inters.i_info().count > 1);
                 base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 1);
@@ -573,24 +573,28 @@ struct get_turn_info_linear_areal
     }
 
     template <bool IsFront>
-    class replacer_of_method_and_operations_ec
+    class turn_transformer_ec
     {
     public:
-        explicit replacer_of_method_and_operations_ec(method_type method_t_or_m)
+        explicit turn_transformer_ec(method_type method_t_or_m)
             : m_method(method_t_or_m)
         {}
 
-       void operator()(method_type & method,
-                       operation_type & op0,
-                       operation_type & op1) const
+        template <typename Turn>
+        void operator()(Turn & turn) const
         {
+            operation_type & op0 = turn.operations[0].operation;
+            operation_type & op1 = turn.operations[1].operation;
+
             // NOTE: probably only if methods are WRT IPs, not segments!
             if ( IsFront
               || op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
             {
-                method = m_method;
+                turn.method = m_method;
             }
+
+            turn.operations[0].is_collinear = op0 != operation_blocked;
 
             // Assuming G1 is always Linear
             if ( op0 == operation_blocked )
@@ -720,21 +724,18 @@ struct get_turn_info_linear_areal
                     tp.operations[1].operation = operations.second;
                 }
 
-                replacer_of_method_and_operations_ec<true> replacer(replaced_method);
-                replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                turn_transformer_ec<true> transformer(replaced_method);
+                transformer(tp);
             }
 
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
             base_turn_handler::assign_point(tp, tp.method, inters.i_info(), 0);
 
-            // NOTE: not really needed especially for the first point
-            // for which there is no preceding segment (but consistent with the L/L)
-            if ( inters.i_info().count > 1 )
-            {
-                //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
-                tp.operations[0].is_collinear = true;
-            }
+            // NOTE: is_collinear is not set for the first endpoint of L
+            // for which there is no preceding segment
+            // here is_p_first_ip == true
+            tp.operations[0].is_collinear = false;
 
             AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
@@ -771,13 +772,10 @@ struct get_turn_info_linear_areal
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;
 
-                replacer_of_method_and_operations_ec<false> replacer(method_none);
-                replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                turn_transformer_ec<false> transformer(method_none);
+                transformer(tp);
 
-                if ( tp.both(operation_continue) )
-                {
-                    tp.operations[0].is_collinear = true;
-                }
+                tp.operations[0].is_collinear = tp.both(operation_continue);
             }
 
             tp.method = ( ip_count > 1 ? ip1.is_qj : ip0.is_qj ) ? method_touch : method_touch_interior;
