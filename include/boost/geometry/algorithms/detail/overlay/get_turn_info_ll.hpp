@@ -44,8 +44,10 @@ struct get_turn_info_linear_linear
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
-            inters(pi, pj, pk, qi, qj, qk, robust_policy);
+        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
+            inters_info;
+
+        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -93,7 +95,13 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // Swap p/q
-                        side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator
+                            <
+                                typename inters_info::robust_point2_type,
+                                typename inters_info::robust_point1_type
+                            > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
+                                                inters.rpi(), inters.rpj(), inters.rpk());
+
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                                   tp, inters.i_info(), inters.d_info(),
                                                   swapped_side_calc);
@@ -143,14 +151,109 @@ struct get_turn_info_linear_linear
                     touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                                            tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                    if ( tp.operations[0].operation == operation_blocked )
+                    // workarounds for touch<> not taking spikes into account starts here
+                    // those was discovered empirically
+                    // touch<> is not symmetrical!
+                    // P spikes and Q spikes may produce various operations!
+                    // TODO: this is not optimal solution - think about rewriting touch<>
+
+                    if ( tp.operations[0].operation == operation_blocked
+                      && tp.operations[1].operation == operation_blocked )
                     {
-                        tp.operations[1].is_collinear = true;
+                        // two touching spikes on the same line
+                        if ( inters.is_spike_p() && inters.is_spike_q() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union; 
+                        }
+                        else
+                        {
+                            tp.operations[0].is_collinear = true;
+                            tp.operations[1].is_collinear = true;
+                        }
                     }
-                    if ( tp.operations[1].operation == operation_blocked )
+                    else if ( tp.operations[0].operation == operation_blocked )
                     {
-                        tp.operations[0].is_collinear = true;
+                        // a spike on P on the same line with Q1
+                        if ( inters.is_spike_p() )
+                        {
+                            if ( inters.sides().qk_wrt_p1() == 0 )
+                            {
+                                tp.operations[0].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[0].operation = operation_union;                                
+                            }
+                        }
+                        else
+                        {
+                            tp.operations[1].is_collinear = true;
+                        }
                     }
+                    else if ( tp.operations[1].operation == operation_blocked )
+                    {
+                        // a spike on Q on the same line with P1
+                        if ( inters.is_spike_q() )
+                        {
+                            if ( inters.sides().pk_wrt_q1() == 0 )
+                            {
+                                tp.operations[1].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[1].operation = operation_union;                                
+                            }
+                        }
+                        else
+                        {
+                            tp.operations[0].is_collinear = true;
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_continue
+                           && tp.operations[1].operation == operation_continue )
+                    {
+                        // P spike on the same line with Q2 (opposite)
+                        if ( inters.sides().pk_wrt_q1() == -inters.sides().qk_wrt_q1()
+                          && inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union; 
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_none
+                           && tp.operations[1].operation == operation_none )
+                    {
+                        // spike not handled by touch<>
+                        bool const is_p = inters.is_spike_p();
+                        bool const is_q = inters.is_spike_q();
+
+                        if ( is_p || is_q )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union;
+
+                            if ( inters.sides().pk_wrt_q2() == 0 )
+                            {
+                                tp.operations[0].operation = operation_continue; // will be converted to i
+                                if ( is_p )
+                                {
+                                    tp.operations[0].is_collinear = true;
+                                }
+                            }
+
+                            if ( inters.sides().qk_wrt_p2() == 0 )
+                            {
+                                tp.operations[1].operation = operation_continue; // will be converted to i
+                                if ( is_q )
+                                {
+                                    tp.operations[1].is_collinear = true;
+                                }
+                            }
+                        }
+                    }
+
+                    // workarounds for touch<> not taking spikes into account ends here
 
                     replace_method_and_operations_tm(tp.method,
                                                      tp.operations[0].operation,
@@ -190,8 +293,9 @@ struct get_turn_info_linear_linear
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                        replacer_of_method_and_operations_ec replacer(method_touch);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        // transform turn
+                        turn_transformer_ec transformer(method_touch);
+                        transformer(tp);
 
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -231,6 +335,7 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
+                    // NOTE: this is for spikes since those are set in the turn_transformer_ec
                     tp.operations[0].is_collinear = true;
                     tp.operations[1].is_collinear = true;
 
@@ -257,8 +362,9 @@ struct get_turn_info_linear_linear
                             //spike_op = operation_continue;
                         }
 
-                        replacer_of_method_and_operations_ec replacer(method_replace);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        // transform turn
+                        turn_transformer_ec transformer(method_replace);
+                        transformer(tp);
                         
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -277,7 +383,7 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // If this always 'm' ?
-                        replacer_of_method_and_operations_ec replacer(method_touch_interior);
+                        turn_transformer_ec transformer(method_touch_interior);
 
                         // conditionally handle spikes
                         if ( handle_spikes )
@@ -297,7 +403,7 @@ struct get_turn_info_linear_linear
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, inters.i_info(), inters.d_info(), inters.sides(),
-                                replacer, !is_p_last, !is_q_last);
+                                transformer, !is_p_last, !is_q_last);
                     }
                 }
             }
@@ -441,13 +547,13 @@ struct get_turn_info_linear_linear
             if ( Version == append_touches )
             {
                 tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = ???
+                tp.operations[1].is_collinear = false;
                 tp.method = method_touch;
             }
-            else
+            else // Version == append_collinear_opposite
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = true;
+                tp.operations[1].is_collinear = false;
                 
                 BOOST_ASSERT(inters.i_info().count > 1);
                 
@@ -472,14 +578,14 @@ struct get_turn_info_linear_linear
         {
             if ( Version == append_touches )
             {
-                //tp.operations[0].is_collinear = ???
+                tp.operations[0].is_collinear = false;
                 tp.operations[1].is_collinear = true;
                 tp.method = method_touch;
             }
-            else
+            else // Version == append_collinear_opposite
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = false;
+                tp.operations[1].is_collinear = true;
                 
                 BOOST_ASSERT(inters.i_info().count > 0);
 
@@ -543,17 +649,19 @@ struct get_turn_info_linear_linear
         }
     }
 
-    class replacer_of_method_and_operations_ec
+    class turn_transformer_ec
     {
     public:
-        explicit replacer_of_method_and_operations_ec(method_type method_t_or_m)
+        explicit turn_transformer_ec(method_type method_t_or_m)
             : m_method(method_t_or_m)
         {}
 
-       void operator()(method_type & method,
-                       operation_type & op0,
-                       operation_type & op1) const
+        template <typename Turn>
+        void operator()(Turn & turn) const
         {
+            operation_type & op0 = turn.operations[0].operation;
+            operation_type & op1 = turn.operations[1].operation;
+
             BOOST_ASSERT(op0 != operation_blocked || op1 != operation_blocked );
 
             if ( op0 == operation_blocked )
@@ -577,8 +685,13 @@ struct get_turn_info_linear_linear
             if ( op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
             {
-                method = m_method;
+                turn.method = m_method;
             }
+
+// TODO: is this correct?
+//       it's equivalent to comparing to operation_blocked at the beginning of the function
+            turn.operations[0].is_collinear = op0 != operation_intersection;
+            turn.operations[1].is_collinear = op1 != operation_intersection;
         }
 
     private:
