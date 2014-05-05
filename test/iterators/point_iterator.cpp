@@ -9,15 +9,22 @@
 // http://www.boost.org/users/license.html
 
 
-#include <iostream>
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_point_iterator
 #endif
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <iterator>
+#include <algorithm>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
+
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
@@ -25,6 +32,10 @@
 #include <boost/geometry/multi/geometries/register/multi_point.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
+
+#include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
@@ -34,6 +45,7 @@
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
+#include <boost/geometry/iterators/point_reverse_iterator.hpp>
 
 namespace bg = ::boost::geometry;
 namespace ba = ::boost::assign;
@@ -68,17 +80,43 @@ Geometry from_wkt(std::string const& wkt)
 }
 
 
+template <typename Iterator>
+inline std::ostream& print_point_range(std::ostream& os,
+                                       Iterator first,
+                                       Iterator beyond,
+                                       std::string const& header)
+{
+    os << header << "(";
+    for (Iterator it = first; it != beyond; ++it)
+    {
+        os << " " << bg::dsv(*it);
+    }
+    os << " )";
+    return os;
+}
+
 struct equals
 {
     template <typename Iterator>
     static inline std::size_t number_of_elements(Iterator begin,
                                                  Iterator end)
     {
+        std::size_t size = std::distance(begin, end);
+
         std::size_t num_elems(0);
         for (Iterator it = begin; it != end; ++it)
         {
             ++num_elems;
         }
+        BOOST_CHECK( size == num_elems );
+
+        num_elems = 0;
+        for (Iterator it = end; it != begin; --it)
+        {
+            ++num_elems;
+        }
+        BOOST_CHECK( size == num_elems );
+
         return num_elems;
     }
 
@@ -162,16 +200,37 @@ struct test_assignment
 template <typename Geometry, typename PointRange>
 struct test_point_iterator_of_geometry
 {
+    template <typename G, typename Point>
+    static inline void test_front_and_back(G& geometry,
+                                           Point const& front,
+                                           Point const& back)
+    {
+        BOOST_CHECK( bg::equals(bg::points_front(geometry), front) );
+        BOOST_CHECK( bg::equals(bg::points_back(geometry), back) );
+
+        BOOST_CHECK( bg::equals(front, *--bg::points_rend(geometry)) );
+        BOOST_CHECK( bg::equals(back, *bg::points_rbegin(geometry)) );
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "front: " << bg::dsv(bg::points_front(geometry))
+                  << std::endl;
+        std::cout << "back : " << bg::dsv(bg::points_back(geometry))
+                  << std::endl;
+        std::cout << std::endl;
+#endif
+    }
+
     template <typename G>
     static inline void base_test(G& geometry,
                                  PointRange const& point_range,
                                  std::string const& header)
     {
         typedef bg::point_iterator<G> point_iterator;
-        typedef bg::point_iterator<G const> const_point_iterator;
 
         point_iterator begin = bg::points_begin(geometry);
         point_iterator end = bg::points_end(geometry);
+
+        BOOST_CHECK( std::distance(begin, end) == bg::num_points(geometry) );
 
         BOOST_CHECK( equals::apply(begin, end,
                                    bg::points_begin(point_range),
@@ -180,24 +239,25 @@ struct test_point_iterator_of_geometry
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << header << " geometry: " << bg::wkt(geometry) << std::endl;
-        std::cout << "point range: (";
-        for (point_iterator pit = begin; pit != end; ++pit)
-        {
-            std::cout << " " << bg::dsv(*pit);
-        }
-        std::cout << " )" << std::endl;
+        print_point_range(std::cout, begin, end, "point range: ");
+        std::cout << std::endl;
 
         typedef bg::point_iterator<PointRange const> point_range_iterator;
 
-        point_range_iterator rng_begin = bg::points_begin(point_range);
-        point_range_iterator rng_end = bg::points_end(point_range);
-        std::cout << "expected point range: (";
-        for (point_range_iterator pit = rng_begin; pit != rng_end; ++pit)
-        {
-            std::cout << " " << bg::dsv(*pit);
-        }
-        std::cout << " )" << std::endl;
+        print_point_range(std::cout,
+                          bg::points_begin(point_range),
+                          bg::points_end(point_range),
+                          "expected point range: ");
+        std::cout << std::endl;
 #endif
+
+        // test points_front and points_back
+        if ( bg::points_begin(point_range) != bg::points_end(point_range) )
+        {
+            test_front_and_back(geometry,
+                                bg::points_front(point_range),
+                                bg::points_back(point_range));
+        }
     }
 
     static inline void apply(Geometry geometry, PointRange const& point_range)
@@ -224,9 +284,26 @@ struct test_point_iterator_of_geometry
         const_point_iterator const_begin = bg::points_begin(geometry);
         const_point_iterator const_end = bg::points_end(geometry);
 
+        // same for reverse iterator
+        typedef bg::point_reverse_iterator<Geometry> point_reverse_iterator;
+        typedef bg::point_reverse_iterator
+            <
+                Geometry const
+            > const_point_reverse_iterator;
+
+        point_reverse_iterator rbegin = bg::points_rbegin(geometry);
+        point_reverse_iterator rend = bg::points_rend(geometry);
+
+        const_point_reverse_iterator const_rbegin = bg::points_rbegin(geometry);
+        const_point_reverse_iterator const_rend = bg::points_rend(geometry);
+
         // testing assignment of non-const to const iterator
         const_begin = begin;
         const_end = end;
+
+        // testing assignment of non-const to const reverse_iterator
+        const_rbegin = rbegin;
+        const_rend = rend;
 
         // testing equality/inequality comparison
         BOOST_CHECK ( begin == const_begin );
@@ -237,6 +314,28 @@ struct test_point_iterator_of_geometry
             BOOST_CHECK ( const_begin != end );
         }
 
+        // testing equality/inequality comparison for reverse_iterator
+        BOOST_CHECK ( rbegin == const_rbegin );
+        BOOST_CHECK ( rend == const_rend );
+        if ( rbegin != rend )
+        {
+            BOOST_CHECK ( rbegin != const_rend );
+            BOOST_CHECK ( const_rbegin != rend );
+        }
+
+        if ( begin != end )
+        {
+            BOOST_CHECK( rbegin != rend );
+
+            point_reverse_iterator rlast(rend);
+            --rlast;
+            BOOST_CHECK( bg::equals(*begin, *rlast) );
+
+            point_iterator last(end);
+            --last;
+            BOOST_CHECK( bg::equals(*rbegin, *last) );
+        }
+        
         // testing dereferencing/assignment
         if ( begin != end )
         {
@@ -252,6 +351,51 @@ struct test_point_iterator_of_geometry
 
             *begin = p;
         }
+
+        // test with algorithms
+#ifdef GEOMETRY_TEST_DEBUG
+        print_point_range(std::cout, begin, end, "original:\n") << std::endl;
+        print_point_range(std::cout, rbegin, rend, "reverse traversal:\n")
+            << std::endl;
+        std::cout << bg::wkt(geometry) << std::endl;
+        std::cout << std::endl;
+#endif
+
+        std::reverse(begin, end);
+#ifdef GEOMETRY_TEST_DEBUG
+        print_point_range(std::cout, begin, end, "reversed:\n") << std::endl;
+        std::cout << bg::wkt(geometry) << std::endl;
+        std::cout << std::endl;
+#endif
+
+        std::reverse(begin, end);
+#ifdef GEOMETRY_TEST_DEBUG
+        print_point_range(std::cout, begin, end, "re-reversed:\n") << std::endl;
+        std::cout << bg::wkt(geometry) << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+#endif
+
+        typedef typename std::iterator_traits
+            <
+                point_iterator
+            >::value_type point;
+        if ( const_begin != const_end )
+        {
+            const_point_iterator pit_max = std::max_element(const_begin,
+                                                            const_end,
+                                                            bg::less<point>());
+
+            BOOST_CHECK( pit_max != const_end ); // to avoid warnings
+#ifdef GEOMETRY_TEST_DEBUG
+            std::cout << "max point: " << bg::dsv(*pit_max) << std::endl;
+#endif
+        }
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+#endif
     }
 };
 
