@@ -33,6 +33,36 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
+template <int Version = 0>
+struct expected_pusher
+{
+    static const int version = Version;
+
+    void push_back(std::string const& ex) { vec.push_back(ex); }
+    expected_pusher & operator()(std::string const& ex)
+    {
+        push_back(ex);
+        return *this;
+    }
+
+    typedef std::vector<std::string>::iterator iterator;
+    typedef std::vector<std::string>::const_iterator const_iterator;
+
+    iterator begin() { return vec.begin(); }
+    iterator end() { return vec.end(); }
+    const_iterator begin() const { return vec.begin(); }
+    const_iterator end() const { return vec.end(); }
+
+    std::vector<std::string> vec;
+};
+
+expected_pusher<1> expected(std::string const& ex)
+{
+    expected_pusher<1> res;
+    return res(ex);
+}
+
+template <int Version>
 struct equal_turn
 {
     equal_turn(std::string const& s) : turn_ptr(&s) {}
@@ -49,13 +79,46 @@ struct equal_turn
     const std::string * turn_ptr;
 };
 
-template <typename Geometry1, typename Geometry2, typename Range>
+template <>
+struct equal_turn<1>
+{
+    equal_turn(std::string const& s) : turn_ptr(&s) {}
+    
+    template <typename T>
+    bool operator()(T const& t) const
+    {
+        unsigned count = turn_ptr->size();
+        BOOST_ASSERT(turn_ptr && count >= 1);
+        return bg::method_char(t.method) == (*turn_ptr)[0]
+            && ( count > 1
+               ? bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
+               : true )
+            && ( count > 2
+               ? bg::operation_char(t.operations[1].operation) == (*turn_ptr)[2]
+               : true )
+            && ( count > 3
+               ? is_colinear_char(t.operations[0].is_collinear) == (*turn_ptr)[3]
+               : true )
+            && ( count > 4
+               ? is_colinear_char(t.operations[1].is_collinear) == (*turn_ptr)[4]
+               : true );
+    }
+
+    static inline char is_colinear_char(bool is_collinear)
+    {
+        return is_collinear ? '=' : '+';
+    }
+
+    const std::string * turn_ptr;
+};
+
+template <typename Geometry1, typename Geometry2, typename Expected>
 void check_geometry_range(
     Geometry1 const& g1,
     Geometry2 const& g2,
     std::string const& wkt1,
     std::string const& wkt2,
-    Range const& expected)
+    Expected const& expected)
 {
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
@@ -95,11 +158,11 @@ void check_geometry_range(
         "get_turns: " << wkt1 << " and " << wkt2
         << " -> Expected turns #: " << boost::size(expected) << " detected turns #: " << turns.size());
 
-    for ( typename boost::range_iterator<Range const>::type sit = boost::begin(expected) ;
+    for ( typename boost::range_iterator<Expected const>::type sit = boost::begin(expected) ;
           sit != boost::end(expected) ; ++sit)
     {
         typename std::vector<turn_info>::iterator
-            it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
+            it = std::find_if(turns.begin(), turns.end(), equal_turn<Expected::version>(*sit));
 
         if ( it != turns.end() )
             turns.erase(it);
@@ -112,9 +175,9 @@ void check_geometry_range(
     }
 }
 
-template <typename Geometry1, typename Geometry2, typename Range>
+template <typename Geometry1, typename Geometry2, typename Expected>
 void test_geometry_range(std::string const& wkt1, std::string const& wkt2,
-                         Range const& expected)
+                         Expected const& expected)
 {
     Geometry1 geometry1;
     Geometry2 geometry2;
@@ -127,67 +190,26 @@ template <typename G1, typename G2>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
                    std::string const& ex0)
 {
-    std::vector<std::string> expected;
-    expected.push_back(ex0);
-    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected(ex0));
 }
 
 template <typename G1, typename G2>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
     std::string const& ex0, std::string const& ex1)
 {
-    std::vector<std::string> expected;
-    expected.push_back(ex0);
-    expected.push_back(ex1);
-    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected(ex0)(ex1));
 }
 
 template <typename G1, typename G2>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
     std::string const& ex0, std::string const& ex1, std::string const& ex2)
 {
-    std::vector<std::string> expected;
-    expected.push_back(ex0);
-    expected.push_back(ex1);
-    expected.push_back(ex2);
-    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
+    test_geometry_range<G1, G2>(wkt1, wkt2, expected(ex0)(ex1)(ex2));
 }
 
-struct expected_pusher
-{
-    expected_pusher & operator()(std::string const& ex)
-    {
-        vec.push_back(ex);
-        return *this;
-    }
-
-    typedef std::vector<std::string>::iterator iterator;
-    typedef std::vector<std::string>::const_iterator const_iterator;
-
-    iterator begin() { return vec.begin(); }
-    iterator end() { return vec.end(); }
-    const_iterator begin() const { return vec.begin(); }
-    const_iterator end() const { return vec.end(); }
-
-    std::vector<std::string> vec;
-};
-
-expected_pusher expected(std::string const& ex)
-{
-    expected_pusher res;
-    return res(ex);
-}
-
-template <typename G1, typename G2>
+template <typename G1, typename G2, int Version>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
-                   std::vector<std::string> const& expected)
-{
-    test_geometry_range<G1, G2>(wkt1, wkt2, expected);
-}
-
-template <typename G1, typename G2>
-void test_geometry(std::string const& wkt1, std::string const& wkt2,
-                   expected_pusher const& expected)
+                   expected_pusher<Version> const& expected)
 {
     test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }
