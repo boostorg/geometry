@@ -401,6 +401,21 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(5 0,10 0))"),
          "lldf23"
          );
+
+    // the following two tests have been discussed with by Adam
+    tester::apply
+        (from_wkt<L>("LINESTRING(1 0,1 1,2 1)"),
+         from_wkt<L>("LINESTRING(2 1,1 1,1 0)"),
+         from_wkt<ML>("MULTILINESTRING()"),
+         "lldf24"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(1 0,1 1,2 1)"),
+         from_wkt<L>("LINESTRING(1 2,1 1,1 0)"),
+         from_wkt<ML>("MULTILINESTRING((1 1,2 1))"),
+         "lldf25"
+         );
 }
 
 
@@ -1098,7 +1113,6 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
          "mlmldf-spikes-07a"
          );
 
-#if 0 // get_turns has a bug for this one
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0))"),
          from_wkt<ML>("MULTILINESTRING((1 0,6 0,5 0),(11 0,10 0,12 0),\
@@ -1106,9 +1120,36 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
          from_wkt<ML>("MULTILINESTRING((0 0,1 0),(6 0,6.5 0),(8.5 0,10 0))"),
          "mlmldf-spikes-08"
          );
-#endif
 
     // now the first geometry has a spike
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,7 0,4 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,8 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(8 0,10 0))"),
+         "mlmldf-spikes-09"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,7 0,4 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0),(9 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,7 0,4 0,9 0))"),
+         "mlmldf-spikes-09a"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,7 0,4 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,5 0),(9 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((5 0,7 0,5 0),(5 0,9 0))"),
+         "mlmldf-spikes-09b"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,7 0,4 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,5 0),(6 0,10 0))"),
+         from_wkt<ML>("MULTILINESTRING((5 0,6 0),(6 0,5 0),(5 0,6 0))"),
+         "mlmldf-spikes-09c"
+         );
+
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((1 0,8 0))"),
@@ -1130,12 +1171,46 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
          "mlmldf-spikes-12"
          );
 
-#if 0 // get_turns has a bug for this one
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
+         from_wkt<ML>("MULTILINESTRING((11 -1,10 0,12 -2))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
+         "mlmldf-spikes-12a"
+         );
+
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
          from_wkt<ML>("MULTILINESTRING((11 0,10 0,12 0))"),
          from_wkt<ML>("MULTILINESTRING((0 0,10 0,5 0))"),
          "mlmldf-spikes-13"
          );
-#endif
+
+    // the following three tests have been discussed with Adam
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1))"),
+         from_wkt<ML>("MULTILINESTRING((1 2,1 1,1 2))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1))"),
+         "mlmldf-spikes-14"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,1 0,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,1 0,2 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 0,0 0))"),
+         "mlmldf-spikes-15"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1))"),
+         from_wkt<ML>("MULTILINESTRING((2 0,1 1,2 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1))"),
+         "mlmldf-spikes-16"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((1 0,1 1,2 1))"),
+         from_wkt<ML>("MULTILINESTRING((2 1,1 1,2 1))"),
+         from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
+         "mlmldf-spikes-17"
+         );
 }
