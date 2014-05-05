@@ -1520,4 +1520,20 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_spikes )
          from_wkt<ML>("MULTILINESTRING((2 1,1 1,2 1))"),
          "mlmli-spikes-17"
          );
+
+    // test cases sent by Adam on the mailing list (equal slikes)
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         "mlmli-spikes-18"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 1,0 0,1 1))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 1,0 0,1 1))"),
+         "mlmli-spikes-19"
+         );
 }

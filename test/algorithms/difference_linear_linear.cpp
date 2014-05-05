@@ -1213,4 +1213,19 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
          from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
          "mlmldf-spikes-17"
          );
+
+    // test cases sent by Adam on the mailing list (equal slikes)
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING()"),
+         "mlmldf-spikes-18"
+         );
+
+    tester::apply
+        (from_wkt<ML>("MULTILINESTRING((0 0,1 1,0 0))"),
+         from_wkt<ML>("MULTILINESTRING((1 1,0 0,1 1))"),
+         from_wkt<ML>("MULTILINESTRING()"),
+         "mlmldf-spikes-19"
+         );
 }
