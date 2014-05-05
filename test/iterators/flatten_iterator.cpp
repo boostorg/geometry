@@ -14,80 +14,27 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <iterator>
 
 #include <vector>
 #include <list>
 
 #include <boost/mpl/if.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/std/list.hpp>
 #include <boost/assign/std/set.hpp>
+
+#include "test_iterator_common.hpp"
+
 #include <boost/geometry/iterators/flatten_iterator.hpp>
 
 using namespace boost::assign;
-
-template <typename Iterator>
-std::ostream& print_container(std::ostream& os,
-                              Iterator begin, Iterator end,
-                              std::string const& header)
-{
-    std::cout << header;
-    for (Iterator it = begin; it != end; ++it)
-    {
-        os << " " << *it;
-    }
-    return os;
-}
-
-
-template <typename Iterator>
-std::ostream& print_nested_container(std::ostream& os,
-                                     Iterator begin, Iterator end,
-                                     std::string const& header)
-{
-    std::cout << header;
-    for (Iterator outer = begin; outer != end; ++outer)
-    {
-        os << " (";
-        for (BOOST_AUTO_TPL(inner, outer->begin());
-             inner != outer->end(); ++inner)
-        {
-            if ( inner != outer->begin() )
-            {
-                os << " ";
-            }
-            os << *inner;
-        }
-        os << ") ";
-    }
-    return os;
-}
-
-
-template <typename T>
-struct is_odd
-{
-    inline bool operator()(T const& t) const
-    {
-        return t % 2 != 0;
-    }
-};
-
-
-template <typename T>
-struct is_even
-{
-    inline bool operator()(T const& t) const
-    {
-        return !is_odd<T>()(t);
-    }
-};
-
 
 
 template <typename InnerContainer>
@@ -139,6 +86,66 @@ std::size_t number_of_elements(NestedContainer const& c)
 
 struct test_flatten_iterator
 {
+    template
+    <
+        typename FlattenIterator,
+        typename ConstFlattenIterator,
+        typename NestedContainer
+    >
+    static inline
+    void test_using_max_element(FlattenIterator first,
+                                FlattenIterator beyond,
+                                ConstFlattenIterator const_first,
+                                ConstFlattenIterator const_beyond,
+                                NestedContainer const& c)
+    {
+        typedef typename std::iterator_traits
+            <
+                FlattenIterator
+            >::value_type value_type;
+
+        typedef typename NestedContainer::const_iterator const_outer_iterator;
+        typedef typename NestedContainer::value_type inner_container;
+        typedef typename inner_container::const_iterator const_inner_iterator;
+
+        if ( first == beyond )
+        {
+            return;
+        }
+
+        FlattenIterator it_max = std::max_element(first, beyond);
+        ConstFlattenIterator const_it_max =
+            std::max_element(const_first, const_beyond);
+
+        BOOST_CHECK( it_max == const_it_max );
+        BOOST_CHECK( *it_max == *const_it_max );
+
+        value_type old_value = *const_first;
+        value_type new_value = *it_max + 1;
+
+        *first = *it_max + 1;
+        const_outer_iterator outer = c.begin();
+        while ( outer->begin() == outer->end() )
+        {
+            ++outer;
+        }
+        const_inner_iterator inner = outer->begin();
+            
+        BOOST_CHECK( *inner == new_value );
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << std::endl;
+        std::cout << "modified 1st element of 1st non-empty "
+                  << "inner container:" << std::endl;
+        print_nested_container(std::cout, c.begin(), c.end(), "nested   :")
+            << std::endl;
+        print_container(std::cout, first, beyond, "flattened:") << std::endl;
+#endif
+
+        *first = old_value;
+        BOOST_CHECK( *inner == old_value );
+    }
+
     template <typename NestedContainer>
     static inline void apply(NestedContainer& c,
                              std::string const& case_id,
@@ -175,6 +182,10 @@ struct test_flatten_iterator
                 access_end<inner_container>
             > flatten_iterator;
 
+        typedef typename std::iterator_traits
+            <
+                flatten_iterator
+            >::value_type value_type;
 
         flatten_iterator begin(c.begin(), c.end());
         flatten_iterator end(c.end());
@@ -183,19 +194,30 @@ struct test_flatten_iterator
         const_begin = begin;
         const_end = end;
 
-        std::size_t size(0);
-        for (const_flatten_iterator it = const_begin; it != const_end; ++it)
+        // test copying, dereferencing and element equality
+        std::vector<value_type> combined;
+        for (const_outer_iterator outer = c.begin();
+             outer != c.end(); ++outer)
         {
-            ++size;
+            std::copy(outer->begin(), outer->end(),
+                      std::back_inserter(combined));
         }
-        BOOST_CHECK( number_of_elements(c) == size );
+        test_equality(begin, end, combined);
+        test_equality(const_begin, const_end, combined);        
 
-        size = 0;
-        for (flatten_iterator it = begin; it != end; ++it)
-        {
-            ++size;
-        }
-        BOOST_CHECK( number_of_elements(c) == size );
+        combined.clear();
+        std::copy(begin, end, std::back_inserter(combined));
+        test_equality(begin, end, combined);
+        test_equality(const_begin, const_end, combined);
+
+        combined.clear();
+        std::copy(const_begin, const_end, std::back_inserter(combined));
+        test_equality(begin, end, combined);
+        test_equality(const_begin, const_end, combined);
+
+        // test sizes (and std::distance)
+        test_size(begin, end, combined);
+        test_size(const_begin, const_end, combined);
 
 #ifdef GEOMETRY_TEST_DEBUG
         print_nested_container(std::cout, c.begin(), c.end(), "nested    :")
@@ -214,102 +236,14 @@ struct test_flatten_iterator
         }
 #endif
 
-        {
-            const_flatten_iterator it = begin;
-            const_outer_iterator outer_begin = c.begin();
-            const_outer_iterator outer_end = c.end();
-            for (const_outer_iterator outer = outer_begin;
-                 outer != outer_end; ++outer)
-            {
-                const_inner_iterator inner_begin = outer->begin();
-                const_inner_iterator inner_end = outer->end();
-                for (const_inner_iterator inner = inner_begin;
-                     inner != inner_end; ++inner, it++)
-                    // it++, instead of ++it, on purpose here
-                {
-                    BOOST_CHECK( *it == *inner );
-                }
-            }
-        }
+        // perform reversals (std::reverse)
+        test_using_reverse(begin, end, combined);
 
-        typedef typename std::iterator_traits
-            <
-                flatten_iterator
-            >::value_type value_type;
+        // test std::max_element, dereferencing and value assigment
+        test_using_max_element(begin, end, const_begin, const_end, c);
 
-        if ( begin != end )
-        {
-            flatten_iterator it_max = std::max_element(begin, end);
-            const_flatten_iterator const_it_max =
-                std::max_element(const_begin, const_end);
-
-            BOOST_CHECK( it_max == const_it_max );
-            BOOST_CHECK( *it_max == *const_it_max );
-
-            value_type old_value = *const_begin;
-            value_type new_value = *it_max + 1;
-
-            *begin = *it_max + 1;
-            const_outer_iterator outer = c.begin();
-            while ( outer->begin() == outer->end() )
-            {
-                ++outer;
-            }
-            const_inner_iterator inner = outer->begin();
-            
-            BOOST_CHECK( *inner == new_value );
-
-#ifdef GEOMETRY_TEST_DEBUG
-            std::cout << std::endl;
-            std::cout << "modified 1st element of 1st non-empty "
-                      << "inner container:" << std::endl;
-            print_nested_container(std::cout, c.begin(), c.end(), "nested   :")
-                << std::endl;
-            print_container(std::cout, begin, end, "flattened:")
-                << std::endl;
-#endif
-
-            *begin = old_value;
-            BOOST_CHECK( *inner == old_value );
-        }
-
-
-        if ( begin != end )
-        {
-#ifdef GEOMETRY_TEST_DEBUG
-            std::cout << std::endl;
-            std::cout << "odd elements removed:" << std::endl;
-            print_nested_container(std::cout, c.begin(), c.end(),
-                                   "nested before:")
-                << std::endl;
-            print_container(std::cout, begin, end,
-                            "flattended before:")
-                << std::endl;
-#endif
-            typename std::iterator_traits<flatten_iterator>::difference_type
-                num_even = std::count_if(begin, end, is_even<int>());
-
-            flatten_iterator new_end =
-                std::remove_if(begin, end, is_odd<value_type>());
-
-            std::size_t new_size(0);
-            for (const_flatten_iterator it = const_begin; it != new_end; ++it)
-            {
-                ++new_size;
-                BOOST_CHECK( !is_odd<value_type>()(*it) );
-            }
-            BOOST_CHECK( new_size == static_cast<std::size_t>(num_even) );
-
-#ifdef GEOMETRY_TEST_DEBUG
-            std::cout << std::endl;
-            print_nested_container(std::cout, c.begin(), c.end(),
-                                   "nested after (all elements) :")
-                << std::endl;
-            print_container(std::cout, begin, new_end, "flattened after :")
-                << std::endl;
-#endif
-        }
-
+        // test std::count_if / std::remove_if
+        test_using_remove_if(begin, end, combined);
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "====================" << std::endl << std::endl;
 #endif
