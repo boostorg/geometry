@@ -125,7 +125,12 @@ template
     overlay_type OverlayType,
     bool EnableFilterContinueTurns = false,
     bool EnableRemoveDuplicateTurns = false,
-    bool EnableDegenerateTurns = true
+    bool EnableDegenerateTurns = true,
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
+    bool EnableFollowIsolatedPoints = false
+#else
+    bool EnableFollowIsolatedPoints = true
+#endif
 >
 class linear_linear_linestring
 {
@@ -147,7 +152,6 @@ protected:
         static inline void apply(Info& , Point1 const& , Point2 const& ,
                                  IntersectionInfo const& , DirInfo const& )
         {
-            //calculate_distance_policy::apply(info, p1, p2, ii, di);
         }
     };
 
@@ -256,7 +260,9 @@ public:
 
         return sort_and_follow_turns
             <
-                OverlayType, OverlayType == overlay_intersection
+                OverlayType,
+                EnableFollowIsolatedPoints
+                && OverlayType == overlay_intersection
             >(turns, linear1, linear2, oit);
     }
 };
@@ -271,13 +277,14 @@ template
     typename LinestringOut,
     bool EnableFilterContinueTurns,
     bool EnableRemoveDuplicateTurns,
-    bool EnableDegenerateTurns
+    bool EnableDegenerateTurns,
+    bool EnableFollowIsolatedPoints
 >
 struct linear_linear_linestring
     <
         Linear1, Linear2, LinestringOut, overlay_union,
         EnableFilterContinueTurns, EnableRemoveDuplicateTurns,
-        EnableDegenerateTurns
+        EnableDegenerateTurns, EnableFollowIsolatedPoints
     >
 {
     template
@@ -302,7 +309,7 @@ struct linear_linear_linestring
             <
                 Linear2, Linear1, LinestringOut, overlay_difference,
                 EnableFilterContinueTurns, EnableRemoveDuplicateTurns,
-                EnableDegenerateTurns
+                EnableDegenerateTurns, EnableFollowIsolatedPoints
             >::apply(linear2, linear1, robust_policy, oit, strategy);
     }
 };
