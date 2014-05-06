@@ -412,7 +412,9 @@ struct linear_linear
                 // couldn't is_collinear and some going inside counter be used instead?
 
                 bool is_collinear = it->operations[op_id].is_collinear;
-                bool was_outside = m_exit_watcher.is_outside();
+                bool was_outside = m_exit_watcher.is_outside()
+                                && m_exit_watcher.get_exit_operation() == overlay::operation_none;
+// TODO: move the above condition into the exit_watcher?
 
                 // to exit we must be currently inside and the current segment must be collinear
                 if ( !was_outside && is_collinear )
@@ -454,7 +456,9 @@ struct linear_linear
                 else
                 {
                     // if we are truly outside
-                    if ( was_outside /*&& !is_collinear*/ )
+                    if ( was_outside
+                      && it->operations[op_id].position != overlay::position_front
+                      /*&& !is_collinear*/ )
                     {
                         update<interior, exterior, '1', transpose_result>(res);
                     }
@@ -520,7 +524,11 @@ struct linear_linear
                         }
 
                         // first IP on the last segment point - this means that the first point is outside
-                        if ( first_in_range && ( !this_b || op_blocked ) && was_outside /*&& !is_collinear*/ )
+                        if ( first_in_range
+                          && ( !this_b || op_blocked )
+                          && was_outside
+                          && it->operations[op_id].position != overlay::position_front
+                          /*&& !is_collinear*/ )
                         {
                             bool front_b = is_endpoint_on_boundary<boundary_front>(
                                                 range::front(sub_range(geometry, seg_id)),

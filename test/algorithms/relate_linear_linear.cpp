@@ -17,7 +17,7 @@
 #include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 template <typename P>
 void test_linestring_linestring()
@@ -226,6 +226,21 @@ void test_linestring_multi_linestring()
                            "MULTILINESTRING((1 0,9 0),(9 0,2 0))",
                            "101FF0FF2");
 
+    // rings
+    test_geometry<ls, mls>("LINESTRING(0 0,5 0,5 5,0 5,0 0)",
+                           "MULTILINESTRING((5 5,0 5,0 0),(0 0,5 0,5 5))",
+                           "1FFFFFFF2");
+    test_geometry<ls, mls>("LINESTRING(0 0,5 0,5 5,0 5,0 0)",
+                           "MULTILINESTRING((5 5,5 0,0 0),(0 0,0 5,5 5))",
+                           "1FFFFFFF2");
+    // overlapping rings
+    test_geometry<ls, mls>("LINESTRING(0 0,5 0,5 5,0 5,0 0)",
+                           "MULTILINESTRING((5 5,0 5,0 0),(0 0,5 0,5 5,0 5))",
+                           "10FFFFFF2");
+    test_geometry<ls, mls>("LINESTRING(0 0,5 0,5 5,0 5,0 0)",
+                           "MULTILINESTRING((5 5,5 0,0 0),(0 0,0 5,5 5,5 0))",
+                           "10FFFFFF2");
+
     // INVALID LINESTRINGS
     // 1-point LS (a Point) disjoint
     //test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1))", "101FF00F2");
@@ -325,6 +340,10 @@ void test_multi_linestring_multi_linestring()
     test_geometry<mls, mls>("MULTILINESTRING((0 0, 0 0),(1 1, 1 1))",
                             "MULTILINESTRING((2 2, 2 2),(3 3, 3 3))",
                             "FF0FFF0F2");
+
+    test_geometry<mls, mls>("MULTILINESTRING((0 5,10 5,10 10,5 10),(5 10,5 0,5 2),(5 2,5 5,0 5))",
+                            "MULTILINESTRING((5 5,0 5),(5 5,5 0),(10 10,10 5,5 5,5 10,10 10))",
+                            "10FFFFFF2");
 }
 
 template <typename P>

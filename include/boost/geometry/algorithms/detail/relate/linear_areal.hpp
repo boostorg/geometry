@@ -653,7 +653,10 @@ struct linear_areal
             else if ( op == overlay::operation_union || op == overlay::operation_blocked )
             {
                 bool op_blocked = op == overlay::operation_blocked;
-                bool no_enters_detected = m_exit_watcher.is_outside();
+                bool no_enters_detected = m_exit_watcher.is_outside()
+// TODO: is this condition ok?
+// TODO: move it into the exit_watcher?
+                    && m_exit_watcher.get_exit_operation() == overlay::operation_none;
                     
                 if ( op == overlay::operation_union )
                 {
