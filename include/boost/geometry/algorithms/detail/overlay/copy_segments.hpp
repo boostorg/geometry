@@ -17,7 +17,7 @@
 
 #include <boost/array.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include <vector>
 
 #include <boost/assert.hpp>
