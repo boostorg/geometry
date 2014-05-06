@@ -72,7 +72,7 @@ BOOST_GEOMETRY_REGISTER_MULTI_POINT(tuple_multi_point_type_3d)
 
 
 template <typename Geometry>
-Geometry from_wkt(std::string const& wkt)
+inline Geometry from_wkt(std::string const& wkt)
 {
     Geometry geometry;
     boost::geometry::read_wkt(wkt, geometry);

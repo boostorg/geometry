@@ -22,9 +22,9 @@
 // helper functions for testing the concatenate and flatten iterators
 
 template <typename Iterator>
-std::ostream& print_container(std::ostream& os,
-                              Iterator begin, Iterator end,
-                              std::string const& header)
+inline std::ostream& print_container(std::ostream& os,
+                                     Iterator begin, Iterator end,
+                                     std::string const& header)
 {
     std::cout << header;
     for (Iterator it = begin; it != end; ++it)
@@ -36,9 +36,9 @@ std::ostream& print_container(std::ostream& os,
 
 
 template <typename Iterator>
-std::ostream& print_nested_container(std::ostream& os,
-                                     Iterator begin, Iterator end,
-                                     std::string const& header)
+inline std::ostream& print_nested_container(std::ostream& os,
+                                            Iterator begin, Iterator end,
+                                            std::string const& header)
 {
     typedef typename std::iterator_traits<Iterator>::value_type inner_container;
     typedef typename inner_container::const_iterator inner_iterator;

@@ -72,7 +72,7 @@ struct access_end
 
 
 template <typename NestedContainer>
-std::size_t number_of_elements(NestedContainer const& c)
+inline std::size_t number_of_elements(NestedContainer const& c)
 {
     std::size_t num_elements(0);
     for (typename NestedContainer::const_iterator outer = c.begin();

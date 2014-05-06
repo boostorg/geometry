@@ -212,8 +212,8 @@ struct test_concatenate_iterator
 
 
 template <typename Container1, typename Container2>
-void test_concatenation_of_containers(Container1& c1, Container2& c2,
-                                      std::string const& containers_id)
+inline void test_concatenation_of_containers(Container1& c1, Container2& c2,
+                                             std::string const& containers_id)
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
