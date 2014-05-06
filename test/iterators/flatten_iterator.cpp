@@ -25,7 +25,7 @@
 #include <list>
 
 #include <boost/mpl/if.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/std/list.hpp>
 #include <boost/assign/std/set.hpp>
