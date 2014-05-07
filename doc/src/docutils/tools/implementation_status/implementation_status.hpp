@@ -10,5 +10,7 @@
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/multi/multi.hpp>
 #include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 

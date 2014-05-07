@@ -39,8 +39,8 @@ struct compile_bjam
     {
         std::ostringstream command;
         // For debugging:
-        command << "bjam -a tmp > tmp/t" << type1 << "_" << type2 << ".out";
-        //command << "bjam -a tmp > tmp/t.out";
+        command << "b2 -a tmp > tmp/t" << type1 << "_" << type2 << ".out";
+        //command << "b2 -a tmp > tmp/t.out";
         int failed = system(command.str().c_str());
         return failed == 0;
     }
@@ -326,7 +326,7 @@ int main(int argc, char** argv)
 ]*/
 
         std::ostringstream name;
-        name << "../../../../generated/" << it->name << "_status.qbk";
+        name << "../../../../reference/status/" << it->name << "_status.qbk";
 
         std::ofstream out(name.str().c_str());
         out << "[heading Supported geometries]" << std::endl;
@@ -387,7 +387,7 @@ int main(int argc, char** argv)
                 for (unsigned int j = 0; j != table[i].size(); ++j)
                 {
                     if (!columns_status[j]) continue;
-                    out << "[[$img/" << (table[i][j] ? "ok" : "nyi") << ".png]]";
+                    out << "[ [$img/" << (table[i][j] ? "ok" : "nyi") << ".png] ]";
                 }
                 out << "]" << std::endl;
             }
