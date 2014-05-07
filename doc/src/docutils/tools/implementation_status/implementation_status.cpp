@@ -32,16 +32,55 @@ static const int multi_linestring = 7;
 static const int multi_polygon = 8;
 static const int geometry_count = 9;
 
-
 struct compile_bjam
 {
-    static inline bool apply(int type1, int type2)
+    static inline bool apply(std::string const& id)
     {
         std::ostringstream command;
         // For debugging:
-        command << "b2 -a tmp > tmp/t" << type1 << "_" << type2 << ".out";
+        command << "b2 -a tmp > tmp/t_" << id << ".out";
         //command << "b2 -a tmp > tmp/t.out";
         int failed = system(command.str().c_str());
+
+        {
+            // For debugging: save t.cpp
+            std::ostringstream c2;
+            c2 << "cp tmp/t.cpp tmp/t_" << id << ".cpp";
+            system(c2.str().c_str());
+        }
+        return failed == 0;
+    }
+};
+
+
+struct compile_clang
+{
+    bool first;
+
+    compile_clang()
+        : first(true)
+    {}
+
+    inline bool apply(std::string const& id)
+    {
+        if (first)
+        {
+           // Generate the pre-compiled header
+           system("clang -x c++-header -I . -I ../../../../../../.. implementation_status.hpp");
+           first = false;
+        }
+
+        std::ostringstream command;
+        // We compile only, not even link
+        command << "clang -include implementation_status.hpp -I . -I ../../../../../../.. -c tmp/t.cpp > tmp/t_" << id << ".out 2>&1";
+        int failed = system(command.str().c_str());
+
+        {
+            // For debugging: save t.cpp
+            std::ostringstream c2;
+            c2 << "cp tmp/t.cpp tmp/t_" << id << ".cpp";
+            system(c2.str().c_str());
+        }
         return failed == 0;
     }
 };
@@ -56,7 +95,7 @@ struct compile_msvc
         , count(0)
     {}
 
-    inline bool apply(int type1, int type2)
+    inline bool apply(std::string const& id)
     {
         std::ostringstream command;
         command << "cl /nologo -I. -I/_svn/boost/trunk /EHsc /Y";
@@ -73,7 +112,7 @@ struct compile_msvc
 
         command << "implementation_status.hpp tmp/t.cpp > tmp/t" //.out";
             // For debugging:
-            << type1 << "_" << type2 << ".out";
+            << id << ".out";
 
         int failed = system(command.str().c_str());
         return failed == 0;
@@ -133,7 +172,7 @@ inline std::string wkt_string(int type)
         case point : return "POINT(1 1)";
         case linestring : return "LINESTRING(1 1,2 2)";
         case segment : return "LINESTRING(1 1,2 2)";
-        case box : return "POLYGON((1 1,2 2)";
+        case box : return "POLYGON((1 1,2 2))";
         case polygon :
         case ring :
             return "POLYGON((0 0,0 1,1 1,0 0))";
@@ -160,7 +199,6 @@ inline std::string geometry_string(int type)
     }
     return "";
 }
-
 
 template <typename CompilePolicy>
 int report_library(CompilePolicy& compile_policy,
@@ -220,7 +258,9 @@ int report_library(CompilePolicy& compile_policy,
                 out << "  bg::" << algo.name << "(geometry);" << std::endl;
                 break;
             case 2 :
-                out << "  bg::" << algo.name << "(geometry, geometry2);" << std::endl;
+                // For cases as point-in-polygon, take first geometry 2 (point), then geometry (polygon) such that
+                // it is listed as column:point in row:polygon
+                out << "  bg::" << algo.name << "(geometry2, geometry);" << std::endl;
                 break;
         }
 
@@ -240,7 +280,7 @@ int report_library(CompilePolicy& compile_policy,
             ;
     }
 
-    bool result = compile_policy.apply(type, type2);
+    bool result = compile_policy.apply(lit);
     if (! result)
     {
         std::cout << " ERROR";
@@ -344,6 +384,7 @@ int main(int argc, char** argv)
             }
 
 
+#if SURPRESS
             // Detect red rows/columns
 
             std::vector<int> lines_status(table.size(), false);
@@ -357,6 +398,7 @@ int main(int argc, char** argv)
                     columns_status[j] |= table[i][j];
                 }
             }
+#endif
 
 
             // Display the table
@@ -368,7 +410,9 @@ int main(int argc, char** argv)
                 out << "[ ]";
                 for (int type = point; type < geometry_count; type++)
                 {
+#if SURPRESS
                     if (!columns_status[type]) continue;
+#endif
                     out << "[" << geometry_string(type) << "]";
                 }
             }
@@ -381,12 +425,16 @@ int main(int argc, char** argv)
 
             for (unsigned int i = 0; i != table.size(); ++i)
             {
+#if SURPRESS
                 if (!lines_status[i]) continue;
+#endif
                 out << "[";
                 out << "[" << geometry_string(i) << "]";
                 for (unsigned int j = 0; j != table[i].size(); ++j)
                 {
+#if SURPRESS
                     if (!columns_status[j]) continue;
+#endif
                     out << "[ [$img/" << (table[i][j] ? "ok" : "nyi") << ".png] ]";
                 }
                 out << "]" << std::endl;
