@@ -14,7 +14,7 @@
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 
 #include <boost/range.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/mpl/if.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
