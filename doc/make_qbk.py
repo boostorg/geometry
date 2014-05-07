@@ -169,4 +169,4 @@ execfile("make_qbk.py")
 os.chdir("..")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
-run_command("bjam")
+run_command("b2")
