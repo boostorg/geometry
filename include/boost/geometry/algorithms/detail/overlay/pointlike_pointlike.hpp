@@ -16,7 +16,6 @@
 
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -72,8 +71,9 @@ struct copy_points<PointOut, MultiPointIn, multi_point_tag>
     static inline void apply(MultiPointIn const& multi_point_in,
                              OutputIterator& oit)
     {
-        BOOST_AUTO_TPL(it, boost::begin(multi_point_in));
-        for (; it != boost::end(multi_point_in); ++it)
+        for (typename boost::range_iterator<MultiPointIn const>::type
+                 it = boost::begin(multi_point_in);
+             it != boost::end(multi_point_in); ++it)
         {
             PointOut point_out;
             geometry::convert(*it, point_out);
@@ -185,8 +185,9 @@ struct multipoint_point_point
     {
         BOOST_ASSERT( OverlayType == overlay_difference );
 
-        BOOST_AUTO_TPL(it, boost::begin(multipoint));
-        for (; it != boost::end(multipoint); ++it)
+        for (typename boost::range_iterator<MultiPoint const>::type
+                 it = boost::begin(multipoint);
+             it != boost::end(multipoint); ++it)
         {
             action_selector_pl_pl
                 <
@@ -220,8 +221,9 @@ struct point_multipoint_point
     {
         typedef action_selector_pl_pl<PointOut, OverlayType> action;
 
-        BOOST_AUTO_TPL(it, boost::begin(multipoint));
-        for (; it != boost::end(multipoint); ++it)
+        for (typename boost::range_iterator<MultiPoint const>::type
+                 it = boost::begin(multipoint);
+             it != boost::end(multipoint); ++it)
         {
             if ( detail::equals::equals_point_point(*it, point) )
             {
@@ -268,8 +270,9 @@ struct multipoint_multipoint_point
 
         std::sort(points2.begin(), points2.end(), detail::relate::less());
 
-        BOOST_AUTO_TPL(it1, boost::begin(multipoint1));
-        for (; it1 != boost::end(multipoint1); ++it1)
+        for (typename boost::range_iterator<MultiPoint1 const>::type
+                 it1 = boost::begin(multipoint1);
+             it1 != boost::end(multipoint1); ++it1)
         {
             bool found = std::binary_search(points2.begin(), points2.end(),
                                             *it1, detail::relate::less());
