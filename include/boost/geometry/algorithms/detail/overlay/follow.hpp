@@ -5,11 +5,11 @@
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
@@ -140,7 +140,7 @@ static inline bool was_entered(Turn const& turn, Operation const& op, bool first
 
 
 // Template specialization structure to call the right actions for the right type
-template<overlay_type OverlayType>
+template <overlay_type OverlayType, bool RemoveSpikes = true>
 struct action_selector
 {
     // If you get here the overlay type is not intersection or difference
@@ -148,8 +148,8 @@ struct action_selector
 };
 
 // Specialization for intersection, containing the implementation
-template<>
-struct action_selector<overlay_intersection>
+template <bool RemoveSpikes>
+struct action_selector<overlay_intersection, RemoveSpikes>
 {
     template
     <
@@ -193,7 +193,10 @@ struct action_selector<overlay_intersection>
     {
         // On leave, copy all segments from starting point, append the intersection point
         // and add the output piece
-        geometry::copy_segments<false>(linestring, segment_id, index, robust_policy, current_piece);
+        detail::copy_segments::copy_segments_linestring
+            <
+                false, RemoveSpikes
+            >::apply(linestring, segment_id, index, robust_policy, current_piece);
         detail::overlay::append_no_duplicates(current_piece, point);
         if (::boost::size(current_piece) > 1)
         {
@@ -248,10 +251,10 @@ struct action_selector<overlay_intersection>
 };
 
 // Specialization for difference, which reverses these actions
-template<>
-struct action_selector<overlay_difference>
+template <bool RemoveSpikes>
+struct action_selector<overlay_difference, RemoveSpikes>
 {
-    typedef action_selector<overlay_intersection> normal_action;
+    typedef action_selector<overlay_intersection, RemoveSpikes> normal_action;
 
     template
     <
@@ -343,12 +346,13 @@ template
     typename LineStringOut,
     typename LineString,
     typename Polygon,
-    overlay_type OverlayType
+    overlay_type OverlayType,
+    bool RemoveSpikes = true
 >
 class follow
 {
 
-    template<typename Turn>
+    template <typename Turn>
     struct sort_on_segment
     {
         // In case of turn point at the same location, we want to have continue/blocked LAST
@@ -409,7 +413,10 @@ public :
             Geometry const& geometry,
             RobustPolicy const& robust_policy)
     {
-        return following::action_selector<OverlayType>::included(point, geometry, robust_policy);
+        return following::action_selector
+            <
+                OverlayType, RemoveSpikes
+            >::included(point, geometry, robust_policy);
     }
 
     template
@@ -431,7 +438,7 @@ public :
                 typename turn_type::container_type
             >::type turn_operation_iterator_type;
 
-        typedef following::action_selector<OverlayType> action;
+        typedef following::action_selector<OverlayType, RemoveSpikes> action;
 
         // Sort intersection points on segments-along-linestring, and distance
         // (like in enrich is done for poly/poly)
@@ -484,10 +491,12 @@ public :
 
         if (action::is_entered(entered))
         {
-            geometry::copy_segments<false>(linestring, current_segment_id,
-                    boost::size(linestring) - 1,
-                    robust_policy,
-                    current_piece);
+            detail::copy_segments::copy_segments_linestring
+                <
+                    false, RemoveSpikes
+                >::apply(linestring, current_segment_id,
+                         boost::size(linestring) - 1, robust_policy,
+                         current_piece);
         }
 
         // Output the last one, if applicable
