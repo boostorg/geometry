@@ -12,8 +12,8 @@
 
 [library Geometry
     [quickbook 1.5]
-    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz], [Wulkiewicz, Adam]]
-    [copyright 2009-2013 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz]
+    [authors [Gehrels, Barend], [Lalande, Bruno], [Loskot, Mateusz], [Wulkiewicz, Adam], [Karavelas, Menelaos]]
+    [copyright 2009-2014 Barend Gehrels, Bruno Lalande, Mateusz Loskot, Adam Wulkiewicz, Oracle and/or its affiliates]
     [purpose Documentation of Boost.Geometry library]
     [license
         Distributed under the Boost Software License, Version 1.0.
