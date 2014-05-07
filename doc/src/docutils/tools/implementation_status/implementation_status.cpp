@@ -336,14 +336,18 @@ int main(int argc, char** argv)
     typedef std::vector<algorithm> v_a_type;
     v_a_type algorithms;
     algorithms.push_back(algorithm("area"));
-    algorithms.push_back(algorithm("length"));
-    algorithms.push_back(algorithm("perimeter"));
+    algorithms.push_back(algorithm("clear"));
     algorithms.push_back(algorithm("correct"));
+    algorithms.push_back(algorithm("length"));
+    algorithms.push_back(algorithm("num_points"));
+    algorithms.push_back(algorithm("perimeter"));
+
+    algorithms.push_back(algorithm("covered_by", 2));
     algorithms.push_back(algorithm("distance", 2));
     algorithms.push_back(algorithm("centroid", 2));
+    algorithms.push_back(algorithm("equals", 2));
     algorithms.push_back(algorithm("intersects", 2));
     algorithms.push_back(algorithm("within", 2));
-    algorithms.push_back(algorithm("equals", 2));
 
     typedef std::vector<cs> cs_type;
     cs_type css;
