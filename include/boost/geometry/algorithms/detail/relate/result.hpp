@@ -1120,8 +1120,12 @@ operator||(boost::tuples::cons<Head, Tail> const& t, Mask const& m)
 // like it's true for Linear/Areal
 
 // EQUALS
-//typedef static_mask<'T', '*', 'F', '*', '*', 'F', 'F', 'F', '*'> static_mask_equals; // wikipedia
-typedef static_mask<'T', 'F', 'F', 'F', 'T', 'F', 'F', 'F', 'T'> static_mask_equals; // OGC
+template <typename Geometry1, typename Geometry2>
+struct static_mask_equals_type
+{
+    typedef static_mask<'T', '*', 'F', '*', '*', 'F', 'F', 'F', '*'> type; // wikipedia
+    //typedef static_mask<'T', 'F', 'F', 'F', 'T', 'F', 'F', 'F', 'T'> type; // OGC
+};
 
 // DISJOINT
 typedef static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_disjoint;

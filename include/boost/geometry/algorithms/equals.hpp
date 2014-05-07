@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -42,6 +47,7 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/relate.hpp>
 
 namespace boost { namespace geometry
 {
@@ -144,6 +150,15 @@ struct equals_by_collection
     }
 };
 
+template<typename Geometry1, typename Geometry2>
+struct equals_by_relate
+    : detail::relate::relate_base
+        <
+            detail::relate::static_mask_equals_type,
+            Geometry1,
+            Geometry2
+        >
+{};
 
 }} // namespace detail::equals
 #endif // DOXYGEN_NO_DETAIL
@@ -218,12 +233,6 @@ struct equals<Polygon1, Polygon2, polygon_tag, polygon_tag, 2, Reverse>
 {};
 
 
-template <typename LineString1, typename LineString2, bool Reverse>
-struct equals<LineString1, LineString2, linestring_tag, linestring_tag, 2, Reverse>
-    : detail::equals::equals_by_collection<detail::equals::length_check>
-{};
-
-
 template <typename Polygon, typename Ring, bool Reverse>
 struct equals<Polygon, Ring, polygon_tag, ring_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
@@ -241,6 +250,21 @@ struct equals<Polygon, Box, polygon_tag, box_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
 {};
 
+template <typename LineString1, typename LineString2, bool Reverse>
+struct equals<LineString1, LineString2, linestring_tag, linestring_tag, 2, Reverse>
+    //: detail::equals::equals_by_collection<detail::equals::length_check>
+    : detail::equals::equals_by_relate<LineString1, LineString2>
+{};
+
+template <typename LineString, typename MultiLineString, bool Reverse>
+struct equals<LineString, MultiLineString, linestring_tag, multi_linestring_tag, 2, Reverse>
+    : detail::equals::equals_by_relate<LineString, MultiLineString>
+{};
+
+template <typename MultiLineString1, typename MultiLineString2, bool Reverse>
+struct equals<MultiLineString1, MultiLineString2, multi_linestring_tag, multi_linestring_tag, 2, Reverse>
+    : detail::equals::equals_by_relate<MultiLineString1, MultiLineString2>
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

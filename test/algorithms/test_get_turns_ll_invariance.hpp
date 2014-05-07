@@ -122,16 +122,16 @@ public:
         filter_continue_turns::apply(rturns_wo_cont);
 
         std::sort(boost::begin(turns_all), boost::end(turns_all),
-                  bg_turns::less_seg_dist_other_op<>());
+                  bg_turns::less_seg_fraction_other_op<>());
 
         std::sort(boost::begin(turns_wo_cont), boost::end(turns_wo_cont),
-                  bg_turns::less_seg_dist_other_op<>());
+                  bg_turns::less_seg_fraction_other_op<>());
 
         std::sort(boost::begin(rturns_all), boost::end(rturns_all),
-                  bg_turns::less_seg_dist_other_op<std::greater<int> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<int> >());
 
         std::sort(boost::begin(rturns_wo_cont), boost::end(rturns_wo_cont),
-                  bg_turns::less_seg_dist_other_op<std::greater<int> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<int> >());
 
         remove_duplicate_turns::apply(turns_all);
         remove_duplicate_turns::apply(turns_wo_cont);

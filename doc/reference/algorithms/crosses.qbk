@@ -18,3 +18,5 @@
 [def __this_function__ crosses]
 
 [heading_conformance_ogc __this_function__..Crosses]
+
+[include reference/status/crosses_status.qbk]

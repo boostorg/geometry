@@ -27,14 +27,14 @@ namespace detail { namespace turns
 // TURNS SORTING AND SEARCHING
 
 // sort turns by G1 - source_index == 0 by:
-// seg_id -> distance -> other_id -> operation
+// seg_id -> fraction -> other_id -> operation
 template
 <
     typename IdLess = std::less<int>,
     int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0,
     std::size_t OpId = 0
 >
-struct less_seg_dist_other_op
+struct less_seg_fraction_other_op
 {
     BOOST_STATIC_ASSERT(OpId < 2);
 

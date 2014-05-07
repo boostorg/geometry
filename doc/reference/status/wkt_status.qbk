@@ -2,7 +2,7 @@
 [table
 [[Geometry][Status]]
 [[Point][ [$img/ok.png] ]]
-[[Segment][ [$img/nyi.png] ]]
+[[Segment][ [$img/ok.png] ]]
 [[Box][ [$img/ok.png] ]]
 [[Linestring][ [$img/ok.png] ]]
 [[Ring][ [$img/ok.png] ]]

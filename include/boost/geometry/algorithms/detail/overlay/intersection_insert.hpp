@@ -5,11 +5,11 @@
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP

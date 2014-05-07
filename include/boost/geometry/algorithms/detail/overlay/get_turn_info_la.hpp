@@ -47,8 +47,10 @@ struct get_turn_info_linear_areal
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
-            inters(pi, pj, pk, qi, qj, qk, robust_policy);
+        typedef intersection_info<Point1, Point2, typename TurnInfo::point_type, RobustPolicy>
+            inters_info;
+
+        inters_info inters(pi, pj, pk, qi, qj, qk, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -64,7 +66,7 @@ struct get_turn_info_linear_areal
                 get_turn_info_for_endpoint<true, true>(
                     pi, pj, pk, qi, qj, qk,
                     is_p_first, is_p_last, is_q_first, is_q_last,
-                    tp_model, inters.result(), method_none, out);
+                    tp_model, inters, method_none, out);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -75,7 +77,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_touch_interior, out) )
+                        tp_model, inters, method_touch_interior, out) )
                 {
                     // do nothing
                 }
@@ -96,7 +98,12 @@ struct get_turn_info_linear_areal
                     else
                     {
                         // Swap p/q
-                        side_calculator<Point2, Point1> swapped_side_calc(qi, qj, qk, pi, pj, pk);
+                        side_calculator
+                            <
+                                typename inters_info::robust_point2_type,
+                                typename inters_info::robust_point1_type
+                            > swapped_side_calc(inters.rqi(), inters.rqj(), inters.rqk(),
+                                                inters.rpi(), inters.rpj(), inters.rpk());
                         policy::template apply<1>(qi, qj, qk, pi, pj, pk,
                                     tp, inters.i_info(), inters.d_info(),
                                     swapped_side_calc);
@@ -138,7 +145,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<false, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_touch, out) )
+                        tp_model, inters, method_touch, out) )
                 {
                     // do nothing
                 }
@@ -152,11 +159,62 @@ struct get_turn_info_linear_areal
                         tp.operations[0].is_collinear = true;
                     }
 
+                    // workarounds for touch<> not taking spikes into account starts here
+                    // those was discovered empirically
+                    // touch<> is not symmetrical!
+                    // P spikes and Q spikes may produce various operations!
+                    // Only P spikes are valid for L/A
+                    // TODO: this is not optimal solution - think about rewriting touch<>
+
+                    if ( tp.operations[0].operation == operation_blocked )
+                    {
+                        // a spike on P on the same line with Q1
+                        if ( inters.is_spike_p() )
+                        {
+                            if ( inters.sides().qk_wrt_p1() == 0 )
+                            {
+                                tp.operations[0].is_collinear = true;
+                            }
+                            else
+                            {
+                                tp.operations[0].operation = operation_union;                                
+                            }
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_continue
+                           && tp.operations[1].operation == operation_continue )
+                    {
+                        // P spike on the same line with Q2 (opposite)
+                        if ( inters.sides().pk_wrt_q1() == -inters.sides().qk_wrt_q1()
+                          && inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_union;
+                            tp.operations[1].operation = operation_union;
+                        }
+                    }
+                    else if ( tp.operations[0].operation == operation_none
+                           && tp.operations[1].operation == operation_none )
+                    {
+                        // spike not handled by touch<>
+                        if ( inters.is_spike_p() )
+                        {
+                            tp.operations[0].operation = operation_intersection;
+                            tp.operations[1].operation = operation_union;
+
+                            if ( inters.sides().pk_wrt_q2() == 0 )
+                            {
+                                tp.operations[0].operation = operation_continue; // will be converted to i
+                                tp.operations[0].is_collinear = true;
+                            }
+                        }
+                    }
+
+                    // workarounds for touch<> not taking spikes into account ends here
+
                     replace_method_and_operations_tm(tp.method,
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
 
-                    // this function assumes that 'u' must be set for a spike
                     bool ignore_spike
                         = calculate_spike_operation(tp.operations[0].operation,
                                                     inters, is_p_last);
@@ -166,7 +224,7 @@ struct get_turn_info_linear_areal
 
                     if ( ! handle_spikes
                       || ignore_spike
-                      || ! append_opposite_spikes<append_touches>( // for 'i' or 'c'
+                      || ! append_opposite_spikes<append_touches>( // for 'i' or 'c' i???
                                 tp, inters, is_p_last, is_q_last, out) )
                     {
                         *out++ = tp;
@@ -179,7 +237,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_equal, out) )
+                        tp_model, inters, method_equal, out) )
                 {
                     // do nothing
                 }
@@ -194,8 +252,8 @@ struct get_turn_info_linear_areal
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
-                        replacer_of_method_and_operations_ec<false> replacer(method_touch);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        turn_transformer_ec<false> transformer(method_touch);
+                        transformer(tp);
                     
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -226,7 +284,7 @@ struct get_turn_info_linear_areal
                 if ( get_turn_info_for_endpoint<true, true>(
                         pi, pj, pk, qi, qj, qk,
                         is_p_first, is_p_last, is_q_first, is_q_last,
-                        tp_model, inters.result(), method_collinear, out) )
+                        tp_model, inters, method_collinear, out) )
                 {
                     // do nothing
                 }
@@ -257,8 +315,8 @@ struct get_turn_info_linear_areal
                             //version = append_collinear;
                         }
 
-                        replacer_of_method_and_operations_ec<false> replacer(method_replace);
-                        replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                        turn_transformer_ec<false> transformer(method_replace);
+                        transformer(tp);
 
 // TODO: move this into the append_xxx and call for each turn?
                         AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
@@ -275,7 +333,7 @@ struct get_turn_info_linear_areal
                     else
                     {
                         // Is this always 'm' ?
-                        replacer_of_method_and_operations_ec<false> replacer(method_touch_interior);
+                        turn_transformer_ec<false> transformer(method_touch_interior);
 
                         // conditionally handle spikes
                         if ( handle_spikes )
@@ -294,7 +352,7 @@ struct get_turn_info_linear_areal
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, inters.i_info(), inters.d_info(),
-                                inters.sides(), replacer);
+                                inters.sides(), transformer);
                     }
                 }
             }
@@ -344,16 +402,36 @@ struct get_turn_info_linear_areal
                                                  IntersectionInfo const& inters,
                                                  bool is_p_last)
     {
-        bool is_p_spike = op == operation_union
+        bool is_p_spike = ( op == operation_union || op == operation_intersection )
                        && ! is_p_last
                        && inters.is_spike_p();
 
-        // we don't know where the spike is going since for both directions 'u' is set
         if ( is_p_spike )
         {
-            if ( inters.sides().pk_wrt_q1() < 0 && inters.sides().pk_wrt_q2() < 0 )
+            bool going_in = false, going_out = false;
+                
+            int const pk_q1 = inters.sides().pk_wrt_q1();
+            int const pk_q2 = inters.sides().pk_wrt_q2();
+
+            if ( inters.sides().qk_wrt_q1() <= 0 ) // Q turning R or C
+            { 
+                going_in = pk_q1 < 0 && pk_q2 < 0; // Pk on the right of both
+                going_out = pk_q1 > 0 || pk_q2 > 0; // Pk on the left of one of them
+            }
+            else
+            {
+                going_in = pk_q1 < 0 || pk_q2 < 0; // Pk on the right of one of them
+                going_out = pk_q1 > 0 && pk_q2 > 0; // Pk on the left of both
+            }
+
+            if ( going_in )
             {
                 op = operation_intersection;
+                return true;
+            }
+            else if ( going_out )
+            {
+                op = operation_union;
                 return true;
             }
         }
@@ -416,7 +494,7 @@ struct get_turn_info_linear_areal
     {
         bool is_p_spike = ( Version == append_touches ?
                             ( tp.operations[0].operation == operation_continue
-                           || tp.operations[0].operation == operation_intersection ) :
+                           || tp.operations[0].operation == operation_intersection ) : // i ???
                             true )
                        && ! is_p_last
                        && inters.is_spike_p();
@@ -433,13 +511,13 @@ struct get_turn_info_linear_areal
             if ( Version == append_touches )
             {
                 tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = ???
+                //tp.operations[1].is_collinear = false;
                 tp.method = method_touch;
             }
             else
             {
-                //tp.operations[0].is_collinear = true;
-                //tp.operations[1].is_collinear = true;
+                tp.operations[0].is_collinear = true;
+                //tp.operations[1].is_collinear = false;
                 
                 BOOST_ASSERT(inters.i_info().count > 1);
                 base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 1);
@@ -495,24 +573,28 @@ struct get_turn_info_linear_areal
     }
 
     template <bool IsFront>
-    class replacer_of_method_and_operations_ec
+    class turn_transformer_ec
     {
     public:
-        explicit replacer_of_method_and_operations_ec(method_type method_t_or_m)
+        explicit turn_transformer_ec(method_type method_t_or_m)
             : m_method(method_t_or_m)
         {}
 
-       void operator()(method_type & method,
-                       operation_type & op0,
-                       operation_type & op1) const
+        template <typename Turn>
+        void operator()(Turn & turn) const
         {
+            operation_type & op0 = turn.operations[0].operation;
+            operation_type & op1 = turn.operations[1].operation;
+
             // NOTE: probably only if methods are WRT IPs, not segments!
             if ( IsFront
               || op0 == operation_intersection || op0 == operation_union
               || op1 == operation_intersection || op1 == operation_union )
             {
-                method = m_method;
+                turn.method = m_method;
             }
+
+            turn.operations[0].is_collinear = op0 != operation_blocked;
 
             // Assuming G1 is always Linear
             if ( op0 == operation_blocked )
@@ -550,7 +632,7 @@ struct get_turn_info_linear_areal
               typename Point1,
               typename Point2,
               typename TurnInfo,
-              typename IntersectionResult,
+              typename IntersectionInfo,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
                             Point1 const& pi, Point1 const& pj, Point1 const& pk,
@@ -558,14 +640,14 @@ struct get_turn_info_linear_areal
                             bool is_p_first, bool is_p_last,
                             bool is_q_first, bool is_q_last,
                             TurnInfo const& tp_model,
-                            IntersectionResult const& result,
+                            IntersectionInfo const& inters,
                             method_type /*method*/,
                             OutputIterator out)
     {
         namespace ov = overlay;
         typedef ov::get_turn_info_for_endpoint<AssignPolicy, EnableFirst, EnableLast> get_info_e;
 
-        const std::size_t ip_count = result.template get<0>().count;
+        const std::size_t ip_count = inters.i_info().count;
         // no intersection points
         if ( ip_count == 0 )
             return false;
@@ -577,11 +659,11 @@ struct get_turn_info_linear_areal
         if ( !is_p_first && !is_p_last )
             return false;
 
-        linear_intersections intersections(pi, qi, result, is_p_last, is_q_last);
+        linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();
         linear_intersections::ip_info const& ip1 = intersections.template get<1>();
 
-        const bool opposite = result.template get<1>().opposite;
+        const bool opposite = inters.d_info().opposite;
 
         // ANALYSE AND ASSIGN FIRST
 
@@ -604,7 +686,13 @@ struct get_turn_info_linear_areal
 
                 if ( ip0.is_qj )
                 {
-                    side_calculator<Point1, Point2, Point2> side_calc(qi, pi, pj, qi, qj, qk);
+                    side_calculator
+                        <
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point2_type
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                                    inters.rqi(), inters.rqj(), inters.rqk());
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -616,9 +704,18 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    side_calculator<Point1, Point2,
-                                    Point2, Point1, Point1,
-                                    Point2, Point1, Point2> side_calc(qi, pi, pj, qi, pi, qj);
+                    side_calculator
+                        <
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type,
+                            typename IntersectionInfo::robust_point1_type,
+                            typename IntersectionInfo::robust_point2_type
+                        > side_calc(inters.rqi(), inters.rpi(), inters.rpj(),
+                                    inters.rqi(), inters.rpi(), inters.rqj());
 
                     std::pair<operation_type, operation_type>
                         operations = get_info_e::operations_of_equal(side_calc);
@@ -627,23 +724,20 @@ struct get_turn_info_linear_areal
                     tp.operations[1].operation = operations.second;
                 }
 
-                replacer_of_method_and_operations_ec<true> replacer(replaced_method);
-                replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                turn_transformer_ec<true> transformer(replaced_method);
+                transformer(tp);
             }
 
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
-            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), 0);
+            base_turn_handler::assign_point(tp, tp.method, inters.i_info(), 0);
 
-            // NOTE: not really needed especially for the first point
-            // for which there is no preceding segment (but consistent with the L/L)
-            if ( result.template get<0>().count > 1 )
-            {
-                //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
-                tp.operations[0].is_collinear = true;
-            }
+            // NOTE: is_collinear is not set for the first endpoint of L
+            // for which there is no preceding segment
+            // here is_p_first_ip == true
+            tp.operations[0].is_collinear = false;
 
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
         }
 
@@ -656,7 +750,7 @@ struct get_turn_info_linear_areal
         {
             TurnInfo tp = tp_model;
             
-            if ( result.template get<0>().count > 1 )
+            if ( inters.i_info().count > 1 )
             {
                 //BOOST_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
                 tp.operations[0].is_collinear = true;
@@ -664,7 +758,13 @@ struct get_turn_info_linear_areal
             }
             else //if ( result.template get<0>().count == 1 )
             {
-                side_calculator<Point1, Point2, Point2> side_calc(qi, pj, pi, qi, qj, qk);
+                side_calculator
+                    <
+                        typename IntersectionInfo::robust_point1_type,
+                        typename IntersectionInfo::robust_point2_type,
+                        typename IntersectionInfo::robust_point2_type
+                    > side_calc(inters.rqi(), inters.rpj(), inters.rpi(),
+                                inters.rqi(), inters.rqj(), inters.rqk());
 
                 std::pair<operation_type, operation_type>
                     operations = get_info_e::operations_of_equal(side_calc);
@@ -672,13 +772,10 @@ struct get_turn_info_linear_areal
                 tp.operations[0].operation = operations.first;
                 tp.operations[1].operation = operations.second;
 
-                replacer_of_method_and_operations_ec<false> replacer(method_none);
-                replacer(tp.method, tp.operations[0].operation, tp.operations[1].operation);
+                turn_transformer_ec<false> transformer(method_none);
+                transformer(tp);
 
-                if ( tp.both(operation_continue) )
-                {
-                    tp.operations[0].is_collinear = true;
-                }
+                tp.operations[0].is_collinear = tp.both(operation_continue);
             }
 
             tp.method = ( ip_count > 1 ? ip1.is_qj : ip0.is_qj ) ? method_touch : method_touch_interior;
@@ -689,9 +786,9 @@ struct get_turn_info_linear_areal
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
             std::size_t ip_index = ip_count > 1 ? 1 : 0;
-            base_turn_handler::assign_point(tp, tp.method, result.template get<0>(), ip_index);
+            base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
-            AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+            AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
 
             return true;
