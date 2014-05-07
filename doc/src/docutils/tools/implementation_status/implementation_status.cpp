@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Tool reporting Implementation Status in QBK format
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2011-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2011-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2014 Bruno Lalande, Paris, France.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -252,16 +252,29 @@ int report_library(CompilePolicy& compile_policy,
                 << "  bg::read_wkt(\"" << wkt_string(type2) << "\", geometry2);" << std::endl;
         }
 
-        switch(algo.arity)
+        if (algo.name == std::string("centroid"))
         {
-            case 1 :
-                out << "  bg::" << algo.name << "(geometry);" << std::endl;
-                break;
-            case 2 :
-                // For cases as point-in-polygon, take first geometry 2 (point), then geometry (polygon) such that
-                // it is listed as column:point in row:polygon
-                out << "  bg::" << algo.name << "(geometry2, geometry);" << std::endl;
-                break;
+            out << "  P point;";
+            out << "  bg::" << algo.name << "(geometry, point);" << std::endl;
+        }
+        else if (algo.name == std::string("envelope"))
+        {
+            out << "  bg::model::box<P> box;";
+            out << "  bg::" << algo.name << "(geometry, box);" << std::endl;
+        }
+        else
+        {
+            switch(algo.arity)
+            {
+                case 1 :
+                    out << "  bg::" << algo.name << "(geometry);" << std::endl;
+                    break;
+                case 2 :
+                    // For cases as point-in-polygon, take first geometry 2 (point), then geometry (polygon) such that
+                    // it is listed as column:point in row:polygon
+                    out << "  bg::" << algo.name << "(geometry2, geometry);" << std::endl;
+                    break;
+            }
         }
 
         out
@@ -324,29 +337,33 @@ struct cs
 };
 
 
-int main(int argc, char** argv)
+int main(int , char** )
 {
 #if defined(_MSC_VER)
     compile_msvc compile_policy;
 #else
-    compile_bjam compile_policy;
+    //compile_bjam compile_policy;
+    compile_clang compile_policy;
 #endif
-
 
     typedef std::vector<algorithm> v_a_type;
     v_a_type algorithms;
     algorithms.push_back(algorithm("area"));
     algorithms.push_back(algorithm("clear"));
     algorithms.push_back(algorithm("correct"));
+    algorithms.push_back(algorithm("centroid")); // NOTE: current doc contains 2D / 3D
+    algorithms.push_back(algorithm("envelope"));
     algorithms.push_back(algorithm("length"));
     algorithms.push_back(algorithm("num_points"));
     algorithms.push_back(algorithm("perimeter"));
 
     algorithms.push_back(algorithm("covered_by", 2));
     algorithms.push_back(algorithm("distance", 2));
-    algorithms.push_back(algorithm("centroid", 2));
+    algorithms.push_back(algorithm("crosses", 2));
+    algorithms.push_back(algorithm("disjoint", 2));
     algorithms.push_back(algorithm("equals", 2));
     algorithms.push_back(algorithm("intersects", 2));
+    algorithms.push_back(algorithm("overlaps", 2));
     algorithms.push_back(algorithm("within", 2));
 
     typedef std::vector<cs> cs_type;
