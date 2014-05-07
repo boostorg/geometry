@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,6 +17,7 @@
 
 #include <boost/array.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include <vector>
 
 #include <boost/assert.hpp>
@@ -28,6 +34,7 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/append_no_dups_or_spikes.hpp>
 
 namespace boost { namespace geometry
@@ -39,7 +46,7 @@ namespace detail { namespace copy_segments
 {
 
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments_ring
 {
     template
@@ -102,9 +109,32 @@ struct copy_segments_ring
     }
 };
 
-template<bool Reverse>
-struct copy_segments_linestring
+template <bool Reverse, bool RemoveSpikes = true>
+class copy_segments_linestring
 {
+private:
+    // remove spikes
+    template <typename RangeOut, typename Point, typename RobustPolicy>
+    static inline void append_to_output(RangeOut& current_output,
+                                        Point const& point,
+                                        RobustPolicy const& robust_policy,
+                                        boost::true_type const&)
+    {
+        detail::overlay::append_no_dups_or_spikes(current_output, point,
+                                                  robust_policy);
+    }
+
+    // keep spikes
+    template <typename RangeOut, typename Point, typename RobustPolicy>
+    static inline void append_to_output(RangeOut& current_output,
+                                        Point const& point,
+                                        RobustPolicy const&,
+                                        boost::false_type const&)
+    {
+        detail::overlay::append_no_duplicates(current_output, point);
+    }
+
+public:
     template
     <
         typename LineString,
@@ -133,13 +163,13 @@ struct copy_segments_linestring
 
         for (size_type i = 0; i < count; ++i, ++it)
         {
-            detail::overlay::append_no_dups_or_spikes(current_output, *it,
-                robust_policy);
+            append_to_output(current_output, *it, robust_policy,
+                             boost::integral_constant<bool, RemoveSpikes>());
         }
     }
 };
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments_polygon
 {
     template
@@ -168,7 +198,7 @@ struct copy_segments_polygon
 };
 
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments_box
 {
     template
@@ -224,24 +254,24 @@ struct copy_segments : not_implemented<Tag>
 {};
 
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments<ring_tag, Reverse>
     : detail::copy_segments::copy_segments_ring<Reverse>
 {};
 
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments<linestring_tag, Reverse>
     : detail::copy_segments::copy_segments_linestring<Reverse>
 {};
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments<polygon_tag, Reverse>
     : detail::copy_segments::copy_segments_polygon<Reverse>
 {};
 
 
-template<bool Reverse>
+template <bool Reverse>
 struct copy_segments<box_tag, Reverse>
     : detail::copy_segments::copy_segments_box<Reverse>
 {};
