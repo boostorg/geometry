@@ -443,6 +443,7 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
 \param for_operation operation_type (union or intersection)
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
+\param robust_policy policy to handle robustness issues
 \param strategy strategy
  */
 template

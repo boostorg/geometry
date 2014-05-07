@@ -922,6 +922,7 @@ struct get_turns_reversed
 \tparam Turns type of turn-container (e.g. vector of "intersection/turn point"'s)
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
+\param robust_policy policy to handle robustness issues
 \param turns container which will contain turn points
 \param interrupt_policy policy determining if process is stopped
     when intersection is found
