@@ -78,9 +78,7 @@ comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    // Define a default-distance-strategy
-    // for either the normal case, either the reversed case
-
+    // Define the default-distance-strategy
     typedef typename strategy::distance::services::comparable_type
         <
             typename detail::distance::default_strategy
