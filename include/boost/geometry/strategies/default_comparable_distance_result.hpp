@@ -23,7 +23,6 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 
-
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 namespace boost { namespace geometry
