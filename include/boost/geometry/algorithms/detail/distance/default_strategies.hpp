@@ -25,6 +25,7 @@
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -52,7 +53,8 @@ template
     typename Tag2 = typename tag_cast
         <
             typename tag<Geometry2>::type, pointlike_tag
-        >::type
+        >::type,
+    bool Reverse = geometry::reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct default_strategy
     : strategy::distance::services::default_strategy
@@ -63,10 +65,24 @@ struct default_strategy
           >
 {};
 
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Tag1,
+    typename Tag2
+>
+struct default_strategy<Geometry1, Geometry2, Tag1, Tag2, true>
+    : default_strategy<Geometry2, Geometry1, Tag2, Tag1, false>
+{};
+
 
 template <typename Pointlike1, typename Pointlike2>
-struct default_strategy<Pointlike1, Pointlike2, pointlike_tag, pointlike_tag>
-    : strategy::distance::services::default_strategy
+struct default_strategy
+    <
+        Pointlike1, Pointlike2,
+        pointlike_tag, pointlike_tag, false
+    > : strategy::distance::services::default_strategy
           <
               point_tag,
               typename point_type<Pointlike1>::type,
@@ -76,7 +92,7 @@ struct default_strategy<Pointlike1, Pointlike2, pointlike_tag, pointlike_tag>
 
 
 template <typename Pointlike, typename Box>
-struct default_strategy<Pointlike, Box, pointlike_tag, box_tag>
+struct default_strategy<Pointlike, Box, pointlike_tag, box_tag, false>
     : strategy::distance::services::default_strategy
           <
               point_tag,
@@ -91,7 +107,7 @@ struct default_strategy<Pointlike, Box, pointlike_tag, box_tag>
 
 
 template <typename Box1, typename Box2>
-struct default_strategy<Box1, Box2, box_tag, box_tag>
+struct default_strategy<Box1, Box2, box_tag, box_tag, false>
     : strategy::distance::services::default_strategy
           <
               box_tag,
