@@ -17,7 +17,44 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/move/move.hpp>
 
-#include <boost/geometry/geometry.hpp>
+//#include <boost/geometry/geometry.hpp>
+// START
+#include <boost/geometry/strategies/strategies.hpp>
+
+#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/centroid.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/overlaps.hpp>
+#include <boost/geometry/algorithms/touches.hpp>
+#include <boost/geometry/algorithms/within.hpp>
+
+#include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+
+#include <boost/geometry/multi/core/closure.hpp>
+#include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/multi/core/interior_rings.hpp>
+#include <boost/geometry/multi/core/is_areal.hpp>
+#include <boost/geometry/multi/core/point_order.hpp>
+#include <boost/geometry/multi/core/point_type.hpp>
+#include <boost/geometry/multi/core/ring_type.hpp>
+#include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/core/topological_dimension.hpp>
+
+#include <boost/geometry/multi/io/dsv/write.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
+#include <boost/geometry/multi/io/wkt/write.hpp>
+
+//#include <boost/geometry/multi/algorithms/centroid.hpp>
+//#include <boost/geometry/multi/algorithms/covered_by.hpp>
+//#include <boost/geometry/multi/algorithms/disjoint.hpp>
+//#include <boost/geometry/multi/algorithms/equals.hpp>
+//#include <boost/geometry/multi/algorithms/within.hpp>
+// END
 
 #include <boost/geometry/index/detail/config_begin.hpp>
 
