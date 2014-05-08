@@ -21,16 +21,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 
 #include <boost/concept_check.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -183,19 +180,10 @@ inline typename default_distance_result<Geometry1, Geometry2>::type distance(
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    typedef typename boost::mpl::if_c
+    typedef typename detail::distance::default_strategy
         <
-            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-            typename detail::distance::default_strategy
-                <
-                    Geometry2, Geometry1
-                >::type,
-            typename detail::distance::default_strategy
-                <
-                    Geometry1, Geometry2
-                >::type
+            Geometry1, Geometry2
         >::type default_strategy_type;
-            
 
     return distance(geometry1, geometry2, default_strategy_type());
 }
