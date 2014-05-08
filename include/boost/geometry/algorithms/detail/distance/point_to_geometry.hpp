@@ -35,7 +35,6 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/distance_comparable_to_regular.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
