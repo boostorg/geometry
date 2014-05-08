@@ -201,10 +201,7 @@ inline typename default_distance_result<Geometry1, Geometry2>::type distance(
 #include <boost/geometry/algorithms/detail/distance/multi_to_multi.hpp>
 #include <boost/geometry/algorithms/detail/distance/multipoint_to_range.hpp>
 #include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>
-
-#ifdef BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 #include <boost/geometry/algorithms/detail/distance/segment_to_segment.hpp>
-#endif // BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 
 #include <boost/geometry/algorithms/detail/distance/backward_compatibility.hpp>
 

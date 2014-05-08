@@ -31,7 +31,6 @@ typedef bg::strategy::distance::projected_point<> point_segment_strategy;
 
 //===========================================================================
 
-#ifdef BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 template <typename Strategy>
 void test_distance_segment_segment(Strategy const& strategy)
 {
@@ -57,7 +56,6 @@ void test_distance_segment_segment(Strategy const& strategy)
            make_segment<segment_type>(-2, 3, 1, 2),
            return_type(2), return_type(4), strategy);
 }
-#endif // BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 
 //===========================================================================
 
@@ -230,12 +228,10 @@ void test_more_empty_input_linear_linear(Strategy const& strategy)
 
 //===========================================================================
 
-#ifdef BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 BOOST_AUTO_TEST_CASE( test_all_segment_segment )
 {
     test_distance_segment_segment(point_segment_strategy());
 }
-#endif // BOOST_GEOMETRY_SUPPORT_SEGMENT_SEGMENT_DISTANCE
 
 BOOST_AUTO_TEST_CASE( test_all_segment_linestring )
 {
