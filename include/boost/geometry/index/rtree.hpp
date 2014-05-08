@@ -21,6 +21,7 @@
 // START
 #include <boost/geometry/strategies/strategies.hpp>
 
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
