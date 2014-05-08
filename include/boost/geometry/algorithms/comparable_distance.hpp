@@ -20,10 +20,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_COMPARABLE_DISTANCE_HPP
 
 
-#include <boost/mpl/if.hpp>
-
-#include <boost/geometry/core/reverse_dispatch.hpp>
-
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
@@ -76,8 +72,8 @@ comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2,
 \qbk{[include reference/algorithms/comparable_distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename default_distance_result<Geometry1, Geometry2>::type comparable_distance(
-                Geometry1 const& geometry1, Geometry2 const& geometry2)
+inline typename default_distance_result<Geometry1, Geometry2>::type
+comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
@@ -87,18 +83,9 @@ inline typename default_distance_result<Geometry1, Geometry2>::type comparable_d
 
     typedef typename strategy::distance::services::comparable_type
         <
-            typename boost::mpl::if_c
+            typename detail::distance::default_strategy
                 <
-                    geometry::reverse_dispatch
-                        <Geometry1, Geometry2>::type::value,
-                    typename detail::distance::default_strategy
-                        <
-                            Geometry2, Geometry1
-                        >::type,
-                    typename detail::distance::default_strategy
-                        <
-                            Geometry1, Geometry2
-                        >::type
+                    Geometry1, Geometry2
                 >::type
         >::type default_comparable_strategy_type;
 
