@@ -12,6 +12,8 @@
 
 #include <boost/assert.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/mpl/if.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -422,17 +424,32 @@ public:
 
         if ( geometry::equals(p[0], p[1]) )
         {
-            typedef typename detail::distance::default_strategy
+            typedef typename boost::mpl::if_
                 <
-                    segment_point, Box
-                >::type default_point_box_strategy_type;
+                    boost::is_same
+                        <
+                            ps_comparable_strategy,
+                            PSStrategy
+                        >,
+                    typename strategy::distance::services::comparable_type
+                        <
+                            typename detail::distance::default_strategy
+                                <
+                                    segment_point, Box
+                                >::type
+                        >::type,
+                    typename detail::distance::default_strategy
+                        <
+                            segment_point, Box
+                        >::type
+                >::type point_box_strategy_type;
 
             return dispatch::distance
                 <
                     segment_point,
                     Box,
-                    default_point_box_strategy_type
-                >::apply(p[0], box, default_point_box_strategy_type());
+                    point_box_strategy_type
+                >::apply(p[0], box, point_box_strategy_type());
         }
 
         box_point top_left, top_right, bottom_left, bottom_right;
@@ -503,46 +520,6 @@ template <typename Segment, typename Box, typename Strategy>
 struct distance
     <
         Segment, Box, Strategy, segment_tag, box_tag,
-        strategy_tag_distance_point_point, false
-    >
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            Strategy,
-            typename point_type<Segment>::type,
-            typename point_type<Box>::type
-        >::type return_type;
-
-
-    static inline return_type apply(Segment const& segment,
-                                    Box const& box,
-                                    Strategy const& strategy)
-    {
-        assert_dimension_equal<Segment, Box>();
-
-        typedef typename detail::distance::default_ps_strategy
-                    <
-                        typename point_type<Segment>::type,
-                        typename point_type<Box>::type,
-                        Strategy
-                    >::type ps_strategy_type;
-
-        return detail::distance::segment_to_box
-            <
-                Segment,
-                Box,
-                dimension<Segment>::value,
-                Strategy,
-                ps_strategy_type
-            >::apply(segment, box, strategy, ps_strategy_type());
-    }
-};
-
-
-template <typename Segment, typename Box, typename Strategy>
-struct distance
-    <
-        Segment, Box, Strategy, segment_tag, box_tag,
         strategy_tag_distance_point_segment, false
     >
 {
@@ -560,9 +537,10 @@ struct distance
     {
         assert_dimension_equal<Segment, Box>();
 
-        typedef typename strategy::distance::services::strategy_point_point
+        typedef typename detail::distance::default_strategy
             <
-                Strategy
+                typename point_type<Segment>::type,
+                typename point_type<Box>::type
             >::type pp_strategy_type;
 
         return detail::distance::segment_to_box
