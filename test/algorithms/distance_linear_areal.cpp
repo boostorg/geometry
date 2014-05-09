@@ -622,6 +622,11 @@ void test_distance_segment_box(Strategy const& strategy)
     tester(make_box2d<B>(0, 0, 1, 1),
            make_segment<S>(0.5, 1.5, 1.5, -1.5),
            0, 0, strategy);
+
+    // test degenerate segment
+    tester(make_box2d<B>(0, 0, 2, 2),
+           make_segment<S>(4, 1, 4, 1),
+           2, 4, strategy);
 }
 
 //===========================================================================
@@ -754,7 +759,6 @@ BOOST_AUTO_TEST_CASE( test_all_multilinestring_multipolygon )
 
 BOOST_AUTO_TEST_CASE( test_all_segment_box )
 {
-    test_distance_segment_box(point_point_strategy());
     test_distance_segment_box(point_segment_strategy());
 }
 
