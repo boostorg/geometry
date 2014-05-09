@@ -61,8 +61,6 @@ template <typename Strategy, typename P1, typename P2>
 struct result_from_distance {};
 
 
-// For point-segment only:
-template <typename Strategy> struct strategy_point_point {};
 
 
 // Default strategy
