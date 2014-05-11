@@ -42,19 +42,28 @@ namespace detail { namespace distance
 
 
 template <typename Polygon, typename SegmentOrBox, typename Strategy>
-struct polygon_to_segment_or_box
+class polygon_to_segment_or_box
 {
-    typedef typename return_type
+private:
+    typedef typename strategy::distance::services::comparable_type
+       <
+           Strategy
+       >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy,
+            typename point_type<Polygon>::type,
+            typename point_type<SegmentOrBox>::type
+        >::type comparable_return_type;
+
+public:
+    typedef typename strategy::distance::services::return_type
         <
             Strategy,
             typename point_type<Polygon>::type,
             typename point_type<SegmentOrBox>::type
         >::type return_type;
-
-    typedef typename strategy::distance::services::comparable_type
-       <
-           Strategy
-       >::type comparable_strategy;
 
     static inline return_type apply(Polygon const& polygon,
                                     SegmentOrBox const& segment_or_box,
@@ -79,7 +88,7 @@ struct polygon_to_segment_or_box
                 >::apply(strategy);
 
 
-        return_type cd_min = range_to_segment_or_box
+        comparable_return_type cd_min = range_to_segment_or_box
             <
                 e_ring, SegmentOrBox, comparable_strategy
             >::apply(ext_ring, segment_or_box, cstrategy, false);
@@ -88,7 +97,7 @@ struct polygon_to_segment_or_box
         for (iterator_type it = boost::begin(int_rings);
              it != boost::end(int_rings); ++it)
         {
-            return_type cd = range_to_segment_or_box
+            comparable_return_type cd = range_to_segment_or_box
                 <
                     i_ring, SegmentOrBox, comparable_strategy
                 >::apply(*it, segment_or_box, cstrategy, false);

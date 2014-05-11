@@ -57,17 +57,15 @@ private:
     typedef typename point_type<SegmentOrBox>::type segment_or_box_point;
     typedef typename point_type<Range>::type range_point;
 
-public:
-    typedef typename strategy::distance::services::return_type
-        <
-            Strategy, range_point, segment_or_box_point
-        >::type return_type;
-
-private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
         >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy, range_point, segment_or_box_point
+        >::type comparable_return_type;
 
     typedef typename strategy::distance::services::tag
        <
@@ -79,7 +77,7 @@ private:
             segment_or_box_point, Range, comparable_strategy,
             point_tag, typename tag<Range>::type,
             comparable_strategy_tag, false
-        > point_to_range;
+        > comparable_point_to_range;
 
     // compute distance of a point to a segment or a box
     template
@@ -89,7 +87,7 @@ private:
         typename ComparableStrategy,
         typename Tag
     >
-    struct distance_point_to_segment_or_box
+    struct comparable_distance_point_to_segment_or_box
     {};
 
     template
@@ -98,14 +96,15 @@ private:
         typename SegmentPoints,
         typename ComparableStrategy
     >
-    struct distance_point_to_segment_or_box
+    struct comparable_distance_point_to_segment_or_box
         <
             Point, SegmentPoints, ComparableStrategy, segment_tag
         >
     {
-        static inline return_type apply(Point const& point,
-                                        SegmentPoints const& segment_points,
-                                        ComparableStrategy const& strategy)
+        static inline
+        comparable_return_type apply(Point const& point,
+                                     SegmentPoints const& segment_points,
+                                     ComparableStrategy const& strategy)
         {
             return strategy.apply(point, segment_points[0], segment_points[1]);
         }
@@ -117,21 +116,22 @@ private:
         typename BoxPoints,
         typename ComparableStrategy
     >
-    struct distance_point_to_segment_or_box
+    struct comparable_distance_point_to_segment_or_box
         <
             Point, BoxPoints, ComparableStrategy, box_tag
         >
     {
-        static inline return_type apply(Point const& point,
-                                        BoxPoints const& box_points,
-                                        ComparableStrategy const& strategy)
+        static inline
+        comparable_return_type apply(Point const& point,
+                                     BoxPoints const& box_points,
+                                     ComparableStrategy const& strategy)
         {
-            return_type cd_min =
+            comparable_return_type cd_min =
                 strategy.apply(point, box_points[0], box_points[3]);
 
             for (unsigned int i = 0; i < 2; ++i)
             {
-                return_type cd =
+                comparable_return_type cd =
                     strategy.apply(point, box_points[i], box_points[i+1]);
 
                 if ( cd < cd_min )
@@ -177,6 +177,11 @@ private:
 
 
 public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy, range_point, segment_or_box_point
+        >::type return_type;
+
     static inline return_type
     apply(Range const& range, SegmentOrBox const& segment_or_box,
           Strategy const& strategy, bool check_intersection = true)
@@ -208,11 +213,13 @@ public:
         // to the range
         typename std::vector<segment_or_box_point>::const_iterator it
             = segment_or_box_points.begin();
-        return_type cd_min = point_to_range::apply(*it, range, cstrategy);
+        comparable_return_type cd_min =
+            comparable_point_to_range::apply(*it, range, cstrategy);
 
         for (++it; it != segment_or_box_points.end(); ++it)
         {
-            return_type cd = point_to_range::apply(*it, range, cstrategy);
+            comparable_return_type cd =
+                comparable_point_to_range::apply(*it, range, cstrategy);
             if ( cd < cd_min )
             {
                 cd_min = cd;
@@ -224,13 +231,14 @@ public:
         typedef typename range_iterator<Range const>::type iterator_type;
         for (iterator_type it = boost::begin(range); it != boost::end(range); ++it)
         {
-            return_type cd = distance_point_to_segment_or_box
-                <
-                    typename point_type<Range>::type,
-                    std::vector<segment_or_box_point>,
-                    comparable_strategy,
-                    typename tag<SegmentOrBox>::type
-                >::apply(*it, segment_or_box_points, cstrategy);
+            comparable_return_type cd =
+                comparable_distance_point_to_segment_or_box
+                    <
+                        typename point_type<Range>::type,
+                        std::vector<segment_or_box_point>,
+                        comparable_strategy,
+                        typename tag<SegmentOrBox>::type
+                    >::apply(*it, segment_or_box_points, cstrategy);
 
             if ( cd < cd_min )
             {

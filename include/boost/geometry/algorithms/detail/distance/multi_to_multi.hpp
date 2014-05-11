@@ -50,24 +50,33 @@ namespace detail { namespace distance
 
 
 template <typename Multi1, typename Multi2, typename Strategy>
-struct distance_multi_to_multi_generic
+class distance_multi_to_multi_generic
 {
+private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
         >::type comparable_strategy;
 
     typedef typename strategy::distance::services::return_type
-                     <
-                         Strategy,
-                         typename point_type<Multi1>::type,
-                         typename point_type<Multi2>::type
-                     >::type return_type;
+        <
+            comparable_strategy,
+            typename point_type<Multi1>::type,
+            typename point_type<Multi2>::type
+        >::type comparable_return_type;
+
+public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<Multi1>::type,
+            typename point_type<Multi2>::type
+        >::type return_type;
 
     static inline return_type apply(Multi1 const& multi1,
                 Multi2 const& multi2, Strategy const& strategy)
     {
-        return_type min_cdist = return_type();
+        comparable_return_type min_cdist = comparable_return_type();
         bool first = true;
 
         comparable_strategy cstrategy =
@@ -80,7 +89,7 @@ struct distance_multi_to_multi_generic
                 it != boost::end(multi1);
                 ++it, first = false)
         {
-            return_type cdist =
+            comparable_return_type cdist =
                 dispatch::splitted_dispatch::distance_single_to_multi
                     <
                         typename range_value<Multi1>::type,

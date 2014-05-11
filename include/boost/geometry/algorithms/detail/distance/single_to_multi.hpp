@@ -67,25 +67,34 @@ namespace detail { namespace distance
 
 
 template<typename Geometry, typename MultiGeometry, typename Strategy>
-struct distance_single_to_multi_generic
+class distance_single_to_multi_generic
 {
+private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
         >::type comparable_strategy;
 
     typedef typename strategy::distance::services::return_type
-                     <
-                         Strategy,
-                         typename point_type<Geometry>::type,
-                         typename point_type<MultiGeometry>::type
-                     >::type return_type;
+        <
+            comparable_strategy,
+            typename point_type<Geometry>::type,
+            typename point_type<MultiGeometry>::type
+        >::type comparable_return_type;
+
+public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<Geometry>::type,
+            typename point_type<MultiGeometry>::type
+        >::type return_type;
 
     static inline return_type apply(Geometry const& geometry,
                                     MultiGeometry const& multi,
                                     Strategy const& strategy)
     {
-        return_type min_cdist = return_type();
+        comparable_return_type min_cdist = comparable_return_type();
         bool first = true;
 
         comparable_strategy cstrategy =
@@ -98,7 +107,7 @@ struct distance_single_to_multi_generic
                 it != boost::end(multi);
                 ++it, first = false)
         {
-            return_type cdist = dispatch::distance
+            comparable_return_type cdist = dispatch::distance
                 <
                     Geometry,
                     typename range_value<MultiGeometry>::type,

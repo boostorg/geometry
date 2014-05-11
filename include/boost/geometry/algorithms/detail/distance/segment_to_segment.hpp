@@ -37,19 +37,28 @@ namespace detail { namespace distance
 
 // compute segment-segment distance
 template<typename Segment1, typename Segment2, typename Strategy>
-struct segment_to_segment
+class segment_to_segment
 {
+private:
+    typedef typename strategy::distance::services::comparable_type
+        <
+            Strategy
+        >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy,
+            typename point_type<Segment1>::type,
+            typename point_type<Segment2>::type
+        >::type comparable_return_type;
+
+public:
     typedef typename strategy::distance::services::return_type
         <
             Strategy,
             typename point_type<Segment1>::type,
             typename point_type<Segment2>::type
         >::type return_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            Strategy
-        >::type comparable_strategy;
 
     static inline return_type
     apply(Segment1 const& segment1, Segment2 const& segment2,
@@ -74,7 +83,7 @@ struct segment_to_segment
                     Strategy
                 >::apply(strategy);
 
-        return_type d[4];
+        comparable_return_type d[4];
         d[0] = cstrategy.apply(q[0], p[0], p[1]);
         d[1] = cstrategy.apply(q[1], p[0], p[1]);
         d[2] = cstrategy.apply(p[0], q[0], q[1]);

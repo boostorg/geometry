@@ -56,14 +56,11 @@ namespace detail { namespace distance
 {
 
 
-// To avoid spurious namespaces here:
-using strategy::distance::services::return_type;
-
-
 template <typename P1, typename P2, typename Strategy>
 struct point_to_point
 {
-    static inline typename return_type<Strategy, P1, P2>::type
+    static inline
+    typename strategy::distance::services::return_type<Strategy, P1, P2>::type
     apply(P1 const& p1, P2 const& p2, Strategy const& strategy)
     {
         boost::ignore_unused_variable_warning(strategy);
@@ -79,17 +76,24 @@ template
     closure_selector Closure,
     typename Strategy
 >
-struct point_to_range
+class point_to_range
 {
-    typedef typename return_type
-        <
-            Strategy, Point, typename point_type<Range>::type
-        >::type return_type;
-
+private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
         >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy, Point, typename point_type<Range>::type
+        >::type comparable_return_type;
+
+public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy, Point, typename point_type<Range>::type
+        >::type return_type;
 
     static inline return_type apply(Point const& point, Range const& range,
                                     Strategy const& strategy)
@@ -100,7 +104,7 @@ struct point_to_range
                     Strategy
                 >::apply(strategy);
 
-        return_type const zero = return_type(0);
+        comparable_return_type const zero = comparable_return_type(0);
 
         if (boost::size(range) == 0)
         {
@@ -126,26 +130,29 @@ struct point_to_range
         }
 
         // start with first segment distance
-        return_type d = c_strategy.apply(point, *prev, *it);
+        comparable_return_type cd = c_strategy.apply(point, *prev, *it);
 
         // check if other segments are closer
         for (++prev, ++it; it != boost::end(view); ++prev, ++it)
         {
-            return_type const ds = c_strategy.apply(point, *prev, *it);
-            if (geometry::math::equals(ds, zero))
+            comparable_return_type cds = c_strategy.apply(point, *prev, *it);
+            if (geometry::math::equals(cds, zero))
             {
-                return ds;
+                return strategy::distance::services::comparable_to_regular
+                    <
+                        comparable_strategy, Strategy, Point, Range
+                    >::apply(zero);
             }
-            else if (ds < d)
+            else if (cds < cd)
             {
-                d = ds;
+                cd = cds;
             }
         }
 
         return strategy::distance::services::comparable_to_regular
             <
                 comparable_strategy, Strategy, Point, Range
-            >::apply(d);
+            >::apply(cd);
     }
 };
 
@@ -161,7 +168,7 @@ struct point_to_ring
 {
     typedef std::pair
         <
-            typename return_type
+            typename strategy::distance::services::return_type
                 <
                     Strategy, Point, typename point_type<Ring>::type
                 >::type,
@@ -195,18 +202,30 @@ template
     closure_selector Closure,
     typename Strategy
 >
-struct point_to_polygon
+class point_to_polygon
 {
-    typedef typename return_type
-        <
-            Strategy, Point, typename point_type<Polygon>::type
-        >::type return_type;
-    typedef std::pair<return_type, bool> distance_containment;
-
+private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
         >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy, Point, typename point_type<Polygon>::type
+        >::type comparable_return_type;
+
+    typedef std::pair
+        <
+            comparable_return_type, bool
+        > comparable_distance_containment;
+
+public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy, Point, typename point_type<Polygon>::type
+        >::type return_type;
+    typedef std::pair<return_type, bool> distance_containment;
 
     static inline distance_containment apply(Point const& point,
                                              Polygon const& polygon,
@@ -227,9 +246,8 @@ struct point_to_polygon
                 comparable_strategy
             > per_ring;
 
-        distance_containment dc = per_ring::apply(point,
-                                                  exterior_ring(polygon),
-                                                  c_strategy);
+        comparable_distance_containment dc =
+            per_ring::apply(point, exterior_ring(polygon), c_strategy);
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
@@ -239,7 +257,8 @@ struct point_to_polygon
                  >::type it = boost::begin(rings);
              it != boost::end(rings); ++it)
         {
-            distance_containment dcr = per_ring::apply(point, *it, c_strategy);
+            comparable_distance_containment dcr =
+                per_ring::apply(point, *it, c_strategy);
             if (dcr.first < dc.first)
             {
                 dc.first = dcr.first;
@@ -305,11 +324,14 @@ struct distance
     false
 >
 {
-    typedef typename return_type<Strategy, Point, typename point_type<Ring>::type>::type return_type;
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy, Point, typename point_type<Ring>::type
+        >::type return_type;
 
     static inline return_type apply(Point const& point,
-            Ring const& ring,
-            Strategy const& strategy)
+                                    Ring const& ring,
+                                    Strategy const& strategy)
     {
         std::pair<return_type, bool>
             dc = detail::distance::point_to_ring
@@ -332,11 +354,14 @@ struct distance
     strategy_tag_distance_point_segment, false
 >
 {
-    typedef typename return_type<Strategy, Point, typename point_type<Polygon>::type>::type return_type;
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy, Point, typename point_type<Polygon>::type
+        >::type return_type;
 
     static inline return_type apply(Point const& point,
-            Polygon const& polygon,
-            Strategy const& strategy)
+                                    Polygon const& polygon,
+                                    Strategy const& strategy)
     {
         std::pair<return_type, bool>
             dc = detail::distance::point_to_polygon

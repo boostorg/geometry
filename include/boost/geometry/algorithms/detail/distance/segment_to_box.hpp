@@ -407,6 +407,10 @@ private:
             PSStrategy
         >::type ps_comparable_strategy;
 
+    typedef typename strategy::distance::services::return_type
+        <
+            ps_comparable_strategy, segment_point, box_point
+        >::type comparable_return_type;
 public:
     typedef typename strategy::distance::services::return_type
         <
@@ -468,11 +472,11 @@ public:
                     PSStrategy
                 >::apply(ps_strategy);
 
-        return_type d;
+        comparable_return_type cd;
 
         if ( geometry::less<segment_point>()(p[0], p[1]) )
         {
-            d = segment_to_box_2D
+            cd = segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -486,7 +490,7 @@ public:
         }
         else
         {
-            d = segment_to_box_2D
+            cd = segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -502,7 +506,7 @@ public:
         return strategy::distance::services::comparable_to_regular
             <
                 ps_comparable_strategy, PSStrategy, Segment, Box
-            >::apply( d );
+            >::apply( cd );
     }
 };
 
