@@ -54,7 +54,7 @@ template
 >
 class point_range_to_geometry_rtree
 {
-public:
+private:
     typedef typename strategy::distance::services::comparable_type
         <
             Strategy
@@ -62,26 +62,27 @@ public:
 
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            comparable_strategy,
             RTreePoint,
             typename point_type<Geometry>::type
-        >::type return_type;   
+        >::type comparable_return_type;
 
-private:
     typedef index::rtree<RTreePoint, index::linear<8> > r_tree;
 
     // functor to evaluate minimum comparable distance
-    struct minimum_cdistance_evaluator
+    struct minimum_comparable_distance_evaluator
     {
         r_tree const& m_r_tree;
         comparable_strategy const& m_cstrategy;
         bool m_first;
-        return_type m_min_cd;
+        comparable_return_type m_min_cd;
 
-        minimum_cdistance_evaluator(r_tree const& r_tree,
-                                    comparable_strategy const& cstrategy)
-            : m_r_tree(r_tree), m_cstrategy(cstrategy),
-              m_first(true), m_min_cd()
+        minimum_comparable_distance_evaluator
+        (r_tree const& r_tree, comparable_strategy const& cstrategy)
+            : m_r_tree(r_tree)
+            , m_cstrategy(cstrategy)
+            , m_first(true)
+            , m_min_cd()
         {}
 
         template <typename QueryGeometry>
@@ -93,7 +94,7 @@ private:
 
             BOOST_ASSERT( n > 0 );
 
-            return_type cd = dispatch::distance
+            comparable_return_type cd = dispatch::distance
                 <
                     typename r_tree::value_type,
                     QueryGeometry,
@@ -124,6 +125,13 @@ private:
     };
 
 public:
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy,
+            RTreePoint,
+            typename point_type<Geometry>::type
+        >::type return_type;
+
     template <typename PointIterator>
     static inline return_type apply(PointIterator points_first,
                                     PointIterator points_beyond,
@@ -145,7 +153,7 @@ public:
         // create -- packing algorithm
         r_tree rt(points_first, points_beyond);
 
-        minimum_cdistance_evaluator
+        minimum_comparable_distance_evaluator
             functor(rt,
                     strategy::distance::services::get_comparable
                         <
@@ -169,7 +177,7 @@ template
     typename Geometry2,
     typename Strategy
 >
-struct geometry_to_geometry_rtree
+class geometry_to_geometry_rtree
 {
     // the following works with linear geometries seen as ranges of points
     //
@@ -178,6 +186,20 @@ struct geometry_to_geometry_rtree
     // ... and ...
     // vice versa.
 
+private:
+    typedef typename strategy::distance::services::comparable_type
+        <
+            Strategy
+        >::type comparable_strategy;
+
+    typedef typename strategy::distance::services::return_type
+        <
+            comparable_strategy,
+            typename point_type<Geometry1>::type,
+            typename point_type<Geometry2>::type
+        >::type comparable_return_type;
+
+public:
     typedef typename strategy::distance::services::return_type
         <
             Strategy,
@@ -220,21 +242,31 @@ struct geometry_to_geometry_rtree
             return return_type(0);
         }
 
-        return_type cdist1 = point_range_to_geometry_rtree
+        comparable_strategy cstrategy =
+            strategy::distance::services::get_comparable
+                <
+                    Strategy
+                >::apply(strategy);
+
+        comparable_return_type cdist1 = point_range_to_geometry_rtree
             <
                 typename point_type<Geometry1>::type,
                 Geometry2,
-                Strategy
-            >::apply(first1, beyond1, geometry2, strategy);
+                comparable_strategy
+            >::apply(first1, beyond1, geometry2, cstrategy);
 
-        return_type cdist2 = point_range_to_geometry_rtree
+        comparable_return_type cdist2 = point_range_to_geometry_rtree
             <
                 typename point_type<Geometry2>::type,
                 Geometry1,
-                Strategy
-            >::apply(first2, beyond2, geometry1, strategy);
+                comparable_strategy
+            >::apply(first2, beyond2, geometry1, cstrategy);
 
-        return (std::min)(cdist1, cdist2);
+
+        return strategy::distance::services::comparable_to_regular
+            <
+                comparable_strategy, Strategy, Geometry1, Geometry2
+            >::apply( (std::min)(cdist1, cdist2) );
     }
 };
 
