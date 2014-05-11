@@ -393,14 +393,13 @@ template
 <
     typename Linestring, typename Box,
     typename GeometryOut,
-    overlay_type OverlayType,
     bool Reverse1, bool Reverse2, bool ReverseOut
 >
 struct intersection_insert
     <
         Linestring, Box,
         GeometryOut,
-        OverlayType,
+        overlay_intersection,
         Reverse1, Reverse2, ReverseOut,
         linestring_tag, box_tag, linestring_tag,
         false, true, false
