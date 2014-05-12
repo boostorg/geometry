@@ -22,7 +22,18 @@
 
 
 #include <boost/concept_check.hpp>
+#include <boost/mpl/fold.hpp>
+#include <boost/mpl/greater.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/insert.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/lambda.hpp>
+#include <boost/mpl/pair.hpp>
+#include <boost/mpl/set.hpp>
+#include <boost/mpl/size.hpp>
+#include <boost/mpl/transform.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -497,6 +508,252 @@ struct distance
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+
+namespace resolve_variant {
+
+
+template <typename Geometry1, typename Geometry2>
+struct distance
+{
+    template <typename Strategy>
+    struct result_type
+    {
+        typedef typename strategy::distance::services::return_type<
+            Strategy,
+            typename point_type<Geometry1>::type,
+            typename point_type<Geometry2>::type
+        >::type type;
+    };
+
+    template <typename Strategy>
+    static inline typename result_type<Strategy>::type
+    apply(
+        const Geometry1& geometry1,
+        const Geometry2& geometry2,
+        Strategy const& strategy)
+    {
+        return dispatch::distance
+            <
+                Geometry1,
+                Geometry2,
+                Strategy
+            >::apply(geometry1, geometry2, strategy);
+    }
+};
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    template <typename Strategy>
+    struct result_type
+    {
+        typedef typename mpl::fold<
+            typename mpl::transform<
+                typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+                typename strategy::distance::services::return_type<
+                    Strategy,
+                    typename mpl::lambda<point_type<mpl::_> >::type,
+                    typename point_type<Geometry2>::type
+                >::type
+            >::type,
+            mpl::set0<>,
+            mpl::insert<mpl::_1, mpl::_2>
+        >::type possible_result_types;
+
+        typedef typename mpl::if_<
+            mpl::greater<
+                mpl::size<possible_result_types>,
+                mpl::int_<1>
+            >,
+            typename make_variant_over<possible_result_types>::type,
+            typename mpl::front<possible_result_types>::type
+        >::type type;
+    };
+
+    template <typename Strategy>
+    struct visitor: static_visitor<
+        typename result_type<variant<Strategy> >::type
+    >
+    {
+        Geometry2 const& m_geometry2;
+        Strategy const& m_strategy;
+
+        visitor(Geometry2 const& geometry2)
+            : m_geometry2(geometry2),
+              m_strategy(strategy)
+        {}
+
+        template <typename Geometry1, typename Strategy>
+        result_type operator()(Geometry1 const& geometry1) const
+        {
+            return dispatch::distance
+                <
+                    Geometry1,
+                    Geometry2,
+                    Strategy
+                >::apply(geometry1, geometry2, strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline typename result_type<variant<Strategy> >::type
+    apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        return apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
+    }
+};
+
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Strategy>
+    struct result_type
+    {
+        typedef typename mpl::fold<
+            typename mpl::transform<
+                typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+                typename strategy::distance::services::return_type<
+                    Strategy,
+                    typename point_type<Geometry1>::type,
+                    typename mpl::lambda<point_type<mpl::_> >::type                    
+                >::type
+            >::type,
+            mpl::set0<>,
+            mpl::insert<mpl::_1, mpl::_2>
+        >::type possible_result_types;
+
+        typedef typename mpl::if_<
+            mpl::greater<
+                mpl::size<possible_result_types>,
+                mpl::int_<1>
+            >,
+            typename make_variant_over<possible_result_types>::type,
+            typename mpl::front<possible_result_types>::type
+        >::type type;
+    };
+
+    template <typename Strategy>
+    struct visitor: static_visitor<
+        typename result_type<Strategy>::type
+    >
+    {
+        Geometry1 const& m_geometry1;
+        Strategy const& m_strategy;
+
+        visitor(Geometry1 const& geometry1)
+            : m_geometry1(geometry1),
+              m_strategy(strategy)
+        {}
+
+        template <typename Geometry2, typename Strategy>
+        bool operator()(Geometry2 const& geometry2, typename Strategy) const
+        {
+            return dispatch::distance
+                <
+                    Geometry1,
+                    Geometry2,
+                    Strategy
+                >::apply(geometry1, geometry2, strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline typename result_type<variant<Strategy> >::type
+    apply(
+        Geometry1 const& geometry1,
+        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
+        Strategy const& strategy)
+    {
+        return apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
+    }
+};
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >  
+{
+    template <typename Strategy>
+    struct result_type
+    {
+        template <typename T, typename Result>
+        struct list_of_pairs
+            : mpl::fold<typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types, Result, 
+              mpl::push_back<mpl::_1, mpl::pair<T, mpl::_2> > > 
+        {};
+
+        typedef typename mpl::fold<
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            mpl::vector0<>,
+            mpl::lambda<list_of_pairs<mpl::_2, mpl::_1> >
+        >::type combinations;
+
+        typedef typename mpl::fold<
+            typename mpl::transform<
+                typename combinations,
+                typename strategy::distance::services::return_type<
+                    Strategy,
+                    typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
+                    typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
+                >::type
+            >::type,
+            mpl::set0<>,
+            mpl::insert<mpl::_1, mpl::_2>
+        >::type possible_result_types;
+
+        typedef typename mpl::if_<
+            mpl::greater<
+                mpl::size<possible_result_types>,
+                mpl::int_<1>
+            >,
+            typename make_variant_over<possible_result_types>::type,
+            typename mpl::front<possible_result_types>::type
+        >::type type;
+    };
+
+    template <typename Strategy>
+    struct visitor: static_visitor<
+        typename result_type<Strategy>::type
+    >
+    {
+        Strategy const& m_strategy;
+
+        visitor(Strategy const& strategy)
+            : m_strategy(strategy)
+        {}
+
+        template <typename Geometry1, typename Geometry2, typename Strategy>
+        typename default_distance_result<Geometry1, Geometry2>::type operator()(
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2,
+            Strategy const& strategy) const
+        {
+            return resolve_variant::distance
+                <
+                    Geometry1,
+                    Geometry2,
+                    Strategy
+                >::apply(geometry1, geometry2, strategy);
+        }
+    };
+
+    template <typename Strategy>
+    static inline typename result_type<variant<Strategy> >::type
+    apply(
+        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry1,
+        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
+        Strategy const& strategy)
+    {
+        return apply_visitor(visitor<Strategy>(strategy), geometry1, geometry2);
+    }
+};
+
+} // namespace resolve_variant
+
+
 /*!
 \brief \brief_calc2{distance} \brief_strategy
 \ingroup distance
@@ -534,12 +791,7 @@ for distance, it is probably so that there is no specialization
 for return_type<...> for your strategy.
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename strategy::distance::services::return_type
-                <
-                    Strategy,
-                    typename point_type<Geometry1>::type,
-                    typename point_type<Geometry2>::type
-                >::type
+inline typename resolve_variant::distance<Geometry1, Geometry2>::result_type<Strategy>::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2,
          Strategy const& strategy)
@@ -550,11 +802,10 @@ distance(Geometry1 const& geometry1,
     detail::throw_on_empty_input(geometry1);
     detail::throw_on_empty_input(geometry2);
 
-    return dispatch::distance
+    return resolve_variant::distance
                <
                    Geometry1,
-                   Geometry2,
-                   Strategy
+                   Geometry2
                >::apply(geometry1, geometry2, strategy);
 }
 
@@ -572,8 +823,12 @@ distance(Geometry1 const& geometry1,
 \qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename default_distance_result<Geometry1, Geometry2>::type distance(
-                Geometry1 const& geometry1, Geometry2 const& geometry2)
+inline typename resolve_variant::distance<Geometry1, Geometry2>::result_type
+    <
+        typename detail::distance::default_strategy<Geometry1, Geometry2>::type
+    >::type
+distance(Geometry1 const& geometry1,
+         Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
