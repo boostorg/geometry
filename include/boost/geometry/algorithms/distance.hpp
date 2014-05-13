@@ -29,6 +29,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/pair.hpp>
+#include <boost/mpl/quote.hpp>
 #include <boost/mpl/set.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/transform.hpp>
@@ -55,6 +56,7 @@
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/combine_if.hpp>
 
 
 namespace boost { namespace geometry
@@ -255,7 +257,7 @@ struct point_to_polygon
 
 
 // Helper metafunction for default strategy retrieval
-template <typename Geometry1, typename Geometry2>
+template <typename Geometry1 = void, typename Geometry2 = void>
 struct default_strategy
     : strategy::distance::services::default_strategy
           <
@@ -263,7 +265,21 @@ struct default_strategy
               typename point_type<Geometry1>::type,
               typename point_type<Geometry2>::type
           >
-{};
+{
+};
+
+
+template <>
+struct default_strategy<void, void>
+{
+    template <typename Geometry1, typename Geometry2>
+    struct rebind
+    {
+        typedef default_strategy<Geometry1, Geometry2> type;
+    };
+
+    typedef void type;
+};
 
 
 }} // namespace detail::distance
