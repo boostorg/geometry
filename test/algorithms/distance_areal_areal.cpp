@@ -19,9 +19,11 @@
 #include "test_distance_common.hpp"
 
 
+typedef bg::model::point<int,2,bg::cs::cartesian>     int_point_type;
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::polygon<point_type, false>         polygon_type;
 typedef bg::model::multi_polygon<polygon_type>        multi_polygon_type;
+typedef bg::model::box<int_point_type>                int_box_type;
 typedef bg::model::box<point_type>                    box_type;
 
 namespace services = bg::strategy::distance::services;
@@ -112,7 +114,12 @@ void test_distance_box_box(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "box/box distance tests" << std::endl;
 #endif
+    test_distance_of_geometries<int_box_type, int_box_type> int_tester;
     test_distance_of_geometries<box_type, box_type> tester;
+
+    int_tester(make_box2d<int_box_type>(5, 5, 10, 10),
+               make_box2d<int_box_type>(0, 0, 1, 1),
+               sqrt(32.0), 32, strategy);
 
     tester(make_box2d<box_type>(5, 5, 10, 10),
            make_box2d<box_type>(0, 0, 1, 1),
