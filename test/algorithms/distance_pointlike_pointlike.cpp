@@ -36,12 +36,14 @@ void test_distance_point_point(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "point/point distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<point_type, point_type> tester;
+    typedef test_distance_of_geometries<point_type, point_type> tester;
 
-    tester("point(1 1)", "point(0 0)",
-           sqrt(2.0), 2, strategy);
-    tester("point(1 1)", "point(1 1)",
-           0, 0, strategy);
+    tester::apply("point(1 1)",
+                  "point(0 0)",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("point(1 1)",
+                  "point(1 1)",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -53,17 +55,17 @@ void test_distance_point_multipoint(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "point/multipoint distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<point_type, multi_point_type> tester;
+    typedef test_distance_of_geometries<point_type, multi_point_type> tester;
 
-    tester("point(1 1)",
-           "multipoint(1 1,2 1,2 2,1 2)",
-           0, 0, strategy);
-    tester("point(1 1)",
-           "multipoint(2 2,2 3,3 2,3 3)",
-           sqrt(2.0), 2, strategy);
-    tester("point(3 0)",
-           "multipoint(2 2,2 4,4 2,4 4)",
-           sqrt(5.0), 5, strategy);
+    tester::apply("point(1 1)",
+                  "multipoint(1 1,2 1,2 2,1 2)",
+                  0, 0, strategy);
+    tester::apply("point(1 1)",
+                  "multipoint(2 2,2 3,3 2,3 3)",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("point(3 0)",
+                  "multipoint(2 2,2 4,4 2,4 4)",
+                  sqrt(5.0), 5, strategy);
 }
 
 //===========================================================================
@@ -75,14 +77,17 @@ void test_distance_multipoint_multipoint(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "multipoint/multipoint distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<multi_point_type, multi_point_type> tester;
+    typedef test_distance_of_geometries
+        <
+            multi_point_type, multi_point_type
+        > tester;
 
-    tester("multipoint(0 0,1 0,0 1,1 1)",
-           "multipoint(1 1,2 1,2 2,1 2)",
-           0, 0, strategy);
-    tester("multipoint(0 0,1 0,0 1,1 1)",
-           "multipoint(2 2,2 3,3 2,3 3)",
-           sqrt(2.0), 2, strategy);
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multipoint(1 1,2 1,2 2,1 2)",
+                  0, 0, strategy);
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multipoint(2 2,2 3,3 2,3 3)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================

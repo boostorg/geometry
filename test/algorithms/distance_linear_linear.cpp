@@ -38,23 +38,23 @@ void test_distance_segment_segment(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "segment/segment distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<segment_type, segment_type> tester;
+    typedef test_distance_of_geometries<segment_type, segment_type> tester;
 
-    tester(make_segment<segment_type>(0, 0, 10, 0),
-           make_segment<segment_type>(4, 2, 4, 0.5),
-           return_type(0.5), return_type(0.25), strategy);
+    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
+                  make_segment<segment_type>(4, 2, 4, 0.5),
+                  return_type(0.5), return_type(0.25), strategy);
 
-    tester(make_segment<segment_type>(0, 0, 10, 0),
-           make_segment<segment_type>(4, 2, 4, -0.5),
-           return_type(0), return_type(0), strategy);
+    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
+                  make_segment<segment_type>(4, 2, 4, -0.5),
+                  return_type(0), return_type(0), strategy);
 
-    tester(make_segment<segment_type>(0, 0, 10, 0),
-           make_segment<segment_type>(4, 2, 0, 0),
-           return_type(0), return_type(0), strategy);
+    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
+                  make_segment<segment_type>(4, 2, 0, 0),
+                  return_type(0), return_type(0), strategy);
 
-    tester(make_segment<segment_type>(0, 0, 10, 0),
-           make_segment<segment_type>(-2, 3, 1, 2),
-           return_type(2), return_type(4), strategy);
+    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
+                  make_segment<segment_type>(-2, 3, 1, 2),
+                  return_type(2), return_type(4), strategy);
 }
 
 //===========================================================================
@@ -66,15 +66,15 @@ void test_distance_segment_linestring(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "segment/linestring distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<segment_type, linestring_type> tester;
+    typedef test_distance_of_geometries<segment_type, linestring_type> tester;
 
-    tester(make_segment<segment_type>(-1, -1, -2, -2),
-           "linestring(2 1,1 2,4 0)",
-           sqrt(12.5), 12.5, strategy);
+    tester::apply(make_segment<segment_type>(-1, -1, -2, -2),
+                  "linestring(2 1,1 2,4 0)",
+                  sqrt(12.5), 12.5, strategy);
 
-    tester(make_segment<segment_type>(1, 1, 2, 2),
-           "linestring(2 1,1 2,4 0)",
-           0, 0, strategy);
+    tester::apply(make_segment<segment_type>(1, 1, 2, 2),
+                  "linestring(2 1,1 2,4 0)",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -86,42 +86,52 @@ void test_distance_linestring_linestring(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "linestring/linestring distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<linestring_type, linestring_type> tester;
+    typedef test_distance_of_geometries
+        <
+            linestring_type, linestring_type
+        > tester;
 
     // It is not obvious that linestrings with only one point are valid
-    tester("linestring(1 1)", "linestring(2 1)", 1, 1, strategy);
+    tester::apply("linestring(1 1)", "linestring(2 1)",
+                  1, 1, strategy);
 
-    tester("linestring(1 1,3 1)", "linestring(2 1)", 0, 0, strategy);
+    tester::apply("linestring(1 1,3 1)", "linestring(2 1)",
+                  0, 0, strategy);
 
-    tester("linestring(1 1)", "linestring(0 0,-2 0,2 -2,2 0)",
-           sqrt(2.0), 2, strategy);
+    tester::apply("linestring(1 1)", "linestring(0 0,-2 0,2 -2,2 0)",
+                  sqrt(2.0), 2, strategy);
 
-    tester("linestring(1 1,1 1)", "linestring(2 1,2 1)", 1, 1, strategy);
+    tester::apply("linestring(1 1,1 1)", "linestring(2 1,2 1)",
+                  1, 1, strategy);
 
-    tester("linestring(1 1,1 1,1 1)", "linestring(2 1,2 1,2 1,2 1)",
-           1, 1, strategy);
+    tester::apply("linestring(1 1,1 1,1 1)", "linestring(2 1,2 1,2 1,2 1)",
+                  1, 1, strategy);
 
-    tester("linestring(1 1,3 1)", "linestring(2 1,2 1)", 0, 0, strategy);
+    tester::apply("linestring(1 1,3 1)", "linestring(2 1,2 1)",
+                  0, 0, strategy);
 
-    tester("linestring(1 1,1 1)", "linestring(0 0,-2 0,2 -2,2 0)",
-           sqrt(2.0), 2, strategy);
+    tester::apply("linestring(1 1,1 1)", "linestring(0 0,-2 0,2 -2,2 0)",
+                  sqrt(2.0), 2, strategy);
 
-    tester("linestring(1 1,3 1)", "linestring(2 1, 4 1)", 0, 0, strategy);
+    tester::apply("linestring(1 1,3 1)", "linestring(2 1, 4 1)",
+                  0, 0, strategy);
 
-    tester("linestring(1 1,2 2,3 3)", "linestring(2 1,1 2,4 0)",
-           0, 0, strategy);
+    tester::apply("linestring(1 1,2 2,3 3)", "linestring(2 1,1 2,4 0)",
+                  0, 0, strategy);
 
-    tester("linestring(1 1,2 2,3 3)", "linestring(1 0,2 -1,4 0)",
-           1, 1, strategy);
+    tester::apply("linestring(1 1,2 2,3 3)", "linestring(1 0,2 -1,4 0)",
+                  1, 1, strategy);
 
-    tester("linestring(1 1,2 2,3 3)", "linestring(1 -10,2 0,2.1 -10,4 0)",
-           sqrt(2.0), 2, strategy);
+    tester::apply("linestring(1 1,2 2,3 3)",
+                  "linestring(1 -10,2 0,2.1 -10,4 0)",
+                  sqrt(2.0), 2, strategy);
 
-    tester("linestring(1 1,2 2,3 3)", "linestring(1 -10,2 1.9,2.1 -10,4 0)",
-           sqrt(0.005), 0.005, strategy);
+    tester::apply("linestring(1 1,2 2,3 3)",
+                  "linestring(1 -10,2 1.9,2.1 -10,4 0)",
+                  sqrt(0.005), 0.005, strategy);
 
-    tester("linestring(1 1,1 2)", "linestring(0 0,-2 0,2 -2,2 0)",
-           sqrt(2.0), 2, strategy);
+    tester::apply("linestring(1 1,1 2)", "linestring(0 0,-2 0,2 -2,2 0)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -133,15 +143,18 @@ void test_distance_segment_multilinestring(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "segment/multilinestring distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<segment_type, multi_linestring_type> tester;
+    typedef test_distance_of_geometries
+        <
+            segment_type, multi_linestring_type
+        > tester;
 
-    tester(make_segment<segment_type>(-1, -1, -2, -2),
-           "multilinestring((2 1,1 2),(4 0,4 10))",
-           sqrt(12.5), 12.5, strategy);
+    tester::apply(make_segment<segment_type>(-1, -1, -2, -2),
+                  "multilinestring((2 1,1 2),(4 0,4 10))",
+                  sqrt(12.5), 12.5, strategy);
 
-    tester(make_segment<segment_type>(1, 1, 2, 2),
-           "multilinestring((2 1,1 2),(4 0,4 10))",
-           0, 0, strategy);
+    tester::apply(make_segment<segment_type>(1, 1, 2, 2),
+                  "multilinestring((2 1,1 2),(4 0,4 10))",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -154,15 +167,18 @@ void test_distance_linestring_multilinestring(Strategy const& strategy)
     std::cout << "linestring/multilinestring distance tests" << std::endl;
 #endif
 
-    test_distance_of_geometries<linestring_type, multi_linestring_type> tester;
+    typedef test_distance_of_geometries
+        <
+            linestring_type, multi_linestring_type
+        > tester;
 
-    tester("linestring(1 1,2 2,3 3)",
-           "multilinestring((2 1,1 2,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
-           0, 0, strategy, true);
+    tester::apply("linestring(1 1,2 2,3 3)",
+                  "multilinestring((2 1,1 2,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
+                  0, 0, strategy, true);
 
-    tester("linestring(1 1,2 2,3 3)",
-           "multilinestring((1 -10,2 0,2.1 -10,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
-           sqrt(0.005), 0.005, strategy, true);
+    tester::apply("linestring(1 1,2 2,3 3)",
+                  "multilinestring((1 -10,2 0,2.1 -10,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
+                  sqrt(0.005), 0.005, strategy, true);
 }
 
 //===========================================================================
@@ -175,22 +191,22 @@ void test_distance_multilinestring_multilinestring(Strategy const& strategy)
     std::cout << "multilinestring/multilinestring distance tests" << std::endl;
 #endif
 
-    test_distance_of_geometries
+    typedef test_distance_of_geometries
         <
             multi_linestring_type, multi_linestring_type
         > tester;
 
-    tester("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
-           "multilinestring((0.5 0.5,0.75 0.75),(11 0,11 7))",
-           0, 0, strategy);
+    tester::apply("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
+                  "multilinestring((0.5 0.5,0.75 0.75),(11 0,11 7))",
+                  0, 0, strategy);
 
-    tester("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
-           "multilinestring((0.5 0.5,0.75 0.75),(11 0,11 0.9))",
-           sqrt(0.005), 0.005, strategy);
+    tester::apply("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
+                  "multilinestring((0.5 0.5,0.75 0.75),(11 0,11 0.9))",
+                  sqrt(0.005), 0.005, strategy);
 
-    tester("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
-           "multilinestring((0.5 0.5,0.75 0.75),(11.1 0,11.1 0.9))",
-           sqrt(0.02), 0.02, strategy);
+    tester::apply("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
+                  "multilinestring((0.5 0.5,0.75 0.75),(11.1 0,11.1 0.9))",
+                  sqrt(0.02), 0.02, strategy);
 }
 
 //===========================================================================

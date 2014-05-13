@@ -34,6 +34,7 @@
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/dsv/write.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
@@ -201,19 +202,20 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         typename ComparableDistanceType,
         typename Strategy
     >
-    void operator()(std::string const& wkt1,
-                    std::string const& wkt2,
-                    DistanceType const& expected_distance,
-                    ComparableDistanceType const& expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = true) const
+    static inline
+    void apply(std::string const& wkt1,
+               std::string const& wkt2,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy,
+               bool test_reversed = true)
     {
         Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
+        apply(geometry1, geometry2,
+              expected_distance, expected_comparable_distance,
+              strategy, test_reversed);
     }
 
     template
@@ -222,18 +224,19 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         typename ComparableDistanceType,
         typename Strategy
     >
-    void operator()(Geometry1 const& geometry1,
-                    std::string const& wkt2,
-                    DistanceType const& expected_distance,
-                    ComparableDistanceType const& expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = true) const
+    static inline
+    void apply(Geometry1 const& geometry1,
+               std::string const& wkt2,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy,
+               bool test_reversed = true)
     {
         Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
+        apply(geometry1, geometry2,
+              expected_distance, expected_comparable_distance,
+              strategy, test_reversed);
     }
 
     template
@@ -242,18 +245,19 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         typename ComparableDistanceType,
         typename Strategy
     >
-    void operator()(std::string const& wkt1,
-                    Geometry2 const& geometry2,
-                    DistanceType const& expected_distance,
-                    ComparableDistanceType const& expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = true) const
+    static inline
+    void apply(std::string const& wkt1,
+               Geometry2 const& geometry2,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy,
+               bool test_reversed = true)
     {
         Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
 
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
+        apply(geometry1, geometry2,
+              expected_distance, expected_comparable_distance,
+              strategy, test_reversed);
     }
 
     template
@@ -262,12 +266,13 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         typename ComparableDistanceType,
         typename Strategy
     >
-    void operator()(Geometry1 const& geometry1,
-                    Geometry2 const& geometry2,
-                    DistanceType const& expected_distance,
-                    ComparableDistanceType const& expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = true) const
+    static inline
+    void apply(Geometry1 const& geometry1,
+               Geometry2 const& geometry2,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy,
+               bool test_reversed = true)
     {
 #ifdef GEOMETRY_TEST_DEBUG
         typedef pretty_print_geometry<Geometry1> PPG1;
@@ -445,44 +450,57 @@ struct test_distance_of_geometries
 
     typedef typename bg::ring_type<Geometry2>::type ring_type;
 
-    template <typename Segment, typename Strategy>
-    void operator()(Segment const& segment,
-                    std::string const& wkt,
-                    double expected_distance,
-                    double expected_comparable_distance,
-                    Strategy const& strategy) const
+    template
+    <
+        typename Segment,
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    static inline
+    void apply(Segment const& segment,
+               std::string const& wkt,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy)
     {
         Geometry2 geometry = from_wkt<Geometry2>(wkt);
-        operator()(segment,
-                   geometry,
-                   expected_distance,
-                   expected_comparable_distance,
-                   strategy);
+        apply(segment,
+              geometry,
+              expected_distance,
+              expected_comparable_distance,
+              strategy);
     }
 
 
-    template <typename Segment, typename Strategy>
-    void operator()(Segment const& segment,
-                    Geometry2 const& geometry,
-                    double expected_distance,
-                    double expected_comparable_distance,
-                    Strategy const& strategy) const
+    template
+    <
+        typename Segment,
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    static inline
+    void apply(Segment const& segment,
+               Geometry2 const& geometry,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy)
     {
-        base::operator()(segment, geometry, expected_distance,
-                         expected_comparable_distance, strategy);
+        base::apply(segment, geometry, expected_distance,
+                    expected_comparable_distance, strategy);
         if ( bg::num_interior_rings(geometry) == 0 ) {
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "... testing also exterior ring ..." << std::endl;
 #endif
-#if 0
-            // cannot run it now; needs within(point,linestring)
-            test_distance_of_segment_and_geometry<ring_type>()
-                (segment,
-                 bg::exterior_ring(geometry),
-                 expected_distance,
-                 expected_comparable_distance,
-                 strategy);
-#endif
+            test_distance_of_geometries
+                <
+                    Segment, ring_type
+                >::apply(segment,
+                         bg::exterior_ring(geometry),
+                         expected_distance,
+                         expected_comparable_distance,
+                         strategy);
         }
     }
 };

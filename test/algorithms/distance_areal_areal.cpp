@@ -41,24 +41,24 @@ void test_distance_polygon_polygon(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "polygon/polygon distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<polygon_type, polygon_type> tester;
+    typedef test_distance_of_geometries<polygon_type, polygon_type> tester;
 
-    tester("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-           "polygon((-5 20,5 20,5 25,-5 25,-5 20))",
-           10, 100, strategy);
+    tester::apply("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  "polygon((-5 20,5 20,5 25,-5 25,-5 20))",
+                  10, 100, strategy);
 
-    tester("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-           "polygon((-5 20,-5 5,5 5,5 20,-5 20))",
-           0, 0, strategy);
+    tester::apply("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  "polygon((-5 20,-5 5,5 5,5 20,-5 20))",
+                  0, 0, strategy);
 
-    tester("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-           "polygon((-5 20,-5 -20,5 -20,5 20,-5 20))",
-           0, 0, strategy);
+    tester::apply("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  "polygon((-5 20,-5 -20,5 -20,5 20,-5 20))",
+                  0, 0, strategy);
 
-    tester("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),\
-                    (-5 -5,-5 5,5 5,5 -5,-5 -5))",
-           "polygon((-1 -1,0 0,-1 0,-1 -1))",
-           4, 16, strategy);
+    tester::apply("polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),\
+                   (-5 -5,-5 5,5 5,5 -5,-5 -5))",
+                  "polygon((-1 -1,0 0,-1 0,-1 -1))",
+                  4, 16, strategy);
 }
 
 //===========================================================================
@@ -70,17 +70,20 @@ void test_distance_polygon_multipolygon(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "polygon/multipolygon distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<polygon_type, multi_polygon_type> tester;
+    typedef test_distance_of_geometries
+        <
+            polygon_type, multi_polygon_type
+        > tester;
 
-    tester("polygon((12 0,14 0,19 0,19.9 -1,12 0))",
-           "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
-                         ((20 -1,21 2,30 -10,20 -1)))",
-           0.1, 0.01, strategy, true);
+    tester::apply("polygon((12 0,14 0,19 0,19.9 -1,12 0))",
+                  "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
+                   ((20 -1,21 2,30 -10,20 -1)))",
+                  0.1, 0.01, strategy, true);
 
-    tester("polygon((19 0,19.9 -1,12 0,20.5 0.5,19 0))",
-           "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
-                         ((20 -1,21 2,30 -10,20 -1)))",
-           0, 0, strategy, true);
+    tester::apply("polygon((19 0,19.9 -1,12 0,20.5 0.5,19 0))",
+                  "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
+                   ((20 -1,21 2,30 -10,20 -1)))",
+                  0, 0, strategy, true);
 }
 
 //===========================================================================
@@ -92,17 +95,22 @@ void test_distance_multipolygon_multipolygon(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "multipolygon/multipolygon distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<multi_polygon_type, multi_polygon_type> tester;
+    typedef test_distance_of_geometries
+        <
+            multi_polygon_type, multi_polygon_type
+        > tester;
 
-    tester("multipolygon(((12 0,14 0,14 1,12 0)),((18 0,19 0,19.9 -1,18 0)))",
-           "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
-                         ((20 -1,21 2,30 -10,20 -1)))",
-           0.1, 0.01, strategy);
+    tester::apply("multipolygon(((12 0,14 0,14 1,12 0)),\
+                   ((18 0,19 0,19.9 -1,18 0)))",
+                  "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
+                   ((20 -1,21 2,30 -10,20 -1)))",
+                  0.1, 0.01, strategy);
 
-    tester("multipolygon(((18 0,19 0,19.9 -1,18 0)),((12 0,14 0,20.5 0.5,12 0)))",
-           "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
-                         ((20 -1,21 2,30 -10,20 -1)))",
-           0, 0, strategy);
+    tester::apply("multipolygon(((18 0,19 0,19.9 -1,18 0)),\
+                   ((12 0,14 0,20.5 0.5,12 0)))",
+                  "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
+                   ((20 -1,21 2,30 -10,20 -1)))",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -114,32 +122,32 @@ void test_distance_box_box(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "box/box distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<int_box_type, int_box_type> int_tester;
-    test_distance_of_geometries<box_type, box_type> tester;
+    typedef test_distance_of_geometries<int_box_type, int_box_type> int_tester;
+    typedef test_distance_of_geometries<box_type, box_type> tester;
 
-    int_tester(make_box2d<int_box_type>(5, 5, 10, 10),
-               make_box2d<int_box_type>(0, 0, 1, 1),
-               sqrt(32.0), 32, strategy);
+    int_tester::apply(make_box2d<int_box_type>(5, 5, 10, 10),
+                      make_box2d<int_box_type>(0, 0, 1, 1),
+                      sqrt(32.0), 32, strategy);
 
-    tester(make_box2d<box_type>(5, 5, 10, 10),
-           make_box2d<box_type>(0, 0, 1, 1),
-           sqrt(32.0), 32, strategy);
+    tester::apply(make_box2d<box_type>(5, 5, 10, 10),
+                  make_box2d<box_type>(0, 0, 1, 1),
+                  sqrt(32.0), 32, strategy);
 
-    tester(make_box2d<box_type>(3, 8, 13, 18),
-           make_box2d<box_type>(0, 0, 5, 5),
-           3, 9, strategy);
+    tester::apply(make_box2d<box_type>(3, 8, 13, 18),
+                  make_box2d<box_type>(0, 0, 5, 5),
+                  3, 9, strategy);
 
-    tester(make_box2d<box_type>(5, 5, 10, 10),
-           make_box2d<box_type>(0, 0, 5, 5),
-           0, 0, strategy);
+    tester::apply(make_box2d<box_type>(5, 5, 10, 10),
+                  make_box2d<box_type>(0, 0, 5, 5),
+                  0, 0, strategy);
 
-    tester(make_box2d<box_type>(5, 5, 10, 10),
-           make_box2d<box_type>(0, 0, 6, 6),
-           0, 0, strategy);
+    tester::apply(make_box2d<box_type>(5, 5, 10, 10),
+                  make_box2d<box_type>(0, 0, 6, 6),
+                  0, 0, strategy);
 
-    tester(make_box2d<box_type>(3, 5, 13, 15),
-           make_box2d<box_type>(0, 0, 5, 5),
-           0, 0, strategy);
+    tester::apply(make_box2d<box_type>(3, 5, 13, 15),
+                  make_box2d<box_type>(0, 0, 5, 5),
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -151,27 +159,27 @@ void test_distance_polygon_box(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "polygon/box distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<polygon_type, box_type> tester;
+    typedef test_distance_of_geometries<polygon_type, box_type> tester;
 
-    tester("polygon((10 10,10 5,5 5,5 10,10 10))",
-           make_box2d<box_type>(0, 0, 1, 1),
-           sqrt(32.0), 32, strategy);
+    tester::apply("polygon((10 10,10 5,5 5,5 10,10 10))",
+                  make_box2d<box_type>(0, 0, 1, 1),
+                  sqrt(32.0), 32, strategy);
 
-    tester("polygon((10 10,10 5,5 5,5 10,10 10))",
-           make_box2d<box_type>(0, 0, 5, 5),
-           0, 0, strategy);
+    tester::apply("polygon((10 10,10 5,5 5,5 10,10 10))",
+                  make_box2d<box_type>(0, 0, 5, 5),
+                  0, 0, strategy);
 
-    tester("polygon((10 10,10 5,5 5,5 10,10 10))",
-           make_box2d<box_type>(0, 0, 6, 6),
-           0, 0, strategy);
+    tester::apply("polygon((10 10,10 5,5 5,5 10,10 10))",
+                  make_box2d<box_type>(0, 0, 6, 6),
+                  0, 0, strategy);
 
-    tester("polygon((10 10,15 5,10 0,5 5,10 10))",
-           make_box2d<box_type>(5, 0, 7.5, 2.5),
-           0, 0, strategy);
+    tester::apply("polygon((10 10,15 5,10 0,5 5,10 10))",
+                  make_box2d<box_type>(5, 0, 7.5, 2.5),
+                  0, 0, strategy);
 
-    tester("polygon((10 10,15 5,10 0,5 5,10 10))",
-           make_box2d<box_type>(5, 0, 6, 1),
-           sqrt(4.5), 4.5, strategy);
+    tester::apply("polygon((10 10,15 5,10 0,5 5,10 10))",
+                  make_box2d<box_type>(5, 0, 6, 1),
+                  sqrt(4.5), 4.5, strategy);
 }
 
 //===========================================================================
@@ -183,22 +191,22 @@ void test_distance_multipolygon_box(Strategy const& strategy)
     std::cout << std::endl;
     std::cout << "multipolygon/box distance tests" << std::endl;
 #endif
-    test_distance_of_geometries<multi_polygon_type, box_type> tester;
+    typedef test_distance_of_geometries<multi_polygon_type, box_type> tester;
 
-    tester("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
-                         ((2 2,2 3,3 3,3 2,2 2)))",
-           make_box2d<box_type>(0, 0, 1, 1),
-           sqrt(2.0), 2, strategy);
+    tester::apply("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
+                   ((2 2,2 3,3 3,3 2,2 2)))",
+                  make_box2d<box_type>(0, 0, 1, 1),
+                  sqrt(2.0), 2, strategy);
 
-    tester("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
-                         ((2 2,2 3,3 3,3 2,2 2)))",
-           make_box2d<box_type>(0, 0, 2, 2),
-           0, 0, strategy);
+    tester::apply("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
+                   ((2 2,2 3,3 3,3 2,2 2)))",
+                  make_box2d<box_type>(0, 0, 2, 2),
+                  0, 0, strategy);
 
-    tester("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
-                         ((2 2,2 3,3 3,3 2,2 2)))",
-           make_box2d<box_type>(0, 0, 2.5, 2),
-           0, 0, strategy);
+    tester::apply("multipolygon(((-10 -10,-10 -9,-9 -9,-9 -10,-10 -10)),\
+                   ((2 2,2 3,3 3,3 2,2 2)))",
+                  make_box2d<box_type>(0, 0, 2.5, 2),
+                  0, 0, strategy);
 }
 
 //===========================================================================
