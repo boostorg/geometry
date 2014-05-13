@@ -19,6 +19,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_COMPARABLE_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_COMPARABLE_DISTANCE_HPP
 
+#include <boost/geometry/strategies/default_comparable_distance_result.hpp>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
@@ -72,7 +73,7 @@ comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2,
 \qbk{[include reference/algorithms/comparable_distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename default_distance_result<Geometry1, Geometry2>::type
+inline typename default_comparable_distance_result<Geometry1, Geometry2>::type
 comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();
