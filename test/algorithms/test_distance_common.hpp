@@ -14,7 +14,10 @@
 #include <iostream>
 #include <string>
 
-#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_same.hpp>
+
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -31,8 +34,12 @@
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/multi/io/dsv/write.hpp>
 
+#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
+
 #include "from_wkt.hpp"
 
+#include <string_from_type.hpp>
 
 
 #ifndef BOOST_GEOMETRY_TEST_DISTANCE_HPP
@@ -152,6 +159,28 @@ struct pretty_print_geometry
 
 //========================================================================
 
+
+template <typename T>
+struct check_equal
+{
+    static inline void apply(T const& value1, T const& value2)
+    {
+        BOOST_CHECK( value1 == value2 );
+    }
+};
+
+template <>
+struct check_equal<double>
+{
+    static inline void apply(double value1, double value2)
+    {
+        BOOST_CHECK_CLOSE( value1, value2, 0.0001 );
+    }
+};
+
+
+//========================================================================
+
 template
 <
     typename Geometry1, typename Geometry2,
@@ -166,61 +195,80 @@ struct test_distance_of_geometries
 template <typename Geometry1, typename Geometry2>
 struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 {
-    template <typename Strategy>
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
     void operator()(std::string const& wkt1,
                     std::string const& wkt2,
-                    double expected_distance,
-                    double expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = false) const
-    {
-        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
-        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
-
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
-    }
-
-    template <typename Strategy>
-    void operator()(Geometry1 const& geometry1,
-                    std::string const& wkt2,
-                    double expected_distance,
-                    double expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = false) const
-    {
-        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
-
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
-    }
-
-    template <typename Strategy>
-    void operator()(std::string const& wkt1,
-                    Geometry2 const& geometry2,
-                    double expected_distance,
-                    double expected_comparable_distance,
-                    Strategy const& strategy,
-                    bool test_reversed = false) const
-    {
-        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
-
-        operator()(geometry1, geometry2,
-                   expected_distance, expected_comparable_distance,
-                   strategy, test_reversed);
-    }
-
-    template <typename Strategy>
-    void operator()(Geometry1 const& geometry1,
-                    Geometry2 const& geometry2,
-                    double expected_distance,
-                    double expected_comparable_distance,
+                    DistanceType const& expected_distance,
+                    ComparableDistanceType const& expected_comparable_distance,
                     Strategy const& strategy,
                     bool test_reversed = true) const
     {
+        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
+        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
 
+        operator()(geometry1, geometry2,
+                   expected_distance, expected_comparable_distance,
+                   strategy, test_reversed);
+    }
+
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    void operator()(Geometry1 const& geometry1,
+                    std::string const& wkt2,
+                    DistanceType const& expected_distance,
+                    ComparableDistanceType const& expected_comparable_distance,
+                    Strategy const& strategy,
+                    bool test_reversed = true) const
+    {
+        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
+
+        operator()(geometry1, geometry2,
+                   expected_distance, expected_comparable_distance,
+                   strategy, test_reversed);
+    }
+
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    void operator()(std::string const& wkt1,
+                    Geometry2 const& geometry2,
+                    DistanceType const& expected_distance,
+                    ComparableDistanceType const& expected_comparable_distance,
+                    Strategy const& strategy,
+                    bool test_reversed = true) const
+    {
+        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
+
+        operator()(geometry1, geometry2,
+                   expected_distance, expected_comparable_distance,
+                   strategy, test_reversed);
+    }
+
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    void operator()(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    DistanceType const& expected_distance,
+                    ComparableDistanceType const& expected_comparable_distance,
+                    Strategy const& strategy,
+                    bool test_reversed = true) const
+    {
 #ifdef GEOMETRY_TEST_DEBUG
         typedef pretty_print_geometry<Geometry1> PPG1;
         typedef pretty_print_geometry<Geometry2> PPG2;
@@ -229,30 +277,94 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         PPG2::apply(geometry2, std::cout);
         std::cout << std::endl;
 #endif
+        typedef typename bg::default_distance_result
+            <
+                Geometry1, Geometry2
+            >::type default_distance_result;
 
-        typename bg::default_distance_result<Geometry1>::type dist_def
-            = bg::distance(geometry1, geometry2);
+        typedef typename bg::strategy::distance::services::return_type
+            <
+                Strategy, Geometry1, Geometry2
+            >::type distance_result_from_strategy;
 
-        BOOST_CHECK_CLOSE(dist_def, expected_distance, 0.0001);
+        static const bool same_regular = boost::is_same
+            <
+                default_distance_result,
+                distance_result_from_strategy
+            >::type::value;
 
-        typename bg::default_distance_result<Geometry1>::type dist
-            = bg::distance(geometry1, geometry2, strategy);
+        BOOST_CHECK( same_regular );
+    
 
-        BOOST_CHECK_CLOSE(dist, expected_distance, 0.0001);
+        typedef typename bg::default_comparable_distance_result
+            <
+                Geometry1, Geometry2
+            >::type default_comparable_distance_result;
+
+        typedef typename bg::strategy::distance::services::return_type
+            <
+                typename bg::strategy::distance::services::comparable_type
+                    <
+                        Strategy
+                    >::type,
+                Geometry1,
+                Geometry2
+            >::type comparable_distance_result_from_strategy;
+
+        static const bool same_comparable = boost::is_same
+            <
+                default_comparable_distance_result,
+                comparable_distance_result_from_strategy
+            >::type::value;
+        
+        BOOST_CHECK( same_comparable );
+
+
+        // check distance with default strategy
+        default_distance_result dist_def = bg::distance(geometry1, geometry2);
+
+        check_equal
+            <
+                default_distance_result
+            >::apply(dist_def, expected_distance);
+
+
+        // check distance with passed strategy
+        distance_result_from_strategy dist =
+            bg::distance(geometry1, geometry2, strategy);
+
+        check_equal
+            <
+                default_distance_result
+            >::apply(dist, expected_distance);
+
+
+        // check comparable distance with default strategy
+        default_comparable_distance_result cdist_def =
+            bg::comparable_distance(geometry1, geometry2);
+
+        check_equal
+            <
+                default_comparable_distance_result
+            >::apply(cdist_def, expected_comparable_distance);
+
+
+        // check comparable distance with passed strategy
+        comparable_distance_result_from_strategy cdist =
+            bg::comparable_distance(geometry1, geometry2, strategy);
+
+        check_equal
+            <
+                default_comparable_distance_result
+            >::apply(cdist, expected_comparable_distance);
 
 #ifdef GEOMETRY_TEST_DEBUG
-        typename bg::default_distance_result<Geometry1>::type cdist_def
-            = bg::comparable_distance(geometry1, geometry2);
-
-        BOOST_CHECK_CLOSE(cdist_def, expected_comparable_distance, 0.001);
-#endif
-
-        typename bg::default_distance_result<Geometry1>::type cdist
-            = bg::comparable_distance(geometry1, geometry2, strategy);
-
-        BOOST_CHECK_CLOSE(cdist, expected_comparable_distance, 0.001);
-
-#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << string_from_type<typename bg::coordinate_type<Geometry1>::type>::name()
+                  << string_from_type<typename bg::coordinate_type<Geometry2>::type>::name()
+                  << " -> "
+                  << string_from_type<default_distance_result>::name()
+                  << string_from_type<default_comparable_distance_result>::name()
+                  << std::endl;
         std::cout << "distance (default strategy) = " << dist_def << " ; " 
                   << "distance (passed strategy) = " << dist << " ; " 
                   << "comp. distance (default strategy) = "
@@ -268,23 +380,39 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 
         if ( test_reversed )
         {
+            // check distance with default strategy
             dist_def = bg::distance(geometry2, geometry1);
 
-            BOOST_CHECK_CLOSE(dist_def, expected_distance, 0.0001);
+            check_equal
+                <
+                    default_distance_result
+                >::apply(dist_def, expected_distance);
 
+
+            // check distance with given strategy
             dist = bg::distance(geometry2, geometry1, strategy);
 
-            BOOST_CHECK_CLOSE(dist, expected_distance, 0.0001);
+            check_equal
+                <
+                    default_distance_result
+                >::apply(dist, expected_distance);
 
-#ifdef GEOMETRY_TEST_DEBUG
+
+            // check comparable distance with default strategy
             cdist_def = bg::comparable_distance(geometry2, geometry1);
 
-            BOOST_CHECK_CLOSE(cdist_def, expected_comparable_distance, 0.001);
-#endif
+            check_equal
+                <
+                    default_comparable_distance_result
+                >::apply(cdist_def, expected_comparable_distance);
 
+            // check comparable distance with given strategy
             cdist = bg::comparable_distance(geometry2, geometry1, strategy);
 
-            BOOST_CHECK_CLOSE(cdist, expected_comparable_distance, 0.001);
+            check_equal
+                <
+                    default_comparable_distance_result
+                >::apply(cdist, expected_comparable_distance);
 
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "distance[reversed args] (def. startegy) = "
