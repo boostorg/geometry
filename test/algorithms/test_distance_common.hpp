@@ -67,41 +67,7 @@ void test_empty_input(Geometry1 const& geometry1, Geometry2 const& geometry2)
 
 
 //========================================================================
-//========================================================================
-//========================================================================
 
-
-// create geometries -- START
-template<typename Segment>
-Segment make_segment(double x1, double y1, double x2, double y2)
-{
-    typename bg::point_type<Segment>::type p(x1, y1), q(x2, y2);
-    return Segment(p, q);
-}
-
-
-template <typename Box>
-Box make_box2d(double xmin, double ymin, double xmax, double ymax)
-{
-    typedef typename bg::point_type<Box>::type BoxPoint;
-
-    return Box(BoxPoint(xmin, ymin), BoxPoint(xmax, ymax));
-}
-
-template <typename Box>
-Box make_box3d(double xmin, double ymin, double zmin,
-               double xmax, double ymax, double zmax)
-{
-    typedef typename bg::point_type<Box>::type BoxPoint;
-
-    return Box(BoxPoint(xmin, ymin, zmin), BoxPoint(xmax, ymax, zmax));
-}
-// create geometries -- END
-
-
-//========================================================================
-//========================================================================
-//========================================================================
 
 
 #ifdef GEOMETRY_TEST_DEBUG
@@ -154,8 +120,6 @@ struct pretty_print_geometry
 };
 // pretty print geometry -- END
 #endif // GEOMETRY_TEST_DEBUG
-
-
 
 
 //========================================================================
@@ -218,47 +182,6 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
               strategy, test_reversed);
     }
 
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(Geometry1 const& geometry1,
-               std::string const& wkt2,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy,
-               bool test_reversed = true)
-    {
-        Geometry2 geometry2 = from_wkt<Geometry2>(wkt2);
-
-        apply(geometry1, geometry2,
-              expected_distance, expected_comparable_distance,
-              strategy, test_reversed);
-    }
-
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(std::string const& wkt1,
-               Geometry2 const& geometry2,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy,
-               bool test_reversed = true)
-    {
-        Geometry1 geometry1 = from_wkt<Geometry1>(wkt1);
-
-        apply(geometry1, geometry2,
-              expected_distance, expected_comparable_distance,
-              strategy, test_reversed);
-    }
 
     template
     <
@@ -436,37 +359,36 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
 
 
 //========================================================================
-//========================================================================
 
-template <typename Geometry1, typename Geometry2>
+template <typename Segment, typename Polygon>
 struct test_distance_of_geometries
 <
-    Geometry1, Geometry2,
+    Segment, Polygon,
     92 /* segment */, 3 /* polygon */
 >
-    : public test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
+    : public test_distance_of_geometries<Segment, Polygon, 0, 0>
 {
-    typedef test_distance_of_geometries<Geometry1, Geometry2, 0, 0> base;
+    typedef test_distance_of_geometries<Segment, Polygon, 0, 0> base;
 
-    typedef typename bg::ring_type<Geometry2>::type ring_type;
+    typedef typename bg::ring_type<Polygon>::type ring_type;
 
     template
     <
-        typename Segment,
         typename DistanceType,
         typename ComparableDistanceType,
         typename Strategy
     >
     static inline
-    void apply(Segment const& segment,
-               std::string const& wkt,
+    void apply(std::string const& wkt_segment,
+               std::string const& wkt_polygon,
                DistanceType const& expected_distance,
                ComparableDistanceType const& expected_comparable_distance,
                Strategy const& strategy)
     {
-        Geometry2 geometry = from_wkt<Geometry2>(wkt);
+        Segment segment = from_wkt<Segment>(wkt_segment);
+        Polygon polygon = from_wkt<Polygon>(wkt_polygon);
         apply(segment,
-              geometry,
+              polygon,
               expected_distance,
               expected_comparable_distance,
               strategy);
@@ -475,21 +397,20 @@ struct test_distance_of_geometries
 
     template
     <
-        typename Segment,
         typename DistanceType,
         typename ComparableDistanceType,
         typename Strategy
     >
     static inline
     void apply(Segment const& segment,
-               Geometry2 const& geometry,
+               Polygon const& polygon,
                DistanceType const& expected_distance,
                ComparableDistanceType const& expected_comparable_distance,
                Strategy const& strategy)
     {
-        base::apply(segment, geometry, expected_distance,
+        base::apply(segment, polygon, expected_distance,
                     expected_comparable_distance, strategy);
-        if ( bg::num_interior_rings(geometry) == 0 ) {
+        if ( bg::num_interior_rings(polygon) == 0 ) {
 #ifdef GEOMETRY_TEST_DEBUG
             std::cout << "... testing also exterior ring ..." << std::endl;
 #endif
@@ -497,7 +418,7 @@ struct test_distance_of_geometries
                 <
                     Segment, ring_type
                 >::apply(segment,
-                         bg::exterior_ring(geometry),
+                         bg::exterior_ring(polygon),
                          expected_distance,
                          expected_comparable_distance,
                          strategy);

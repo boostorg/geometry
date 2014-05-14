@@ -40,20 +40,20 @@ void test_distance_segment_segment(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<segment_type, segment_type> tester;
 
-    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
-                  make_segment<segment_type>(4, 2, 4, 0.5),
+    tester::apply("segment(0 0,10 0)",
+                  "segment(4 2,4 0.5)",
                   return_type(0.5), return_type(0.25), strategy);
 
-    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
-                  make_segment<segment_type>(4, 2, 4, -0.5),
+    tester::apply("segment(0 0,10 0)",
+                  "segment(4 2,4 -0.5)",
                   return_type(0), return_type(0), strategy);
 
-    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
-                  make_segment<segment_type>(4, 2, 0, 0),
+    tester::apply("segment(0 0,10 0)",
+                  "segment(4 2,0 0)",
                   return_type(0), return_type(0), strategy);
 
-    tester::apply(make_segment<segment_type>(0, 0, 10, 0),
-                  make_segment<segment_type>(-2, 3, 1, 2),
+    tester::apply("segment(0 0,10 0)",
+                  "segment(-2 3,1 2)",
                   return_type(2), return_type(4), strategy);
 }
 
@@ -68,11 +68,11 @@ void test_distance_segment_linestring(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<segment_type, linestring_type> tester;
 
-    tester::apply(make_segment<segment_type>(-1, -1, -2, -2),
+    tester::apply("segment(-1 -1,-2 -2)",
                   "linestring(2 1,1 2,4 0)",
                   sqrt(12.5), 12.5, strategy);
 
-    tester::apply(make_segment<segment_type>(1, 1, 2, 2),
+    tester::apply("segment(1 1,2 2)",
                   "linestring(2 1,1 2,4 0)",
                   0, 0, strategy);
 }
@@ -148,11 +148,11 @@ void test_distance_segment_multilinestring(Strategy const& strategy)
             segment_type, multi_linestring_type
         > tester;
 
-    tester::apply(make_segment<segment_type>(-1, -1, -2, -2),
+    tester::apply("segment(-1 -1,-2 -2)",
                   "multilinestring((2 1,1 2),(4 0,4 10))",
                   sqrt(12.5), 12.5, strategy);
 
-    tester::apply(make_segment<segment_type>(1, 1, 2, 2),
+    tester::apply("segment(1 1,2 2)",
                   "multilinestring((2 1,1 2),(4 0,4 10))",
                   0, 0, strategy);
 }
