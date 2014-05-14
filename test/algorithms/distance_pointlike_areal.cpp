@@ -395,7 +395,7 @@ void test_distance_point_box_3d(Strategy const& strategy)
                   "point(0 8 7)", sqrt(85.0), 85, strategy);
 
     tester::apply("box(-1 -1 -1,1 1 1)",
-                  "point(-4 0 -4)", sqrt(18), 18, strategy);
+                  "point(-4 0 -4)", sqrt(18.0), 18, strategy);
     tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-3 0 5)", sqrt(20.0), 20, strategy);
     tester::apply("box(-1 -1 -1,1 1 1)",
@@ -404,7 +404,7 @@ void test_distance_point_box_3d(Strategy const& strategy)
                   "point(8 0 6)", sqrt(74.0), 74, strategy);
 
     tester::apply("box(-1 -1 -1,1 1 1)",
-                  "point(-5 -5 0)", sqrt(32), 32, strategy);
+                  "point(-5 -5 0)", sqrt(32.0), 32, strategy);
     tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-4 6 0)", sqrt(34.0), 34, strategy);
     tester::apply("box(-1 -1 -1,1 1 1)",

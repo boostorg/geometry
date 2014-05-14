@@ -606,7 +606,7 @@ void test_distance_segment_box(Strategy const& strategy)
                   2, 4, strategy);
     tester::apply("box(0 0,1 1)",
                   "segment(-2 5,-1 4)",
-                  sqrt(10), 10, strategy);
+                  sqrt(10.0), 10, strategy);
     tester::apply("box(0 0,1 1)",
                   "segment(3 -1,4 -4)",
                   sqrt(5.0), 5, strategy);
