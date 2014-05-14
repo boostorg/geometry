@@ -106,6 +106,7 @@ private:
                                      SegmentPoints const& segment_points,
                                      ComparableStrategy const& strategy)
         {
+            boost::ignore_unused_variable_warning(strategy);
             return strategy.apply(point, segment_points[0], segment_points[1]);
         }
     };
@@ -126,6 +127,8 @@ private:
                                      BoxPoints const& box_points,
                                      ComparableStrategy const& strategy)
         {
+            boost::ignore_unused_variable_warning(strategy);
+
             comparable_return_type cd_min =
                 strategy.apply(point, box_points[0], box_points[3]);
 

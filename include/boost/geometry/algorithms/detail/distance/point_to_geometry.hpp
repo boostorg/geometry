@@ -390,10 +390,11 @@ struct distance
           Segment const& segment,
           Strategy const& strategy)
     {
-
         typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
+
+        boost::ignore_unused_variable_warning(strategy);
         return strategy.apply(point, p[0], p[1]);
     }
 };
@@ -413,6 +414,7 @@ struct distance
         >::type
     apply(Point const& point, Box const& box, Strategy const& strategy)
     {
+        boost::ignore_unused_variable_warning(strategy);
         return strategy.apply(point, box);
     }
 };
