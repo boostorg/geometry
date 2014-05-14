@@ -525,7 +525,53 @@ struct distance
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
+
+namespace detail { namespace distance
+{
+
+template <typename Geometry1, typename Geometry2>
+struct is_same_dimension_and_coordinate_system
+{
+    typedef typename mpl::and_<
+        typename is_same<
+            typename coordinate_system<Geometry1>::type,
+            typename coordinate_system<Geometry2>::type
+        >::type,
+        typename is_same<
+            typename dimension<Geometry1>::type,
+            typename dimension<Geometry2>::type
+        >::type
+    >::type
+    type;
+};
+
+
+template <typename Geometry1, typename Geometry2>
+struct is_implemented
+{
+    typedef typename mpl::not_<
+        typename is_base_of<
+            nyi::not_implemented_tag,
+            geometry::dispatch::distance<Geometry1, Geometry2>
+        >::type
+    >::type
+    type;
+};
+
+
+template <typename Geometry1, typename Geometry2>
+struct is_compatible
+{
+    typedef typename mpl::and_<
+        typename is_same_dimension_and_coordinate_system<Geometry1, Geometry2>::type,
+        typename is_implemented<Geometry1, Geometry2>::type
+    >::type
+    type;
+};
+
+}} // namespace detail::distance
 
 
 template <typename Geometry1, typename Geometry2>
@@ -695,39 +741,44 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENU
     template <typename Strategy>
     struct result_type
     {
-        template <typename T, typename Result>
-        struct list_of_pairs
-            : mpl::fold<typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types, Result, 
-              mpl::push_back<mpl::_1, mpl::pair<T, mpl::_2> > > 
-        {};
-
-        typedef typename mpl::fold<
+        typedef typename util::combine_if<
             typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            mpl::vector0<>,
-            mpl::lambda<list_of_pairs<mpl::_2, mpl::_1> >
-        >::type combinations;
+            mpl::quote2<detail::distance::is_compatible>
+        >::type possible_input_types;
 
-        typedef typename mpl::fold<
-            typename mpl::transform<
-                typename combinations,
-                typename strategy::distance::services::return_type<
-                    Strategy,
-                    typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
-                    typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
-                >::type
-            >::type,
-            mpl::set0<>,
-            mpl::insert<mpl::_1, mpl::_2>
-        >::type possible_result_types;
+        //template <typename T, typename Result>
+        //struct list_of_pairs
+        //    : mpl::fold<typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types, Result, 
+        //      mpl::push_back<mpl::_1, mpl::pair<T, mpl::_2> > > 
+        //{};
 
-        typedef typename mpl::if_<
-            mpl::greater<
-                mpl::size<possible_result_types>,
-                mpl::int_<1>
-            >,
-            typename make_variant_over<possible_result_types>::type,
-            typename mpl::front<possible_result_types>::type
-        >::type type;
+        //typedef typename mpl::fold<
+        //    typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+        //    mpl::vector0<>,
+        //    mpl::lambda<list_of_pairs<mpl::_2, mpl::_1> >
+        //>::type combinations;
+
+        //typedef typename mpl::fold<
+        //    typename mpl::transform<
+        //        typename combinations,
+        //        typename strategy::distance::services::return_type<
+        //            Strategy,
+        //            typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
+        //            typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
+        //        >::type
+        //    >::type,
+        //    mpl::set0<>,
+        //    mpl::insert<mpl::_1, mpl::_2>
+        //>::type possible_result_types;
+
+        //typedef typename mpl::if_<
+        //    mpl::greater<
+        //        mpl::size<possible_result_types>,
+        //        mpl::int_<1>
+        //    >,
+        //    typename make_variant_over<possible_result_types>::type,
+        //    typename mpl::front<possible_result_types>::type
+        //>::type type;
     };
 
     template <typename Strategy>
@@ -839,10 +890,7 @@ distance(Geometry1 const& geometry1,
 \qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename resolve_variant::distance<Geometry1, Geometry2>::result_type
-    <
-        typename detail::distance::default_strategy<Geometry1, Geometry2>::type
-    >::type
+inline typename default_distance_result<Geometry1, Geometry2>::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2)
 {

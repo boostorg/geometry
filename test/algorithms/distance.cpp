@@ -197,9 +197,6 @@ void test_distance_array_as_linestring()
     BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 }
 
-
-
-
 template <typename P>
 void test_all()
 {
@@ -316,81 +313,6 @@ void test_large_integers()
 }
 
 
-namespace boost { namespace geometry {
-
-namespace test {
-
-template <typename Geometry1, typename Geometry2>
-struct is_implemented
-{
-    typedef mpl::true_ type;
-};
-
-template <typename Geometry1, typename Geometry2>
-struct distance {};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >  
-{
-    template <typename Strategy>
-    struct result_type
-    {
-        //template <typename T, typename Result>
-        //struct list_of_pairs
-        //    : mpl::fold<typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types, Result, 
-        //      mpl::push_back<mpl::_1, mpl::pair<T, mpl::_2> > > 
-        //{};
-
-        //typedef typename mpl::fold<
-        //    typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-        //    mpl::vector0<>,
-        //    mpl::lambda<list_of_pairs<mpl::_2, mpl::_1> >
-        //>::type combinations;
-
-        typedef typename util::combine_if<
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            mpl::quote2<is_implemented>
-        >::type possible_input_types;
-
-
-        //typedef typename mpl::transform<
-        //    possible_input_types,
-        //    typename strategy::distance::services::return_type<
-        //        //Strategy,
-        //        typename Strategy::template rebind<mpl::first<mpl::_>, mpl::second<mpl::_> >::type,
-        //        typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
-        //        typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
-        //    >::type
-        //>::type possible_result_types;
-
-        //typedef typename mpl::fold<
-        //    typename mpl::transform<
-        //        possible_input_types,
-        //        typename strategy::distance::services::return_type<
-        //            typename Strategy::template rebind<mpl::first<mpl::_>, mpl::second<mpl::_> >::type,
-        //            typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
-        //            typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
-        //        >::type
-        //    >::type,
-        //    mpl::set0<>,
-        //    mpl::insert<mpl::_1, mpl::_2>
-        //>::type possible_result_types;
-
-        //typedef typename mpl::if_<
-        //    mpl::greater<
-        //        mpl::size<possible_result_types>,
-        //        mpl::int_<1>
-        //    >,
-        //    typename make_variant_over<possible_result_types>::type,
-        //    typename mpl::front<possible_result_types>::type
-        //>::type type;
-    };
-};
-
-} //namespace test 
-
-}} // namespace boost::geometry
-
 void test_variant()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
@@ -407,19 +329,16 @@ void test_variant()
 
     variant_type v1, v2;
 
-    //v1 = point;
-    //v2 = point;
-    //BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, point), 0.0001);
-    //BOOST_CHECK_CLOSE(bg::distance(v1, point), bg::distance(point, point), 0.0001);
-    //BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, point), 0.0001);
-    //v1 = point;
-    //v2 = seg;
-    //BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, seg), 0.0001);
-
-    bg::test::distance<variant_type, variant_type>::result_type
-    <
-        bg::detail::distance::default_strategy<>
-    >::possible_input_types res;
+    v1 = point;
+    v2 = point;
+    BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, point), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(v1, point), bg::distance(point, point), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, point), 0.0001);
+    v1 = point;
+    v2 = seg;
+    BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, seg), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(v1, seg), bg::distance(point, seg), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, seg), 0.0001);
 }
 
 int test_main(int, char* [])
