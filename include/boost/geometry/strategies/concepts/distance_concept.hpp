@@ -135,15 +135,8 @@ private :
                     ApplyMethod, 1
                 >::type sptype;
 
-            // 1) must define meta-function return_type
+            // must define meta-function return_type
             typedef typename strategy::distance::services::return_type<Strategy, ptype, sptype>::type rtype;
-
-            // 2) must define underlying point-distance-strategy
-            typedef typename strategy::distance::services::strategy_point_point<Strategy>::type stype;
-            BOOST_CONCEPT_ASSERT
-                (
-                    (concept::PointDistanceStrategy<stype, Point, PointOfSegment>)
-                );
 
 
             Strategy *str = 0;

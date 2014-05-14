@@ -16,9 +16,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
-
+#ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_COMPARABLE_DISTANCE_RESULT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DEFAULT_COMPARABLE_DISTANCE_RESULT_HPP
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -30,19 +29,22 @@ namespace boost { namespace geometry
 {
 
 /*!
-\brief Meta-function defining return type of distance function
+\brief Meta-function defining return type of comparable_distance function
 \ingroup distance
 \note The strategy defines the return-type (so this situation is different
     from length, where distance is sqr/sqrt, but length always squared)
  */
 template <typename Geometry1, typename Geometry2 = Geometry1>
-struct default_distance_result
+struct default_comparable_distance_result
 {
     typedef typename strategy::distance::services::return_type
         <
-            typename detail::distance::default_strategy
+            typename strategy::distance::services::comparable_type
                 <
-                    Geometry1, Geometry2
+                    typename detail::distance::default_strategy
+                        <
+                            Geometry1, Geometry2
+                        >::type
                 >::type,
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
@@ -53,4 +55,4 @@ struct default_distance_result
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_DEFAULT_DISTANCE_RESULT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DEFAULT_COMPARABLE_DISTANCE_RESULT_HPP
