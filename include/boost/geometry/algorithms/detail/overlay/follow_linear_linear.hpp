@@ -289,7 +289,7 @@ protected:
 public:
     template <typename TurnIterator, typename OutputIterator>
     static inline OutputIterator
-    apply(Linestring const& linestring, Linear const& linear,
+    apply(Linestring const& linestring, Linear const&,
           TurnIterator first, TurnIterator beyond,
           OutputIterator oit)
     {

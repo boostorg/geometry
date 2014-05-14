@@ -174,11 +174,6 @@ struct return_type<projected_point<CalculationType, Strategy>, P, PS>
     : projected_point<CalculationType, Strategy>::template calculation_type<P, PS>
 {};
 
-template <typename CalculationType, typename Strategy>
-struct strategy_point_point<projected_point<CalculationType, Strategy> >
-{
-    typedef Strategy type;
-};
 
 
 template <typename CalculationType, typename Strategy>

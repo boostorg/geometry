@@ -11,7 +11,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_INTERSECTION_CONTENT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_INTERSECTION_CONTENT_HPP
 
-#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/detail/overlay/intersection_box_box.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
@@ -25,7 +26,12 @@ inline typename default_content_result<Box>::type intersection_content(Box const
     if ( geometry::intersects(box1, box2) )
     {
         Box box_intersection;
-        geometry::intersection(box1, box2, box_intersection);
+
+        strategy_intersection_empty dummy;
+        geometry::detail::intersection::intersection_box_box
+                    <
+                        0, geometry::dimension<Box>::value
+                    >::apply(box1, box2, box_intersection, dummy);
         return detail::content(box_intersection);
     }
     return 0;
