@@ -43,6 +43,7 @@ struct distance
         >::type
     apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
     {
+        boost::ignore_unused_variable_warning(strategy);
         return strategy.apply(box1, box2);
     }
 };
