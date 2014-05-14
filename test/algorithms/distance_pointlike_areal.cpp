@@ -174,48 +174,48 @@ void test_distance_point_box_2d(Strategy const& strategy)
     typedef test_distance_of_geometries<box_type, point_type> tester;
 
     // point inside box
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(0 0)", 0, 0, strategy);
 
     // points on box corners
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(-1 -1)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(-1 1)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(1 -1)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(1 1)", 0, 0, strategy);
 
     // points on box boundary edges
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(0 -1)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(-1 0)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(1 0)", 0, 0, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(0 1)", 0, 0, strategy);
 
     // points outside box
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(0 4)", 3, 9, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(0.5 4)", 3, 9, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(-0.5 5)", 4, 16, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(3 0.25)", 2, 4, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
                   "point(-3 -0.25)", 2, 4, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
-                  "point(3 5)", sqrt(20), 20, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
+    tester::apply("box(-1 -1,1 1)",
+                  "point(3 5)", sqrt(20.0), 20, strategy);
+    tester::apply("box(-1 -1,1 1)",
                   "point(-5 -4)", 5, 25, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
-                  "point(2 -2)", sqrt(2), 2, strategy);
-    tester::apply(make_box2d<box_type>(-1, -1, 1, 1),
-                  "point(-3 4)", sqrt(13), 13, strategy);
+    tester::apply("box(-1 -1,1 1)",
+                  "point(2 -2)", sqrt(2.0), 2, strategy);
+    tester::apply("box(-1 -1,1 1)",
+                  "point(-3 4)", sqrt(13.0), 13, strategy);
 }
 
 //===========================================================================
@@ -237,42 +237,42 @@ void test_distance_point_box_different_point_types(Strategy const& strategy)
         <
             int_point, int_box
         >::apply("point(0 0)",
-                 make_box2d<int_box>(1, 1, 2, 2),
-                 sqrt(2), 2, strategy);
+                 "box(1 1, 2 2)",
+                 sqrt(2.0), 2, strategy);
 
     test_distance_of_geometries
         <
             double_point, int_box
         >::apply("point(0.5 0)",
-                 make_box2d<int_box>(1, -1, 2, 1),
+                 "box(1 -1,2 1)",
                  0.5, 0.25, strategy);
 
     test_distance_of_geometries
         <
             double_point, double_box
         >::apply("point(1.5 0)",
-                 make_box2d<double_box>(1, -1, 2, 1),
+                 "box(1 -1,2 1)",
                  0, 0, strategy);
 
     test_distance_of_geometries
         <
             double_point, int_box
         >::apply("point(1.5 0)",
-                 make_box2d<int_box>(1, -1, 2, 1),
+                 "box(1 -1,2 1)",
                  0, 0, strategy);
 
     test_distance_of_geometries
         <
             int_point, double_box
         >::apply("point(1 0)",
-                 make_box2d<double_box>(0.5, -1, 1.5, 1),
+                 "box(0.5 -1,1.5 1)",
                  0, 0, strategy);
 
     test_distance_of_geometries
         <
             int_point, double_box
         >::apply("point(0 0)",
-                 make_box2d<double_box>(0.5, -1, 1.5, 1),
+                 "box(0.5, -1,1.5, 1)",
                  0.5, 0.25, strategy);
 }
 
@@ -288,128 +288,128 @@ void test_distance_point_box_3d(Strategy const& strategy)
     typedef test_distance_of_geometries<box_type_3d, point_type_3d> tester;
 
     // point inside box
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 0 0)", 0, 0, strategy);
 
     // points on box corners
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 -1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 -1 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 1 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 -1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 -1 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 1 1)", 0, 0, strategy);
 
     // points on box boundary edges
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 -1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 -1 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 1 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 1 1)", 0, 0, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 0 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 0 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 0 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 0 1)", 0, 0, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 -1 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 1 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 -1 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 1 0)", 0, 0, strategy);
 
     // point on box faces
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 0 -1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 0 1)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 -1 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 1 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-1 0 0)", 0, 0, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(1 0 0)", 0, 0, strategy);
 
     // points outside box -- closer to box corners
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-2 -3 -4)", sqrt(14), 14, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-2 -3 -4)", sqrt(14.0), 14, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-2 -3 3)", 3, 9, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-2 5 -2)", sqrt(18), 18, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-2 5 3)", sqrt(21), 21, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(4 -6 -3)", sqrt(38), 38, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(4 -6 4)", sqrt(43), 43, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(4 7 -2)", sqrt(46), 46, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(4 7 8)", sqrt(94), 94, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-2 5 -2)", sqrt(18.0), 18, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-2 5 3)", sqrt(21.0), 21, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(4 -6 -3)", sqrt(38.0), 38, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(4 -6 4)", sqrt(43.0), 43, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(4 7 -2)", sqrt(46.0), 46, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(4 7 8)", sqrt(94.0), 94, strategy);
 
 
     // points closer to box facets
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 0 10)", 9, 81, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 0 -5)", 4, 16, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 7 0)", 6, 36, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 -6 0)", 5, 25, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(4 0 0)", 3, 9, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(-3 0 0)", 2, 4, strategy);
 
     // points closer to box edges
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(0 -4 -5)", 5, 25, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(0 -3 6)", sqrt(29), 29, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(0 2 -7)", sqrt(37), 37, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(0 8 7)", sqrt(85), 85, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(0 -3 6)", sqrt(29.0), 29, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(0 2 -7)", sqrt(37.0), 37, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(0 8 7)", sqrt(85.0), 85, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-4 0 -4)", sqrt(18), 18, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-3 0 5)", sqrt(20), 20, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(2 0 -6)", sqrt(26), 26, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(8 0 6)", sqrt(74), 74, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-4 0 -4)", sqrt(18.0), 18, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-3 0 5)", sqrt(20.0), 20, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(2 0 -6)", sqrt(26.0), 26, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(8 0 6)", sqrt(74.0), 74, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-5 -5 0)", sqrt(32), 32, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(-4 6 0)", sqrt(34), 34, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
-                  "point(3 -7 0)", sqrt(40), 40, strategy);
-    tester::apply(make_box3d<box_type_3d>(-1, -1, -1, 1, 1, 1),
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-5 -5 0)", sqrt(32.0), 32, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(-4 6 0)", sqrt(34.0), 34, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
+                  "point(3 -7 0)", sqrt(40.0), 40, strategy);
+    tester::apply("box(-1 -1 -1,1 1 1)",
                   "point(9 7 0)", 10, 100, strategy);
 }
 
@@ -425,24 +425,24 @@ void test_distance_multipoint_box_2d(Strategy const& strategy)
     typedef test_distance_of_geometries<box_type, multi_point_type> tester;
 
     // at least one point inside the box
-    tester::apply(make_box2d<box_type>(0, 0, 10, 10),
+    tester::apply("box(0 0,10 10)",
                   "multipoint(0 0,-1 -1,20 20)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<box_type>(0, 0, 10, 10),
+    tester::apply("box(0 0,10 10)",
                   "multipoint(1 1,-1 -1,20 20)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<box_type>(0, 0, 10, 10),
+    tester::apply("box(0 0,10 10)",
                   "multipoint(1 1,2 2,3 3)",
                   0, 0, strategy);
 
     // all points outside the box
-    tester::apply(make_box2d<box_type>(0, 0, 10, 10),
+    tester::apply("box(0 0,10 10)",
                   "multipoint(-1 -1,20 20)",
-                  sqrt(2), 2, strategy);
+                  sqrt(2.0), 2, strategy);
 
-    tester::apply(make_box2d<box_type>(0, 0, 10, 10),
+    tester::apply("box(0 0,10 10)",
                   "multipoint(5 13, 50 50)",
                   3, 9, strategy);
 }
@@ -462,24 +462,24 @@ void test_distance_multipoint_box_3d(Strategy const& strategy)
         > tester;
 
     // at least one point inside the box
-    tester::apply(make_box3d<box_type_3d>(0, 0, 0, 10, 10, 10),
+    tester::apply("box(0 0 0,10 10 10)",
                   "multipoint(0 0 0,-1 -1 -1,20 20 20)",
                   0, 0, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(0, 0, 0, 10, 10, 10),
+    tester::apply("box(0 0 0,10 10 10)",
                   "multipoint(1 1 1,-1 -1 -1,20 20 20)",
                   0, 0, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(0, 0, 0, 10, 10, 10),
+    tester::apply("box(0 0 0,10 10 10)",
                   "multipoint(1 1 1,2 2 2,3 3 3)",
                   0, 0, strategy);
 
     // all points outside the box
-    tester::apply(make_box3d<box_type_3d>(0, 0, 0, 10, 10, 10),
+    tester::apply("box(0 0 0,10 10 10)",
                   "multipoint(-1 -1 -1,20 20 20)",
-                  sqrt(3), 3, strategy);
+                  sqrt(3.0), 3, strategy);
 
-    tester::apply(make_box3d<box_type_3d>(0, 0, 0, 10, 10, 10),
+    tester::apply("box(0 0 0,10 10 10)",
                   "multipoint(5 5 13,50 50 50)",
                   3, 9, strategy);
 }
