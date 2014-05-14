@@ -14,6 +14,7 @@
 #define BOOST_GEOMETRY_TEST_FROM_WKT_HPP
 
 #include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
 
 template <typename Geometry>
 inline Geometry from_wkt(std::string const& wkt)
