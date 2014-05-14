@@ -16,8 +16,8 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_VIEWS_NORMALIZED_VIEW_HPP
-#define BOOST_GEOMETRY_VIEWS_NORMALIZED_VIEW_HPP
+#ifndef BOOST_GEOMETRY_VIEWS_DETAIL_NORMALIZED_VIEW_HPP
+#define BOOST_GEOMETRY_VIEWS_DETAIL_NORMALIZED_VIEW_HPP
 
 
 #include <boost/range/begin.hpp>
@@ -113,4 +113,4 @@ private:
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_VIEWS_NORMALIZED_VIEW_HPP
+#endif // BOOST_GEOMETRY_VIEWS_DETAIL_NORMALIZED_VIEW_HPP
