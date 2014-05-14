@@ -81,6 +81,9 @@ private:
     {
         typedef cast_to_result<ReturnType> cast;
 
+        boost::ignore_unused_variable_warning(pp_strategy);
+        boost::ignore_unused_variable_warning(ps_strategy);
+
         // assert that the segment has non-negative slope
         BOOST_ASSERT( (math::equals(geometry::get<0>(p0),
                                     geometry::get<0>(p1))
@@ -216,6 +219,9 @@ private:
                            PSStrategy const& ps_strategy)
     {
         typedef cast_to_result<ReturnType> cast;
+
+        boost::ignore_unused_variable_warning(pp_strategy);
+        boost::ignore_unused_variable_warning(ps_strategy);
 
         // assert that the segment has negative slope
         BOOST_ASSERT

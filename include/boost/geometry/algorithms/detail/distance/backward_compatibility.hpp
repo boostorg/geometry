@@ -110,7 +110,7 @@ struct distance
     static inline typename return_type<Strategy, Point, typename point_type<Linestring>::type>::type
     apply(Point const& point,
           Linestring const& linestring,
-          Strategy const& strategy)
+          Strategy const&)
     {
         typedef typename detail::distance::default_ps_strategy
                     <
@@ -143,7 +143,7 @@ struct distance
 
     static inline return_type apply(Point const& point,
             Ring const& ring,
-            Strategy const& strategy)
+            Strategy const&)
     {
         typedef typename detail::distance::default_ps_strategy
             <
@@ -181,7 +181,7 @@ struct distance
 
     static inline return_type apply(Point const& point,
             Polygon const& polygon,
-            Strategy const& strategy)
+            Strategy const&)
     {
         typedef typename detail::distance::default_ps_strategy
             <

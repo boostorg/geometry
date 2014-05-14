@@ -47,6 +47,7 @@ test-suite boost-geometry-algorithms
     [ run intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run length.cpp ]
     [ run make.cpp ]
+    [ run num_points.cpp ]
     [ run overlaps.cpp ]
     [ run perimeter.cpp ]
     [ run point_on_surface.cpp ]

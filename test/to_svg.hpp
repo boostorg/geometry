@@ -29,7 +29,7 @@
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 template <typename G, typename Turns, typename Mapper>
-inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool enrich = false)
+inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool /*enrich*/ = false)
 {
     // turn points in orange, + enrichment/traversal info
     typedef typename bg::coordinate_type<G>::type coordinate_type;
@@ -196,7 +196,7 @@ struct to_svg_assign_policy
 };
 
 template <typename G>
-inline void to_svg(G const& g, std::string const& filename, bool sort = true)
+inline void to_svg(G const& g, std::string const& filename, bool /*sort*/ = true)
 {
     namespace bg = boost::geometry;
 
