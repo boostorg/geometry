@@ -16,11 +16,11 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 template <typename Geometry>
-Geometry from_wkt(std::string const& wkt)
+inline Geometry from_wkt(std::string const& wkt)
 {
-    Geometry res;
-    boost::geometry::read_wkt(wkt, res);
-    return res;
+    Geometry result;
+    boost::geometry::read_wkt(wkt, result);
+    return result;
 }
 
 #endif // BOOST_GEOMETRY_TEST_FROM_WKT_HPP
