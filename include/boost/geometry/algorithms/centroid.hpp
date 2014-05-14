@@ -32,7 +32,6 @@
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
