@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/typeof/typeof.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tag.hpp>
@@ -85,8 +84,9 @@ struct linear_linear_no_intersections
     static inline OutputIterator apply(MultiLineString const& multilinestring,
                                        OutputIterator oit)
     {
-        BOOST_AUTO_TPL(it, boost::begin(multilinestring));
-        for (; it != boost::end(multilinestring); ++it)
+        for (typename boost::range_iterator<MultiLineString const>::type
+                 it = boost::begin(multilinestring);
+             it != boost::end(multilinestring); ++it)
         {
             LineStringOut ls_out;
             geometry::convert(*it, ls_out);
