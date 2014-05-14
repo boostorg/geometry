@@ -169,16 +169,16 @@ void test_distance_multipoint_segment(Strategy const& strategy)
     typedef test_distance_of_geometries<multi_point_type, segment_type> tester;
 
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
-                  make_segment<segment_type>(2, 0, 0, 2),
+                  "segment(2 0,0 2)",
                   0, 0, strategy);
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
-                  make_segment<segment_type>(4, 0, 0, 4),
+                  "segment(4 0,0 4)",
                   sqrt(2.0), 2, strategy);
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
-                  make_segment<segment_type>(1, 1, 2, 2),
+                  "segment(1 1,2 2)",
                   0, 0, strategy);
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
-                  make_segment<segment_type>(3, 3, 4, 4),
+                  "segment(3 3,4 4)",
                   sqrt(8.0), 8, strategy);
 }
 
