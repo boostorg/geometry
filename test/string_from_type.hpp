@@ -14,6 +14,7 @@
 #ifndef GEOMETRY_TEST_STRING_FROM_TYPE_HPP
 #define GEOMETRY_TEST_STRING_FROM_TYPE_HPP
 
+#include <string>
 
 #if defined(HAVE_TTMATH)
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
