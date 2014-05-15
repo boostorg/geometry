@@ -29,6 +29,21 @@
 namespace bgm = bg::model;
 
 template <typename P>
+void test_segment_segment()
+{
+    typedef bgm::segment<P> seg;
+
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(0 0, 3 3)", true);
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(3 3, 0 0)", true);
+
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(0 0, 1 1)", false);
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(3 3, 2 2)", false);
+
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(1 1, 4 4)", false);
+    test_geometry<seg, seg>("seg2d_1", "LINESTRING(0 0, 3 3)", "LINESTRING(1 0, 2 0)", false);
+}
+
+template <typename P>
 void test_linestring_linestring()
 {
     typedef bgm::linestring<P> ls;
@@ -168,6 +183,7 @@ void test_all()
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,2 1,2 2,1 2,1 1))",
         "POLYGON((0 0,0 3,3 3,3 0,0 0),(2 2,1 2,1 1,2 1,2 2))", true);
 
+    test_segment_segment<P>();
     test_linestring_linestring<P>();
     test_linestring_multilinestring<P>();
     test_multilinestring_multilinestring<P>();

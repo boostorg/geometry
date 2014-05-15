@@ -94,19 +94,19 @@ struct segment_segment
     template <typename Segment1, typename Segment2>
     static inline bool apply(Segment1 const& segment1, Segment2 const& segment2)
     {
-        return ( equals::equals_point_point(
+        return equals::equals_point_point(
                     indexed_point_view<Segment1 const, 0>(segment1),
                     indexed_point_view<Segment2 const, 0>(segment2) )
-              && equals::equals_point_point(
+                ? equals::equals_point_point(
                     indexed_point_view<Segment1 const, 1>(segment1),
                     indexed_point_view<Segment2 const, 1>(segment2) )
-          ) || ( equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 0>(segment1),
-                    indexed_point_view<Segment2 const, 1>(segment2) )
-              && equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 1>(segment1),
-                    indexed_point_view<Segment2 const, 0>(segment2) )
-          );
+                : ( equals::equals_point_point(
+                        indexed_point_view<Segment1 const, 0>(segment1),
+                        indexed_point_view<Segment2 const, 1>(segment2) )
+                 && equals::equals_point_point(
+                        indexed_point_view<Segment1 const, 1>(segment1),
+                        indexed_point_view<Segment2 const, 0>(segment2) )
+                  );
     }
 };
 
