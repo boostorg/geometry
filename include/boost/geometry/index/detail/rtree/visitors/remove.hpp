@@ -2,7 +2,7 @@
 //
 // R-tree removing visitor implementation
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -68,7 +68,9 @@ public:
         size_t child_node_index = 0;
         for ( ; child_node_index < children.size() ; ++child_node_index )
         {
-            if ( geometry::covered_by(m_translator(m_value), children[child_node_index].first) )
+            if ( geometry::covered_by(
+                    return_ref_or_bounds(m_translator(m_value)),
+                    children[child_node_index].first) )
             {
                 // next traversing step
                 traverse_apply_visitor(n, child_node_index);                                                            // MAY THROW

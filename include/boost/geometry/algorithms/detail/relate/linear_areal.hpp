@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 
-#include <boost/geometry/views/normalized_view.hpp>
+#include <boost/geometry/views/detail/normalized_view.hpp>
 
 namespace boost { namespace geometry
 {

@@ -434,11 +434,11 @@ void test_large_integers()
     }
 }
 
-
+template <typename T>
 void test_variant()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::segment<point_type> segment_type;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::segment<fp_point_type> segment_type;
     typedef boost::variant<point_type, segment_type> variant_type;
 
     point_type point;
@@ -512,7 +512,8 @@ int test_main(int, char* [])
 
     test_empty_input<bg::model::d2::point_xy<int> >();
 
-    test_variant();
+    test_variant<double>();
+    test_variant<int>();
 
     return 0;
 }
