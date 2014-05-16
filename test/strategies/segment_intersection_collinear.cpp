@@ -118,7 +118,8 @@ static void test_segment_ratio(std::string const& case_id,
                 int x3, int y3, int x4, int y4,
                 Pair expected_pair_a1, Pair expected_pair_a2,
                 Pair expected_pair_b1, Pair expected_pair_b2,
-                int exp_ax1, int exp_ay1, int exp_ax2, int exp_ay2)
+                int exp_ax1, int exp_ay1, int exp_ax2, int exp_ay2,
+                std::size_t expected_count = 2)
 
 {
     boost::ignore_unused_variable_warning(case_id);
@@ -157,16 +158,20 @@ static void test_segment_ratio(std::string const& case_id,
     ratio_type expected_b1(expected_pair_b1.first, expected_pair_b1.second);
     ratio_type expected_b2(expected_pair_b2.first, expected_pair_b2.second);
 
-    BOOST_CHECK_EQUAL(is.count, 2u);
-    BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
-    BOOST_CHECK_EQUAL(is.fractions[1].robust_ra, expected_a2);
-    BOOST_CHECK_EQUAL(is.fractions[0].robust_rb, expected_b1);
-    BOOST_CHECK_EQUAL(is.fractions[1].robust_rb, expected_b2);
+    BOOST_CHECK_EQUAL(is.count, expected_count);
 
+    BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
+    BOOST_CHECK_EQUAL(is.fractions[0].robust_rb, expected_b1);
     BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[0]), exp_ax1);
     BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[0]), exp_ay1);
-    BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[1]), exp_ax2);
-    BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[1]), exp_ay2);
+
+    if (expected_count == 2)
+    {
+        BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[1]), exp_ax2);
+        BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[1]), exp_ay2);
+        BOOST_CHECK_EQUAL(is.fractions[1].robust_ra, expected_a2);
+        BOOST_CHECK_EQUAL(is.fractions[1].robust_rb, expected_b2);
+    }
 }
 
 
@@ -486,6 +491,30 @@ void test_ratios()
         std::make_pair(3, 4), std::make_pair(1, 1),
         std::make_pair(0, 1), std::make_pair(1, 3),
         5, 0, 6, 0);
+
+    // Degenerated one
+    //       a1---------->a2
+    //             b1/b2
+    const int ignored = 99;
+    test_segment_ratio<P>("degenerated1",
+        2, 0, 6, 0,
+        5, 0, 5, 0,
+        std::make_pair(3, 4), // IP located on 3/4 w.r.t A
+        std::make_pair(ignored, 1), // not checked
+        std::make_pair(0, 1), // IP located at any place w.r.t B, so 0
+        std::make_pair(ignored, 1), // not checked
+        5, 0,
+        ignored, ignored,
+        1);
+
+    test_segment_ratio<P>("degenerated2",
+        5, 0, 5, 0,
+        2, 0, 6, 0,
+        std::make_pair(0, 1), std::make_pair(ignored, 1),
+        std::make_pair(3, 4), std::make_pair(ignored, 1),
+        5, 0,
+        ignored, ignored,
+        1);
 
     // Vertical one like in box_poly5 but in integer
     test_segment_ratio<P>("box_poly5",

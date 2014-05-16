@@ -99,10 +99,13 @@ struct dissolve_ring_or_polygon
                 RescalePolicy const& rescale_policy,
                 OutputIterator out)
     {
+        typedef typename point_type<Geometry>::type point_type;
+
         // Get the self-intersection points, including turns
         typedef detail::overlay::traversal_turn_info
             <
-                typename point_type<Geometry>::type
+                point_type,
+                typename segment_ratio_type<point_type, RescalePolicy>::type
             > turn_info;
 
         std::vector<turn_info> turns;
@@ -212,6 +215,7 @@ template
     typename GeometryOut
 >
 struct dissolve
+    : not_implemented<GeometryTag, GeometryOutTag>
 {};
 
 

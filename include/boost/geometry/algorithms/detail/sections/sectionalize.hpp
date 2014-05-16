@@ -686,13 +686,16 @@ struct sectionalize<polygon_tag, Polygon, Reverse, DimensionCount>
     \tparam Geometry type of geometry to check
     \tparam Sections type of sections to create
     \param geometry geometry to create sections from
+    \param robust_policy policy to handle robustness issues
+    \param enlarge_secion_boxes if true, boxes are enlarged a tiny bit to be sure
+        they really contain all geometries (w.r.t. robustness)
     \param sections structure with sections
     \param source_index index to assign to the ring_identifiers
  */
 template<bool Reverse, typename Geometry, typename Sections, typename RobustPolicy>
 inline void sectionalize(Geometry const& geometry,
                 RobustPolicy const& robust_policy,
-                bool make_rescaled_boxes,
+                bool enlarge_secion_boxes,
                 Sections& sections,
                 int source_index = 0)
 {
@@ -710,10 +713,10 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             Sections::value
-        >::apply(geometry, robust_policy, make_rescaled_boxes, sections, ring_id, 10);
+        >::apply(geometry, robust_policy, enlarge_secion_boxes, sections, ring_id, 10);
 
     detail::sectionalize::set_section_unique_ids(sections);
-    if (! make_rescaled_boxes)
+    if (! enlarge_secion_boxes)
     {
         detail::sectionalize::enlarge_sections(sections);
     }
@@ -724,12 +727,12 @@ inline void sectionalize(Geometry const& geometry,
 // Backwards compatibility
 template<bool Reverse, typename Geometry, typename Sections>
 inline void sectionalize(Geometry const& geometry,
-                Sections& sections,
-                int source_index = 0)
+                         Sections& sections,
+                         int source_index = 0)
 {
-    return sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
-                                 false, sections,
-                                 source_index);
+    return geometry::sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
+                                           false, sections,
+                                           source_index);
 }
 #endif
 

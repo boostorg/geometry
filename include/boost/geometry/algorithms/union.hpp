@@ -5,11 +5,11 @@
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
@@ -270,9 +270,10 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concept::check<Geometry2 const>();
     concept::check<GeometryOut>();
 
-    typedef typename geometry::rescale_policy_type
+    typedef typename geometry::rescale_overlay_policy_type
         <
-            typename geometry::point_type<Geometry1>::type // TODO from both
+            Geometry1,
+            Geometry2
         >::type rescale_policy_type;
 
     typedef strategy_intersection

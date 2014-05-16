@@ -99,6 +99,24 @@ struct segments_intersection_ratios
     {
         return return_type();
     }
+
+    template <typename Segment, typename Ratio>
+    static inline return_type one_degenerate(Segment const& ,
+            Ratio const& ratio, bool a_degenerate)
+    {
+        return_type result;
+        if (a_degenerate)
+        {
+            // IP lies on ratio w.r.t. segment b
+            result.assign(Ratio::zero(), ratio);
+        }
+        else
+        {
+            result.assign(ratio, Ratio::zero());
+        }
+        return result;
+    }
+
 };
 
 

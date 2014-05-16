@@ -273,6 +273,15 @@ struct segments_direction
         return return_type('0', false);
     }
 
+    template <typename Segment, typename Ratio>
+    static inline return_type one_degenerate(Segment const& ,
+            Ratio const& ,
+            bool)
+    {
+        // To be decided
+        return return_type('0', false);
+    }
+
     static inline return_type disjoint()
     {
         return return_type('d', false);

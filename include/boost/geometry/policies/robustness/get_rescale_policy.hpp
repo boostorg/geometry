@@ -16,6 +16,9 @@
 #include <cstddef>
 
 #include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
+
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -209,17 +212,62 @@ struct rescale_policy_type
 #endif
     >
 {
-#if ! defined(_MSC_VER)
-    BOOST_STATIC_ASSERT
-    (
-        boost::is_same
-        <
-            typename geometry::tag<Point>::type,
-            geometry::point_tag
-        >::type::value
-    );
-#endif
+    static const bool is_point
+        = boost::is_same
+            <
+                typename geometry::tag<Point>::type,
+                geometry::point_tag
+            >::type::value;
+
+    BOOST_MPL_ASSERT_MSG((is_point),
+                         INVALID_INPUT_GEOMETRY,
+                         (typename geometry::tag<Point>::type));
 };
+
+
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Tag1 = typename tag_cast
+    <
+        typename tag<Geometry1>::type,
+        box_tag,
+        pointlike_tag,
+        linear_tag,
+        areal_tag
+    >::type,
+    typename Tag2 = typename tag_cast
+    <
+        typename tag<Geometry2>::type,
+        box_tag,
+        pointlike_tag,
+        linear_tag,
+        areal_tag
+    >::type
+>
+struct rescale_overlay_policy_type
+    // Default: no rescaling
+    : public detail::get_rescale_policy::rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type,
+            false
+        >
+{};
+
+// Areal/areal: get rescale policy based on coordinate type
+template
+<
+    typename Geometry1,
+    typename Geometry2
+>
+struct rescale_overlay_policy_type<Geometry1, Geometry2, areal_tag, areal_tag>
+    : public rescale_policy_type
+        <
+            typename geometry::point_type<Geometry1>::type
+        >
+{};
+
 
 template <typename Policy, typename Geometry>
 inline Policy get_rescale_policy(Geometry const& geometry)

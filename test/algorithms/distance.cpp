@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -13,6 +13,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#include <string>
 #include <sstream>
 
 #include <algorithms/test_distance.hpp>
@@ -29,6 +30,13 @@
 #include <test_geometries/custom_segment.hpp>
 #include <test_geometries/wrapped_boost_array.hpp>
 
+// includes for multi-geometries
+#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/multi/io/wkt/read.hpp>
+
+// includes for variant
 #include <boost/variant/variant.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
@@ -197,11 +205,113 @@ void test_distance_array_as_linestring()
     BOOST_CHECK_CLOSE(d, return_type(2.828427), 0.001);
 }
 
+
+// code moved from the distance unit test in multi/algorithms -- start
+template <typename Geometry1, typename Geometry2>
+void test_distance(std::string const& wkt1, std::string const& wkt2, double expected)
+{
+    Geometry1 g1;
+    Geometry2 g2;
+    bg::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt2, g2);
+    typename bg::default_distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2);
+
+    BOOST_CHECK_CLOSE(d, expected, 0.0001);
+}
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+void test_distance(Strategy const& strategy, std::string const& wkt1,
+                   std::string const& wkt2, double expected)
+{
+    Geometry1 g1;
+    Geometry2 g2;
+    bg::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt2, g2);
+    typename bg::default_distance_result<Geometry1, Geometry2>::type d = bg::distance(g1, g2, strategy);
+
+    BOOST_CHECK_CLOSE(d, expected, 0.0001);
+}
+
+
+template <typename P>
+void test_2d()
+{
+    typedef bg::model::multi_point<P> mp;
+    typedef bg::model::multi_linestring<bg::model::linestring<P> > ml;
+    test_distance<P, P>("POINT(0 0)", "POINT(1 1)", sqrt(2.0));
+    test_distance<P, mp>("POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<mp, P>("MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp, mp>("MULTIPOINT((1 1),(1 0),(0 2))", "MULTIPOINT((2 2),(2 3))", sqrt(2.0));
+    test_distance<P, ml>("POINT(0 0)", "MULTILINESTRING((1 1,2 2),(1 0,2 0),(0 2,0 3))", 1.0);
+    test_distance<ml, P>("MULTILINESTRING((1 1,2 2),(1 0,2 0),(0 2,0 3))", "POINT(0 0)", 1.0);
+    test_distance<ml, mp>("MULTILINESTRING((1 1,2 2),(1 0,2 0),(0 2,0 3))", "MULTIPOINT((0 0),(1 1))", 0.0);
+
+    // Test with a strategy
+    bg::strategy::distance::pythagoras<> pyth;
+    test_distance<P, P>(pyth, "POINT(0 0)", "POINT(1 1)", sqrt(2.0));
+    test_distance<P, mp>(pyth, "POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<mp, P>(pyth, "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+}
+
+
+template <typename P>
+void test_3d()
+{
+    typedef bg::model::multi_point<P> mp;
+    test_distance<P, P>("POINT(0 0 0)", "POINT(1 1 1)", sqrt(3.0));
+    test_distance<P, mp>("POINT(0 0 0)", "MULTIPOINT((1 1 1),(1 0 0),(0 1 2))", 1.0);
+    test_distance<mp, mp>("MULTIPOINT((1 1 1),(1 0 0),(0 0 2))", "MULTIPOINT((2 2 2),(2 3 4))", sqrt(3.0));
+}
+
+
+template <typename P1, typename P2>
+void test_mixed()
+{
+    typedef bg::model::multi_point<P1> mp1;
+    typedef bg::model::multi_point<P2> mp2;
+
+    test_distance<P1, P2>("POINT(0 0)", "POINT(1 1)", sqrt(2.0));
+
+    test_distance<P1, mp1>("POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P1, mp2>("POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P2, mp1>("POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P2, mp2>("POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+
+    // Test automatic reversal
+    test_distance<mp1, P1>("MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp1, P2>("MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp2, P1>("MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp2, P2>("MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+
+    // Test multi-multi using different point types for each
+    test_distance<mp1, mp2>("MULTIPOINT((1 1),(1 0),(0 2))", "MULTIPOINT((2 2),(2 3))", sqrt(2.0));
+
+    // Test with a strategy
+    using namespace bg::strategy::distance;
+
+    test_distance<P1, P2>(pythagoras<>(), "POINT(0 0)", "POINT(1 1)", sqrt(2.0));
+
+    test_distance<P1, mp1>(pythagoras<>(), "POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P1, mp2>(pythagoras<>(), "POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P2, mp1>(pythagoras<>(), "POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+    test_distance<P2, mp2>(pythagoras<>(), "POINT(0 0)", "MULTIPOINT((1 1),(1 0),(0 2))", 1.0);
+
+    // Most interesting: reversal AND a strategy (note that the stategy must be reversed automatically
+    test_distance<mp1, P1>(pythagoras<>(), "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp1, P2>(pythagoras<>(), "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp2, P1>(pythagoras<>(), "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+    test_distance<mp2, P2>(pythagoras<>(), "MULTIPOINT((1 1),(1 0),(0 2))", "POINT(0 0)", 1.0);
+}
+// code moved from the distance unit test in multi/algorithms -- end
+
+
+
+
 template <typename P>
 void test_all()
 {
     test_distance_point<P>();
-    test_distance_segment<P>();
+     test_distance_segment<P>();
     test_distance_array_as_linestring<P>();
 
     test_geometry<P, bg::model::segment<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
@@ -263,10 +373,22 @@ void test_empty_input()
     bg::model::linestring<P> line_empty;
     bg::model::polygon<P> poly_empty;
     bg::model::ring<P> ring_empty;
+    bg::model::multi_point<P> mp_empty;
+    bg::model::multi_linestring<bg::model::linestring<P> > ml_empty;
 
     test_empty_input(p, line_empty);
     test_empty_input(p, poly_empty);
     test_empty_input(p, ring_empty);
+
+    test_empty_input(p, mp_empty);
+    test_empty_input(p, ml_empty);
+    test_empty_input(mp_empty, mp_empty);
+
+    // Test behaviour if one of the inputs is empty
+    bg::model::multi_point<P> mp;
+    mp.push_back(p);
+    test_empty_input(mp_empty, mp);
+    test_empty_input(mp, mp_empty);
 }
 
 void test_large_integers()
@@ -328,9 +450,18 @@ void test_variant()
     bg::read_wkt(seg_li, seg);
 
     variant_type v1, v2;
-
+    
     v1 = point;
     v2 = point;
+
+    BOOST_MPL_ASSERT((
+        boost::is_same
+            <
+                bg::resolve_variant::result_of::distance<variant_type, variant_type, bg::default_strategy>::type,
+                double
+            >
+    ));
+
     BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, point), 0.0001);
     BOOST_CHECK_CLOSE(bg::distance(v1, point), bg::distance(point, point), 0.0001);
     BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, point), 0.0001);
@@ -359,6 +490,24 @@ int test_main(int, char* [])
 
 #ifdef HAVE_TTMATH
     test_all<bg::model::d2::point_xy<ttmath_big> >();
+#endif
+
+    test_empty_input<bg::model::d2::point_xy<int> >();
+
+    // below are the test cases moved here from the distance unit test
+    // in test/multi/algorithms
+    test_2d<boost::tuple<float, float> >();
+    test_2d<bg::model::d2::point_xy<float> >();
+    test_2d<bg::model::d2::point_xy<double> >();
+
+    test_3d<boost::tuple<float, float, float> >();
+    test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
+
+    test_mixed<bg::model::d2::point_xy<float>, bg::model::d2::point_xy<double> >();
+
+#ifdef HAVE_TTMATH
+    test_2d<bg::model::d2::point_xy<ttmath_big> >();
+    test_mixed<bg::model::d2::point_xy<ttmath_big>, bg::model::d2::point_xy<double> >();
 #endif
 
     test_empty_input<bg::model::d2::point_xy<int> >();

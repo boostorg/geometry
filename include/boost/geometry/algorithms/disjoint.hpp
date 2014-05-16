@@ -37,6 +37,7 @@
 #include <boost/geometry/algorithms/detail/disjoint.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 
@@ -433,12 +434,24 @@ struct disjoint<Linestring, Ring, DimensionCount, linestring_tag, ring_tag, Reve
     : public detail::disjoint::disjoint_linear_areal<Linestring, Ring>
 {};
 
-// move the following specializations to multi/algorithms/disjoint.hpp?
-
-template<typename MultiLinestring, typename Polygon, std::size_t DimensionCount, bool Reverse>
-struct disjoint<MultiLinestring, Polygon, DimensionCount, multi_linestring_tag, polygon_tag, Reverse>
-    : public detail::disjoint::disjoint_linear_areal<MultiLinestring, Polygon>
+template<typename Linestring, typename MultiLinestring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Linestring, MultiLinestring, DimensionCount, linestring_tag, multi_linestring_tag, Reverse>
+    : public detail::disjoint::disjoint_linear<Linestring, MultiLinestring>
 {};
+
+template<typename Polygon, typename MultiLinestring, std::size_t DimensionCount, bool Reverse>
+struct disjoint<Polygon, MultiLinestring, DimensionCount, polygon_tag, multi_linestring_tag, Reverse>
+{    
+    static inline bool apply(Polygon const& polygon,
+                             MultiLinestring const& multilinestring)
+    {
+        return detail::disjoint::disjoint_linear_areal
+            <
+                MultiLinestring,
+                Polygon
+            >::apply(multilinestring, polygon);
+    }
+};
 
 template<typename MultiLinestring, typename Ring, std::size_t DimensionCount, bool Reverse>
 struct disjoint<MultiLinestring, Ring, DimensionCount, multi_linestring_tag, ring_tag, Reverse>
@@ -453,6 +466,11 @@ struct disjoint<Linestring, MultiPolygon, DimensionCount, linestring_tag, multi_
 template<typename MultiLinestring, typename MultiPolygon, std::size_t DimensionCount, bool Reverse>
 struct disjoint<MultiLinestring, MultiPolygon, DimensionCount, multi_linestring_tag, multi_polygon_tag, Reverse>
     : public detail::disjoint::disjoint_linear_areal<MultiLinestring, MultiPolygon>
+{};
+
+template<typename MultiLinestring1, typename MultiLinestring2, std::size_t DimensionCount, bool Reverse>
+struct disjoint<MultiLinestring1, MultiLinestring2, DimensionCount, multi_linestring_tag, multi_linestring_tag, Reverse>
+    : public detail::disjoint::disjoint_linear<MultiLinestring1, MultiLinestring2>
 {};
 
 template<typename Point, typename Linestring, std::size_t DimensionCount, bool Reverse>

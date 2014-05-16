@@ -42,7 +42,7 @@ class flatten_iterator
                     AccessInnerBegin,
                     AccessInnerEnd>,
             Value,
-            boost::forward_traversal_tag
+            boost::bidirectional_traversal_tag
         >
 {
 private:
@@ -218,6 +218,24 @@ private:
         {
             ++m_outer_it;
             advance_through_empty();
+        }
+    }
+
+    inline void decrement()
+    {
+        if ( m_outer_it == m_outer_end
+             || m_inner_it == AccessInnerBegin::apply(*m_outer_it) )
+        {
+            do
+            {
+                --m_outer_it;
+            }
+            while ( empty(m_outer_it) );
+            m_inner_it = --AccessInnerEnd::apply(*m_outer_it);
+        }
+        else
+        {
+            --m_inner_it;
         }
     }
 };

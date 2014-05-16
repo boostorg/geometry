@@ -20,291 +20,51 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
 
-
 #include <boost/concept_check.hpp>
-#include <boost/mpl/fold.hpp>
-#include <boost/mpl/greater.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/insert.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/lambda.hpp>
-#include <boost/mpl/pair.hpp>
-#include <boost/mpl/quote.hpp>
-#include <boost/mpl/set.hpp>
-#include <boost/mpl/size.hpp>
-#include <boost/mpl/transform.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/type_traits.hpp>
+
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+
+#include <boost/numeric/conversion/bounds.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/reverse_dispatch.hpp>
-#include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp> 
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 
-#include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/strategies/tags.hpp>
 
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
+
+#include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/multi/core/point_type.hpp>
+#include <boost/geometry/multi/geometries/concepts/check.hpp>
+
+#include <boost/geometry/multi/algorithms/num_points.hpp>
+
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+
+#include <boost/geometry/util/compress_variant.hpp>
+#include <boost/geometry/util/transform_variant.hpp>
 #include <boost/geometry/util/combine_if.hpp>
+#include <boost/geometry/util/is_implemented.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace distance
-{
-
-// To avoid spurious namespaces here:
-using strategy::distance::services::return_type;
-
-template <typename P1, typename P2, typename Strategy>
-struct point_to_point
-{
-    static inline typename return_type<Strategy, P1, P2>::type
-    apply(P1 const& p1, P2 const& p2, Strategy const& strategy)
-    {
-        boost::ignore_unused_variable_warning(strategy);
-        return strategy.apply(p1, p2);
-    }
-};
-
-
-template<typename Point, typename Segment, typename Strategy>
-struct point_to_segment
-{
-    static inline typename return_type<Strategy, Point, typename point_type<Segment>::type>::type
-    apply(Point const& point, Segment const& segment, Strategy const& )
-    {
-        typename strategy::distance::services::default_strategy
-            <
-                segment_tag,
-                Point,
-                typename point_type<Segment>::type,
-                typename cs_tag<Point>::type,
-                typename cs_tag<typename point_type<Segment>::type>::type,
-                Strategy
-            >::type segment_strategy;
-
-        typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
-        return segment_strategy.apply(point, p[0], p[1]);
-    }
-};
-
-
-template
-<
-    typename Point,
-    typename Range,
-    closure_selector Closure,
-    typename PPStrategy,
-    typename PSStrategy
->
-struct point_to_range
-{
-    typedef typename return_type<PSStrategy, Point, typename point_type<Range>::type>::type return_type;
-
-    static inline return_type apply(Point const& point, Range const& range,
-            PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
-    {
-        return_type const zero = return_type(0);
-
-        if (boost::size(range) == 0)
-        {
-            return zero;
-        }
-
-        typedef typename closeable_view<Range const, Closure>::type view_type;
-
-        view_type view(range);
-
-        // line of one point: return point distance
-        typedef typename boost::range_iterator<view_type const>::type iterator_type;
-        iterator_type it = boost::begin(view);
-        iterator_type prev = it++;
-        if (it == boost::end(view))
-        {
-            return pp_strategy.apply(point, *boost::begin(view));
-        }
-
-        // Create comparable (more efficient) strategy
-        typedef typename strategy::distance::services::comparable_type<PSStrategy>::type eps_strategy_type;
-        eps_strategy_type eps_strategy = strategy::distance::services::get_comparable<PSStrategy>::apply(ps_strategy);
-
-        // start with first segment distance
-        return_type d = eps_strategy.apply(point, *prev, *it);
-        return_type rd = ps_strategy.apply(point, *prev, *it);
-
-        // check if other segments are closer
-        for (++prev, ++it; it != boost::end(view); ++prev, ++it)
-        {
-            return_type const ds = eps_strategy.apply(point, *prev, *it);
-            if (geometry::math::equals(ds, zero))
-            {
-                return ds;
-            }
-            else if (ds < d)
-            {
-                d = ds;
-                rd = ps_strategy.apply(point, *prev, *it);
-            }
-        }
-
-        return rd;
-    }
-};
-
-
-template
-<
-    typename Point,
-    typename Ring,
-    closure_selector Closure,
-    typename PPStrategy,
-    typename PSStrategy
->
-struct point_to_ring
-{
-    typedef std::pair
-        <
-            typename return_type<PPStrategy, Point, typename point_type<Ring>::type>::type, bool
-        > distance_containment;
-
-    static inline distance_containment apply(Point const& point,
-                Ring const& ring,
-                PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
-    {
-        return distance_containment
-            (
-                point_to_range
-                    <
-                        Point,
-                        Ring,
-                        Closure,
-                        PPStrategy,
-                        PSStrategy
-                    >::apply(point, ring, pp_strategy, ps_strategy),
-                geometry::within(point, ring)
-            );
-    }
-};
-
-
-
-template
-<
-    typename Point,
-    typename Polygon,
-    closure_selector Closure,
-    typename PPStrategy,
-    typename PSStrategy
->
-struct point_to_polygon
-{
-    typedef typename return_type<PPStrategy, Point, typename point_type<Polygon>::type>::type return_type;
-    typedef std::pair<return_type, bool> distance_containment;
-
-    static inline distance_containment apply(Point const& point,
-                Polygon const& polygon,
-                PPStrategy const& pp_strategy, PSStrategy const& ps_strategy)
-    {
-        // Check distance to all rings
-        typedef point_to_ring
-            <
-                Point,
-                typename ring_type<Polygon>::type,
-                Closure,
-                PPStrategy,
-                PSStrategy
-            > per_ring;
-
-        distance_containment dc = per_ring::apply(point,
-                        exterior_ring(polygon), pp_strategy, ps_strategy);
-
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
-        {
-            distance_containment dcr = per_ring::apply(point,
-                            *it, pp_strategy, ps_strategy);
-            if (dcr.first < dc.first)
-            {
-                dc.first = dcr.first;
-            }
-            // If it was inside, and also inside inner ring,
-            // turn off the inside-flag, it is outside the polygon
-            if (dc.second && dcr.second)
-            {
-                dc.second = false;
-            }
-        }
-        return dc;
-    }
-};
-
-
-// Helper metafunction for default strategy retrieval
-template <typename Geometry1 = void, typename Geometry2 = void>
-struct default_strategy
-    : strategy::distance::services::default_strategy
-          <
-              point_tag,
-              typename point_type<Geometry1>::type,
-              typename point_type<Geometry2>::type
-          >
-{
-};
-
-
-template <>
-struct default_strategy<void, void>
-{
-    template <typename Geometry1, typename Geometry2>
-    struct rebind
-    {
-        typedef default_strategy<Geometry1, Geometry2> type;
-    };
-
-    typedef void type;
-};
-
-
-}} // namespace detail::distance
-#endif // DOXYGEN_NO_DETAIL
-
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
-
-using strategy::distance::services::return_type;
-
-
-template
-<
-    typename Geometry1, typename Geometry2,
-    typename Strategy = typename detail::distance::default_strategy<Geometry1, Geometry2>::type,
-    typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
-    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
-    typename StrategyTag = typename strategy::distance::services::tag<Strategy>::type,
-    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
->
-struct distance: not_implemented<Tag1, Tag2>
-{};
 
 
 // If reversal is needed, perform it
@@ -343,263 +103,162 @@ struct distance
 };
 
 
-// Point-point
-template <typename P1, typename P2, typename Strategy>
-struct distance
-    <
-        P1, P2, Strategy,
-        point_tag, point_tag, strategy_tag_distance_point_point,
-        false
-    >
-    : detail::distance::point_to_point<P1, P2, Strategy>
-{};
-
-
-// Point-line version 1, where point-point strategy is specified
-template <typename Point, typename Linestring, typename Strategy>
-struct distance
-<
-    Point, Linestring, Strategy,
-    point_tag, linestring_tag, strategy_tag_distance_point_point,
-    false
->
-{
-
-    static inline typename return_type<Strategy, Point, typename point_type<Linestring>::type>::type
-    apply(Point const& point,
-          Linestring const& linestring,
-          Strategy const& strategy)
-    {
-        typedef typename strategy::distance::services::default_strategy
-                    <
-                        segment_tag,
-                        Point,
-                        typename point_type<Linestring>::type,
-                        typename cs_tag<Point>::type,
-                        typename cs_tag<typename point_type<Linestring>::type>::type,
-                        Strategy
-                    >::type ps_strategy_type;
-
-        return detail::distance::point_to_range
-            <
-                Point, Linestring, closed, Strategy, ps_strategy_type
-            >::apply(point, linestring, strategy, ps_strategy_type());
-    }
-};
-
-
-// Point-line version 2, where point-segment strategy is specified
-template <typename Point, typename Linestring, typename Strategy>
-struct distance
-<
-    Point, Linestring, Strategy,
-    point_tag, linestring_tag, strategy_tag_distance_point_segment,
-    false
->
-{
-    static inline typename return_type<Strategy, Point, typename point_type<Linestring>::type>::type
-    apply(Point const& point,
-          Linestring const& linestring,
-          Strategy const& strategy)
-    {
-        typedef typename strategy::distance::services::strategy_point_point<Strategy>::type pp_strategy_type;
-        return detail::distance::point_to_range
-            <
-                Point, Linestring, closed, pp_strategy_type, Strategy
-            >::apply(point, linestring, pp_strategy_type(), strategy);
-    }
-};
-
-// Point-ring , where point-segment strategy is specified
-template <typename Point, typename Ring, typename Strategy>
-struct distance
-<
-    Point, Ring, Strategy,
-    point_tag, ring_tag, strategy_tag_distance_point_point,
-    false
->
-{
-    typedef typename return_type<Strategy, Point, typename point_type<Ring>::type>::type return_type;
-
-    static inline return_type apply(Point const& point,
-            Ring const& ring,
-            Strategy const& strategy)
-    {
-        typedef typename strategy::distance::services::default_strategy
-            <
-                segment_tag,
-                Point,
-                typename point_type<Ring>::type,
-                typename cs_tag<Point>::type,
-                typename cs_tag<typename point_type<Ring>::type>::type,
-                Strategy
-            >::type ps_strategy_type;
-
-        std::pair<return_type, bool>
-            dc = detail::distance::point_to_ring
-            <
-                Point, Ring,
-                geometry::closure<Ring>::value,
-                Strategy, ps_strategy_type
-            >::apply(point, ring, strategy, ps_strategy_type());
-
-        return dc.second ? return_type(0) : dc.first;
-    }
-};
-
-
-// Point-polygon , where point-segment strategy is specified
-template <typename Point, typename Polygon, typename Strategy>
-struct distance
-<
-    Point, Polygon, Strategy,
-    point_tag, polygon_tag, strategy_tag_distance_point_point,
-    false
->
-{
-    typedef typename return_type<Strategy, Point, typename point_type<Polygon>::type>::type return_type;
-
-    static inline return_type apply(Point const& point,
-            Polygon const& polygon,
-            Strategy const& strategy)
-    {
-        typedef typename strategy::distance::services::default_strategy
-            <
-                segment_tag,
-                Point,
-                typename point_type<Polygon>::type,
-                typename cs_tag<Point>::type,
-                typename cs_tag<typename point_type<Polygon>::type>::type,
-                Strategy
-            >::type ps_strategy_type;
-
-        std::pair<return_type, bool>
-            dc = detail::distance::point_to_polygon
-            <
-                Point, Polygon,
-                geometry::closure<Polygon>::value,
-                Strategy, ps_strategy_type
-            >::apply(point, polygon, strategy, ps_strategy_type());
-
-        return dc.second ? return_type(0) : dc.first;
-    }
-};
-
-
-
-// Point-segment version 1, with point-point strategy
-template <typename Point, typename Segment, typename Strategy>
-struct distance
-<
-    Point, Segment, Strategy,
-    point_tag, segment_tag, strategy_tag_distance_point_point,
-    false
-> : detail::distance::point_to_segment<Point, Segment, Strategy>
-{};
-
-// Point-segment version 2, with point-segment strategy
-template <typename Point, typename Segment, typename Strategy>
-struct distance
-<
-    Point, Segment, Strategy,
-    point_tag, segment_tag, strategy_tag_distance_point_segment,
-    false
->
-{
-    static inline typename return_type<Strategy, Point, typename point_type<Segment>::type>::type
-    apply(Point const& point,
-          Segment const& segment,
-          Strategy const& strategy)
-    {
-
-        typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
-        return strategy.apply(point, p[0], p[1]);
-    }
-};
-
-
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
+
+
+namespace resolve_strategy {
+
+namespace result_of
+{
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct distance
+    : strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<Geometry1>::type,
+            typename point_type<Geometry2>::type
+        >
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct distance<Geometry1, Geometry2, default_strategy>
+    : default_distance_result
+        <
+            Geometry1, Geometry2
+        >
+{};
+
+} // namespace result_of
+
+
+struct distance
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline typename result_of::distance<Geometry1, Geometry2, Strategy>::type
+    apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    {
+        return dispatch::distance<Geometry1, Geometry2, Strategy>::apply(geometry1, geometry2, strategy);
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename result_of::distance<Geometry1, Geometry2, default_strategy>::type
+    apply(Geometry1 const& geometry1, Geometry2 const& geometry2, default_strategy)
+    {
+        typedef typename detail::distance::default_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+
+        return dispatch::distance<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
 
 
 namespace resolve_variant
 {
 
-namespace detail { namespace distance
+namespace result_of
 {
 
-template <typename Geometry1, typename Geometry2>
-struct is_same_dimension_and_coordinate_system
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct distance
+    : resolve_strategy::result_of::distance
+        <
+            Geometry1,
+            Geometry2,
+            Strategy
+        >
+{};
+
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
+struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 {
-    typedef typename mpl::and_<
-        typename is_same<
-            typename coordinate_system<Geometry1>::type,
-            typename coordinate_system<Geometry2>::type
-        >::type,
-        typename is_same<
-            typename dimension<Geometry1>::type,
-            typename dimension<Geometry2>::type
+    // A set of of all variant type combinations that are compatible and implemented
+    typedef typename util::combine_if
+        <
+            typename mpl::vector1<Geometry1>,
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            util::is_compatible<mpl::_1, mpl::_2>
+        >::type possible_input_types;
+
+    // All possible results for these combinations
+    typedef typename mpl::transform<
+        possible_input_types,
+        resolve_strategy::result_of::distance
+            <            
+                point_type<mpl::first<mpl::_> >,
+                point_type<mpl::second<mpl::_> >,
+                Strategy
+            >,
+        mpl::back_inserter<mpl::vector0<> >
+    >::type possible_result_types;
+
+    // The (possibly variant) result type
+    typedef typename compress_variant<
+        typename make_variant_over<
+            possible_result_types
         >::type
-    >::type
-    type;
+    >::type type;
 };
 
 
-template <typename Geometry1, typename Geometry2>
-struct is_implemented
+// Distance arguments are commutative
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2, typename Strategy>
+struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy>
+    : public distance<Geometry2, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
+{};
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
+struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 {
-    typedef typename mpl::not_<
-        typename is_base_of<
-            nyi::not_implemented_tag,
-            geometry::dispatch::distance<Geometry1, Geometry2>
+    // A set of of all variant type combinations that are compatible and implemented
+    typedef typename util::combine_if
+        <
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            util::is_compatible<mpl::_1, mpl::_2>
+        >::type possible_input_types;
+
+    // All possible results for these combinations
+    typedef typename mpl::transform<
+        possible_input_types,
+        resolve_strategy::result_of::distance
+            <            
+                point_type<mpl::first<mpl::_> >,
+                point_type<mpl::second<mpl::_> >,
+                Strategy
+            >,
+        mpl::back_inserter<mpl::vector0<> >
+    >::type possible_result_types;
+
+    // The (possibly variant) result type
+    typedef typename compress_variant<
+        typename make_variant_over<
+            possible_result_types
         >::type
-    >::type
-    type;
+    >::type type;
 };
 
-
-template <typename Geometry1, typename Geometry2>
-struct is_compatible
-{
-    typedef typename mpl::and_<
-        typename is_same_dimension_and_coordinate_system<Geometry1, Geometry2>::type,
-        typename is_implemented<Geometry1, Geometry2>::type
-    >::type
-    type;
-};
-
-}} // namespace detail::distance
+} // namespace result_of
 
 
 template <typename Geometry1, typename Geometry2>
 struct distance
 {
     template <typename Strategy>
-    struct result_type
-    {
-        typedef typename strategy::distance::services::return_type<
-            Strategy,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >::type type;
-    };
-
-    template <typename Strategy>
-    static inline typename result_type<Strategy>::type
+    static inline typename result_of::distance<Geometry1, Geometry2, Strategy>::type
     apply(
         const Geometry1& geometry1,
         const Geometry2& geometry2,
         Strategy const& strategy)
     {
-        return dispatch::distance
-            <
-                Geometry1,
-                Geometry2,
-                Strategy
-            >::apply(geometry1, geometry2, strategy);
+        return resolve_strategy::distance::apply(geometry1, geometry2, strategy);
     }
 };
 
@@ -607,64 +266,52 @@ struct distance
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
 struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 {
-    template <typename Strategy>
-    struct result_type
-    {
-        typedef typename mpl::fold<
-            typename mpl::transform<
-                typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-                typename strategy::distance::services::return_type<
-                    Strategy,
-                    typename mpl::lambda<point_type<mpl::_> >::type,
-                    typename point_type<Geometry2>::type
+    template <typename Geometry2, typename Strategy>
+    struct visitor: static_visitor
+        <
+            typename result_of::distance
+                <
+                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                    Geometry2,
+                    Strategy
                 >::type
-            >::type,
-            mpl::set0<>,
-            mpl::insert<mpl::_1, mpl::_2>
-        >::type possible_result_types;
-
-        typedef typename mpl::if_<
-            mpl::greater<
-                mpl::size<possible_result_types>,
-                mpl::int_<1>
-            >,
-            typename make_variant_over<possible_result_types>::type,
-            typename mpl::front<possible_result_types>::type
-        >::type type;
-    };
-
-    template <typename Strategy>
-    struct visitor: static_visitor<
-        typename result_type<variant<Strategy> >::type
-    >
+        >
     {
         Geometry2 const& m_geometry2;
         Strategy const& m_strategy;
 
-        visitor(Geometry2 const& geometry2)
+        visitor(Geometry2 const& geometry2,
+                Strategy const& strategy)
             : m_geometry2(geometry2),
               m_strategy(strategy)
         {}
 
-        template <typename Geometry1, typename Strategy>
+        template <typename Geometry1>
         result_type operator()(Geometry1 const& geometry1) const
         {
-            return dispatch::distance
+            return distance
                 <
                     Geometry1,
-                    Geometry2,
+                    Geometry2
+                >::apply
+                <
                     Strategy
-                >::apply(geometry1, geometry2, strategy);
+                >(geometry1, m_geometry2, m_strategy);
         }
     };
 
     template <typename Strategy>
-    static inline typename result_type<variant<Strategy> >::type
+    static inline typename result_of::distance
+        <
+            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            Geometry2,
+            Strategy
+        >::type
     apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
           Geometry2 const& geometry2,
           Strategy const& strategy)
     {
-        return apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
+        return apply_visitor(visitor<Geometry2, Strategy>(geometry2, strategy), geometry1);
     }
 };
 
@@ -672,65 +319,53 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename Strategy>
-    struct result_type
-    {
-        typedef typename mpl::fold<
-            typename mpl::transform<
-                typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-                typename strategy::distance::services::return_type<
-                    Strategy,
-                    typename point_type<Geometry1>::type,
-                    typename mpl::lambda<point_type<mpl::_> >::type                    
+    template <typename Geometry1, typename Strategy>
+    struct visitor: static_visitor
+        <
+            typename result_of::distance
+                <
+                    Geometry1,
+                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                    Strategy
                 >::type
-            >::type,
-            mpl::set0<>,
-            mpl::insert<mpl::_1, mpl::_2>
-        >::type possible_result_types;
-
-        typedef typename mpl::if_<
-            mpl::greater<
-                mpl::size<possible_result_types>,
-                mpl::int_<1>
-            >,
-            typename make_variant_over<possible_result_types>::type,
-            typename mpl::front<possible_result_types>::type
-        >::type type;
-    };
-
-    template <typename Strategy>
-    struct visitor: static_visitor<
-        typename result_type<Strategy>::type
-    >
+        >
     {
         Geometry1 const& m_geometry1;
         Strategy const& m_strategy;
 
-        visitor(Geometry1 const& geometry1)
+        visitor(Geometry1 const& geometry1,
+                Strategy const& strategy)
             : m_geometry1(geometry1),
               m_strategy(strategy)
         {}
 
-        template <typename Geometry2, typename Strategy>
-        bool operator()(Geometry2 const& geometry2, typename Strategy) const
+        template <typename Geometry2>
+        result_type operator()(Geometry2 const& geometry2) const
         {
-            return dispatch::distance
+            return distance
                 <
                     Geometry1,
-                    Geometry2,
+                    Geometry2
+                >::apply
+                <
                     Strategy
-                >::apply(geometry1, geometry2, strategy);
+                >(m_geometry1, geometry2, m_strategy);
         }
     };
 
     template <typename Strategy>
-    static inline typename result_type<variant<Strategy> >::type
+    static inline typename result_of::distance
+        <
+            Geometry1,
+            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            Strategy
+        >::type
     apply(
         Geometry1 const& geometry1,
         const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
         Strategy const& strategy)
     {
-        return apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
+        return apply_visitor(visitor<Geometry1, Strategy>(geometry1, strategy), geometry2);
     }
 };
 
@@ -739,52 +374,16 @@ template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >  
 {
     template <typename Strategy>
-    struct result_type
-    {
-        typedef typename util::combine_if<
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            mpl::quote2<detail::distance::is_compatible>
-        >::type possible_input_types;
-
-        //template <typename T, typename Result>
-        //struct list_of_pairs
-        //    : mpl::fold<typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types, Result, 
-        //      mpl::push_back<mpl::_1, mpl::pair<T, mpl::_2> > > 
-        //{};
-
-        //typedef typename mpl::fold<
-        //    typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-        //    mpl::vector0<>,
-        //    mpl::lambda<list_of_pairs<mpl::_2, mpl::_1> >
-        //>::type combinations;
-
-        //typedef typename mpl::fold<
-        //    typename mpl::transform<
-        //        typename combinations,
-        //        typename strategy::distance::services::return_type<
-        //            Strategy,
-        //            typename mpl::lambda<point_type<mpl::first<mpl::_> > >::type,
-        //            typename mpl::lambda<point_type<mpl::second<mpl::_> > >::type
-        //        >::type
-        //    >::type,
-        //    mpl::set0<>,
-        //    mpl::insert<mpl::_1, mpl::_2>
-        //>::type possible_result_types;
-
-        //typedef typename mpl::if_<
-        //    mpl::greater<
-        //        mpl::size<possible_result_types>,
-        //        mpl::int_<1>
-        //    >,
-        //    typename make_variant_over<possible_result_types>::type,
-        //    typename mpl::front<possible_result_types>::type
-        //>::type type;
-    };
-
-    template <typename Strategy>
-    struct visitor: static_visitor<
-        typename result_type<Strategy>::type
-    >
+    struct visitor: static_visitor
+        <
+            typename result_of::distance
+                <
+                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                    Strategy
+                >
+                ::type
+        >
     {
         Strategy const& m_strategy;
 
@@ -792,23 +391,30 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENU
             : m_strategy(strategy)
         {}
 
-        template <typename Geometry1, typename Geometry2, typename Strategy>
-        typename default_distance_result<Geometry1, Geometry2>::type operator()(
+        template <typename Geometry1, typename Geometry2>
+        result_type operator()(
             Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            Strategy const& strategy) const
+            Geometry2 const& geometry2) const
         {
-            return resolve_variant::distance
+            return distance
                 <
                     Geometry1,
-                    Geometry2,
+                    Geometry2
+                >::apply
+                <
                     Strategy
-                >::apply(geometry1, geometry2, strategy);
+                >(geometry1, geometry2, m_strategy);
         }
     };
 
     template <typename Strategy>
-    static inline typename result_type<variant<Strategy> >::type
+    static inline typename result_of::distance
+        <
+            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            Strategy
+        >
+        ::type
     apply(
         const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry1,
         const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
@@ -858,7 +464,12 @@ for distance, it is probably so that there is no specialization
 for return_type<...> for your strategy.
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename resolve_variant::distance<Geometry1, Geometry2>::result_type<Strategy>::type
+inline typename resolve_variant::result_of::distance
+    <
+        Geometry1,
+        Geometry2,
+        Strategy
+    >::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2,
          Strategy const& strategy)
@@ -890,17 +501,36 @@ distance(Geometry1 const& geometry1,
 \qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename default_distance_result<Geometry1, Geometry2>::type
+inline typename resolve_variant::result_of::distance
+    <
+        Geometry1,
+        Geometry2,
+        default_strategy
+    >::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2)
 {
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return distance(geometry1, geometry2,
-                    typename detail::distance::default_strategy<Geometry1, Geometry2>::type());
+    return distance(geometry1, geometry2, default_strategy());
 }
 
 }} // namespace boost::geometry
+
+
+// the implementation details
+#include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
+#include <boost/geometry/algorithms/detail/distance/range_to_segment_or_box.hpp>
+#include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+#include <boost/geometry/algorithms/detail/distance/polygon_to_segment_or_box.hpp>
+#include <boost/geometry/algorithms/detail/distance/box_to_box.hpp>
+#include <boost/geometry/algorithms/detail/distance/single_to_multi.hpp>
+#include <boost/geometry/algorithms/detail/distance/multi_to_multi.hpp>
+#include <boost/geometry/algorithms/detail/distance/multipoint_to_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>
+#include <boost/geometry/algorithms/detail/distance/segment_to_segment.hpp>
+
+#include <boost/geometry/algorithms/detail/distance/backward_compatibility.hpp>
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DISTANCE_HPP
