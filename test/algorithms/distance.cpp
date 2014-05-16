@@ -311,7 +311,7 @@ template <typename P>
 void test_all()
 {
     test_distance_point<P>();
-     test_distance_segment<P>();
+    test_distance_segment<P>();
     test_distance_array_as_linestring<P>();
 
     test_geometry<P, bg::model::segment<P> >("POINT(1 3)", "LINESTRING(1 1,4 4)", sqrt(2.0));
@@ -438,7 +438,7 @@ template <typename T>
 void test_variant()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::segment<fp_point_type> segment_type;
+    typedef bg::model::segment<point_type> segment_type;
     typedef boost::variant<point_type, segment_type> variant_type;
 
     point_type point;
