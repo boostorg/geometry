@@ -823,7 +823,7 @@ template <typename Last, char D, field F1, field F2>
 struct static_may_update_sequence<Last, Last, D, F1, F2>
 {
     template <typename Matrix>
-    static inline bool apply(Matrix const& matrix)
+    static inline bool apply(Matrix const& /*matrix*/)
     {
         return false;
     }
@@ -943,7 +943,7 @@ template <typename Last>
 struct static_check_sequence<Last, Last>
 {
     template <typename Matrix>
-    static inline bool apply(Matrix const& matrix)
+    static inline bool apply(Matrix const& /*matrix*/)
     {
         return false;
     }

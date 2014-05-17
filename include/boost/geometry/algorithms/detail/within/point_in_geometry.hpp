@@ -37,15 +37,17 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace within {
 
+// TODO: is this needed?
 inline int check_result_type(int result)
 {
     return result;
 }
 
 template <typename T>
-inline void check_result_type(T result)
+inline T check_result_type(T result)
 {
     BOOST_ASSERT(false);
+    return result;
 }
 
 template <typename Point, typename Range, typename Strategy> inline
