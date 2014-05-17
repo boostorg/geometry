@@ -273,6 +273,13 @@ void test_all()
         "POLYGON((5 0,2.5 9,9.5 3.5,0.5 3.5,7.5 9,5 0))",
         0, 11, 25.6158412);
 
+    // CCW polygons should turn CW after dissolve
+    test_one<polygon, polygon>("cw",
+        "POLYGON((2 8,8 8,8 0,0 0,0 6,4 6,4 4,2 4,2 8))",
+        0, 7, 60);
+    test_one<polygon, polygon>("ccw",
+        "POLYGON((2 8,2 4,4 4,4 6,0 6,0 0,8 0,8 8,2 8))",
+        0, 12, 64); // TODO: should have the same, 7, 60. The polygon is dissolved (splitted) but the extra polygon is still on top of the other
 
     // Multi-geometries
     {
