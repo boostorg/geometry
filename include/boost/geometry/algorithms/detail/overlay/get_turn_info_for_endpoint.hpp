@@ -394,8 +394,8 @@ struct get_turn_info_for_endpoint
              typename TurnInfo,
              typename IntersectionInfo
     >
-    static inline bool handle_internal(Point1 const& i1, Point1 const& j1, Point1 const& /*k1*/,
-                                       Point2 const& i2, Point2 const& j2, Point2 const& k2,
+    static inline bool handle_internal(Point1 const& /*i1*/, Point1 const& /*j1*/, Point1 const& /*k1*/,
+                                       Point2 const& i2, Point2 const& j2, Point2 const& /*k2*/,
                                        RobustPoint1 const& ri1, RobustPoint1 const& rj1, RobustPoint1 const& /*rk1*/,
                                        RobustPoint2 const& ri2, RobustPoint2 const& rj2, RobustPoint2 const& rk2,
                                        bool first1, bool last1, bool first2, bool last2,
@@ -403,6 +403,8 @@ struct get_turn_info_for_endpoint
                                        IntersectionInfo const& inters, int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
+        boost::ignore_unused_variable_warning(i2);
+        boost::ignore_unused_variable_warning(j2);
         boost::ignore_unused_variable_warning(ip_index);
         boost::ignore_unused_variable_warning(tp_model);
 

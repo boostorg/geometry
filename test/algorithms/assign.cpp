@@ -38,7 +38,7 @@ void check_geometry(Geometry const& geometry, std::string const& expected)
 }
 
 template <typename Geometry, typename Points>
-void check_assign_points(Points const& points, std::string const& expected)
+void check_assign_points(Points const& points, std::string const& /*expected*/)
 {
     Geometry geometry;
     bg::assign_points(geometry, points);
