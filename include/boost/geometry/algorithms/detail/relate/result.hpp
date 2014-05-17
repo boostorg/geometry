@@ -911,7 +911,7 @@ struct static_check_dispatch
             return el == mask_el;
         }
         // else
-        static inline bool apply_dispatch(char el, integral_constant<int, 3>)
+        static inline bool apply_dispatch(char /*el*/, integral_constant<int, 3>)
         {
             return true;
         }
