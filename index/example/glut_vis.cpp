@@ -58,7 +58,7 @@ LS search_linestring;
 LS search_path;
 
 enum query_mode_type {
-    qm_knn, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi, qm_mpi, qm_si, qm_lsi, qm_path
+    qm_knn, qm_knnb, qm_knns, qm_c, qm_d, qm_i, qm_o, qm_w, qm_nc, qm_nd, qm_ni, qm_no, qm_nw, qm_all, qm_ri, qm_pi, qm_mpi, qm_si, qm_lsi, qm_path
 } query_mode = qm_knn;
 
 bool search_valid = false;
@@ -68,15 +68,46 @@ void query_knn()
     float x = ( rand() % 1000 ) / 10.0f;
     float y = ( rand() % 1000 ) / 10.0f;
 
-    search_point = P(x, y);
     nearest_boxes.clear();
-    found_count = t.query(
-        bgi::nearest(search_point, count),
-        std::back_inserter(nearest_boxes)
-        );
+
+    if ( query_mode == qm_knn )
+    {
+        search_point = P(x, y);
+        found_count = t.query(
+                bgi::nearest(search_point, count),
+                std::back_inserter(nearest_boxes)
+            );
+    }
+    else if ( query_mode == qm_knnb )
+    {
+        float w = 5 + ( rand() % 1000 ) / 200.0f;
+        float h = 5 + ( rand() % 1000 ) / 200.0f;
+        search_box = B(P(x - w, y - h), P(x + w, y + h));
+        found_count = t.query(
+                bgi::nearest(search_box, count),
+                std::back_inserter(nearest_boxes)
+            );
+    }
+    else if ( query_mode == qm_knns )
+    {
+        int signx = rand() % 2 ? 1 : -1;
+        int signy = rand() % 2 ? 1 : -1;
+        float w = (10 + ( rand() % 1000 ) / 100.0f) * signx;
+        float h = (10 + ( rand() % 1000 ) / 100.0f) * signy;
+        search_segment = S(P(x - w, y - h), P(x + w, y + h));
+        found_count = t.query(
+                bgi::nearest(search_segment, count),
+                std::back_inserter(nearest_boxes)
+            );
+    }
+    else
+    {
+        BOOST_ASSERT(false);
+    }
 
     if ( found_count > 0 )
     {
+// TODO: print the correct indexable!
         std::cout << "search point: ";
         bgi::detail::utilities::print_indexable(std::cout, search_point);
         std::cout << "\nfound: ";
@@ -419,7 +450,7 @@ void search()
 {
     namespace d = bgi::detail;
 
-    if ( query_mode == qm_knn )
+    if ( query_mode == qm_knn || query_mode == qm_knnb || query_mode == qm_knns )
         query_knn();
     else if ( query_mode == qm_c )
         query< d::spatial_predicate<B, d::covered_by_tag, false> >();
@@ -575,10 +606,14 @@ void render_scene(void)
 
     if ( search_valid )
     {
-        glColor3f(1.0f, 0.5f, 0.0f);
+        glColor3f(0.0f, 0.0f, 1.0f);
 
         if ( query_mode == qm_knn )
             draw_knn_area(0, 0);
+        else if ( query_mode == qm_knnb )
+            draw_box(search_box);
+        else if ( query_mode == qm_knns )
+            draw_segment(search_segment);
         else if ( query_mode == qm_ri )
             draw_ring(search_ring);
         else if ( query_mode == qm_pi )
@@ -593,6 +628,8 @@ void render_scene(void)
             draw_linestring(search_path);
         else
             draw_box(search_box);
+
+        glColor3f(1.0f, 0.5f, 0.0f);
 
         for ( size_t i = 0 ; i < nearest_boxes.size() ; ++i )
             bgi::detail::utilities::gl_draw_indexable(
@@ -760,6 +797,10 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
         {
             if ( current_line == "knn" )
                 query_mode = qm_knn;
+            else if ( current_line == "knnb" )
+                query_mode = qm_knnb;
+            else if ( current_line == "knns" )
+                query_mode = qm_knns;
             else if ( current_line == "c" )
                 query_mode = qm_c;
             else if ( current_line == "d" )
