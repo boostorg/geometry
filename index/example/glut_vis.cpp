@@ -80,8 +80,8 @@ void query_knn()
     }
     else if ( query_mode == qm_knnb )
     {
-        float w = 5 + ( rand() % 1000 ) / 200.0f;
-        float h = 5 + ( rand() % 1000 ) / 200.0f;
+        float w = 2 + ( rand() % 1000 ) / 500.0f;
+        float h = 2 + ( rand() % 1000 ) / 500.0f;
         search_box = B(P(x - w, y - h), P(x + w, y + h));
         found_count = t.query(
                 bgi::nearest(search_box, count),
@@ -490,18 +490,27 @@ void search()
     search_valid = true;
 }
 
+void draw_point(P const& p)
+{
+    float x = boost::geometry::get<0>(p);
+    float y = boost::geometry::get<1>(p);
+    float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
+
+    glBegin(GL_QUADS);
+    glVertex3f(x+1, y, z);
+    glVertex3f(x, y+1, z);
+    glVertex3f(x-1, y, z);
+    glVertex3f(x, y-1, z);
+    glEnd();
+}
+
 void draw_knn_area(float min_distance, float max_distance)
 {
     float x = boost::geometry::get<0>(search_point);
     float y = boost::geometry::get<1>(search_point);
     float z = bgi::detail::rtree::utilities::view<RTree>(t).depth();
 
-    // search point
-    glBegin(GL_TRIANGLES);
-    glVertex3f(x, y, z);
-    glVertex3f(x + 1, y, z);
-    glVertex3f(x + 1, y + 1, z);
-    glEnd();
+    draw_point(search_point);
 
     // search min circle
 
@@ -606,7 +615,7 @@ void render_scene(void)
 
     if ( search_valid )
     {
-        glColor3f(0.0f, 0.0f, 1.0f);
+        glColor3f(1.0f, 0.25f, 0.0f);
 
         if ( query_mode == qm_knn )
             draw_knn_area(0, 0);
