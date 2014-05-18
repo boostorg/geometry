@@ -132,7 +132,7 @@ private:
             comparable_return_type cd_min =
                 strategy.apply(point, box_points[0], box_points[3]);
 
-            for (unsigned int i = 0; i < 2; ++i)
+            for (unsigned int i = 0; i < 3; ++i)
             {
                 comparable_return_type cd =
                     strategy.apply(point, box_points[i], box_points[i+1]);
