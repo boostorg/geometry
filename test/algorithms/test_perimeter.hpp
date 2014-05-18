@@ -29,7 +29,7 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter)
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
-        << typeid(typename bg::perimeter_result<Geometry>::type).name()
+        << typeid(typename bg::default_length_result<Geometry>::type).name()
         << std::endl
         << "perimeter : " << bg::perimeter(geometry)
         << std::endl;
@@ -48,7 +48,9 @@ void test_geometry(std::string const& wkt, double expected_perimeter)
     boost::variant<Geometry> v(geometry);
 
     test_perimeter(geometry, expected_perimeter);
+#if !defined(GEOMETRY_TEST_DEBUG)
     test_perimeter(v, expected_perimeter);
+#endif
 }
 
 template <typename Geometry>
