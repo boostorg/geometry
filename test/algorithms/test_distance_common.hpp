@@ -426,6 +426,146 @@ struct test_distance_of_geometries
     }
 };
 
+//========================================================================
+
+template <typename Box, typename Segment>
+struct test_distance_of_geometries
+<
+    Box, Segment,
+    94 /* box */, 92 /* segment */
+>
+{
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    static inline
+    void apply(std::string const& wkt_box,
+               std::string const& wkt_segment,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy)
+    {
+        test_distance_of_geometries
+            <
+                Segment, Box, 92, 94
+            >::apply(wkt_segment,
+                     wkt_box,
+                     expected_distance,
+                     expected_comparable_distance,
+                     strategy);
+    }
+};
+
+
+template <typename Segment, typename Box>
+struct test_distance_of_geometries
+<
+    Segment, Box,
+    92 /* segment */, 94 /* box */
+>
+    : public test_distance_of_geometries<Segment, Box, 0, 0>
+{
+    typedef test_distance_of_geometries<Segment, Box, 0, 0> base;
+
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    static inline
+    void apply(std::string const& wkt_segment,
+               std::string const& wkt_box,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy)
+    {
+        Segment segment = from_wkt<Segment>(wkt_segment);
+        Box box = from_wkt<Box>(wkt_box);
+        apply(segment,
+              box,
+              expected_distance,
+              expected_comparable_distance,
+              strategy);
+    }
+
+
+    template
+    <
+        typename DistanceType,
+        typename ComparableDistanceType,
+        typename Strategy
+    >
+    static inline
+    void apply(Segment const& segment,
+               Box const& box,
+               DistanceType const& expected_distance,
+               ComparableDistanceType const& expected_comparable_distance,
+               Strategy const& strategy)
+    {
+        typedef typename bg::strategy::distance::services::return_type
+            <
+                Strategy, Segment, Box
+            >::type distance_result_type;
+
+        typedef typename bg::strategy::distance::services::comparable_type
+            <
+                Strategy
+            >::type comparable_strategy;
+
+        typedef typename bg::strategy::distance::services::return_type
+            <
+                comparable_strategy, Segment, Box
+            >::type comparable_distance_result_type;
+
+
+        base::apply(segment, box, expected_distance,
+                    expected_comparable_distance, strategy);
+
+        comparable_strategy cstrategy =
+            bg::strategy::distance::services::get_comparable
+                <
+                    Strategy
+                >::apply(strategy);
+
+        distance_result_type distance_generic =
+            bg::detail::distance::segment_to_box_2D_generic
+                <
+                    Segment, Box, Strategy
+                >::apply(segment, box, strategy);
+
+        comparable_distance_result_type comparable_distance_generic =
+            bg::detail::distance::segment_to_box_2D_generic
+                <
+                    Segment, Box, comparable_strategy
+                >::apply(segment, box, cstrategy);
+
+
+        check_equal
+            <
+                distance_result_type
+            >::apply(distance_generic, expected_distance);
+
+        check_equal
+            <
+                comparable_distance_result_type
+            >::apply(comparable_distance_generic, expected_comparable_distance);
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << "... testing with naive seg-box distance algorithm..."
+                  << std::endl;
+        std::cout << "distance (generic algorithm) = "
+                  << distance_generic << " ; "
+                  << "comp. distance (generic algorithm) = "            
+                  << comparable_distance_generic
+                  << std::endl;
+        std::cout << std::endl << std::endl;
+#endif
+    }
+};
 
 //========================================================================
 
