@@ -48,6 +48,14 @@ typedef bg::model::multi_polygon<Poly> MPoly;
 template <typename V>
 struct containers
 {
+    containers & operator=(containers const& c)
+    {
+        tree = c.tree;
+        values = c.values;
+        result = c.result;
+        return *this;
+    }
+
     bgi::rtree< V, bgi::rstar<4, 2> > tree;
     std::vector<V> values;
     std::vector<V> result;
