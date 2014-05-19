@@ -24,9 +24,35 @@ namespace boost { namespace geometry
 
 
 /*!
+    \brief Meta-function that takes a Sequence type, an MPL lambda
+        expression and an optional Inserter and returns a variant type over
+        the same types as the initial variant type, each transformed using
+        the lambda expression.
+    \ingroup utility
+    \par Example
+    \code
+        typedef mpl::vector<int, float, long> types;
+        typedef transform_variant<types, add_pointer<_> > transformed;
+        typedef variant<int*, float*, long*> result;
+        BOOST_MPL_ASSERT(( equal<result, transformed> ));
+    \endcode
+*/
+template <typename Sequence, typename Op, typename In = boost::mpl::na>
+struct transform_variant:
+    make_variant_over<
+        typename mpl::transform<
+            Sequence,
+            Op,
+            In
+        >::type
+    >
+{};
+
+
+/*!
     \brief Meta-function that takes a boost::variant type and an MPL lambda
         expression and returns a variant type over the same types as the
-        initial variant type, each trasnformed using the lambda expression.
+        initial variant type, each transformed using the lambda expression.
     \ingroup utility
     \par Example
     \code
@@ -36,12 +62,11 @@ namespace boost { namespace geometry
         BOOST_MPL_ASSERT(( equal<result, transformed> ));
     \endcode
 */
-
-template <typename Variant, typename Op>
-struct transform_variant:
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Op>
+struct transform_variant<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Op, boost::mpl::na> :
     make_variant_over<
         typename mpl::transform<
-            typename Variant::types,
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
             Op
         >::type
     >

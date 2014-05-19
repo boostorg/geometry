@@ -4,6 +4,7 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014, Oracle and/or its affiliates.
@@ -43,7 +44,11 @@
 #include <boost/geometry/util/compress_variant.hpp>
 #include <boost/geometry/util/transform_variant.hpp>
 #include <boost/geometry/util/combine_if.hpp>
-#include <boost/geometry/util/is_implemented.hpp>
+//#include <boost/geometry/util/is_implemented.hpp>
+
+#include <boost/mpl/always.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/vector.hpp>
 
 
 namespace boost { namespace geometry
@@ -166,30 +171,28 @@ struct distance
 template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
 struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 {
-    // A set of of all variant type combinations that are compatible and implemented
-    typedef typename util::combine_if
-        <
-            typename mpl::vector1<Geometry1>,
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            util::is_compatible<mpl::_1, mpl::_2>
-        >::type possible_input_types;
+    // A set of all variant type combinations that are compatible and implemented
+    typedef typename util::combine_if<
+        typename mpl::vector1<Geometry1>,
+        typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+        // Here we want should remove most of the combinations that are not valid
+        // mostly to limit the size of the resulting MPL set.
+        // But is_implementedn is not ready for prime time
+        //
+        // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
+        mpl::always<mpl::true_>
+    >::type possible_input_types;
 
-    // All possible results for these combinations
-    typedef typename mpl::transform<
-        possible_input_types,
-        resolve_strategy::result_of::distance
-            <            
+    // The (possibly variant) result type resulting from these combinations
+    typedef typename compress_variant<
+        typename transform_variant<
+            possible_input_types,
+            resolve_strategy::result_of::distance<
                 point_type<mpl::first<mpl::_> >,
                 point_type<mpl::second<mpl::_> >,
                 Strategy
             >,
-        mpl::back_inserter<mpl::vector0<> >
-    >::type possible_result_types;
-
-    // The (possibly variant) result type
-    typedef typename compress_variant<
-        typename make_variant_over<
-            possible_result_types
+            mpl::back_inserter<mpl::vector0<> >
         >::type
     >::type type;
 };
@@ -205,30 +208,29 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy>
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
 struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 {
-    // A set of of all variant type combinations that are compatible and implemented
+    // A set of all variant type combinations that are compatible and implemented
     typedef typename util::combine_if
         <
             typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
             typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            util::is_compatible<mpl::_1, mpl::_2>
+            // Here we want to try to remove most of the combinations that are not valid
+            // mostly to limit the size of the resulting MPL vector.
+            // But is_implementedn is not ready for prime time
+            //
+            // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
+            mpl::always<mpl::true_>
         >::type possible_input_types;
 
-    // All possible results for these combinations
-    typedef typename mpl::transform<
-        possible_input_types,
-        resolve_strategy::result_of::distance
-            <            
+    // The (possibly variant) result type resulting from these combinations
+    typedef typename compress_variant<
+        typename transform_variant<
+            possible_input_types,
+            resolve_strategy::result_of::distance<
                 point_type<mpl::first<mpl::_> >,
                 point_type<mpl::second<mpl::_> >,
                 Strategy
             >,
-        mpl::back_inserter<mpl::vector0<> >
-    >::type possible_result_types;
-
-    // The (possibly variant) result type
-    typedef typename compress_variant<
-        typename make_variant_over<
-            possible_result_types
+            mpl::back_inserter<mpl::vector0<> >
         >::type
     >::type type;
 };
