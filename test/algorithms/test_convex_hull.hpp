@@ -27,7 +27,7 @@
 
 template <typename Geometry, typename Hull>
 void check_convex_hull(Geometry const& geometry, Hull const& hull,
-                      std::size_t size_original, std::size_t size_hull,
+                      std::size_t /*size_original*/, std::size_t size_hull,
                       double expected_area, bool reverse)
 {
     std::size_t n = bg::num_points(hull);

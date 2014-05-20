@@ -127,23 +127,10 @@ private:
                                      BoxPoints const& box_points,
                                      ComparableStrategy const& strategy)
         {
-            boost::ignore_unused_variable_warning(strategy);
-
-            comparable_return_type cd_min =
-                strategy.apply(point, box_points[0], box_points[3]);
-
-            for (unsigned int i = 0; i < 2; ++i)
-            {
-                comparable_return_type cd =
-                    strategy.apply(point, box_points[i], box_points[i+1]);
-
-                if ( cd < cd_min )
-                {
-                    cd_min = cd;
-                }
-            }
-            
-            return cd_min;
+            return point_to_range
+                <
+                    Point, BoxPoints, open, ComparableStrategy
+                >::apply(point, box_points, strategy);
         }
     };
 

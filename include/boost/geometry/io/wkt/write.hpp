@@ -416,13 +416,10 @@ private:
 
 /*!
 \brief Main WKT-streaming function
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
 \ingroup wkt
-\par Example:
-Small example showing how to use the wkt helper function
-\dontinclude doxygen_1.cpp
-\skip example_as_wkt_vector
-\line {
-\until }
+\qbk{[include reference/io/wkt.qbk]}
 */
 template <typename Geometry>
 inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
