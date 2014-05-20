@@ -8,6 +8,17 @@
   http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================/]
 
+[heading The WKT Format]
+WKT is a general markup format in ASCII.
+It is described in detail on [@http://en.wikipedia.org/wiki/Well-known_text Wikipedia]
+
+Boost Geometry supports the common formats (POINT, LINESTRING, POLYGON, MULTIPOINT, MULTILINESTRING, MULTIPOLYGON). Because Boost.Geometry
+also supports Box and Segment geometries, which are not standard OGC geometries, there are some extensions:
+
+* a Box can be read from WKT by specifying either a polygon (with 4 points) or a specific BOX string (non OGC)
+* a Segment can be read from WKT by specifying either a linestring (with 2 points) or a specific SEGMENT string (non OGC)
+* a Ring can be read from WKT by specifying a polygon (with no holes)
+
 [heading Example]
 [read_wkt]
 
