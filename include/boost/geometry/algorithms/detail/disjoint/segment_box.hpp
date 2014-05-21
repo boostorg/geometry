@@ -1,11 +1,22 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2013-2014.
+// Modifications copyright (c) 2013-2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-// Licensed under the Boost Software License version 1.0.
-// http://www.boost.org/users/license.html
+// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
+// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_SEGMENT_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_SEGMENT_BOX_HPP
@@ -16,10 +27,13 @@
 #include <boost/geometry/util/calculation_type.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+
+#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 
 namespace boost { namespace geometry
@@ -227,9 +241,9 @@ struct disjoint_segment_box_impl
 
 
 template <typename Segment, typename Box>
-struct disjoint_segment_box_no_numeric_limits
+struct disjoint_segment_box
 { 
-   static inline bool apply(Segment const& segment, Box const& box)
+    static inline bool apply(Segment const& segment, Box const& box)
     {
         assert_dimension_equal<Segment, Box>();
 
@@ -255,6 +269,21 @@ struct disjoint_segment_box_no_numeric_limits
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
 
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+
+template <typename Segment, typename Box, std::size_t DimensionCount>
+struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, false>
+    : detail::disjoint::disjoint_segment_box<Segment, Box>
+{};
+
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
 
 
 }} // namespace boost::geometry
