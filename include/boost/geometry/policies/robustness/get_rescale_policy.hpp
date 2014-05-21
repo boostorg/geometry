@@ -58,7 +58,8 @@ static inline void init_rescale_policy(Geometry const& geometry,
     num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
     num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
     num_type const half = 0.5;
-    factor = boost::numeric_cast<num_type>(
+    factor = math::equals(diff, num_type()) ? 1
+        : boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
@@ -90,7 +91,8 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
     num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
     num_type const half = 0.5;
-    factor = boost::numeric_cast<num_type>(
+    factor = math::equals(diff, num_type()) ? 1
+        : boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
 
     // Assign input/output minimal points
