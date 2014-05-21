@@ -1,9 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland
+
+// This file was modified by Oracle on 2013-2014.
+// Modifications copyright (c) 2013-2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -15,7 +21,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_BOX_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_BOX_BOX_HPP
 
+#include <cstddef>
+
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 
 namespace boost { namespace geometry
@@ -80,6 +89,22 @@ inline bool disjoint_box_box(Box1 const& box1, Box2 const& box2)
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+
+template <typename Box1, typename Box2, std::size_t DimensionCount>
+struct disjoint<Box1, Box2, DimensionCount, box_tag, box_tag, false>
+    : detail::disjoint::box_box<Box1, Box2, 0, DimensionCount>
+{};
+
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
 
 }} // namespace boost::geometry
 
