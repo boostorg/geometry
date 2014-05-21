@@ -17,18 +17,11 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-// general support; THIS HEADER SHOULD GO AWAY
-#include <boost/geometry/geometry.hpp>
-
-// support for multi; THIS HEADER SHOULD GO AWAY
-//#include <boost/geometry/multi/multi.hpp>
-
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/multi/core/tags.hpp>
 
-// I should not need to include this
-#include <boost/geometry/multi/core/geometry_id.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
@@ -47,7 +40,6 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/multi/algorithms/disjoint.hpp>
 
 #include "from_wkt.hpp"
 
