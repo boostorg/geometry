@@ -13,7 +13,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
 

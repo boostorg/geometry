@@ -13,7 +13,7 @@
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
 namespace boost { namespace geometry
