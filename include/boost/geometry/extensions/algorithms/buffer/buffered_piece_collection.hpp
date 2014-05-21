@@ -291,6 +291,7 @@ struct buffered_piece_collection
 
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
+                                    false, false, false, false,
                                     the_model, m_rescale_policy, std::back_inserter(m_turns));
             }
         }
