@@ -34,6 +34,7 @@
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
 #include <boost/geometry/policies/disjoint_interrupt_policy.hpp>
