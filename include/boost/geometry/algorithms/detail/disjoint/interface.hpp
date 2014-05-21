@@ -18,8 +18,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_INTERFACE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_INTERFACE_HPP
 
 #include <cstddef>
 
@@ -28,16 +28,6 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-
-#include <boost/geometry/algorithms/detail/disjoint/areal_areal.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/linear_areal.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_geometry.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
@@ -194,4 +184,4 @@ inline bool disjoint(Geometry1 const& geometry1,
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_INTERFACE_HPP
