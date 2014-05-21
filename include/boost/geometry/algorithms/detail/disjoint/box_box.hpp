@@ -26,6 +26,8 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+
 
 namespace boost { namespace geometry
 {
