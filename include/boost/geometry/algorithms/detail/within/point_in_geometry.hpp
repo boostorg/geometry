@@ -24,7 +24,7 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
