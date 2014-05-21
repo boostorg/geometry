@@ -172,7 +172,7 @@ struct buffered_piece_collection
     // To check clustered locations we keep track of segments being opposite somewhere
     std::set<segment_identifier> m_in_opposite_segments;
 
-    RobustPolicy const& m_rescale_policy;
+    RobustPolicy const& m_robust_policy;
 
     struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
     {
@@ -195,7 +195,7 @@ struct buffered_piece_collection
     };
 
     buffered_piece_collection(RobustPolicy const& robust_policy)
-        : m_rescale_policy(robust_policy)
+        : m_robust_policy(robust_policy)
     {}
 
 
@@ -292,7 +292,7 @@ struct buffered_piece_collection
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
                                     false, false, false, false,
-                                    the_model, m_rescale_policy, std::back_inserter(m_turns));
+                                    the_model, m_robust_policy, std::back_inserter(m_turns));
             }
         }
     }
@@ -389,7 +389,7 @@ struct buffered_piece_collection
             int const side_wrt_circle = side_on_convex_range<side_strategy>(turn.point,
                             boost::begin(ring) + seg_id.segment_index,
                             boost::begin(ring) + pc.last_segment_index,
-                            seg_id, on_segment_seg_id, m_rescale_policy);
+                            seg_id, on_segment_seg_id, m_robust_policy);
             switch (side_wrt_circle)
             {
                 case 0 : turn.count_on_offsetted++; break;
@@ -398,7 +398,7 @@ struct buffered_piece_collection
             return;
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments, m_rescale_policy);
+        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments, m_robust_policy);
         if (side_helper == 1)
         {
             // Left or outside
@@ -408,7 +408,7 @@ struct buffered_piece_collection
         int const side_offsetted = side_on_convex_range<side_strategy>(turn.point,
                         boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
-                        seg_id, on_segment_seg_id, m_rescale_policy);
+                        seg_id, on_segment_seg_id, m_robust_policy);
         if (side_offsetted == 1)
         {
             return;
@@ -425,8 +425,8 @@ struct buffered_piece_collection
         }
         if (side_helper == 0)
         {
-            if (detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.back(), m_rescale_policy)
-                || detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.front(), m_rescale_policy))
+            if (detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.back(), m_robust_policy)
+                || detail::overlay::points_equal_or_close(turn.point, pc.helper_segments.front(), m_robust_policy))
             {
                 turn.count_on_corner++;
             }
@@ -665,12 +665,12 @@ struct buffered_piece_collection
         >::type robust_point_type;
 
         robust_point_type p1_rob, p2_rob, prev1_rob, prev2_rob, cur1_rob, cur2_rob;
-        geometry::recalculate(p1_rob, select_for_side(prev1, it1, which), m_rescale_policy);
-        geometry::recalculate(p2_rob, select_for_side(prev2, it2, which), m_rescale_policy);
-        geometry::recalculate(prev1_rob, *prev1, m_rescale_policy);
-        geometry::recalculate(prev2_rob, *prev2, m_rescale_policy);
-        geometry::recalculate(cur1_rob, *it1, m_rescale_policy);
-        geometry::recalculate(cur2_rob, *it2, m_rescale_policy);
+        geometry::recalculate(p1_rob, select_for_side(prev1, it1, which), m_robust_policy);
+        geometry::recalculate(p2_rob, select_for_side(prev2, it2, which), m_robust_policy);
+        geometry::recalculate(prev1_rob, *prev1, m_robust_policy);
+        geometry::recalculate(prev2_rob, *prev2, m_robust_policy);
+        geometry::recalculate(cur1_rob, *it1, m_robust_policy);
+        geometry::recalculate(cur2_rob, *it2, m_robust_policy);
 
         int const code1 = side_strategy::apply(p1_rob, prev2_rob, cur2_rob);
         int const code2 = side_strategy::apply(p2_rob, prev1_rob, cur1_rob);
@@ -744,7 +744,7 @@ struct buffered_piece_collection
             return true;
         }
 
-        if (detail::overlay::points_equal_or_close(a.point, b.point, m_rescale_policy))
+        if (detail::overlay::points_equal_or_close(a.point, b.point, m_robust_policy))
         {
             std::cout << "=";
             return true;
@@ -1166,7 +1166,7 @@ struct buffered_piece_collection
         enrich_intersection_points<false, false>(m_turns,
                     detail::overlay::operation_union,
                     offsetted_rings, offsetted_rings,
-                    m_rescale_policy, side_strategy_type());
+                    m_robust_policy, side_strategy_type());
     }
 
     // Discards all rings which do have not-OK intersection points only.
@@ -1223,7 +1223,7 @@ struct buffered_piece_collection
         traversed_rings.clear();
         traverser::apply(offsetted_rings, offsetted_rings,
                         detail::overlay::operation_union,
-                        m_rescale_policy, m_turns, traversed_rings);
+                        m_robust_policy, m_turns, traversed_rings);
     }
 
     template <typename GeometryOutput, typename OutputIterator>
