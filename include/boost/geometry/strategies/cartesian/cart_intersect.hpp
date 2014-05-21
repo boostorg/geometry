@@ -20,7 +20,7 @@
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>

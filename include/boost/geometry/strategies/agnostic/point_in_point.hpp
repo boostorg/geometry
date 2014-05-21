@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POINT_HPP
 #define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_POINT_IN_POINT_HPP
 
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
