@@ -364,7 +364,7 @@ inline void test_point_polygon()
 template <typename P>
 inline void test_point_multipolygon()
 {
-    typedef bg::model::polygon<P> PL;
+    typedef bg::model::polygon<P, false, false> PL; // ccw, open
     typedef bg::model::multi_polygon<PL> MPL;
     
     typedef test_disjoint tester;
