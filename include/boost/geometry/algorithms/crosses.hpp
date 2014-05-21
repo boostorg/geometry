@@ -78,7 +78,6 @@ namespace resolve_variant
     template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
     struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
     {
-        template <typename Geometry2>
         struct visitor: static_visitor<void>
         {
             Geometry2 const& m_geometry2;
@@ -92,8 +91,8 @@ namespace resolve_variant
             {
                 return crosses
                 <
-                Geometry1,
-                Geometry2
+                    Geometry1,
+                    Geometry2
                 >::apply
                 (geometry1, m_geometry2);
             }
@@ -103,7 +102,7 @@ namespace resolve_variant
         apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
               Geometry2 const& geometry2)
         {
-            return apply_visitor(visitor<Geometry2>(geometry2), geometry1);
+            return apply_visitor(visitor(geometry2), geometry1);
         }
     };
     
@@ -111,7 +110,6 @@ namespace resolve_variant
     template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
     struct crosses<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     {
-        template <typename Geometry1>
         struct visitor: static_visitor<void>
         {
             Geometry1 const& m_geometry1;
@@ -125,8 +123,8 @@ namespace resolve_variant
             {
                 return crosses
                 <
-                Geometry1,
-                Geometry2
+                    Geometry1,
+                    Geometry2
                 >::apply
                 (m_geometry1, geometry2);
             }
@@ -137,7 +135,7 @@ namespace resolve_variant
               Geometry1 const& geometry1,
               const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2)
         {
-            return apply_visitor(visitor<Geometry1>(geometry1), geometry2);
+            return apply_visitor(visitor(geometry1), geometry2);
         }
     };
     
