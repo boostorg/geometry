@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_HPP
 
+#error This file should not be included; it will go away
+
 // Note: contrary to most files, the geometry::detail::disjoint namespace
 // is partly implemented in separate files, to avoid circular references
 // disjoint -> get_turns -> disjoint
