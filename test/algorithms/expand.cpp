@@ -21,6 +21,7 @@
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/adapted/std_pair_as_segment.hpp>
+#include <boost/variant/variant.hpp>
 #include <test_common/test_point.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
