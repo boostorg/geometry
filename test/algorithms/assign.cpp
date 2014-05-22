@@ -189,6 +189,70 @@ void test_assign_conversion()
 }
 
 
+template <typename P>
+void test_assign_conversion_variant()
+{
+    typedef bg::model::box<P> box_type;
+    typedef bg::model::ring<P> ring_type;
+    typedef bg::model::polygon<P> polygon_type;
+
+    P p;
+    bg::assign_values(p, 1, 2);
+
+    box_type b;
+    bg::assign(boost::variant<box_type>(b), p);
+
+    BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 1>(b)), 2.0, 0.001);
+
+
+    bg::set<bg::min_corner, 0>(b, 1);
+    bg::set<bg::min_corner, 1>(b, 2);
+    bg::set<bg::max_corner, 0>(b, 3);
+    bg::set<bg::max_corner, 1>(b, 4);
+
+    ring_type ring;
+    bg::assign(boost::variant<ring_type>(ring), boost::variant<box_type>(b));
+
+    {
+        typedef bg::model::ring<P, false, false> ring_type_ccw;
+        ring_type_ccw ring_ccw;
+        // Should NOT compile (currently): bg::assign(ring_ccw, ring);
+
+    }
+
+    typename boost::range_const_iterator<ring_type>::type it = ring.begin();
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+
+    BOOST_CHECK_EQUAL(ring.size(), 5u);
+
+
+    polygon_type polygon;
+
+    bg::assign(boost::variant<polygon_type>(polygon), boost::variant<ring_type>(ring));
+    BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
+
+    ring_type ring2;
+    bg::assign(boost::variant<ring_type>(ring2), boost::variant<polygon_type>(polygon));
+    BOOST_CHECK_EQUAL(bg::num_points(ring2), 5u);
+}
+
+
 template <typename Point>
 void test_assign_point_2d()
 {
@@ -225,6 +289,7 @@ int test_main(int, char* [])
     test_assign_point_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     test_assign_conversion<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_assign_conversion_variant<bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
     // Segment (currently) cannot handle array's because derived from std::pair
