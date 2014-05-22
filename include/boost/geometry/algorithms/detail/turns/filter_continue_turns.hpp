@@ -24,7 +24,7 @@ namespace detail { namespace turns
 template <typename Turns, bool Enable>
 struct filter_continue_turns
 {
-    static inline void apply(Turns& turns) {}
+    static inline void apply(Turns&) {}
 };
 
 

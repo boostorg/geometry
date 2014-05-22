@@ -2,7 +2,7 @@
 //
 // R-tree R*-tree split algorithm implementation
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -14,6 +14,8 @@
 #include <boost/geometry/index/detail/algorithms/intersection_content.hpp>
 #include <boost/geometry/index/detail/algorithms/union_content.hpp>
 #include <boost/geometry/index/detail/algorithms/margin.hpp>
+
+#include <boost/geometry/index/detail/bounded_view.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/node.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/insert.hpp>
@@ -28,7 +30,27 @@ namespace rstar {
 template <typename Element, typename Translator, typename Tag, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less
 {
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+    typedef typename rtree::element_indexable_type<Element, Translator>::type indexable_type;
+    typedef typename geometry::point_type<indexable_type>::type point_type;
+    typedef geometry::model::box<point_type> bounds_type;
+    typedef index::detail::bounded_view<indexable_type, bounds_type> bounded_view_type;
+
+public:
+    element_axis_corner_less(Translator const& tr)
+        : m_tr(tr)
+    {}
+
+    bool operator()(Element const& e1, Element const& e2) const
+    {
+        bounded_view_type bounded_ind1(rtree::element_indexable(e1, m_tr));
+        bounded_view_type bounded_ind2(rtree::element_indexable(e2, m_tr));
+
+        return geometry::get<Corner, AxisIndex>(bounded_ind1)
+            < geometry::get<Corner, AxisIndex>(bounded_ind2);
+    }
+
+private:
+    Translator const& m_tr;
 };
 
 template <typename Element, typename Translator, size_t Corner, size_t AxisIndex>
@@ -129,14 +151,14 @@ struct choose_split_axis_and_index_for_corner
     }
 };
 
+//template <typename Parameters, typename Box, size_t AxisIndex, typename ElementIndexableTag>
+//struct choose_split_axis_and_index_for_axis
+//{
+//    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (ElementIndexableTag));
+//};
+
 template <typename Parameters, typename Box, size_t AxisIndex, typename ElementIndexableTag>
 struct choose_split_axis_and_index_for_axis
-{
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (ElementIndexableTag));
-};
-
-template <typename Parameters, typename Box, size_t AxisIndex>
-struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
 {
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
@@ -403,11 +425,15 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
         // TODO: awulkiew - check if std::partial_sort produces the same result as std::sort
         if ( split_corner == static_cast<size_t>(min_corner) )
+        {
             rstar::partial_sort<min_corner, dimension>
                 ::apply(elements_copy, split_axis, split_index, translator);                            // MAY THROW, BASIC (copy)
+        }
         else
+        {
             rstar::partial_sort<max_corner, dimension>
                 ::apply(elements_copy, split_axis, split_index, translator);                            // MAY THROW, BASIC (copy)
+        }
 
         BOOST_TRY
         {

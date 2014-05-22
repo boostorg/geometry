@@ -223,7 +223,7 @@
 
 [section:io IO (input/output)]
 [section:wkt WKT (Well-Known Text)]
-[/include generated/wkt.qbk/]
+[include generated/wkt.qbk]
 [endsect]
 [section:svg SVG (Scalable Vector Graphics)]
 [include generated/svg.qbk]

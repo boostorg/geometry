@@ -82,7 +82,8 @@ public:
     typedef RobustPolicy rescale_policy_type;
 };
 
-
+// Version for box_box intersection or other detail calls not needing a strategy
+struct strategy_intersection_empty {};
 
 
 }} // namespace boost::geometry
