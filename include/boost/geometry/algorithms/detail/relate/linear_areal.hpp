@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 
-#include <boost/geometry/views/normalized_view.hpp>
+#include <boost/geometry/views/detail/normalized_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -464,14 +464,11 @@ struct linear_areal
                   typename Geometry,
                   typename OtherGeometry,
                   typename BoundaryChecker>
-        void apply(Result & res,
-                   TurnIt first, TurnIt it, TurnIt last,
+        void apply(Result & res, TurnIt it,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
                    BoundaryChecker const& boundary_checker)
         {
-            //BOOST_ASSERT( it != last );
-
             overlay::operation_type op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
@@ -769,7 +766,7 @@ struct linear_areal
         void apply(Result & res,
                    TurnIt first, TurnIt last,
                    Geometry const& geometry,
-                   OtherGeometry const& other_geometry,
+                   OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker)
         {
             //BOOST_ASSERT( first != last );
@@ -966,7 +963,7 @@ struct linear_areal
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            analyser.apply(res, first, it, last,
+            analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker);
 

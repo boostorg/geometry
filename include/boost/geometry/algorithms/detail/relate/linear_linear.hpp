@@ -257,15 +257,12 @@ struct linear_linear
                   typename OtherGeometry,
                   typename BoundaryChecker,
                   typename OtherBoundaryChecker>
-        void apply(Result & res,
-                   TurnIt first, TurnIt it, TurnIt last,
+        void apply(Result & res, TurnIt it,
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& other_boundary_checker)
         {
-            //BOOST_ASSERT( it != last );
-
             overlay::operation_type op = it->operations[op_id].operation;
 
             segment_identifier const& seg_id = it->operations[op_id].seg_id;
@@ -563,7 +560,7 @@ struct linear_linear
                    Geometry const& geometry,
                    OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker,
-                   OtherBoundaryChecker const& other_boundary_checker)
+                   OtherBoundaryChecker const& /*other_boundary_checker*/)
         {
             //BOOST_ASSERT( first != last );
 
@@ -621,7 +618,7 @@ struct linear_linear
                                 Geometry const& geometry,
                                 OtherGeometry const& other_geometry,
                                 BoundaryChecker const& boundary_checker,
-                                OtherBoundaryChecker const& other_boundary_checker,
+                                OtherBoundaryChecker const& /*other_boundary_checker*/,
                                 bool first_in_range)
         {
             typename detail::single_geometry_return_type<Geometry const>::type
@@ -747,7 +744,7 @@ struct linear_linear
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            analyser.apply(res, first, it, last,
+            analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker, other_boundary_checker);
 

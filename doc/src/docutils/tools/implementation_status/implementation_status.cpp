@@ -30,7 +30,8 @@ static const int polygon = 5;
 static const int multi_point = 6;
 static const int multi_linestring = 7;
 static const int multi_polygon = 8;
-static const int geometry_count = 9;
+static const int variant = 9;
+static const int geometry_count = 10;
 
 struct compile_bjam
 {
@@ -149,6 +150,7 @@ inline std::string typedef_string(int type, bool clockwise, bool open)
             out << "bg::model::ring<P, "
                 << bool_string(clockwise) << ", " << bool_string(open) << ">";
             break;
+        case variant :
         case polygon :
             out << "bg::model::polygon<P, "
                 << bool_string(clockwise) << ", " << bool_string(open) << ">";
@@ -174,6 +176,7 @@ inline std::string wkt_string(int type)
         case segment : return "LINESTRING(1 1,2 2)";
         case box : return "POLYGON((1 1,2 2))";
         case polygon :
+        case variant :
         case ring :
             return "POLYGON((0 0,0 1,1 1,0 0))";
         case multi_point : return "MULTIPOINT((1 1),(2 2))";
@@ -196,6 +199,7 @@ inline std::string geometry_string(int type)
         case multi_point : return "MultiPoint";
         case multi_linestring : return "MultiLinestring";
         case multi_polygon : return "MultiPolygon";
+        case variant : return "Variant";
     }
     return "";
 }
@@ -235,15 +239,37 @@ int report_library(CompilePolicy& compile_policy,
     {
         std::ofstream out("tmp/t.cpp");
 
+        std::string name = "geometry";
+
+        if (type == variant)
+        {
+            name = "source";
+        }
+
+        out << "#include <implementation_status.hpp>" << std::endl;
+
+        if (type == variant)
+        {
+            out << "#include <boost/variant/variant.hpp>" << std::endl;
+        }
+
         out
-            << "#include <implementation_status.hpp>" << std::endl
             << "template <typename P>" << std::endl
             << "inline void test()" << std::endl
             << "{" << std::endl
             << "  namespace bg = boost::geometry;" << std::endl
-            << "  " << typedef_string(type, clockwise, open) << " geometry;" << std::endl
-            << "  bg::read_wkt(\"" << wkt_string(type) << "\", geometry);" << std::endl;
+            << "  " << typedef_string(type, clockwise, open) << " " << name << ";" << std::endl
+            << "  bg::read_wkt(\"" << wkt_string(type) << "\", " << name << ");" << std::endl;
 
+        if (type == variant)
+        {
+            out
+                << "  typedef " << typedef_string(polygon, clockwise, open) << " type1;" << std::endl
+                << "  typedef " << typedef_string(box, clockwise, open) << " type2;" << std::endl
+                << "  boost::variant<type1, type2> geometry;" << std::endl
+                << "  geometry = source;"
+                << std::endl;
+        }
 
         if (algo.arity > 1)
         {

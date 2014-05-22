@@ -92,7 +92,7 @@ struct multilinestring_equals
     template <typename MultiLinestring>
     struct unique<MultiLinestring, false>
     {
-        void operator()(MultiLinestring& mls)
+        void operator()(MultiLinestring&)
         {
         }
     };

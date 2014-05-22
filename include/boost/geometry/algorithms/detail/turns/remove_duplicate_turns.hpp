@@ -23,7 +23,7 @@ namespace detail { namespace turns
 template <typename Turns, bool Enable>
 struct remove_duplicate_turns
 {
-    static inline void apply(Turns& turns) {}
+    static inline void apply(Turns&) {}
 };
 
 

@@ -37,11 +37,14 @@
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategies/cartesian/distance_comparable_to_regular.hpp>
 
 #include <boost/geometry/strategies/spherical/area_huiller.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
