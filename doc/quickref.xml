@@ -741,7 +741,7 @@
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.overlaps_geometry_const___">overlaps(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.within_geometry_const___">within(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.satisfies_unarypredicate_const___">satisfies(UnaryPredicate const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_point_const____unsigned_">nearest(Point const &amp;, unsigned)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_geometry_const____unsigned_">nearest(Geometry const &amp;, unsigned)</link></member>
     </simplelist>
    </entry>
    <!--entry valign="top">

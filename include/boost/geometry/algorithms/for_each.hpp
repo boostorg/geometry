@@ -54,7 +54,7 @@ struct fe_point_per_point
 struct fe_point_per_segment
 {
     template <typename Point, typename Functor>
-    static inline void apply(Point& , Functor& f)
+    static inline void apply(Point& , Functor& /*f*/)
     {
         // TODO: if non-const, we should extract the points from the segment
         // and call the functor on those two points

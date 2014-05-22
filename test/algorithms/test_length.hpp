@@ -44,7 +44,9 @@ void test_geometry(std::string const& wkt, double expected_length)
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     test_length(geometry, expected_length);
+#if !defined(GEOMETRY_TEST_DEBUG)
     test_length(boost::variant<Geometry>(geometry), expected_length);
+#endif
 }
 
 template <typename Geometry>

@@ -226,6 +226,16 @@ void test_distance_segment_box(Strategy const& strategy)
     typedef test_distance_of_geometries<B, S> tester;
     typedef test_distance_of_geometries<B, IS> itester;
 
+    // 1st example by Adam Wulkiewicz
+    tester::apply("BOX(5 51,42 96)",
+                  "SEGMENT(6.6799994 95.260002,35.119999 56.340004)",
+                  0, 0, strategy);
+
+    // 2nd example by Adam Wulkiewicz
+    tester::apply("BOX(51 55,94 100)",
+                  "SEGMENT(92.439995 50.130001,59.959999 80.870003)",
+                  0, 0, strategy);
+
     // segments that intersect the box
     tester::apply("box(0 0,1 1)",
                   "segment(-1 0.5,0.5 0.75)",
