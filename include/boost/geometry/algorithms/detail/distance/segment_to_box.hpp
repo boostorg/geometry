@@ -235,7 +235,7 @@ private:
     };
 
     template <typename T, typename LessEqual>
-    struct compare_equal
+    struct compare_less_equal
     {
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
@@ -246,11 +246,11 @@ private:
     };
 
     template <typename T>
-    struct less_equal : compare_equal<T, std::less_equal<T> >
+    struct less_equal : compare_less_equal<T, std::less_equal<T> >
     {};
 
     template <typename T>
-    struct greater_equal : compare_equal<T, std::greater_equal<T> >
+    struct greater_equal : compare_less_equal<T, std::greater_equal<T> >
     {};
 
     template <typename LessEqual>
@@ -315,26 +315,6 @@ private:
     };
 
 
-    // it is assumed here that p1 lies to the left of the box (so the
-    // entire segment lies to the left of the box)
-    template <typename LessEqual>
-    struct left_of_box
-    {
-        static inline ReturnType apply(SegmentPoint const& p0,
-                                       SegmentPoint const& p1,
-                                       BoxPoint const& bottom_left,
-                                       BoxPoint const& top_left,
-                                       PPStrategy const& pp_strategy,
-                                       PSStrategy const& ps_strategy)
-        {
-            return right_of_box
-                <
-                    typename other_compare<LessEqual>::type
-                >::apply(p1, p0, top_left, bottom_left,
-                         pp_strategy, ps_strategy);
-        }
-    };
-
     // it is assumed here that p0 lies above the box (so the
     // entire segment lies above the box)
     template <typename LessEqual>
@@ -368,23 +348,6 @@ private:
     };
 
 
-    // it is assumed here that p1 lies below the box (so the
-    // entire segment lies below the box)
-    template <typename LessEqual>
-    struct below_of_box
-    {
-        static inline ReturnType apply(SegmentPoint const& p0,
-                                       SegmentPoint const& p1,
-                                       BoxPoint const& bottom_right,
-                                       PSStrategy const& ps_strategy)
-        {
-            return above_of_box
-                <
-                    typename other_compare<LessEqual>::type
-                >::apply(p1, p0, bottom_right, ps_strategy);
-        }
-    };
-
     template <typename LessEqual>
     struct check_right_left_of_box
     {
@@ -412,10 +375,10 @@ private:
             // p1 lies to the left of the box
             if ( get<0>(p1) <= geometry::get<0>(bottom_left) )
             {
-                result = left_of_box
+                result = right_of_box
                     <
-                        LessEqual
-                    >::apply(p0, p1, bottom_left, top_left,
+                        typename other_compare<LessEqual>::type
+                    >::apply(p1, p0, top_left, bottom_left,
                              pp_strategy, ps_strategy);
                 return true;
             }
@@ -441,14 +404,14 @@ private:
             // the segment lies below the box
             if ( geometry::get<1>(p1) < geometry::get<1>(bottom_left) )
             {
-                result = below_of_box
+                result = above_of_box
                     <
-                        LessEqual
-                    >::apply(p0, p1, bottom_right, ps_strategy);
+                        typename other_compare<LessEqual>::type
+                    >::apply(p1, p0, bottom_right, ps_strategy);
                 return true;
             }
 
-
+            // the segment lies above the box
             if ( geometry::get<1>(p0) > geometry::get<1>(top_right) )
             {
                 result = above_of_box
