@@ -446,7 +446,7 @@ struct get_turn_info_linear_areal
               typename OutIt>
     static inline bool append_collinear_spikes(TurnInfo & tp,
                                                IntersectionInfo const& inters,
-                                               bool is_p_last, bool is_q_last,
+                                               bool is_p_last, bool /*is_q_last*/,
                                                method_type method, append_version_c version,
                                                OutIt out)
     {
@@ -489,7 +489,7 @@ struct get_turn_info_linear_areal
               typename OutIt>
     static inline bool append_opposite_spikes(TurnInfo & tp,
                                               IntersectionInfo const& inters,
-                                              bool is_p_last, bool is_q_last,
+                                              bool is_p_last, bool /*is_q_last*/,
                                               OutIt out)
     {
         bool is_p_spike = ( Version == append_touches ?
@@ -635,10 +635,10 @@ struct get_turn_info_linear_areal
               typename IntersectionInfo,
               typename OutputIterator>
     static inline bool get_turn_info_for_endpoint(
-                            Point1 const& pi, Point1 const& pj, Point1 const& pk,
-                            Point2 const& qi, Point2 const& qj, Point2 const& qk,
+                            Point1 const& pi, Point1 const& /*pj*/, Point1 const& /*pk*/,
+                            Point2 const& qi, Point2 const& /*qj*/, Point2 const& /*qk*/,
                             bool is_p_first, bool is_p_last,
-                            bool is_q_first, bool is_q_last,
+                            bool /*is_q_first*/, bool is_q_last,
                             TurnInfo const& tp_model,
                             IntersectionInfo const& inters,
                             method_type /*method*/,
@@ -658,6 +658,8 @@ struct get_turn_info_linear_areal
 
         if ( !is_p_first && !is_p_last )
             return false;
+
+// TODO: is_q_last could probably be replaced by false and removed from parameters
 
         linear_intersections intersections(pi, qi, inters.result(), is_p_last, is_q_last);
         linear_intersections::ip_info const& ip0 = intersections.template get<0>();

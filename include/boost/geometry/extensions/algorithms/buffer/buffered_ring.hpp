@@ -250,13 +250,7 @@ struct within
     static inline bool apply(Point const& point,
                 MultiGeometry const& multi, Strategy const& strategy)
     {
-        return detail::within::geometry_multi_within_code
-            <
-                Point,
-                MultiGeometry,
-                Strategy,
-                point_in_buffered_ring
-            >::apply(point, multi, strategy) == 1;
+        return detail::within::point_in_geometry(point, multi, strategy) == 1;
     }
 };
 

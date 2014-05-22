@@ -12,74 +12,13 @@
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
+#include <boost/geometry/algorithms/detail/overlay/intersection_box_box.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 
 namespace boost { namespace geometry
 {
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace intersection
-{
-
-template <std::size_t Dimension, std::size_t DimensionCount>
-struct intersection_box_box
-{
-    template
-    <
-        typename Box1, typename Box2,
-        typename RobustPolicy,
-        typename BoxOut,
-        typename Strategy
-    >
-    static inline bool apply(Box1 const& box1,
-            Box2 const& box2,
-            RobustPolicy const& robust_policy,
-            BoxOut& box_out,
-            Strategy const& strategy)
-    {
-        typedef typename coordinate_type<BoxOut>::type ct;
-
-        ct min1 = get<min_corner, Dimension>(box1);
-        ct min2 = get<min_corner, Dimension>(box2);
-        ct max1 = get<max_corner, Dimension>(box1);
-        ct max2 = get<max_corner, Dimension>(box2);
-
-        if (max1 < min2 || max2 < min1)
-        {
-            return false;
-        }
-        // Set dimensions of output coordinate
-        set<min_corner, Dimension>(box_out, min1 < min2 ? min2 : min1);
-        set<max_corner, Dimension>(box_out, max1 > max2 ? max2 : max1);
-
-        return intersection_box_box<Dimension + 1, DimensionCount>
-               ::apply(box1, box2, robust_policy, box_out, strategy);
-    }
-};
-
-template <std::size_t DimensionCount>
-struct intersection_box_box<DimensionCount, DimensionCount>
-{
-    template
-    <
-        typename Box1, typename Box2,
-        typename RobustPolicy,
-        typename BoxOut,
-        typename Strategy
-    >
-    static inline bool apply(Box1 const&, Box2 const&,
-            RobustPolicy const&, BoxOut&, Strategy const&)
-    {
-        return true;
-    }
-};
-
-
-}} // namespace detail::intersection
-#endif // DOXYGEN_NO_DETAIL
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH

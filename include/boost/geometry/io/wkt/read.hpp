@@ -662,28 +662,11 @@ struct read_wkt<segment_tag, Segment>
 /*!
 \brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry)
 \ingroup wkt
+\tparam Geometry \tparam_geometry
 \param wkt string containing \ref WKT
-\param geometry output geometry
-\par Example:
-\note It is case insensitive and can have the WKT forms "point", "point m", "point z", "point zm", "point mz"
-\note Empty sequences can have forms as "LINESTRING ()" or "POLYGON(())"
-Small example showing how to use read_wkt to build a point
-\dontinclude doxygen_1.cpp
-\skip example_from_wkt_point
-\line {
-\until }
-\par Example:
-Small example showing how to use read_wkt to build a linestring
-\dontinclude doxygen_1.cpp
-\skip example_from_wkt_linestring
-\line {
-\until }
-\par Example:
-Small example showing how to use read_wkt to build a polygon
-\dontinclude doxygen_1.cpp
-\skip example_from_wkt_polygon
-\line {
-\until }
+\param geometry \param_geometry output geometry
+\ingroup wkt
+\qbk{[include reference/io/read_wkt.qbk]}
 */
 template <typename Geometry>
 inline void read_wkt(std::string const& wkt, Geometry& geometry)

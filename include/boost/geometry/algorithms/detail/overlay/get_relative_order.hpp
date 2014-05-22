@@ -10,8 +10,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_RELATIVE_ORDER_HPP
 
 
-#include <boost/geometry/algorithms/distance.hpp>
-
 #include <boost/geometry/strategies/intersection.hpp>
 
 

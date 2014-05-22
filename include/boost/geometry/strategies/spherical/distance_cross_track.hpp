@@ -250,16 +250,6 @@ public :
 };
 
 
-template
-<
-    typename CalculationType,
-    typename Strategy
->
-struct strategy_point_point<cross_track<CalculationType, Strategy> >
-{
-    typedef Strategy type;
-};
-
 
 
 /*
