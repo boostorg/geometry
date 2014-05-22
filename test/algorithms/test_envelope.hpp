@@ -36,8 +36,8 @@ struct check_result<Box, 2>
                 ctype
             >::type type;
 
-    static void apply(Box const& b, const type& x1, const type& y1, const type& z1,
-                const type& x2, const type& y2, const type& z2)
+    static void apply(Box const& b, const type& x1, const type& y1, const type& /*z1*/,
+                const type& x2, const type& y2, const type& /*z2*/)
     {
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 0>(b)), x1, 0.001);
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 1>(b)), y1, 0.001);

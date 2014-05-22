@@ -294,7 +294,7 @@ private:
     inline static
     subtree_elements_counts calculate_subtree_elements_counts(std::size_t elements_count, parameters_type const& parameters, size_type & leafs_level)
     {
-        (void)parameters;
+        boost::ignore_unused_variable_warning(parameters);
 
         subtree_elements_counts res(1, 1);
         leafs_level = 0;
