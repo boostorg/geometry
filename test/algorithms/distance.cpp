@@ -36,6 +36,7 @@
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
+#include <boost/variant/variant.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
@@ -361,7 +362,6 @@ void test_all()
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_distance_linear<P, bg::model::linestring<P> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
-
 }
 
 template <typename P>
@@ -432,6 +432,53 @@ void test_large_integers()
     }
 }
 
+template <typename T>
+void test_variant()
+{
+    typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::segment<point_type> segment_type;
+    typedef bg::model::box<point_type> box_type;
+    typedef boost::variant<point_type, segment_type, box_type> variant_type;
+
+    point_type point;
+    std::string const point_li = "POINT(1 3)";
+    bg::read_wkt(point_li, point);
+
+    segment_type seg;
+    std::string const seg_li = "LINESTRING(1 1,4 4)";
+    bg::read_wkt(seg_li, seg);
+
+    variant_type v1, v2;
+    
+    BOOST_MPL_ASSERT((
+        boost::is_same
+            <
+                bg::resolve_variant::result_of::distance<variant_type, variant_type, bg::default_strategy>::type,
+                double
+            >
+    ));
+
+    // Default strategy
+    v1 = point;
+    v2 = point;
+    BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, point), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(v1, point), bg::distance(point, point), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, point), 0.0001);
+    v1 = point;
+    v2 = seg;
+    BOOST_CHECK_CLOSE(bg::distance(v1, v2), bg::distance(point, seg), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(v1, seg), bg::distance(point, seg), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(point, v2), bg::distance(point, seg), 0.0001);
+
+    // User defined strategy
+    v1 = point;
+    v2 = point;
+    bg::strategy::distance::haversine<double> s;
+    //BOOST_CHECK_CLOSE(bg::distance(v1, v2, s), bg::distance(point, point, s), 0.0001);
+    //BOOST_CHECK_CLOSE(bg::distance(v1, point, s), bg::distance(point, point, s), 0.0001);
+    //BOOST_CHECK_CLOSE(bg::distance(point, v2, s), bg::distance(point, point, s), 0.0001);
+}
+
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
@@ -471,6 +518,9 @@ int test_main(int, char* [])
 #endif
 
     test_empty_input<bg::model::d2::point_xy<int> >();
+
+    test_variant<double>();
+    test_variant<int>();
 
     return 0;
 }
