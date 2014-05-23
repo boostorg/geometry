@@ -39,12 +39,30 @@ void check(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>)
 
 int test_main(int, char* [])
 {
-    typedef typename boost::geometry::transform_variant<
+    // Transform Variant to Variant
+    typedef boost::geometry::transform_variant<
         boost::variant<int, float, long>,
         boost::add_pointer<_>
-    >::type transformed;
+    >::type transformed1;
 
-    check<boost::mpl::vector<int*, float*, long*> >(transformed());
+    check<boost::mpl::vector<int*, float*, long*> >(transformed1());
+
+    // Transform Sequence to Variant (without inserter)
+    typedef boost::geometry::transform_variant<
+        boost::mpl::vector<int, float, long>,
+        boost::add_pointer<_>
+    >::type transformed2;
+
+    check<boost::mpl::vector<int*, float*, long*> >(transformed2());
+
+    // Transform Sequence to Variant (with inserter)
+    typedef boost::geometry::transform_variant<
+        boost::mpl::vector<int, float, long>,
+        boost::add_pointer<_>,
+        boost::mpl::back_inserter<boost::mpl::vector0<> >
+    >::type transformed3;
+
+    check<boost::mpl::vector<int*, float*, long*> >(transformed3());
 
     return 0;
 }

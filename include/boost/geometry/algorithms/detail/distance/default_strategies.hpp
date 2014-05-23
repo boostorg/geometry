@@ -29,8 +29,6 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 namespace boost { namespace geometry
 {
