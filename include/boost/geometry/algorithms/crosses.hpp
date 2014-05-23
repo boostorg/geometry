@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
@@ -78,7 +79,7 @@ namespace resolve_variant
     template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
     struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
     {
-        struct visitor: static_visitor<void>
+        struct visitor: static_visitor<bool>
         {
             Geometry2 const& m_geometry2;
             
@@ -110,7 +111,7 @@ namespace resolve_variant
     template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
     struct crosses<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     {
-        struct visitor: static_visitor<void>
+        struct visitor: static_visitor<bool>
         {
             Geometry1 const& m_geometry1;
             
@@ -140,10 +141,10 @@ namespace resolve_variant
     };
     
     
-    template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-    struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
+    struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_PARAMS(B)> >
     {
-        struct visitor: static_visitor<void>
+        struct visitor: static_visitor<bool>
         {
             template <typename Geometry1, typename Geometry2>
             result_type operator()(
@@ -161,8 +162,8 @@ namespace resolve_variant
         
         static inline bool
         apply(
-              const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry1,
-              const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2)
+              const variant<BOOST_VARIANT_ENUM_PARAMS(A)>& geometry1,
+              const variant<BOOST_VARIANT_ENUM_PARAMS(B)>& geometry2)
         {
             return apply_visitor(visitor(), geometry1, geometry2);
         }
@@ -188,7 +189,7 @@ inline bool crosses(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    return dispatch::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2);
+    return resolve_variant::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
 }} // namespace boost::geometry
