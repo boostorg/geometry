@@ -292,12 +292,13 @@ private:
 
             LessEqual less_equal;
 
-            if ( less_equal(get<1>(top_right), get<1>(p0)) )
+            if ( less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)) )
             {
                 // closest box point is the top-right corner
                 return cast::apply(pp_strategy.apply(p0, top_right));
             }
-            else if ( less_equal(get<1>(bottom_right), get<1>(p0)) )
+            else if ( less_equal(geometry::get<1>(bottom_right),
+                                 geometry::get<1>(p0)) )
             {
                 // distance is realized between p0 and right-most
                 // segment of box
@@ -333,7 +334,7 @@ private:
 
             // p0 is above the upper segment of the box
             // (and inside its band)
-            if ( less_equal(get<0>(top_left), get<0>(p0)) )
+            if ( less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)) )
             {
                 ReturnType diff = cast::apply(geometry::get<1>(p0))
                     - cast::apply(geometry::get<1>(top_left));
@@ -362,7 +363,7 @@ private:
                                  ReturnType& result)
         {
             // p0 lies to the right of the box
-            if ( get<0>(p0) >= get<0>(top_right) )
+            if ( geometry::get<0>(p0) >= geometry::get<0>(top_right) )
             {
                 result = right_of_box
                     <
@@ -373,7 +374,7 @@ private:
             }
 
             // p1 lies to the left of the box
-            if ( get<0>(p1) <= geometry::get<0>(bottom_left) )
+            if ( geometry::get<0>(p1) <= geometry::get<0>(bottom_left) )
             {
                 result = right_of_box
                     <
@@ -488,10 +489,11 @@ private:
                                PSStrategy const& ps_strategy)
     {
         // assert that the segment has non-negative slope
-        BOOST_ASSERT( ( math::equals(get<0>(p0), get<0>(p1))
-                        && get<1>(p0) < get<1>(p1))
+        BOOST_ASSERT( ( math::equals(geometry::get<0>(p0), geometry::get<0>(p1))
+                        && geometry::get<1>(p0) < geometry::get<1>(p1))
                       ||
-                      ( get<0>(p0) < get<0>(p1) && get<1>(p0) <= get<1>(p1) )
+                      ( geometry::get<0>(p0) < geometry::get<0>(p1)
+                        && geometry::get<1>(p0) <= geometry::get<1>(p1) )
                       );
 
         ReturnType result = ReturnType();
@@ -541,7 +543,8 @@ private:
                            PSStrategy const& ps_strategy)
     {
         // assert that the segment has negative slope
-        BOOST_ASSERT( get<0>(p0) < get<0>(p1) && get<1>(p0) > get<1>(p1) );
+        BOOST_ASSERT( geometry::get<0>(p0) < geometry::get<0>(p1)
+                      && geometry::get<1>(p0) > geometry::get<1>(p1) );
 
         ReturnType result = ReturnType();
 
@@ -590,7 +593,8 @@ public:
     {
         BOOST_ASSERT( geometry::less<SegmentPoint>()(p0, p1) );
 
-        if ( get<0>(p0) < get<0>(p1) && get<1>(p0) > get<1>(p1) )
+        if ( geometry::get<0>(p0) < geometry::get<0>(p1)
+             && geometry::get<1>(p0) > geometry::get<1>(p1) )
         {
             return negative_slope_segment(p0, p1,
                                           top_left, top_right,
