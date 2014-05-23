@@ -301,9 +301,6 @@ inline bool intersection(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             GeometryOut& geometry_out)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
     return resolve_variant::intersection
         <
            Geometry1,
