@@ -186,9 +186,6 @@ namespace resolve_variant
 template <typename Geometry1, typename Geometry2>
 inline bool crosses(Geometry1 const& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
     return resolve_variant::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
