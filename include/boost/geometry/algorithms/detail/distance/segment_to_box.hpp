@@ -398,7 +398,6 @@ private:
                                  BoxPoint const& top_right,
                                  BoxPoint const& bottom_left,
                                  BoxPoint const& bottom_right,
-                                 PPStrategy const& pp_strategy,
                                  PSStrategy const& ps_strategy,
                                  ReturnType& result)
         {
@@ -496,7 +495,7 @@ private:
                         && geometry::get<1>(p0) <= geometry::get<1>(p1) )
                       );
 
-        ReturnType result = ReturnType();
+        ReturnType result(0);
 
         if ( check_right_left_of_box
                  <
@@ -513,7 +512,7 @@ private:
                      less_equal<ReturnType>
                  >::apply(p0, p1,
                           top_left, top_right, bottom_left, bottom_right,
-                          pp_strategy, ps_strategy, result) )
+                          ps_strategy, result) )
         {
             return result;
         }
@@ -528,7 +527,7 @@ private:
         }
 
         // in all other cases the box and segment intersect, so return 0
-        return ReturnType(0);
+        return result;
     }
 
 
@@ -546,7 +545,7 @@ private:
         BOOST_ASSERT( geometry::get<0>(p0) < geometry::get<0>(p1)
                       && geometry::get<1>(p0) > geometry::get<1>(p1) );
 
-        ReturnType result = ReturnType();
+        ReturnType result(0);
 
         if ( check_right_left_of_box
                  <
@@ -563,7 +562,7 @@ private:
                      greater_equal<ReturnType>
                  >::apply(p1, p0,
                           top_right, top_left, bottom_right, bottom_left,
-                          pp_strategy, ps_strategy, result) )
+                          ps_strategy, result) )
         {
             return result;
         }
@@ -578,7 +577,7 @@ private:
         }
 
         // in all other cases the box and segment intersect, so return 0
-        return ReturnType(0);
+        return result;
     }
 
 public:
