@@ -136,6 +136,8 @@ struct assign
             Geometry1& geometry1,
             const Geometry2& geometry2)
     {
+        concept::check<Geometry1>();
+        concept::check<Geometry2 const>();
         concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
             
         bool const same_point_order =
@@ -274,9 +276,6 @@ geometry, e.g. a RING. This only works if it is possible and applicable.
 template <typename Geometry1, typename Geometry2>
 inline void assign(Geometry1& geometry1, Geometry2 const& geometry2)
 {
-    concept::check<Geometry1>();
-    concept::check<Geometry2 const>();
-    
     resolve_variant::assign<Geometry1, Geometry2>::apply(geometry1, geometry2);
 }
 
