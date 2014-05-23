@@ -360,16 +360,16 @@ struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 };
 
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >  
+template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
+struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_PARAMS(B)> >  
 {
     template <typename Strategy>
     struct visitor: static_visitor
         <
             typename result_of::distance
                 <
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                    variant<BOOST_VARIANT_ENUM_PARAMS(A)>,
+                    variant<BOOST_VARIANT_ENUM_PARAMS(B)>,
                     Strategy
                 >
                 ::type
@@ -400,14 +400,14 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENU
     template <typename Strategy>
     static inline typename result_of::distance
         <
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            variant<BOOST_VARIANT_ENUM_PARAMS(A)>,
+            variant<BOOST_VARIANT_ENUM_PARAMS(B)>,
             Strategy
         >
         ::type
     apply(
-        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry1,
-        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
+        const variant<BOOST_VARIANT_ENUM_PARAMS(A)>& geometry1,
+        const variant<BOOST_VARIANT_ENUM_PARAMS(B)>& geometry2,
         Strategy const& strategy)
     {
         return apply_visitor(visitor<Strategy>(strategy), geometry1, geometry2);
