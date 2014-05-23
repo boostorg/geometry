@@ -255,10 +255,9 @@ struct expand<Box, Segment, StrategyLess, StrategyGreater, box_tag, segment_tag>
 
 namespace resolve_variant {
     
-template <typename Geometry>
+template <typename Box, typename Geometry>
 struct expand
 {
-    template <typename Box>
     static inline void apply(Box& box, Geometry const& geometry)
     {
         concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
@@ -267,10 +266,33 @@ struct expand
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry>
+struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry>
 {
-    template <typename Box>
+    struct visitor: boost::static_visitor<void>
+    {
+        Geometry const& m_geometry;
+        
+        visitor(Geometry const& geometry) : m_geometry(geometry) {}
+        
+        template <typename Box>
+        void operator()(Box& box) const
+        {
+            return expand<Box, Geometry>::apply(box, m_geometry);
+        }
+    };
+    
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& box,
+          Geometry const& geometry)
+    {
+        return boost::apply_visitor(visitor(geometry), box);
+    }
+};
+
+template <typename Box, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct expand<Box, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
     struct visitor: boost::static_visitor<void>
     {
         Box& m_box;
@@ -280,19 +302,38 @@ struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry>
         void operator()(Geometry const& geometry) const
         {
-            return expand<Geometry>::apply(m_box, geometry);
+            return expand<Box, Geometry>::apply(m_box, geometry);
         }
     };
     
-    template <class Box>
     static inline void
     apply(Box& box,
           boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
     {
-        return boost::apply_visitor(visitor<Box>(box), geometry);
+        return boost::apply_visitor(visitor(box), geometry);
     }
 };
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
+struct expand<boost::variant<BOOST_VARIANT_ENUM_PARAMS(A)>, boost::variant<BOOST_VARIANT_ENUM_PARAMS(B)> >
+{
+    struct visitor: boost::static_visitor<void>
+    {
+        template <typename Box, typename Geometry>
+        void operator()(Box& box, Geometry const& geometry) const
+        {
+            return expand<Box, Geometry>::apply(box, geometry);
+        }
+    };
     
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(A)> & box,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(B)> const& geometry)
+    {
+        return boost::apply_visitor(visitor(), box, geometry);
+    }
+};
+
 } // namespace resolve_variant
     
     
@@ -340,7 +381,7 @@ inline void expand(Box& box, Geometry const& geometry)
     concept::check<Box>();
     concept::check<Geometry const>();
 
-    resolve_variant::expand<Geometry>::apply(box, geometry);
+    resolve_variant::expand<Box, Geometry>::apply(box, geometry);
 }
 
 }} // namespace boost::geometry
