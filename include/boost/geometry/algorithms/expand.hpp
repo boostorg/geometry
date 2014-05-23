@@ -261,6 +261,8 @@ struct expand
     template <typename Box>
     static inline void apply(Box& box, Geometry const& geometry)
     {
+        concept::check<Box>();
+        concept::check<Geometry const>();
         concept::check_concepts_and_equal_dimensions<Box, Geometry const>();
         
         dispatch::expand<Box, Geometry>::apply(box, geometry);
@@ -337,9 +339,6 @@ inline void expand(Box& box, Geometry const& geometry,
 template <typename Box, typename Geometry>
 inline void expand(Box& box, Geometry const& geometry)
 {
-    concept::check<Box>();
-    concept::check<Geometry const>();
-
     resolve_variant::expand<Geometry>::apply(box, geometry);
 }
 
