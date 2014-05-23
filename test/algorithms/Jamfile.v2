@@ -30,6 +30,7 @@ test-suite boost-geometry-algorithms
     [ run difference_linear_linear.cpp ]
     [ run difference_pl_pl.cpp ]
     [ run disjoint.cpp ]
+    [ run disjoint_coverage.cpp ]
     [ run distance.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run distance_areal_areal.cpp ]
     [ run distance_linear_areal.cpp ]

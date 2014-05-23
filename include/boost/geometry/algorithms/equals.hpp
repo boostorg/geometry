@@ -32,7 +32,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/not.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 

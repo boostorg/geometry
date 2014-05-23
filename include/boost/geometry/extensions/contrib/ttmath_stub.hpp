@@ -116,6 +116,18 @@ struct ttmath_big : ttmath::Big<1,4>
         : ttmath::Big<1,4>(v)
     {}
 
+    // needed in order to work with boost::geometry::math::abs
+    inline ttmath_big operator-() const
+    {
+        return ttmath::Big<1,4>::operator-();
+    }
+
+    // needed because unary operator-() is defined (above)
+    inline ttmath_big operator-(ttmath_big const& other) const
+    {
+        return ttmath::Big<1,4>::operator-(other);
+    }
+
     /*
     inline operator double() const
     {

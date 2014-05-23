@@ -16,7 +16,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
-#include <boost/geometry/multi/algorithms/distance.hpp>
 #include <boost/geometry/multi/views/detail/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>

@@ -18,8 +18,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_POINT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_POINT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_BOX_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_BOX_HPP
 
 #include <cstddef>
 
@@ -27,70 +27,52 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
 
+
 template
 <
-    typename Point1, typename Point2,
+    typename Point, typename Box,
     std::size_t Dimension, std::size_t DimensionCount
 >
-struct point_point
+struct point_box
 {
-    static inline bool apply(Point1 const& p1, Point2 const& p2)
+    static inline bool apply(Point const& point, Box const& box)
     {
-        if (! geometry::math::equals(get<Dimension>(p1), get<Dimension>(p2)))
+        if (get<Dimension>(point) < get<min_corner, Dimension>(box)
+            || get<Dimension>(point) > get<max_corner, Dimension>(box))
         {
             return true;
         }
-        return point_point
+        return point_box
             <
-                Point1, Point2,
+                Point, Box,
                 Dimension + 1, DimensionCount
-            >::apply(p1, p2);
+            >::apply(point, box);
     }
 };
 
 
-template <typename Point1, typename Point2, std::size_t DimensionCount>
-struct point_point<Point1, Point2, DimensionCount, DimensionCount>
+template <typename Point, typename Box, std::size_t DimensionCount>
+struct point_box<Point, Box, DimensionCount, DimensionCount>
 {
-    static inline bool apply(Point1 const& , Point2 const& )
+    static inline bool apply(Point const& , Box const& )
     {
         return false;
     }
 };
 
 
-/*!
-    \brief Internal utility function to detect of points are disjoint
-    \note To avoid circular references
- */
-template <typename Point1, typename Point2>
-inline bool disjoint_point_point(Point1 const& point1, Point2 const& point2)
-{
-    return point_point
-        <
-            Point1, Point2,
-            0, dimension<Point1>::type::value
-        >::apply(point1, point2);
-}
-
-
-}} // namespace detail::disjoint
+}} // namespace detail::equals
 #endif // DOXYGEN_NO_DETAIL
-
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -98,9 +80,9 @@ namespace dispatch
 {
 
 
-template <typename Point1, typename Point2, std::size_t DimensionCount>
-struct disjoint<Point1, Point2, DimensionCount, point_tag, point_tag, false>
-    : detail::disjoint::point_point<Point1, Point2, 0, DimensionCount>
+template <typename Point, typename Box, std::size_t DimensionCount>
+struct disjoint<Point, Box, DimensionCount, point_tag, box_tag, false>
+    : detail::disjoint::point_box<Point, Box, 0, DimensionCount>
 {};
 
 
@@ -109,4 +91,4 @@ struct disjoint<Point1, Point2, DimensionCount, point_tag, point_tag, false>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_POINT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_BOX_HPP

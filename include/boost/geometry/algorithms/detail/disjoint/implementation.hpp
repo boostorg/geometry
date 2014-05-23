@@ -18,10 +18,19 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_IMPLEMENTATION_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_IMPLEMENTATION_HPP
 
-#include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/implementation.hpp>
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DISJOINT_HPP
+#include <boost/geometry/algorithms/detail/disjoint/areal_areal.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/linear_areal.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_geometry.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp>
+
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_IMPLEMENTATION_HPP
