@@ -24,6 +24,8 @@
 #include <cstddef>
 #include <utility>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include <boost/geometry/util/calculation_type.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -45,23 +47,16 @@ namespace detail { namespace disjoint
 {
 
 
-
-template
-<
-    typename RelativeDistance,
-    typename SegmentPoint,
-    typename Box,
-    std::size_t I,
-    std::size_t Dimension
->
-struct disjoint_segment_box_impl
+template <std::size_t I>
+struct compute_tmin_tmax_per_dim
 {
-    template <typename RelativeDistancePair>
-    static inline bool apply(SegmentPoint const& p0,
+    template <typename SegmentPoint, typename Box, typename RelativeDistance>
+    static inline void apply(SegmentPoint const& p0,
                              SegmentPoint const& p1,
                              Box const& box,
-                             RelativeDistancePair& t_min,
-                             RelativeDistancePair& t_max)
+                             RelativeDistance& ti_min,
+                             RelativeDistance& ti_max,
+                             RelativeDistance& diff)
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
         typedef typename coordinate_type
@@ -89,8 +84,6 @@ struct disjoint_segment_box_impl
                 box_coordinate_type
             >( geometry::get<geometry::max_corner, I>(box) );
 
-        RelativeDistance ti_min, ti_max, diff;
-
         if ( geometry::get<I>(p1) >= geometry::get<I>(p0) )
         {
             diff = c_p1 - c_p0;
@@ -103,6 +96,30 @@ struct disjoint_segment_box_impl
             ti_min = c_p0 - c_b_max;
             ti_max = c_p0 - c_b_min;
         }
+    }
+};
+
+
+template
+<
+    typename RelativeDistance,
+    typename SegmentPoint,
+    typename Box,
+    std::size_t I,
+    std::size_t Dimension
+>
+struct disjoint_segment_box_impl
+{
+    template <typename RelativeDistancePair>
+    static inline bool apply(SegmentPoint const& p0,
+                             SegmentPoint const& p1,
+                             Box const& box,
+                             RelativeDistancePair& t_min,
+                             RelativeDistancePair& t_max)
+    {
+        RelativeDistance ti_min, ti_max, diff;
+
+        compute_tmin_tmax_per_dim<I>::apply(p0, p1, box, ti_min, ti_max, diff);
 
         RelativeDistance t_min_x_diff = t_min.first * diff;
         RelativeDistance t_max_x_diff = t_max.first * diff;
@@ -157,48 +174,11 @@ struct disjoint_segment_box_impl
                              SegmentPoint const& p1,
                              Box const& box)
     {
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
-        typedef typename coordinate_type
-            <
-                SegmentPoint
-            >::type point_coordinate_type;
-
-        RelativeDistance c_p0 = boost::numeric_cast
-            <
-                point_coordinate_type
-            >( geometry::get<0>(p0) );
-
-        RelativeDistance c_p1 = boost::numeric_cast
-            <
-                point_coordinate_type
-            >( geometry::get<0>(p1) );
-
-        RelativeDistance c_b_min = boost::numeric_cast
-            <
-                box_coordinate_type
-            >( geometry::get<geometry::min_corner, 0>(box) );
-
-        RelativeDistance c_b_max = boost::numeric_cast
-            <
-                box_coordinate_type
-            >( geometry::get<geometry::max_corner, 0>(box) );
-
         std::pair<RelativeDistance, RelativeDistance> t_min, t_max;
-
         RelativeDistance diff;
 
-        if ( geometry::get<0>(p1) >= geometry::get<0>(p0) )
-        {
-            diff = c_p1 - c_p0;
-            t_min.first = c_b_min - c_p0;
-            t_max.first = c_b_max - c_p0;
-        }
-        else
-        {
-            diff = c_p0 - c_p1;
-            t_min.first = c_p0 - c_b_max;
-            t_max.first = c_p0 - c_b_min;
-        }
+        compute_tmin_tmax_per_dim<0>::apply(p0, p1, box,
+                                            t_min.first, t_max.first, diff);
 
         if ( t_min.first > diff || t_max.first < 0 )
         {
