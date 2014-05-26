@@ -256,7 +256,7 @@ struct distance
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
 struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 {
-    template <typename Geometry2, typename Strategy>
+    template <typename Strategy>
     struct visitor: static_visitor
         <
             typename result_of::distance
@@ -277,13 +277,14 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
         {}
 
         template <typename Geometry1>
-        result_type operator()(Geometry1 const& geometry1) const
+        typename result_of::distance<Geometry1, Geometry2, Strategy>::type
+        operator()(Geometry1 const& geometry1) const
         {
             return distance
                 <
                     Geometry1,
                     Geometry2
-                >::apply
+                >::template apply
                 <
                     Strategy
                 >(geometry1, m_geometry2, m_strategy);
@@ -301,7 +302,7 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
           Geometry2 const& geometry2,
           Strategy const& strategy)
     {
-        return apply_visitor(visitor<Geometry2, Strategy>(geometry2, strategy), geometry1);
+        return apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
     }
 };
 
@@ -309,7 +310,7 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename Geometry1, typename Strategy>
+    template <typename Strategy>
     struct visitor: static_visitor
         <
             typename result_of::distance
@@ -330,13 +331,14 @@ struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         {}
 
         template <typename Geometry2>
-        result_type operator()(Geometry2 const& geometry2) const
+        typename result_of::distance<Geometry1, Geometry2, Strategy>::type
+        operator()(Geometry2 const& geometry2) const
         {
             return distance
                 <
                     Geometry1,
                     Geometry2
-                >::apply
+                >::template apply
                 <
                     Strategy
                 >(m_geometry1, geometry2, m_strategy);
@@ -355,7 +357,7 @@ struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
         Strategy const& strategy)
     {
-        return apply_visitor(visitor<Geometry1, Strategy>(geometry1, strategy), geometry2);
+        return apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
     }
 };
 
@@ -382,15 +384,14 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENU
         {}
 
         template <typename Geometry1, typename Geometry2>
-        result_type operator()(
-            Geometry1 const& geometry1,
-            Geometry2 const& geometry2) const
+        typename result_of::distance<Geometry1, Geometry2, Strategy>::type
+        operator()(Geometry1 const& geometry1, Geometry2 const& geometry2) const
         {
             return distance
                 <
                     Geometry1,
                     Geometry2
-                >::apply
+                >::template apply
                 <
                     Strategy
                 >(geometry1, geometry2, m_strategy);
