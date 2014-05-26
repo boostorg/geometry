@@ -201,7 +201,8 @@ void test_assign_conversion_variant()
     bg::assign_values(p, 1, 2);
 
     box_type b;
-    bg::assign(boost::variant<box_type&>(b), p);
+    boost::variant<box_type&> variant_b(b);
+    bg::assign(variant_b, p);
 
     BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
     BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
@@ -215,7 +216,8 @@ void test_assign_conversion_variant()
     bg::set<bg::max_corner, 1>(b, 4);
 
     ring_type ring;
-    bg::assign(boost::variant<ring_type&>(ring), boost::variant<box_type>(b));
+    boost::variant<ring_type&> variant_ring(ring);
+    bg::assign(variant_ring, boost::variant<box_type>(b));
 
     {
         typedef bg::model::ring<P, false, false> ring_type_ccw;
@@ -244,12 +246,14 @@ void test_assign_conversion_variant()
 
 
     polygon_type polygon;
+    boost::variant<polygon_type&> variant_polygon(polygon);
 
-    bg::assign(boost::variant<polygon_type&>(polygon), boost::variant<ring_type>(ring));
+    bg::assign(variant_polygon, boost::variant<ring_type>(ring));
     BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
 
     ring_type ring2;
-    bg::assign(boost::variant<ring_type&>(ring2), boost::variant<polygon_type>(polygon));
+    boost::variant<ring_type&> variant_ring2(ring2);
+    bg::assign(variant_ring2, boost::variant<polygon_type>(polygon));
     BOOST_CHECK_EQUAL(bg::num_points(ring2), 5u);
 }
 
