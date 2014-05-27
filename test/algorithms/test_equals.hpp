@@ -37,6 +37,15 @@ void check_geometry(Geometry1 const& geometry1,
         << " to " << wkt2
         << " -> Expected: " << expected
         << " detected: " << detected);
+
+    detected = bg::equals(geometry2, geometry1);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "case: " << caseid
+        << " equals: " << wkt1
+        << " to " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
 }
 
 
