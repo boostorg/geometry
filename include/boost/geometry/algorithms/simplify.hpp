@@ -34,6 +34,8 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
+
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -280,7 +282,7 @@ struct simplify
 
         typedef typename strategy::distance::services::default_strategy
         <
-            segment_tag, point_type
+            point_tag, segment_tag, point_type
         >::type ds_strategy_type;
 
         typedef strategy::simplify::douglas_peucker
@@ -323,7 +325,7 @@ struct simplify_insert
 
         typedef typename strategy::distance::services::default_strategy
         <
-            segment_tag, point_type
+            point_tag, segment_tag, point_type
         >::type ds_strategy_type;
 
         typedef strategy::simplify::douglas_peucker

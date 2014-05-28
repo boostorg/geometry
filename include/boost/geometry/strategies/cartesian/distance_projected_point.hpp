@@ -229,7 +229,11 @@ public :
 // of point-to-segment or point-to-linestring.
 // Convenient for geographic coordinate systems especially.
 template <typename Point, typename PointOfSegment, typename Strategy>
-struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, cartesian_tag, Strategy>
+struct default_strategy
+    <
+        point_tag, segment_tag, Point, PointOfSegment,
+        cartesian_tag, cartesian_tag, Strategy
+    >
 {
     typedef strategy::distance::projected_point
     <
@@ -239,7 +243,7 @@ struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, carte
                 boost::is_void<Strategy>,
                 typename default_strategy
                     <
-                        point_tag, Point, PointOfSegment,
+                        point_tag, point_tag, Point, PointOfSegment,
                         cartesian_tag, cartesian_tag
                     >::type,
                 Strategy

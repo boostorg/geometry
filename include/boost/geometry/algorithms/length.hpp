@@ -241,7 +241,7 @@ length(Geometry const& geometry)
     // TODO put this into a resolve_strategy stage
     typedef typename strategy::distance::services::default_strategy
         <
-            point_tag, typename point_type<Geometry>::type
+            point_tag, point_tag, typename point_type<Geometry>::type
         >::type strategy_type;
 
     return resolve_variant::length<Geometry>::apply(geometry, strategy_type());
