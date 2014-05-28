@@ -26,6 +26,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/calculation_type.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -121,6 +122,18 @@ struct disjoint_segment_box_impl
 
         compute_tmin_tmax_per_dim<I>::apply(p0, p1, box, ti_min, ti_max, diff);
 
+        if ( geometry::math::equals(diff, 0) )
+        {
+            if ( (geometry::math::equals(t_min.second, 0)
+                  && t_min.first > ti_max)
+                 ||
+                 (geometry::math::equals(t_max.second, 0)
+                  && t_max.first < ti_min) )
+            {
+                return true;
+            }
+        }
+
         RelativeDistance t_min_x_diff = t_min.first * diff;
         RelativeDistance t_max_x_diff = t_max.first * diff;
 
@@ -179,6 +192,12 @@ struct disjoint_segment_box_impl
 
         compute_tmin_tmax_per_dim<0>::apply(p0, p1, box,
                                             t_min.first, t_max.first, diff);
+
+        if ( geometry::math::equals(diff, 0) )
+        {
+            if ( geometry::math::equals(t_min.first, 0) ) { t_min.first = -1; }
+            if ( geometry::math::equals(t_max.first, 0) ) { t_max.first = 1; }
+        }
 
         if ( t_min.first > diff || t_max.first < 0 )
         {
