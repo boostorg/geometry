@@ -24,8 +24,6 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/union.hpp>
@@ -125,7 +123,12 @@ class plusmin_policy
         //negative = true;
 
         typedef typename geometry::point_type<Geometry2>::type point_type;
-        typedef overlay::turn_info<point_type> turn_info;
+
+        typedef overlay::turn_info
+            <
+                point_type,
+                typename segment_ratio_type<point_type, RescalePolicy>::type
+            > turn_info;
         std::deque<turn_info> turns;
 
         // Get (and stop on) any intersection

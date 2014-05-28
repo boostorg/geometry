@@ -33,50 +33,24 @@
 
 #include <geometry_test_common.hpp>
 
-
-template <typename OutputType, typename CalculationType, typename G1, typename G2>
-typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
-        G1 const& g1, G2 const& g2,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool debug = false)
+template <typename G1, typename G2, typename OutputType>
+typename bg::default_area_result<G1>::type
+check_result(
+    std::vector<OutputType> const& intersection_output,
+    std::string const& caseid,
+    std::size_t expected_count = 0, int expected_point_count = 0,
+    double expected_length_or_area = 0,
+    double percentage = 0.0001,
+    bool debug = false)
 {
     bool const is_line = bg::geometry_id<OutputType>::type::value == 2;
-
-    if (debug)
-    {
-        std::cout << std::endl << "case " << caseid << std::endl;
-    }
-
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
 
-    if (! debug)
-    {
-        // Check _inserter behaviour with stratey
-        typedef bg::strategy_intersection
-            <
-                typename bg::cs_tag<point_type>::type,
-                G1,
-                G2,
-                point_type,
-                typename bg::rescale_policy_type<point_type>::type,
-                CalculationType
-            > strategy;
-        std::vector<OutputType> clip;
-        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
-    }
-
-    // Check normal behaviour
-    std::vector<OutputType> intersection_output;
-    bg::intersection(g1, g2, intersection_output);
-
-
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
-    for (typename std::vector<OutputType>::iterator it = intersection_output.begin();
+    for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
             it != intersection_output.end();
             ++it)
     {
@@ -95,7 +69,6 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             std::cout << std::setprecision(20) << bg::wkt(*it) << std::endl;
         }
     }
-
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
@@ -123,7 +96,6 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
     BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, percentage);
 #endif
-
 
 #if defined(TEST_WITH_SVG)
     {
@@ -168,6 +140,70 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         }
     }
 #endif
+
+    return length_or_area;
+}
+
+
+template <typename OutputType, typename CalculationType, typename G1, typename G2>
+typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
+        G1 const& g1, G2 const& g2,
+        std::size_t expected_count = 0, int expected_point_count = 0,
+        double expected_length_or_area = 0,
+        double percentage = 0.0001,
+        bool debug = false)
+{
+    if (debug)
+    {
+        std::cout << std::endl << "case " << caseid << std::endl;
+    }
+
+    typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    typedef typename bg::point_type<G1>::type point_type;
+
+    if (! debug)
+    {
+        // Check _inserter behaviour with stratey
+        typedef bg::strategy_intersection
+            <
+                typename bg::cs_tag<point_type>::type,
+                G1,
+                G2,
+                point_type,
+                typename bg::rescale_policy_type<point_type>::type,
+                CalculationType
+            > strategy;
+        std::vector<OutputType> clip;
+        bg::detail::intersection::intersection_insert<OutputType>(g1, g2, std::back_inserter(clip), strategy());
+    }
+
+    typename bg::default_area_result<G1>::type length_or_area = 0;
+
+    // Check normal behaviour
+    std::vector<OutputType> intersection_output;
+    bg::intersection(g1, g2, intersection_output);
+
+    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
+        expected_length_or_area, percentage, debug);
+
+    // Check variant behaviour
+    intersection_output.clear();
+    bg::intersection(boost::variant<G1>(g1), g2, intersection_output);
+
+    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
+        expected_length_or_area, percentage, debug);
+
+    intersection_output.clear();
+    bg::intersection(g1, boost::variant<G2>(g2), intersection_output);
+
+    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
+        expected_length_or_area, percentage, debug);
+
+    intersection_output.clear();
+    bg::intersection(boost::variant<G1>(g1), boost::variant<G2>(g2), intersection_output);
+
+    check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
+        expected_length_or_area, percentage, debug);
 
     if (debug)
     {

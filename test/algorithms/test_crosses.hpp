@@ -25,6 +25,7 @@
 #include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
+#include <boost/variant/variant.hpp>
 
 
 template <typename Geometry1, typename Geometry2>
@@ -44,6 +45,38 @@ void test_geometry(std::string const& wkt1,
         << " with " << wkt2
         << " -> Expected: " << expected
         << " detected: " << detected);
+
+#if !defined(GEOMETRY_TEST_DEBUG)
+    detected = bg::crosses(
+        geometry1,
+        boost::variant<Geometry2>(geometry2));
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "crosses: " << wkt1
+        << " with " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+
+    detected = bg::crosses(
+        boost::variant<Geometry1>(geometry1),
+        geometry2);
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "crosses: " << wkt1
+        << " with " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+
+    detected = bg::crosses(
+        boost::variant<Geometry1>(geometry1),
+        boost::variant<Geometry2>(geometry2));
+
+    BOOST_CHECK_MESSAGE(detected == expected,
+        "crosses: " << wkt1
+        << " with " << wkt2
+        << " -> Expected: " << expected
+        << " detected: " << detected);
+#endif
 }
 
 

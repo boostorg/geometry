@@ -98,6 +98,10 @@
 [include generated/distance.qbk]
 [endsect]
 
+[section:disjoint disjoint]
+[include generated/disjoint.qbk]
+[endsect]
+
 [section:envelope envelope]
 [include generated/envelope.qbk]
 [endsect]
@@ -223,7 +227,7 @@
 
 [section:io IO (input/output)]
 [section:wkt WKT (Well-Known Text)]
-[/include generated/wkt.qbk/]
+[include generated/wkt.qbk]
 [endsect]
 [section:svg SVG (Scalable Vector Graphics)]
 [include generated/svg.qbk]

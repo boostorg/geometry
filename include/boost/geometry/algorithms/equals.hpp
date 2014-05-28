@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
@@ -31,7 +32,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/not.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
@@ -43,11 +44,12 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
-
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
 
 namespace boost { namespace geometry
 {
@@ -83,6 +85,28 @@ struct box_box<DimensionCount, DimensionCount>
     static inline bool apply(Box1 const& , Box2 const& )
     {
         return true;
+    }
+};
+
+
+struct segment_segment
+{
+    template <typename Segment1, typename Segment2>
+    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2)
+    {
+        return equals::equals_point_point(
+                    indexed_point_view<Segment1 const, 0>(segment1),
+                    indexed_point_view<Segment2 const, 0>(segment2) )
+                ? equals::equals_point_point(
+                    indexed_point_view<Segment1 const, 1>(segment1),
+                    indexed_point_view<Segment2 const, 1>(segment2) )
+                : ( equals::equals_point_point(
+                        indexed_point_view<Segment1 const, 0>(segment1),
+                        indexed_point_view<Segment2 const, 1>(segment2) )
+                 && equals::equals_point_point(
+                        indexed_point_view<Segment1 const, 1>(segment1),
+                        indexed_point_view<Segment2 const, 0>(segment2) )
+                  );
     }
 };
 
@@ -248,6 +272,11 @@ struct equals<Ring, Box, ring_tag, box_tag, 2, Reverse>
 template <typename Polygon, typename Box, bool Reverse>
 struct equals<Polygon, Box, polygon_tag, box_tag, 2, Reverse>
     : detail::equals::equals_by_collection<detail::equals::area_check>
+{};
+
+template <typename Segment1, typename Segment2, std::size_t DimensionCount, bool Reverse>
+struct equals<Segment1, Segment2, segment_tag, segment_tag, DimensionCount, Reverse>
+    : detail::equals::segment_segment
 {};
 
 template <typename LineString1, typename LineString2, bool Reverse>

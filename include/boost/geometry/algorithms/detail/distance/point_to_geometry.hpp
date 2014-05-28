@@ -86,13 +86,17 @@ private:
 
     typedef typename strategy::distance::services::return_type
         <
-            comparable_strategy, Point, typename point_type<Range>::type
+            comparable_strategy,
+            Point,
+            typename boost::range_value<Range>::type
         >::type comparable_return_type;
 
 public:
     typedef typename strategy::distance::services::return_type
         <
-            Strategy, Point, typename point_type<Range>::type
+            Strategy,
+            Point,
+            typename boost::range_value<Range>::type
         >::type return_type;
 
     static inline return_type apply(Point const& point, Range const& range,
@@ -123,7 +127,8 @@ public:
         {
             return strategy::distance::services::comparable_to_regular
             <
-                comparable_strategy, Strategy, Point, Range
+                comparable_strategy, Strategy, Point,
+                typename boost::range_value<Range>::type
             >::apply( c_strategy.apply(point,
                                        *boost::begin(view),
                                        *boost::begin(view)) );
@@ -140,7 +145,10 @@ public:
             {
                 return strategy::distance::services::comparable_to_regular
                     <
-                        comparable_strategy, Strategy, Point, Range
+                        comparable_strategy,
+                        Strategy,
+                        Point,
+                        typename boost::range_value<Range>::type
                     >::apply(zero);
             }
             else if (cds < cd)
@@ -151,7 +159,10 @@ public:
 
         return strategy::distance::services::comparable_to_regular
             <
-                comparable_strategy, Strategy, Point, Range
+                comparable_strategy,
+                Strategy,
+                Point,
+                typename boost::range_value<Range>::type
             >::apply(cd);
     }
 };

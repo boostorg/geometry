@@ -4,6 +4,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -38,7 +39,7 @@ void check_geometry(Geometry const& geometry, std::string const& expected)
 }
 
 template <typename Geometry, typename Points>
-void check_assign_points(Points const& points, std::string const& expected)
+void check_assign_points(Points const& points, std::string const& /*expected*/)
 {
     Geometry geometry;
     bg::assign_points(geometry, points);
@@ -189,6 +190,74 @@ void test_assign_conversion()
 }
 
 
+template <typename P>
+void test_assign_conversion_variant()
+{
+    typedef bg::model::box<P> box_type;
+    typedef bg::model::ring<P> ring_type;
+    typedef bg::model::polygon<P> polygon_type;
+
+    P p;
+    bg::assign_values(p, 1, 2);
+
+    box_type b;
+    boost::variant<box_type&> variant_b(b);
+    bg::assign(variant_b, p);
+
+    BOOST_CHECK_CLOSE((bg::get<0, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<0, 1>(b)), 2.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 0>(b)), 1.0, 0.001);
+    BOOST_CHECK_CLOSE((bg::get<1, 1>(b)), 2.0, 0.001);
+
+
+    bg::set<bg::min_corner, 0>(b, 1);
+    bg::set<bg::min_corner, 1>(b, 2);
+    bg::set<bg::max_corner, 0>(b, 3);
+    bg::set<bg::max_corner, 1>(b, 4);
+
+    ring_type ring;
+    boost::variant<ring_type&> variant_ring(ring);
+    bg::assign(variant_ring, boost::variant<box_type>(b));
+
+    {
+        typedef bg::model::ring<P, false, false> ring_type_ccw;
+        ring_type_ccw ring_ccw;
+        // Should NOT compile (currently): bg::assign(ring_ccw, ring);
+
+    }
+
+    typename boost::range_const_iterator<ring_type>::type it = ring.begin();
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 4.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 3.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+    it++;
+    BOOST_CHECK_CLOSE(bg::get<0>(*it), 1.0, 0.001);
+    BOOST_CHECK_CLOSE(bg::get<1>(*it), 2.0, 0.001);
+
+    BOOST_CHECK_EQUAL(ring.size(), 5u);
+
+
+    polygon_type polygon;
+    boost::variant<polygon_type&> variant_polygon(polygon);
+
+    bg::assign(variant_polygon, boost::variant<ring_type>(ring));
+    BOOST_CHECK_EQUAL(bg::num_points(polygon), 5u);
+
+    ring_type ring2;
+    boost::variant<ring_type&> variant_ring2(ring2);
+    bg::assign(variant_ring2, boost::variant<polygon_type>(polygon));
+    BOOST_CHECK_EQUAL(bg::num_points(ring2), 5u);
+}
+
+
 template <typename Point>
 void test_assign_point_2d()
 {
@@ -225,6 +294,7 @@ int test_main(int, char* [])
     test_assign_point_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     test_assign_conversion<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_assign_conversion_variant<bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
     // Segment (currently) cannot handle array's because derived from std::pair

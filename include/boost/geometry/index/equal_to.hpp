@@ -14,7 +14,8 @@
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
-template <typename Geometry, typename Tag>
+template <typename Geometry,
+          typename Tag = typename geometry::tag<Geometry>::type>
 struct equals
 {
     inline static bool apply(Geometry const& g1, Geometry const& g2)
@@ -38,12 +39,9 @@ struct tuple_equals
     inline static bool apply(Tuple const& t1, Tuple const& t2)
     {
         typedef typename boost::tuples::element<I, Tuple>::type T;
-        return
-            equals<
-                T, typename geometry::traits::tag<T>::type
-            >::apply(boost::get<I>(t1), boost::get<I>(t2))
-            &&
-            tuple_equals<Tuple, I+1, N>::apply(t1, t2);
+
+        return equals<T>::apply(boost::get<I>(t1), boost::get<I>(t2))
+            && tuple_equals<Tuple, I+1, N>::apply(t1, t2);
     }
 };
 
@@ -56,6 +54,12 @@ struct tuple_equals<Tuple, I, I>
     }
 };
 
+// TODO: Consider this: Since equal_to<> is using geometry::equals() it's possible that
+//       two compared Indexables are not exactly the same! They will be spatially equal
+//       but not strictly equal. Consider 2 Segments with reversed order of points.
+//       Therefore it's possible that during the Value removal different value will be
+//       removed than the one that was passed.
+
 /*!
 \brief The function object comparing Values.
 
@@ -66,7 +70,8 @@ This template is also specialized for std::pair<T1, T2> and boost::tuple<...>.
 \tparam Value       The type of objects which are compared by this function object.
 \tparam IsIndexable If true, Values are compared using boost::geometry::equals() functions.
 */
-template <typename Value, bool IsIndexable = is_indexable<Value>::value>
+template <typename Value,
+          bool IsIndexable = is_indexable<Value>::value>
 struct equal_to
 {
     /*! \brief The type of result returned by function object. */
@@ -81,7 +86,7 @@ struct equal_to
     */
     inline bool operator()(Value const& l, Value const& r) const
     {
-        return detail::equals<Value, typename geometry::traits::tag<Value>::type>::apply(l ,r);
+        return detail::equals<Value>::apply(l ,r);
     }
 };
 
@@ -109,10 +114,8 @@ struct equal_to<std::pair<T1, T2>, false>
     */
     inline bool operator()(std::pair<T1, T2> const& l, std::pair<T1, T2> const& r) const
     {
-        typedef detail::equals<T1, typename geometry::traits::tag<T1>::type> equals1;
-        typedef detail::equals<T2, typename geometry::traits::tag<T2>::type> equals2;
-
-        return equals1::apply(l.first, r.first) && equals2::apply(l.second, r.second);
+        return detail::equals<T1>::apply(l.first, r.first)
+            && detail::equals<T2>::apply(l.second, r.second);
     }
 };
 
@@ -160,12 +163,9 @@ struct std_tuple_equals
     inline static bool apply(Tuple const& t1, Tuple const& t2)
     {
         typedef typename std::tuple_element<I, Tuple>::type T;
-        return
-            equals<
-                T, typename geometry::traits::tag<T>::type
-            >::apply(std::get<I>(t1), std::get<I>(t2))
-            &&
-            std_tuple_equals<Tuple, I+1, N>::apply(t1, t2);
+
+        return equals<T>::apply(std::get<I>(t1), std::get<I>(t2))
+            && std_tuple_equals<Tuple, I+1, N>::apply(t1, t2);
     }
 };
 

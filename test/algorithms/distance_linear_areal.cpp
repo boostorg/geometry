@@ -47,19 +47,19 @@ void test_distance_segment_polygon(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<segment_type, polygon_type> tester;
 
-    tester::apply(make_segment<segment_type>(-1, 20, 1, 20),
+    tester::apply("segment(-1 20,1 20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   10, 100, strategy);
 
-    tester::apply(make_segment<segment_type>(1, 20, 2, 40),
+    tester::apply("segment(1 20,2 40)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   10, 100, strategy);
 
-    tester::apply(make_segment<segment_type>(-1, 20, -1, 5),
+    tester::apply("segment(-1 20,-1 5)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
 
-    tester::apply(make_segment<segment_type>(-1, 20, -1, -20),
+    tester::apply("segment(-1 20,-1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
 }
@@ -129,22 +129,22 @@ void test_distance_segment_multipolygon(Strategy const& strategy)
             segment_type, multi_polygon_type
         > tester;
 
-    tester::apply(make_segment<segment_type>(-1, 20, 1, 20),
+    tester::apply("segment(-1 20,1 20)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((0 22,-1 30, 2 40,0 22)))",
                   2, 4, strategy);
 
-    tester::apply(make_segment<segment_type>(12, 0, 14, 0),
+    tester::apply("segment(12 0,14 0)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   2, 4, strategy);
 
-    tester::apply(make_segment<segment_type>(12, 0, 20.5, 0.5),
+    tester::apply("segment(12 0,20.5 0.5)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   0, 0, strategy);
 
-    tester::apply(make_segment<segment_type>(12, 0, 50, 0),
+    tester::apply("segment(12 0,50 0)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   0, 0, strategy);
@@ -226,415 +226,425 @@ void test_distance_segment_box(Strategy const& strategy)
     typedef test_distance_of_geometries<B, S> tester;
     typedef test_distance_of_geometries<B, IS> itester;
 
+    // 1st example by Adam Wulkiewicz
+    tester::apply("BOX(5 51,42 96)",
+                  "SEGMENT(6.6799994 95.260002,35.119999 56.340004)",
+                  0, 0, strategy);
+
+    // 2nd example by Adam Wulkiewicz
+    tester::apply("BOX(51 55,94 100)",
+                  "SEGMENT(92.439995 50.130001,59.959999 80.870003)",
+                  0, 0, strategy);
+
     // segments that intersect the box
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0.5, 0.5, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0.5,0.5 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0.5, 1.5, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0.5,1.5 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -1, 0.5, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -1,0.5 2)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 1, 1.5, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 1,1.5 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, 0, 0, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 0,0 2)",
                   0, 0, strategy);
     
     // segment that has closest point on box boundary
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(4, 0.5, 5, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(4 0.5,5 0.75)",
                   3, 9, strategy);
 
     // segment that has closest point on box corner
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(4, 0, 0, 4),
-                  sqrt(2), 2, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-4, 0, 0, -4),
-                   sqrt(8), 8, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-8, 4, 4, -8),
-                   sqrt(8), 8, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-4, 0, 0, 4),
-                  1.5 * sqrt(2), 4.5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-4, 0, 1, 5),
-                  1.5 * sqrt(2), 4.5, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(0, -2, 3, 1),
-                   0.5 * sqrt(2), 0.5, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(0, -2, 2, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(4 0,0 4)",
+                  sqrt(2.0), 2, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(-4 0,0 -4)",
+                   sqrt(8.0), 8, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(-8 4,4 -8)",
+                   sqrt(8.0), 8, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-4 0,0 4)",
+                  1.5 * sqrt(2.0), 4.5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-4 0,1 5)",
+                  1.5 * sqrt(2.0), 4.5, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(0 -2,3 1)",
+                   0.5 * sqrt(2.0), 0.5, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(0 -2,2 2)",
                    0, 0, strategy);
 
     // horizontal segments
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-2, -1, -1, -1),
-                   sqrt(2), 2, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-1, -1, 0, -1),
+    itester::apply("box(0 0,1 1)",
+                   "segment(-2 -1,-1 -1)",
+                   sqrt(2.0), 2, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(-1 -1,0 -1)",
                    1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-0.5, -1, 0.5, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-0.5 -1,0.5 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -1, 0.75, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -1,0.75 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -1, 1.25, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -1,1.25 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, -1, 2, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 -1,2 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, -1, 3, -1),
-                  sqrt(2), 2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -1, 2, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 -1,3 -1)",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -1,2 -1)",
                   1, 1, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 0, -1, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 0,-1 0)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0, 0, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0,0 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-0.5, 0, 0.5, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-0.5 0,0.5 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0, 0.75, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0,0.75 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0, 1.25, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0,1.25 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 0, 2, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 0,2 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, 0, 3, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 0,3 0)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 0, 2, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 0,2 0)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 0.5, -1, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 0.5,-1 0.5)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0.5, 0, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0.5,0 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-0.5, 0.5, 0.5, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-0.5 0.5,0.5 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0.5, 0.75, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0.5,0.75 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0.5, 1.25, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0.5,1.25 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 0.5, 2, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 0.5,2 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, 0.5, 3, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 0.5,3 0.5)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 0.5, 2, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 0.5,2 0.5)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 1, -1, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 1,-1 1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 1, 0, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 1,0 1)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-0.5, 1, 0.5, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-0.5 1,0.5 1)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 1, 0.75, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 1,0.75 1)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 1, 1.25, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 1,1.25 1)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 1, 2, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 1,2 1)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, 1, 3, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 1,3 1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 1, 2, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 1,2 1)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 3, -1, 3),
-                  sqrt(5), 5, strategy);
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-1, 3, 0, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 3,-1 3)",
+                  sqrt(5.0), 5, strategy);
+    itester::apply("box(0 0,1 1)",
+                   "segment(-1 3,0 3)",
                    2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-0.5, 3, 0.5, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-0.5 3,0.5 3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 3, 0.75, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 3,0.75 3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 3, 1.25, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 3,1.25 3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 3, 2, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 3,2 3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(2, 3, 3, 3),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 3, 2, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(2 3,3 3)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 3,2 3)",
                   2, 4, strategy);
 
     // vertical segments
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -2, -1, -1),
-                  sqrt(2), 2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -1, -1, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -2,-1 -1)",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -1,-1 0)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -0.5, -1, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -0.5,-1 0.5)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0.5, -1, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0.5,-1 0.75)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 0.5, -1, 1.25),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 0.5,-1 1.25)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 1, -1, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 1,-1 2)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 2, -1, 3),
-                  sqrt(2), 2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -2, -1, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 2,-1 3)",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -2,-1 2)",
                   1, 1, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, -2, 0, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 -2,0 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, -1, 0, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 -1,0 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, -0.5, 0, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 -0.5,0 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 0.5, 0, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 0.5,0 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 0.5, 0, 1.25),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 0.5,0 1.25)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 1, 0, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 1,0 2)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 2, 0, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 2,0 3)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, -2, 0, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 -2,0 2)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -2, 0.5, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -2,0.5 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -1, 0.5, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -1,0.5 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -0.5, 0.5, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -0.5,0.5 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0.5, 0.5, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0.5,0.5 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 0.5, 0.5, 1.25),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 0.5,0.5 1.25)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 1, 0.5, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 1,0.5 2)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 2, 0.5, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 2,0.5 3)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -2, 0.5, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -2,0.5 2)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, -2, 1, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 -2,1 -1)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, -1, 1, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 -1,1 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, -0.5, 1, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 -0.5,1 0.5)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 0.5, 1, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 0.5,1 0.75)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 0.5, 1, 1.25),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 0.5,1 1.25)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 1, 1, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 1,1 2)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 2, 1, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 2,1 3)",
                   1, 1, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, -2, 1, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 -2,1 2)",
                   0, 0, strategy);
 
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, -2, 3, -1),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, -1, 3, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 -2,3 -1)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 -1,3 0)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, -0.5, 3, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 -0.5,3 0.5)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, 0.5, 3, 0.75),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 0.5,3 0.75)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, 0.5, 3, 1.25),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 0.5,3 1.25)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, 1, 3, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 1,3 2)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, 2, 3, 3),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, -2, 3, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 2,3 3)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 -2,3 2)",
                   2, 4, strategy);
 
     // positive slope
-    itester::apply(make_box2d<B>(0, 0, 1, 1),
-                   make_segment<IS>(-2, -2, -1, -1),
-                   sqrt(2), 2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 0, -0.5),
+    itester::apply("box(0 0,1 1)",
+                   "segment(-2 -2,-1 -1)",
+                   sqrt(2.0), 2, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,0 -0.5)",
                   0.5, 0.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 0.5, -0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,0.5 -0.5)",
                   0.5, 0.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 1, -0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,1 -0.5)",
                   0.5, 0.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 2, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,2 0)",
                   sqrt(0.2), 0.2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 4, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,4 1)",
                   sqrt(0.2), 0.2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, -1.5, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,-1.5 0)",
                   1.5, 2.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, -1.5, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,-1.5 0.5)",
                   1.5, 2.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, -1.5, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,-1.5 1)",
                   1.5, 2.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 0, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,0 2)",
                   sqrt(0.2), 0.2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 1, 4),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,1 4)",
                   sqrt(0.2), 0.2, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 4, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,4 2)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 2, 4),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,2 4)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 4, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,4 3)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 3, 4),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,3 4)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, 3, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,3 3)",
                   0, 0, strategy);
 
     // negative slope
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, -2, -1, -3),
-                  sqrt(8), 8, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-3, -1, 0, -4),
-                  sqrt(8), 8, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 0.75, -1.5, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 -2,-1 -3)",
+                  sqrt(8.0), 8, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-3 -1,0 -4)",
+                  sqrt(8.0), 8, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 0.75,-1.5 0.5)",
                   1.5, 2.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 1.5, -1.5, 0.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 1.5,-1.5 0.5)",
                   1.5, 2.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 2, 0.75, 1.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 2,0.75 1.5)",
                   0.5, 0.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 2, 0.75, 1.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 2,0.75 1.5)",
                   0.5, 0.25, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 2, 2, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 2,2 0)",
                   0, 0, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0, 3, 3, 0),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0 3,3 0)",
                   sqrt(0.5), 0.5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 4, 4, -1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 4,4 -1)",
                   sqrt(0.5), 0.5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, 4, 0, 3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 4,0 3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-2, 5, -1, 4),
-                  sqrt(10), 10, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(3, -1, 4, -4),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(1, 2, 2, 1),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-2 5,-1 4)",
+                  sqrt(10.0), 10, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(3 -1,4 -4)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(1 2,2 1)",
                   sqrt(0.5), 0.5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, -2, 2, -3),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 -2,2 -3)",
                   2, 4, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -2, 0, -3),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -2, 0.5, -3.5),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(-1, -2, 0.5, -3.5),
-                  sqrt(5), 5, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 3, 2.5, 2),
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -2,0 -3)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -2,0.5 -3.5)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(-1 -2,0.5 -3.5)",
+                  sqrt(5.0), 5, strategy);
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 3,2.5 2)",
                   sqrt(2.45), 2.45, strategy);
-    tester::apply(make_box2d<B>(0, 0, 1, 1),
-                  make_segment<S>(0.5, 1.5, 1.5, -1.5),
+    tester::apply("box(0 0,1 1)",
+                  "segment(0.5 1.5,1.5 -1.5)",
                   0, 0, strategy);
 
     // test degenerate segment
-    tester::apply(make_box2d<B>(0, 0, 2, 2),
-                  make_segment<S>(4, 1, 4, 1),
+    tester::apply("box(0 0,2 2)",
+                  "segment(4 1,4 1)",
                   2, 4, strategy);
 }
 
@@ -651,21 +661,21 @@ void test_distance_linestring_box(Strategy const& strategy)
 
     // linestrings that intersect the box
     tester::apply("linestring(-1 0.5,0.5 0.75)",
-                  make_box2d<box_type>(0, 0, 1, 1),
+                  "box(0 0,1 1)",
                   0, 0, strategy);
     tester::apply("linestring(-1 0.5,1.5 0.75)",
-                  make_box2d<box_type>(0, 0, 1, 1),
+                  "box(0 0,1 1)",
                   0, 0, strategy);
     
     // linestring that has closest point on box boundary
     tester::apply("linestring(4 0.5,5 0.75)",
-                  make_box2d<box_type>(0, 0, 1, 1),
+                  "box(0 0,1 1)",
                   3, 9, strategy);
 
     // linestring that has closest point on box corner
     tester::apply("linestring(4 0,0 4)",
-                  make_box2d<box_type>(0, 0, 1, 1),
-                  sqrt(2), 2, strategy);
+                  "box(0 0,1 1)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -681,18 +691,18 @@ void test_distance_multilinestring_box(Strategy const& strategy)
 
     // multilinestring that intersects the box
     tester::apply("multilinestring((-1 0.5,0.5 0.75),(4 0.5,5 0.75))",
-                  make_box2d<box_type>(0, 0, 1, 1),
+                  "box(0 0,1 1)",
                   0, 0, strategy);
     
     // multilinestring that has closest point on box boundary
     tester::apply("multilinestring((4 0.5,5 0.75))",
-                  make_box2d<box_type>(0, 0, 1, 1),
+                  "box(0 0,1 1)",
                   3, 9, strategy);
 
     // multilinestring that has closest point on box corner
     tester::apply("multilinestring((5 0,0 5),(4 0,0 4))",
-                  make_box2d<box_type>(0, 0, 1, 1),
-                  sqrt(2), 2, strategy);
+                  "box(0 0,1 1)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================

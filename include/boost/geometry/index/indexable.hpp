@@ -22,6 +22,9 @@ struct is_indexable_impl<Point, geometry::point_tag> { static const bool value =
 template <typename Box>
 struct is_indexable_impl<Box, geometry::box_tag> { static const bool value = true; };
 
+template <typename Segment>
+struct is_indexable_impl<Segment, geometry::segment_tag> { static const bool value = true; };
+
 template <typename Indexable>
 struct is_indexable
 {
@@ -42,6 +45,12 @@ and std::tuple<Indexable, ...>.
 template <typename Value, bool IsIndexable = is_indexable<Value>::value>
 struct indexable
 {
+    BOOST_MPL_ASSERT_MSG(
+        (detail::is_indexable<Value>::value),
+        NOT_VALID_INDEXABLE_TYPE,
+        (Value)
+    );
+
     /*! \brief The type of result returned by function object. */
     typedef Value const& result_type;
 
