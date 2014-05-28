@@ -96,11 +96,13 @@ template <typename Range, typename RobustPolicy>
 inline void clean_closing_dups_and_spikes(Range& range,
                 RobustPolicy const& robust_policy)
 {
-    int const minsize
-        = core_detail::closure::minimum_ring_size
+    typename boost::range_size<Range>::type const minsize = static_cast
+        <
+            typename boost::range_size<Range>::type
+        >(core_detail::closure::minimum_ring_size
             <
                 geometry::closure<Range>::value
-            >::value;
+            >::value);
 
     if (boost::size(range) <= minsize)
     {
