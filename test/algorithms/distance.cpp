@@ -72,7 +72,10 @@ void test_distance_point()
     BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
 
     // Test specifying strategy manually
-    typename services::default_strategy<bg::point_tag, P>::type strategy;
+    typename services::default_strategy
+        <
+            bg::point_tag, bg::point_tag, P
+        >::type strategy;
 
     d = bg::distance(p1, p2, strategy);
     BOOST_CHECK_CLOSE(d, return_type(1.4142135), 0.001);
@@ -93,7 +96,10 @@ void test_distance_point()
     {
         // test comparability
 
-        typedef typename services::default_strategy<bg::point_tag, P>::type strategy_type;
+        typedef typename services::default_strategy
+            <
+                bg::point_tag, bg::point_tag, P
+            >::type strategy_type;
         typedef typename services::comparable_type<strategy_type>::type comparable_strategy_type;
 
         strategy_type strategy;
@@ -143,12 +149,18 @@ void test_distance_segment()
 
     // Test specifying strategy manually:
     // 1) point-point-distance
-    typename bg::strategy::distance::services::default_strategy<bg::point_tag, P>::type pp_strategy;
+    typename bg::strategy::distance::services::default_strategy
+        <
+            bg::point_tag, bg::point_tag, P
+        >::type pp_strategy;
     d1 = bg::distance(p1, seg, pp_strategy);
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 
     // 2) point-segment-distance
-    typename bg::strategy::distance::services::default_strategy<bg::segment_tag, P>::type ps_strategy;
+    typename bg::strategy::distance::services::default_strategy
+        <
+            bg::point_tag, bg::segment_tag, P
+        >::type ps_strategy;
     d1 = bg::distance(p1, seg, ps_strategy);
     BOOST_CHECK_CLOSE(d1, return_type(1), 0.001);
 

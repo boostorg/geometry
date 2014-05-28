@@ -318,7 +318,7 @@ public :
 template <typename Box1, typename Box2>
 struct default_strategy
     <
-        box_tag, Box1, Box2, cartesian_tag, cartesian_tag, void, box_tag
+        box_tag, box_tag, Box1, Box2, cartesian_tag, cartesian_tag
     >
 {
     typedef pythagoras_box_box<> type;

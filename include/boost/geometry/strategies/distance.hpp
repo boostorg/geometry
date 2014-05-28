@@ -78,13 +78,13 @@ struct result_from_distance {};
 */
 template
 <
-    typename GeometryTag,
+    typename GeometryTag1,
+    typename GeometryTag2,
     typename Point1,
     typename Point2 = Point1,
     typename CsTag1 = typename cs_tag<Point1>::type,
     typename CsTag2 = typename cs_tag<Point2>::type,
-    typename UnderlyingStrategy = void,
-    typename GeometryTag2 = GeometryTag
+    typename UnderlyingStrategy = void
 >
 struct default_strategy
 {

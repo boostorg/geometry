@@ -43,7 +43,7 @@ namespace detail { namespace distance
 template
 <
     typename Geometry1,
-    typename Geometry2,
+    typename Geometry2 = Geometry1,
     typename Tag1 = typename tag_cast
         <
             typename tag<Geometry1>::type, pointlike_tag
@@ -57,7 +57,7 @@ template
 struct default_strategy
     : strategy::distance::services::default_strategy
           <
-              segment_tag,
+              point_tag, segment_tag,
               typename point_type<Geometry1>::type,
               typename point_type<Geometry2>::type
           >
@@ -82,7 +82,7 @@ struct default_strategy
         pointlike_tag, pointlike_tag, false
     > : strategy::distance::services::default_strategy
           <
-              point_tag,
+              point_tag, point_tag,
               typename point_type<Pointlike1>::type,
               typename point_type<Pointlike2>::type
           >
@@ -93,13 +93,12 @@ template <typename Pointlike, typename Box>
 struct default_strategy<Pointlike, Box, pointlike_tag, box_tag, false>
     : strategy::distance::services::default_strategy
           <
-              point_tag,
+              point_tag, box_tag,
               typename point_type<Pointlike>::type,
               typename point_type<Box>::type,
               cartesian_tag,
               cartesian_tag,
-              void,
-              box_tag
+              void
           >
 {};
 
@@ -108,13 +107,12 @@ template <typename Box1, typename Box2>
 struct default_strategy<Box1, Box2, box_tag, box_tag, false>
     : strategy::distance::services::default_strategy
           <
-              box_tag,
+              box_tag, box_tag,
               typename point_type<Box1>::type,
               typename point_type<Box2>::type,
               cartesian_tag,
               cartesian_tag,
-              void,
-              box_tag
+              void
           >
 {};
 
@@ -125,7 +123,7 @@ template <typename Geometry1, typename Geometry2, typename Strategy>
 struct default_ps_strategy
     : strategy::distance::services::default_strategy
           <
-              segment_tag,
+              point_tag, segment_tag,
               typename point_type<Geometry1>::type,
               typename point_type<Geometry2>::type,
               typename cs_tag<typename point_type<Geometry1>::type>::type,
