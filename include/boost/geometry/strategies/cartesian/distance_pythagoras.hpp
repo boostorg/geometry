@@ -271,7 +271,10 @@ public :
 
 
 template <typename Point1, typename Point2>
-struct default_strategy<point_tag, Point1, Point2, cartesian_tag, cartesian_tag, void>
+struct default_strategy
+    <
+        point_tag, point_tag, Point1, Point2, cartesian_tag, cartesian_tag
+    >
 {
     typedef pythagoras<> type;
 };

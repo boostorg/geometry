@@ -284,7 +284,7 @@ struct default_strategy
 template <typename Point, typename PointOfSegment, typename Strategy>
 struct default_strategy
     <
-        segment_tag, Point, PointOfSegment,
+        point_tag, segment_tag, Point, PointOfSegment,
         spherical_equatorial_tag, spherical_equatorial_tag,
         Strategy
     >
@@ -297,7 +297,7 @@ struct default_strategy
                     boost::is_void<Strategy>,
                     typename default_strategy
                         <
-                            point_tag, Point, PointOfSegment,
+                            point_tag, point_tag, Point, PointOfSegment,
                             spherical_equatorial_tag, spherical_equatorial_tag
                         >::type,
                     Strategy
