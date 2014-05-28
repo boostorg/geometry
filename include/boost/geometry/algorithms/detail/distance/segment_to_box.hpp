@@ -234,32 +234,33 @@ private:
         }
     };
 
-    template <typename T, typename LessEqual>
+
+    template <typename T, bool IsLess /* true */>
     struct compare_less_equal
     {
+        typedef compare_less_equal<T, !IsLess> other;
+
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
         {
-            return LessEqual()(cast_to_result<T>::apply(t1),
-                               cast_to_result<T>::apply(t2));
+            return std::less_equal<T>()(cast_to_result<T>::apply(t1),
+                                        cast_to_result<T>::apply(t2));
         }
     };
 
-    // forward declarations
-    template <typename T> struct less_equal;
-    template <typename T> struct greater_equal;
-
     template <typename T>
-    struct less_equal : compare_less_equal<T, std::less_equal<T> >
+    struct compare_less_equal<T, false>
     {
-        typedef greater_equal<T> other;
+        typedef compare_less_equal<T, true> other;
+
+        template <typename T1, typename T2>
+        inline bool operator()(T1 const& t1, T2 const& t2) const
+        {
+            return std::greater_equal<T>()(cast_to_result<T>::apply(t1),
+                                           cast_to_result<T>::apply(t2));
+        }
     };
 
-    template <typename T>
-    struct greater_equal : compare_less_equal<T, std::greater_equal<T> >
-    {
-        typedef less_equal<T> other;
-    };
 
     template <typename LessEqual>
     struct other_compare
@@ -485,6 +486,8 @@ private:
                                PPStrategy const& pp_strategy,
                                PSStrategy const& ps_strategy)
     {
+        typedef compare_less_equal<ReturnType, true> less_equal;
+
         // assert that the segment has non-negative slope
         BOOST_ASSERT( ( math::equals(geometry::get<0>(p0), geometry::get<0>(p1))
                         && geometry::get<1>(p0) < geometry::get<1>(p1))
@@ -497,7 +500,7 @@ private:
 
         if ( check_right_left_of_box
                  <
-                     less_equal<ReturnType>
+                     less_equal
                  >::apply(p0, p1,
                           top_left, top_right, bottom_left, bottom_right,
                           pp_strategy, ps_strategy, result) )
@@ -507,7 +510,7 @@ private:
 
         if ( check_above_below_of_box
                  <
-                     less_equal<ReturnType>
+                     less_equal
                  >::apply(p0, p1,
                           top_left, top_right, bottom_left, bottom_right,
                           ps_strategy, result) )
@@ -539,6 +542,8 @@ private:
                            PPStrategy const& pp_strategy,
                            PSStrategy const& ps_strategy)
     {
+        typedef compare_less_equal<ReturnType, false> greater_equal;
+
         // assert that the segment has negative slope
         BOOST_ASSERT( geometry::get<0>(p0) < geometry::get<0>(p1)
                       && geometry::get<1>(p0) > geometry::get<1>(p1) );
@@ -547,7 +552,7 @@ private:
 
         if ( check_right_left_of_box
                  <
-                     greater_equal<ReturnType>
+                     greater_equal
                  >::apply(p0, p1,
                           bottom_left, bottom_right, top_left, top_right,
                           pp_strategy, ps_strategy, result) )
@@ -557,7 +562,7 @@ private:
 
         if ( check_above_below_of_box
                  <
-                     greater_equal<ReturnType>
+                     greater_equal
                  >::apply(p1, p0,
                           top_right, top_left, bottom_right, bottom_left,
                           ps_strategy, result) )
