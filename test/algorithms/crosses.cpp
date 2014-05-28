@@ -53,6 +53,7 @@ void test_ll()
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,4 4)", "LINESTRING(0 1,1 1,2 2,3 2)", false);
 
     test_geometry<ls, mls>("LINESTRING(0 0,2 2,4 4)", "MULTILINESTRING((0 1,4 1),(0 2,4 2))", true);
+    test_geometry<mls, ls>("MULTILINESTRING((0 1,4 1),(0 2,4 2))", "LINESTRING(0 0,2 2,4 4)", true);
 
     test_geometry<mls, mls>("MULTILINESTRING((0 0,2 2,4 4),(3 0,3 4))", "MULTILINESTRING((0 1,4 1),(0 2,4 2))", true);
 }
@@ -62,14 +63,20 @@ void test_la()
 {
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
+    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> poly;
     typedef bg::model::multi_polygon<poly> mpoly;
 
+    test_geometry<ls, ring>("LINESTRING(0 0, 10 10)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
     test_geometry<ls, poly>("LINESTRING(0 0, 10 10)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<ls, mpoly>("LINESTRING(0 0, 10 10)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)))", true);
+
     test_geometry<ls, poly>("LINESTRING(0 0, 10 0)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
     test_geometry<ls, poly>("LINESTRING(1 1, 5 5)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);
 
-    test_geometry<mls, poly>("MULTILINESTRING((1 1, 5 5),(6 6,7 7))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<mls, ring>("MULTILINESTRING((1 1, 5 5),(6 6,7 7))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<mls, poly>("MULTILINESTRING((1 1, 5 5),(6 6,7 7))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);    
+    test_geometry<mls, mpoly>("MULTILINESTRING((1 1, 5 5),(6 6,7 7))", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)))", true);
 }
 
 template <typename P>
