@@ -92,10 +92,6 @@ struct disjoint_segment_areal<Segment, Polygon, polygon_tag>
     static inline bool apply(Segment const& segment, Polygon const& polygon)
     {
         typedef typename geometry::ring_type<Polygon>::type ring;
-        typedef typename geometry::interior_return_type
-            <
-                Polygon const
-            >::type interior_rings;
 
         if ( !disjoint_range_segment_or_box
                  <
@@ -105,7 +101,8 @@ struct disjoint_segment_areal<Segment, Polygon, polygon_tag>
             return false;
         }
 
-        interior_rings const& irings = geometry::interior_rings(polygon);
+        typename geometry::interior_return_type<Polygon const>::type irings
+            = geometry::interior_rings(polygon);
 
         for (BOOST_AUTO_TPL(it, boost::begin(irings));
              it != boost::end(irings); ++it)
