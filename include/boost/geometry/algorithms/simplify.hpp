@@ -18,11 +18,9 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
@@ -35,7 +33,6 @@
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -119,13 +116,54 @@ struct simplify_range
 
 struct simplify_polygon
 {
+private:
+
+    template
+    <
+        std::size_t Minimum,
+        typename IteratorIn,
+        typename IteratorOut,
+        typename Distance,
+        typename Strategy
+    >
+    static inline void iterate(IteratorIn begin, IteratorIn end,
+                    IteratorOut it_out,
+                    Distance const& max_distance, Strategy const& strategy)
+    {
+        for (IteratorIn it_in = begin; it_in != end;  ++it_in, ++it_out)
+        {
+            simplify_range<Minimum>::apply(*it_in, *it_out, max_distance, strategy);
+        }
+    }
+
+    template
+    <
+        std::size_t Minimum,
+        typename InteriorRingsIn,
+        typename InteriorRingsOut,
+        typename Distance,
+        typename Strategy
+    >
+    static inline void apply_interior_rings(
+                    InteriorRingsIn const& interior_rings_in,
+                    InteriorRingsOut& interior_rings_out,
+                    Distance const& max_distance, Strategy const& strategy)
+    {
+        traits::resize<InteriorRingsOut>::apply(interior_rings_out,
+            boost::size(interior_rings_in));
+
+        iterate<Minimum>(
+            boost::begin(interior_rings_in), boost::end(interior_rings_in),
+            boost::begin(interior_rings_out),
+            max_distance, strategy);
+    }
+
+public:
     template <typename Polygon, typename Strategy, typename Distance>
     static inline void apply(Polygon const& poly_in, Polygon& poly_out,
                     Distance const& max_distance, Strategy const& strategy)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
-
-        int const Minimum = core_detail::closure::minimum_ring_size
+        std::size_t const minimum = core_detail::closure::minimum_ring_size
             <
                 geometry::closure<Polygon>::value
             >::value;
@@ -133,29 +171,13 @@ struct simplify_polygon
         // Note that if there are inner rings, and distance is too large,
         // they might intersect with the outer ring in the output,
         // while it didn't in the input.
-        simplify_range<Minimum>::apply(exterior_ring(poly_in),
+        simplify_range<minimum>::apply(exterior_ring(poly_in),
                                        exterior_ring(poly_out),
                                        max_distance, strategy);
 
-        traits::resize
-            <
-                typename boost::remove_reference
-                <
-                    typename traits::interior_mutable_type<Polygon>::type
-                >::type
-            >::apply(interior_rings(poly_out), num_interior_rings(poly_in));
-
-        typename interior_return_type<Polygon const>::type rings_in
-                    = interior_rings(poly_in);
-        typename interior_return_type<Polygon>::type rings_out
-                    = interior_rings(poly_out);
-        BOOST_AUTO_TPL(it_out, boost::begin(rings_out));
-        for (BOOST_AUTO_TPL(it_in,  boost::begin(rings_in));
-            it_in != boost::end(rings_in);
-            ++it_in, ++it_out)
-        {
-            simplify_range<Minimum>::apply(*it_in, *it_out, max_distance, strategy);
-        }
+        apply_interior_rings<minimum>(interior_rings(poly_in),
+                                      interior_rings(poly_out),
+                                      max_distance, strategy);
     }
 };
 

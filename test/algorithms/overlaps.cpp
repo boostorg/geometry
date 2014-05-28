@@ -62,9 +62,14 @@ template <typename P>
 void test_ll()
 {
     typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
 
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 1)", "LINESTRING(1 1,2 2,4 4)", true);
     test_geometry<ls, ls>("LINESTRING(0 0,2 2,4 0)", "LINESTRING(0 1,2 1,3 2)", false);
+
+    test_geometry<ls, mls>("LINESTRING(0 0,2 2,3 1)", "MULTILINESTRING((1 1,2 2),(2 2,4 4))", true);
+    test_geometry<ls, mls>("LINESTRING(0 0,2 2,3 1)", "MULTILINESTRING((1 1,2 2),(3 3,4 4))", true);
+    test_geometry<ls, mls>("LINESTRING(0 0,3 3,3 1)", "MULTILINESTRING((3 3,2 2),(0 0,1 1))", false);
 }
 
 template <typename P>
