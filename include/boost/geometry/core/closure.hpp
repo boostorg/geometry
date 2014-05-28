@@ -16,7 +16,7 @@
 
 
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/int.hpp>
+#include <boost/mpl/size_t.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
@@ -93,10 +93,10 @@ template <closure_selector Closure>
 struct minimum_ring_size {};
 
 template <>
-struct minimum_ring_size<geometry::closed> : boost::mpl::int_<4> {};
+struct minimum_ring_size<geometry::closed> : boost::mpl::size_t<4> {};
 
 template <>
-struct minimum_ring_size<geometry::open> : boost::mpl::int_<3> {};
+struct minimum_ring_size<geometry::open> : boost::mpl::size_t<3> {};
 
 
 }} // namespace detail::point_order
