@@ -245,28 +245,26 @@ private:
         }
     };
 
+    // forward declarations
+    template <typename T> struct less_equal;
+    template <typename T> struct greater_equal;
+
     template <typename T>
     struct less_equal : compare_less_equal<T, std::less_equal<T> >
-    {};
-
-    template <typename T>
-    struct greater_equal : compare_less_equal<T, std::greater_equal<T> >
-    {};
-
-    template <typename LessEqual>
-    struct other_compare
-    {};
-
-    template <typename T>
-    struct other_compare< less_equal<T> >
     {
-        typedef greater_equal<T> type;
+        typedef greater_equal<T> other;
     };
 
     template <typename T>
-    struct other_compare< greater_equal<T> >
+    struct greater_equal : compare_less_equal<T, std::greater_equal<T> >
     {
-        typedef less_equal<T> type;
+        typedef less_equal<T> other;
+    };
+
+    template <typename LessEqual>
+    struct other_compare
+    {
+        typedef typename LessEqual::other type;
     };
 
 
