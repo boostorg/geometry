@@ -17,205 +17,31 @@
 
 #include <boost/foreach.hpp>
 
-#include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 
-#if defined(TEST_WITH_SVG)
-#  include <boost/geometry/io/svg/svg_mapper.hpp>
-#endif
 
 #include <geometry_test_common.hpp>
 
 
-namespace boost { namespace geometry
-{
-
-
-// Overload with rescale-policy specified (temporary here - to be worked out)
-template
-<
-    typename Geometry1,
-    typename Geometry2,
-    typename RescalePolicy,
-    typename GeometryOut
->
-inline bool intersection(Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            RescalePolicy const& rescale_policy,
-            GeometryOut& geometry_out)
-{
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-
-    typedef strategy_intersection
-        <
-            typename cs_tag<Geometry1>::type,
-            Geometry1,
-            Geometry2,
-            typename geometry::point_type<Geometry1>::type,
-            RescalePolicy
-        > strategy;
-
-    return dispatch::intersection
-        <
-           Geometry1,
-           Geometry2
-        >::apply(geometry1, geometry2, rescale_policy, geometry_out, strategy());
-}
-
-
-}} // namespace boost::geometry
-
-
-template
-<
-    typename OutputType,
-    typename CalculationType,
-    typename Geometry1,
-    typename Geometry2,
-    typename RescalePolicy
->
-typename bg::default_area_result<Geometry1>::type test_intersection(std::string const& caseid,
-        Geometry1 const& geometry1, Geometry2 const& geometry2,
-        RescalePolicy const& rescale_policy,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length_or_area = 0,
-        double percentage = 0.0001,
-        bool debug = false)
-{
-    typedef typename bg::coordinate_type<Geometry1>::type coordinate_type;
-    typedef typename bg::point_type<Geometry1>::type point_type;
-
-//    if (debug)
-    {
-        std::cout << std::endl
-            << "case " << caseid
-            << " " << typeid(coordinate_type).name()
-            << " " << string_from_type<coordinate_type>::name()
-            << std::endl;
-    }
-
-
-
-    std::vector<OutputType> out;
-    bg::intersection(geometry1, geometry2, rescale_policy, out);
-
-    typename bg::default_area_result<Geometry1>::type length_or_area = 0;
-    int n = 0;
-    for (typename std::vector<OutputType>::iterator it = out.begin();
-            it != out.end();
-            ++it)
-    {
-        if (expected_point_count > 0)
-        {
-            n += bg::num_points(*it, true);
-        }
-
-        length_or_area += bg::area(*it);
-
-        if (debug)
-        {
-            std::cout << std::setprecision(20) << bg::wkt(*it) << std::endl;
-        }
-    }
-
-
-#if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-    if (expected_point_count > 0)
-    {
-        BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
-                "intersection: " << caseid
-                << " #points expected: " << expected_point_count
-                << " detected: " << n
-                << " type: " << (type_for_assert_message<Geometry1, Geometry2>())
-                );
-    }
-
-    if (expected_count > 0)
-    {
-        BOOST_CHECK_MESSAGE(out.size() == expected_count,
-                "intersection: " << caseid
-                << " #outputs expected: " << expected_count
-                << " detected: " << out.size()
-                << " type: " << (type_for_assert_message<Geometry1, Geometry2>())
-                );
-    }
-
-    double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
-    BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, percentage);
-#endif
-
-
-#if defined(TEST_WITH_SVG)
-    {
-        bool const ccw =
-            bg::point_order<Geometry1>::value == bg::counterclockwise
-            || bg::point_order<Geometry2>::value == bg::counterclockwise;
-        bool const open =
-            bg::closure<Geometry1>::value == bg::open
-            || bg::closure<Geometry2>::value == bg::open;
-
-        std::ostringstream filename;
-        filename << "rescale_policy_intersection_"
-            << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << string_from_type<CalculationType>::name()
-            << (ccw ? "_ccw" : "")
-            << (open ? "_open" : "")
-            << ".svg";
-
-        std::ofstream svg(filename.str().c_str());
-
-        bg::svg_mapper<point_type> mapper(svg, 500, 500);
-
-        mapper.add(geometry1);
-        mapper.add(geometry2);
-
-        mapper.map(geometry1, "fill-opacity:0.5;fill:rgb(153,204,0);"
-                    "stroke:rgb(153,204,0);stroke-width:3");
-        mapper.map(geometry2, "fill-opacity:0.3;fill:rgb(51,51,153);"
-                    "stroke:rgb(51,51,153);stroke-width:3");
-
-        for (typename std::vector<OutputType>::const_iterator it = out.begin();
-                it != out.end(); ++it)
-        {
-            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                        "stroke:rgb(255,0,255);stroke-width:8");
-        }
-    }
-#endif
-
-    if (debug)
-    {
-        std::cout << "end case " << caseid << std::endl;
-    }
-
-    return length_or_area;
-}
-
 template
 <
     typename RescalePolicy,
-    typename OutputType,
     typename Geometry1,
     typename Geometry2
 >
-typename bg::default_area_result<Geometry1>::type test_one(std::string const& caseid,
-        std::string const& wkt1, std::string const& wkt2,
-        std::size_t expected_count = 0, int expected_point_count = 0,
-        double expected_length_or_area = 0,
-        double percentage = 0.02,
-        bool debug = false)
+void test_one(std::string const& wkt1, std::string const& wkt2,
+        std::string const& expected_coordinates)
 {
     Geometry1 geometry1;
     bg::read_wkt(wkt1, geometry1);
@@ -223,20 +49,38 @@ typename bg::default_area_result<Geometry1>::type test_one(std::string const& ca
     Geometry2 geometry2;
     bg::read_wkt(wkt2, geometry2);
 
-    // Reverse if necessary
-    bg::correct(geometry1);
-    bg::correct(geometry2);
-
     RescalePolicy rescale_policy
             = bg::get_rescale_policy<RescalePolicy>(geometry1, geometry2);
 
-    return test_intersection<OutputType, void>(caseid,
-        geometry1, geometry2,
-        rescale_policy,
-        expected_count, expected_point_count,
-        expected_length_or_area, percentage,
-        debug);
+    typedef typename bg::point_type<Geometry1>::type point_type;
+    typedef typename bg::robust_point_type
+        <
+            point_type, RescalePolicy
+        >::type robust_point_type;
+
+    {
+        robust_point_type robust_point;
+        bg::recalculate(robust_point, *bg::points_begin(geometry1), rescale_policy);
+
+        std::ostringstream out;
+        out << bg::get<0>(robust_point) << " " << bg::get<1>(robust_point);
+        BOOST_CHECK_EQUAL(expected_coordinates, out.str());
+    }
+
+    {
+        // Assuming Geometry1 is a polygon:
+        typedef bg::model::polygon<robust_point_type> polygon_type;
+        polygon_type geometry_out;
+        bg::recalculate(geometry_out, geometry1, rescale_policy);
+        robust_point_type p = *bg::points_begin(geometry_out);
+
+        std::ostringstream out;
+        out << bg::get<0>(p) << " " << bg::get<1>(p);
+        BOOST_CHECK_EQUAL(expected_coordinates, out.str());
+    }
 }
+
+
 
 static std::string simplex_normal[2] =
     {"POLYGON((0 1,2 5,5 3,0 1))",
@@ -248,7 +92,7 @@ static std::string simplex_large[2] =
 
 
 template <bool Rescale, typename P>
-void test_rescale()
+void test_rescale(std::string const& expected_normal, std::string const& expected_large)
 {
     typedef bg::model::polygon<P> polygon;
 
@@ -259,35 +103,29 @@ void test_rescale()
             bg::detail::no_rescale_policy
         >::type rescale_policy_type;
 
-    std::string suffix = Rescale ? "rescale" : "no_rescale";
-
-    typedef typename bg::coordinate_type<P>::type coordinate_type;
-    if (! boost::is_integral<coordinate_type>::type::value)
-    {
-        test_one<rescale_policy_type, polygon, polygon, polygon>("simplex_normal_" + suffix,
-            simplex_normal[0], simplex_normal[1],
-            1, 7, 5.47363293);
-    }
-    test_one<rescale_policy_type, polygon, polygon, polygon>("simplex_large_" + suffix,
+    test_one<rescale_policy_type, polygon, polygon>(
+        simplex_normal[0], simplex_normal[1],
+        expected_normal);
+    test_one<rescale_policy_type, polygon, polygon>(
         simplex_large[0], simplex_large[1],
-        1, 7, 5473632.93);
+        expected_large);
 }
 
 template <typename T>
-void test_all()
+void test_all(std::string const& expected_normal, std::string const& expected_large)
 {
     typedef bg::model::d2::point_xy<T> point_type;
-    test_rescale<true, point_type>();
-    test_rescale<false, point_type>();
+    test_rescale<true, point_type>(expected_normal, expected_large);
+    //test_rescale<false, point_type>();
 }
 
 
 int test_main(int, char* [])
 {
-    test_all<double>();
-    test_all<long double>();
-    test_all<int>();
-    test_all<boost::long_long_type>();
+    test_all<double>("-5000000 -3000000", "-5000000 -3000000");
+    test_all<long double>("-5000000 -3000000", "-5000000 -3000000");
+    test_all<int>("0 1", "0 1000");
+    test_all<boost::long_long_type>("0 1", "0 1000");
     //    test_all<short int>(); // compiles but overflows
 
     return 0;
