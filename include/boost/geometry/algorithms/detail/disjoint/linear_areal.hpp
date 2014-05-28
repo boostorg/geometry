@@ -21,8 +21,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_LINEAR_AREAL_HPP
 
+#include <iterator>
+
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -87,8 +88,45 @@ struct disjoint_segment_areal
 
 
 template <typename Segment, typename Polygon>
-struct disjoint_segment_areal<Segment, Polygon, polygon_tag>
+class disjoint_segment_areal<Segment, Polygon, polygon_tag>
 {
+private:
+    template <typename RingIterator>
+    static inline bool check_interior_rings(RingIterator first,
+                                            RingIterator beyond,
+                                            Segment const& segment)
+    {
+        for (RingIterator it = first; it != beyond; ++it)
+        {
+            if ( !disjoint_range_segment_or_box
+                     <
+                         typename std::iterator_traits
+                             <
+                                 RingIterator
+                             >::value_type,
+                         closure<Polygon>::value,
+                         Segment
+                     >::apply(*it, segment) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    template <typename InteriorRings>
+    static inline
+    bool check_interior_rings(InteriorRings const& interior_rings,
+                              Segment const& segment)
+    {
+        return check_interior_rings(boost::begin(interior_rings),
+                                    boost::end(interior_rings),
+                                    segment);
+    }
+
+
+public:
     static inline bool apply(Segment const& segment, Polygon const& polygon)
     {
         typedef typename geometry::ring_type<Polygon>::type ring;
@@ -101,19 +139,9 @@ struct disjoint_segment_areal<Segment, Polygon, polygon_tag>
             return false;
         }
 
-        typename geometry::interior_return_type<Polygon const>::type irings
-            = geometry::interior_rings(polygon);
-
-        for (BOOST_AUTO_TPL(it, boost::begin(irings));
-             it != boost::end(irings); ++it)
+        if ( !check_interior_rings(geometry::interior_rings(polygon), segment) )
         {
-            if ( !disjoint_range_segment_or_box
-                     <
-                         ring, closure<Polygon>::value, Segment
-                     >::apply(*it, segment) )
-            {
-                return false;
-            }
+            return false;
         }
 
         typename point_type<Segment>::type p;
