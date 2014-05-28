@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -70,7 +75,8 @@ struct result_from_distance {};
     \brief Traits class binding a default strategy for distance
         to one (or possibly two) coordinate system(s)
     \ingroup distance
-    \tparam GeometryTag tag (point/segment) for which this strategy is the default
+    \tparam GeometryTag1 tag (point/segment/box) for which this strategy is the default
+    \tparam GeometryTag2 tag (point/segment/box) for which this strategy is the default
     \tparam Point1 first point-type
     \tparam Point2 second point-type
     \tparam CsTag1 tag of coordinate system of first point type
@@ -78,13 +84,13 @@ struct result_from_distance {};
 */
 template
 <
-    typename GeometryTag,
+    typename GeometryTag1,
+    typename GeometryTag2,
     typename Point1,
     typename Point2 = Point1,
     typename CsTag1 = typename cs_tag<Point1>::type,
     typename CsTag2 = typename cs_tag<Point2>::type,
-    typename UnderlyingStrategy = void,
-    typename GeometryTag2 = GeometryTag
+    typename UnderlyingStrategy = void
 >
 struct default_strategy
 {
