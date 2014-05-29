@@ -122,7 +122,10 @@ void test_services()
     {
 
         // Compile-check if there is a strategy for this type
-        typedef typename services::default_strategy<bg::point_tag, P1, P2>::type pythagoras_strategy_type;
+        typedef typename services::default_strategy
+            <
+                bg::point_tag, bg::point_tag, P1, P2
+            >::type pythagoras_strategy_type;
     }
 
 
