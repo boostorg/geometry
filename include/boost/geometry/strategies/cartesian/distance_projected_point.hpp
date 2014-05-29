@@ -251,6 +251,20 @@ struct default_strategy
     > type;
 };
 
+template <typename PointOfSegment, typename Point, typename Strategy>
+struct default_strategy
+    <
+        segment_tag, point_tag, PointOfSegment, Point,
+        cartesian_tag, cartesian_tag, Strategy
+    >
+{
+    typedef typename default_strategy
+        <
+            point_tag, segment_tag, Point, PointOfSegment,
+            cartesian_tag, cartesian_tag, Strategy
+        >::type type;
+};
+
 
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

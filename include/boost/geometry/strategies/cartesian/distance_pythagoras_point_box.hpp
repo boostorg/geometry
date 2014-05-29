@@ -322,6 +322,18 @@ struct default_strategy
     typedef pythagoras_point_box<> type;
 };
 
+template <typename Box, typename Point>
+struct default_strategy
+    <
+        box_tag, point_tag, Box, Point, cartesian_tag, cartesian_tag
+    >
+{
+    typedef typename default_strategy
+        <
+            point_tag, box_tag, Point, Box, cartesian_tag, cartesian_tag
+        >::type type;
+};
+
 
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
