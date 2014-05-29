@@ -57,6 +57,15 @@ void test_distance(
         >::type return_type;
 
 
+    {
+        // compile-check if there is a strategy for this type
+        typedef typename bg::strategy::distance::services::default_strategy
+            <
+                bg::point_tag, bg::segment_tag, Point, Point
+            >::type cross_track_strategy_type;
+    }
+
+
     BOOST_CONCEPT_ASSERT
         (
             (bg::concept::PointSegmentDistanceStrategy<strategy_type, Point, Point>)

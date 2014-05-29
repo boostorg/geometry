@@ -50,6 +50,15 @@ void test_services()
 
     namespace bgsd = bg::strategy::distance;
     namespace services = bg::strategy::distance::services;
+
+    {
+        // compile-check if there is a strategy for this type
+        typedef typename services::default_strategy
+            <
+                bg::point_tag, bg::segment_tag, P, PS
+            >::type projected_point_strategy_type;
+    }
+
     // 1: normal, calculate distance:
 
     typedef bgsd::projected_point<CalculationType> strategy_type;
