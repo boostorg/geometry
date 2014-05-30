@@ -248,11 +248,6 @@ struct areal_areal
                 typename segment_ratio_type<point_type, rescale_policy_type>::type
             > turn_info;
 
-        typedef detail::overlay::get_turn_info
-            <
-                detail::overlay::assign_null_policy
-            > policy_type;
-
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
         rescale_policy_type robust_policy;
