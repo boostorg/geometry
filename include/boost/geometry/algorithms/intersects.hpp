@@ -61,25 +61,16 @@ inline bool intersects(Geometry const& geometry)
     typedef detail::overlay::get_turn_info
         <
             detail::overlay::assign_null_policy
-        > TurnPolicy;
-
-    typedef typename strategy_intersection
-        <
-            typename cs_tag<Geometry>::type,
-            Geometry,
-            Geometry,
-            point_type,
-            rescale_policy_type
-        >::segment_intersection_strategy_type segment_intersection_strategy_type;
+        > turn_policy;
 
     rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
     detail::disjoint::disjoint_interrupt_policy policy;
     detail::self_get_turn_points::get_turns
-            <
-                TurnPolicy
-            >::apply(geometry, robust_policy, turns, policy);
+        <
+            turn_policy
+        >::apply(geometry, robust_policy, turns, policy);
     return policy.has_intersections;
 }
 
