@@ -204,7 +204,6 @@ struct check_duplicate_loop
     template <typename Segment>
     static inline bool apply(Segment const& seg)
     {
-        typedef typename coordinate_type<Segment>::type coordinate_type;
         if (! geometry::math::equals
                 (
                     geometry::get<0, Dimension>(seg),
@@ -486,7 +485,7 @@ struct sectionalize_polygon
                 ring_identifier ring_id, std::size_t max_count)
     {
         typedef typename point_type<Polygon>::type point_type;
-        typedef typename ring_type<Polygon>::type ring_type;
+        //typedef typename ring_type<Polygon>::type ring_type;
         typedef sectionalize_range
             <
                 closure<Polygon>::value, Reverse,
