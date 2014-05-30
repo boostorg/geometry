@@ -165,14 +165,14 @@ struct overlay
                 OutputIterator out,
                 Strategy const& )
     {
-        if (geometry::num_points(geometry1) == 0
-            && geometry::num_points(geometry2) == 0)
+        if ( geometry::num_points(geometry1) == 0
+          && geometry::num_points(geometry2) == 0 )
         {
             return out;
         }
 
-        if (geometry::num_points(geometry1) == 0
-            || geometry::num_points(geometry2) == 0)
+        if ( geometry::num_points(geometry1) == 0
+          || geometry::num_points(geometry2) == 0 )
         {
             return return_if_one_input_is_empty
                 <
@@ -180,7 +180,6 @@ struct overlay
                 >(geometry1, geometry2, out);
         }
 
-        typedef typename geometry::coordinate_type<GeometryOut>::type coordinate_type;
         typedef typename geometry::point_type<GeometryOut>::type point_type;
         typedef detail::overlay::traversal_turn_info
         <
@@ -275,8 +274,8 @@ std::cout << "traverse" << std::endl;
             ring_identifier id(2, 0, -1);
             for (typename boost::range_iterator<ring_container_type>::type
                     it = boost::begin(rings);
-                    it != boost::end(rings);
-                    ++it)
+                 it != boost::end(rings);
+                 ++it)
             {
                 selected[id] = properties(*it, true);
                 selected[id].reversed = ReverseOut;
