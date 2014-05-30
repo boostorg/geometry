@@ -32,6 +32,8 @@
 #include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 
+#include <boost/geometry/views/detail/normalized_view.hpp>
+
 namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -190,25 +192,15 @@ struct point_in_geometry<Ring, ring_tag>
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Ring const& ring, Strategy const& strategy)
     {
-        static const iterate_direction direction = order_as_direction<geometry::point_order<Ring>::value>::value;
-        static const closure_selector closure = geometry::closure<Ring>::value;
-
-        if (boost::size(ring)
-                < core_detail::closure::minimum_ring_size<closure>::value)
+        if ( boost::size(ring) < core_detail::closure::minimum_ring_size
+                                    <
+                                        geometry::closure<Ring>::value
+                                    >::value )
         {
             return -1;
         }
 
-        typedef typename reversible_view<Ring const, direction>::type rev_view_type;
-        typedef typename closeable_view
-            <
-                rev_view_type const, closure
-            >::type cl_view_type;
-        typedef typename boost::range_iterator<cl_view_type const>::type iterator_type;
-
-        rev_view_type rev_view(ring);
-        cl_view_type view(rev_view);
-
+        detail::normalized_view<Ring const> view(ring);
         return detail::within::point_in_range(point, view, strategy);
     }
 };
