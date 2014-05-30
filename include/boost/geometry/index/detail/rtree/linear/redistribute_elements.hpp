@@ -329,7 +329,6 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         typedef typename rtree::elements_type<Node>::type elements_type;
         typedef typename elements_type::value_type element_type;
         typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename coordinate_type<indexable_type>::type coordinate_type;
         typedef typename index::detail::default_content_result<Box>::type content_type;
 
         elements_type & elements1 = rtree::elements(n);
