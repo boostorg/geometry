@@ -50,13 +50,12 @@ struct polygon_reverse: private range_reverse
     template <typename Polygon>
     static inline void apply(Polygon& polygon)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
         range_reverse::apply(exterior_ring(polygon));
 
-        typename interior_return_type<Polygon>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon>::type
+            rings = interior_rings(polygon);
+        for (BOOST_AUTO_TPL(it, boost::begin(rings));
+             it != boost::end(rings); ++it)
         {
             range_reverse::apply(*it);
         }
