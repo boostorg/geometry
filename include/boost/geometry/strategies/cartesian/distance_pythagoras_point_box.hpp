@@ -322,15 +322,15 @@ struct default_strategy
     typedef pythagoras_point_box<> type;
 };
 
-template <typename Box, typename Point>
+template <typename BoxPoint, typename Point>
 struct default_strategy
     <
-        box_tag, point_tag, Box, Point, cartesian_tag, cartesian_tag
+        box_tag, point_tag, BoxPoint, Point, cartesian_tag, cartesian_tag
     >
 {
     typedef typename default_strategy
         <
-            point_tag, box_tag, Point, Box, cartesian_tag, cartesian_tag
+            point_tag, box_tag, Point, BoxPoint, cartesian_tag, cartesian_tag
         >::type type;
 };
 
