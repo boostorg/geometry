@@ -101,8 +101,7 @@ struct perimeter
     {
         typedef typename strategy::distance::services::default_strategy
             <
-                point_tag,
-                typename point_type<Geometry>::type
+                point_tag, point_tag, typename point_type<Geometry>::type
             >::type strategy_type;
 
         return dispatch::perimeter<Geometry>::apply(geometry, strategy_type());

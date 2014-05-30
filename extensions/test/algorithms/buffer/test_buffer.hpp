@@ -132,8 +132,7 @@ template
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             bool /*check*/, double expected_area,
-            double distance_left, double distance_right,
-            int expected_self_tangencies)
+            double distance_left, double distance_right)
 {
     namespace bg = boost::geometry;
 
@@ -283,21 +282,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         // Be sure resulting polygon does not contain
         // self-intersections
-        // But indentation5 should contain 1 self-ip TODO give this check as an argument
-        if (expected_self_tangencies == 0
-            && ! boost::contains(complete.str(), "indentation5_d_r")
-            && ! boost::contains(complete.str(), "flower25_d_r")
-            && ! boost::contains(complete.str(), "multipoly_rt_d_d_m")
-			)
+        BOOST_FOREACH(GeometryOut const& polygon, buffered)
         {
-            BOOST_FOREACH(GeometryOut const& polygon, buffered)
-            {
-                BOOST_CHECK_MESSAGE
-                    (
-                        ! bg::intersects(polygon), 
-                        complete.str() << " output is self-intersecting. " 
-                    );
-            }
+            BOOST_CHECK_MESSAGE
+                (
+                    ! bg::detail::overlay::has_self_intersections(polygon),
+                    complete.str() << " output is self-intersecting. "
+                );
         }
     }
 
@@ -328,8 +319,7 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         double expected_area,
-        double distance_left, double distance_right = -999,
-        int expected_self_tangencies = 0)
+        double distance_left, double distance_right = -999)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -352,7 +342,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
             (caseid, g, false, expected_area,
-            distance_left, distance_right, expected_self_tangencies);
+            distance_left, distance_right);
 }
 
 

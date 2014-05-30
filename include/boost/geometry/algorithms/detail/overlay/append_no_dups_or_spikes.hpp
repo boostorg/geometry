@@ -96,7 +96,7 @@ template <typename Range, typename RobustPolicy>
 inline void clean_closing_dups_and_spikes(Range& range,
                 RobustPolicy const& robust_policy)
 {
-    int const minsize
+    std::size_t const minsize
         = core_detail::closure::minimum_ring_size
             <
                 geometry::closure<Range>::value

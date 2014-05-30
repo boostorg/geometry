@@ -193,7 +193,7 @@ struct point_in_geometry<Ring, ring_tag>
         static const iterate_direction direction = order_as_direction<geometry::point_order<Ring>::value>::value;
         static const closure_selector closure = geometry::closure<Ring>::value;
 
-        if (int(boost::size(ring))
+        if (boost::size(ring)
                 < core_detail::closure::minimum_ring_size<closure>::value)
         {
             return -1;

@@ -139,7 +139,7 @@ inline void add_value(Point& p, typename detail::param<Point>::type value)
 template <typename Point1, typename Point2>
 inline void add_point(Point1& p1, Point2 const& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point1>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
 
     for_each_coordinate(p1, detail::point_operation<Point2, std::plus>(p2));
@@ -171,7 +171,7 @@ inline void subtract_value(Point& p, typename detail::param<Point>::type value)
 template <typename Point1, typename Point2>
 inline void subtract_point(Point1& p1, Point2 const& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point1>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
 
     for_each_coordinate(p1, detail::point_operation<Point2, std::minus>(p2));
@@ -204,7 +204,7 @@ inline void multiply_value(Point& p, typename detail::param<Point>::type value)
 template <typename Point1, typename Point2>
 inline void multiply_point(Point1& p1, Point2 const& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point1>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
 
     for_each_coordinate(p1, detail::point_operation<Point2, std::multiplies>(p2));
@@ -236,7 +236,7 @@ inline void divide_value(Point& p, typename detail::param<Point>::type value)
 template <typename Point1, typename Point2>
 inline void divide_point(Point1& p1, Point2 const& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point1>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
 
     for_each_coordinate(p1, detail::point_operation<Point2, std::divides>(p2));
@@ -268,7 +268,7 @@ inline void assign_value(Point& p, typename detail::param<Point>::type value)
 template <typename Point1, typename Point2>
 inline void assign_point(Point1& p1, const Point2& p2)
 {
-    BOOST_CONCEPT_ASSERT( (concept::Point<Point2>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point1>) );
     BOOST_CONCEPT_ASSERT( (concept::ConstPoint<Point2>) );
 
     for_each_coordinate(p1, detail::point_assignment<Point2>(p2));

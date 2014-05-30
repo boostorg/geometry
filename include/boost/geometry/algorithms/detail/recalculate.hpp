@@ -22,12 +22,12 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -116,6 +116,44 @@ struct range_to_range
 
 struct polygon_to_polygon
 {
+private:
+    template
+    <
+        typename IteratorIn,
+        typename IteratorOut,
+        typename Strategy
+    >
+    static inline void iterate(IteratorIn begin, IteratorIn end,
+                    IteratorOut it_out,
+                    Strategy const& strategy)
+    {
+        for (IteratorIn it_in = begin; it_in != end;  ++it_in, ++it_out)
+        {
+            range_to_range::apply(*it_out, *it_in, strategy);
+        }
+    }
+
+    template
+    <
+        typename InteriorRingsOut,
+        typename InteriorRingsIn,
+        typename Strategy
+    >
+    static inline void apply_interior_rings(
+                    InteriorRingsOut& interior_rings_out,
+                    InteriorRingsIn const& interior_rings_in,
+                    Strategy const& strategy)
+    {
+        traits::resize<InteriorRingsOut>::apply(interior_rings_out,
+            boost::size(interior_rings_in));
+
+        iterate(
+            boost::begin(interior_rings_in), boost::end(interior_rings_in),
+            boost::begin(interior_rings_out),
+            strategy);
+    }
+
+public:
     template
     <
         typename Polygon1,
@@ -125,31 +163,11 @@ struct polygon_to_polygon
     static inline void apply(Polygon1& destination, Polygon2 const& source,
             Strategy const& strategy)
     {
-        typedef range_to_range per_ring;
-
-        per_ring::apply(geometry::exterior_ring(destination),
+        range_to_range::apply(geometry::exterior_ring(destination),
             geometry::exterior_ring(source), strategy);
 
-        traits::resize
-            <
-                typename boost::remove_reference
-                <
-                    typename traits::interior_mutable_type<Polygon1>::type
-                >::type
-            >::apply(interior_rings(destination), num_interior_rings(source));
-
-        typename interior_return_type<Polygon1>::type rings_dest
-                    = interior_rings(destination);
-        typename interior_return_type<Polygon2 const>::type rings_source
-                    = interior_rings(source);
-
-        BOOST_AUTO_TPL(it_source, boost::begin(rings_source));
-        BOOST_AUTO_TPL(it_dest, boost::begin(rings_dest));
-
-        for ( ; it_source != boost::end(rings_source); ++it_source, ++it_dest)
-        {
-            per_ring::apply(*it_dest, *it_source, strategy);
-        }
+        apply_interior_rings(geometry::interior_rings(destination),
+            geometry::interior_rings(source), strategy);
     }
 };
 

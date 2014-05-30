@@ -680,6 +680,55 @@ inline void test_segment_box()
     tester::apply(from_wkt<S>("SEGMENT(4 0,4 4)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 -2,0 -1)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(-2 -2,-2 -1)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(-2 -2,-2 -2)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(-2 0,-2 0)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 -2,0 -2)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(-2 0,-1 0)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
+
+    // segment degenerates to a point
+    tester::apply(from_wkt<S>("SEGMENT(0 0,0 0)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(1 1,1 1)"),
+                  from_wkt<B>("BOX(0 0,2 2)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(2 2,2 2)"),
+                  from_wkt<B>("BOX(0 0,2 2)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  from_wkt<B>("BOX(0 0,2 2)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 2,0 2)"),
+                  from_wkt<B>("BOX(0 0,2 2)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(2 2,2 2)"),
+                  from_wkt<B>("BOX(0 0,1 1)"),
+                  true);
 }
 
 template <typename P>
