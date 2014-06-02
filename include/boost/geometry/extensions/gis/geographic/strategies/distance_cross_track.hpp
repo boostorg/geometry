@@ -31,7 +31,7 @@ namespace services
 
 
 template <typename Point, typename PointOfSegment, typename Strategy>
-struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geographic_tag, Strategy>
+struct default_strategy<point_tag, segment_tag, Point, PointOfSegment, geographic_tag, geographic_tag, Strategy>
 {
     typedef cross_track
         <
@@ -41,7 +41,7 @@ struct default_strategy<segment_tag, Point, PointOfSegment, geographic_tag, geog
                     boost::is_void<Strategy>,
                     typename default_strategy
                         <
-                            point_tag, Point, PointOfSegment,
+                            point_tag, point_tag, Point, PointOfSegment,
                             geographic_tag, geographic_tag
                         >::type,
                     Strategy

@@ -60,7 +60,7 @@ struct map_policy
 {
     typedef typename strategy::distance::services::default_strategy
         <
-            point_tag, Point
+            point_tag, point_tag, Point
         >::type strategy_type;
 
     // Have a map<point, <index,start/end> > such that we can find
@@ -181,7 +181,7 @@ struct fuzzy_policy
 {
     typedef typename strategy::distance::services::default_strategy
         <
-            point_tag, Point
+            point_tag, point_tag, Point
         >::type strategy_type;
 
     // Have a map<point, <index,start/end> > such that we can find

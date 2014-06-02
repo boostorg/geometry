@@ -198,7 +198,7 @@ struct result_from_distance<andoyer<RadiusType, CalculationType>, P1, P2>
 
 
 template <typename Point1, typename Point2>
-struct default_strategy<point_tag, Point1, Point2, geographic_tag, geographic_tag>
+struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, geographic_tag>
 {
     typedef strategy::distance::andoyer<typename select_coordinate_type<Point1, Point2>::type> type;
 };

@@ -145,7 +145,7 @@ struct close_to_segment
             // Call corresponding strategy
             typedef typename strategy::distance::services::default_strategy
                 <
-                    segment_tag, P, PS
+                    point_tag, segment_tag, P, PS
                 >::type strategy_type;
             typedef typename strategy::distance::services::return_type<strategy_type, P, PS>::type return_type;
 
