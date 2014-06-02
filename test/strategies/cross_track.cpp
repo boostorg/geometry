@@ -68,6 +68,11 @@ void test_distance(
             <
                 bg::point_tag, bg::segment_tag, Point, Point
             >::type cross_track_strategy_type;
+
+        typedef typename bg::strategy::distance::services::default_strategy
+            <
+                bg::segment_tag, bg::point_tag, Point, Point
+            >::type reversed_tags_cross_track_strategy_type;
     }
 
 
