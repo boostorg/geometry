@@ -19,6 +19,8 @@
 // Test which would fail then are disabled automatically
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
@@ -341,7 +343,7 @@ void test_point_output()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::box<P> box;
-    typedef bg::model::segment<P> segment;
+    //typedef bg::model::segment<P> segment;
 
     test_point_output<polygon, polygon>(simplex_normal[0], simplex_normal[1], 6);
     test_point_output<box, polygon>("box(1 1,6 4)", simplex_normal[0], 4);
@@ -411,6 +413,7 @@ void test_all()
     typedef bg::model::polygon<P, false> polygon_ccw;
     typedef bg::model::polygon<P, true, false> polygon_open;
     typedef bg::model::polygon<P, false, false> polygon_ccw_open;
+    boost::ignore_unused<polygon_ccw, polygon_open, polygon_ccw_open>();
 
     std::string clip = "box(2 2,8 8)";
 

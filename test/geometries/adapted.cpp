@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <geometry_test_common.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/multi/multi.hpp>
@@ -70,10 +71,10 @@ void test_geometry(G const& geometry, std::size_t expected_size = 0)
 
     typedef typename bg::point_type<G>::type P;
     typedef typename bg::coordinate_type<P>::type C;
+    boost::ignore_unused<P, C>();
 
     // Check range-like behaviour
     BOOST_CHECK_EQUAL(boost::size(geometry), expected_size);
-
 }
 
 template <typename P>

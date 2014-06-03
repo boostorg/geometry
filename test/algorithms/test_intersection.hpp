@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -47,6 +48,7 @@ check_result(
 
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
+    boost::ignore_unused<coordinate_type, point_type>();
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
@@ -158,7 +160,6 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         std::cout << std::endl << "case " << caseid << std::endl;
     }
 
-    typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;
 
     if (! debug)

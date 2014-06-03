@@ -101,9 +101,12 @@ void test_geometry(std::string const& id, std::string const& wkt,
 template <typename P, bool Clockwise, bool Closed>
 void test_polygons()
 {
-    typedef bg::model::ring<P> ring;
+    typedef bg::model::ring<P, Clockwise, Closed> ring;
     typedef bg::model::polygon<P, Clockwise, Closed> polygon;
 
+    test_geometry<ring>("box",
+            "POLYGON((0 0,0 4,4 4,4 0,0 0))",
+            16, 16);
     test_geometry<polygon>("box",
             "POLYGON((0 0,0 4,4 4,4 0,0 0))",
             16, 16);
@@ -166,7 +169,6 @@ void test_polygons()
 template <typename P, bool Clockwise, bool Closed>
 void test_multi_polygons()
 {
-    typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P, Clockwise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 

@@ -62,7 +62,6 @@ static void test_segment_intersection(std::string const& case_id,
 {
     boost::ignore_unused_variable_warning(case_id);
 
-    typedef typename bg::coordinate_type<P>::type coordinate_type;
     typedef bg::model::referring_segment<const P> segment_type;
 
     P p1, p2, p3, p4;
@@ -124,7 +123,6 @@ static void test_segment_ratio(std::string const& case_id,
 {
     boost::ignore_unused_variable_warning(case_id);
 
-    typedef typename bg::coordinate_type<P>::type coordinate_type;
     typedef bg::model::referring_segment<const P> segment_type;
 
     P p1, p2, p3, p4;

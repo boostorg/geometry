@@ -13,6 +13,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
 #include <boost/geometry/algorithms/union.hpp>
@@ -42,6 +43,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         double percentage)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    boost::ignore_unused<coordinate_type>();
+
     std::vector<OutputType> clip;
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)

@@ -20,6 +20,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
@@ -73,6 +75,9 @@ void test_distance(
             <
                 bg::segment_tag, bg::point_tag, Point, Point
             >::type reversed_tags_cross_track_strategy_type;
+
+        boost::ignore_unused<cross_track_strategy_type,
+                             reversed_tags_cross_track_strategy_type>();
     }
 
 

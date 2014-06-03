@@ -22,23 +22,23 @@
 template <typename P>
 void test_pl()
 {
-    typedef bg::model::multi_point<P> mpt;
+    /*typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
 
     // not implemented yet
-    /*test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 0,3 3)", true);
+    test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 0,3 3)", true);
     test_geometry<mpt, ls>("MULTIPOINT(0 0,1 1)", "LINESTRING(0 0,1 1,3 3)", false);*/
 }
 
 template <typename P>
 void test_pa()
 {
-    typedef bg::model::multi_point<P> mpt;
+    /*typedef bg::model::multi_point<P> mpt;
     typedef bg::model::polygon<P> poly;
     typedef bg::model::multi_polygon<poly> mpoly;
 
     // not implemented yet
-    /*test_geometry<mpt, poly>("MULTIPOINT(0 0,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
+    test_geometry<mpt, poly>("MULTIPOINT(0 0,6 6)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
     test_geometry<mpt, poly>("MULTIPOINT(0 0,1 1)", "POLYGON((0 0,0 5,5 5,5 0,0 0))", false);*/
 }
 

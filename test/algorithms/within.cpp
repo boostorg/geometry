@@ -106,7 +106,8 @@ void test_mixed_of()
     typedef boost::geometry::model::box<P1> box_type1;
     typedef boost::geometry::model::box<P2> box_type2;
 
-    polygon_type1 poly1, poly2;
+    polygon_type1 poly1;
+    polygon_type2 poly2;
     boost::geometry::read_wkt("POLYGON((0 0,0 5,5 5,5 0,0 0))", poly1);
     boost::geometry::read_wkt("POLYGON((0 0,0 5,5 5,5 0,0 0))", poly2);
 

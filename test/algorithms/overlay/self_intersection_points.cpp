@@ -164,10 +164,9 @@ void test_self_overlay(std::string const& case_id, T const& expected,
 
 
 template <typename P>
-void test_self_all()
+void test_self_poly()
 {
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::linestring<P> linestring;
 
     // Just a normal polygon
     test_self_overlay<polygon>("1", 0,
@@ -255,6 +254,12 @@ void test_self_all()
     test_self_overlay<polygon>("ggl_list_2013_11_06_joan", 0, ggl_list_2013_11_06_joan);
 
     test_self_overlay<polygon>("ggl_list_20131119_james", 0, ggl_list_20131119_james[0]);
+}
+
+template <typename P>
+void test_self_ls()
+{
+    //typedef bg::model::linestring<P> linestring;
 
     // Same case - but if this is a linestring.
     // TODO: this does not compile yet, but it should return 1 intersection point at the "closing" point
@@ -262,6 +267,12 @@ void test_self_all()
     // test_self_overlay<linestring>("ggl_list_2013_11_06_joan_linestring", 1, ggl_list_2013_11_06_joan_linestring);
 }
 
+template <typename P>
+void test_self_all()
+{
+    test_self_poly<P>();
+    test_self_ls<P>();
+}
 
 int test_main(int, char* [])
 {

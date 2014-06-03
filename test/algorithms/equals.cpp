@@ -108,7 +108,7 @@ void test_all()
     typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::linestring<P> linestring;
+    //typedef bg::model::linestring<P> linestring;
 
     std::string case_p1 = "POLYGON((0 0,0 2,2 2,0 0))";
 

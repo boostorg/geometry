@@ -17,6 +17,7 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
@@ -94,6 +95,8 @@ void test_services()
             <
                 bg::point_tag, bg::point_tag, P1, P2
             >::type haversine_strategy_type;
+
+        boost::ignore_unused<haversine_strategy_type>();
     }
 
     P1 p1;

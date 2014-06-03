@@ -114,7 +114,6 @@ template <typename P>
 void test_distance_segment()
 {
     typedef typename bg::default_distance_result<P>::type return_type;
-    typedef typename bg::coordinate_type<P>::type coordinate_type;
 
     P s1; bg::set<0>(s1, 1); bg::set<1>(s1, 1);
     P s2; bg::set<0>(s2, 4); bg::set<1>(s2, 4);

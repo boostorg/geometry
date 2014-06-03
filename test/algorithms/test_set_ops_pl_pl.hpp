@@ -190,8 +190,6 @@ private:
                                  MP const& mp_expected,
                                  std::string const& case_id)
     {
-        typedef typename boost::range_value<MultiPoint>::type Point;
-
         MultiPoint mp_output;
 
         set_op<OverlayType>::apply(geometry1, geometry2, mp_output);

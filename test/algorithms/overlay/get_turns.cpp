@@ -195,9 +195,6 @@ void test_all()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::box<P> box;
 
-    // Expected count, average x, average y
-    typedef boost::tuple<int> Tuple;
-
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     std::cout << string_from_type<T>::name() << std::endl;
 #endif
@@ -344,8 +341,6 @@ void test_ccw()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P, false, true> polygon;
-    typedef boost::tuple<int> Tuple;
-
 
     test_get_turns<polygon, polygon>::apply("ccw_1",
                 6,
@@ -362,7 +357,6 @@ void test_open()
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P, true, false> polygon;
-    typedef boost::tuple<int> Tuple;
 
     test_get_turns<polygon, polygon>::apply("open_1",
                 6,

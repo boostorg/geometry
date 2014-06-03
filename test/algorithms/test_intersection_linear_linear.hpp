@@ -124,7 +124,7 @@ private:
     static inline void base_test_all(Geometry1 const& geometry1,
                                      Geometry2 const& geometry2)
     {
-        typedef typename boost::range_value<MultiLineString>::type LineString;
+        //typedef typename boost::range_value<MultiLineString>::type LineString;
         typedef typename bg::point_type<MultiLineString>::type Point;
         typedef bg::model::multi_point<Point> multi_point;
 

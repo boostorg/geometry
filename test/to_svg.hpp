@@ -239,12 +239,11 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
 {
     namespace bg = boost::geometry;
 
-    typedef typename bg::point_type<G2>::type P2;
-    typedef typename bg::point_type<G1>::type P1;
+    typedef typename bg::point_type<G1>::type mapper_point_type;
 
     std::ofstream svg(filename.c_str(), std::ios::trunc);
 
-    bg::svg_mapper<P2> mapper(svg, 500, 500);
+    bg::svg_mapper<mapper_point_type> mapper(svg, 500, 500);
 
     mapper.add(g1);
     mapper.add(g2);

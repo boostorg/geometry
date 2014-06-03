@@ -12,8 +12,10 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
+
+#include <boost/core/ignore_unused.hpp>
+#include <boost/foreach.hpp>
 
 #include <boost/range/algorithm/copy.hpp>
 
@@ -90,9 +92,10 @@ void test_difference(std::string const& caseid, G1 const& g1, G2 const& g2,
         double percentage = 0.0001,
         bool sym = false)
 {
-    std::vector<OutputType> clip;
-
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
+    boost::ignore_unused<coordinate_type>();
+
+    std::vector<OutputType> clip;
 
     if (sym)
     {

@@ -20,6 +20,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
@@ -67,6 +69,9 @@ void test_services()
             <
                 bg::segment_tag, bg::point_tag, PS, P
             >::type reversed_tags_projected_point_strategy_type;
+
+        boost::ignore_unused<projected_point_strategy_type,
+                             reversed_tags_projected_point_strategy_type>();
     }
 
     // 1: normal, calculate distance:

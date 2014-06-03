@@ -91,8 +91,6 @@ void test_side(std::string const& case_id, Point const& p1, Point const& p2, Poi
 template <typename Point>
 void test_all()
 {
-    typedef std::pair<double, double> pair;
-
     Point amsterdam(5.9, 52.4);
     Point barcelona(2.0, 41.0);
     Point paris(2.0, 48.0);

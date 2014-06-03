@@ -86,7 +86,6 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
 
     // Check using user-specified strategy
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef typename bg::cs_tag<point_type>::type tag;
     typedef bg::strategy::distance::projected_point<double> strategy;
     typedef bg::strategy::simplify::douglas_peucker
         <

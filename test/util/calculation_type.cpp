@@ -179,8 +179,10 @@ int test_main(int, char* [])
 
     // FP/int mixed
     test<i, f, double, int, double>();
+    test<s, f, double, short int, double>();
 
     // integers
+    test<s, s, double, short int, short int>();
     test<i, i, double, int, int>();
     test<c, i, double, int, int>();
     test<c, c, double, char, char>();

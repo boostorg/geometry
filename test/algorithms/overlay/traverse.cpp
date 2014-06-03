@@ -423,7 +423,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::box<P> box;
+    //typedef bg::model::box<P> box;
 
     // 1-6
     test_traverse<polygon, polygon, operation_intersection>::apply("1", 1, 5.4736, case_1[0], case_1[1]);

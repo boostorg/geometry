@@ -111,7 +111,6 @@ void test_all()
 template <typename Point>
 void test_spherical()
 {
-    typedef typename bg::coordinate_type<Point>::type ct;
     bg::model::polygon<Point> wrangel;
 
     // SQL Server check (no geography::STWithin, so check with intersection trick)

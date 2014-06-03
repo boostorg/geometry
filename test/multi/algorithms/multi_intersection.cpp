@@ -183,7 +183,7 @@ void test_areal_linear()
 template <typename P>
 void test_all()
 {
-    typedef bg::model::box<P> box;
+    //typedef bg::model::box<P> box;
     typedef bg::model::ring<P> ring;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
