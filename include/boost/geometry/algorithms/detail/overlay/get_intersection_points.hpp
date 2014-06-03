@@ -115,15 +115,6 @@ inline void get_intersection_points(Geometry1 const& geometry1,
                             typename boost::range_value<Turns>::type
                         > TurnPolicy;
 
-    typedef typename strategy_intersection
-        <
-            typename cs_tag<Geometry1>::type,
-            Geometry1,
-            Geometry2,
-            typename point_type<Geometry1>::type, // TODO from both
-            RobustPolicy
-        >::segment_intersection_strategy_type segment_intersection_strategy_type;
-
     detail::get_turns::no_interrupt_policy interrupt_policy;
 
     boost::mpl::if_c

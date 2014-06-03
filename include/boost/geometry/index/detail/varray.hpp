@@ -1946,7 +1946,6 @@ public:
     void insert(iterator, Iterator first, Iterator last)
     {
         // TODO - add MPL_ASSERT, check if Iterator is really an iterator
-        typedef typename boost::iterator_traversal<Iterator>::type traversal;
         errh::check_capacity(*this, std::distance(first, last));                    // may throw
     }
 
@@ -1970,7 +1969,6 @@ public:
     void assign(Iterator first, Iterator last)
     {
         // TODO - add MPL_ASSERT, check if Iterator is really an iterator
-        typedef typename boost::iterator_traversal<Iterator>::type traversal;
         errh::check_capacity(*this, std::distance(first, last));                    // may throw
     }
 

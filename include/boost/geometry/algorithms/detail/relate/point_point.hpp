@@ -56,7 +56,6 @@ std::pair<bool, bool> point_multipoint_check(Point const& point, MultiPoint cons
     // point_in_geometry could be used here but why iterate over MultiPoint twice?
     // we must search for a point in the exterior because all points in MultiPoint can be equal
 
-    typedef typename boost::range_value<MultiPoint>::type point_type;
     typedef typename boost::range_iterator<MultiPoint const>::type iterator;
     iterator it = boost::begin(multi_point);
     iterator last = boost::end(multi_point);

@@ -153,8 +153,6 @@ struct transform_polygon
     static inline bool apply(Polygon1 const& poly1, Polygon2& poly2,
                 Strategy const& strategy)
     {
-        typedef typename ring_type<Polygon1>::type ring1_type;
-        typedef typename ring_type<Polygon2>::type ring2_type;
         typedef typename point_type<Polygon2>::type point2_type;
 
         geometry::clear(poly2);

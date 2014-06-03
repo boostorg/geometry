@@ -147,11 +147,12 @@ public:
             RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
-        typedef typename boost::range_iterator<LineString const>::type iterator;
         int const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        if (from_index > to_index || from_index < 0 || to_index >= int(boost::size(ls)))
+        if ( from_index > to_index
+          || from_index < 0
+          || to_index >= int(boost::size(ls)) )
         {
             return;
         }
@@ -159,7 +160,8 @@ public:
         typedef typename boost::range_difference<LineString>::type size_type;
         size_type const count = to_index - from_index + 1;
 
-        typename boost::range_iterator<LineString const>::type it = boost::begin(ls) + from_index;
+        typename boost::range_iterator<LineString const>::type
+            it = boost::begin(ls) + from_index;
 
         for (size_type i = 0; i < count; ++i, ++it)
         {

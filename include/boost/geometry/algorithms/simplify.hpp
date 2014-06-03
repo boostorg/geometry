@@ -449,8 +449,6 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 {
     concept::check<Geometry>();
 
-    typedef typename point_type<Geometry>::type point_type;
-
     simplify(geometry, out, max_distance, default_strategy());
 }
 

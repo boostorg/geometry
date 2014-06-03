@@ -53,7 +53,7 @@ inline bool point_in_circle(P const& p, C const& c)
     typedef typename point_type<C>::type point_type;
     typedef typename services::default_strategy
         <
-            point_tag, P, point_type
+            point_tag, point_tag, P, point_type
         >::type strategy_type;
     typedef typename services::return_type<strategy_type, P, point_type>::type return_type;
 

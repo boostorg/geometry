@@ -62,6 +62,11 @@ void test_services()
             <
                 bg::point_tag, bg::segment_tag, P, PS
             >::type projected_point_strategy_type;
+
+        typedef typename services::default_strategy
+            <
+                bg::segment_tag, bg::point_tag, PS, P
+            >::type reversed_tags_projected_point_strategy_type;
     }
 
     // 1: normal, calculate distance:

@@ -558,8 +558,6 @@ struct get_turns_cs
                 InterruptPolicy& interrupt_policy,
                 int multi_index = -1, int ring_index = -1)
     {
-        typedef typename boost::range_value<Turns>::type turn_info;
-
         if ( boost::size(range) <= 1)
         {
             return;

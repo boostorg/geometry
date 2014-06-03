@@ -70,8 +70,6 @@ struct get_turns
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy)
     {
-        typedef typename geometry::point_type<Geometry1>::type point1_type;
-
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
@@ -84,7 +82,8 @@ struct get_turns
                 reverse1,
                 reverse2,
                 GetTurnPolicy
-            >::apply(0, geometry1, 1, geometry2, detail::no_rescale_policy(), turns, interrupt_policy);
+            >::apply(0, geometry1, 1, geometry2,
+                     detail::no_rescale_policy(), turns, interrupt_policy);
     }
 };
 

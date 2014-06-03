@@ -202,7 +202,6 @@ struct areal_areal
 
         // get and analyse turns
         typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
-        typedef typename std::vector<turn_type>::iterator turn_iterator;
         std::vector<turn_type> turns;
 
         interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);

@@ -80,7 +80,7 @@ struct general_areal
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        if ( !disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2))
+        if ( ! disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2) )
         {
             return false;
         }
@@ -91,11 +91,8 @@ struct general_areal
         // We check that using a point on the surface, and see if that is inside
         // the other geometry. And vice versa.
 
-        typedef typename geometry::point_type<Geometry1>::type point_type1;
-        typedef typename geometry::point_type<Geometry2>::type point_type2;
-
-        if (rings_containing(geometry1, geometry2)
-            || rings_containing(geometry2, geometry1))
+        if ( rings_containing(geometry1, geometry2)
+          || rings_containing(geometry2, geometry1) )
         {
             return false;
         }
