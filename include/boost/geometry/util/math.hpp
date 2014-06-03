@@ -17,6 +17,8 @@
 #include <cmath>
 #include <limits>
 
+#include <boost/type_traits/is_fundamental.hpp>
+
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -87,6 +89,26 @@ struct smaller<Type, true>
 
 template <typename Type, bool IsFloatingPoint>
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
+
+template <typename T, bool IsFundemantal /* true */>
+struct sqrt
+{
+    static inline T apply(T const& value)
+    {
+        // for fundamental number types use std::sqrt
+        return std::sqrt(value);
+    }
+};
+
+template <typename T>
+struct sqrt<T, false>
+{
+    static inline T apply(T const& value)
+    {
+        // for everything else assume that sqrt at global scope is defined
+        return ::sqrt(value);
+    }
+};
 
 
 /*!
@@ -237,6 +259,21 @@ template <typename T>
 inline T sqr(T const& value)
 {
     return value * value;
+}
+
+/*!
+\brief Short utility to return the square root
+\ingroup utility
+\param value Value to calculate the square root from
+\return The square root value
+*/
+template <typename T>
+inline T sqrt(T const& value)
+{
+    return detail::sqrt
+        <
+            T, boost::is_fundamental<T>::value
+        >::apply(value);
 }
 
 /*!
