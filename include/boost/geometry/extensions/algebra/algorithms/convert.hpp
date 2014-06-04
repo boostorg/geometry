@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_CONVERT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_CONVERT_HPP
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
@@ -66,7 +68,7 @@ struct convert<RMatrix, RQuaternion, rotation_matrix_tag, rotation_quaternion_ta
         // WARNING!
         // Zero matrix is converted to quaternion(0.5, 0, 0, 0)!
 
-        T w = ::sqrt(1 + get<0, 0>(m) + get<1, 1>(m) + get<2, 2>(m)) / 2;
+        T w = math::sqrt(1 + get<0, 0>(m) + get<1, 1>(m) + get<2, 2>(m)) / 2;
         T iw4 = 0.25 / w;
         set<0>(q, w);
         set<1>(q, (get<2, 1>(m) - get<1, 2>(m)) * iw4);

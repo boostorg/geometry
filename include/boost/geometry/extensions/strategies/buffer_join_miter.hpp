@@ -65,7 +65,7 @@ struct join_miter
             coordinate_type dx = get<0>(ip) - get<0>(vertex);
             coordinate_type dy = get<1>(ip) - get<1>(vertex);
 
-            coordinate_type length = sqrt(dx * dx + dy * dy);
+            coordinate_type length = geometry::math::sqrt(dx * dx + dy * dy);
 
             // TODO: make max-mitre-limit flexible
             coordinate_type ten = 10.0;

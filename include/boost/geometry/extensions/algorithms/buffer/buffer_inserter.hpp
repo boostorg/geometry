@@ -19,6 +19,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
@@ -67,7 +69,7 @@ struct buffer_range
 
         // For normalization [0,1] (=dot product d.d, sqrt)
         // TODO promoted_type
-        coordinate_type const length = sqrt(dx * dx + dy * dy);
+        coordinate_type const length = geometry::math::sqrt(dx * dx + dy * dy);
 
         // Because coordinates are not equal, length should not be zero
         BOOST_ASSERT((! geometry::math::equals(length, 0)));

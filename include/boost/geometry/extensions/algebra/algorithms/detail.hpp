@@ -12,6 +12,8 @@
 // TODO - for multiplication of coordinates
 // if coordinate_type is_integral - use double as the result type
 
+#include <boost/geometry/util/math.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -131,7 +133,7 @@ inline static void normalize(S & s)
 
     T lsqr = dot<I, I, N>(s, s);
     if ( std::numeric_limits<T>::epsilon() < lsqr )
-        mul<I, N>(s, 1.0f / ::sqrt(lsqr));
+        mul<I, N>(s, 1.0f / math::sqrt(lsqr));
 }
 
 // Square matrix * Vector of the same dimension

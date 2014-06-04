@@ -14,6 +14,7 @@
 #include <boost/geometry/index/detail/algorithms/comparable_distance_near.hpp>
 
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -27,7 +28,7 @@ struct sum_for_indexable<Point, Indexable, nsphere_tag, comparable_distance_near
 
     inline static result_type apply(Point const& pt, Indexable const& i)
     {
-        result_type center_dist = ::sqrt( comparable_distance(pt, center_view<const Indexable>(i)) );
+        result_type center_dist = math::sqrt( comparable_distance(pt, center_view<const Indexable>(i)) );
         result_type dist = get_radius<0>(i) < center_dist ? center_dist - get_radius<0>(i) : 0;
         return dist;
 
