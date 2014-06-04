@@ -389,7 +389,7 @@ struct buffered_piece_collection
             int const side_wrt_circle = side_on_convex_range<side_strategy>(turn.point,
                             boost::begin(ring) + seg_id.segment_index,
                             boost::begin(ring) + pc.last_segment_index,
-                            seg_id, on_segment_seg_id, m_robust_policy);
+                            seg_id, on_segment_seg_id);
             switch (side_wrt_circle)
             {
                 case 0 : turn.count_on_offsetted++; break;
@@ -398,7 +398,7 @@ struct buffered_piece_collection
             return;
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments, m_robust_policy);
+        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
         if (side_helper == 1)
         {
             // Left or outside
@@ -408,7 +408,7 @@ struct buffered_piece_collection
         int const side_offsetted = side_on_convex_range<side_strategy>(turn.point,
                         boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
-                        seg_id, on_segment_seg_id, m_robust_policy);
+                        seg_id, on_segment_seg_id);
         if (side_offsetted == 1)
         {
             return;
