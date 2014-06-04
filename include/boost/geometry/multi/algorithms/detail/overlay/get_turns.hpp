@@ -9,14 +9,13 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 
-
-#include <boost/geometry/multi/core/ring_type.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
-#include <boost/geometry/multi/views/detail/range_type.hpp>
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/views/detail/range_type.hpp>
 
 #include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>

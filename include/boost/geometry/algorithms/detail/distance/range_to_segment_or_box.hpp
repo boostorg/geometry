@@ -16,7 +16,6 @@
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>

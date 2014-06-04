@@ -20,7 +20,6 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/iterators/flatten_iterator.hpp>
 #include <boost/geometry/iterators/concatenate_iterator.hpp>

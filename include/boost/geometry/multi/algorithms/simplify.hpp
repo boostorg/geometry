@@ -14,14 +14,16 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_SIMPLIFY_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_SIMPLIFY_HPP
 
+
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/simplify.hpp>
+
 #include <boost/geometry/core/mutable_range.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/multi/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/simplify.hpp>
 
 
 namespace boost { namespace geometry

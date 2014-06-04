@@ -15,9 +15,9 @@
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 
-#include <boost/geometry/multi/core/ring_type.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry
