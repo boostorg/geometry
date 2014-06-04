@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/intersection_side.hpp>
 
 namespace boost { namespace geometry
 {
@@ -102,6 +103,62 @@ inline int side_on_convex_range(Point const& subject, Range const& range)
         dummy, dummy);
 }
 
+template <typename SideStrategy, typename Point, typename Iterator, typename RobustPolicy>
+static inline int intersection_side_on_convex_range(Point const& subject,
+            Point const& pi, Point const& pj,
+            Point const& qi, Point const& qj,
+            Iterator first, Iterator last,
+            /* by value: */ segment_identifier seg_id,
+            segment_identifier& on_segment_seg_id,
+            RobustPolicy const& robust_policy)
+{
+    bool has_collinear = false;
+    Iterator it = first;
+
+    if (it == last)
+    {
+        return 1;
+    }
+
+    Point previous = *it;
+
+    for (++it; it != last; ++it, seg_id.segment_index++)
+    {
+        Point current = *it;
+        int const side = detail::intersection_side::intersection_side(pi, pj, qi, qj, previous, current, robust_policy);
+        switch(side)
+        {
+            case 1 :
+                return 1;
+            case 0 :
+                // Check if it is REALLY on the segment.
+                // If not, it is either on the left (because polygon is convex)
+                // or it is still on one of the other segments (if segments are collinear)
+                if (collinear_point_on_segment(subject, previous, current))
+                {
+                    on_segment_seg_id = seg_id;
+                    return 0;
+                }
+                has_collinear = true;
+                break;
+        }
+        previous = current;
+    }
+    return has_collinear ? 1 : -1;
+}
+
+template <typename SideStrategy, typename Point, typename Range, typename RobustPolicy>
+inline int intersection_side_on_convex_range(Point const& subject,
+        Point const& pi, Point const& pj,
+        Point const& qi, Point const& qj,
+        Range const& range,
+        RobustPolicy const& robust_policy)
+{
+    segment_identifier dummy;
+    return intersection_side_on_convex_range<SideStrategy>(subject, pi, pj, qi, qj,
+        boost::begin(range), boost::end(range),
+        dummy, dummy, robust_policy);
+}
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL

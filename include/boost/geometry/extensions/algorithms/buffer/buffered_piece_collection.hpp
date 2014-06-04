@@ -40,6 +40,8 @@
 #include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 
+#include <boost/geometry/util/range.hpp>
+
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <boost/geometry/io/wkt/wkt.hpp>
@@ -398,17 +400,27 @@ struct buffered_piece_collection
             return;
         }
 
-        int side_helper = side_on_convex_range<side_strategy>(turn.point, pc.helper_segments);
+
+        // Get the segments p/q from which turn.point resulted, to get proper/robust side
+        buffered_ring<Ring> const& ring0 = offsetted_rings[turn.operations[0].seg_id.multi_index];
+        buffered_ring<Ring> const& ring1 = offsetted_rings[turn.operations[1].seg_id.multi_index];
+        point_type pi = geometry::range::at(ring0, turn.operations[0].seg_id.segment_index);
+        point_type pj = geometry::range::at(ring0, turn.operations[0].seg_id.segment_index + 1);
+        point_type qi = geometry::range::at(ring1, turn.operations[1].seg_id.segment_index);
+        point_type qj = geometry::range::at(ring1, turn.operations[1].seg_id.segment_index + 1);
+
+
+        int side_helper = intersection_side_on_convex_range<side_strategy>(turn.point, pi, pj, qi, qj, pc.helper_segments, m_robust_policy);
         if (side_helper == 1)
         {
             // Left or outside
             return;
         }
 
-        int const side_offsetted = side_on_convex_range<side_strategy>(turn.point,
+        int const side_offsetted = intersection_side_on_convex_range<side_strategy>(turn.point, pi, pj, qi, qj,
                         boost::begin(ring) + seg_id.segment_index,
                         boost::begin(ring) + pc.last_segment_index,
-                        seg_id, on_segment_seg_id);
+                        seg_id, on_segment_seg_id, m_robust_policy);
         if (side_offsetted == 1)
         {
             return;
