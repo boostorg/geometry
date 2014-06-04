@@ -17,10 +17,12 @@
 
 #include <boost/range/metafunctions.hpp>
 
+#include <boost/geometry/algorithms/detail/multi_sum.hpp>
 #include <boost/geometry/algorithms/length.hpp>
+
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
 

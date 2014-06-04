@@ -22,11 +22,6 @@
 
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
 
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_COVERED_BY_HPP

@@ -22,8 +22,6 @@
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
-
 #ifdef BOOST_GEOMETRY_DEBUG_HAS_SELF_INTERSECTIONS
 #  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #  include <boost/geometry/io/dsv/write.hpp>

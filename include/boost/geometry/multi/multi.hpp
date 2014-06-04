@@ -52,21 +52,21 @@
 #include <boost/geometry/multi/algorithms/unique.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
-#include <boost/geometry/multi/algorithms/detail/multi_sum.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/algorithms/detail/multi_modify_with_predicate.hpp>
+#include <boost/geometry/algorithms/detail/multi_sum.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_ring.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/select_rings.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/concepts/multi_point_concept.hpp>
