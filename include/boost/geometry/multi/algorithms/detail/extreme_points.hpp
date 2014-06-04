@@ -13,55 +13,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_EXTREME_POINTS_HPP
 
 
-#include <cstddef>
-
-#include <boost/range.hpp>
-
 #include <boost/geometry/algorithms/detail/extreme_points.hpp>
-
-#include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
-
-
-namespace boost { namespace geometry
-{
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-
-template<typename MultiPolygon, std::size_t Dimension>
-struct extreme_points<MultiPolygon, Dimension, multi_polygon_tag>
-{
-    template <typename Extremes, typename Intruders>
-    static inline bool apply(MultiPolygon const& multi, Extremes& extremes, Intruders& intruders)
-    {
-        // Get one for the very first polygon, that is (for the moment) enough.
-        // It is not guaranteed the "extreme" then, but for the current purpose
-        // (point_on_surface) it can just be this point.
-        if (boost::size(multi) >= 1)
-        {
-            return extreme_points
-                <
-                    typename boost::range_value<MultiPolygon const>::type,
-                    Dimension,
-                    polygon_tag
-                >::apply(*boost::begin(multi), extremes, intruders);
-        }
-
-        return false;
-    }
-};
-
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
-
-}} // namespace boost::geometry
 
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_EXTREME_POINTS_HPP
