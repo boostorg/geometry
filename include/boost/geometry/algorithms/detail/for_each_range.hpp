@@ -19,6 +19,7 @@
 #include <boost/concept/requires.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -64,7 +65,7 @@ struct fe_range_box
 {
     static inline void apply(Box & box, Actor & actor)
     {
-        actor.apply(box_view<Box>(box));
+        actor.apply(box_view<typename boost::remove_const<Box>::type>(box));
     }
 };
 
