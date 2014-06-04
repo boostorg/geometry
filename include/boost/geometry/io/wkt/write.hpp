@@ -20,23 +20,24 @@
 #include <boost/array.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 namespace boost { namespace geometry
 {
@@ -207,6 +208,33 @@ struct wkt_poly
     }
 };
 
+template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
+struct wkt_multi
+{
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Multi const& geometry)
+    {
+        os << PrefixPolicy::apply();
+        // TODO: check EMPTY here
+        os << "(";
+
+        for (typename boost::range_iterator<Multi const>::type
+                    it = boost::begin(geometry);
+            it != boost::end(geometry);
+            ++it)
+        {
+            if (it != boost::begin(geometry))
+            {
+                os << ",";
+            }
+            StreamPolicy::apply(os, *it);
+        }
+
+        os << ")";
+    }
+};
+
 template <typename Box>
 struct wkt_box
 {
@@ -333,6 +361,47 @@ struct wkt<Polygon, polygon_tag>
         <
             Polygon,
             detail::wkt::prefix_polygon
+        >
+{};
+
+template <typename Multi>
+struct wkt<Multi, multi_point_tag>
+    : detail::wkt::wkt_multi
+        <
+            Multi,
+            detail::wkt::wkt_point
+                <
+                    typename boost::range_value<Multi>::type,
+                    detail::wkt::prefix_null
+                >,
+            detail::wkt::prefix_multipoint
+        >
+{};
+
+template <typename Multi>
+struct wkt<Multi, multi_linestring_tag>
+    : detail::wkt::wkt_multi
+        <
+            Multi,
+            detail::wkt::wkt_sequence
+                <
+                    typename boost::range_value<Multi>::type
+                >,
+            detail::wkt::prefix_multilinestring
+        >
+{};
+
+template <typename Multi>
+struct wkt<Multi, multi_polygon_tag>
+    : detail::wkt::wkt_multi
+        <
+            Multi,
+            detail::wkt::wkt_poly
+                <
+                    typename boost::range_value<Multi>::type,
+                    detail::wkt::prefix_null
+                >,
+            detail::wkt::prefix_multipolygon
         >
 {};
 
