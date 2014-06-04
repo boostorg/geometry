@@ -20,6 +20,7 @@ test-suite boost-geometry-strategies
     [ run haversine.cpp ]
     [ run projected_point.cpp ]
     [ run pythagoras.cpp ]
+    [ run pythagoras_point_box.cpp ]
     [ run spherical_side.cpp ]
     [ run segment_intersection_collinear.cpp ]
     [ run transform_cs.cpp ]
