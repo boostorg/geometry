@@ -179,27 +179,6 @@ struct union_insert
 namespace detail { namespace union_
 {
 
-template
-<
-    typename GeometryOut,
-    typename Geometry1, typename Geometry2,
-    typename RobustPolicy,
-    typename OutputIterator,
-    typename Strategy
->
-inline OutputIterator insert(Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy,
-            OutputIterator out,
-            Strategy const& strategy)
-{
-    return dispatch::union_insert
-           <
-               Geometry1, Geometry2, GeometryOut
-           >::apply(geometry1, geometry2, robust_policy, out, strategy);
-}
-
-
 /*!
 \brief_calc2{union}
 \ingroup union
@@ -247,7 +226,10 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
 
-    return detail::union_::insert<GeometryOut>(geometry1, geometry2, robust_policy, out, strategy());
+    return dispatch::union_insert
+           <
+               Geometry1, Geometry2, GeometryOut
+           >::apply(geometry1, geometry2, robust_policy, out, strategy());
 }
 
 
