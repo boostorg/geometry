@@ -12,14 +12,13 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/type_traits/is_base_of.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 
 #define BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD true
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/multi/geometries/multi_geometries.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
@@ -66,7 +65,6 @@
 #include <boost/geometry/multi/algorithms/simplify.hpp>
 #include <boost/geometry/multi/algorithms/transform.hpp>
 #include <boost/geometry/multi/algorithms/unique.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "text_outputter.hpp"
