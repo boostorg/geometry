@@ -52,47 +52,6 @@ inline bool collinear_point_on_segment(P0 const& subject, P1 const& p1, P2 const
 }
 
 
-template <typename SideStrategy, typename Point, typename Range>
-inline int side_on_convex_range(Point const& subject, Range const& range)
-{
-    // TODO merge this implementation with next function with same name
-    if (boost::empty(range))
-    {
-        return 1;
-    }
-
-    bool has_collinear = false;
-
-    typedef typename boost::range_iterator<Range const>::type iterator_type;
-
-    iterator_type it = boost::begin(range);
-
-    Point previous = *it;
-
-    for (++it; it != boost::end(range); ++it)
-    {
-        Point current = *it;
-        int const side = SideStrategy::apply(subject, previous, current);
-        switch(side)
-        {
-            case 1 :
-                return 1;
-            case 0 :
-                // Check if it is really on the segment.
-                // If not, it is either on the left (because polygon is convex)
-                // or it is still on one of the other segments (if segments are collinear)
-                if (collinear_point_on_segment(subject, previous, current))
-                {
-                    return 0;
-                }
-                has_collinear = true;
-                break;
-        }
-        previous = current;
-    }
-    return has_collinear ? 1 : -1;
-}
-
 template <typename SideStrategy, typename Point, typename Iterator>
 static inline int side_on_convex_range(Point const& subject,
             Iterator first, Iterator last,
@@ -133,6 +92,16 @@ static inline int side_on_convex_range(Point const& subject,
     }
     return has_collinear ? 1 : -1;
 }
+
+template <typename SideStrategy, typename Point, typename Range>
+inline int side_on_convex_range(Point const& subject, Range const& range)
+{
+    segment_identifier dummy;
+    return side_on_convex_range<SideStrategy>(subject,
+        boost::begin(range), boost::end(range),
+        dummy, dummy);
+}
+
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
