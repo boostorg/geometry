@@ -18,15 +18,15 @@
 #define BOOST_GEOMETRY_MULTI_HPP
 
 
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/core/interior_rings.hpp>
-#include <boost/geometry/multi/core/is_areal.hpp>
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/core/ring_type.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/topological_dimension.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/is_areal.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/topological_dimension.hpp>
 
 #include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/area.hpp>
@@ -68,16 +68,16 @@
 #include <boost/geometry/multi/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/multi/algorithms/detail/overlay/self_turn_points.hpp>
 
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
-#include <boost/geometry/multi/geometries/concepts/multi_point_concept.hpp>
-#include <boost/geometry/multi/geometries/concepts/multi_linestring_concept.hpp>
-#include <boost/geometry/multi/geometries/concepts/multi_polygon_concept.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/geometries/concepts/multi_point_concept.hpp>
+#include <boost/geometry/geometries/concepts/multi_linestring_concept.hpp>
+#include <boost/geometry/geometries/concepts/multi_polygon_concept.hpp>
 
-#include <boost/geometry/multi/views/detail/range_type.hpp>
-#include <boost/geometry/multi/strategies/cartesian/centroid_average.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
+#include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 
-#include <boost/geometry/multi/io/dsv/write.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 
 #endif // BOOST_GEOMETRY_MULTI_HPP
