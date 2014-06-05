@@ -22,7 +22,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_AREAL_AREAL_HPP
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>

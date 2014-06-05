@@ -36,6 +36,8 @@
 #include <boost/geometry/core/geometry_id.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -306,8 +308,6 @@ struct ring_parser
 };
 
 
-
-
 /*!
 \brief Internal, parses a polygon from a string like this "((x y,x y),(x y,x y))"
 \note used for parsing polygons and multi-polygons
@@ -357,6 +357,7 @@ struct polygon_parser
         handle_close_parenthesis(it, end, wkt);
     }
 };
+
 
 inline bool one_of(tokenizer::iterator const& it, std::string const& value,
             bool& is_present)
@@ -469,7 +470,101 @@ struct geometry_parser
 };
 
 
+template <typename MultiGeometry, template<typename> class Parser, typename PrefixPolicy>
+struct multi_parser
+{
+    static inline void apply(std::string const& wkt, MultiGeometry& geometry)
+    {
+        traits::clear<MultiGeometry>::apply(geometry);
 
+        tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
+        tokenizer::iterator it;
+        if (initialize<MultiGeometry>(tokens, PrefixPolicy::apply(), wkt, it))
+        {
+            handle_open_parenthesis(it, tokens.end(), wkt);
+
+            // Parse sub-geometries
+            while(it != tokens.end() && *it != ")")
+            {
+                traits::resize<MultiGeometry>::apply(geometry, boost::size(geometry) + 1);
+                Parser
+                    <
+                        typename boost::range_value<MultiGeometry>::type
+                    >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                if (it != tokens.end() && *it == ",")
+                {
+                    // Skip "," after multi-element is parsed
+                    ++it;
+                }
+            }
+
+            handle_close_parenthesis(it, tokens.end(), wkt);
+        }
+
+        check_end(it, tokens.end(), wkt);
+    }
+};
+
+template <typename P>
+struct noparenthesis_point_parser
+{
+    static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
+        std::string const& wkt, P& point)
+    {
+        parsing_assigner<P, 0, dimension<P>::value>::apply(it, end, point, wkt);
+    }
+};
+
+template <typename MultiGeometry, typename PrefixPolicy>
+struct multi_point_parser
+{
+    static inline void apply(std::string const& wkt, MultiGeometry& geometry)
+    {
+        traits::clear<MultiGeometry>::apply(geometry);
+
+        tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
+        tokenizer::iterator it;
+
+        if (initialize<MultiGeometry>(tokens, PrefixPolicy::apply(), wkt, it))
+        {
+            handle_open_parenthesis(it, tokens.end(), wkt);
+
+            // If first point definition starts with "(" then parse points as (x y)
+            // otherwise as "x y"
+            bool using_brackets = (it != tokens.end() && *it == "(");
+
+            while(it != tokens.end() && *it != ")")
+            {
+                traits::resize<MultiGeometry>::apply(geometry, boost::size(geometry) + 1);
+
+                if (using_brackets)
+                {
+                    point_parser
+                        <
+                            typename boost::range_value<MultiGeometry>::type
+                        >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                }
+                else
+                {
+                    noparenthesis_point_parser
+                        <
+                            typename boost::range_value<MultiGeometry>::type
+                        >::apply(it, tokens.end(), wkt, *(boost::end(geometry) - 1));
+                }
+
+                if (it != tokens.end() && *it == ",")
+                {
+                    // Skip "," after point is parsed
+                    ++it;
+                }
+            }
+
+            handle_close_parenthesis(it, tokens.end(), wkt);
+        }
+
+        check_end(it, tokens.end(), wkt);
+    }
+};
 
 
 /*!
@@ -589,7 +684,6 @@ struct segment_parser
 };
 
 
-
 }} // namespace detail::wkt
 #endif // DOXYGEN_NO_DETAIL
 
@@ -640,6 +734,36 @@ struct read_wkt<polygon_tag, Geometry>
             detail::wkt::polygon_parser,
             detail::wkt::prefix_polygon
         >
+{};
+
+
+template <typename MultiGeometry>
+struct read_wkt<multi_point_tag, MultiGeometry>
+    : detail::wkt::multi_point_parser
+            <
+                MultiGeometry,
+                detail::wkt::prefix_multipoint
+            >
+{};
+
+template <typename MultiGeometry>
+struct read_wkt<multi_linestring_tag, MultiGeometry>
+    : detail::wkt::multi_parser
+            <
+                MultiGeometry,
+                detail::wkt::linestring_parser,
+                detail::wkt::prefix_multilinestring
+            >
+{};
+
+template <typename MultiGeometry>
+struct read_wkt<multi_polygon_tag, MultiGeometry>
+    : detail::wkt::multi_parser
+            <
+                MultiGeometry,
+                detail::wkt::polygon_parser,
+                detail::wkt::prefix_multipolygon
+            >
 {};
 
 

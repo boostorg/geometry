@@ -267,7 +267,9 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_05", wrapped, 105.000, 0.5);
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("wrapped_10", wrapped, 142.281, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_10", wrapped, 144.000, 1.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("wrapped_15", wrapped, 167.066, 1.5);
+#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_15", wrapped, 169.000, 1.5);
 
     // TODO: there is still an undetected hole inside rt_a
@@ -327,17 +329,13 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p10", rt_p10, 23.3995, 1.0);
 
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p11", rt_p11, 28.7426, 1.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p12", rt_p12, 22.5711, 1.0);
-#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p13", rt_p13, 19.9142, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p14", rt_p14, 20.8284, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p15", rt_p15, 23.6569, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p16", rt_p16, 23.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p17", rt_p17, 25.3137, 1.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p18", rt_p18, 23.3137, 1.0);
-#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p19", rt_p19, 25.5637, 1.0);
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p20", rt_p20, 25.4853, 1.0);

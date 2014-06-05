@@ -16,7 +16,7 @@
 
 
 #include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
@@ -132,6 +132,26 @@ struct point_order<polygon_tag, Polygon>
         <
             ring_tag,
             typename ring_type<polygon_tag, Polygon>::type
+        >::value ;
+};
+
+template <typename MultiPoint>
+struct point_order<multi_point_tag, MultiPoint>
+    : public detail::point_order::clockwise {};
+
+template <typename MultiLinestring>
+struct point_order<multi_linestring_tag, MultiLinestring>
+    : public detail::point_order::clockwise {};
+
+
+// Specialization for multi_polygon: the order is the order of its polygons
+template <typename MultiPolygon>
+struct point_order<multi_polygon_tag, MultiPolygon>
+{
+    static const order_selector value = core_dispatch::point_order
+        <
+            polygon_tag,
+            typename boost::range_value<MultiPolygon>::type
         >::value ;
 };
 

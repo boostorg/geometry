@@ -134,8 +134,6 @@ struct within_no_turns<Geometry1, Geometry2, polygon_tag, polygon_tag>
     }
 };
 
-// TODO: later move it to directory boost/geometry/multi/algorithms/detail/within
-
 template <typename Geometry1,
           typename Geometry2,
           typename Tag1 = typename geometry::tag<Geometry1>::type,

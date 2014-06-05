@@ -14,10 +14,9 @@
 #ifndef BOOST_GEOMETRY_CORE_CLOSURE_HPP
 #define BOOST_GEOMETRY_CORE_CLOSURE_HPP
 
-
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/size_t.hpp>
-#include <boost/range.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
@@ -139,7 +138,7 @@ struct closure<ring_tag, Ring>
         = geometry::traits::closure<Ring>::value;
 };
 
-// Specialization for polygon: the closure is the closure of its rings
+// Specialization for Polygon: the closure is the closure of its rings
 template <typename Polygon>
 struct closure<polygon_tag, Polygon>
 {
@@ -150,6 +149,24 @@ struct closure<polygon_tag, Polygon>
         >::value ;
 };
 
+template <typename MultiPoint>
+struct closure<multi_point_tag, MultiPoint>
+    : public core_detail::closure::closed {};
+
+template <typename MultiLinestring>
+struct closure<multi_linestring_tag, MultiLinestring>
+    : public core_detail::closure::closed {};
+
+// Specialization for MultiPolygon: the closure is the closure of Polygon's rings
+template <typename MultiPolygon>
+struct closure<multi_polygon_tag, MultiPolygon>
+{
+    static const closure_selector value = core_dispatch::closure
+        <
+            polygon_tag,
+            typename boost::range_value<MultiPolygon>::type
+        >::value ;
+};
 
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH

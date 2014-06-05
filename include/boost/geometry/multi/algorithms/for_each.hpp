@@ -18,12 +18,11 @@
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
-
 #include <boost/geometry/algorithms/for_each.hpp>
 
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry

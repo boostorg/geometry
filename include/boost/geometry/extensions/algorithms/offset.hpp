@@ -22,6 +22,8 @@
 
 #include <boost/geometry/geometries/segment.hpp>
 
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -137,32 +139,41 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
 
     typedef typename geometry::point_type<Geometry>::type point_type;
 
-    bool reverse = distance < 0;
-    typedef strategy::buffer::distance_asymmetric
-        <
-            typename geometry::coordinate_type<Geometry>::type
-        > distance_strategy_type;
-    distance_strategy_type distance_strategy(geometry::math::abs(distance), geometry::math::abs(distance));
+    detail::no_rescale_policy robust_policy;
 
     detail::buffer::buffered_piece_collection
         <
-            model::ring<point_type>
-        > collection;
+            model::ring<point_type>,
+            detail::no_rescale_policy
+        > collection(robust_policy);
 
-    typedef strategy::buffer::end_skip<point_type, point_type> end_strategy_type;
-    end_strategy_type end_strategy;
+    bool reverse = distance < 0;
+    strategy::buffer::distance_asymmetric
+        <
+            typename geometry::coordinate_type<Geometry>::type
+        > distance_strategy(geometry::math::abs(distance),
+                            geometry::math::abs(distance));
+
+    strategy::buffer::end_skip
+        <
+            point_type,
+            point_type
+        > end_strategy;
 
     dispatch::offset
-    <
-        typename tag<Geometry>::type,
-        typename tag<GeometryOut>::type,
-        Geometry,
-        GeometryOut
-    >::apply(collection, geometry, distance_strategy, join_strategy, end_strategy, reverse);
-
+        <
+            typename tag<Geometry>::type,
+            typename tag<GeometryOut>::type,
+            Geometry,
+            GeometryOut
+        >::apply(collection,
+                 geometry,
+                 distance_strategy,
+                 join_strategy,
+                 end_strategy,
+                 reverse);
 
     collection.assign_offsetted_rings(out);
-
 }
 
 

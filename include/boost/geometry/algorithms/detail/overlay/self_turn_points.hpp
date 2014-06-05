@@ -9,12 +9,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELF_TURN_POINTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELF_TURN_POINTS_HPP
 
+
 #include <cstddef>
 
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -218,6 +220,20 @@ template
 struct self_get_turn_points
     <
         polygon_tag, Polygon,
+        TurnPolicy
+    >
+    : detail::self_get_turn_points::get_turns<TurnPolicy>
+{};
+
+
+template
+<
+    typename MultiPolygon,
+    typename TurnPolicy
+>
+struct self_get_turn_points
+    <
+        multi_polygon_tag, MultiPolygon,
         TurnPolicy
     >
     : detail::self_get_turn_points::get_turns<TurnPolicy>

@@ -19,7 +19,6 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/iterators/has_one_element.hpp>
