@@ -14,6 +14,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_HPP
 
+// TEMP - remove it after brakeing the comparable_distance code into the interface and implementation
+#include <boost/geometry.hpp>
+
 #include <boost/geometry/extensions/nsphere/core/access.hpp>
 #include <boost/geometry/extensions/nsphere/core/geometry_id.hpp>
 #include <boost/geometry/extensions/nsphere/core/radius.hpp>
