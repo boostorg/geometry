@@ -69,9 +69,6 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/concepts/multi_point_concept.hpp>
-#include <boost/geometry/geometries/concepts/multi_linestring_concept.hpp>
-#include <boost/geometry/geometries/concepts/multi_polygon_concept.hpp>
 
 #include <boost/geometry/views/detail/range_type.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
