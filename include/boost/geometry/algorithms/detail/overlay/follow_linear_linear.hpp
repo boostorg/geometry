@@ -19,7 +19,6 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>

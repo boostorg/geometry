@@ -12,7 +12,6 @@
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>

@@ -18,10 +18,10 @@
 #include <boost/range/metafunctions.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/detail/modify.hpp>
+#include <boost/geometry/algorithms/detail/multi_modify.hpp>
 
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry

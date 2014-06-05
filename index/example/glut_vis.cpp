@@ -18,7 +18,7 @@
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/index/detail/rtree/utilities/gl_draw.hpp>
 #include <boost/geometry/index/detail/rtree/utilities/print.hpp>

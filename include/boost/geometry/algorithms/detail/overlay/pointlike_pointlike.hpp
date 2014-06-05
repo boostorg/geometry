@@ -17,10 +17,9 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>

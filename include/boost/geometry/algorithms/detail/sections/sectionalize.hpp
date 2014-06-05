@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <vector>
 
+#include <boost/concept/requires.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
@@ -36,7 +37,7 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_order.hpp>
-
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -45,8 +46,6 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
-
-
 
 namespace boost { namespace geometry
 {
@@ -556,6 +555,31 @@ struct sectionalize_box
     }
 };
 
+template <std::size_t DimensionCount, typename Policy>
+struct sectionalize_multi
+{
+    template
+    <
+        typename MultiGeometry,
+        typename RobustPolicy,
+        typename Sections
+    >
+    static inline void apply(MultiGeometry const& multi,
+                RobustPolicy const& robust_policy,
+                bool make_rescaled_boxes,
+                Sections& sections, ring_identifier ring_id, std::size_t max_count)
+    {
+        ring_id.multi_index = 0;
+        for (typename boost::range_iterator<MultiGeometry const>::type
+                    it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it, ++ring_id.multi_index)
+        {
+            Policy::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
+        }
+    }
+};
+
 template <typename Sections>
 inline void set_section_unique_ids(Sections& sections)
 {
@@ -673,6 +697,45 @@ struct sectionalize<polygon_tag, Polygon, Reverse, DimensionCount>
         <
             Reverse, DimensionCount
         >
+{};
+
+template
+<
+    typename MultiPolygon,
+    bool Reverse,
+    std::size_t DimensionCount
+>
+struct sectionalize<multi_polygon_tag, MultiPolygon, Reverse, DimensionCount>
+    : detail::sectionalize::sectionalize_multi
+        <
+            DimensionCount,
+            detail::sectionalize::sectionalize_polygon
+                <
+                    Reverse,
+                    DimensionCount
+                >
+        >
+
+{};
+
+template
+<
+    typename MultiLinestring,
+    bool Reverse,
+    std::size_t DimensionCount
+>
+struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionCount>
+    : detail::sectionalize::sectionalize_multi
+        <
+            DimensionCount,
+            detail::sectionalize::sectionalize_range
+                <
+                    closed, false,
+                    typename point_type<MultiLinestring>::type,
+                    DimensionCount
+                >
+        >
+
 {};
 
 } // namespace dispatch

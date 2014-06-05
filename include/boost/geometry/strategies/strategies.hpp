@@ -34,6 +34,7 @@
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
+#include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>

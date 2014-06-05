@@ -10,78 +10,7 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
-#include <boost/assert.hpp>
-#include <boost/range.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
-
-#include <boost/geometry/multi/core/ring_type.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
-
-
-namespace boost { namespace geometry
-{
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace copy_segments
-{
-
-
-template<typename Policy>
-struct copy_segments_multi
-{
-    template
-    <
-        typename MultiGeometry,
-        typename SegmentIdentifier,
-        typename RobustPolicy,
-        typename RangeOut
-    >
-    static inline void apply(MultiGeometry const& multi_geometry,
-            SegmentIdentifier const& seg_id, int to_index,
-            RobustPolicy const& robust_policy,
-            RangeOut& current_output)
-    {
-
-        BOOST_ASSERT
-            (
-                seg_id.multi_index >= 0
-                && seg_id.multi_index < int(boost::size(multi_geometry))
-            );
-
-        // Call the single-version
-        Policy::apply(multi_geometry[seg_id.multi_index],
-                    seg_id, to_index,
-                    robust_policy,
-                    current_output);
-    }
-};
-
-
-}} // namespace detail::copy_segments
-#endif // DOXYGEN_NO_DETAIL
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-template<bool Reverse>
-struct copy_segments<multi_polygon_tag, Reverse>
-    : detail::copy_segments::copy_segments_multi
-        <
-            detail::copy_segments::copy_segments_polygon<Reverse>
-        >
-{};
-
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
-
-}} // namespace boost::geometry
 
 
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP

@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_RING
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_RING
 
+
 #include <cstddef>
 
 #include <boost/range.hpp>
@@ -18,15 +19,14 @@
 
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
-
 
 
 namespace boost { namespace geometry
