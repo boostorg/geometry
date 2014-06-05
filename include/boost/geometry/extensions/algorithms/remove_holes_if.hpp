@@ -15,17 +15,14 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/detail/multi_modify_with_predicate.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/util/math.hpp>
-
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/algorithms/detail/modify_with_predicate.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry

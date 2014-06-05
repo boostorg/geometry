@@ -14,7 +14,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>

@@ -15,9 +15,9 @@
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_CLEAR_HPP
 
 
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry

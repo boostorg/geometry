@@ -12,15 +12,16 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/single_to_multi.hpp>
 #include <boost/geometry/algorithms/detail/distance/multi_to_multi.hpp>
 #include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
 

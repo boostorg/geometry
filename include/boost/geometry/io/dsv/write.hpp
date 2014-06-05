@@ -26,6 +26,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -339,8 +340,60 @@ private:
     dsv_settings m_settings;
 };
 
+
+template <typename MultiGeometry>
+struct dsv_multi
+{
+    typedef dispatch::dsv
+                <
+                    typename single_tag_of
+                        <
+                            typename tag<MultiGeometry>::type
+                        >::type,
+                    typename boost::range_value<MultiGeometry>::type
+                > dispatch_one;
+
+    typedef typename boost::range_iterator
+        <
+            MultiGeometry const
+        >::type iterator;
+
+
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                MultiGeometry const& multi,
+                dsv_settings const& settings)
+    {
+        os << settings.list_open;
+
+        bool first = true;
+        for(iterator it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it, first = false)
+        {
+            os << (first ? "" : settings.list_separator);
+            dispatch_one::apply(os, *it, settings);
+        }
+        os << settings.list_close;
+    }
+};
+
 }} // namespace detail::dsv
 #endif // DOXYGEN_NO_DETAIL
+
+// TODO: The alternative to this could be a forward declaration of dispatch::dsv<>
+//       or braking the code into the interface and implementation part
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+template <typename Geometry>
+struct dsv<multi_tag, Geometry>
+    : detail::dsv::dsv_multi<Geometry>
+{};
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
 
 /*!
 \brief Main DSV-streaming function

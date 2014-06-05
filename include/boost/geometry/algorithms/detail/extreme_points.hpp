@@ -21,6 +21,7 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
@@ -448,6 +449,29 @@ struct extreme_points<Box, 0, box_tag>
         // ll,ul,ur,lr, rotate one to start with UL and end with LL
         std::rotate(extremes.begin(), extremes.begin() + 1, extremes.end());
         return true;
+    }
+};
+
+template<typename MultiPolygon, std::size_t Dimension>
+struct extreme_points<MultiPolygon, Dimension, multi_polygon_tag>
+{
+    template <typename Extremes, typename Intruders>
+    static inline bool apply(MultiPolygon const& multi, Extremes& extremes, Intruders& intruders)
+    {
+        // Get one for the very first polygon, that is (for the moment) enough.
+        // It is not guaranteed the "extreme" then, but for the current purpose
+        // (point_on_surface) it can just be this point.
+        if (boost::size(multi) >= 1)
+        {
+            return extreme_points
+                <
+                    typename boost::range_value<MultiPolygon const>::type,
+                    Dimension,
+                    polygon_tag
+                >::apply(*boost::begin(multi), extremes, intruders);
+        }
+
+        return false;
     }
 };
 

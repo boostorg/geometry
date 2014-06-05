@@ -26,11 +26,11 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/reverse_dispatch.hpp>
-
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -50,19 +50,19 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
+
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
-
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
@@ -764,6 +764,45 @@ struct get_turns_polygon_cs
     }
 };
 
+
+template
+<
+    typename Multi, typename Box,
+    bool Reverse, bool ReverseBox,
+    typename TurnPolicy
+>
+struct get_turns_multi_polygon_cs
+{
+    template <typename RobustPolicy, typename Turns, typename InterruptPolicy>
+    static inline void apply(
+            int source_id1, Multi const& multi,
+            int source_id2, Box const& box,
+            RobustPolicy const& robust_policy,
+            Turns& turns, InterruptPolicy& interrupt_policy)
+    {
+        typedef typename boost::range_iterator
+            <
+                Multi const
+            >::type iterator_type;
+
+        int i = 0;
+        for (iterator_type it = boost::begin(multi);
+             it != boost::end(multi);
+             ++it, ++i)
+        {
+            // Call its single version
+            get_turns_polygon_cs
+                <
+                    typename boost::range_value<Multi>::type, Box,
+                    Reverse, ReverseBox,
+                    TurnPolicy
+                >::apply(source_id1, *it, source_id2, box,
+                            robust_policy, turns, interrupt_policy, i);
+        }
+    }
+};
+
+
 // GET_TURN_INFO_TYPE
 
 template <typename Geometry>
@@ -875,6 +914,29 @@ struct get_turns
                 TurnPolicy
             >
 
+{};
+
+
+template
+<
+    typename MultiPolygon,
+    typename Box,
+    bool ReverseMultiPolygon, bool ReverseBox,
+    typename TurnPolicy
+>
+struct get_turns
+    <
+        multi_polygon_tag, box_tag,
+        MultiPolygon, Box,
+        ReverseMultiPolygon, ReverseBox,
+        TurnPolicy
+    >
+    : detail::get_turns::get_turns_multi_polygon_cs
+        <
+            MultiPolygon, Box,
+            ReverseMultiPolygon, ReverseBox,
+            TurnPolicy
+        >
 {};
 
 

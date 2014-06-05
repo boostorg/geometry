@@ -9,27 +9,27 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_INTERSECTION_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_INTERSECTION_HPP
 
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
+#include <boost/geometry/core/is_areal.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/core/is_areal.hpp>
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
+// TODO: those headers probably may be removed
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
+
+#include <boost/geometry/algorithms/intersection.hpp>
 
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/algorithms/envelope.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_ring.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/select_rings.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/algorithms/intersection.hpp>
-
 
 namespace boost { namespace geometry
 {

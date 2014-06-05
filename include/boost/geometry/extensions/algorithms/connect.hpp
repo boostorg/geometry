@@ -15,9 +15,9 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/policies/compare.hpp>
 

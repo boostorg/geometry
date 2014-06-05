@@ -24,7 +24,6 @@
 #include <boost/concept_check.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
@@ -32,7 +31,6 @@
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>

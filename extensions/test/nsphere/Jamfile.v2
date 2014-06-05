@@ -16,10 +16,10 @@ test-suite boost-geometry-extensions-nsphere
     [ run circle.cpp ]
     [ run multi_within.cpp ]
     [ run point_type.cpp ]
-#    [ run within.cpp ] TODO: fix this, broken (autumn 2013) by recent change on &Strategy::result
+    [ run within.cpp ]
 
     [ run nsphere_in_box.cpp ]
-#    [ run point_in_nsphere.cpp ] TODO: fix this, broken (autumn 2013) by recent change on &Strategy::result
+    [ run point_in_nsphere.cpp ]
 
     [ run disjoint.cpp ]
     [ run index_content.cpp ]

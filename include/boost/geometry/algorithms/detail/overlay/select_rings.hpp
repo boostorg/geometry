@@ -9,8 +9,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_RINGS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_RINGS_HPP
 
+
 #include <map>
 
+#include <boost/range.hpp>
+
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/within.hpp>
@@ -118,7 +122,32 @@ namespace dispatch
             }
         }
     };
-}
+
+    template <typename Multi>
+    struct select_rings<multi_polygon_tag, Multi>
+    {
+        template <typename Geometry, typename Map>
+        static inline void apply(Multi const& multi, Geometry const& geometry,
+                    ring_identifier id, Map& map, bool midpoint)
+        {
+            typedef typename boost::range_iterator
+                <
+                    Multi const
+                >::type iterator_type;
+
+            typedef select_rings<polygon_tag, typename boost::range_value<Multi>::type> per_polygon;
+
+            id.multi_index = 0;
+            for (iterator_type it = boost::begin(multi); it != boost::end(multi); ++it)
+            {
+                id.ring_index = -1;
+                per_polygon::apply(*it, geometry, id, map, midpoint);
+                id.multi_index++;
+            }
+        }
+    };
+
+} // namespace dispatch
 
 
 template<overlay_type OverlayType>

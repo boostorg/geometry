@@ -12,7 +12,7 @@
 #include <boost/range.hpp>
 #include <boost/typeof/typeof.hpp>
 
-#include <boost/geometry/multi/core/point_type.hpp>
+#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 
 #include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>

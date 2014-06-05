@@ -68,17 +68,17 @@ struct point_in_nsphere
 };
 
 
-// For many geometry-in-nsphere, we do not have a strategy yet... but a default strategy should exist
-struct nsphere_dummy
-{
-    template <typename A, typename B>
-    static bool apply(A const& a, B const& b)
-    {
-        // Assertion if called
-        assert(false);
-        return false;
-    }
-};
+//// For many geometry-in-nsphere, we do not have a strategy yet... but a default strategy should exist
+//struct nsphere_dummy
+//{
+//    template <typename A, typename B>
+//    static bool apply(A const& a, B const& b)
+//    {
+//        // Assertion if called
+//        assert(false);
+//        return false;
+//    }
+//};
 
 
 
@@ -95,7 +95,7 @@ template <typename Point, typename NSphere>
 struct default_strategy
     <
         point_tag, nsphere_tag,
-        point_tag, areal_tag,
+        point_tag, nsphere_tag,
         cartesian_tag, cartesian_tag,
         Point, NSphere
     >
@@ -103,17 +103,17 @@ struct default_strategy
     typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_within_comparable_distance> type;
 };
 
-template <typename AnyTag, typename AnyGeometry, typename NSphere>
-struct default_strategy
-    <
-        AnyTag, nsphere_tag,
-        AnyTag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        AnyGeometry, NSphere
-    >
-{
-    typedef within::nsphere_dummy type;
-};
+//template <typename AnyTag, typename AnyGeometry, typename NSphere>
+//struct default_strategy
+//    <
+//        AnyTag, nsphere_tag,
+//        AnyTag, nsphere_tag,
+//        cartesian_tag, cartesian_tag,
+//        AnyGeometry, NSphere
+//    >
+//{
+//    typedef within::nsphere_dummy type;
+//};
 
 
 }} // namespace within::services
@@ -127,7 +127,7 @@ template <typename Point, typename NSphere>
 struct default_strategy
     <
         point_tag, nsphere_tag,
-        point_tag, areal_tag,
+        point_tag, nsphere_tag,
         cartesian_tag, cartesian_tag,
         Point, NSphere
     >

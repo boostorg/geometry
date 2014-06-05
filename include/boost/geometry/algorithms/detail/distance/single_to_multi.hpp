@@ -23,36 +23,32 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-
-#include <boost/geometry/multi/core/tags.hpp>
-#include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
-
-#include <boost/geometry/multi/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
+
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
+
+#include <boost/geometry/views/detail/range_type.hpp>
 
 // includes needed from multi.hpp -- start
 #include <boost/geometry/multi/algorithms/covered_by.hpp>
 #include <boost/geometry/multi/algorithms/disjoint.hpp>
 #include <boost/geometry/multi/algorithms/for_each.hpp>
 #include <boost/geometry/multi/algorithms/within.hpp>
-
-#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/multi/views/detail/range_type.hpp>
 // includes needed from multi.hpp -- end
 
 #include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>

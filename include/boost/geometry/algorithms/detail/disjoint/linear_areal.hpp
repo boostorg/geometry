@@ -32,12 +32,10 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/multi/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>

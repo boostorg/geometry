@@ -18,9 +18,12 @@
 namespace boost { namespace geometry
 {
 
+// TEMP: areal_tag commented out to prevent falling into the implementation for Areal geometries
+//       in the new implementation of disjoint().
+//       Besides this tag is invalid in the case of Dimension != 2
 
 /// Convenience 2D (circle) or 3D (sphere) n-sphere identifying tag
-struct nsphere_tag : single_tag, areal_tag{};
+struct nsphere_tag : single_tag/*, areal_tag*/ {};
 
 
 
