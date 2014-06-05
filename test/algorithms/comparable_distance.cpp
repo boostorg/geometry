@@ -24,17 +24,12 @@
 #include <boost/mpl/if.hpp>
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/geometry.hpp>
-
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
-
 
 #include <boost/geometry/geometries/geometries.hpp>
-
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 template <typename P>
 void test_distance_result()
