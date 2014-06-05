@@ -95,23 +95,48 @@ struct smaller<Type, true>
 template <typename Type, bool IsFloatingPoint>
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
 
-template <typename T, bool IsFundemantal /* true */>
+template <typename T, bool IsFundemantal /* false */>
 struct sqrt
 {
     static inline T apply(T const& value)
     {
-        // for fundamental number types use std::sqrt
+        // for non-fundamental number types assume that sqrt at global
+        // scope is defined
+        return ::sqrt(value);
+    }
+};
+
+template <>
+struct sqrt<float, true>
+{
+    static inline float apply(float const& value)
+    {
+        // for float use std::sqrt
+        return std::sqrt(value);
+    }
+};
+
+template <>
+struct sqrt<long double, true>
+{
+    static inline long double apply(long double const& value)
+    {
+        // for long double use std::sqrt
         return std::sqrt(value);
     }
 };
 
 template <typename T>
-struct sqrt<T, false>
+struct sqrt<T, true>
 {
-    static inline T apply(T const& value)
+    static inline double apply(T const& value)
     {
-        // for everything else assume that sqrt at global scope is defined
-        return ::sqrt(value);
+        // for all other fundamental number types use also std::sqrt
+        //
+        // Note: in C++98 the only other possibility is double;
+        //       in C++11 there are also overloads for integral types;
+        //       this specialization works for those as well.
+        return std::sqrt(value);
     }
 };
 
