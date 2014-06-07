@@ -20,6 +20,7 @@
 #endif
 
 #include <boost/timer.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
