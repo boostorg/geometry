@@ -135,9 +135,6 @@ struct buffered_piece_collection_with_mapper
                     << ":" << operation_char(it->operations[0].operation)
                     << "/" << operation_char(it->operations[1].operation);
                 out << " " << it->count_within
-                    << "-" << it->count_on_helper
-                    << "-" << it->count_on_corner
-                    << "-" << it->count_on_offsetted
                     << "-" << it->count_on_occupied
                     << "-" << it->count_on_multi
                     //<< it->debug_string
@@ -163,7 +160,7 @@ struct buffered_piece_collection_with_mapper
     template <typename Tag, typename Mapper>
     inline void map_pieces(Mapper& mapper, bool pieces = true, bool indices = true)
     {
-        typedef typename super_type::piece_vector piece_vector;
+        typedef typename super_type::piece_vector_type piece_vector;
         for(typename piece_vector::const_iterator it = boost::begin(this->m_pieces);
             it != boost::end(this->m_pieces);
             ++it)

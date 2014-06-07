@@ -110,7 +110,7 @@ struct buffer_turn_operation
 };
 
 // Version for buffer including type of location, is_opposite, and helper variables
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename RobustPoint, typename SegmentRatio>
 struct buffer_turn_info
     : public detail::overlay::turn_info
         <
@@ -119,12 +119,13 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
+    RobustPoint robust_point;
     bool is_opposite;
 
     intersection_location_type location;
 
     int priority;
-    int count_within, count_on_helper, count_on_offsetted, count_on_corner;
+    int count_within;
     int count_on_occupied;
     int count_on_multi;
 #if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
@@ -142,9 +143,6 @@ struct buffer_turn_info
         , location(location_ok)
         , priority(0)
         , count_within(0)
-        , count_on_helper(0)
-        , count_on_offsetted(0)
-        , count_on_corner(0)
         , count_on_occupied(0)
         , count_on_multi(0)
 #if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
@@ -153,6 +151,20 @@ struct buffer_turn_info
     {}
 };
 
+struct buffer_operation_less
+{
+    template <typename Turn>
+    inline bool operator()(Turn const& left, Turn const& right) const
+    {
+        segment_identifier const& sl = left.seg_id;
+        segment_identifier const& sr = right.seg_id;
+
+        // Sort them descending
+        return sl == sr
+            ? left.fraction < right.fraction
+            : sl < sr;
+    }
+};
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL

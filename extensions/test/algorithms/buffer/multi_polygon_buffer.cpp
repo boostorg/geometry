@@ -267,9 +267,7 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_05", wrapped, 105.000, 0.5);
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("wrapped_10", wrapped, 142.281, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_10", wrapped, 144.000, 1.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_round, buf::end_skip, polygon_type>("wrapped_15", wrapped, 167.066, 1.5);
-#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("wrapped_15", wrapped, 169.000, 1.5);
 
     // TODO: there is still an undetected hole inside rt_a
