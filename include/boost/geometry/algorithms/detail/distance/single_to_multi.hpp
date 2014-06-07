@@ -44,12 +44,10 @@
 
 #include <boost/geometry/views/detail/range_type.hpp>
 
-// includes needed from multi.hpp -- start
-#include <boost/geometry/multi/algorithms/covered_by.hpp>
-#include <boost/geometry/multi/algorithms/disjoint.hpp>
-#include <boost/geometry/multi/algorithms/for_each.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
-// includes needed from multi.hpp -- end
+#include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/for_each.hpp>
+#include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>
 

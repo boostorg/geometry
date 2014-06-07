@@ -33,8 +33,6 @@
 #include <boost/geometry/util/compress_variant.hpp>
 #include <boost/geometry/util/transform_variant.hpp>
 
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-
 namespace boost { namespace geometry
 {
 

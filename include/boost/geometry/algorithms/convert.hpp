@@ -20,6 +20,10 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/remove_reference.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -38,11 +42,9 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/core/tags.hpp>
 
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace boost { namespace geometry
@@ -200,17 +202,58 @@ struct polygon_to_polygon
                 >::type
             >::apply(interior_rings(destination), num_interior_rings(source));
 
-        typename interior_return_type<Polygon1 const>::type rings_source
-                    = interior_rings(source);
-        typename interior_return_type<Polygon2>::type rings_dest
-                    = interior_rings(destination);
+        typedef typename interior_return_type<Polygon1 const>::type rings_source_ref;
+        typedef typename interior_return_type<Polygon2>::type rings_dest_ref;
+        
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings_source_ref>::type
+            >::type rings_source_iterator;
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings_dest_ref>::type
+            >::type rings_dest_iterator;
 
-        BOOST_AUTO_TPL(it_source, boost::begin(rings_source));
-        BOOST_AUTO_TPL(it_dest, boost::begin(rings_dest));
+        rings_source_ref rings_source = interior_rings(source);
+        rings_dest_ref rings_dest = interior_rings(destination);
+
+        rings_source_iterator it_source = boost::begin(rings_source);
+        rings_dest_iterator it_dest = boost::begin(rings_dest);
 
         for ( ; it_source != boost::end(rings_source); ++it_source, ++it_dest)
         {
             per_ring::apply(*it_source, *it_dest);
+        }
+    }
+};
+
+template <typename Single, typename Multi, typename Policy>
+struct single_to_multi: private Policy
+{
+    static inline void apply(Single const& single, Multi& multi)
+    {
+        traits::resize<Multi>::apply(multi, 1);
+        Policy::apply(single, *boost::begin(multi));
+    }
+};
+
+
+
+template <typename Multi1, typename Multi2, typename Policy>
+struct multi_to_multi: private Policy
+{
+    static inline void apply(Multi1 const& multi1, Multi2& multi2)
+    {
+        traits::resize<Multi2>::apply(multi2, boost::size(multi1));
+
+        typename boost::range_iterator<Multi1 const>::type it1
+                = boost::begin(multi1);
+        typename boost::range_iterator<Multi2>::type it2
+                = boost::begin(multi2);
+
+        for (; it1 != boost::end(multi1); ++it1, ++it2)
+        {
+            Policy::apply(*it1, *it2);
         }
     }
 };
@@ -387,6 +430,57 @@ struct convert<Polygon, Ring, polygon_tag, ring_tag, DimensionCount, false>
             >::apply(exterior_ring(polygon), ring);
     }
 };
+
+
+// Dispatch for multi <-> multi, specifying their single-version as policy.
+// Note that, even if the multi-types are mutually different, their single
+// version types might be the same and therefore we call boost::is_same again
+
+template <typename Multi1, typename Multi2, std::size_t DimensionCount>
+struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>
+    : detail::conversion::multi_to_multi
+        <
+            Multi1,
+            Multi2,
+            convert
+                <
+                    typename boost::range_value<Multi1>::type,
+                    typename boost::range_value<Multi2>::type,
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi1>::type
+                                >::type,
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi2>::type
+                                >::type,
+                    DimensionCount
+                >
+        >
+{};
+
+
+template <typename Single, typename Multi, typename SingleTag, std::size_t DimensionCount>
+struct convert<Single, Multi, SingleTag, multi_tag, DimensionCount, false>
+    : detail::conversion::single_to_multi
+        <
+            Single,
+            Multi,
+            convert
+                <
+                    Single,
+                    typename boost::range_value<Multi>::type,
+                    typename tag<Single>::type,
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi>::type
+                                >::type,
+                    DimensionCount,
+                    false
+                >
+        >
+{};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

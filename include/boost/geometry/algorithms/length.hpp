@@ -47,8 +47,6 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
 
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-
 
 namespace boost { namespace geometry
 {
