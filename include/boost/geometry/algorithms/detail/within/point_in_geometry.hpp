@@ -21,8 +21,9 @@
 
 #include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/range.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
@@ -220,11 +221,16 @@ struct point_in_geometry<Polygon, polygon_tag>
 
         if (code == 1)
         {
-            typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(polygon);
-            for (BOOST_AUTO_TPL(it, boost::begin(rings));
-                it != boost::end(rings);
-                ++it)
+            typedef typename interior_return_type<Polygon const>::type rings_ref;
+            typedef typename boost::range_iterator
+                <
+                    typename boost::remove_reference<rings_ref>::type
+                >::type rings_iterator;
+
+            rings_ref rings = interior_rings(polygon);
+            for (rings_iterator it = boost::begin(rings);
+                 it != boost::end(rings);
+                 ++it)
             {
                 int const interior_code = point_in_geometry
                     <
