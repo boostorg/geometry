@@ -17,10 +17,11 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
@@ -59,15 +60,36 @@ struct polygon_unique
     {
         range_unique::apply(exterior_ring(polygon), policy);
 
-        typename interior_return_type<Polygon>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typedef typename interior_return_type<Polygon>::type rings_ref;
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings_ref>::type
+            >::type rings_iterator;
+
+        rings_ref rings = interior_rings(polygon);
+        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             range_unique::apply(*it, policy);
         }
     }
 };
 
+
+template <typename Policy>
+struct multi_unique
+{
+    template <typename MultiGeometry, typename ComparePolicy>
+    static inline void apply(MultiGeometry& multi, ComparePolicy const& compare)
+    {
+        for (typename boost::range_iterator<MultiGeometry>::type
+                it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it)
+        {
+            Policy::apply(*it, compare);
+        }
+    }
+};
 
 
 }} // namespace detail::unique
@@ -108,6 +130,24 @@ struct unique<LineString, linestring_tag>
 template <typename Polygon>
 struct unique<Polygon, polygon_tag>
     : detail::unique::polygon_unique
+{};
+
+
+// For points, unique is not applicable and does nothing
+// (Note that it is not "spatially unique" but that it removes duplicate coordinates,
+//  like std::unique does). Spatially unique is "dissolve" which can (or will be)
+//  possible for multi-points as well, removing points at the same location.
+
+
+template <typename MultiLineString>
+struct unique<MultiLineString, multi_linestring_tag>
+    : detail::unique::multi_unique<detail::unique::range_unique>
+{};
+
+
+template <typename MultiPolygon>
+struct unique<MultiPolygon, multi_polygon_tag>
+    : detail::unique::multi_unique<detail::unique::polygon_unique>
 {};
 
 
