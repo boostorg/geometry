@@ -18,7 +18,7 @@
 #include <iterator>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -33,6 +33,7 @@
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/transform.hpp>
@@ -172,16 +173,28 @@ struct transform_polygon
                 >::type
             >::apply(interior_rings(poly2), num_interior_rings(poly1));
 
-        typename interior_return_type<Polygon1 const>::type rings1
-                    = interior_rings(poly1);
-        typename interior_return_type<Polygon2>::type rings2
-                    = interior_rings(poly2);
-        BOOST_AUTO_TPL(it1, boost::begin(rings1));
-        BOOST_AUTO_TPL(it2, boost::begin(rings2));
-        for ( ; it1 != boost::end(interior_rings(poly1)); ++it1, ++it2)
+        typedef typename interior_return_type<Polygon1 const>::type rings1_cref;
+        typedef typename interior_return_type<Polygon2>::type rings2_ref;
+
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings1_cref>::type
+            >::type rings1_iterator;
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings2_ref>::type
+            >::type rings2_iterator;
+
+        rings1_cref rings1 = interior_rings(poly1);
+        rings2_ref rings2 = interior_rings(poly2);
+
+        rings1_iterator it1 = boost::begin(rings1);
+        rings2_iterator it2 = boost::begin(rings2);
+        for ( ; it1 != boost::end(rings1); ++it1, ++it2)
         {
-            if (!transform_range_out<point2_type>(*it1,
-                std::back_inserter(*it2), strategy))
+            if ( ! transform_range_out<point2_type>(*it1,
+                                                    std::back_inserter(*it2),
+                                                    strategy) )
             {
                 return false;
             }
@@ -222,6 +235,36 @@ struct transform_range
                 std::back_inserter(range2), strategy);
     }
 };
+
+
+/*!
+    \brief Is able to transform any multi-geometry, calling the single-version as policy
+*/
+template <typename Policy>
+struct transform_multi
+{
+    template <typename Multi1, typename Multi2, typename S>
+    static inline bool apply(Multi1 const& multi1, Multi2& multi2, S const& strategy)
+    {
+        traits::resize<Multi2>::apply(multi2, boost::size(multi1));
+
+        typename boost::range_iterator<Multi1 const>::type it1
+                = boost::begin(multi1);
+        typename boost::range_iterator<Multi2>::type it2
+                = boost::begin(multi2);
+
+        for (; it1 != boost::end(multi1); ++it1, ++it2)
+        {
+            if (! Policy::apply(*it1, *it2, strategy))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+
 
 }} // namespace detail::transform
 #endif // DOXYGEN_NO_DETAIL
@@ -279,6 +322,22 @@ struct transform<Segment1, Segment2, segment_tag, segment_tag>
     : detail::transform::transform_box_or_segment
 {
 };
+
+template <typename Multi1, typename Multi2>
+struct transform
+    <
+        Multi1, Multi2,
+        multi_tag, multi_tag
+    >
+    : detail::transform::transform_multi
+        <
+            dispatch::transform
+                <
+                    typename boost::range_value<Multi1>::type,
+                    typename boost::range_value<Multi2>::type
+                >
+        >
+{};
 
 
 } // namespace dispatch
