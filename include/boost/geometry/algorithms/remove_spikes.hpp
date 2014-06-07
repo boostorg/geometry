@@ -15,7 +15,7 @@
 #include <deque>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -24,6 +24,8 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -146,11 +148,32 @@ struct polygon_remove_spikes
         typedef range_remove_spikes<ring_type> per_range;
         per_range::apply(exterior_ring(polygon));
 
-        typename interior_return_type<Polygon>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typedef typename interior_return_type<Polygon>::type rings_ref;
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings_ref>::type
+            >::type rings_iterator;
+
+        rings_ref rings = interior_rings(polygon);
+        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             per_range::apply(*it);
+        }
+    }
+};
+
+
+template <typename MultiGeometry, typename SingleVersion>
+struct multi_remove_spikes
+{
+    static inline void apply(MultiGeometry& multi)
+    {
+        for (typename boost::range_iterator<MultiGeometry>::type
+                it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it)
+        {
+            SingleVersion::apply(*it);
         }
     }
 };
@@ -190,6 +213,18 @@ struct remove_spikes<Polygon, polygon_tag>
     : detail::remove_spikes::polygon_remove_spikes<Polygon>
 {};
 
+
+template <typename MultiPolygon>
+struct remove_spikes<MultiPolygon, multi_polygon_tag>
+    : detail::remove_spikes::multi_remove_spikes
+        <
+            MultiPolygon,
+            detail::remove_spikes::polygon_remove_spikes
+            <
+                typename boost::range_value<MultiPolygon>::type
+            >
+        >
+{};
 
 
 } // namespace dispatch

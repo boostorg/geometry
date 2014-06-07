@@ -21,24 +21,25 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/mutable_range.hpp>
-#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/multi_modify.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -179,9 +180,14 @@ struct correct_polygon
                 std::less<area_result_type>
             >::apply(exterior_ring(poly));
 
-        typename interior_return_type<Polygon>::type rings
-                    = interior_rings(poly);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typedef typename interior_return_type<Polygon>::type rings_ref;
+        typedef typename boost::range_iterator
+            <
+                typename boost::remove_reference<rings_ref>::type
+            >::type rings_iterator;
+
+        rings_ref rings = interior_rings(poly);
+        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             correct_ring
                 <
@@ -238,6 +244,31 @@ struct correct<Ring, ring_tag>
 template <typename Polygon>
 struct correct<Polygon, polygon_tag>
     : detail::correct::correct_polygon<Polygon>
+{};
+
+
+template <typename MultiPoint>
+struct correct<MultiPoint, multi_point_tag>
+    : detail::correct::correct_nop<MultiPoint>
+{};
+
+
+template <typename MultiLineString>
+struct correct<MultiLineString, multi_linestring_tag>
+    : detail::correct::correct_nop<MultiLineString>
+{};
+
+
+template <typename Geometry>
+struct correct<Geometry, multi_polygon_tag>
+    : detail::multi_modify
+        <
+            Geometry,
+            detail::correct::correct_polygon
+                <
+                    typename boost::range_value<Geometry>::type
+                >
+        >
 {};
 
 

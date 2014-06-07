@@ -18,5 +18,4 @@
 #include <boost/geometry/algorithms/for_each.hpp>
 
 
-
 #endif // BOOST_GEOMETRY_MULTI_ALGORITHMS_FOR_EACH_HPP
