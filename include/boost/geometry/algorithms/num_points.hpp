@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -17,12 +18,12 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -81,12 +82,12 @@ struct polygon_count: private range_count
     template <typename Polygon>
     static inline std::size_t apply(Polygon const& poly, bool add_for_open)
     {
-        std::size_t n = range_count::apply(
-                    exterior_ring(poly), add_for_open);
+        std::size_t n = range_count::apply(exterior_ring(poly), add_for_open);
 
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(poly);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(poly);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             n += range_count::apply(*it, add_for_open);
         }

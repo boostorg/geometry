@@ -9,8 +9,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERIOR_ITERATOR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERIOR_ITERATOR_HPP
 
-#include <boost/geometry/core/interior_type.hpp>
 #include <boost/range/iterator.hpp>
+#include <boost/range/value_type.hpp>
+
+#include <boost/geometry/core/interior_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,6 +32,34 @@ struct interior_iterator
     typedef typename boost::range_iterator
         <
             typename geometry::interior_type<Geometry>::type        
+        >::type type;
+};
+
+template <typename BaseT, typename T>
+struct copy_const
+{
+    typedef T type;
+};
+
+template <typename BaseT, typename T>
+struct copy_const<BaseT const, T>
+{
+    typedef T const type;
+};
+
+template <typename Geometry>
+struct interior_ring_iterator
+{
+    typedef typename boost::range_iterator
+        <
+            typename copy_const
+                <
+                    typename geometry::interior_type<Geometry>::type,
+                    typename boost::range_value
+                        <
+                            typename geometry::interior_type<Geometry>::type
+                        >::type
+                >::type
         >::type type;
 };
 
