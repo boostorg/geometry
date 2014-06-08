@@ -84,8 +84,18 @@ struct turn_assign_for_buffer
     static bool const include_degenerate = false;
     static bool const include_opposite = true;
 
-    template <typename Point1, typename Point2, typename Turn, typename IntersectionInfo, typename DirInfo>
-    static inline void apply(Turn& turn, Point1 const& p1, Point2 const& p2, IntersectionInfo const& intersection_info, DirInfo const& dir_info)
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename Turn,
+        typename IntersectionInfo,
+        typename DirInfo
+    >
+    static inline void apply(Turn& turn,
+            Point1 const& , Point2 const& ,
+            IntersectionInfo const& intersection_info,
+            DirInfo const& dir_info)
     {
         if (dir_info.opposite && intersection_info.count == 2)
         {

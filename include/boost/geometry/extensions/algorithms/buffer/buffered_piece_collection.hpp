@@ -328,7 +328,6 @@ struct buffered_piece_collection
             {
                 m_in_opposite_segments.insert(it->operations[0].seg_id);
                 m_in_opposite_segments.insert(it->operations[1].seg_id);
-//std::cout << " " << it->operations[0].seg_id.segment_index;
             }
         }
     }
@@ -354,14 +353,10 @@ struct buffered_piece_collection
 
             buffer_turn_info_type const& turn = m_turns[turn_index];
 
-//std::cout << "Adding point " << turn_index << " " << geometry::wkt(turn.point) << std::endl;
-
             add_angles(turn_index, 0, turn.point, turn.operations[0]);
             add_angles(turn_index, 1, turn.point, turn.operations[1]);
         }
     }
-
-
 
     inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
     {
@@ -377,12 +372,7 @@ struct buffered_piece_collection
         }
 
         segment_identifier seg_id = pc.first_seg_id;
-        if (seg_id.segment_index < 0)
-        {
-            // Should not occur
-            std::cout << "Warning: negative segment_index" << std::endl;
-            return;
-        }
+        BOOST_ASSERT(seg_id.segment_index >= 0);
 
         int const geometry_code = detail::within::point_in_geometry(turn.robust_point, pc.robust_ring);
 
@@ -526,7 +516,6 @@ struct buffered_piece_collection
                 {
                     get_left_turns(info);
                 }
-                //std::cout << geometry::wkt(it->first) << " " << int(info.occupied()) << std::endl;
             }
         }
     }
@@ -757,13 +746,15 @@ struct buffered_piece_collection
     {
         fill_opposite_segments();
 
+        typedef typename boost::range_iterator<turn_vector_type const>::type
+            iterator_type;
         // Pass 1: fill all segments part of opposite segments
         int index = 0;
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
+        for (iterator_type it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it, ++index)
         {
-            buffer_turn_info_type& turn = *it;
-//std::cout << "Referring to point " << geometry::wkt(turn.point) << std::endl;
+            const buffer_turn_info_type& turn = *it;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
                 || m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
             {
@@ -776,10 +767,11 @@ struct buffered_piece_collection
 
         // Pass 3: fill all segments intersecting in points present in the map
         index = 0;
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
+        for (iterator_type it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it, ++index)
         {
-            buffer_turn_info_type& turn = *it;
+            const buffer_turn_info_type& turn = *it;
             if (m_in_opposite_segments.count(turn.operations[0].seg_id) == 0
                 && m_in_opposite_segments.count(turn.operations[1].seg_id) ==  0)
             {
@@ -863,52 +855,6 @@ struct buffered_piece_collection
                 {
                     it->location = inside_original;
                 }
-            }
-        }
-    }
-
-    template <typename Turns>
-    static inline void split_uu_turns(Turns& turns)
-    {
-        Turns added;
-
-        for (typename boost::range_iterator<Turns>::type it = boost::begin(turns);
-            it != boost::end(turns); ++it)
-        {
-            if (it->both(detail::overlay::operation_union))
-            {
-                //std::cout << "U";
-
-                typename boost::range_value<Turns>::type turn = *it; // copy by value
-                // std::swap(turn.operations[0], turn.operations[1]);
-                turn.operations[0].operation = detail::overlay::operation_continue;
-                turn.operations[1].operation = detail::overlay::operation_continue;
-                it->operations[1].operation = detail::overlay::operation_continue;
-                it->operations[0].operation = detail::overlay::operation_continue;
-                added.push_back(turn);
-            }
-        }
-
-        for (typename boost::range_iterator<Turns>::type it = boost::begin(added);
-            it != boost::end(added); ++it)
-        {
-            turns.push_back(*it);
-        }
-
-        if (added.size() > 0)
-        {
-            for (typename boost::range_iterator<Turns>::type it = boost::begin(turns);
-                it != boost::end(turns); ++it)
-            {
-                std::cout << "Turn"
-                    << " "<< si(it->operations[0].seg_id)
-                    << " "<< si(it->operations[1].seg_id)
-                    << " " << it->operations[0].piece_index
-                    << "/" << it->operations[1].piece_index
-                    << " " << method_char(it->method)
-                    << " " << operation_char(it->operations[0].operation)
-                    << "/" << operation_char(it->operations[1].operation)
-                    << std::endl;
             }
         }
     }
@@ -1031,28 +977,6 @@ struct buffered_piece_collection
         }
 
         rescale_pieces();
-
-
-#if 0
-        //discard_uu_turns();
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
-        {
-            //if (it->both(detail::overlay::operation_union))
-            //{
-            //    std::cout << "double UU" << std::endl;
-            //}
-            //std::cout << std::setprecision(16) << geometry::wkt(it->point)
-   //             << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
-   //             << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
-            //    << " " << method_char(it->method)
-            //    << ":" << operation_char(it->operations[0].operation)
-            //    << "/" << operation_char(it->operations[1].operation)
-   //             << std::endl;
-        }
-
-        //split_uu_turns(m_turns);
-#endif
 
         fill_segment_map();
         get_occupation();
@@ -1280,8 +1204,6 @@ struct buffered_piece_collection
                 ring_identifier id(0, index, -1);
                 selected[id] = properties(*it, true);
             }
-
-//std::cout << geometry::wkt(*it) << std::endl;
         }
 
         // Select all created rings
