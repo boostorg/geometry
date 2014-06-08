@@ -9,17 +9,13 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OCCUPATION_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OCCUPATION_INFO_HPP
 
-#if ! defined(NDEBUG)
-//  #define BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-#endif
-
 #include <algorithm>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/iterators/closing_iterator.hpp>
 
 #include <boost/geometry/algorithms/detail/get_left_turns.hpp>
@@ -33,52 +29,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template <typename P>
-class relaxed_less
-{
-    typedef typename geometry::coordinate_type<P>::type coordinate_type;
-
-    coordinate_type epsilon;
-
-public :
-
-    inline relaxed_less()
-    {
-        // TODO: adapt for ttmath, and maybe build the map in another way
-        // (e.g. exact constellations of segment-id's), maybe adaptive.
-        epsilon = std::numeric_limits<double>::epsilon() * 100.0;
-    }
-
-    inline bool operator()(P const& a, P const& b) const
-    {
-        coordinate_type const dx = math::abs(geometry::get<0>(a) - geometry::get<0>(b));
-        coordinate_type const dy = math::abs(geometry::get<1>(a) - geometry::get<1>(b));
-
-
-        if (dx < epsilon && dy < epsilon)
-        {
-            return false;
-        }
-        if (dx < epsilon)
-        {
-            return geometry::get<1>(a) < geometry::get<1>(b);
-        }
-
-        return geometry::get<0>(a) < geometry::get<0>(b);
-    }
-
-    inline bool equals(P const& a, P const& b) const
-    {
-        typedef typename geometry::coordinate_type<P>::type coordinate_type;
-
-        coordinate_type const dx = math::abs(geometry::get<0>(a) - geometry::get<0>(b));
-        coordinate_type const dy = math::abs(geometry::get<1>(a) - geometry::get<1>(b));
-
-        return dx < epsilon && dy < epsilon;
-    };
-};
-
-
 template <typename T, typename P1, typename P2>
 inline T calculate_angle(P1 const& from_point, P2 const& to_point)
 {
@@ -88,8 +38,18 @@ inline T calculate_angle(P1 const& from_point, P2 const& to_point)
     return atan2(geometry::get<1>(v), geometry::get<0>(v));
 }
 
-template <typename Iterator, typename Vector>
-inline Iterator advance_circular(Iterator it, Vector const& vector, segment_identifier& seg_id, bool forward = true)
+template
+<
+    typename Iterator,
+    typename Vector,
+    typename RobustPolicy,
+    typename RobustPoint
+>
+inline Iterator advance_circular(Iterator it, Vector const& vector,
+        RobustPolicy const& robust_policy,
+        RobustPoint& robust_point,
+        segment_identifier& seg_id,
+        bool forward = true)
 {
     int const increment = forward ? 1 : -1;
     if (it == boost::begin(vector) && increment < 0)
@@ -104,6 +64,7 @@ inline Iterator advance_circular(Iterator it, Vector const& vector, segment_iden
         seg_id.segment_index = 0;
         it = boost::begin(vector);
     }
+    geometry::recalculate(robust_point, *it, robust_policy);
     return it;
 }
 
@@ -142,6 +103,8 @@ class occupation_info
 
 public :
     collection_type angles;
+    int m_count;
+
 private :
     bool m_occupied;
     bool m_calculated;
@@ -174,17 +137,19 @@ private :
 
 public :
     inline occupation_info()
-        : m_occupied(false)
+        : m_count(0)
+        , m_occupied(false)
         , m_calculated(false)
     {}
 
-    template <typename PointC, typename Point1, typename Point2>
-    inline void add(PointC const& map_point, Point1 const& direction_point, Point2 const& intersection_point,
+    template <typename RobustPoint>
+    inline void add(RobustPoint const& direction_point, RobustPoint const& intersection_point,
                     int turn_index, int operation_index,
                     segment_identifier const& seg_id, bool incoming)
     {
         //std::cout << "-> adding angle " << geometry::wkt(direction_point) << " .. " << geometry::wkt(intersection_point) << " " << int(incoming) << std::endl;
-        if (geometry::equals(direction_point, intersection_point))
+        geometry::equal_to<RobustPoint> comparator;
+        if (comparator(direction_point, intersection_point))
         {
             //std::cout << "EQUAL! Skipping" << std::endl;
             return;
@@ -192,7 +157,7 @@ public :
 
         AngleInfo info;
         info.incoming = incoming;
-        info.angle = calculate_angle<typename AngleInfo::angle_type>(direction_point, map_point);
+        info.angle = calculate_angle<typename AngleInfo::angle_type>(direction_point, intersection_point);
         info.seg_id = seg_id;
         info.turn_index = turn_index;
         info.operation_index = operation_index;
@@ -224,9 +189,17 @@ public :
 };
 
 
-template <typename Point, typename Ring, typename Info>
-inline void add_incoming_and_outgoing_angles(Point const& map_point, Point const& intersection_point,
-                Ring const& ring,
+template
+<
+    typename RobustPoint,
+    typename RobustPolicy,
+    typename Ring,
+    typename Info
+>
+inline void add_incoming_and_outgoing_angles(
+                RobustPoint const& intersection_point, // rescaled
+                Ring const& ring, // non-rescaled
+                RobustPolicy const& robust_policy,
                 int turn_index,
                 int operation_index,
                 segment_identifier seg_id,
@@ -245,35 +218,37 @@ inline void add_incoming_and_outgoing_angles(Point const& map_point, Point const
 
     segment_identifier real_seg_id = seg_id;
     iterator_type it = boost::begin(ring) + seg_id.segment_index;
+    RobustPoint current;
+    geometry::recalculate(current, *it, robust_policy);
 
     // TODO: if we use turn-info ("to", "middle"), we know if to advance without resorting to equals
-    relaxed_less<Point> comparator;
+    geometry::equal_to<RobustPoint> comparator;
 
-    if (comparator.equals(intersection_point, *it))
+    if (comparator(intersection_point, current))
     {
         // It should be equal only once. But otherwise we skip it (in "add")
-        it = advance_circular(it, ring, seg_id, false);
+        it = advance_circular(it, ring, robust_policy, current, seg_id, false);
     }
 
-    info.add(map_point, *it, intersection_point, turn_index, operation_index, real_seg_id, true);
+    info.add(current, intersection_point, turn_index, operation_index, real_seg_id, true);
 
-    if (comparator.equals(intersection_point, *it))
+    if (comparator(intersection_point, current))
     {
-        it = advance_circular(it, ring, real_seg_id);
+        it = advance_circular(it, ring, robust_policy, current, real_seg_id);
     }
     else
     {
         // Don't upgrade the ID
-        it = advance_circular(it, ring, seg_id);
+        it = advance_circular(it, ring, robust_policy, current, seg_id);
     }
     for (int defensive_check = 0;
-        comparator.equals(intersection_point, *it) && defensive_check < n;
+        comparator(intersection_point, current) && defensive_check < n;
         defensive_check++)
     {
-        it = advance_circular(it, ring, real_seg_id);
+        it = advance_circular(it, ring, robust_policy, current, real_seg_id);
     }
 
-    info.add(map_point, *it, intersection_point, turn_index, operation_index, real_seg_id, false);
+    info.add(current, intersection_point, turn_index, operation_index, real_seg_id, false);
 }
 
 
@@ -284,28 +259,43 @@ template <typename Point, typename OccupationInfo>
 class occupation_map
 {
 public :
-    typedef std::map<Point, OccupationInfo, relaxed_less<Point> > map_type;
+    typedef std::map<Point, OccupationInfo, geometry::less<Point> > map_type;
 
     map_type map;
     std::set<int> turn_indices;
 
-    inline OccupationInfo& find_or_insert(Point const& point, Point& mapped_point)
+    inline OccupationInfo& find(Point const& point)
     {
-        typename map_type::iterator it = map.find(point);
-        if (it == boost::end(map))
-        {
-            std::pair<typename map_type::iterator, bool> pair
-                        = map.insert(std::make_pair(point, OccupationInfo()));
-            it = pair.first;
-        }
-        mapped_point = it->first;
-        return it->second;
+        BOOST_ASSERT(map.find(point) != map.end());
+        return map[point];
+    }
+
+    inline void insert(Point const& point)
+    {
+        map[point].m_count++;
     }
 
     inline bool contains(Point const& point) const
     {
-        typename map_type::const_iterator it = map.find(point);
-        return it != boost::end(map);
+        return map.find(point) != boost::end(map);
+    }
+
+    inline void erase_unique_keys()
+    {
+        typename map_type::iterator it = map.begin();
+        while (it != map.end())
+        {
+            if (it->second.m_count <= 1)
+            {
+                typename map_type::iterator to_erase = it;
+                ++it;
+                map.erase(to_erase);
+            }
+            else
+            {
+                ++it;
+            }
+        }
     }
 
     inline bool contains_turn_index(int index) const

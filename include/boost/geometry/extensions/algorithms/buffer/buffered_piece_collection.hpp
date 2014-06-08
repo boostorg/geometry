@@ -191,18 +191,15 @@ struct buffered_piece_collection
 
     std::map<std::pair<segment_identifier, segment_identifier>, std::set<int> > m_turn_indices_per_segment_pair;
 
-    // To check clustered locations we keep track of segments being opposite somewhere
-    std::set<segment_identifier> m_in_opposite_segments;
-
     RobustPolicy const& m_robust_policy;
 
-    struct buffer_occupation_info : public occupation_info<angle_info<point_type, coordinate_type> >
+    struct buffer_occupation_info : public occupation_info<angle_info<robust_point_type, coordinate_type> >
     {
         std::set<segment_identifier> seg_ids;
         std::set<int> turn_indices;
     };
 
-    typedef occupation_map<point_type, buffer_occupation_info> occupation_map_type;
+    typedef occupation_map<robust_point_type, buffer_occupation_info> occupation_map_type;
     occupation_map_type m_occupation_map;
 
     struct redundant_turn
@@ -319,27 +316,16 @@ struct buffered_piece_collection
         }
     }
 
-    inline void fill_opposite_segments()
+    inline void add_angles(int turn_index, int operation_index,
+                    robust_point_type const& point,
+                    buffer_turn_operation_type const& operation)
     {
-        for (typename boost::range_iterator<turn_vector_type const>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
-        {
-            if (it->is_opposite)
-            {
-                m_in_opposite_segments.insert(it->operations[0].seg_id);
-                m_in_opposite_segments.insert(it->operations[1].seg_id);
-            }
-        }
-    }
-
-    inline void add_angles(int turn_index, int operation_index, point_type const& point, buffer_turn_operation_type const& operation)
-    {
-        point_type mapped_point;
-        buffer_occupation_info& info = m_occupation_map.find_or_insert(point, mapped_point);
+        buffer_occupation_info& info = m_occupation_map.find(point);
         info.turn_indices.insert(turn_index);
         info.seg_ids.insert(operation.seg_id);
-        add_incoming_and_outgoing_angles(mapped_point, point,
+        add_incoming_and_outgoing_angles(point,
                     offsetted_rings[operation.seg_id.multi_index],
+                    m_robust_policy,
                     turn_index, operation_index,
                     operation.seg_id,
                     info);
@@ -353,8 +339,8 @@ struct buffered_piece_collection
 
             buffer_turn_info_type const& turn = m_turns[turn_index];
 
-            add_angles(turn_index, 0, turn.point, turn.operations[0]);
-            add_angles(turn_index, 1, turn.point, turn.operations[1]);
+            add_angles(turn_index, 0, turn.robust_point, turn.operations[0]);
+            add_angles(turn_index, 1, turn.robust_point, turn.operations[1]);
         }
     }
 
@@ -571,43 +557,6 @@ struct buffered_piece_collection
         }
     }
 
-    template <typename Iterator>
-    static inline point_type const& select_for_side(Iterator first, Iterator second, int index)
-    {
-        return index == 0 ? *first : *second;
-    }
-
-
-    inline int get_side(segment_identifier const& seg_id1, segment_identifier const& seg_id2, int which = 1) const
-    {
-        typedef typename boost::range_iterator<Ring const>::type iterator_type;
-
-        Ring const& ring1 = offsetted_rings[seg_id1.multi_index];
-        Ring const& ring2 = offsetted_rings[seg_id2.multi_index];
-
-        iterator_type it1 = boost::begin(ring1) + seg_id1.segment_index;
-        iterator_type it2 = boost::begin(ring2) + seg_id2.segment_index;
-
-        iterator_type prev1 = it1++;
-        iterator_type prev2 = it2++;
-
-
-        robust_point_type p1_rob, p2_rob, prev1_rob, prev2_rob, cur1_rob, cur2_rob;
-        geometry::recalculate(p1_rob, select_for_side(prev1, it1, which), m_robust_policy);
-        geometry::recalculate(p2_rob, select_for_side(prev2, it2, which), m_robust_policy);
-        geometry::recalculate(prev1_rob, *prev1, m_robust_policy);
-        geometry::recalculate(prev2_rob, *prev2, m_robust_policy);
-        geometry::recalculate(cur1_rob, *it1, m_robust_policy);
-        geometry::recalculate(cur2_rob, *it2, m_robust_policy);
-
-        int const code1 = side_strategy::apply(p1_rob, prev2_rob, cur2_rob);
-        int const code2 = side_strategy::apply(p2_rob, prev1_rob, cur1_rob);
-
-        if (code1 == 1 && code2 == -1) return 1;
-        if (code1 == -1 && code2 == 1) return -1;
-
-        return 0;
-    }
 
     struct cluster_info
     {
@@ -633,153 +582,31 @@ struct buffered_piece_collection
         std::vector<cluster_info> intersecting_segments;
     };
 
-    static inline bool add_mutual_intersection(clustered_info const& cluster, segment_identifier const& seg_id)
-    {
-        bool result = false;
-        //if (cluster.intersecting_ids.count(seg_id) > 0)
-        typedef typename boost::range_iterator<std::vector<cluster_info> const>::type iterator_type;
-        for(iterator_type it = cluster.intersecting_segments.begin(); it != cluster.intersecting_segments.end(); it++)
-        {
-            if (it->operation.seg_id == seg_id)
-            {
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    inline bool mutually_interact(cluster_info const& a, cluster_info const& b, clustered_info const& other) const
-    {
-        // Either these two segments intersect, or they are perfectly collinear.
-        // First check the intersection:
-        if (add_mutual_intersection(other, b.operation.seg_id))
-        {
-            std::cout << "#";
-            return true;
-        }
-
-        // Then the collinearity
-        if (get_side(a.operation.seg_id, b.operation.seg_id) == 0)
-        {
-            std::cout << "1";
-            return true;
-
-        }
-
-        if (get_side(a.operation.seg_id, b.operation.seg_id, 0) == 0)
-        {
-            std::cout << "0";
-            return true;
-        }
-
-        if (detail::overlay::points_equal_or_close(a.point, b.point, m_robust_policy))
-        {
-            std::cout << "=";
-            return true;
-        }
-
-        return false;
-    }
-
-    inline void add_mutual_intersections(clustered_info const& cluster, std::map<segment_identifier, clustered_info> const& map)
-    {
-        typedef std::map<segment_identifier, clustered_info> map_type;
-        typedef typename boost::range_iterator<map_type const>::type map_it;
-        typedef typename boost::range_iterator<std::vector<cluster_info> const>::type cluster_it;
-        for(cluster_it it1 = cluster.intersecting_segments.begin(); it1 != cluster.intersecting_segments.end(); it1++)
-        {
-            map_it const& other_cluster_it = map.find(it1->operation.seg_id);
-            if (other_cluster_it != map.end())
-            {
-                for(cluster_it it2 = it1 + 1; it2 != cluster.intersecting_segments.end(); it2++)
-                {
-                    if (! m_occupation_map.contains_turn_index(it1->turn_index)
-                        || ! m_occupation_map.contains_turn_index(it2->turn_index))
-                    {
-                        if (mutually_interact(*it1, *it2, other_cluster_it->second))
-                        {
-                            add_angles(it1->turn_index);
-                            add_angles(it2->turn_index);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-    inline void add_multi_intersections_to_occupation_map()
-    {
-        // Pass 1: create map of all segments
-        typedef std::map<segment_identifier, clustered_info> map_type;
-        map_type map;
-
-        int index = 0;
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
-        {
-            buffer_turn_info_type const& turn = *it;
-
-            // Take care with all the indices
-            map[turn.operations[0].seg_id].piece_index = turn.operations[0].piece_index;
-            map[turn.operations[0].seg_id].intersecting_segments.push_back(cluster_info(index, turn.point, turn.operations[1]));
-            map[turn.operations[0].seg_id].intersecting_ids.insert(turn.operations[1].seg_id);
-
-            map[turn.operations[1].seg_id].piece_index = turn.operations[1].piece_index;
-            map[turn.operations[1].seg_id].intersecting_segments.push_back(cluster_info(index, turn.point, turn.operations[0]));
-            map[turn.operations[1].seg_id].intersecting_ids.insert(turn.operations[0].seg_id);
-        }
-
-        // Pass 2:
-        // Verify all segments crossing with more than one segment, and if they intersect each other,
-        // add that pair
-        for (typename map_type::const_iterator mit = map.begin(); mit != map.end(); ++mit)
-        {
-            if (mit->second.intersecting_segments.size() > 1)
-            {
-                add_mutual_intersections(mit->second, map);
-            }
-        }
-    }
 
     inline void get_occupation()
     {
-        fill_opposite_segments();
-
+        // 1: Add all intersection points to occupation map
         typedef typename boost::range_iterator<turn_vector_type const>::type
             iterator_type;
-        // Pass 1: fill all segments part of opposite segments
+
         int index = 0;
         for (iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
             ++it, ++index)
         {
-            const buffer_turn_info_type& turn = *it;
-            if (m_in_opposite_segments.count(turn.operations[0].seg_id) > 0
-                || m_in_opposite_segments.count(turn.operations[1].seg_id) > 0)
-            {
-                add_angles(index);
-            }
+            m_occupation_map.insert(it->robust_point);
         }
-
-        // Pass 2: add multi intersection
-        add_multi_intersections_to_occupation_map();
-
-        // Pass 3: fill all segments intersecting in points present in the map
+        // 2: Remove all points from map which has only one
+        m_occupation_map.erase_unique_keys();
+        // 3: Add angles for all point still present in the map
         index = 0;
         for (iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
             ++it, ++index)
         {
-            const buffer_turn_info_type& turn = *it;
-            if (m_in_opposite_segments.count(turn.operations[0].seg_id) == 0
-                && m_in_opposite_segments.count(turn.operations[1].seg_id) ==  0)
+            if (m_occupation_map.contains(it->robust_point))
             {
-                // See if it is in the map
-                if (m_occupation_map.contains(turn.point))
-                {
-                    add_angles(index);
-                }
+                add_angles(index);
             }
         }
     }
