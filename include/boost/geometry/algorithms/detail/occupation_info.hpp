@@ -134,6 +134,8 @@ private :
         }
         return true;
     }
+#endif
+
 
 public :
     inline occupation_info()
@@ -143,31 +145,45 @@ public :
     {}
 
     template <typename RobustPoint>
-    inline void add(RobustPoint const& direction_point, RobustPoint const& intersection_point,
+    inline void add(RobustPoint const& incoming_point,
+                    RobustPoint const& outgoing_point,
+                    RobustPoint const& intersection_point,
                     int turn_index, int operation_index,
-                    segment_identifier const& seg_id, bool incoming)
+                    segment_identifier const& seg_id)
     {
-        //std::cout << "-> adding angle " << geometry::wkt(direction_point) << " .. " << geometry::wkt(intersection_point) << " " << int(incoming) << std::endl;
         geometry::equal_to<RobustPoint> comparator;
-        if (comparator(direction_point, intersection_point))
+        if (comparator(incoming_point, intersection_point))
         {
-            //std::cout << "EQUAL! Skipping" << std::endl;
+            return;
+        }
+        if (comparator(outgoing_point, intersection_point))
+        {
             return;
         }
 
         AngleInfo info;
-        info.incoming = incoming;
-        info.angle = calculate_angle<typename AngleInfo::angle_type>(direction_point, intersection_point);
         info.seg_id = seg_id;
         info.turn_index = turn_index;
         info.operation_index = operation_index;
         info.intersection_point = intersection_point;
-        info.direction_point = direction_point;
-        angles.push_back(info);
+
+        {
+            info.angle = calculate_angle<typename AngleInfo::angle_type>(incoming_point, intersection_point);
+            info.direction_point = incoming_point;
+            info.incoming = true;
+            angles.push_back(info);
+        }
+        {
+            info.angle = calculate_angle<typename AngleInfo::angle_type>(outgoing_point, intersection_point);
+            info.direction_point = outgoing_point;
+            info.incoming = false;
+            angles.push_back(info);
+        }
 
         m_calculated = false;
     }
 
+#ifdef BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
     inline bool occupied()
     {
         if (! m_calculated)
@@ -177,14 +193,23 @@ public :
         }
         return m_occupied;
     }
+#endif
 
     template <typename Turns, typename TurnSegmentIndices>
     inline void get_left_turns(
                     Turns& turns, TurnSegmentIndices const& turn_segment_indices,
                     std::set<int>& keep_indices)
     {
+#ifdef BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
         std::sort(angles.begin(), angles.end(), angle_sort());
         calculate_left_turns<AngleInfo>(angles, turns, turn_segment_indices, keep_indices);
+#else
+        // Sort on angle
+        std::sort(sorted.begin(), sorted.end(), detail::left_turns::angle_less<typename angle_info::point_type>(p));
+
+        // Block all turns on the right side of any turn
+        detail::left_turns::block_turns_on_right_sides(angles, sorted);
+#endif
     }
 };
 
@@ -221,6 +246,7 @@ inline void add_incoming_and_outgoing_angles(
     RobustPoint current;
     geometry::recalculate(current, *it, robust_policy);
 
+    // TODO: we can add this points in get_turn_info/assign already
     // TODO: if we use turn-info ("to", "middle"), we know if to advance without resorting to equals
     geometry::equal_to<RobustPoint> comparator;
 
@@ -230,7 +256,7 @@ inline void add_incoming_and_outgoing_angles(
         it = advance_circular(it, ring, robust_policy, current, seg_id, false);
     }
 
-    info.add(current, intersection_point, turn_index, operation_index, real_seg_id, true);
+    RobustPoint incoming = current;
 
     if (comparator(intersection_point, current))
     {
@@ -248,7 +274,7 @@ inline void add_incoming_and_outgoing_angles(
         it = advance_circular(it, ring, robust_policy, current, real_seg_id);
     }
 
-    info.add(current, intersection_point, turn_index, operation_index, real_seg_id, false);
+    info.add(incoming, current, intersection_point, turn_index, operation_index, real_seg_id);
 }
 
 
