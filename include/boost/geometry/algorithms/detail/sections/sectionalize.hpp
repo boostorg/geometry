@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014.
 // Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
@@ -25,11 +26,11 @@
 #include <boost/concept/requires.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
@@ -495,10 +496,10 @@ struct sectionalize_polygon
         per_range::apply(exterior_ring(poly), robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
 
         ring_id.ring_index++;
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(poly);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
-             ++it, ++ring_id.ring_index)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(poly);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it, ++ring_id.ring_index)
         {
             per_range::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
         }
