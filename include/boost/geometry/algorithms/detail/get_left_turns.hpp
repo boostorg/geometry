@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -9,7 +9,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 
+#include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/iterators/closing_iterator.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
+#include <boost/geometry/strategies/side.hpp>
 
 namespace boost { namespace geometry
 {
@@ -19,6 +24,7 @@ namespace boost { namespace geometry
 namespace detail
 {
 
+#ifdef BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
 // TODO: move this to /util/
 template <typename T>
 static inline std::pair<T, T> ordered_pair(T const& first, T const& second)
@@ -361,6 +367,239 @@ inline void calculate_left_turns(Angles const& angles,
             prefer_by_priority(turns, keep_indices);
     }
 }
+#else
+
+namespace left_turns
+{
+
+template <typename Point>
+struct turn_angle_info
+{
+    bg::segment_identifier seg_id;
+    Point points[2];
+
+    turn_angle_info(bg::segment_identifier const& id, Point const& from, Point const& to)
+        : seg_id(id)
+    {
+        points[0] = from;
+        points[1] = to;
+    }
+};
+
+
+template <typename Point>
+struct angle_info
+{
+    bg::segment_identifier seg_id;
+    Point point;
+    bool incoming;
+    bool blocked;
+
+    inline angle_info(bg::segment_identifier const& id, bool inc, Point const& p)
+        : seg_id(id)
+        , point(p)
+        , incoming(inc)
+        , blocked(false)
+    {
+    }
+};
+
+template <typename Vector>
+inline int get_quadrant(Vector const& vector)
+{
+    // Return quadrant as layouted in the code below:
+    // 3 | 0
+    // -----
+    // 2 | 1
+    return geometry::get<1>(vector) >= 0
+        ? (geometry::get<0>(vector)  < 0 ? 3 : 0)
+        : (geometry::get<0>(vector)  < 0 ? 2 : 1)
+        ;
+}
+
+
+template <typename Point>
+struct angle_less
+{
+    typedef Point vector_type;
+    typedef typename strategy::side::services::default_strategy
+    <
+        typename cs_tag<Point>::type
+    >::type side_strategy_type;
+
+    angle_less(Point const& origin)
+        : m_origin(origin)
+    {}
+
+    inline int length(vector_type const& v) const
+    {
+        return geometry::get<0>(v) * geometry::get<0>(v)
+             + geometry::get<1>(v) * geometry::get<1>(v)
+             ;
+    }
+
+    template <typename Angle>
+    inline bool operator()(Angle const& p, Angle const& q) const
+    {
+        // Vector origin -> p and origin -> q
+        vector_type pv = p.point;
+        vector_type qv = q.point;
+        geometry::subtract_point(pv, m_origin);
+        geometry::subtract_point(qv, m_origin);
+
+        int const quadrant_p = get_quadrant(pv);
+        int const quadrant_q = get_quadrant(qv);
+        if (quadrant_p != quadrant_q)
+        {
+            return quadrant_p < quadrant_q;
+        }
+        // Same quadrant, check if p is located left of q
+        int const side = side_strategy_type::apply(m_origin, q.point,
+                    p.point);
+        if (side != 0)
+        {
+            return side == 1;
+        }
+        // Collinear, check if one is incoming
+        if (p.incoming != q.incoming)
+        {
+            return int(p.incoming) < int(q.incoming);
+        }
+        // Same quadrant/side/direction, return longest first
+        int const length_p = length(pv);
+        int const length_q = length(qv);
+        if (length_p != length_q)
+        {
+            return length(pv) > length(qv);
+        }
+        // They are still the same. Just compare on seg_id
+        return p.seg_id < q.seg_id;
+    }
+
+private:
+    Point m_origin;
+};
+
+template <typename Point>
+struct angle_equal_to
+{
+    typedef Point vector_type;
+    typedef typename strategy::side::services::default_strategy
+    <
+        typename cs_tag<Point>::type
+    >::type side_strategy_type;
+
+    inline angle_equal_to(Point const& origin)
+        : m_origin(origin)
+    {}
+
+    template <typename Angle>
+    inline bool operator()(Angle const& p, Angle const& q) const
+    {
+        // Vector origin -> p and origin -> q
+        vector_type pv = p.point;
+        vector_type qv = q.point;
+        geometry::subtract_point(pv, m_origin);
+        geometry::subtract_point(qv, m_origin);
+
+        if (get_quadrant(pv) != get_quadrant(qv))
+        {
+            return false;
+        }
+        // Same quadrant, check if p/q are collinear
+        int const side = side_strategy_type::apply(m_origin, q.point,
+                    p.point);
+        return side == 0;
+    }
+
+private:
+    Point m_origin;
+};
+
+struct left_turn
+{
+    segment_identifier from;
+    segment_identifier to;
+};
+
+
+template <typename Point, typename AngleCollection, typename OutputCollection>
+inline void get_left_turns(AngleCollection const& sorted_angles, Point const& origin,
+        OutputCollection& output_collection)
+{
+    angle_equal_to<Point> comparator(origin);
+    typedef geometry::closing_iterator<AngleCollection const> closing_iterator;
+    closing_iterator it(sorted_angles);
+    closing_iterator end(sorted_angles, true);
+
+    closing_iterator previous = it++;
+    for( ; it != end; previous = it++)
+    {
+        if (! it->blocked)
+        {
+            bool equal = comparator(*previous, *it);
+            bool include = ! equal
+                && previous->incoming
+                && !it->incoming;
+            if (include)
+            {
+                left_turn turn;
+                turn.from = previous->seg_id;
+                turn.to = it->seg_id;
+                output_collection.push_back(turn);
+            }
+        }
+    }
+}
+
+template <typename AngleTurnCollection, typename AngleCollection>
+inline void block_turns_on_right_sides(AngleTurnCollection const& turns,
+        AngleCollection& sorted)
+{
+    // Create a small (seg_id -> index) map for fast finding turns
+    std::map<segment_identifier, int> incoming;
+    std::map<segment_identifier, int> outgoing;
+    int index = 0;
+    for (typename boost::range_iterator<AngleCollection>::type it =
+        sorted.begin(); it != sorted.end(); ++it, ++index)
+    {
+        if (it->incoming)
+        {
+            incoming[it->seg_id] = index;
+        }
+        else
+        {
+            outgoing[it->seg_id] = index;
+        }
+    }
+
+    // Walk through turns and block every outgoing angle on the right side
+    for (typename boost::range_iterator<AngleTurnCollection const>::type it =
+        turns.begin(); it != turns.end(); ++it)
+    {
+        int incoming_index = incoming[it->seg_id];
+        int outgoing_index = outgoing[it->seg_id];
+        int index = incoming_index;
+        while(index != outgoing_index)
+        {
+            if (!sorted[index].incoming)
+            {
+                sorted[index].blocked = true;
+            }
+
+            // Go back (circular)
+            index--;
+            if (index == -1)
+            {
+                index = boost::size(sorted) - 1;
+            }
+        }
+    }
+}
+
+}  // namespace left_turns
+
+#endif
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
