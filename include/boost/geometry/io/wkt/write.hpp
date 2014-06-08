@@ -19,11 +19,11 @@
 
 #include <boost/array.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
@@ -197,9 +197,10 @@ struct wkt_poly
         os << "(";
         wkt_sequence<ring>::apply(os, exterior_ring(poly), force_closed);
 
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(poly);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(poly);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             os << ",";
             wkt_sequence<ring>::apply(os, *it, force_closed);
