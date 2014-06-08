@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -35,6 +36,7 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_indexed_to_indexed.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
@@ -202,23 +204,15 @@ struct polygon_to_polygon
                 >::type
             >::apply(interior_rings(destination), num_interior_rings(source));
 
-        typedef typename interior_return_type<Polygon1 const>::type rings_source_ref;
-        typedef typename interior_return_type<Polygon2>::type rings_dest_ref;
-        
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_source_ref>::type
-            >::type rings_source_iterator;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_dest_ref>::type
-            >::type rings_dest_iterator;
+        typename interior_return_type<Polygon1 const>::type
+            rings_source = interior_rings(source);
+        typename interior_return_type<Polygon2>::type
+            rings_dest = interior_rings(destination);
 
-        rings_source_ref rings_source = interior_rings(source);
-        rings_dest_ref rings_dest = interior_rings(destination);
-
-        rings_source_iterator it_source = boost::begin(rings_source);
-        rings_dest_iterator it_dest = boost::begin(rings_dest);
+        typename detail::interior_iterator<Polygon1 const>::type
+            it_source = boost::begin(rings_source);
+        typename detail::interior_iterator<Polygon2>::type
+            it_dest = boost::begin(rings_dest);
 
         for ( ; it_source != boost::end(rings_source); ++it_source, ++it_dest)
         {

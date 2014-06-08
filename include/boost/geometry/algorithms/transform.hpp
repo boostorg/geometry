@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -25,6 +26,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -173,23 +175,15 @@ struct transform_polygon
                 >::type
             >::apply(interior_rings(poly2), num_interior_rings(poly1));
 
-        typedef typename interior_return_type<Polygon1 const>::type rings1_cref;
-        typedef typename interior_return_type<Polygon2>::type rings2_ref;
+        typename interior_return_type<Polygon1 const>::type
+            rings1 = interior_rings(poly1);
+        typename interior_return_type<Polygon2>::type
+            rings2 = interior_rings(poly2);
 
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings1_cref>::type
-            >::type rings1_iterator;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings2_ref>::type
-            >::type rings2_iterator;
-
-        rings1_cref rings1 = interior_rings(poly1);
-        rings2_ref rings2 = interior_rings(poly2);
-
-        rings1_iterator it1 = boost::begin(rings1);
-        rings2_iterator it2 = boost::begin(rings2);
+        typename detail::interior_iterator<Polygon1 const>::type
+            it1 = boost::begin(rings1);
+        typename detail::interior_iterator<Polygon2>::type
+            it2 = boost::begin(rings2);
         for ( ; it1 != boost::end(rings1); ++it1, ++it2)
         {
             if ( ! transform_range_out<point2_type>(*it1,

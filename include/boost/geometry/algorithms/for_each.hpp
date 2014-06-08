@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,6 +22,7 @@
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -116,14 +118,11 @@ struct fe_polygon_per_point
     {
         fe_range_per_point::apply(exterior_ring(poly), f);
 
-        typedef typename interior_return_type<Polygon>::type rings_ref;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_ref>::type
-            >::type iterator_type;
+        typename interior_return_type<Polygon>::type
+            rings = interior_rings(poly);
 
-        rings_ref rings = interior_rings(poly);
-        for (iterator_type it = boost::begin(rings); it != boost::end(rings); ++it)
+        for (typename detail::interior_iterator<Polygon>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             fe_range_per_point::apply(*it, f);
         }
@@ -144,8 +143,11 @@ struct fe_polygon_per_segment
                 typename boost::remove_reference<rings_ref>::type
             >::type iterator_type;
 
-        rings_ref rings = interior_rings(poly);
-        for (iterator_type it = boost::begin(rings); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon>::type
+            rings = interior_rings(poly);
+
+        for (typename detail::interior_iterator<Polygon>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             fe_range_per_segment::apply(*it, f);
         }

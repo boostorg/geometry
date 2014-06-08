@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -35,6 +36,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
@@ -240,14 +242,11 @@ struct centroid_polygon_state
 
         per_ring::apply(exterior_ring(poly), strategy, state);
 
-        typedef typename interior_return_type<Polygon const>::type rings_ref;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_ref>::type
-            >::type rings_iterator;
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(poly);
 
-        rings_ref rings = interior_rings(poly);
-        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             per_ring::apply(*it, strategy, state);
         }

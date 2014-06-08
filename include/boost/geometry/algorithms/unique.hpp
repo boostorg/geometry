@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -19,6 +20,7 @@
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -60,14 +62,11 @@ struct polygon_unique
     {
         range_unique::apply(exterior_ring(polygon), policy);
 
-        typedef typename interior_return_type<Polygon>::type rings_ref;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_ref>::type
-            >::type rings_iterator;
+        typename interior_return_type<Polygon>::type
+            rings = interior_rings(polygon);
 
-        rings_ref rings = interior_rings(polygon);
-        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
+        for (typename detail::interior_iterator<Polygon>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             range_unique::apply(*it, policy);
         }

@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2013 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -28,6 +28,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 
 
@@ -148,14 +149,11 @@ struct polygon_remove_spikes
         typedef range_remove_spikes<ring_type> per_range;
         per_range::apply(exterior_ring(polygon));
 
-        typedef typename interior_return_type<Polygon>::type rings_ref;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_ref>::type
-            >::type rings_iterator;
+        typename interior_return_type<Polygon>::type
+            rings = interior_rings(polygon);
 
-        rings_ref rings = interior_rings(polygon);
-        for (rings_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
+        for (typename detail::interior_iterator<Polygon>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             per_range::apply(*it);
         }
