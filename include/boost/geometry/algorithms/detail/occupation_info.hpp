@@ -252,64 +252,6 @@ inline void add_incoming_and_outgoing_angles(
 }
 
 
-// Map in two senses of the word: it is a std::map where the key is a point.
-// Per point an "occupation_info" record is kept
-// Used for the buffer (but will also be used for intersections/unions having complex self-tangencies)
-template <typename Point, typename OccupationInfo>
-class occupation_map
-{
-public :
-    typedef std::map<Point, OccupationInfo, geometry::less<Point> > map_type;
-
-    map_type map;
-    std::set<int> turn_indices;
-
-    inline OccupationInfo& find(Point const& point)
-    {
-        BOOST_ASSERT(map.find(point) != map.end());
-        return map[point];
-    }
-
-    inline void insert(Point const& point)
-    {
-        map[point].m_count++;
-    }
-
-    inline bool contains(Point const& point) const
-    {
-        return map.find(point) != boost::end(map);
-    }
-
-    inline void erase_unique_keys()
-    {
-        typename map_type::iterator it = map.begin();
-        while (it != map.end())
-        {
-            if (it->second.m_count <= 1)
-            {
-                typename map_type::iterator to_erase = it;
-                ++it;
-                map.erase(to_erase);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-    }
-
-    inline bool contains_turn_index(int index) const
-    {
-        return turn_indices.count(index) > 0;
-    }
-
-    inline void insert_turn_index(int index)
-    {
-        turn_indices.insert(index);
-    }
-};
-
-
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 

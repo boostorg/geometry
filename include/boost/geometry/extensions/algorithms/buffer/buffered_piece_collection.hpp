@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP
 
+#define BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
+
 
 #include <algorithm>
 #include <cstddef>
@@ -199,7 +201,7 @@ struct buffered_piece_collection
         std::set<int> turn_indices;
     };
 
-    typedef occupation_map<robust_point_type, buffer_occupation_info> occupation_map_type;
+    typedef std::map<robust_point_type, buffer_occupation_info, geometry::less<robust_point_type> > occupation_map_type;
     occupation_map_type m_occupation_map;
 
     struct redundant_turn
@@ -313,34 +315,6 @@ struct buffered_piece_collection
                                     false, false, false, false,
                                     the_model, m_robust_policy, std::back_inserter(m_turns));
             }
-        }
-    }
-
-    inline void add_angles(int turn_index, int operation_index,
-                    robust_point_type const& point,
-                    buffer_turn_operation_type const& operation)
-    {
-        buffer_occupation_info& info = m_occupation_map.find(point);
-        info.turn_indices.insert(turn_index);
-        info.seg_ids.insert(operation.seg_id);
-        add_incoming_and_outgoing_angles(point,
-                    offsetted_rings[operation.seg_id.multi_index],
-                    m_robust_policy,
-                    turn_index, operation_index,
-                    operation.seg_id,
-                    info);
-    }
-
-    inline void add_angles(int turn_index)
-    {
-        if (! m_occupation_map.contains_turn_index(turn_index))
-        {
-            m_occupation_map.insert_turn_index(turn_index);
-
-            buffer_turn_info_type const& turn = m_turns[turn_index];
-
-            add_angles(turn_index, 0, turn.robust_point, turn.operations[0]);
-            add_angles(turn_index, 1, turn.robust_point, turn.operations[1]);
         }
     }
 
@@ -469,9 +443,9 @@ struct buffered_piece_collection
 
     inline void classify_occupied_locations()
     {
-        for (typename boost::range_iterator<typename occupation_map_type::map_type>::type it =
-                boost::begin(m_occupation_map.map);
-            it != boost::end(m_occupation_map.map); ++it)
+        for (typename boost::range_iterator<occupation_map_type>::type it =
+                boost::begin(m_occupation_map);
+            it != boost::end(m_occupation_map); ++it)
         {
             buffer_occupation_info& info = it->second;
 
@@ -589,24 +563,51 @@ struct buffered_piece_collection
         typedef typename boost::range_iterator<turn_vector_type const>::type
             iterator_type;
 
+        for (iterator_type it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it)
+        {
+            m_occupation_map[it->robust_point].m_count++;
+        }
+
+        // 2: Remove all points from map which has only one
+        typename occupation_map_type::iterator it = m_occupation_map.begin();
+        while (it != m_occupation_map.end())
+        {
+            if (it->second.m_count <= 1)
+            {
+                typename occupation_map_type::iterator to_erase = it;
+                ++it;
+                m_occupation_map.erase(to_erase);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        // 3: Add angles for all point still present in the map
         int index = 0;
         for (iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
             ++it, ++index)
         {
-            m_occupation_map.insert(it->robust_point);
-        }
-        // 2: Remove all points from map which has only one
-        m_occupation_map.erase_unique_keys();
-        // 3: Add angles for all point still present in the map
-        index = 0;
-        for (iterator_type it = boost::begin(m_turns);
-            it != boost::end(m_turns);
-            ++it, ++index)
-        {
-            if (m_occupation_map.contains(it->robust_point))
+            typename occupation_map_type::iterator mit =
+                        m_occupation_map.find(it->robust_point);
+
+            if (mit != m_occupation_map.end())
             {
-                add_angles(index);
+                buffer_occupation_info& info = mit->second;
+                for (int i = 0; i < 2; i++)
+                {
+                    segment_identifier op_seg_id = it->operations[i].seg_id;
+                    info.turn_indices.insert(index);
+                    info.seg_ids.insert(op_seg_id);
+                    add_incoming_and_outgoing_angles(it->robust_point,
+                                offsetted_rings[op_seg_id.multi_index],
+                                m_robust_policy,
+                                index, i, op_seg_id, info);
+                }
             }
         }
     }
