@@ -142,8 +142,6 @@ struct buffer_turn_info
     int count_on_uu;
 #endif
 
-    std::set<int> piece_indices_to_skip;
-
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     std::string debug_string;
 #endif

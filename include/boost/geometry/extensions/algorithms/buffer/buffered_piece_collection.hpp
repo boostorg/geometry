@@ -318,15 +318,6 @@ struct buffered_piece_collection
             return;
         }
 
-        // Don't check against a piece of which is was preferred in the "situations" for multi - map
-        if (turn.piece_indices_to_skip.count(pc.index) > 0)
-        {
-            return;
-        }
-
-        segment_identifier seg_id = pc.first_seg_id;
-        BOOST_ASSERT(seg_id.segment_index >= 0);
-
         int const geometry_code = detail::within::point_in_geometry(turn.robust_point, pc.robust_ring);
 
         if (geometry_code == 1)
@@ -386,32 +377,6 @@ struct buffered_piece_collection
             }
         }
     }
-
-
-    struct cluster_info
-    {
-        inline cluster_info(int i, point_type p, buffer_turn_operation_type op)
-            : turn_index(i)
-            , point(p)
-            , operation(op)
-        {}
-
-        inline cluster_info()
-            : turn_index(-1)
-        {}
-
-        int turn_index;
-        point_type point;
-        buffer_turn_operation_type operation;
-    };
-
-    struct clustered_info
-    {
-        int piece_index;
-        std::set<segment_identifier> intersecting_ids;
-        std::vector<cluster_info> intersecting_segments;
-    };
-
 
     inline void get_occupation()
     {

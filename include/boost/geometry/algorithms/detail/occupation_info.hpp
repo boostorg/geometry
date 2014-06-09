@@ -90,15 +90,10 @@ public :
     std::vector<detail::left_turns::turn_angle_info<typename AngleInfo::point_type> > turns;
     int m_count;
 
-private :
-    bool m_occupied;
-    bool m_calculated;
 
 public :
     inline occupation_info()
         : m_count(0)
-        , m_occupied(false)
-        , m_calculated(false)
     {}
 
     template <typename RobustPoint>
@@ -136,8 +131,6 @@ public :
         }
         detail::left_turns::turn_angle_info<typename AngleInfo::point_type> turn(seg_id, incoming_point, outgoing_point);
         turns.push_back(turn);
-
-        m_calculated = false;
     }
 
     template <typename RobustPoint>
