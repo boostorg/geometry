@@ -36,12 +36,18 @@ public :
     inline CoordinateType apply(Point const& , Point const& ,
                 buffer_side_selector side)  const
     {
-        return side == buffer_side_left ? m_left : m_right;
+        CoordinateType result = side == buffer_side_left ? m_left : m_right;
+        return negative() ? math::abs(result) : result;
     }
 
     inline int factor() const
     {
         return m_left < 0 ? -1 : 1;
+    }
+
+    inline bool negative() const
+    {
+        return m_left < 0 && m_right < 0;
     }
 
 private :

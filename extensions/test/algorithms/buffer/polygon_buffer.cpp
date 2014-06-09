@@ -74,6 +74,7 @@ void test_all()
 
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 47.9408, 1.5);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("simplex", simplex, 52.8733, 1.5);
+
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 14.5616, 0.5);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 16.3861, 0.5);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("chained_box", chained_box, 83.1403, 1.0);
@@ -232,6 +233,18 @@ void test_all()
     }
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01);
+
+    // Negative buffers making polygons smaller
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 0.777987, -0.5);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 0.724208, -0.5);
+
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_simplex3", donut_simplex, 19.7636, -0.3);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex3", donut_simplex, 19.8861, -0.3);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_simplex6", donut_simplex, 12.8920, -0.6);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex6", donut_simplex, 12.9157, -0.6);
+
 
     return;
 

@@ -350,9 +350,21 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
     {
         if (boost::size(ring) > 3)
         {
-            base::iterate(collection, boost::begin(ring), boost::end(ring),
-                    buffer_side_left,
-                    distance, join_strategy, end_strategy);
+            if (distance.negative())
+            {
+                // Walk backwards (rings will be reversed afterwards)
+                // It might be that this will be changed later.
+                // TODO: decide this.
+                base::iterate(collection, boost::rbegin(ring), boost::rend(ring),
+                        buffer_side_right,
+                        distance, join_strategy, end_strategy);
+            }
+            else
+            {
+                base::iterate(collection, boost::begin(ring), boost::end(ring),
+                        buffer_side_left,
+                        distance, join_strategy, end_strategy);
+            }
         }
     }
 };
@@ -501,6 +513,16 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection.template map_pieces<geometry::polygon_tag>(mapper); //, false, true);
     //collection.map_traverse(mapper);
 #endif
+
+    if (distance_strategy.negative()
+        && boost::is_same
+            <
+                typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
+                areal_tag
+            >::type::value)
+    {
+        collection.reverse();
+    }
 
     collection.template assign<GeometryOutput>(out);
 }

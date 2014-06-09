@@ -1008,6 +1008,27 @@ struct buffered_piece_collection
                         m_robust_policy, m_turns, traversed_rings);
     }
 
+    inline void reverse()
+    {
+        for(typename buffered_ring_collection<buffered_ring<Ring> >::iterator it = boost::begin(offsetted_rings);
+            it != boost::end(offsetted_rings);
+            ++it)
+        {
+            if (! it->has_intersections())
+            {
+                std::reverse(it->begin(), it->end());
+            }
+        }
+        for (typename boost::range_iterator<buffered_ring_collection<Ring> >::type
+                it = boost::begin(traversed_rings);
+                it != boost::end(traversed_rings);
+                ++it)
+        {
+            std::reverse(it->begin(), it->end());
+        }
+
+    }
+
     template <typename GeometryOutput, typename OutputIterator>
     inline OutputIterator assign(OutputIterator out)
     {
