@@ -100,20 +100,15 @@ struct buffered_piece_collection_with_mapper
     {
         typedef typename super_type::point_type point_type;
         typedef typename super_type::turn_vector_type turn_vector_type;
+        typedef typename super_type::robust_point_type robust_point_type;
 
-        typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
-        std::map<std::pair<coordinate_type, coordinate_type>, int> offsets;
+        std::map<robust_point_type, int, geometry::less<robust_point_type> > offsets;
 
-
-        int index = 0;
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(this->m_turns); it != boost::end(this->m_turns); ++it)
         {
             if (! it->opposite())
             {
-                std::pair<coordinate_type, coordinate_type> p
-                    = std::make_pair(geometry::get<0>(it->point), geometry::get<1>(it->point));
-
                 char color = 'g';
                 std::string fill = "fill:rgb(0,255,0);";
                 switch(it->location)
@@ -121,38 +116,38 @@ struct buffered_piece_collection_with_mapper
                     case inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break;
                     case inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
                 }
+                if (it->blocked())
+                {
+                    fill = "fill:rgb(128,128,128);"; color = '-';
+                }
+
+                fill += "fill-opacity:0.7;";
                 std::ostringstream out;
                 out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
                     << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
                     << std::endl;
-                //out << " " <<  m_pieces[it->operations[0].piece_index].first_seg_id.segment_index
-                //     << "+" << m_pieces[it->operations[1].piece_index].first_seg_id.segment_index;
-                //out << " " <<  m_pieces[it->operations[0].piece_index].index
-                //     << "," << m_pieces[it->operations[1].piece_index].index << std::endl;
-                //out << " " <<  it->operations[0].seg_id.segment_index
-                //     << "|" << it->operations[1].seg_id.segment_index;
                 out << " " << method_char(it->method)
                     << ":" << operation_char(it->operations[0].operation)
                     << "/" << operation_char(it->operations[1].operation);
-                out << " " << it->count_within
-                    << "-" << it->count_on_occupied
-                    << "-" << it->count_on_multi
+                out << " " << (it->count_within > 0 ? "w" : "")
+                    << (it->count_on_multi > 0 ? "m" : "")
+                    << (it->count_on_occupied > 0 ? "o" : "")
                     //<< it->debug_string
                     ;
-                out << color << std::endl;
 
-                out << " " <<  it->operations[0].seg_id.segment_index
-                     << "|" << it->operations[1].seg_id.segment_index;
-                //out << it->operations[0].enriched.travels_to_vertex_index
-                //    << "/" << it->operations[1].enriched.travels_to_vertex_index;
+//                out << color << std::endl;
+//                out << " " <<  it->operations[0].seg_id.segment_index
+//                     << "|" << it->operations[1].seg_id.segment_index;
+//                out << it->operations[0].enriched.travels_to_vertex_index
+//                    << "/" << it->operations[1].enriched.travels_to_vertex_index;
 
-                offsets[p] += 10;
-                int offset = offsets[p];
+                offsets[it->robust_point] += 10;
+                int offset = offsets[it->robust_point];
 
                 mapper.map(it->point, fill, 6);
                 mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
-                offsets[p] += 25;
+                offsets[it->robust_point] += 25;
             }
         }
     }
