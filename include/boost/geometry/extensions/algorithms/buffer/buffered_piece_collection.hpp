@@ -1064,23 +1064,6 @@ struct buffered_piece_collection
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 
-    template <typename GeometryOutput>
-    inline void assign_offsetted_rings(GeometryOutput& out)
-    {
-        typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
-
-        for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator it = boost::begin(offsetted_rings);
-            it != boost::end(offsetted_rings);
-            ++it)
-        {
-            for (iterator pit = boost::begin(*it); pit != boost::end(*it); ++pit)
-            {
-                out.push_back(*pit);
-            }
-        }
-    }
-
-
 };
 
 
