@@ -9,9 +9,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP
 
-#define BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
-
-
 #include <algorithm>
 #include <cstddef>
 #include <set>
@@ -191,14 +188,10 @@ struct buffered_piece_collection
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
-    std::map<std::pair<segment_identifier, segment_identifier>, std::set<int> > m_turn_indices_per_segment_pair;
-
     RobustPolicy const& m_robust_policy;
 
     struct buffer_occupation_info : public occupation_info<angle_info<robust_point_type, coordinate_type> >
     {
-        std::set<segment_identifier> seg_ids;
-        std::set<int> turn_indices;
     };
 
     typedef std::map<robust_point_type, buffer_occupation_info, geometry::less<robust_point_type> > occupation_map_type;
@@ -343,143 +336,6 @@ struct buffered_piece_collection
     }
 
 
-    inline void debug_turns_by_indices(std::string const& caption, std::set<int> const& indices) const
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-        std::cout << caption << ": " << indices.size() << std::endl;
-        for (std::set<int>::const_iterator sit = indices.begin(); sit != indices.end(); ++sit)
-        {
-            int const index = *sit;
-            std::cout << "Keep "  << index // << "[" << sit->second << "]"
-                << " "<< si(m_turns[index].operations[0].seg_id)
-                << " "<< si(m_turns[index].operations[1].seg_id)
-                << " " << m_turns[index].operations[0].piece_index
-                << "/" << m_turns[index].operations[1].piece_index
-                << " " << method_char(m_turns[index].method)
-                << " " << operation_char(m_turns[index].operations[0].operation)
-                << "/" << operation_char(m_turns[index].operations[1].operation)
-                << std::endl;
-        }
-#endif
-    }
-
-    inline void fill_segment_map()
-    {
-        m_turn_indices_per_segment_pair.clear();
-        int index = 0;
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
-        {
-            m_turn_indices_per_segment_pair
-                [
-                    ordered_pair
-                        (
-                            m_turns[index].operations[0].seg_id,
-                            m_turns[index].operations[1].seg_id
-                        )
-                ].insert(index);
-        }
-    }
-
-
-    // Sets "count_on_multi" (if not kept) or "piece_indices_to_skip" (if kept)
-    // for to avoid within operations for these pieces
-    inline void process_left_turns(buffer_occupation_info const& info,
-                    std::set<int> const& keep_indices)
-    {
-        for (std::set<int>::const_iterator sit1 = info.turn_indices.begin();
-            sit1 != info.turn_indices.end();
-            ++sit1)
-        {
-            if (keep_indices.count(*sit1) == 0)
-            {
-                m_turns[*sit1].count_on_multi++;
-            }
-            else
-            {
-                for (std::set<int>::const_iterator sit2 = info.turn_indices.begin();
-                    sit2 != info.turn_indices.end();
-                    ++sit2)
-                {
-                    if (sit2 != sit1)
-                    {
-                        m_turns[*sit1].piece_indices_to_skip.insert(m_turns[*sit2].operations[0].piece_index);
-                        m_turns[*sit1].piece_indices_to_skip.insert(m_turns[*sit2].operations[1].piece_index);
-                    }
-                }
-            }
-        }
-    }
-
-    inline void get_left_turns(buffer_occupation_info& info)
-    {
-        debug_turns_by_indices("Examine", info.turn_indices);
-
-        std::set<int> keep_indices;
-        info.get_left_turns(m_turns, m_turn_indices_per_segment_pair, keep_indices);
-
-        if (! keep_indices.empty())
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-            std::cout << "USE " << keep_indices.size() << " OF " << info.turn_indices.size() << " TURNS" << std::endl;
-#endif
-            process_left_turns(info, keep_indices);
-        }
-    }
-
-    inline int piece_count(buffer_occupation_info const& info)
-    {
-        std::set<int> piece_indices;
-
-        for (std::set<int>::const_iterator sit = info.turn_indices.begin();
-            sit != info.turn_indices.end();
-            ++sit)
-        {
-            piece_indices.insert(m_turns[*sit].operations[0].piece_index);
-            piece_indices.insert(m_turns[*sit].operations[1].piece_index);
-        }
-        return piece_indices.size();
-    }
-
-    inline void classify_occupied_locations()
-    {
-        for (typename boost::range_iterator<occupation_map_type>::type it =
-                boost::begin(m_occupation_map);
-            it != boost::end(m_occupation_map); ++it)
-        {
-            buffer_occupation_info& info = it->second;
-
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-            std::cout << std::endl << "left turns: " << piece_count(info) << " "
-                //<< std::setprecision(20)
-                << geometry::wkt(it->first) << std::endl;
-#endif
-            if (piece_count(info) > 2)
-            {
-                if (info.occupied())
-                {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-                    std::cout << "-> occupied" << std::endl;
-
-                    // std::set<int> turn_indices;
-                    //info.get_left_turns(it->first, m_turns, turn_indices, keep_indices); // just for debug-info
-#endif
-
-                    for (std::set<int>::const_iterator sit = info.turn_indices.begin();
-                        sit != info.turn_indices.end();
-                        ++sit)
-                    {
-                        m_turns[*sit].count_on_occupied++;
-                    }
-                }
-                else
-                {
-                    get_left_turns(info);
-                }
-            }
-        }
-    }
-
     // The "get_left_turn" process indicates, if it is a u/u turn (both only applicable
     // for union, two separate turns), which is indicated in the map. If done so, set
     // the other to "none", it is part of an occupied situation and should not be followed.
@@ -561,9 +417,11 @@ struct buffered_piece_collection
     {
         // 1: Add all intersection points to occupation map
         typedef typename boost::range_iterator<turn_vector_type const>::type
+            const_iterator_type;
+        typedef typename boost::range_iterator<turn_vector_type>::type
             iterator_type;
 
-        for (iterator_type it = boost::begin(m_turns);
+        for (const_iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
             ++it)
         {
@@ -586,7 +444,18 @@ struct buffered_piece_collection
             }
         }
 
-        // 3: Add angles for all point still present in the map
+        // 3: Add vectors (incoming->intersection-point,
+        //                 intersection-point -> outgoing)
+        //    for all (co-located) points still present in the map
+        //    and fill map segment_pair->turn_index
+        typedef
+        std::map
+        <
+            std::pair<segment_identifier, segment_identifier>,
+            std::set<int>
+        > segment_pair_map;
+        segment_pair_map turn_indices_per_segment_pair;
+
         int index = 0;
         for (iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
@@ -598,16 +467,77 @@ struct buffered_piece_collection
             if (mit != m_occupation_map.end())
             {
                 buffer_occupation_info& info = mit->second;
+                // a:
                 for (int i = 0; i < 2; i++)
                 {
                     segment_identifier op_seg_id = it->operations[i].seg_id;
-                    info.turn_indices.insert(index);
-                    info.seg_ids.insert(op_seg_id);
                     add_incoming_and_outgoing_angles(it->robust_point,
                                 offsetted_rings[op_seg_id.multi_index],
                                 m_robust_policy,
                                 index, i, op_seg_id, info);
                 }
+
+                it->count_on_multi++;
+
+                turn_indices_per_segment_pair
+                    [
+                        ordered_pair
+                            (
+                                it->operations[0].seg_id,
+                                it->operations[1].seg_id
+                            )
+                    ].insert(index);
+            }
+        }
+
+        // 4: From these vectors, get the left turns
+        //    and mark all other turns as to-skip
+        for (iterator_type it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it, ++index)
+        {
+            typename occupation_map_type::iterator mit =
+                        m_occupation_map.find(it->robust_point);
+
+            if (mit != m_occupation_map.end())
+            {
+                buffer_occupation_info& info = mit->second;
+
+                std::vector<detail::left_turns::left_turn> turns_to_keep;
+                info.get_left_turns(it->robust_point, turns_to_keep);
+
+                if (turns_to_keep.empty())
+                {
+                    it->count_on_occupied++;
+                }
+
+#if 0
+// TODO: block non-left turns, keep left turns
+                for (std::vector<detail::left_turns::left_turn>::const_iterator
+                    it = turns_to_keep.begin(); it != turns_to_keep.end(); ++it)
+                {
+                    std::pair<segment_identifier, segment_identifier>
+                        pair = ordered_pair(it->from, it->to);
+                    segment_pair_map::const_iterator segit
+                        = turn_indices_per_segment_pair.find(pair);
+                    if (segit == turn_indices_per_segment_pair.end())
+                    {
+                        std::cout << "BAD LUCK" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "FOUND IP" << std::endl;
+                        for (std::set<int>::const_iterator iit = segit->second.begin();
+                             iit != segit->second.end(); ++iit)
+                        {
+                            int turn_index = *iit;
+                            //m_turns[turn_index].count_on_occupied++;
+                        }
+                    }
+                    // Mark as included
+
+                }
+#endif
             }
         }
     }
@@ -638,7 +568,7 @@ struct buffered_piece_collection
     inline bool classify_turn_inside(Turn const& turn) const
     {
         return turn.count_within > 0
-            || turn.count_on_multi > 0
+            // || turn.count_on_multi > 0
             || turn.count_on_occupied > 0
             ;
     }
@@ -806,9 +736,7 @@ struct buffered_piece_collection
 
         rescale_pieces();
 
-        fill_segment_map();
         get_occupation();
-        classify_occupied_locations();
         process_uu();
         classify_turns();
         classify_inside();

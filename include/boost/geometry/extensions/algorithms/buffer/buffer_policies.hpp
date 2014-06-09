@@ -82,7 +82,7 @@ struct turn_assign_for_buffer
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
-    static bool const include_opposite = true;
+    static bool const include_opposite = false;
 
     template
     <

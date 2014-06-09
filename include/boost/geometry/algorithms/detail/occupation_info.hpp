@@ -29,15 +29,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template <typename T, typename P1, typename P2>
-inline T calculate_angle(P1 const& from_point, P2 const& to_point)
-{
-    typedef P1 vector_type;
-    vector_type v = from_point;
-    geometry::subtract_point(v, to_point);
-    return atan2(geometry::get<1>(v), geometry::get<0>(v));
-}
-
 template
 <
     typename Iterator,
@@ -78,9 +69,15 @@ struct angle_info
     int turn_index;
     int operation_index;
     Point intersection_point;
-    Point direction_point;
-    T angle;
+    Point point; // either incoming or outgoing point
     bool incoming;
+    bool blocked;
+    bool included;
+
+    inline angle_info()
+        : blocked(false)
+        , included(false)
+    {}
 };
 
 template <typename AngleInfo>
@@ -88,54 +85,14 @@ class occupation_info
 {
     typedef std::vector<AngleInfo> collection_type;
 
-    struct angle_sort
-    {
-        inline bool operator()(AngleInfo const& left, AngleInfo const& right) const
-        {
-            // In this case we can compare even double using equals
-            // return geometry::math::equals(left.angle, right.angle)
-            return left.angle == right.angle
-                ? int(left.incoming) < int(right.incoming)
-                : left.angle < right.angle
-                ;
-        }
-    };
-
 public :
     collection_type angles;
+    std::vector<detail::left_turns::turn_angle_info<typename AngleInfo::point_type> > turns;
     int m_count;
 
 private :
     bool m_occupied;
     bool m_calculated;
-
-    inline bool is_occupied()
-    {
-        if (boost::size(angles) <= 1)
-        {
-            return false;
-        }
-
-        std::sort(angles.begin(), angles.end(), angle_sort());
-
-        typedef geometry::closing_iterator<collection_type const> closing_iterator;
-        closing_iterator vit(angles);
-        closing_iterator end(angles, true);
-
-        closing_iterator prev = vit++;
-        for( ; vit != end; prev = vit++)
-        {
-            if (! geometry::math::equals(prev->angle, vit->angle)
-                && ! prev->incoming
-                && vit->incoming)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-#endif
-
 
 public :
     inline occupation_info()
@@ -168,48 +125,33 @@ public :
         info.intersection_point = intersection_point;
 
         {
-            info.angle = calculate_angle<typename AngleInfo::angle_type>(incoming_point, intersection_point);
-            info.direction_point = incoming_point;
+            info.point = incoming_point;
             info.incoming = true;
             angles.push_back(info);
         }
         {
-            info.angle = calculate_angle<typename AngleInfo::angle_type>(outgoing_point, intersection_point);
-            info.direction_point = outgoing_point;
+            info.point = outgoing_point;
             info.incoming = false;
             angles.push_back(info);
         }
+        detail::left_turns::turn_angle_info<typename AngleInfo::point_type> turn(seg_id, incoming_point, outgoing_point);
+        turns.push_back(turn);
 
         m_calculated = false;
     }
 
-#ifdef BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
-    inline bool occupied()
+    template <typename RobustPoint>
+    inline void get_left_turns(RobustPoint const& origin,
+                    std::vector<detail::left_turns::left_turn>& turns_to_keep)
     {
-        if (! m_calculated)
-        {
-            m_occupied = is_occupied();
-            m_calculated = true;
-        }
-        return m_occupied;
-    }
-#endif
-
-    template <typename Turns, typename TurnSegmentIndices>
-    inline void get_left_turns(
-                    Turns& turns, TurnSegmentIndices const& turn_segment_indices,
-                    std::set<int>& keep_indices)
-    {
-#ifdef BOOST_GEOMETRY_OLD_GET_LEFT_TURNS
-        std::sort(angles.begin(), angles.end(), angle_sort());
-        calculate_left_turns<AngleInfo>(angles, turns, turn_segment_indices, keep_indices);
-#else
         // Sort on angle
-        std::sort(sorted.begin(), sorted.end(), detail::left_turns::angle_less<typename angle_info::point_type>(p));
+        std::sort(angles.begin(), angles.end(),
+                detail::left_turns::angle_less<typename AngleInfo::point_type>(origin));
 
         // Block all turns on the right side of any turn
-        detail::left_turns::block_turns_on_right_sides(angles, sorted);
-#endif
+        detail::left_turns::block_turns_on_right_sides(turns, angles);
+
+        detail::left_turns::get_left_turns(angles, origin, turns_to_keep);
     }
 };
 
