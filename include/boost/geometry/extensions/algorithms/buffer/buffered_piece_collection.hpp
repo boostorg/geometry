@@ -315,7 +315,17 @@ struct buffered_piece_collection
     {
         if (pc.type == buffered_flat_end)
         {
+            // Turns cannot be inside a flat end (though they can be on border)
             return;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            // Don't compare against one of the two source-pieces
+            if (turn.operations[i].piece_index == pc.index)
+            {
+                return;
+            }
         }
 
         int const geometry_code = detail::within::point_in_geometry(turn.robust_point, pc.robust_ring);
