@@ -79,6 +79,14 @@ inline int get_quadrant(Vector const& vector)
         ;
 }
 
+template <typename Vector>
+inline int squared_length(Vector const& vector)
+{
+    return geometry::get<0>(vector) * geometry::get<0>(vector)
+         + geometry::get<1>(vector) * geometry::get<1>(vector)
+         ;
+}
+
 
 template <typename Point>
 struct angle_less
@@ -92,13 +100,6 @@ struct angle_less
     angle_less(Point const& origin)
         : m_origin(origin)
     {}
-
-    inline int length(vector_type const& v) const
-    {
-        return geometry::get<0>(v) * geometry::get<0>(v)
-             + geometry::get<1>(v) * geometry::get<1>(v)
-             ;
-    }
 
     template <typename Angle>
     inline bool operator()(Angle const& p, Angle const& q) const
@@ -128,11 +129,11 @@ struct angle_less
             return int(p.incoming) < int(q.incoming);
         }
         // Same quadrant/side/direction, return longest first
-        int const length_p = length(pv);
-        int const length_q = length(qv);
+        int const length_p = squared_length(pv);
+        int const length_q = squared_length(qv);
         if (length_p != length_q)
         {
-            return length(pv) > length(qv);
+            return squared_length(pv) > squared_length(qv);
         }
         // They are still the same. Just compare on seg_id
         return p.seg_id < q.seg_id;
@@ -258,6 +259,24 @@ inline void block_turns_on_right_sides(AngleTurnCollection const& turns,
         }
     }
 }
+
+template <typename AngleCollection, typename Point>
+inline bool has_rounding_issues(AngleCollection const& angles, Point const& origin)
+{
+    for (typename boost::range_iterator<AngleCollection const>::type it =
+        angles.begin(); it != angles.end(); ++it)
+    {
+        // Vector origin -> p and origin -> q
+        typedef Point vector_type;
+        vector_type v = it->point;
+        geometry::subtract_point(v, origin);
+        return geometry::math::abs(geometry::get<0>(v)) <= 1
+            || geometry::math::abs(geometry::get<1>(v)) <= 1
+            ;
+    }
+    return false;
+}
+
 
 }  // namespace left_turns
 

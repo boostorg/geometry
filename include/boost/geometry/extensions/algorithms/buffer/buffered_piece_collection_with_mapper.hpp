@@ -132,6 +132,7 @@ struct buffered_piece_collection_with_mapper
                 out << " " << (it->count_within > 0 ? "w" : "")
                     << (it->count_on_multi > 0 ? "m" : "")
                     << (it->count_on_occupied > 0 ? "o" : "")
+                    << (it->count_on_offsetted > 0 ? "b" : "") // offsetted border
                     //<< it->debug_string
                     ;
 
@@ -141,13 +142,13 @@ struct buffered_piece_collection_with_mapper
 //                out << it->operations[0].enriched.travels_to_vertex_index
 //                    << "/" << it->operations[1].enriched.travels_to_vertex_index;
 
-                offsets[it->robust_point] += 10;
-                int offset = offsets[it->robust_point];
+                offsets[it->mapped_robust_point] += 10;
+                int offset = offsets[it->mapped_robust_point];
 
                 mapper.map(it->point, fill, 6);
                 mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
-                offsets[it->robust_point] += 25;
+                offsets[it->mapped_robust_point] += 25;
             }
         }
     }

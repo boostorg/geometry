@@ -29,36 +29,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template
-<
-    typename Iterator,
-    typename Vector,
-    typename RobustPolicy,
-    typename RobustPoint
->
-inline Iterator advance_circular(Iterator it, Vector const& vector,
-        RobustPolicy const& robust_policy,
-        RobustPoint& robust_point,
-        segment_identifier& seg_id,
-        bool forward = true)
-{
-    int const increment = forward ? 1 : -1;
-    if (it == boost::begin(vector) && increment < 0)
-    {
-        it = boost::end(vector);
-        seg_id.segment_index = boost::size(vector);
-    }
-    it += increment;
-    seg_id.segment_index += increment;
-    if (it == boost::end(vector))
-    {
-        seg_id.segment_index = 0;
-        it = boost::begin(vector);
-    }
-    geometry::recalculate(robust_point, *it, robust_policy);
-    return it;
-}
-
 template <typename Point, typename T>
 struct angle_info
 {
@@ -146,70 +116,77 @@ public :
 
         detail::left_turns::get_left_turns(angles, origin, turns_to_keep);
     }
+
+    template <typename RobustPoint>
+    inline bool has_rounding_issues(RobustPoint const& origin) const
+    {
+        return detail::left_turns::has_rounding_issues(angles, origin);
+    }
 };
+
+template<typename Pieces>
+inline void move_index(Pieces const& pieces, int& index, int& piece_index, int direction)
+{
+    BOOST_ASSERT(direction == 1 || direction == -1);
+    BOOST_ASSERT(piece_index >= 0 && piece_index < boost::size(pieces));
+    BOOST_ASSERT(index >= 0 && index < boost::size(pieces[piece_index].robust_ring));
+
+    index += direction;
+    if (direction == -1 && index < 0)
+    {
+        piece_index--;
+        if (piece_index < 0)
+        {
+            piece_index = boost::size(pieces) - 1;
+        }
+        index = boost::size(pieces[piece_index].robust_ring) - 1;
+    }
+    if (direction == 1 && index >= boost::size(pieces[piece_index].robust_ring))
+    {
+        piece_index++;
+        if (piece_index >= boost::size(pieces))
+        {
+            piece_index = 0;
+        }
+        index = 0;
+    }
+}
 
 
 template
 <
     typename RobustPoint,
-    typename RobustPolicy,
-    typename Ring,
+    typename Turn,
+    typename Pieces,
     typename Info
 >
 inline void add_incoming_and_outgoing_angles(
                 RobustPoint const& intersection_point, // rescaled
-                Ring const& ring, // non-rescaled
-                RobustPolicy const& robust_policy,
+                Turn const& turn,
+                Pieces const& pieces, // using rescaled offsets of it
                 int turn_index,
                 int operation_index,
                 segment_identifier seg_id,
                 Info& info)
 {
-    typedef typename boost::range_iterator
-        <
-            Ring const
-        >::type iterator_type;
-
-    int const n = boost::size(ring);
-    if (seg_id.segment_index >= n || seg_id.segment_index < 0)
-    {
-        return;
-    }
-
     segment_identifier real_seg_id = seg_id;
-    iterator_type it = boost::begin(ring) + seg_id.segment_index;
-    RobustPoint current;
-    geometry::recalculate(current, *it, robust_policy);
-
-    // TODO: we can add this points in get_turn_info/assign already
-    // TODO: if we use turn-info ("to", "middle"), we know if to advance without resorting to equals
     geometry::equal_to<RobustPoint> comparator;
 
-    if (comparator(intersection_point, current))
+    // Move backward and forward
+    RobustPoint direction_points[2];
+    for (int i = 0; i < 2; i++)
     {
-        // It should be equal only once. But otherwise we skip it (in "add")
-        it = advance_circular(it, ring, robust_policy, current, seg_id, false);
+        int index = turn.operations[operation_index].index_in_robust_ring;
+        int piece_index = turn.operations[operation_index].piece_index;
+        while(comparator(pieces[piece_index].robust_ring[index], intersection_point))
+        {
+            move_index(pieces, index, piece_index, i == 0 ? -1 : 1);
+        }
+        direction_points[i] = pieces[piece_index].robust_ring[index];
     }
 
-    RobustPoint incoming = current;
-
-    if (comparator(intersection_point, current))
-    {
-        it = advance_circular(it, ring, robust_policy, current, real_seg_id);
-    }
-    else
-    {
-        // Don't upgrade the ID
-        it = advance_circular(it, ring, robust_policy, current, seg_id);
-    }
-    for (int defensive_check = 0;
-        comparator(intersection_point, current) && defensive_check < n;
-        defensive_check++)
-    {
-        it = advance_circular(it, ring, robust_policy, current, real_seg_id);
-    }
-
-    info.add(incoming, current, intersection_point, turn_index, operation_index, real_seg_id);
+    info.add(direction_points[0], direction_points[1], intersection_point,
+        turn_index, operation_index, real_seg_id);
 }
 
 

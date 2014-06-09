@@ -335,9 +335,7 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p17", rt_p17, 25.3137, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p18", rt_p18, 23.3137, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p19", rt_p19, 25.5637, 1.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p20", rt_p20, 25.4853, 1.0);
-#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p21", rt_p21, 17.1716, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p22", rt_p22, 26.5711, 1.0);
 

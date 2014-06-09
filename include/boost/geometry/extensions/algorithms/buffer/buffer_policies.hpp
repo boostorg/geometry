@@ -111,9 +111,11 @@ struct buffer_turn_operation
     : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     int piece_index;
+    int index_in_robust_ring;
 
     inline buffer_turn_operation()
         : piece_index(-1)
+        , index_in_robust_ring(-1)
     {}
 };
 
@@ -128,11 +130,13 @@ struct buffer_turn_info
         >
 {
     RobustPoint robust_point;
+    RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
     bool is_opposite;
 
     intersection_location_type location;
 
     int count_within;
+    int count_on_offsetted;
     int count_on_occupied;
     int count_on_multi;
 
@@ -144,6 +148,7 @@ struct buffer_turn_info
         : is_opposite(false)
         , location(location_ok)
         , count_within(0)
+        , count_on_offsetted(0)
         , count_on_occupied(0)
         , count_on_multi(0)
     {}
