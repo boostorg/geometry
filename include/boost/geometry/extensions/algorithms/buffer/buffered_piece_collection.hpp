@@ -340,35 +340,6 @@ struct buffered_piece_collection
     // The "get_left_turn" process indicates, if it is a u/u turn (both only applicable
     // for union, two separate turns), which is indicated in the map. If done so, set
     // the other to "none", it is part of an occupied situation and should not be followed.
-    inline void process_uu()
-    {
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
-        {
-            if (it->both(detail::overlay::operation_union)
-                && (it->operations[0].include_in_occupation_map
-                    || it->operations[1].include_in_occupation_map))
-            {
-                bool set_to_none = false;
-
-                // Avoid both turns of a u/u turn to be included.
-                if (! it->operations[0].include_in_occupation_map)
-                {
-                    it->operations[0].operation = detail::overlay::operation_none;
-                    set_to_none = true;
-                }
-                if (! it->operations[1].include_in_occupation_map)
-                {
-                    it->operations[1].operation = detail::overlay::operation_none;
-                    set_to_none = true;
-                }
-                if (set_to_none)
-                {
-                    std::cout << "-";
-                }
-            }
-        }
-    }
 
     inline void get_occupation()
     {
@@ -684,7 +655,6 @@ struct buffered_piece_collection
         rescale_pieces();
 
         get_occupation();
-        process_uu();
         classify_turns();
         classify_inside();
 
@@ -862,17 +832,6 @@ struct buffered_piece_collection
             );
 
     }
-
-   // inline void discard_uu_turns()
-   // {
-   //     m_turns.erase
-            //(
-            //    std::remove_if(boost::begin(m_turns), boost::end(m_turns),
-            //                    uu_turn()),
-            //    boost::end(m_turns)
-            //);
-
-   // }
 
     inline void traverse()
     {
