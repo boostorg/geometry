@@ -38,10 +38,12 @@ template <typename Point>
 struct turn_angle_info
 {
     bg::segment_identifier seg_id;
+    int turn_index;
     Point points[2];
 
     turn_angle_info(bg::segment_identifier const& id, Point const& from, Point const& to)
         : seg_id(id)
+        , turn_index(-1)
     {
         points[0] = from;
         points[1] = to;

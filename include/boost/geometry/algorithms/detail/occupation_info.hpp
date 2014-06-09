@@ -53,17 +53,20 @@ struct angle_info
 template <typename AngleInfo>
 class occupation_info
 {
+public :
     typedef std::vector<AngleInfo> collection_type;
+    typedef std::vector
+        <
+            detail::left_turns::turn_angle_info<typename AngleInfo::point_type>
+        > turn_vector_type;
 
-public :
-    collection_type angles;
-    std::vector<detail::left_turns::turn_angle_info<typename AngleInfo::point_type> > turns;
-    int m_count;
+    collection_type angles; // each turn splitted in incoming/outgoing vectors
+    turn_vector_type turns;
+    int count;
 
 
-public :
     inline occupation_info()
-        : m_count(0)
+        : count(0)
     {}
 
     template <typename RobustPoint>
@@ -100,6 +103,7 @@ public :
             angles.push_back(info);
         }
         detail::left_turns::turn_angle_info<typename AngleInfo::point_type> turn(seg_id, incoming_point, outgoing_point);
+        turn.turn_index = turn_index;
         turns.push_back(turn);
     }
 

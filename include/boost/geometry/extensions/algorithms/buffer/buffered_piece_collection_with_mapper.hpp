@@ -133,6 +133,7 @@ struct buffered_piece_collection_with_mapper
                     << (it->count_on_multi > 0 ? "m" : "")
                     << (it->count_on_occupied > 0 ? "o" : "")
                     << (it->count_on_offsetted > 0 ? "b" : "") // offsetted border
+                    << (it->count_on_helper > 0 ? "h" : "")
                     //<< it->debug_string
                     ;
 
