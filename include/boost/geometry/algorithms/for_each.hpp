@@ -137,12 +137,6 @@ struct fe_polygon_per_segment
     {
         fe_range_per_segment::apply(exterior_ring(poly), f);
 
-        typedef typename interior_return_type<Polygon>::type rings_ref;
-        typedef typename boost::range_iterator
-            <
-                typename boost::remove_reference<rings_ref>::type
-            >::type iterator_type;
-
         typename interior_return_type<Polygon>::type
             rings = interior_rings(poly);
 
