@@ -366,24 +366,6 @@ struct buffered_piece_collection
                 {
                     std::cout << "-";
                 }
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-                else
-                {
-                    it->count_on_uu++;
-                }
-#endif
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-                //std::cout << "Keep "  << *sit
-                //    << " "<< si(m_turns[*sit].operations[0].seg_id)
-                //    << " "<< si(m_turns[*sit].operations[1].seg_id)
-                //    << " " << m_turns[*sit].operations[0].piece_index
-                //    << "/" << m_turns[*sit].operations[1].piece_index
-                //    << " " << method_char(m_turns[*sit].method)
-                //    << " " << operation_char(m_turns[*sit].operations[0].operation)
-                //    << "/" << operation_char(m_turns[*sit].operations[1].operation)
-                    //<< std::endl;
-#endif
-
             }
         }
     }
@@ -558,16 +540,6 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-            else if (it->count_on_uu > 0)
-            {
-                extern int g_count_double_uu;
-                g_count_double_uu++;
-                std::cout << "UU";
-            }
-#endif
-
         }
     }
 

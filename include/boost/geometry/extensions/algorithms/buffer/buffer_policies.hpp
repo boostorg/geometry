@@ -134,13 +134,9 @@ struct buffer_turn_info
 
     intersection_location_type location;
 
-    int priority;
     int count_within;
     int count_on_occupied;
     int count_on_multi;
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-    int count_on_uu;
-#endif
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     std::string debug_string;
@@ -149,13 +145,9 @@ struct buffer_turn_info
     inline buffer_turn_info()
         : is_opposite(false)
         , location(location_ok)
-        , priority(0)
         , count_within(0)
         , count_on_occupied(0)
         , count_on_multi(0)
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-        , count_on_uu(0)
-#endif
     {}
 };
 
