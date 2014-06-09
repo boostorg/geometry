@@ -14,7 +14,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -417,33 +416,76 @@ template
 >
 struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
 {
+private:
+    typedef typename ring_type<PolygonInput>::type input_ring_type;
+    typedef typename ring_type<PolygonOutput>::type output_ring_type;
 
-    template <typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
-    static inline void apply(PolygonInput const& polygon, Collection& collection,
+    typedef buffer_inserter<ring_tag, input_ring_type, output_ring_type> policy;
+
+
+    template
+    <
+        typename Iterator,
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy
+    >
+    static inline
+    void iterate(Iterator begin, Iterator end,
+            Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy)
     {
+        for (Iterator it = begin; it != end; ++it)
+        {
+            collection.start_new_ring();
+            policy::apply(*it, collection, distance, join_strategy, end_strategy);
+        }
+    }
 
-        typedef typename ring_type<PolygonInput>::type input_ring_type;
-        typedef typename ring_type<PolygonOutput>::type output_ring_type;
+    template
+    <
+        typename InteriorRings,
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy
+    >
+    static inline
+    void apply_interior_rings(InteriorRings const& interior_rings,
+            Collection& collection,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
+    {
+        iterate(boost::begin(interior_rings), boost::end(interior_rings),
+            collection, distance, join_strategy, end_strategy);
+    }
 
-        typedef buffer_inserter<ring_tag, input_ring_type, output_ring_type> policy;
-
+public:
+    template
+    <
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy
+    >
+    static inline void apply(PolygonInput const& polygon,
+            Collection& collection,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
+    {
         {
             collection.start_new_ring();
             policy::apply(exterior_ring(polygon), collection,
                     distance, join_strategy, end_strategy);
         }
 
-        typename interior_return_type<PolygonInput const>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
-        {
-            collection.start_new_ring();
-            policy::apply(*it, collection, distance, join_strategy, end_strategy);
-        }
-
+        apply_interior_rings(interior_rings(polygon),
+            collection, distance, join_strategy, end_strategy);
     }
 };
 
