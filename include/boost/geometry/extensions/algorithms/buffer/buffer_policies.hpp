@@ -111,11 +111,9 @@ struct buffer_turn_operation
     : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     int piece_index;
-    bool include_in_occupation_map;
 
     inline buffer_turn_operation()
         : piece_index(-1)
-        , include_in_occupation_map(false)
     {}
 };
 
