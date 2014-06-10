@@ -74,6 +74,7 @@ void test_all()
 
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 47.9408, 1.5);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("simplex", simplex, 52.8733, 1.5);
+
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 14.5616, 0.5);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 16.3861, 0.5);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("chained_box", chained_box, 83.1403, 1.0);
@@ -126,9 +127,7 @@ void test_all()
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("arrow4", arrow, 27.039, 0.4);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("arrow5", arrow, 31.500, 0.5);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("arrow5", arrow, 29.621, 0.5);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("arrow6", arrow, 34.903, 0.6);
-#endif
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("arrow6", arrow, 32.268, 0.6);
 
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("tipped_aitch3", tipped_aitch, 55.36, 0.3);
@@ -140,13 +139,9 @@ void test_all()
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("tipped_aitch9", tipped_aitch, 76.6457, 0.9);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("tipped_aitch13", tipped_aitch, 90.641, 1.3);
 
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake4", snake, 64.44, 0.4);
-#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake5", snake, 72, 0.5);
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake6", snake, 75.44, 0.6);
-#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake16", snake, 114.24, 1.6);
 
 	test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate2", funnelgate, 120.982, 2);
@@ -163,9 +158,7 @@ void test_all()
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower1", flower, 67.614, 0.1);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower20", flower, 74.894, 0.20);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower25", flower, 78.226, 0.25);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower30", flower, 81.492494146177947, 0.30);
-#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower35", flower, 84.694183819917185, 0.35);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower40", flower, 87.8306529577, 0.40);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("flower45", flower, 90.901901559536029, 0.45);
@@ -240,6 +233,18 @@ void test_all()
     }
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01);
+
+    // Negative buffers making polygons smaller
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 0.777987, -0.5);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 0.724208, -0.5);
+
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_simplex3", donut_simplex, 19.7636, -0.3);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex3", donut_simplex, 19.8861, -0.3);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_simplex6", donut_simplex, 12.8920, -0.6);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex6", donut_simplex, 12.9157, -0.6);
+
 
     return;
 

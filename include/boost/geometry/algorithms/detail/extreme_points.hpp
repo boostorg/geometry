@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2013 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,7 +16,8 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -412,11 +413,10 @@ struct extreme_points<Polygon, Dimension, polygon_tag>
         }
 
         // For a polygon, its interior rings can contain intruders
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings));
-            it != boost::end(rings);
-            ++it)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(polygon);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             ring_implementation::get_intruders(*it, extremes,  intruders);
         }

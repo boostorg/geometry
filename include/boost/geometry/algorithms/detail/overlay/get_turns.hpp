@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014.
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
@@ -22,7 +23,6 @@
 #include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -51,6 +51,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 
@@ -748,10 +749,10 @@ struct get_turns_polygon_cs
 
         int i = 0;
 
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings);
-            ++it, ++i)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(polygon);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it, ++i)
         {
             intersector_type::apply(
                     source_id1, *it,

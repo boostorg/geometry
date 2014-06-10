@@ -29,21 +29,23 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
+#include <boost/geometry/algorithms/detail/multi_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
-
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 
 namespace boost { namespace geometry
@@ -147,6 +149,28 @@ template <typename Geometry>
 struct length<Geometry, segment_tag>
     : detail::length::segment_length<Geometry>
 {};
+
+
+template <typename MultiLinestring>
+struct length<MultiLinestring, multi_linestring_tag> : detail::multi_sum
+{
+    template <typename Strategy>
+    static inline typename default_length_result<MultiLinestring>::type
+    apply(MultiLinestring const& multi, Strategy const& strategy)
+    {
+        return multi_sum::apply
+               <
+                   typename default_length_result<MultiLinestring>::type,
+                   detail::length::range_length
+                   <
+                       typename boost::range_value<MultiLinestring>::type,
+                       closed // no need to close it explicitly
+                   >
+               >(multi, strategy);
+
+    }
+};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

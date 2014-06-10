@@ -155,6 +155,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::point_type<GeometryOut>::type output_point_type;
 
+    if (distance_right < -998)
+    {
+        distance_right = distance_left;
+    }
+
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
@@ -171,6 +176,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << string_from_type<coordinate_type>::name()
         << "_" << join_name
         << (end_name.empty() ? "" : "_") << end_name
+        << (distance_left < 0 && distance_right < 0 ? "_deflate" : "")
          // << "_" << point_buffer_count
         ;
 
@@ -186,15 +192,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         bg::model::box<point_type> box;
         bg::envelope(geometry, box);
-        double d = std::abs(distance_left);
-		if (distance_right > -998)
-		{
-			d += std::abs(distance_right);
-		}
-        else
-        {
-            distance_right = distance_left;
-        }
+        double d = std::abs(distance_left) + std::abs(distance_right);
 
         bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);

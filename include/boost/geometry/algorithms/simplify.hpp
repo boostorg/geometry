@@ -14,16 +14,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 
-
 #include <cstddef>
 
 #include <boost/range.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
@@ -35,11 +38,6 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -184,6 +182,28 @@ public:
 };
 
 
+template<typename Policy>
+struct simplify_multi
+{
+    template <typename MultiGeometry, typename Strategy>
+    static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
+                             double max_distance, Strategy const& strategy)
+    {
+        traits::resize<MultiGeometry>::apply(out, boost::size(multi));
+
+        typename boost::range_iterator<MultiGeometry>::type it_out
+                = boost::begin(out);
+        for (typename boost::range_iterator<MultiGeometry const>::type
+                it_in = boost::begin(multi);
+             it_in != boost::end(multi);
+             ++it_in, ++it_out)
+        {
+            Policy::apply(*it_in, *it_out, max_distance, strategy);
+        }
+    }
+};
+
+
 }} // namespace detail::simplify
 #endif // DOXYGEN_NO_DETAIL
 
@@ -251,6 +271,23 @@ struct simplify_insert<Linestring, linestring_tag>
 template <typename Ring>
 struct simplify_insert<Ring, ring_tag>
     : detail::simplify::simplify_range_insert
+{};
+
+template <typename MultiPoint>
+struct simplify<MultiPoint, multi_point_tag>
+    : detail::simplify::simplify_copy
+{};
+
+
+template <typename MultiLinestring>
+struct simplify<MultiLinestring, multi_linestring_tag>
+    : detail::simplify::simplify_multi<detail::simplify::simplify_range<2> >
+{};
+
+
+template <typename MultiPolygon>
+struct simplify<MultiPolygon, multi_polygon_tag>
+    : detail::simplify::simplify_multi<detail::simplify::simplify_polygon>
 {};
 
 

@@ -42,6 +42,11 @@ public :
         return 1;
     }
 
+    inline bool negative() const
+    {
+        return m_distance < 0;
+    }
+
 private :
     CoordinateType m_distance;
 };

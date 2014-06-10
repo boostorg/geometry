@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -82,10 +82,20 @@ struct turn_assign_for_buffer
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
-    static bool const include_opposite = true;
+    static bool const include_opposite = false;
 
-    template <typename Point1, typename Point2, typename Turn, typename IntersectionInfo, typename DirInfo>
-    static inline void apply(Turn& turn, Point1 const& p1, Point2 const& p2, IntersectionInfo const& intersection_info, DirInfo const& dir_info)
+    template
+    <
+        typename Point1,
+        typename Point2,
+        typename Turn,
+        typename IntersectionInfo,
+        typename DirInfo
+    >
+    static inline void apply(Turn& turn,
+            Point1 const& , Point2 const& ,
+            IntersectionInfo const& intersection_info,
+            DirInfo const& dir_info)
     {
         if (dir_info.opposite && intersection_info.count == 2)
         {
@@ -101,16 +111,16 @@ struct buffer_turn_operation
     : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     int piece_index;
-    bool include_in_occupation_map;
+    int index_in_robust_ring;
 
     inline buffer_turn_operation()
         : piece_index(-1)
-        , include_in_occupation_map(false)
+        , index_in_robust_ring(-1)
     {}
 };
 
 // Version for buffer including type of location, is_opposite, and helper variables
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename RobustPoint, typename SegmentRatio>
 struct buffer_turn_info
     : public detail::overlay::turn_info
         <
@@ -119,19 +129,17 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
+    RobustPoint robust_point;
+    RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
     bool is_opposite;
 
     intersection_location_type location;
 
-    int priority;
-    int count_within, count_on_helper, count_on_offsetted, count_on_corner;
+    int count_within;
+    int count_on_offsetted;
+    int count_on_helper;
     int count_on_occupied;
     int count_on_multi;
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-    int count_on_uu;
-#endif
-
-    std::set<int> piece_indices_to_skip;
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
     std::string debug_string;
@@ -140,19 +148,28 @@ struct buffer_turn_info
     inline buffer_turn_info()
         : is_opposite(false)
         , location(location_ok)
-        , priority(0)
         , count_within(0)
-        , count_on_helper(0)
         , count_on_offsetted(0)
-        , count_on_corner(0)
+        , count_on_helper(0)
         , count_on_occupied(0)
         , count_on_multi(0)
-#if defined(BOOST_GEOMETRY_COUNT_DOUBLE_UU)
-        , count_on_uu(0)
-#endif
     {}
 };
 
+struct buffer_operation_less
+{
+    template <typename Turn>
+    inline bool operator()(Turn const& left, Turn const& right) const
+    {
+        segment_identifier const& sl = left.seg_id;
+        segment_identifier const& sr = right.seg_id;
+
+        // Sort them descending
+        return sl == sr
+            ? left.fraction < right.fraction
+            : sl < sr;
+    }
+};
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL

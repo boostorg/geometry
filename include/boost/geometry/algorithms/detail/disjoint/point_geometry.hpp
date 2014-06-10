@@ -24,7 +24,6 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/multi/algorithms/covered_by.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 

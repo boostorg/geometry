@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
 
+#include <vector>
+
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -25,6 +27,9 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
@@ -75,6 +80,42 @@ struct envelope_range
         envelope_range_additional(range, mbr);
     }
 };
+
+
+struct envelope_multi_linestring
+{
+    template<typename MultiLinestring, typename Box>
+    static inline void apply(MultiLinestring const& mp, Box& mbr)
+    {
+        assign_inverse(mbr);
+        for (typename boost::range_iterator<MultiLinestring const>::type
+                it = mp.begin();
+            it != mp.end();
+            ++it)
+        {
+            envelope_range_additional(*it, mbr);
+        }
+    }
+};
+
+
+// version for multi_polygon: outer ring's of all polygons
+struct envelope_multi_polygon
+{
+    template<typename MultiPolygon, typename Box>
+    static inline void apply(MultiPolygon const& mp, Box& mbr)
+    {
+        assign_inverse(mbr);
+        for (typename boost::range_const_iterator<MultiPolygon>::type
+                it = mp.begin();
+            it != mp.end();
+            ++it)
+        {
+            envelope_range_additional(exterior_ring(*it), mbr);
+        }
+    }
+};
+
 
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
@@ -135,6 +176,24 @@ struct envelope<Polygon, polygon_tag>
     }
 
 };
+
+
+template <typename Multi>
+struct envelope<Multi, multi_point_tag>
+    : detail::envelope::envelope_range
+{};
+
+
+template <typename Multi>
+struct envelope<Multi, multi_linestring_tag>
+    : detail::envelope::envelope_multi_linestring
+{};
+
+
+template <typename Multi>
+struct envelope<Multi, multi_polygon_tag>
+    : detail::envelope::envelope_multi_polygon
+{};
 
 
 } // namespace dispatch

@@ -38,4 +38,9 @@
 [rtree_interprocess]
 [endsect]
 
+[section Index stored in mapped file using Boost.Interprocess]
+[rtree_mapped_file]
+[endsect]
+
+
 [endsect]
