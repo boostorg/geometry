@@ -19,6 +19,12 @@
 
 #include <boost/type_traits/is_fundamental.hpp>
 
+#include "number_types.hpp"
+
+// important: the include above must precede the include below,
+// otherwise the test will fail for the custom number type:
+// custom_with_global_sqrt
+
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
@@ -27,90 +33,6 @@
 #endif
 
 namespace bg = boost::geometry;
-
-
-
-// define a custom number type and its sqrt in own namespace
-namespace number_types
-{
-
-struct custom
-{
-    double m_value;
-
-    custom() : m_value(0) {}
-    explicit custom(double value) : m_value(value) {}
-
-    bool operator<(custom const& other) const
-    {
-        return m_value < other.m_value;
-    }
-
-    custom operator-() const
-    {
-        return custom(-m_value);
-    }
-
-    custom operator-(custom const& other) const
-    {
-        return custom(m_value - other.m_value);
-    }
-};
-
-inline custom sqrt(custom const& c)
-{
-    return custom(std::sqrt(c.m_value));
-}
-
-inline custom abs(custom const& c)
-{
-    return custom(std::abs(c.m_value));
-}
-
-} // namespace number_types
-
-
-
-
-
-
-
-// define a custom number type and its sqrt in global namespace
-struct custom_global
-{
-    double m_value;
-
-    custom_global() : m_value(0) {}
-    explicit custom_global(double value) : m_value(value) {}
-
-    bool operator<(custom_global const& other) const
-    {
-        return m_value < other.m_value;
-    }
-
-    custom_global operator-() const
-    {
-        return custom_global(-m_value);
-    }
-
-    custom_global operator-(custom_global const& other) const
-    {
-        return custom_global(m_value - other.m_value);
-    }
-};
-
-inline custom_global sqrt(custom_global const& c)
-{
-    return custom_global(std::sqrt(c.m_value));
-}
-
-inline custom_global abs(custom_global const& c)
-{
-    return custom_global(std::abs(c.m_value));
-}
-
-
-
 
 
 
@@ -205,19 +127,21 @@ BOOST_AUTO_TEST_CASE( test_math_sqrt_fundamental )
 
 BOOST_AUTO_TEST_CASE( test_math_sqrt_custom )
 {
-    typedef number_types::custom custom1;
-    typedef custom_global custom2;
+    typedef number_types::custom<double> custom1;
+    typedef custom_global<double> custom2;
+    typedef number_types::custom_with_global_sqrt<double> custom3;
 
-    static const double sqrt2 = std::sqrt(2.0);    
+    static const double sqrt2 = std::sqrt(2.0);
 
     check_sqrt<custom1, custom1>::apply(custom1(2.0), custom1(sqrt2));
     check_sqrt<custom2, custom2>::apply(custom2(2.0), custom2(sqrt2));
+    check_sqrt<custom3, custom3>::apply(custom3(2.0), custom3(sqrt2));
 
 #ifdef HAVE_TTMATH
-    typedef ttmath_big custom3;
-    typedef ttmath::Big<1, 4> custom4;
+    typedef ttmath_big custom4;
+    typedef ttmath::Big<1, 4> custom5;
 
-    check_sqrt<custom3, custom3>::apply(custom3(2.0), custom3(sqrt2));
     check_sqrt<custom4, custom4>::apply(custom4(2.0), custom4(sqrt2));
+    check_sqrt<custom5, custom5>::apply(custom5(2.0), custom5(sqrt2));
 #endif
 }
