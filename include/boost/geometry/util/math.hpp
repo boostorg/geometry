@@ -95,20 +95,34 @@ struct smaller<Type, true>
 template <typename Type, bool IsFloatingPoint>
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
 
-template <typename T, bool IsFundemantal /* false */>
-struct sqrt
+template
+<
+    typename T,
+    bool IsFundemantal = boost::is_fundamental<T>::value /* false */
+>
+struct square_root
 {
+    typedef T return_type;
+
     static inline T apply(T const& value)
     {
-        // for non-fundamental number types assume that sqrt at global
-        // scope is defined
-        return ::sqrt(value);
+        // for non-fundamental number types assume that sqrt is
+        // defined either:
+        // 1) at T's scope, or
+        // 2) at global scope, or
+        // 3) in namespace std
+        using ::sqrt;
+        using std::sqrt;
+
+        return sqrt(value);
     }
 };
 
 template <>
-struct sqrt<float, true>
+struct square_root<float, true>
 {
+    typedef float return_type;
+
     static inline float apply(float const& value)
     {
         // for float use std::sqrt
@@ -117,8 +131,10 @@ struct sqrt<float, true>
 };
 
 template <>
-struct sqrt<long double, true>
+struct square_root<long double, true>
 {
+    typedef long double return_type;
+
     static inline long double apply(long double const& value)
     {
         // for long double use std::sqrt
@@ -127,8 +143,10 @@ struct sqrt<long double, true>
 };
 
 template <typename T>
-struct sqrt<T, true>
+struct square_root<T, true>
 {
+    typedef double return_type;
+
     static inline double apply(T const& value)
     {
         // for all other fundamental number types use also std::sqrt
@@ -298,9 +316,10 @@ inline T sqr(T const& value)
 \return The square root value
 */
 template <typename T>
-inline T sqrt(T const& value)
+inline typename detail::square_root<T>::return_type
+sqrt(T const& value)
 {
-    return detail::sqrt
+    return detail::square_root
         <
             T, boost::is_fundamental<T>::value
         >::apply(value);
