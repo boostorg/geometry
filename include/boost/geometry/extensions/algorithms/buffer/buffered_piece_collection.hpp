@@ -18,7 +18,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 
@@ -178,11 +177,6 @@ struct buffered_piece_collection
 
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
 
-    typedef detail::overlay::get_turn_info
-        <
-            turn_assign_for_buffer
-        > turn_policy;
-
     struct robust_turn
     {
         int turn_index;
@@ -240,83 +234,6 @@ struct buffered_piece_collection
     buffered_piece_collection(RobustPolicy const& robust_policy)
         : m_robust_policy(robust_policy)
     {}
-
-
-
-    template <typename Range, typename Iterator>
-    inline void move_to_next_point(Range const& range, Iterator& next) const
-    {
-        ++next;
-        if (next == boost::end(range))
-        {
-            next = boost::begin(range) + 1;
-        }
-    }
-
-    template <typename Range, typename Iterator>
-    inline Iterator next_point(Range const& range, Iterator it) const
-    {
-        Iterator result = it;
-        move_to_next_point(range, result);
-        while(geometry::equals(*it, *result))
-        {
-            move_to_next_point(range, result);
-        }
-        return result;
-    }
-
-    inline void calculate_turns(piece const& piece1, piece const& piece2)
-    {
-        typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
-
-        segment_identifier seg_id1 = piece1.first_seg_id;
-        segment_identifier seg_id2 = piece2.first_seg_id;
-
-        if (seg_id1.segment_index < 0 || seg_id2.segment_index < 0)
-        {
-            return;
-        }
-
-        buffered_ring<Ring> const& ring1 = offsetted_rings[seg_id1.multi_index];
-        iterator it1_first = boost::begin(ring1) + seg_id1.segment_index;
-        iterator it1_last = boost::begin(ring1) + piece1.last_segment_index;
-
-        buffered_ring<Ring> const& ring2 = offsetted_rings[seg_id2.multi_index];
-        iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
-        iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
-
-        buffer_turn_info_type the_model;
-        the_model.operations[0].piece_index = piece1.index;
-        the_model.operations[0].seg_id = piece1.first_seg_id;
-
-        iterator it1 = it1_first;
-        for (iterator prev1 = it1++;
-                it1 != it1_last;
-                prev1 = it1++, the_model.operations[0].seg_id.segment_index++)
-        {
-            the_model.operations[1].piece_index = piece2.index;
-            the_model.operations[1].seg_id = piece2.first_seg_id;
-
-            iterator next1 = next_point(ring1, it1);
-
-            iterator it2 = it2_first;
-            for (iterator prev2 = it2++;
-                    it2 != it2_last;
-                    prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
-            {
-                // Revert (this is used more often - should be common function TODO)
-                the_model.operations[0].other_id = the_model.operations[1].seg_id;
-                the_model.operations[1].other_id = the_model.operations[0].seg_id;
-
-                iterator next2 = next_point(ring2, it2);
-
-                turn_policy::apply(*prev1, *it1, *next1,
-                                    *prev2, *it2, *next2,
-                                    false, false, false, false,
-                                    the_model, m_robust_policy, std::back_inserter(m_turns));
-            }
-        }
-    }
 
     inline bool on_offsetted(robust_point_type const& point, piece const& piece) const
     {
@@ -783,7 +700,13 @@ struct buffered_piece_collection
     {
         rescale_piece_rings();
 
-        piece_turn_visitor<this_type, piece> visitor(*this, m_pieces.size());
+        piece_turn_visitor
+            <
+                buffered_ring_collection<buffered_ring<Ring> >,
+                turn_vector_type,
+                RobustPolicy
+            > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
+
         geometry::partition
             <
                 model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
