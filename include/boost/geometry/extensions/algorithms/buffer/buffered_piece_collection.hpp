@@ -643,6 +643,7 @@ struct buffered_piece_collection
         {
             geometry::recalculate(it->robust_point, it->point, m_robust_policy);
             it->mapped_robust_point = it->robust_point;
+
             robust_turn turn;
             turn.turn_index = index;
             turn.point = it->robust_point;
@@ -651,7 +652,13 @@ struct buffered_piece_collection
                 turn.operation_index = i;
                 turn.seg_id = it->operations[i].seg_id;
                 turn.fraction = it->operations[i].fraction;
-                m_pieces[it->operations[i].piece_index].robust_turns.push_back(turn);
+
+                piece& pc = m_pieces[it->operations[i].piece_index];
+                pc.robust_turns.push_back(turn);
+
+                // Take into account for the box (intersection points should fall inside,
+                // but in theory they can be one off because of rounding
+                geometry::expand(pc.robust_envelope, it->robust_point);
             }
         }
 
