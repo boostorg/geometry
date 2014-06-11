@@ -449,6 +449,72 @@ void test_many_boxes(int seed, int size, int count)
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
 }
 
+void test_two_collections(int seed1, int seed2, int size, int count)
+{
+    typedef bg::model::box<point_item> box_type;
+    std::vector<box_item<box_type> > boxes1, boxes2;
+
+    fill_boxes(boxes1, seed1, size, count);
+    fill_boxes(boxes2, seed2, size, count);
+
+    // Get expectations in quadratic loop
+    int expected_count = 0;
+    double expected_area = 0.0;
+    BOOST_FOREACH(box_item<box_type> const& item1, boxes1)
+    {
+        BOOST_FOREACH(box_item<box_type> const& item2, boxes2)
+        {
+            if (bg::intersects(item1.box, item2.box))
+            {
+                box_type b;
+                bg::intersection(item1.box, item2.box, b);
+                expected_area += bg::area(b);
+                expected_count++;
+            }
+        }
+    }
+
+
+#if defined(TEST_WITH_SVG)
+    std::ostringstream filename;
+    filename << "partition_boxes_" << seed1 << "_" << seed2 << ".svg";
+    std::ofstream svg(filename.str().c_str());
+
+    bg::svg_mapper<point_item> mapper(svg, 800, 800);
+
+    {
+        point_item p;
+        p.x = -1; p.y = -1; mapper.add(p);
+        p.x = size + 1; p.y = size + 1; mapper.add(p);
+    }
+
+    BOOST_FOREACH(box_item<box_type> const& item, boxes1)
+    {
+        mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
+    }
+    BOOST_FOREACH(box_item<box_type> const& item, boxes2)
+    {
+        mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+    }
+
+    typedef svg_visitor<bg::svg_mapper<point_item> > partition_visitor_type;
+    partition_visitor_type partition_visitor(mapper);
+#else
+    typedef bg::visit_no_policy box_visitor_type;
+    box_visitor_type box_visitor;
+#endif
+
+    box_visitor<box_type> visitor;
+    bg::partition
+        <
+            box_type, get_box, ovelaps_box,
+            partition_visitor_type
+        >::apply(boxes1, boxes2, visitor, 2, partition_visitor);
+
+    BOOST_CHECK_EQUAL(visitor.count, expected_count);
+    BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
+}
+
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<double> >();
@@ -467,6 +533,9 @@ int test_main( int , char* [] )
     {
         test_many_boxes(i, 20, i * 10);
     }
+
+    test_two_collections(12345, 54321, 20, 40);
+    test_two_collections(67890, 98765, 20, 60);
 
     return 0;
 }
