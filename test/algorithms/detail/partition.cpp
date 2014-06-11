@@ -89,6 +89,40 @@ struct box_visitor
     }
 };
 
+struct point_in_box_visitor
+{
+    int count;
+    point_in_box_visitor()
+        : count(0)
+    {}
+
+    template <typename Point, typename BoxItem>
+    inline void apply(Point const& point, BoxItem const& box_item)
+    {
+        if (bg::within(point, box_item.box))
+        {
+            count++;
+        }
+    }
+};
+
+struct reversed_point_in_box_visitor
+{
+    int count;
+    reversed_point_in_box_visitor()
+        : count(0)
+    {}
+
+    template <typename BoxItem, typename Point>
+    inline void apply(BoxItem const& box_item, Point const& point)
+    {
+        if (bg::within(point, box_item.box))
+        {
+            count++;
+        }
+    }
+};
+
 
 
 template <typename Box>
@@ -335,7 +369,9 @@ void test_many_points(int seed, int size, int count)
     point_visitor visitor;
     bg::partition
         <
-            bg::model::box<point_item>, get_point, ovelaps_point,
+            bg::model::box<point_item>,
+            get_point, ovelaps_point,
+            get_point, ovelaps_point,
             box_visitor_type
         >::apply(mp1, mp2, visitor, 2, box_visitor);
 
@@ -441,7 +477,9 @@ void test_many_boxes(int seed, int size, int count)
     box_visitor<box_type> visitor;
     bg::partition
         <
-            box_type, get_box, ovelaps_box,
+            box_type,
+            get_box, ovelaps_box,
+            get_box, ovelaps_box,
             partition_box_visitor_type
         >::apply(boxes, visitor, 2, partition_box_visitor);
 
@@ -507,12 +545,89 @@ void test_two_collections(int seed1, int seed2, int size, int count)
     box_visitor<box_type> visitor;
     bg::partition
         <
-            box_type, get_box, ovelaps_box,
+            box_type,
+            get_box, ovelaps_box,
+            get_box, ovelaps_box,
             partition_box_visitor_type
         >::apply(boxes1, boxes2, visitor, 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
+}
+
+
+void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
+{
+    typedef bg::model::box<point_item> box_type;
+    std::vector<point_item> points;
+    std::vector<box_item<box_type> > boxes;
+
+    fill_points(points, seed1, size, count);
+    fill_boxes(boxes, seed2, size, count);
+
+    // Get expectations in quadratic loop
+    int expected_count = 0;
+    BOOST_FOREACH(point_item const& point, points)
+    {
+        BOOST_FOREACH(box_item<box_type> const& box_item, boxes)
+        {
+            if (bg::within(point, box_item.box))
+            {
+                expected_count++;
+            }
+        }
+    }
+
+
+#if defined(TEST_WITH_SVG)
+    std::ostringstream filename;
+    filename << "partition_heterogeneous_" << seed1 << "_" << seed2 << ".svg";
+    std::ofstream svg(filename.str().c_str());
+
+    bg::svg_mapper<point_item> mapper(svg, 800, 800);
+
+    {
+        point_item p;
+        p.x = -1; p.y = -1; mapper.add(p);
+        p.x = size + 1; p.y = size + 1; mapper.add(p);
+    }
+
+    BOOST_FOREACH(point_item const& point, points)
+    {
+        mapper.map(point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 8);
+    }
+    BOOST_FOREACH(box_item<box_type> const& item, boxes)
+    {
+        mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
+    }
+
+    typedef svg_visitor<bg::svg_mapper<point_item> > partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor(mapper);
+#else
+    typedef bg::visit_no_policy partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor;
+#endif
+
+    point_in_box_visitor visitor1;
+    bg::partition
+        <
+            box_type,
+            get_point, ovelaps_point,
+            get_box, ovelaps_box,
+            partition_box_visitor_type
+        >::apply(points, boxes, visitor1, 2, partition_box_visitor);
+
+    reversed_point_in_box_visitor visitor2;
+    bg::partition
+        <
+            box_type,
+            get_box, ovelaps_box,
+            get_point, ovelaps_point,
+            partition_box_visitor_type
+        >::apply(boxes, points, visitor2, 2, partition_box_visitor);
+
+    BOOST_CHECK_EQUAL(visitor1.count, expected_count);
+    BOOST_CHECK_EQUAL(visitor2.count, expected_count);
 }
 
 int test_main( int , char* [] )
@@ -536,6 +651,8 @@ int test_main( int , char* [] )
 
     test_two_collections(12345, 54321, 20, 40);
     test_two_collections(67890, 98765, 20, 60);
+
+    test_heterogenuous_collections(67890, 98765, 20, 60);
 
     return 0;
 }
