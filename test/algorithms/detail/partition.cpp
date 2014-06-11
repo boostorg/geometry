@@ -384,8 +384,6 @@ void fill_boxes(Collection& collection, int seed, int size, int count)
     }
 }
 
-
-
 void test_many_boxes(int seed, int size, int count)
 {
     typedef bg::model::box<point_item> box_type;
@@ -435,6 +433,10 @@ void test_many_boxes(int seed, int size, int count)
     typedef svg_visitor<bg::svg_mapper<point_item> > partition_visitor_type;
     partition_visitor_type partition_visitor(mapper);
 
+#else
+    typedef bg::visit_no_policy box_visitor_type;
+    box_visitor_type box_visitor;
+#endif
 
     box_visitor<box_type> visitor;
     bg::partition
@@ -445,13 +447,7 @@ void test_many_boxes(int seed, int size, int count)
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
-
-#endif
 }
-
-
-
-
 
 int test_main( int , char* [] )
 {
