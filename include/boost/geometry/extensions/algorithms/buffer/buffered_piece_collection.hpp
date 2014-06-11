@@ -26,6 +26,7 @@
 
 #include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/get_piece_turns.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -136,6 +137,8 @@ inline bool projection_on_segment(Point const& subject, Point const& p, Point co
 template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection
 {
+    typedef buffered_piece_collection<Ring, RobustPolicy> this_type;
+
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
     typedef typename geometry::robust_point_type
@@ -239,28 +242,6 @@ struct buffered_piece_collection
     {}
 
 
-    inline bool is_neighbor(piece const& piece1, piece const& piece2) const
-    {
-        if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
-        {
-            return false;
-        }
-
-        if (std::abs(piece1.index - piece2.index) == 1)
-        {
-            return true;
-        }
-
-        int const last = boost::size(m_pieces) - 1;
-        return (piece1.index == 0 && piece2.index == last)
-            || (piece1.index == last && piece2.index == 0)
-            ;
-    }
-
-    inline bool skip_neighbor(piece const& piece1, piece const& piece2) const
-    {
-        return piece1.type != piece2.type && is_neighbor(piece1, piece2);
-    }
 
     template <typename Range, typename Iterator>
     inline void move_to_next_point(Range const& range, Iterator& next) const
@@ -802,23 +783,11 @@ struct buffered_piece_collection
     {
         rescale_piece_rings();
 
-        // Now: quadratic
-        // TODO use partition
-
-        for(typename piece_vector_type::const_iterator it1 = boost::begin(m_pieces);
-            it1 != boost::end(m_pieces);
-            ++it1)
-        {
-            for(typename piece_vector_type::const_iterator it2 = it1 + 1;
-                it2 != boost::end(m_pieces);
-                ++it2)
-            {
-                if (! skip_neighbor(*it1, *it2))
-                {
-                    calculate_turns(*it1, *it2);
-                }
-            }
-        }
+        piece_turn_visitor<this_type, piece> visitor(*this, m_pieces.size());
+        geometry::partition
+            <
+                model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
+            >::apply(m_pieces, visitor);
 
         insert_rescaled_piece_turns();
 
