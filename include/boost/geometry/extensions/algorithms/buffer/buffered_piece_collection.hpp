@@ -20,6 +20,7 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
@@ -205,8 +206,9 @@ struct buffered_piece_collection
         std::vector<point_type> helper_segments; // 3 points for segment, 2 points for join - 0 points for flat-end
 
         // Robust representations
-        std::vector<robust_turn> robust_turns;
+        std::vector<robust_turn> robust_turns; // Used only in rescale_pieces - we might use a map instead
         geometry::model::ring<robust_point_type> robust_ring;
+        geometry::model::box<robust_point_type> robust_envelope;
     };
 
     typedef std::vector<piece> piece_vector_type;
@@ -726,6 +728,10 @@ struct buffered_piece_collection
                     pc.robust_ring.push_back(point);
                 }
             }
+
+            // Calculate the envelope
+            geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
+                    pc.robust_envelope);
         }
     }
 
