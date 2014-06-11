@@ -112,6 +112,13 @@ public:
     inline void apply(Turn const& turn, Piece const& piece, bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
+
+        if (turn.count_within > 0)
+        {
+            // Already inside - no need to check again
+            return;
+        }
+
         if (piece.type == buffered_flat_end)
         {
             // Turns cannot be inside a flat end (though they can be on border)

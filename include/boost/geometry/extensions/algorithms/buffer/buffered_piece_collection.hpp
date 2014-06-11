@@ -81,7 +81,7 @@ struct check_original<polygon_tag>
     static inline int apply(Point const& point, Geometry const& geometry,
                             DistanceStrategy const& )
     {
-        return geometry::covered_by(point, geometry) ? 1 : -1;
+        return geometry::within(point, geometry) ? 1 : -1;
     }
 };
 
@@ -208,10 +208,6 @@ struct buffered_piece_collection
         : m_robust_policy(robust_policy)
     {}
 
-
-    inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
-    {
-    }
 
     template <typename OccupationMap>
     inline void adapt_mapped_robust_point(OccupationMap const& map,
@@ -422,37 +418,11 @@ struct buffered_piece_collection
 
     inline void classify_turns()
     {
-        // Check if it is inside any of the pieces
-
-        turn_in_piece_visitor
-            <
-                turn_vector_type
-            > visitor(m_turns);
-
-        geometry::partition
-            <
-                model::box<robust_point_type>,
-                turn_get_box, turn_ovelaps_box,
-                piece_get_box, piece_ovelaps_box
-            >::apply(m_turns, m_pieces, visitor);
-    }
-
-    template <typename Turn>
-    inline bool classify_turn_inside(Turn const& turn) const
-    {
-        return turn.count_within > 0
-            // || turn.count_on_multi > 0
-            || turn.count_on_occupied > 0
-            ;
-    }
-
-    inline void classify_inside()
-    {
-        // Set results:
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (classify_turn_inside(*it))
+            if ( it->count_within > 0
+              || it->count_on_occupied > 0 )
             {
                 it->location = inside_buffer;
             }
@@ -463,10 +433,14 @@ struct buffered_piece_collection
     inline void check_remaining_points(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
         int const factor = distance_strategy.factor();
+
+        // This might use partition too (for multi-polygons)
+
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (it->location == location_ok)
+            if ( it->location == location_ok
+              && it->count_on_offsetted == 0 )
             {
                 int code = check_original
                         <
@@ -623,24 +597,41 @@ struct buffered_piece_collection
     {
         rescale_piece_rings();
 
-        piece_turn_visitor
-            <
-                buffered_ring_collection<buffered_ring<Ring> >,
-                turn_vector_type,
-                RobustPolicy
-            > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
+        {
+            // Calculate the turns
+            piece_turn_visitor
+                <
+                    buffered_ring_collection<buffered_ring<Ring> >,
+                    turn_vector_type,
+                    RobustPolicy
+                > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
 
-        geometry::partition
-            <
-                model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
-            >::apply(m_pieces, visitor);
+            geometry::partition
+                <
+                    model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
+                >::apply(m_pieces, visitor);
+        }
 
         insert_rescaled_piece_turns();
 
-        classify_turns();
-        get_occupation();
+        {
+            // Check if it is inside any of the pieces
+            turn_in_piece_visitor
+                <
+                    turn_vector_type
+                > visitor(m_turns);
 
-        classify_inside();
+            geometry::partition
+                <
+                    model::box<robust_point_type>,
+                    turn_get_box, turn_ovelaps_box,
+                    piece_get_box, piece_ovelaps_box
+                >::apply(m_turns, m_pieces, visitor);
+
+        }
+        //get_occupation();
+
+        classify_turns();
 
         check_remaining_points(input_geometry, distance_strategy);
     }

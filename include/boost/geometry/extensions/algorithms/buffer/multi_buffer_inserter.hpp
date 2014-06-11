@@ -31,7 +31,7 @@ struct check_original<multi_polygon_tag>
     template <typename Point, typename Geometry, typename DistanceStrategy>
     static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
     {
-        return geometry::covered_by(point, geometry) ? 1 : -1;
+        return geometry::within(point, geometry) ? 1 : -1;
     }
 };
 
