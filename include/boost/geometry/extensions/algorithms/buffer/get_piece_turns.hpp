@@ -97,6 +97,8 @@ class piece_turn_visitor
     {
         Iterator result = it;
         move_to_next_point(range, result);
+        // TODO: we could use either piece-boundaries, or comparison with
+        // robust points, to check if the point equals the last one
         while(geometry::equals(*it, *result))
         {
             move_to_next_point(range, result);
@@ -152,18 +154,26 @@ class piece_turn_visitor
 
                 iterator next2 = next_point(ring2, it2);
 
-                typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> turn_policy;
+                // TODO: internally get_turn_info calculates robust points.
+                // But they are already calculated.
+                // We should be able to use them.
+                // this means passing them to this visitor,
+                // and iterating in sync with them...
+                typedef detail::overlay::get_turn_info
+                    <
+                        detail::overlay::assign_null_policy
+                    > turn_policy;
+
                 turn_policy::apply(*prev1, *it1, *next1,
                                     *prev2, *it2, *next2,
                                     false, false, false, false,
-                                    the_model, m_robust_policy, std::back_inserter(m_turns));
+                                    the_model, m_robust_policy,
+                                    std::back_inserter(m_turns));
             }
         }
     }
 
-
 public:
-
 
     piece_turn_visitor(Rings const& ring_collection,
             Turns& turns,
