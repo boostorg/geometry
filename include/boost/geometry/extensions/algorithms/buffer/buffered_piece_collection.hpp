@@ -26,6 +26,7 @@
 #include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/get_piece_turns.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/turn_in_piece_visitor.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -103,34 +104,6 @@ struct check_original<point_tag>
         return 0;
     }
 };
-
-// TODO: move this
-template <typename Point>
-inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
-{
-    typedef Point vector_type;
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-    vector_type v = q;
-    vector_type w = subject;
-    subtract_point(v, p);
-    subtract_point(w, p);
-
-    coordinate_type const zero = coordinate_type();
-    coordinate_type const c1 = dot_product(w, v);
-
-    if (c1 < zero)
-    {
-        return false;
-    }
-    coordinate_type const c2 = dot_product(v, v);
-    if (c2 < c1)
-    {
-        return false;
-    }
-
-    return true;
-}
 
 
 template <typename Ring, typename RobustPolicy>
@@ -235,65 +208,9 @@ struct buffered_piece_collection
         : m_robust_policy(robust_policy)
     {}
 
-    inline bool on_offsetted(robust_point_type const& point, piece const& piece) const
-    {
-        for (int i = 1; i < piece.offsetted_count; i++)
-        {
-            robust_point_type const& previous = piece.robust_ring[i - 1];
-            robust_point_type const& current = piece.robust_ring[i];
-            int const side = side_strategy::apply(point, previous, current);
-            if (side == 0)
-            {
-                // Collinear, check if projection falls on it
-                if (projection_on_segment(point, previous, current))
-                {
-                    return true;
-                }
-            }
-
-        }
-        return false;
-    }
 
     inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
     {
-        if (pc.type == buffered_flat_end)
-        {
-            // Turns cannot be inside a flat end (though they can be on border)
-            return;
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            // Don't compare against one of the two source-pieces
-            if (turn.operations[i].piece_index == pc.index)
-            {
-                return;
-            }
-        }
-
-        int geometry_code = detail::within::point_in_geometry(turn.robust_point, pc.robust_ring);
-
-        if (geometry_code == 0)
-        {
-            if (! on_offsetted(turn.robust_point, pc))
-            {
-                // It is on the border but not on the offsetted ring.
-                // Then it is somewhere on the helper-segments
-                // Classify it as inside
-                // TODO: for neighbouring flat ends this does not apply
-                geometry_code = 1;
-                turn.count_on_helper++;
-            }
-        }
-
-        switch (geometry_code)
-        {
-            case 1 : turn.count_within++; break;
-            case 0 : turn.count_on_offsetted++; break;
-        }
-
-
     }
 
     template <typename OccupationMap>
@@ -505,21 +422,19 @@ struct buffered_piece_collection
 
     inline void classify_turns()
     {
-
         // Check if it is inside any of the pieces
-        // Now: quadratic
-        // TODO: in partition.
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
-        {
-            typename std::vector<piece>::const_iterator pit;
-            for (pit = boost::begin(m_pieces);
-                pit != boost::end(m_pieces);
-                ++pit)
-            {
-                classify_turn(*it, *pit);
-            }
-        }
+
+        turn_in_piece_visitor
+            <
+                turn_vector_type
+            > visitor(m_turns);
+
+        geometry::partition
+            <
+                model::box<robust_point_type>,
+                turn_get_box, turn_ovelaps_box,
+                piece_get_box, piece_ovelaps_box
+            >::apply(m_turns, m_pieces, visitor);
     }
 
     template <typename Turn>
@@ -645,6 +560,7 @@ struct buffered_piece_collection
             it->mapped_robust_point = it->robust_point;
 
             robust_turn turn;
+            it->turn_index = index;
             turn.turn_index = index;
             turn.point = it->robust_point;
             for (int i = 0; i < 2; i++)

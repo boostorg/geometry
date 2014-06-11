@@ -103,6 +103,8 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
+    int turn_index; // TODO: this might go if partition can operate on non-const input
+
     RobustPoint robust_point;
     RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
 
@@ -119,7 +121,8 @@ struct buffer_turn_info
 #endif
 
     inline buffer_turn_info()
-        : location(location_ok)
+        : turn_index(-1)
+        , location(location_ok)
         , count_within(0)
         , count_on_offsetted(0)
         , count_on_helper(0)
