@@ -686,7 +686,7 @@ struct buffered_piece_collection
         return true;
     }
 
-    inline void rescale_pieces()
+    inline void rescale_piece_rings()
     {
         for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
             it != boost::end(m_pieces);
@@ -727,7 +727,10 @@ struct buffered_piece_collection
                 }
             }
         }
+    }
 
+    inline void insert_rescaled_piece_turns()
+    {
         // Add rescaled turn points to corresponding pieces
         // (after this, each turn occurs twice)
         int index = 0;
@@ -747,8 +750,6 @@ struct buffered_piece_collection
                 m_pieces[it->operations[i].piece_index].robust_turns.push_back(turn);
             }
         }
-
-        // All pieces now have closed robust rings.
 
         // Insert all rescaled turn-points into these rings, to form a
         // reliable integer-based ring. All turns can be compared (inside) to this
@@ -793,6 +794,8 @@ struct buffered_piece_collection
     template <typename Geometry, typename DistanceStrategy>
     inline void get_turns(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
+        rescale_piece_rings();
+
         // Now: quadratic
         // TODO use partition
 
@@ -811,7 +814,7 @@ struct buffered_piece_collection
             }
         }
 
-        rescale_pieces();
+        insert_rescaled_piece_turns();
 
         classify_turns();
         get_occupation();
