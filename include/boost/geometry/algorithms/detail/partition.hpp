@@ -23,7 +23,7 @@ namespace detail { namespace partition
 typedef std::vector<std::size_t> index_vector_type;
 
 template <int Dimension, typename Box>
-inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
+void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 {
     typedef typename coordinate_type<Box>::type ctype;
 
@@ -42,7 +42,7 @@ inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 // (not-fitting)
 // (lower == left or bottom, upper == right or top)
 template <typename OverlapsPolicy, typename InputCollection, typename Box>
-static inline void divide_into_subsets(Box const& lower_box,
+inline void divide_into_subsets(Box const& lower_box,
         Box const& upper_box,
         InputCollection const& collection,
         index_vector_type const& input,
@@ -86,7 +86,7 @@ static inline void divide_into_subsets(Box const& lower_box,
 
 // Match collection with itself
 template <typename InputCollection, typename Policy>
-static inline void handle_one(InputCollection const& collection,
+inline void handle_one(InputCollection const& collection,
         index_vector_type const& input,
         Policy& policy)
 {
