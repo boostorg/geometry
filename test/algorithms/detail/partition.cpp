@@ -224,6 +224,7 @@ void test_all()
 
 //------------------- higher volumes
 
+#if defined(TEST_WITH_SVG)
 template <typename SvgMapper>
 struct svg_visitor
 {
@@ -257,8 +258,7 @@ struct svg_visitor
 
     }
 };
-
-
+#endif
 
 
 template <typename Collection>
@@ -430,20 +430,20 @@ void test_many_boxes(int seed, int size, int count)
         mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
     }
 
-    typedef svg_visitor<bg::svg_mapper<point_item> > partition_visitor_type;
-    partition_visitor_type partition_visitor(mapper);
+    typedef svg_visitor<bg::svg_mapper<point_item> > partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor(mapper);
 
 #else
-    typedef bg::visit_no_policy box_visitor_type;
-    box_visitor_type box_visitor;
+    typedef bg::visit_no_policy partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor;
 #endif
 
     box_visitor<box_type> visitor;
     bg::partition
         <
             box_type, get_box, ovelaps_box,
-            partition_visitor_type
-        >::apply(boxes, visitor, 2, partition_visitor);
+            partition_box_visitor_type
+        >::apply(boxes, visitor, 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
@@ -497,19 +497,19 @@ void test_two_collections(int seed1, int seed2, int size, int count)
         mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
     }
 
-    typedef svg_visitor<bg::svg_mapper<point_item> > partition_visitor_type;
-    partition_visitor_type partition_visitor(mapper);
+    typedef svg_visitor<bg::svg_mapper<point_item> > partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor(mapper);
 #else
-    typedef bg::visit_no_policy box_visitor_type;
-    box_visitor_type box_visitor;
+    typedef bg::visit_no_policy partition_box_visitor_type;
+    partition_box_visitor_type partition_box_visitor;
 #endif
 
     box_visitor<box_type> visitor;
     bg::partition
         <
             box_type, get_box, ovelaps_box,
-            partition_visitor_type
-        >::apply(boxes1, boxes2, visitor, 2, partition_visitor);
+            partition_box_visitor_type
+        >::apply(boxes1, boxes2, visitor, 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
