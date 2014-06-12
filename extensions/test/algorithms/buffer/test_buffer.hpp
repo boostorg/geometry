@@ -217,12 +217,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > 
     distance_strategy(distance_left, distance_right);
 
-        typedef typename bg::point_type<Geometry>::type point_type;
-        typedef typename bg::rescale_policy_type<point_type>::type
-            rescale_policy_type;
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef typename bg::rescale_policy_type<point_type>::type
+        rescale_policy_type;
 
-        rescale_policy_type rescale_policy
-                = bg::get_rescale_policy<rescale_policy_type>(geometry);
+    rescale_policy_type rescale_policy
+            = bg::get_rescale_policy<rescale_policy_type>(geometry);
 
     std::vector<GeometryOut> buffered;
 
@@ -284,7 +284,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         {
             BOOST_CHECK_MESSAGE
                 (
-                    ! bg::detail::overlay::has_self_intersections(polygon),
+                    ! bg::detail::overlay::has_self_intersections(polygon,
+                            rescale_policy, false),
                     complete.str() << " output is self-intersecting. "
                 );
         }
