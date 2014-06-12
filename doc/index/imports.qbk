@@ -15,3 +15,4 @@
 [import src/examples/rtree/value_shared_ptr.cpp]
 [import src/examples/rtree/value_index.cpp]
 [import src/examples/rtree/interprocess.cpp]
+[import src/examples/rtree/mapped_file.cpp]
