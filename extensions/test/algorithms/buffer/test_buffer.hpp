@@ -262,18 +262,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         double tol = JoinTestProperties<JoinStrategy>::tolerance() 
             + EndTestProperties<EndStrategy>::tolerance();
 
-		if (expected_area < 1.0e-5)
-		{
-			tol /= 1.0e6;
-		}
+        if (expected_area < 1.0e-5)
+        {
+            tol /= 1.0e6;
+        }
 
-		typename bg::default_area_result<GeometryOut>::type tolerance = tol;
+        typename bg::default_area_result<GeometryOut>::type tolerance = tol;
 
 
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(area - expected_area) < tolerance,
                 complete.str() << " not as expected. " 
+                << std::setprecision(18)
                 << " Expected: "  << expected_area
                 << " Detected: "  << area
             );
