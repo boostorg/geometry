@@ -81,7 +81,7 @@ struct check_original<polygon_tag>
     static inline int apply(Point const& point, Geometry const& geometry,
                             DistanceStrategy const& )
     {
-        return geometry::within(point, geometry) ? 1 : -1;
+        return geometry::covered_by(point, geometry) ? 1 : -1;
     }
 };
 
