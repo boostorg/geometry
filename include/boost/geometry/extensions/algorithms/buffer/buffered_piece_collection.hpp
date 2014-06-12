@@ -387,32 +387,6 @@ struct buffered_piece_collection
                     m_turns[turns[i].turn_index].count_on_occupied++;
                 }
             }
-#if 0
-// TODO: block non-left turns, keep left turns
-                for (std::vector<detail::left_turns::left_turn>::const_iterator
-                    it = turns_to_keep.begin(); it != turns_to_keep.end(); ++it)
-                {
-                    std::pair<segment_identifier, segment_identifier>
-                        pair = ordered_pair(it->from, it->to);
-                    segment_pair_map::const_iterator segit
-                        = turn_indices_per_segment_pair.find(pair);
-                    if (segit == turn_indices_per_segment_pair.end())
-                    {
-                        std::cout << "BAD LUCK" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "FOUND IP" << std::endl;
-                        for (std::set<int>::const_iterator iit = segit->second.begin();
-                             iit != segit->second.end(); ++iit)
-                        {
-                            int turn_index = *iit;
-                            //m_turns[turn_index].count_on_occupied++;
-                        }
-                    }
-                    // Mark as included
-
-#endif
         }
     }
 
@@ -439,8 +413,7 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if ( it->location == location_ok
-              && it->count_on_offsetted == 0 )
+            if (it->location == location_ok)
             {
                 int code = check_original
                         <
@@ -629,7 +602,9 @@ struct buffered_piece_collection
                 >::apply(m_turns, m_pieces, visitor);
 
         }
-        //get_occupation();
+
+
+        //get_occupation(); // Temporarily disabled, all tests passing...
 
         classify_turns();
 
