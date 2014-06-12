@@ -190,7 +190,8 @@ public:
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
-        if (! skip_neighbor(piece1, piece2))
+        if ( ! detail::disjoint::disjoint_box_box(piece1.robust_envelope, piece2.robust_envelope)
+          && ! skip_neighbor(piece1, piece2) )
         {
             calculate_turns(piece1, piece2);
         }
