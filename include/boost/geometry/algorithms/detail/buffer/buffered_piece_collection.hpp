@@ -244,8 +244,6 @@ struct buffered_piece_collection
         occupation_map_type occupation_map;
 
         // 1: Add all intersection points to occupation map
-        typedef typename boost::range_iterator<turn_vector_type const>::type
-            const_iterator_type;
         typedef typename boost::range_iterator<turn_vector_type>::type
             iterator_type;
 
