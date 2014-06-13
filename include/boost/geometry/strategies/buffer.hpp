@@ -9,14 +9,6 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_HPP
 
-#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_miter.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_round.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_round_by_divide.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
-
-
 namespace boost { namespace geometry
 {
 
@@ -51,6 +43,26 @@ namespace strategy { namespace buffer
 */
 
 
+
+/*!
+\brief Enumerates options for side of buffer (left/right w.r.t. directed
+    segment)
+\ingroup enum
+\details Around a linestring, a buffer can be defined left or right.
+    Around a polygon, assumed clockwise internally,
+    a buffer is either on the left side (inflates the polygon), or on the
+    right side (deflates the polygon)
+*/
+enum buffer_side_selector { buffer_side_left, buffer_side_right };
+
+/*!
+\brief Enumerates types of pieces (parts of buffer) around geometries
+\ingroup enum
+*/
+enum piece_type
+{
+    buffered_segment, buffered_join, buffered_round_end, buffered_flat_end, buffered_circle
+};
 
 
 }} // namespace strategy::buffer

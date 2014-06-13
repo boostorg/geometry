@@ -192,7 +192,7 @@ struct buffered_piece_collection_with_mapper
 
             if (pieces && ! corner.empty())
             {
-                if (it->type == buffered_segment)
+                if (it->type == strategy::buffer::buffered_segment)
                 {
                     if(boost::is_same<Tag, ring_tag>::value || boost::is_same<Tag, polygon_tag>::value)
                     {

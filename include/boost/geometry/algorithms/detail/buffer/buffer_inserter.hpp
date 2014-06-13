@@ -18,7 +18,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
-#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
@@ -54,7 +54,7 @@ struct buffer_range
             typename DistanceStrategy
         >
     static inline void generate_side(Point const& ip1, Point const& ip2,
-                buffer_side_selector side,
+                strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
                 output_point_type& p1, output_point_type& p2)
     {
@@ -93,7 +93,7 @@ struct buffer_range
     >
     static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
-                buffer_side_selector side,
+                strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
@@ -142,10 +142,10 @@ struct buffer_range
                 }
                 if (! range_out.empty())
                 {
-                    collection.add_piece(buffered_join, *prev, range_out);
+                    collection.add_piece(strategy::buffer::buffered_join, *prev, range_out);
                     range_out.clear();
                 }
-                collection.add_piece(buffered_segment, *prev, *it, p1, p2);
+                collection.add_piece(strategy::buffer::buffered_segment, *prev, *it, p1, p2);
 
                 previous_p1 = p1;
                 previous_p2 = p2;
@@ -170,7 +170,7 @@ struct buffer_range
                     range_out);
                 if (! range_out.empty())
                 {
-                    collection.add_piece(buffered_join, *begin, range_out);
+                    collection.add_piece(strategy::buffer::buffered_join, *begin, range_out);
                 }
             }
 
@@ -184,9 +184,9 @@ struct buffer_range
             // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
             output_point_type rp1, rp2;
             generate_side(ultimate_point, penultimate_point,
-                    side == buffer_side_left
-                    ? buffer_side_right
-                    : buffer_side_left,
+                    side == strategy::buffer::buffer_side_left
+                    ? strategy::buffer::buffer_side_right
+                    : strategy::buffer::buffer_side_left,
                     distance, rp2, rp1);
 
             std::vector<output_point_type> range_out;
@@ -269,10 +269,10 @@ struct buffer_point
         //RingOutput range_out;
 
         generate_points(point,
-            distance.apply(point, point, buffer_side_left),
+            distance.apply(point, point, strategy::buffer::buffer_side_left),
             range_out);
 
-        collection.add_piece(buffered_circle, range_out, false);
+        collection.add_piece(strategy::buffer::buffered_circle, range_out, false);
 
         //std::cout << std::setprecision(20);
         //std::cout << geometry::wkt(range_out) << std::endl;
@@ -355,13 +355,13 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
                 // It might be that this will be changed later.
                 // TODO: decide this.
                 base::iterate(collection, boost::rbegin(ring), boost::rend(ring),
-                        buffer_side_right,
+                        strategy::buffer::buffer_side_right,
                         distance, join_strategy, end_strategy);
             }
             else
             {
                 base::iterate(collection, boost::begin(ring), boost::end(ring),
-                        buffer_side_left,
+                        strategy::buffer::buffer_side_left,
                         distance, join_strategy, end_strategy);
             }
         }
@@ -397,11 +397,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         {
             collection.start_new_ring();
             base::iterate(collection, boost::begin(linestring), boost::end(linestring),
-                    buffer_side_left,
+                    strategy::buffer::buffer_side_left,
                     distance, join_strategy, end_strategy);
 
             base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
-                    buffer_side_right,
+                    strategy::buffer::buffer_side_right,
                     distance, join_strategy, end_strategy, true);
         }
 

@@ -18,12 +18,10 @@
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-
+#include <boost/geometry/strategies/buffer.hpp>
 
 
 namespace boost { namespace geometry

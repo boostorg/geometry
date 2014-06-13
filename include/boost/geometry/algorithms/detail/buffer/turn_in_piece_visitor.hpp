@@ -16,6 +16,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 
 namespace boost { namespace geometry
 {
@@ -119,7 +120,7 @@ public:
             return;
         }
 
-        if (piece.type == buffered_flat_end)
+        if (piece.type == strategy::buffer::buffered_flat_end)
         {
             // Turns cannot be inside a flat end (though they can be on border)
             return;

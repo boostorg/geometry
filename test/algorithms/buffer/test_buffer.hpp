@@ -36,15 +36,7 @@
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
-#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_end_round.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_end_flat.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_round.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_miter.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_join_round_by_divide.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 
 
 

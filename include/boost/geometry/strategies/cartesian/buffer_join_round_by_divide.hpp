@@ -6,17 +6,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
-
 
 
 namespace boost { namespace geometry
@@ -32,10 +31,15 @@ template
     typename PointIn,
     typename PointOut
 >
-struct join_round
+class join_round_by_divide
 {
-    inline join_round(int steps_per_circle = 100)
-        : m_steps_per_circle(steps_per_circle)
+private :
+    geometry::equal_to<PointIn> equals;
+
+public :
+
+    inline join_round_by_divide(int max_level = 4)
+        : m_max_level(max_level)
     {}
 
     typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
@@ -51,53 +55,44 @@ struct join_round
             double
         >::type promoted_type;
 
-    int m_steps_per_circle;
+
+    int m_max_level;
 
     template <typename RangeOut>
-    inline void generate_points(PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2,
-                promoted_type const& buffer_distance,
-                RangeOut& range_out) const
+    inline void mid_points(PointIn const& vertex,
+                PointIn const& p1, PointIn const& p2,
+                coordinate_type const& buffer_distance,
+                RangeOut& range_out,
+                int level = 1) const
     {
-        promoted_type dx1 = get<0>(perp1) - get<0>(vertex);
-        promoted_type dy1 = get<1>(perp1) - get<1>(vertex);
-        promoted_type dx2 = get<0>(perp2) - get<0>(vertex);
-        promoted_type dy2 = get<1>(perp2) - get<1>(vertex);
+        // Generate 'vectors'
+        coordinate_type vp1_x = get<0>(p1) - get<0>(vertex);
+        coordinate_type vp1_y = get<1>(p1) - get<1>(vertex);
 
-        dx1 /= buffer_distance;
-        dy1 /= buffer_distance;
-        dx2 /= buffer_distance;
-        dy2 /= buffer_distance;
+        coordinate_type vp2_x = (get<0>(p2) - get<0>(vertex));
+        coordinate_type vp2_y = (get<1>(p2) - get<1>(vertex));
 
-        promoted_type angle_diff = acos(dx1 * dx2 + dy1 * dy2);
+        // Average them to generate vector in between
+        coordinate_type two = 2;
+        coordinate_type v_x = (vp1_x + vp2_x) / two;
+        coordinate_type v_y = (vp1_y + vp2_y) / two;
 
-        promoted_type two = 2.0;
-        promoted_type steps = m_steps_per_circle;
-        int n = boost::numeric_cast<int>(steps * angle_diff
-                    / (two * geometry::math::pi<promoted_type>()));
+        coordinate_type length2 = sqrt(v_x * v_x + v_y * v_y);
 
-        if (n > 1000)
+        coordinate_type prop = buffer_distance / length2;
+
+        PointIn mid_point;
+        set<0>(mid_point, get<0>(vertex) + v_x * prop);
+        set<1>(mid_point, get<1>(vertex) + v_y * prop);
+
+        if (level < m_max_level)
         {
-            // TODO change this / verify this
-            std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
-            std::cout << angle_diff << " -> " << n << std::endl;
-            n = 1000;
+            mid_points(vertex, p1, mid_point, buffer_distance, range_out, level + 1);
         }
-        else if (n <= 1)
+        range_out.push_back(mid_point);
+        if (level < m_max_level)
         {
-            return;
-        }
-
-        promoted_type const angle1 = atan2(dy1, dx1);
-        promoted_type diff = angle_diff / promoted_type(n);
-        promoted_type a = angle1 - diff;
-
-        for (int i = 0; i < n - 1; i++, a -= diff)
-        {
-            PointIn p;
-            set<0>(p, get<0>(vertex) + buffer_distance * cos(a));
-            set<1>(p, get<1>(vertex) + buffer_distance * sin(a));
-            range_out.push_back(p);
+            mid_points(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
         }
     }
 
@@ -107,7 +102,7 @@ struct join_round
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-        if (geometry::equals(perp1, perp2))
+        if (equals(perp1, perp2))
         {
             //std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
             return;
@@ -137,13 +132,22 @@ struct join_round
             set<1>(bp, get<1>(vertex) + viy * prop);
 
             range_out.push_back(perp1);
-            generate_points(vertex, perp1, perp2, bd, range_out);
+
+            if (m_max_level > 1)
+            {
+                mid_points(vertex, perp1, bp, bd, range_out);
+                range_out.push_back(bp);
+                mid_points(vertex, bp, perp2, bd, range_out);
+            }
+            else if (m_max_level == 1)
+            {
+                range_out.push_back(bp);
+            }
+
             range_out.push_back(perp2);
         }
     }
 };
-
-
 
 
 }} // namespace strategy::buffer
@@ -151,4 +155,4 @@ struct join_round
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
