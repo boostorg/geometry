@@ -16,6 +16,7 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
