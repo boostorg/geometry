@@ -13,9 +13,6 @@
 
 #include <algorithms/test_relate.hpp>
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-
 //TEST
 //#include <to_svg.hpp>
 

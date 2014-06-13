@@ -13,12 +13,6 @@
 
 #include <algorithms/test_touches.hpp>
 
-
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry.hpp>
-
-
 template <typename P>
 void test_all()
 {
