@@ -22,8 +22,6 @@
 
 #include <boost/geometry/algorithms/is_valid.hpp>
 
-#include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
-
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
 #include <boost/geometry/algorithms/detail/is_simple/pointlike.hpp>
@@ -163,13 +161,15 @@ namespace dispatch
 // Reference: OGC 06-103r4 (§6.1.6.1)
 template <typename Segment>
 struct is_simple<Segment, segment_tag>
-{
+    : dispatch::is_valid<Segment, segment_tag>
+{};
+#if 0
     static inline bool apply(Segment const& segment)
     {
         return dispatch::is_valid<Segment>::apply(segment);
     }
 };
-
+#endif
 
 // A box is always simple
 // A box is a Polygon, and it satisfies the conditions for Polygon validity.
@@ -177,13 +177,15 @@ struct is_simple<Segment, segment_tag>
 // Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
 template <typename Box>
 struct is_simple<Box, box_tag>
-{
+    : dispatch::is_valid<Box, box_tag>
+{};
+#if 0
     static inline bool apply(Box const& box)
     {
         return dispatch::is_valid<Box>::apply(box);
     }
 };
-
+#endif
 
 
 // A Ring is a Polygon.
@@ -201,7 +203,7 @@ struct is_simple<Ring, ring_tag>
 // Reference (for validity of Polygons): OGC 06-103r4 (§6.1.11.1)
 template <typename Polygon>
 struct is_simple<Polygon, polygon_tag>
-    : detail::is_simple::is_simple_polygon<Polygon>
+    : dispatch::is_valid<Polygon, polygon_tag>
 {};
 
 
@@ -213,7 +215,7 @@ struct is_simple<Polygon, polygon_tag>
 // Reference (for validity of MultiPolygons): OGC 06-103r4 (§6.1.14)
 template <typename MultiPolygon>
 struct is_simple<MultiPolygon, multi_polygon_tag>
-    : detail::is_simple::is_simple_multigeometry<MultiPolygon, false>
+    : dispatch::is_valid<MultiPolygon, multi_polygon_tag>
 {};
 
 
