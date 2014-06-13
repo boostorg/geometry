@@ -56,7 +56,7 @@ struct is_simple<Box, box_tag>
 // Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
 template <typename Ring>
 struct is_simple<Ring, ring_tag>
-    : detail::is_simple::is_simple_range<Ring>
+    : dispatch::is_valid<Ring, ring_tag>
 {};
 
 
