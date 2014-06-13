@@ -7,44 +7,19 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_LINESTRING_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_LINESTRING_HPP
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/multi/core/tags.hpp>
+#include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
 
 namespace boost { namespace geometry
 {
-
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace is_valid
-{
-template <typename RangeValue>
-struct is_valid_multi_range
-{
-    template <typename RangeIterator>
-    static inline bool apply(RangeIterator first, RangeIterator beyond)
-    {
-        for (RangeIterator it = first; it != beyond; ++it)
-        {
-            if ( !dispatch::is_valid<RangeValue>::apply(*it) )
-            {
-                return false;
-            }
-        }
-        return first != beyond;
-    };
-};
-
-
-}} //namespace detail::is_valid
-#endif // DOXYGEN_NO_DETAIL
-
 
 
 #ifndef DOXYGEN_NO_DISPATCH
@@ -63,9 +38,12 @@ struct is_valid<MultiLinestring, multi_linestring_tag>
 {
     static inline bool apply(MultiLinestring const& multilinestring)
     {
-        return detail::is_valid::is_valid_multi_range
+        return detail::check_iterator_range
             <
-                typename boost::range_value<MultiLinestring>::type
+                dispatch::is_valid
+                    <
+                        typename boost::range_value<MultiLinestring>::type
+                    >
             >::apply(boost::begin(multilinestring),
                      boost::end(multilinestring));
     }
@@ -79,4 +57,4 @@ struct is_valid<MultiLinestring, multi_linestring_tag>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_RANGE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTI_LINESTRING_HPP
