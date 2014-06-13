@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
 
+#include <cstddef>
 #include <algorithm>
 
 #include <boost/assert.hpp>
@@ -18,8 +19,9 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
@@ -33,47 +35,50 @@ namespace detail { namespace is_valid
 {
 
 
+// returns the number of distinct points in the range;
+// return values are zero, one, two, three_or_more
 template <typename Range>
-struct is_single_point
+struct number_of_distinct_points
 {
-    static inline bool apply(Range const& range)
-    {
-        typedef typename point_type<Range>::type point;
+    static const std::size_t zero = 0;
+    static const std::size_t one = 1;
+    static const std::size_t two = 2;
+    static const std::size_t three_or_more = 3;
 
-        BOOST_ASSERT( boost::size(range) > 1 );
-
-        return std::find_if(++boost::begin(range),
-                            boost::end(range),
-                            not_equal_to<point>(*boost::begin(range))
-                            )
-            == boost::end(range);
-    }
-};
-
-template <typename Range>
-struct has_three_distinct_points
-{
-    static inline bool apply(Range const& range)
+    static inline std::size_t apply(Range const& range)
     {
         typedef typename point_type<Range>::type point;
         typedef typename boost::range_iterator<Range const>::type iterator;
+        typedef typename boost::range_size<Range>::type size_type;
 
-        BOOST_ASSERT( boost::size(range) > 1 );
+        size_type size = boost::size(range);
+
+        if ( size < two )
+        {
+            return size;
+        }
 
         iterator it1 =
             std::find_if(boost::begin(range),
                          boost::end(range),
-                         not_equal_to<point>(*boost::begin(range)));
+                         not_equal_to<point>(range::front(range)));
 
-        BOOST_ASSERT( it1 != boost::end(range) );
+        if ( it1 == boost::end(range) )
+        {
+            return one;
+        }
 
         iterator it2 = 
-            std::find_if(it1,
-                         boost::end(range),
-                         not_equal_to<point>(*it1));
+            std::find_if(it1, boost::end(range), not_equal_to<point>(*it1));
 
-        return it2 != boost::end(range)
-            && !geometry::equals(*boost::begin(range), *it2);
+        return
+            ( it2 == boost::end(range)
+              || geometry::equals(range::front(range), *it2) )
+            ?
+            two
+            :
+            three_or_more
+            ;
     }
 };
 
@@ -84,30 +89,23 @@ struct is_valid_linestring
     static inline bool apply(Linestring const& linestring,
                              bool allow_spikes)
     {
-        std::size_t linestring_size = boost::size(linestring);
+        typedef number_of_distinct_points<Linestring> num_distinct;
 
-        if ( linestring_size < 2 )
+        std::size_t linestring_size = num_distinct::apply(linestring);
+
+        if ( linestring_size < num_distinct::two )
         {
-            // if it has zero or one points is cannot be valid
             return false;
         }
 
-        if ( is_single_point<Linestring>::apply(linestring) )
+        if ( linestring_size == num_distinct::two )
         {
-            // if it is an one-point linestring its dimension is 0,
-            // so not valid
-            return false;
+            return !geometry::equals(range::front(linestring),
+                                     range::back(linestring));
         }
 
-        BOOST_ASSERT( boost::size(linestring) > 1 );
-
-        if ( !has_three_distinct_points<Linestring>::apply(linestring) )
-        {
-            return !geometry::equals(*boost::begin(linestring),
-                                     *--boost::end(linestring));
-        }
-
-        return allow_spikes || !has_spikes<Linestring>::apply(linestring);
+        return allow_spikes
+            || !has_spikes<Linestring, closed>::apply(linestring);
     }
 };
 
