@@ -21,12 +21,12 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
 
-#include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/get_piece_turns.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/turn_in_piece_visitor.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
+#include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>

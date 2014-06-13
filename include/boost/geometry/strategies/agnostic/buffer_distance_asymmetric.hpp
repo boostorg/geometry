@@ -6,13 +6,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_SYMMETRIC_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_SYMMETRIC_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_ASYMMETRIC_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_ASYMMETRIC_HPP
 
 
 // Buffer strategies
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
 
 
 namespace boost { namespace geometry
@@ -23,32 +23,36 @@ namespace strategy { namespace buffer
 
 
 template<typename CoordinateType>
-class distance_symmetric
+class distance_asymmetric
 {
 public :
-    inline distance_symmetric(CoordinateType const& distance)
-        : m_distance(distance)
+    distance_asymmetric(CoordinateType const& left,
+                CoordinateType const& right)
+        : m_left(left)
+        , m_right(right)
     {}
 
     template <typename Point>
     inline CoordinateType apply(Point const& , Point const& ,
                 buffer_side_selector side)  const
     {
-        return m_distance;
+        CoordinateType result = side == buffer_side_left ? m_left : m_right;
+        return negative() ? math::abs(result) : result;
     }
 
     inline int factor() const
     {
-        return 1;
+        return m_left < 0 ? -1 : 1;
     }
 
     inline bool negative() const
     {
-        return m_distance < 0;
+        return m_left < 0 && m_right < 0;
     }
 
 private :
-    CoordinateType m_distance;
+    CoordinateType m_left;
+    CoordinateType m_right;
 };
 
 
@@ -57,4 +61,4 @@ private :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_SYMMETRIC_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_DISTANCE_ASYMMETRIC_HPP

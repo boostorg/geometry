@@ -15,7 +15,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>
 
-#include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 
 namespace boost { namespace geometry

@@ -12,14 +12,7 @@
 
 // Buffer strategies
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-
+#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
 
 
 namespace boost { namespace geometry

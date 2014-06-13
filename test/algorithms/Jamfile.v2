@@ -75,6 +75,9 @@ test-suite boost-geometry-algorithms
 
 build-project overlay 
     ;
+
+build-project buffer
+    ;
     
 build-project detail 
     ;

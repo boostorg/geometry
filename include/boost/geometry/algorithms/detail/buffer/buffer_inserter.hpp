@@ -18,13 +18,13 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
+#include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-#  include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection_with_mapper.hpp>
+#  include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection_with_mapper.hpp>
 #endif
 
 

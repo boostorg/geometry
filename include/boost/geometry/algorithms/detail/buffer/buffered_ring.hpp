@@ -17,7 +17,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_side.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>

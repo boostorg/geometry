@@ -19,7 +19,7 @@
 
 #include <boost/geometry/multi/multi.hpp> // TODO: more specific
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/multi_buffer_inserter.hpp>
+#include <boost/geometry/algorithms/detail/buffer/multi_buffer_inserter.hpp>
 
 
 

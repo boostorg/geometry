@@ -10,7 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_WM_HPP
 
 
-#include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 
 
