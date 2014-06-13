@@ -23,6 +23,7 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
