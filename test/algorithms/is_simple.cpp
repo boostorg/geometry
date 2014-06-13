@@ -57,14 +57,6 @@ Geometry from_wkt(std::string const& wkt)
 
 
 
-template<typename Segment>
-Segment make_segment(double x1, double y1, double x2, double y2)
-{
-    typename boost::geometry::point_type<Segment>::type p(x1, y1), q(x2, y2);
-    return Segment(p, q);
-}
-
-
 template <typename Geometry>
 void test_simple(Geometry const& g, bool simple_geometry)
 {
@@ -116,8 +108,8 @@ BOOST_AUTO_TEST_CASE( test_is_simple_segment )
 
     typedef segment_type G;
 
-    test_simple(make_segment<G>(0, 0, 0, 0), false);
-    test_simple(make_segment<G>(0, 0, 1, 0), true);
+    test_simple(from_wkt<G>("SEGMENT(0 0,0 0)"), false);
+    test_simple(from_wkt<G>("SEGMENT(0 0,1 0)"), true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
