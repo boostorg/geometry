@@ -13,7 +13,6 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
