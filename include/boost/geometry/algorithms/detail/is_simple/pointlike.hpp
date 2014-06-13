@@ -39,20 +39,14 @@ struct is_simple_multipoint
 {
     static inline bool apply(MultiPoint const& multipoint)
     {
-        typedef typename point_type<MultiPoint>::type Point;
-        typedef typename boost::range_iterator
-            <
-                MultiPoint const
-            >::type iterator;
-
-
         if ( !dispatch::is_valid<MultiPoint>::apply(multipoint) )
         {
             return false;
         }
 
         MultiPoint mp(multipoint);
-        std::sort(boost::begin(mp), boost::end(mp), geometry::less<Point>());
+        std::sort(boost::begin(mp), boost::end(mp),
+                  geometry::less<typename point_type<MultiPoint>::type>());
 
         return !detail::is_valid::has_duplicates<MultiPoint, closed>::apply(mp);
     }
