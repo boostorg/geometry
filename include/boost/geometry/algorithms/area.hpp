@@ -26,13 +26,16 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/detail/multi_sum.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
 #include <boost/geometry/strategies/default_area_result.hpp>
@@ -172,6 +175,22 @@ struct area<Polygon, polygon_tag> : detail::calculate_polygon_sum
                     geometry::closure<Polygon>::value
                 >
             >(polygon, strategy);
+    }
+};
+
+
+template <typename MultiGeometry>
+struct area<MultiGeometry, multi_polygon_tag> : detail::multi_sum
+{
+    template <typename Strategy>
+    static inline typename Strategy::return_type
+    apply(MultiGeometry const& multi, Strategy const& strategy)
+    {
+        return multi_sum::apply
+               <
+                   typename Strategy::return_type,
+                   area<typename boost::range_value<MultiGeometry>::type>
+               >(multi, strategy);
     }
 };
 

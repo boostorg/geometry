@@ -270,13 +270,13 @@ inline void self_turns(Geometry const& geometry,
 {
     concept::check<Geometry const>();
 
-    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> TurnPolicy;
+    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> turn_policy;
 
     dispatch::self_get_turn_points
             <
                 typename tag<Geometry>::type,
                 Geometry,
-                TurnPolicy
+                turn_policy
             >::apply(geometry, robust_policy, turns, interrupt_policy);
 }
 

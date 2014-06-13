@@ -1759,7 +1759,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
     typedef typename Allocator::template rebind<Value>::other A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
-    typedef typename bg::traits::point_type<B>::type P;
+    //typedef typename bg::traits::point_type<B>::type P;
 
     B b;
     bg::assign_inverse(b);

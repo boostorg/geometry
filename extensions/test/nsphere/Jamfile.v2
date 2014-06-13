@@ -11,18 +11,18 @@
 
 test-suite boost-geometry-extensions-nsphere
     :
-    [ run access.cpp ]
-    [ run area.cpp ]
-    [ run circle.cpp ]
-    [ run multi_within.cpp ]
-    [ run point_type.cpp ]
-    [ run within.cpp ]
+    [ run nsphere-access.cpp ]
+    [ run nsphere-area.cpp ]
+    [ run nsphere-circle.cpp ]
+    [ run nsphere-multi_within.cpp ]
+    [ run nsphere-point_type.cpp ]
+    [ run nsphere-within.cpp ]
 
-    [ run nsphere_in_box.cpp ]
-    [ run point_in_nsphere.cpp ]
+    [ run nsphere-nsphere_in_box.cpp ]
+    [ run nsphere-point_in_nsphere.cpp ]
 
-    [ run disjoint.cpp ]
-    [ run index_content.cpp ]
-    [ run index_margin.cpp ]
+    [ run nsphere-disjoint.cpp ]
+    [ run nsphere-index_content.cpp ]
+    [ run nsphere-index_margin.cpp ]
     ;
 

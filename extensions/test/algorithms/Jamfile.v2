@@ -18,5 +18,3 @@ test-suite boost-geometry-extensions-algorithms
     [ run selected.cpp ]
     ;
 
-build-project buffer
-    ;

@@ -18,7 +18,8 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -207,9 +208,10 @@ struct polygon_collect_vectors
         typedef range_collect_vectors<ring_type, Collection> per_range;
         per_range::apply(collection, exterior_ring(polygon));
 
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(polygon);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             per_range::apply(collection, *it);
         }

@@ -787,7 +787,7 @@ struct get_turn_info_linear_areal
             
             // equals<> or collinear<> will assign the second point,
             // we'd like to assign the first one
-            std::size_t ip_index = ip_count > 1 ? 1 : 0;
+            int ip_index = ip_count > 1 ? 1 : 0;
             base_turn_handler::assign_point(tp, tp.method, inters.i_info(), ip_index);
 
             AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());

@@ -28,7 +28,9 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -294,6 +296,31 @@ template <typename MultiLineString1, typename MultiLineString2, bool Reverse>
 struct equals<MultiLineString1, MultiLineString2, multi_linestring_tag, multi_linestring_tag, 2, Reverse>
     : detail::equals::equals_by_relate<MultiLineString1, MultiLineString2>
 {};
+
+
+template <typename MultiPolygon1, typename MultiPolygon2, bool Reverse>
+struct equals
+    <
+        MultiPolygon1, MultiPolygon2,
+        multi_polygon_tag, multi_polygon_tag,
+        2,
+        Reverse
+    >
+    : detail::equals::equals_by_collection<detail::equals::area_check>
+{};
+
+
+template <typename Polygon, typename MultiPolygon, bool Reverse>
+struct equals
+    <
+        Polygon, MultiPolygon,
+        polygon_tag, multi_polygon_tag,
+        2,
+        Reverse
+    >
+    : detail::equals::equals_by_collection<detail::equals::area_check>
+{};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

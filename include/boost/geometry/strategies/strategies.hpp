@@ -23,6 +23,7 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/convex_hull.hpp>
@@ -34,6 +35,11 @@
 
 #include <boost/geometry/strategies/cartesian/area_surveyor.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_end_round.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_join_miter.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_join_round.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_join_round_by_divide.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
@@ -53,6 +59,9 @@
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
+#include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
 #include <boost/geometry/strategies/agnostic/hull_graham_andrew.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_point.hpp>

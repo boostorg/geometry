@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013, 2014.
 // Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
@@ -21,10 +22,12 @@
 
 #include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/range.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
@@ -220,11 +223,13 @@ struct point_in_geometry<Polygon, polygon_tag>
 
         if (code == 1)
         {
-            typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(polygon);
-            for (BOOST_AUTO_TPL(it, boost::begin(rings));
-                it != boost::end(rings);
-                ++it)
+            typename interior_return_type<Polygon const>::type
+                rings = interior_rings(polygon);
+            
+            for (typename detail::interior_iterator<Polygon const>::type
+                 it = boost::begin(rings);
+                 it != boost::end(rings);
+                 ++it)
             {
                 int const interior_code = point_in_geometry
                     <

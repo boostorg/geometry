@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,7 +19,7 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -30,10 +31,14 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -42,6 +47,8 @@
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 
 namespace boost { namespace geometry
@@ -235,9 +242,11 @@ struct centroid_polygon_state
 
         per_ring::apply(exterior_ring(poly), strategy, state);
 
-        typename interior_return_type<Polygon const>::type rings
-                    = interior_rings(poly);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+        typename interior_return_type<Polygon const>::type
+            rings = interior_rings(poly);
+
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             per_ring::apply(*it, strategy, state);
         }
@@ -256,6 +265,59 @@ struct centroid_polygon
             centroid_polygon_state::apply(poly, strategy, state);
             strategy.result(state, centroid);
         }
+    }
+};
+
+
+/*!
+    \brief Building block of a multi-point, to be used as Policy in the
+        more generec centroid_multi
+*/
+struct centroid_multi_point_state
+{
+    template <typename Point, typename Strategy>
+    static inline void apply(Point const& point,
+            Strategy const& strategy, typename Strategy::state_type& state)
+    {
+        strategy.apply(point, state);
+    }
+};
+
+
+/*!
+    \brief Generic implementation which calls a policy to calculate the
+        centroid of the total of its single-geometries
+    \details The Policy is, in general, the single-version, with state. So
+        detail::centroid::centroid_polygon_state is used as a policy for this
+        detail::centroid::centroid_multi
+
+*/
+template <typename Policy>
+struct centroid_multi
+{
+    template <typename Multi, typename Point, typename Strategy>
+    static inline void apply(Multi const& multi, Point& centroid,
+            Strategy const& strategy)
+    {
+#if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
+        // If there is nothing in any of the ranges, it is not possible
+        // to calculate the centroid
+        if (geometry::num_points(multi) == 0)
+        {
+            throw centroid_exception();
+        }
+#endif
+
+        typename Strategy::state_type state;
+
+        for (typename boost::range_iterator<Multi const>::type
+                it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it)
+        {
+            Policy::apply(*it, strategy, state);
+        }
+        Strategy::result(state, centroid);
     }
 };
 
@@ -299,12 +361,37 @@ struct centroid<Ring, ring_tag>
 template <typename Linestring>
 struct centroid<Linestring, linestring_tag>
     : detail::centroid::centroid_range<closed>
- {};
+{};
 
 template <typename Polygon>
 struct centroid<Polygon, polygon_tag>
     : detail::centroid::centroid_polygon
- {};
+{};
+
+template <typename MultiLinestring>
+struct centroid<MultiLinestring, multi_linestring_tag>
+    : detail::centroid::centroid_multi
+        <
+            detail::centroid::centroid_range_state<closed>
+        >
+{};
+
+template <typename MultiPolygon>
+struct centroid<MultiPolygon, multi_polygon_tag>
+    : detail::centroid::centroid_multi
+        <
+            detail::centroid::centroid_polygon_state
+        >
+{};
+
+template <typename MultiPoint>
+struct centroid<MultiPoint, multi_point_tag>
+    : detail::centroid::centroid_multi
+        <
+            detail::centroid::centroid_multi_point_state
+        >
+{};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

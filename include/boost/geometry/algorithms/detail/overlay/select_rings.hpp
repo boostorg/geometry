@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,6 +19,7 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
@@ -95,9 +97,10 @@ namespace dispatch
 
             per_ring::apply(exterior_ring(polygon), geometry, id, map, midpoint);
 
-            typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(polygon);
-            for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+            typename interior_return_type<Polygon const>::type
+                rings = interior_rings(polygon);
+            for (typename detail::interior_iterator<Polygon const>::type
+                    it = boost::begin(rings); it != boost::end(rings); ++it)
             {
                 id.ring_index++;
                 per_ring::apply(*it, geometry, id, map, midpoint);
@@ -113,9 +116,10 @@ namespace dispatch
 
             per_ring::apply(exterior_ring(polygon), id, map, midpoint);
 
-            typename interior_return_type<Polygon const>::type rings
-                        = interior_rings(polygon);
-            for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+            typename interior_return_type<Polygon const>::type
+                rings = interior_rings(polygon);
+            for (typename detail::interior_iterator<Polygon const>::type
+                    it = boost::begin(rings); it != boost::end(rings); ++it)
             {
                 id.ring_index++;
                 per_ring::apply(*it, id, map, midpoint);
@@ -242,7 +246,7 @@ inline void update_selection_map(Geometry1 const& geometry1,
             typename SelectionMap::mapped_type properties = it->second; // Copy by value
 
             // Calculate the "within code" (previously this was done earlier but is
-            // must efficienter here - it can be even more efficient doing it all at once,
+            // much efficienter here - it can be even more efficient doing it all at once,
             // using partition, TODO)
             // So though this is less elegant than before, it avoids many unused point-in-poly calculations
             switch(id.source_index)
