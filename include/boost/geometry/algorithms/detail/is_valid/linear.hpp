@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINEAR_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINEAR_HPP
 
 #include <cstddef>
 #include <algorithm>
@@ -50,9 +50,8 @@ struct number_of_distinct_points
     {
         typedef typename point_type<Range>::type point;
         typedef typename boost::range_iterator<Range const>::type iterator;
-        typedef typename boost::range_size<Range>::type size_type;
 
-        size_type size = boost::size(range);
+        std::size_t size = boost::size(range);
 
         if ( size < two )
         {
@@ -148,6 +147,29 @@ struct is_valid<Linestring, linestring_tag>
 };
 
 
+// A MultiLinestring is a MultiCurve
+// A MultiCurve is simple if all of its elements are simple and the
+// only intersections between any two elements occur at Points that
+// are on the boundaries of both elements.
+//
+// Reference: OGC 06-103r4 (§6.1.8.1; Fig. 9)
+template <typename MultiLinestring>
+struct is_valid<MultiLinestring, multi_linestring_tag>
+{
+    static inline bool apply(MultiLinestring const& multilinestring)
+    {
+        return detail::check_iterator_range
+            <
+                dispatch::is_valid
+                    <
+                        typename boost::range_value<MultiLinestring>::type
+                    >
+            >::apply(boost::begin(multilinestring),
+                     boost::end(multilinestring));
+    }
+};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -155,4 +177,4 @@ struct is_valid<Linestring, linestring_tag>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINESTRING_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINEAR_HPP
