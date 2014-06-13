@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_IO_WKT_READ_HPP
 #define BOOST_GEOMETRY_IO_WKT_READ_HPP
 
+#include <cstddef>
 #include <string>
 
 #include <boost/lexical_cast.hpp>
@@ -617,7 +618,7 @@ struct box_parser
         check_end(it, end, wkt);
 
         int index = 0;
-        int n = boost::size(points);
+        std::size_t n = boost::size(points);
         if (n == 2)
         {
             index = 1;
