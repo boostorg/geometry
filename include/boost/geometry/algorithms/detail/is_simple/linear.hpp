@@ -16,9 +16,10 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
@@ -49,20 +50,20 @@ namespace detail { namespace is_simple
 {
 
 
-template <typename Range, bool CheckSelfIntersections = true>
-struct is_simple_range
+template <typename Linestring, bool CheckSelfIntersections = true>
+struct is_simple_linestring
 {
-    static inline bool apply(Range const& range)
+    static inline bool apply(Linestring const& linestring)
     {
         // the second argument to apply refers to spikes:
         // spikes are disallowed
-        if ( !dispatch::is_valid<Range>::apply(range, false) )
+        if ( !dispatch::is_valid<Linestring>::apply(linestring, false) )
         {
             return false;
         }
 
-        return !has_duplicates<Range>::apply(range)
-            && !(CheckSelfIntersections && geometry::intersects(range));
+        return !has_duplicates<Linestring, closed>::apply(linestring)
+            && !(CheckSelfIntersections && geometry::intersects(linestring));
     }
 };
 
@@ -107,7 +108,7 @@ struct is_simple_multilinestring
         // check each of the linestrings for simplicity
         if ( !detail::check_iterator_range
                  <
-                     is_simple_range<linestring>
+                     is_simple_linestring<linestring>
                  >::apply(boost::begin(multilinestring),
                           boost::end(multilinestring))
              )
@@ -197,7 +198,7 @@ namespace dispatch
 // Reference: OGC 06-103r4 (§6.1.6.1)
 template <typename Linestring>
 struct is_simple<Linestring, linestring_tag>
-    : detail::is_simple::is_simple_range<Linestring>
+    : detail::is_simple::is_simple_linestring<Linestring>
 {};
 
 
