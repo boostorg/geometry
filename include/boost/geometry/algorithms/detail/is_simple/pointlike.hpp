@@ -15,7 +15,6 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
