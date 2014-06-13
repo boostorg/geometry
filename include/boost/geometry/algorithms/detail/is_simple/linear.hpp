@@ -13,26 +13,32 @@
 #include <algorithm>
 #include <deque>
 
+#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+
+#include <boost/geometry/algorithms/detail/is_simple/debug_linear.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
-#include <boost/geometry/multi/multi.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-
-#include <boost/geometry/io/dsv/write.hpp>
 
 namespace boost { namespace geometry
 {
@@ -43,7 +49,7 @@ namespace detail { namespace is_simple
 {
 
 
-template <typename Range>
+template <typename Range, bool CheckSelfIntersections = true>
 struct is_simple_range
 {
     static inline bool apply(Range const& range)
@@ -55,42 +61,8 @@ struct is_simple_range
             return false;
         }
 
-        if ( has_duplicates<Range>::apply(range) )
-        {
-            return false;
-        }
-
-        return !geometry::intersects(range);
-    }
-};
-
-
-
-template <typename MultiRange>
-struct is_simple_multi_range
-{
-    static inline bool apply(MultiRange const& multi_range)
-    {
-        typedef typename boost::range_value<MultiRange>::type range;
-        typedef typename boost::range_iterator
-            <
-                MultiRange const
-            >::type iterator;
-
-        if ( boost::size(multi_range) == 0 )
-        {
-            return false;
-        }
-
-        for (iterator it = boost::begin(multi_range);
-             it != boost::end(multi_range); ++it)
-        {
-            if ( !is_simple_range<range>::apply(*it) )
-            {
-                return false;
-            }
-        }
-        return true;
+        return !has_duplicates<Range>::apply(range)
+            && !(CheckSelfIntersections && geometry::intersects(range));
     }
 };
 
@@ -99,38 +71,13 @@ struct is_simple_multi_range
 template <typename MultiLinestring>
 struct is_simple_multilinestring
 {
-    template <typename Turn, typename Method, typename Operation>
-    static inline bool check_turn(Turn const& turn,
-                                  Method method,
-                                  Operation operation)
-    {
-        return turn.method == method
-            && turn.operations[0].operation == operation
-            && turn.operations[1].operation == operation;
-    }
-
-    template <typename Turn>
-    static inline bool is_acceptable_turn(Turn const& turn)
-    {
-        return check_turn(turn,
-                          detail::overlay::method_none,
-                          detail::overlay::operation_continue)
-            || check_turn(turn,
-                          detail::overlay::method_touch,
-                          detail::overlay::operation_intersection)
-            || check_turn(turn,
-                          detail::overlay::method_touch,
-                          detail::overlay::operation_blocked)
-            ;
-    }
-
     template <typename Point, typename Linestring>
     static inline bool is_endpoint_of(Point const& point,
                                       Linestring const& linestring)
     {
         BOOST_ASSERT( boost::size(linestring) > 1 );
-        return geometry::equals(point, *boost::begin(linestring))
-            || geometry::equals(point, *boost::rbegin(linestring));
+        return geometry::equals(point, range::front(linestring))
+            || geometry::equals(point, range::back(linestring));
     }
 
     template <typename Linestring1, typename Linestring2>
@@ -138,28 +85,38 @@ struct is_simple_multilinestring
                                            Linestring2 const& ls2)
     {
         return
-            (geometry::equals(*boost::begin(ls1), *boost::begin(ls2))
-             && geometry::equals(*boost::rbegin(ls1), *boost::rbegin(ls2)))
-            ||
-            (geometry::equals(*boost::begin(ls1), *boost::rbegin(ls2))
-             && geometry::equals(*boost::rbegin(ls1), *boost::begin(ls2)))
+            geometry::equals(range::front(ls1), range::front(ls2))
+            ?
+            geometry::equals(range::back(ls1), range::back(ls2))
+            :
+            (geometry::equals(range::front(ls1), range::back(ls2))
+             &&
+             geometry::equals(range::back(ls1), range::front(ls2))
+             )
             ;
     }
 
 
-
-
     static inline bool apply(MultiLinestring const& multilinestring)
     {
-        if ( !is_simple_multi_range<MultiLinestring>::apply(multilinestring) )
-        {
-            return false;
-        }
-
         typedef typename boost::range_value<MultiLinestring>::type linestring;
         typedef typename point_type<MultiLinestring>::type point_type;
         typedef point_type point;
 
+
+        // check each of the linestrings for simplicity
+        if ( !detail::check_iterator_range
+                 <
+                     is_simple_range<linestring>
+                 >::apply(boost::begin(multilinestring),
+                          boost::end(multilinestring))
+             )
+        {
+            return false;
+        }
+
+
+        // compute self turns
         typedef detail::overlay::turn_info
             <
                 point_type,
@@ -187,64 +144,21 @@ struct is_simple_multilinestring
                      turns,
                      interrupt_policy);
 
-        std::cout << "turns:";
-        for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
-             tit != turns.end(); ++tit)
-        {
-            std::cout << " [" << geometry::method_char(tit->method);
-            std::cout << "," << geometry::operation_char(tit->operations[0].operation);
-            std::cout << "/" << geometry::operation_char(tit->operations[1].operation);
-            std::cout << " " << geometry::dsv(tit->point);
-            std::cout << "] ";
-        }
-        std::cout << std::endl << std::endl;
+        debug_print_turns(turns.begin(), turns.end());
+        debug_print_endpoints(multilinestring);
 
-        if ( turns.size() == 0 )
-        {
-            return true;
-        }
-
-#ifdef GEOMETRY_TEST_DEBUG
-        std::vector<point_type> endpoints;
-        typename boost::range_iterator<MultiLinestring const>::type it;
-        for (it = boost::begin(multilinestring);
-             it != boost::end(multilinestring); ++it)
-        {
-            BOOST_ASSERT ( boost::size(*it) != 1 );
-            if ( boost::size(*it) != 0 )
-            {
-                endpoints.push_back( *boost::begin(*it) );
-                endpoints.push_back( *(--boost::end(*it)) );
-            }
-        }
-
-
-        std::sort(endpoints.begin(), endpoints.end(), geometry::less<point>());
-
-        std::cout << "endpoints: ";
-        for (typename std::vector<point>::iterator pit = endpoints.begin();
-             pit != endpoints.end(); ++pit)
-        {
-            std::cout << " " << geometry::dsv(*pit);
-        }
-        std::cout << std::endl << std::endl;
-#endif
-
+        // check if the generated turns are all endpoints of the
+        // linestrings in the multi-linestring
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)
         {            
-#if 0
-            if ( !is_acceptable_turn(*tit) )
-            {
-                return false;
-            }
-#endif
             linestring const& ls1 =
-                *(boost::begin(multilinestring)
-                  + tit->operations[0].seg_id.multi_index);
+                range::at(multilinestring,
+                          tit->operations[0].seg_id.multi_index);
+
             linestring const& ls2 =
-                *(boost::begin(multilinestring)
-                  + tit->operations[0].other_id.multi_index);
+                range::at(multilinestring,
+                          tit->operations[0].other_id.multi_index);
 
             if ( !is_endpoint_of(tit->point, ls1)
                  || !is_endpoint_of(tit->point, ls2) )
@@ -252,15 +166,14 @@ struct is_simple_multilinestring
                 return false;
             }
 
-#if 1
             if ( boost::size(ls1) == 2
                  && boost::size(ls2) == 2
                  && have_same_endpoints(ls1, ls2) )
             {
                 return false;
             }
-#endif
         }
+
         return true;
     }
 
@@ -268,10 +181,8 @@ struct is_simple_multilinestring
 
 
 
-
 }} // namespace detail::is_simple
 #endif // DOXYGEN_NO_DETAIL
-
 
 
 
