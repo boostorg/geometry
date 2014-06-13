@@ -14,8 +14,9 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
@@ -54,7 +55,7 @@ struct is_simple_multipoint
         MultiPoint mp(multipoint);
         std::sort(boost::begin(mp), boost::end(mp), geometry::less<Point>());
 
-        return !has_duplicates<MultiPoint>::apply(mp);
+        return !has_duplicates<MultiPoint, closed>::apply(mp);
     }
 };
 

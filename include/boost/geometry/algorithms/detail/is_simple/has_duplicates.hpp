@@ -13,7 +13,12 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
+
 #include <boost/geometry/policies/compare.hpp>
+
+#include <boost/geometry/views/closeable_view.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -23,26 +28,28 @@ namespace boost { namespace geometry
 namespace detail { namespace is_simple
 {
 
-template <typename Range>
+template <typename Range, closure_selector Closure>
 struct has_duplicates
 {
     static inline bool apply(Range const& range)
     {
-        typedef typename boost::range_value<Range>::type point;
-        typedef typename boost::range_iterator<Range const>::type iterator;
+        typedef typename closeable_view<Range const, Closure>::type view_type;
+        typedef typename boost::range_iterator<view_type const>::type iterator;
 
-        BOOST_ASSERT( boost::size(range) > 0 );
+        view_type view(range);
 
-        if ( boost::size(range) == 1 )
+        BOOST_ASSERT( boost::size(view) > 0 );
+
+        if ( boost::size(view) == 1 )
         {
             return false;
         }
 
-        geometry::equal_to<point> equal;
+        geometry::equal_to<typename boost::range_value<Range>::type> equal;
 
-        iterator it = boost::begin(range);
-        iterator next = ++boost::begin(range);
-        for (; next != boost::end(range); ++it, ++next)
+        iterator it = boost::begin(view);
+        iterator next = ++boost::begin(view);
+        for (; next != boost::end(view); ++it, ++next)
         {
             if ( equal(*it, *next) )
             {
