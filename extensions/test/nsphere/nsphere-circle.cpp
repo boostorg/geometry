@@ -117,8 +117,6 @@ void check_nsphere(S& to_check, RT radius, CT center_x, CT center_y, CT center_z
 template <typename P, typename T>
 void test_construction()
 {
-    typedef typename bg::coordinate_type<P>::type ctype;
-
     bg::model::nsphere<P, T> c1;
     check_nsphere(c1, 0, 0,0,0);
 
