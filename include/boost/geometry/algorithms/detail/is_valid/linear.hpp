@@ -83,11 +83,10 @@ struct number_of_distinct_points
 };
 
 
-template <typename Linestring>
+template <typename Linestring, bool AllowSpikes>
 struct is_valid_linestring
 {
-    static inline bool apply(Linestring const& linestring,
-                             bool allow_spikes)
+    static inline bool apply(Linestring const& linestring)
     {
         typedef number_of_distinct_points<Linestring> num_distinct;
 
@@ -104,7 +103,7 @@ struct is_valid_linestring
                                      range::back(linestring));
         }
 
-        return allow_spikes
+        return AllowSpikes
             || !has_spikes<Linestring, closed>::apply(linestring);
     }
 };
@@ -127,24 +126,16 @@ namespace dispatch
 // A curve is simple if it does not pass through the same point twice,
 // with the possible exception of its two endpoints
 //
-// There is an open issue as to whether spikes are allowed for
-// linestrings; here we pass this as an additional parameter: allow_spikes
+// There is an option here as to whether spikes are allowed for linestrings; 
+// here we pass this as an additional template parameter: allow_spikes
 // If allow_spikes is set to true, spikes are allowed, false otherwise.
 // By default, spikes are disallowed
 //
 // Reference: OGC 06-103r4 (§6.1.6.1)
-template <typename Linestring>
-struct is_valid<Linestring, linestring_tag>
-{
-    static inline bool apply(Linestring const& linestring,
-                             bool allow_spikes = false)
-    {
-        return detail::is_valid::is_valid_linestring
-            <
-                Linestring
-            >::apply(linestring, allow_spikes);
-    }
-};
+template <typename Linestring, bool AllowSpikes>
+struct is_valid<Linestring, linestring_tag, AllowSpikes>
+    : detail::is_valid::is_valid_linestring<Linestring, AllowSpikes>
+{};
 
 
 // A MultiLinestring is a MultiCurve
@@ -153,16 +144,17 @@ struct is_valid<Linestring, linestring_tag>
 // are on the boundaries of both elements.
 //
 // Reference: OGC 06-103r4 (§6.1.8.1; Fig. 9)
-template <typename MultiLinestring>
-struct is_valid<MultiLinestring, multi_linestring_tag>
+template <typename MultiLinestring, bool AllowSpikes>
+struct is_valid<MultiLinestring, multi_linestring_tag, AllowSpikes>
 {
     static inline bool apply(MultiLinestring const& multilinestring)
     {
         return detail::check_iterator_range
             <
-                dispatch::is_valid
+                detail::is_valid::is_valid_linestring
                     <
-                        typename boost::range_value<MultiLinestring>::type
+                        typename boost::range_value<MultiLinestring>::type,
+                        AllowSpikes
                     >
             >::apply(boost::begin(multilinestring),
                      boost::end(multilinestring));

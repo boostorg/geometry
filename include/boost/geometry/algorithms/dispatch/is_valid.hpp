@@ -23,7 +23,12 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template
+<
+    typename Geometry,
+    typename Tag = typename tag<Geometry>::type,
+    bool AllowSpikes = false // for linear geometries
+>
 struct is_valid
     : not_implemented<Geometry>
 {};

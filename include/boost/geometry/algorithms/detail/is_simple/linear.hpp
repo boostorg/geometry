@@ -54,9 +54,11 @@ struct is_simple_linestring
 {
     static inline bool apply(Linestring const& linestring)
     {
-        // the second argument to apply refers to spikes:
-        // spikes are disallowed
-        if ( !dispatch::is_valid<Linestring>::apply(linestring, false) )
+        if ( !detail::is_valid::is_valid_linestring
+                 <
+                     Linestring, false // spikes are disallowed
+                 >::apply(linestring)
+             )
         {
             return false;
         }
