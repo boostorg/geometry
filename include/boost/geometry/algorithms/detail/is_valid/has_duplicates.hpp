@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_HAS_DUPLICATES_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_HAS_DUPLICATES_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
 
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
@@ -25,7 +25,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace is_simple
+namespace detail { namespace is_valid
 {
 
 template <typename Range, closure_selector Closure>
@@ -62,7 +62,7 @@ struct has_duplicates
 
 
 
-}} // namespace detail::is_simple
+}} // namespace detail::is_valid
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -70,4 +70,4 @@ struct has_duplicates
 
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_HAS_DUPLICATES_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP

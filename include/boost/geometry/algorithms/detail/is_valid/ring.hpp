@@ -23,8 +23,9 @@
 #include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
-#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 
 #include <boost/geometry/strategies/area.hpp>
 
@@ -39,6 +40,7 @@ namespace detail { namespace is_valid
 
 // struct to check whether a ring is topologically closed
 template <typename Ring, closure_selector Closure /* open */>
+struct is_topologically_closed
 {
     static inline bool apply(Ring const&)
     {
@@ -133,7 +135,7 @@ struct is_valid_ring
             ( boost::size(ring)
               >= core_detail::closure::minimum_ring_size<closure>::value )
             && is_topologically_closed<Ring, closure>::apply(ring) 
-            && !is_simple::has_duplicates<Ring, closure>::apply(ring)
+            && !has_duplicates<Ring, closure>::apply(ring)
             && !has_spikes<Ring, closure>::apply(ring)
             && !(CheckSelfIntersections && geometry::intersects(ring))
             && is_properly_oriented<Ring, IsInteriorRing>::apply(ring);

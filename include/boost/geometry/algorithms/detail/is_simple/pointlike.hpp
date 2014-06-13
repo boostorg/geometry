@@ -21,7 +21,6 @@
 #include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
@@ -55,7 +54,7 @@ struct is_simple_multipoint
         MultiPoint mp(multipoint);
         std::sort(boost::begin(mp), boost::end(mp), geometry::less<Point>());
 
-        return !has_duplicates<MultiPoint, closed>::apply(mp);
+        return !detail::is_valid::has_duplicates<MultiPoint, closed>::apply(mp);
     }
 };
 

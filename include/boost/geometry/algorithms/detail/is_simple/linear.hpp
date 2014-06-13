@@ -31,7 +31,6 @@
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
@@ -62,7 +61,10 @@ struct is_simple_linestring
             return false;
         }
 
-        return !has_duplicates<Linestring, closed>::apply(linestring)
+        return !detail::is_valid::has_duplicates
+                    <
+                        Linestring, closed
+                    >::apply(linestring)
             && !(CheckSelfIntersections && geometry::intersects(linestring));
     }
 };
