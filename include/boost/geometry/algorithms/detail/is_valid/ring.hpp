@@ -11,17 +11,22 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_RING_HPP
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_order.hpp>
 
+#include <boost/geometry/util/order_as_direction.hpp>
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
+#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/linestring.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/has_duplicates.hpp>
 
+#include <boost/geometry/strategies/area.hpp>
 
 namespace boost { namespace geometry
 {
@@ -33,12 +38,7 @@ namespace detail { namespace is_valid
 
 
 // struct to check whether a ring is topologically closed
-template <typename Ring, closure_selector Closure>
-struct is_topologically_closed
-{};
-
-template <typename Ring>
-struct is_topologically_closed<Ring, open>
+template <typename Ring, closure_selector Closure /* open */>
 {
     static inline bool apply(Ring const&)
     {
@@ -51,90 +51,92 @@ struct is_topologically_closed<Ring, closed>
 {
     static inline bool apply(Ring const& ring)
     {
-        return geometry::equals(*boost::begin(ring), *boost::rbegin(ring));
+        return geometry::equals(range::front(ring), range::back(ring));
     }
 };
 
 
-// struct to check if the size is above the minimal one
-// (3 for open, 4 for closed)
-template <typename Ring, closure_selector Closure>
-struct is_below_minimal_size
-{};
 
-template <typename Ring>
-struct is_below_minimal_size<Ring, closed>
+template <typename ResultType, bool IsInteriorRing /* false */>
+struct ring_area_predicate
 {
+    typedef std::greater<ResultType> type;
+};
+
+template <typename ResultType>
+struct ring_area_predicate<ResultType, true>
+{
+    typedef std::less<ResultType> type;
+};
+
+
+
+template <typename Ring, bool IsInteriorRing>
+struct is_properly_oriented
+{
+    typedef typename point_type<Ring>::type point_type;
+
+    typedef typename strategy::area::services::default_strategy
+        <
+            typename cs_tag<point_type>::type,
+            point_type
+        >::type strategy_type;
+
+    typedef detail::area::ring_area
+        <
+            order_as_direction<geometry::point_order<Ring>::value>::value,
+            geometry::closure<Ring>::value
+        > ring_area_type;
+
+    typedef typename default_area_result<Ring>::type area_result_type;
+
     static inline bool apply(Ring const& ring)
     {
-        return boost::size(ring) < 4;
+        typename ring_area_predicate
+            <
+                area_result_type, IsInteriorRing
+            >::type predicate;
+
+        // Check area
+        area_result_type const zero = area_result_type();
+        return predicate(ring_area_type::apply(ring, strategy_type()), zero);
     }
 };
-
-template <typename Ring>
-struct is_below_minimal_size<Ring, open>
-{
-    static inline bool apply(Ring const& ring)
-    {
-        return boost::size(ring) < 3;
-    }
-};
-
-
-
 
 
 
 template
 <
     typename Ring,
-    order_selector PointOrder,
-    closure_selector Closure
+    bool CheckSelfIntersections = true,
+    bool IsInteriorRing = false
 >
 struct is_valid_ring
-    : not_implemented<Ring>
-{};
-
-
-template <typename Ring, closure_selector Closure>
-struct is_valid_ring<Ring, counterclockwise, Closure>
-{
-    static inline bool apply(Ring const& ring)
-    {
-        typedef typename reversible_view
-            <
-                Ring, iterate_reverse
-            >::type reversible_view_type;
-
-        reversible_view_type reversed_ring(const_cast<Ring&>(ring));
-        return is_valid_ring<Ring, clockwise, Closure>::apply(reversed_ring);
-    }
-};
-
-template <typename Ring, closure_selector Closure>
-struct is_valid_ring<Ring, clockwise, Closure>
 {
     static inline bool apply(Ring const& ring)
     {
         // return invalid if any of the following condition holds:
         // (a) the ring's size is below the minimal one
-        // (b) the ring has less than three distinct points
-        // (c) the ring is not topologically closed
-        // (d) the ring has spikes
+        // (b) the ring is not topologically closed
+        // (c) the ring has spikes
+        // (d) the ring has duplicate points
+        // (e) the boundary of the ring has self-intersections
+        // (f) the order of the points is inconsistent with the defined order
         //
         // Note: no need to check if the area is zero. If this is the
         // case, then the ring must have at least two spikes, which is
         // checked by condition (d).
-        if ( is_below_minimal_size<Ring, Closure>::apply(ring)
-             || !has_three_distinct_points<Ring>::apply(ring)
-             || !is_topologically_closed<Ring, Closure>::apply(ring)
-             || has_spikes<Ring>::apply(ring) )
-        {
-            return false;
-        }
 
-        // now call self turns to compute self intersections, if any,
-        // and analyze them
+        closure_selector const closure = geometry::closure<Ring>::value;
+
+        return 
+            ( boost::size(ring)
+              >= core_detail::closure::minimum_ring_size<closure>::value )
+            && is_topologically_closed<Ring, closure>::apply(ring) 
+            && !is_simple::has_duplicates<Ring, closure>::apply(ring)
+            && !has_spikes<Ring, closure>::apply(ring)
+            && !(CheckSelfIntersections && geometry::intersects(ring))
+            && is_properly_oriented<Ring, IsInteriorRing>::apply(ring);
     }
 };
 
@@ -148,18 +150,14 @@ struct is_valid_ring<Ring, clockwise, Closure>
 namespace dispatch
 {
 
-// A Ring is a Polygon.
-// A Polygon is always a simple geometric object provided that it is valid.
+// A Ring is a Polygon with exterior boundary only.
+// The Ring's boundary must be a LinearRing (see OGC 06-103-r4,
+// §6.1.7.1, for the definition of LinearRing)
 //
 // Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
 template <typename Ring>
 struct is_valid<Ring, ring_tag>
-    : detail::is_valid::is_valid_ring
-        <
-            Ring,
-            point_order<Ring>::value,
-            closure<Ring>::value
-        >
+    : detail::is_valid::is_valid_ring<Ring>
 {};
 
 
