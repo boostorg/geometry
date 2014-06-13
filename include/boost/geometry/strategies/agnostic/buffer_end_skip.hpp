@@ -1,16 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_SKIP_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_SKIP_HPP
-
-
-// Buffer strategies
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_SKIP_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_SKIP_HPP
 
 #include <boost/geometry/strategies/agnostic/buffer_side.hpp>
 
@@ -54,4 +51,4 @@ public :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_SKIP_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_SKIP_HPP
