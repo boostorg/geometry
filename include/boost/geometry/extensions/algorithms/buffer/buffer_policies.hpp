@@ -78,32 +78,6 @@ g_backtrack_warning_count++;
     }
 };
 
-struct turn_assign_for_buffer
-{
-    static bool const include_no_turn = false;
-    static bool const include_degenerate = false;
-    static bool const include_opposite = false;
-
-    template
-    <
-        typename Point1,
-        typename Point2,
-        typename Turn,
-        typename IntersectionInfo,
-        typename DirInfo
-    >
-    static inline void apply(Turn& turn,
-            Point1 const& , Point2 const& ,
-            IntersectionInfo const& intersection_info,
-            DirInfo const& dir_info)
-    {
-        if (dir_info.opposite && intersection_info.count == 2)
-        {
-            turn.is_opposite = true;
-        }
-    }
-};
-
 // Should follow traversal-turn-concept (enrichment, visit structure)
 // and adds index in piece vector to find it back
 template <typename Point, typename SegmentRatio>
@@ -129,9 +103,10 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
+    int turn_index; // TODO: this might go if partition can operate on non-const input
+
     RobustPoint robust_point;
     RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
-    bool is_opposite;
 
     intersection_location_type location;
 
@@ -146,7 +121,7 @@ struct buffer_turn_info
 #endif
 
     inline buffer_turn_info()
-        : is_opposite(false)
+        : turn_index(-1)
         , location(location_ok)
         , count_within(0)
         , count_on_offsetted(0)

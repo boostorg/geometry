@@ -20,6 +20,5 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_COMPARABLE_DISTANCE_IMPLEMENTATION_HPP
 
 #include <boost/geometry/algorithms/detail/distance/implementation.hpp>
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_COMPARABLE_DISTANCE_IMPLEMENTATION_HPP

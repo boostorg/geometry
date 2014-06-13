@@ -18,13 +18,15 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/extensions/strategies/buffer_side.hpp>
 
 #include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
 #include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/get_piece_turns.hpp>
+#include <boost/geometry/extensions/algorithms/buffer/turn_in_piece_visitor.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -103,38 +105,12 @@ struct check_original<point_tag>
     }
 };
 
-// TODO: move this
-template <typename Point>
-inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
-{
-    typedef Point vector_type;
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-    vector_type v = q;
-    vector_type w = subject;
-    subtract_point(v, p);
-    subtract_point(w, p);
-
-    coordinate_type const zero = coordinate_type();
-    coordinate_type const c1 = dot_product(w, v);
-
-    if (c1 < zero)
-    {
-        return false;
-    }
-    coordinate_type const c2 = dot_product(v, v);
-    if (c2 < c1)
-    {
-        return false;
-    }
-
-    return true;
-}
-
 
 template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection
 {
+    typedef buffered_piece_collection<Ring, RobustPolicy> this_type;
+
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
     typedef typename geometry::robust_point_type
@@ -174,11 +150,6 @@ struct buffered_piece_collection
 
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
 
-    typedef detail::overlay::get_turn_info
-        <
-            turn_assign_for_buffer
-        > turn_policy;
-
     struct robust_turn
     {
         int turn_index;
@@ -205,8 +176,9 @@ struct buffered_piece_collection
         std::vector<point_type> helper_segments; // 3 points for segment, 2 points for join - 0 points for flat-end
 
         // Robust representations
-        std::vector<robust_turn> robust_turns;
+        std::vector<robust_turn> robust_turns; // Used only in rescale_pieces - we might use a map instead
         geometry::model::ring<robust_point_type> robust_ring;
+        geometry::model::box<robust_point_type> robust_envelope;
     };
 
     typedef std::vector<piece> piece_vector_type;
@@ -236,165 +208,6 @@ struct buffered_piece_collection
         : m_robust_policy(robust_policy)
     {}
 
-
-    inline bool is_neighbor(piece const& piece1, piece const& piece2) const
-    {
-        if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
-        {
-            return false;
-        }
-
-        if (std::abs(piece1.index - piece2.index) == 1)
-        {
-            return true;
-        }
-
-        int const last = boost::size(m_pieces) - 1;
-        return (piece1.index == 0 && piece2.index == last)
-            || (piece1.index == last && piece2.index == 0)
-            ;
-    }
-
-    inline bool skip_neighbor(piece const& piece1, piece const& piece2) const
-    {
-        return piece1.type != piece2.type && is_neighbor(piece1, piece2);
-    }
-
-    template <typename Range, typename Iterator>
-    inline void move_to_next_point(Range const& range, Iterator& next) const
-    {
-        ++next;
-        if (next == boost::end(range))
-        {
-            next = boost::begin(range) + 1;
-        }
-    }
-
-    template <typename Range, typename Iterator>
-    inline Iterator next_point(Range const& range, Iterator it) const
-    {
-        Iterator result = it;
-        move_to_next_point(range, result);
-        while(geometry::equals(*it, *result))
-        {
-            move_to_next_point(range, result);
-        }
-        return result;
-    }
-
-    inline void calculate_turns(piece const& piece1, piece const& piece2)
-    {
-        typedef typename boost::range_iterator<buffered_ring<Ring> const>::type iterator;
-
-        segment_identifier seg_id1 = piece1.first_seg_id;
-        segment_identifier seg_id2 = piece2.first_seg_id;
-
-        if (seg_id1.segment_index < 0 || seg_id2.segment_index < 0)
-        {
-            return;
-        }
-
-        buffered_ring<Ring> const& ring1 = offsetted_rings[seg_id1.multi_index];
-        iterator it1_first = boost::begin(ring1) + seg_id1.segment_index;
-        iterator it1_last = boost::begin(ring1) + piece1.last_segment_index;
-
-        buffered_ring<Ring> const& ring2 = offsetted_rings[seg_id2.multi_index];
-        iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
-        iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
-
-        buffer_turn_info_type the_model;
-        the_model.operations[0].piece_index = piece1.index;
-        the_model.operations[0].seg_id = piece1.first_seg_id;
-
-        iterator it1 = it1_first;
-        for (iterator prev1 = it1++;
-                it1 != it1_last;
-                prev1 = it1++, the_model.operations[0].seg_id.segment_index++)
-        {
-            the_model.operations[1].piece_index = piece2.index;
-            the_model.operations[1].seg_id = piece2.first_seg_id;
-
-            iterator next1 = next_point(ring1, it1);
-
-            iterator it2 = it2_first;
-            for (iterator prev2 = it2++;
-                    it2 != it2_last;
-                    prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
-            {
-                // Revert (this is used more often - should be common function TODO)
-                the_model.operations[0].other_id = the_model.operations[1].seg_id;
-                the_model.operations[1].other_id = the_model.operations[0].seg_id;
-
-                iterator next2 = next_point(ring2, it2);
-
-                turn_policy::apply(*prev1, *it1, *next1,
-                                    *prev2, *it2, *next2,
-                                    false, false, false, false,
-                                    the_model, m_robust_policy, std::back_inserter(m_turns));
-            }
-        }
-    }
-
-    inline bool on_offsetted(robust_point_type const& point, piece const& piece) const
-    {
-        for (int i = 1; i < piece.offsetted_count; i++)
-        {
-            robust_point_type const& previous = piece.robust_ring[i - 1];
-            robust_point_type const& current = piece.robust_ring[i];
-            int const side = side_strategy::apply(point, previous, current);
-            if (side == 0)
-            {
-                // Collinear, check if projection falls on it
-                if (projection_on_segment(point, previous, current))
-                {
-                    return true;
-                }
-            }
-
-        }
-        return false;
-    }
-
-    inline void classify_turn(buffer_turn_info_type& turn, piece const& pc) const
-    {
-        if (pc.type == buffered_flat_end)
-        {
-            // Turns cannot be inside a flat end (though they can be on border)
-            return;
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            // Don't compare against one of the two source-pieces
-            if (turn.operations[i].piece_index == pc.index)
-            {
-                return;
-            }
-        }
-
-        int geometry_code = detail::within::point_in_geometry(turn.robust_point, pc.robust_ring);
-
-        if (geometry_code == 0)
-        {
-            if (! on_offsetted(turn.robust_point, pc))
-            {
-                // It is on the border but not on the offsetted ring.
-                // Then it is somewhere on the helper-segments
-                // Classify it as inside
-                // TODO: for neighbouring flat ends this does not apply
-                geometry_code = 1;
-                turn.count_on_helper++;
-            }
-        }
-
-        switch (geometry_code)
-        {
-            case 1 : turn.count_within++; break;
-            case 0 : turn.count_on_offsetted++; break;
-        }
-
-
-    }
 
     template <typename OccupationMap>
     inline void adapt_mapped_robust_point(OccupationMap const& map,
@@ -574,70 +387,16 @@ struct buffered_piece_collection
                     m_turns[turns[i].turn_index].count_on_occupied++;
                 }
             }
-#if 0
-// TODO: block non-left turns, keep left turns
-                for (std::vector<detail::left_turns::left_turn>::const_iterator
-                    it = turns_to_keep.begin(); it != turns_to_keep.end(); ++it)
-                {
-                    std::pair<segment_identifier, segment_identifier>
-                        pair = ordered_pair(it->from, it->to);
-                    segment_pair_map::const_iterator segit
-                        = turn_indices_per_segment_pair.find(pair);
-                    if (segit == turn_indices_per_segment_pair.end())
-                    {
-                        std::cout << "BAD LUCK" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "FOUND IP" << std::endl;
-                        for (std::set<int>::const_iterator iit = segit->second.begin();
-                             iit != segit->second.end(); ++iit)
-                        {
-                            int turn_index = *iit;
-                            //m_turns[turn_index].count_on_occupied++;
-                        }
-                    }
-                    // Mark as included
-
-#endif
         }
     }
 
     inline void classify_turns()
     {
-
-        // Check if it is inside any of the pieces
-        // Now: quadratic
-        // TODO: in partition.
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            typename std::vector<piece>::const_iterator pit;
-            for (pit = boost::begin(m_pieces);
-                pit != boost::end(m_pieces);
-                ++pit)
-            {
-                classify_turn(*it, *pit);
-            }
-        }
-    }
-
-    template <typename Turn>
-    inline bool classify_turn_inside(Turn const& turn) const
-    {
-        return turn.count_within > 0
-            // || turn.count_on_multi > 0
-            || turn.count_on_occupied > 0
-            ;
-    }
-
-    inline void classify_inside()
-    {
-        // Set results:
-        for (typename boost::range_iterator<turn_vector_type>::type it =
-            boost::begin(m_turns); it != boost::end(m_turns); ++it)
-        {
-            if (classify_turn_inside(*it))
+            if ( it->count_within > 0
+              || it->count_on_occupied > 0 )
             {
                 it->location = inside_buffer;
             }
@@ -648,6 +407,9 @@ struct buffered_piece_collection
     inline void check_remaining_points(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
         int const factor = distance_strategy.factor();
+
+        // This might use partition too (for multi-polygons)
+
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
@@ -686,7 +448,7 @@ struct buffered_piece_collection
         return true;
     }
 
-    inline void rescale_pieces()
+    inline void rescale_piece_rings()
     {
         for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
             it != boost::end(m_pieces);
@@ -726,8 +488,15 @@ struct buffered_piece_collection
                     pc.robust_ring.push_back(point);
                 }
             }
-        }
 
+            // Calculate the envelope
+            geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
+                    pc.robust_envelope);
+        }
+    }
+
+    inline void insert_rescaled_piece_turns()
+    {
         // Add rescaled turn points to corresponding pieces
         // (after this, each turn occurs twice)
         int index = 0;
@@ -736,7 +505,9 @@ struct buffered_piece_collection
         {
             geometry::recalculate(it->robust_point, it->point, m_robust_policy);
             it->mapped_robust_point = it->robust_point;
+
             robust_turn turn;
+            it->turn_index = index;
             turn.turn_index = index;
             turn.point = it->robust_point;
             for (int i = 0; i < 2; i++)
@@ -744,11 +515,15 @@ struct buffered_piece_collection
                 turn.operation_index = i;
                 turn.seg_id = it->operations[i].seg_id;
                 turn.fraction = it->operations[i].fraction;
-                m_pieces[it->operations[i].piece_index].robust_turns.push_back(turn);
+
+                piece& pc = m_pieces[it->operations[i].piece_index];
+                pc.robust_turns.push_back(turn);
+
+                // Take into account for the box (intersection points should fall inside,
+                // but in theory they can be one off because of rounding
+                geometry::expand(pc.robust_envelope, it->robust_point);
             }
         }
-
-        // All pieces now have closed robust rings.
 
         // Insert all rescaled turn-points into these rings, to form a
         // reliable integer-based ring. All turns can be compared (inside) to this
@@ -793,30 +568,45 @@ struct buffered_piece_collection
     template <typename Geometry, typename DistanceStrategy>
     inline void get_turns(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
-        // Now: quadratic
-        // TODO use partition
+        rescale_piece_rings();
 
-        for(typename piece_vector_type::const_iterator it1 = boost::begin(m_pieces);
-            it1 != boost::end(m_pieces);
-            ++it1)
         {
-            for(typename piece_vector_type::const_iterator it2 = it1 + 1;
-                it2 != boost::end(m_pieces);
-                ++it2)
-            {
-                if (! skip_neighbor(*it1, *it2))
-                {
-                    calculate_turns(*it1, *it2);
-                }
-            }
+            // Calculate the turns
+            piece_turn_visitor
+                <
+                    buffered_ring_collection<buffered_ring<Ring> >,
+                    turn_vector_type,
+                    RobustPolicy
+                > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
+
+            geometry::partition
+                <
+                    model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
+                >::apply(m_pieces, visitor);
         }
 
-        rescale_pieces();
+        insert_rescaled_piece_turns();
+
+        {
+            // Check if it is inside any of the pieces
+            turn_in_piece_visitor
+                <
+                    turn_vector_type
+                > visitor(m_turns);
+
+            geometry::partition
+                <
+                    model::box<robust_point_type>,
+                    turn_get_box, turn_ovelaps_box,
+                    piece_get_box, piece_ovelaps_box
+                >::apply(m_turns, m_pieces, visitor);
+
+        }
+
+
+        //get_occupation(); // Temporarily disabled, all tests passing...
 
         classify_turns();
-        get_occupation();
-
-        classify_inside();
 
         check_remaining_points(input_geometry, distance_strategy);
     }

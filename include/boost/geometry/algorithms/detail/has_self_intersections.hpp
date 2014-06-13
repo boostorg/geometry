@@ -60,7 +60,9 @@ namespace detail { namespace overlay
 
 
 template <typename Geometry, typename RobustPolicy>
-inline bool has_self_intersections(Geometry const& geometry, RobustPolicy const& robust_policy)
+inline bool has_self_intersections(Geometry const& geometry,
+        RobustPolicy const& robust_policy,
+        bool throw_on_self_intersection = true)
 {
     typedef typename point_type<Geometry>::type point_type;
     typedef turn_info
@@ -109,8 +111,12 @@ inline bool has_self_intersections(Geometry const& geometry, RobustPolicy const&
 #endif
 
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-            throw overlay_invalid_input_exception();
+            if (throw_on_self_intersection)
+            {
+                throw overlay_invalid_input_exception();
+            }
 #endif
+            return true;
         }
 
     }
@@ -119,7 +125,8 @@ inline bool has_self_intersections(Geometry const& geometry, RobustPolicy const&
 
 // For backward compatibility
 template <typename Geometry>
-inline bool has_self_intersections(Geometry const& geometry)
+inline bool has_self_intersections(Geometry const& geometry,
+                    bool throw_on_self_intersection = true)
 {
     typedef typename geometry::point_type<Geometry>::type point_type;
     typedef typename geometry::rescale_policy_type<point_type>::type
@@ -128,7 +135,8 @@ inline bool has_self_intersections(Geometry const& geometry)
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
-    return has_self_intersections(geometry, robust_policy);
+    return has_self_intersections(geometry, robust_policy,
+                throw_on_self_intersection);
 }
 
 

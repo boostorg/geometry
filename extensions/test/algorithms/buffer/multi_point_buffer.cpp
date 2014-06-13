@@ -130,10 +130,16 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
 
     std::vector<GeometryOut> buffered;
 
+    typedef typename bg::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+    rescale_policy_type rescale_policy
+            = bg::get_rescale_policy<rescale_policy_type>(geometry);
+
     bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
                         distance_strategy, 
                         join_strategy,
-                        end_strategy
+                        end_strategy,
+                        rescale_policy
 #ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
                         , mapper
 #endif
@@ -176,7 +182,7 @@ void test_growth(int n, int distance_count)
         multi_point.push_back(point);
     }
 
-    std::cout << bg::wkt(multi_point) << std::endl;
+    //std::cout << bg::wkt(multi_point) << std::endl;
 
     double previous_area = 0;
     double epsilon = 0.1;
