@@ -15,13 +15,14 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
+
+#include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-
-#include <boost/geometry/views/closeable_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -66,27 +67,27 @@ struct not_equal_to
 
 
 
-template <typename Range, closure_selector Closure = closed>
+template <typename Range, closure_selector Closure>
 struct has_spikes
 {
     static inline bool apply(Range const& range)
     {
-        typedef typename point_type<Range>::type point; 
-        typedef typename boost::range_iterator<Range const>::type iterator; 
+        typedef not_equal_to<typename point_type<Range>::type> not_equal;
 
-        typedef not_equal_to<point> not_equal;
+        typedef typename closeable_view<Range const, Closure>::type view_type;
+        typedef typename boost::range_iterator<view_type const>::type iterator; 
 
-        BOOST_ASSERT( boost::size(range) > 2 );
+        view_type const view(range);
 
-        iterator prev = boost::begin(range);
+        iterator prev = boost::begin(view);
 
-        iterator cur = std::find_if(prev, boost::end(range), not_equal(*prev));
-        BOOST_ASSERT( cur != boost::end(range) );
+        iterator cur = std::find_if(prev, boost::end(view), not_equal(*prev));
+        BOOST_ASSERT( cur != boost::end(view) );
 
-        iterator next = std::find_if(cur, boost::end(range), not_equal(*cur));
-        BOOST_ASSERT( next != boost::end(range) );
+        iterator next = std::find_if(cur, boost::end(view), not_equal(*cur));
+        BOOST_ASSERT( next != boost::end(view) );
 
-        while ( next != boost::end(range) )
+        while ( next != boost::end(view) )
         {
             if ( geometry::detail::point_is_spike_or_equal(*prev,
                                                            *next,
@@ -96,19 +97,20 @@ struct has_spikes
             }
             prev = cur;
             cur = next;
-            next = std::find_if(cur, boost::end(range), not_equal(*cur));
+            next = std::find_if(cur, boost::end(view), not_equal(*cur));
         }
 
-        if ( geometry::equals(*boost::begin(range), *boost::rbegin(range)) )
+        if ( geometry::equals(range::front(view), range::back(view)) )
         {
-            iterator cur = boost::begin(range);
+            iterator cur = boost::begin(view);
             typename boost::range_reverse_iterator
                 <
-                    Range const
-                >::type prev = std::find_if(boost::rbegin(range),
-                                            boost::rend(range),
-                                            not_equal(*boost::rbegin(range)));
-            iterator next = std::find_if(cur, boost::end(range), not_equal(*cur));
+                    view_type const
+                >::type prev = std::find_if(boost::rbegin(view),
+                                            boost::rend(view),
+                                            not_equal(range::back(view)));
+            iterator next =
+                std::find_if(cur, boost::end(view), not_equal(*cur));
             return detail::point_is_spike_or_equal(*prev, *next, *cur);
         }
 
@@ -117,18 +119,6 @@ struct has_spikes
 };
 
 
-template <typename Range>
-struct has_spikes<Range, open>
-{
-    static inline bool apply(Range const& range)
-    {
-        typedef typename closeable_view<Range, open>::type closed_view_type;
-
-        closed_view_type closed_range(const_cast<Range&>(range));
-        return has_spikes<closed_view_type, closed>::apply(closed_range);
-    }
-
-};
 
 }} // namespace detail::is_valid
 #endif // DOXYGEN_NO_DETAIL
