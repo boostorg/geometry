@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_INSERTER_HPP
 
 #include <cstddef>
+#include <iterator>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -104,7 +105,11 @@ struct buffer_range
         Iterator it = begin;
 
         // We want to memorize the last segment too.
-        typedef BOOST_TYPEOF(*it) point_type;
+        typedef typename std::iterator_traits
+        <
+            Iterator
+        >::value_type point_type;
+
         point_type penultimate_point, ultimate_point; // last two points from begin/end
 
 
@@ -259,8 +264,8 @@ struct buffer_point
     static inline void generate_circle(Point const& point,
                 Collection& collection,
                 DistanceStrategy const& distance,
-                JoinStrategy const& join_strategy,
-                EndStrategy const& end_strategy)
+                JoinStrategy const& ,
+                EndStrategy const& )
     {
         std::vector<output_point_type> range_out;
 

@@ -75,7 +75,6 @@ class end_round
         }
     }
 
-    // COPIED FROM OCCUPATION_INFO
     template <typename T, typename P1, typename P2>
     static inline T calculate_angle(P1 const& from_point, P2 const& to_point)
     {
@@ -94,7 +93,7 @@ public :
     inline void apply(PointIn const& penultimate_point,
                 PointIn const& perp_left_point,
                 PointIn const& ultimate_point,
-                PointIn const& perp_right_point,
+                PointIn const& ,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
