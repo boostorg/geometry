@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
+#include <boost/geometry/algorithms/detail/buffer/turn_in_input.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -56,48 +57,6 @@ enum segment_relation_code
     segment_relation_on_right,
     segment_relation_within,
     segment_relation_disjoint
-};
-
-
-// Checks if an intersection point is inside a geometry
-// In some cases a trivial check might be done, e.g. using symmetric distance:
-// the point must be further than the distance from the geometry
-
-// NOTE: for negative buffers inside polygons, this check must be skipped TODO
-template <typename Tag>
-struct check_original
-{
-};
-
-template <>
-struct check_original<polygon_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry,
-                            DistanceStrategy const& )
-    {
-        return geometry::covered_by(point, geometry) ? 1 : -1;
-    }
-};
-
-template <>
-struct check_original<linestring_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
-    {
-        return 0;
-    }
-};
-
-template <>
-struct check_original<point_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
-    {
-        return 0;
-    }
 };
 
 
@@ -410,10 +369,10 @@ struct buffered_piece_collection
         {
             if (it->location == location_ok)
             {
-                int code = check_original
+                int code = turn_in_input
                         <
                             typename geometry::tag<Geometry>::type
-                        >::apply(it->point, input_geometry, distance_strategy);
+                        >::apply(it->point, input_geometry);
                 if (code * factor == 1)
                 {
                     it->location = inside_original;
