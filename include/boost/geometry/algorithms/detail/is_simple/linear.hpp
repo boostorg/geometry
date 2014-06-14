@@ -29,8 +29,10 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
+
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
+
+#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
