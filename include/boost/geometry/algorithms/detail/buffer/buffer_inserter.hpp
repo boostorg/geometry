@@ -261,16 +261,12 @@ struct buffer_point
                 EndStrategy const& end_strategy)
     {
         std::vector<output_point_type> range_out;
-        //RingOutput range_out;
 
         generate_points(point,
             distance.apply(point, point, strategy::buffer::buffer_side_left),
             range_out);
 
         collection.add_piece(strategy::buffer::buffered_circle, range_out, false);
-
-        //std::cout << std::setprecision(20);
-        //std::cout << geometry::wkt(range_out) << std::endl;
     }
 };
 
@@ -529,9 +525,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             GeometryOutput
         >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
 
-    //std::cout << "BEGIN GET TURNS" << std::endl;
     collection.get_turns(geometry_input, distance_strategy);
-    //std::cout << "END GET TURNS" << std::endl;
 
     collection.discard_rings();
     collection.discard_turns();

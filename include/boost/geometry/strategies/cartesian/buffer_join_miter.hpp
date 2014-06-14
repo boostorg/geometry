@@ -77,10 +77,6 @@ struct join_miter
                 prop /= length;
                 set<0>(p, get<0>(vertex) + dx * prop);
                 set<1>(p, get<1>(vertex) + dy * prop);
-
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER
-                std::cout << length << std::endl;
-#endif
             }
 
             range_out.push_back(perp1);

@@ -41,11 +41,6 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#  include <boost/geometry/io/wkt/wkt.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {
