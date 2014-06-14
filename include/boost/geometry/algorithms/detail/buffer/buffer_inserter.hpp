@@ -23,11 +23,6 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-#  include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection_with_mapper.hpp>
-#endif
-
-
 namespace boost { namespace geometry
 {
 
@@ -279,6 +274,14 @@ struct buffer_point
     }
 };
 
+
+struct visit_pieces_default_policy
+{
+    template <typename Collection>
+    static inline void apply(Collection const&)
+    {}
+};
+
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
@@ -493,7 +496,6 @@ public:
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-
 template
 <
     typename GeometryOutput,
@@ -502,30 +504,23 @@ template
     typename DistanceStrategy,
     typename JoinStrategy,
     typename EndStrategy,
-    typename RobustPolicy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    , typename Mapper
-#endif
+    typename RobustPolicy,
+    typename VisitPiecesPolicy
 >
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
         DistanceStrategy const& distance_strategy,
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
-        RobustPolicy const& robust_policy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            , Mapper& mapper
-#endif
+        RobustPolicy const& robust_policy,
+        VisitPiecesPolicy& visit_pieces_policy
     )
 {
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    detail::buffer::buffered_piece_collection_with_mapper
-#else
-    detail::buffer::buffered_piece_collection
-#endif
-        <
-            typename geometry::ring_type<GeometryOutput>::type,
-            RobustPolicy
-        > collection(robust_policy);
+    typedef detail::buffer::buffered_piece_collection
+    <
+        typename geometry::ring_type<GeometryOutput>::type,
+        RobustPolicy
+    > collection_type;
+    collection_type collection(robust_policy);
 
     dispatch::buffer_inserter
         <
@@ -538,23 +533,10 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection.get_turns(geometry_input, distance_strategy);
     //std::cout << "END GET TURNS" << std::endl;
 
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    //collection.map_offsetted(mapper);
-    //collection.map_offsetted_points(mapper);
-    collection.map_turns(mapper);
-    //collection.map_opposite_locations(mapper);
-#endif
-
     collection.discard_rings();
     collection.discard_turns();
     collection.enrich();
     collection.traverse();
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    //collection.map_turns(mapper);
-    collection.template map_pieces<geometry::polygon_tag>(mapper); //, false, true);
-    //collection.map_traverse(mapper);
-#endif
 
     if (distance_strategy.negative()
         && boost::is_same
@@ -567,8 +549,37 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     }
 
     collection.template assign<GeometryOutput>(out);
+
+    {
+        // Visit the piece collection. This does nothing (by default), but
+        // optionally a debugging tool can be attached (e.g. console or svg),
+        // or the piece collection can be unit-tested
+        collection_type const& const_collection = collection;
+        visit_pieces_policy.apply(const_collection);
+    }
 }
 
+template
+<
+    typename GeometryOutput,
+    typename GeometryInput,
+    typename OutputIterator,
+    typename DistanceStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
+    typename RobustPolicy
+>
+inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
+        DistanceStrategy const& distance_strategy,
+        JoinStrategy const& join_strategy,
+        EndStrategy const& end_strategy,
+        RobustPolicy const& robust_policy)
+{
+    detail::buffer::visit_pieces_default_policy visitor;
+    buffer_inserter<GeometryOutput>(geometry_input, out,
+        distance_strategy, join_strategy, end_strategy,
+        robust_policy, visitor);
+}
 
 }} // namespace boost::geometry
 

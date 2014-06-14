@@ -820,7 +820,7 @@ struct buffered_piece_collection
     }
 
     template <typename GeometryOutput, typename OutputIterator>
-    inline OutputIterator assign(OutputIterator out)
+    inline OutputIterator assign(OutputIterator out) const
     {
         typedef detail::overlay::ring_properties<point_type> properties;
 
