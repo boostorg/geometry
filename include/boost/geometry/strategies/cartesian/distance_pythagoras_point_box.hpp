@@ -24,6 +24,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/calculation_type.hpp>
 
 
@@ -173,9 +174,8 @@ public :
     static inline typename calculation_type<Point, Box>::type
     apply(Point const& point, Box const& box)
     {
-        // Don't add std:: for ttmath
         // The cast is necessary for MSVC which considers sqrt __int64 as an ambiguous call
-        return sqrt
+        return math::sqrt
             (
                  boost::numeric_cast<typename calculation_type
                      <

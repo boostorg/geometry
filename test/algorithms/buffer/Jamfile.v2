@@ -6,13 +6,13 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-project bgeab
+project boost-geometry-algorithms-buffer
     :
     requirements
         <include>.
     ;
 
-test-suite boost-geometry-extensions-algorithms-buffer
+test-suite boost-geometry-algorithms-buffer
     :
     [ run point_buffer.cpp ]
     [ run linestring_buffer.cpp ]

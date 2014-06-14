@@ -242,7 +242,7 @@ namespace detail
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_Cartesian_coordinates
-        T const r = sqrt(x * x + y * y + z * z);
+        T const r = math::sqrt(x * x + y * y + z * z);
         set<2>(p, r);
         set_from_radian<0>(p, atan2(y, x));
         if (r > 0.0)
@@ -259,7 +259,7 @@ namespace detail
         assert_dimension<P, 3>();
 
         // http://en.wikipedia.org/wiki/List_of_canonical_coordinate_transformations#From_Cartesian_coordinates
-        T const r = sqrt(x * x + y * y + z * z);
+        T const r = math::sqrt(x * x + y * y + z * z);
         set<2>(p, r);
         set_from_radian<0>(p, atan2(y, x));
         if (r > 0.0)

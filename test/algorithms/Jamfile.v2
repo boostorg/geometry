@@ -21,15 +21,15 @@ test-suite boost-geometry-algorithms
     [ run buffer.cpp ]
     [ run centroid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run comparable_distance.cpp ]
-    [ run convex_hull.cpp ]
+    [ run convex_hull.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run correct.cpp ]
     [ run convert.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run covered_by.cpp ]
-    [ run crosses.cpp ]
+    [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run difference.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
     [ run difference_linear_linear.cpp ]
     [ run difference_pl_pl.cpp ]
-    [ run disjoint.cpp ]
+    [ run disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run disjoint_coverage.cpp ]
     [ run distance.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run distance_areal_areal.cpp ]
@@ -38,8 +38,8 @@ test-suite boost-geometry-algorithms
     [ run distance_pointlike_areal.cpp ]
     [ run distance_pointlike_linear.cpp ]
     [ run distance_pointlike_pointlike.cpp ]
-    [ run envelope.cpp ]
-    [ run equals.cpp ]
+    [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run expand.cpp ]
     [ run for_each.cpp ]
     [ run intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
@@ -51,7 +51,7 @@ test-suite boost-geometry-algorithms
     [ run length.cpp ]
     [ run make.cpp ]
     [ run num_points.cpp ]
-    [ run overlaps.cpp ]
+    [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run perimeter.cpp ]
     [ run point_on_surface.cpp ]
     [ run relate_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
@@ -62,7 +62,7 @@ test-suite boost-geometry-algorithms
     [ run reverse.cpp ]
     [ run simplify.cpp ]
     [ run sym_difference_linear_linear.cpp ]
-    [ run touches.cpp ]
+    [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run transform.cpp ]
     [ run union.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
     [ run union_linear_linear.cpp ]
@@ -76,6 +76,9 @@ test-suite boost-geometry-algorithms
     ;
 
 build-project overlay 
+    ;
+
+build-project buffer
     ;
     
 build-project detail 

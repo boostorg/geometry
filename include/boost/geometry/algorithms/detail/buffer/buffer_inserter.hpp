@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_INSERTER_HPP
 
 #include <cstddef>
+#include <iterator>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -18,14 +19,11 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/line_line_intersection.hpp>
+#include <boost/geometry/util/math.hpp>
 
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-#  include <boost/geometry/extensions/algorithms/buffer/buffered_piece_collection_with_mapper.hpp>
-#endif
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
+#include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -54,7 +52,7 @@ struct buffer_range
             typename DistanceStrategy
         >
     static inline void generate_side(Point const& ip1, Point const& ip2,
-                buffer_side_selector side,
+                strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
                 output_point_type& p1, output_point_type& p2)
     {
@@ -66,7 +64,7 @@ struct buffer_range
 
         // For normalization [0,1] (=dot product d.d, sqrt)
         // TODO promoted_type
-        coordinate_type const length = sqrt(dx * dx + dy * dy);
+        coordinate_type const length = geometry::math::sqrt(dx * dx + dy * dy);
 
         // Because coordinates are not equal, length should not be zero
         BOOST_ASSERT((! geometry::math::equals(length, 0)));
@@ -93,7 +91,7 @@ struct buffer_range
     >
     static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
-                buffer_side_selector side,
+                strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
@@ -107,7 +105,11 @@ struct buffer_range
         Iterator it = begin;
 
         // We want to memorize the last segment too.
-        typedef BOOST_TYPEOF(*it) point_type;
+        typedef typename std::iterator_traits
+        <
+            Iterator
+        >::value_type point_type;
+
         point_type penultimate_point, ultimate_point; // last two points from begin/end
 
 
@@ -142,10 +144,10 @@ struct buffer_range
                 }
                 if (! range_out.empty())
                 {
-                    collection.add_piece(buffered_join, *prev, range_out);
+                    collection.add_piece(strategy::buffer::buffered_join, *prev, range_out);
                     range_out.clear();
                 }
-                collection.add_piece(buffered_segment, *prev, *it, p1, p2);
+                collection.add_piece(strategy::buffer::buffered_segment, *prev, *it, p1, p2);
 
                 previous_p1 = p1;
                 previous_p2 = p2;
@@ -170,7 +172,7 @@ struct buffer_range
                     range_out);
                 if (! range_out.empty())
                 {
-                    collection.add_piece(buffered_join, *begin, range_out);
+                    collection.add_piece(strategy::buffer::buffered_join, *begin, range_out);
                 }
             }
 
@@ -184,9 +186,9 @@ struct buffer_range
             // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
             output_point_type rp1, rp2;
             generate_side(ultimate_point, penultimate_point,
-                    side == buffer_side_left
-                    ? buffer_side_right
-                    : buffer_side_left,
+                    side == strategy::buffer::buffer_side_left
+                    ? strategy::buffer::buffer_side_right
+                    : strategy::buffer::buffer_side_left,
                     distance, rp2, rp1);
 
             std::vector<output_point_type> range_out;
@@ -262,21 +264,52 @@ struct buffer_point
     static inline void generate_circle(Point const& point,
                 Collection& collection,
                 DistanceStrategy const& distance,
-                JoinStrategy const& join_strategy,
-                EndStrategy const& end_strategy)
+                JoinStrategy const& ,
+                EndStrategy const& )
     {
         std::vector<output_point_type> range_out;
-        //RingOutput range_out;
 
         generate_points(point,
-            distance.apply(point, point, buffer_side_left),
+            distance.apply(point, point, strategy::buffer::buffer_side_left),
             range_out);
 
-        collection.add_piece(buffered_circle, range_out, false);
-
-        //std::cout << std::setprecision(20);
-        //std::cout << geometry::wkt(range_out) << std::endl;
+        collection.add_piece(strategy::buffer::buffered_circle, range_out, false);
     }
+};
+
+template
+<
+    typename Multi,
+    typename PolygonOutput,
+    typename Policy
+>
+struct buffer_multi
+{
+    template
+    <
+        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
+    >
+    static inline void apply(Multi const& multi,
+            Collection& collection,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
+    {
+        for (typename boost::range_iterator<Multi const>::type
+                it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it)
+        {
+            Policy::apply(*it, collection, distance, join_strategy, end_strategy);
+        }
+    }
+};
+
+struct visit_pieces_default_policy
+{
+    template <typename Collection>
+    static inline void apply(Collection const&)
+    {}
 };
 
 }} // namespace detail::buffer
@@ -355,13 +388,13 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
                 // It might be that this will be changed later.
                 // TODO: decide this.
                 base::iterate(collection, boost::rbegin(ring), boost::rend(ring),
-                        buffer_side_right,
+                        strategy::buffer::buffer_side_right,
                         distance, join_strategy, end_strategy);
             }
             else
             {
                 base::iterate(collection, boost::begin(ring), boost::end(ring),
-                        buffer_side_left,
+                        strategy::buffer::buffer_side_left,
                         distance, join_strategy, end_strategy);
             }
         }
@@ -397,11 +430,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         {
             collection.start_new_ring();
             base::iterate(collection, boost::begin(linestring), boost::end(linestring),
-                    buffer_side_left,
+                    strategy::buffer::buffer_side_left,
                     distance, join_strategy, end_strategy);
 
             base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
-                    buffer_side_right,
+                    strategy::buffer::buffer_side_right,
                     distance, join_strategy, end_strategy, true);
         }
 
@@ -490,9 +523,31 @@ public:
 };
 
 
+template
+<
+    typename Multi,
+    typename PolygonOutput
+>
+struct buffer_inserter<multi_tag, Multi, PolygonOutput>
+    : public detail::buffer::buffer_multi
+             <
+                Multi,
+                PolygonOutput,
+                dispatch::buffer_inserter
+                <
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi>::type
+                                >::type,
+                    typename boost::range_value<Multi const>::type,
+                    typename geometry::ring_type<PolygonOutput>::type
+                >
+            >
+{};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
 
 template
 <
@@ -502,59 +557,41 @@ template
     typename DistanceStrategy,
     typename JoinStrategy,
     typename EndStrategy,
-    typename RobustPolicy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    , typename Mapper
-#endif
+    typename RobustPolicy,
+    typename VisitPiecesPolicy
 >
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
         DistanceStrategy const& distance_strategy,
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
-        RobustPolicy const& robust_policy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-            , Mapper& mapper
-#endif
+        RobustPolicy const& robust_policy,
+        VisitPiecesPolicy& visit_pieces_policy
     )
 {
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    detail::buffer::buffered_piece_collection_with_mapper
-#else
-    detail::buffer::buffered_piece_collection
-#endif
-        <
-            typename geometry::ring_type<GeometryOutput>::type,
-            RobustPolicy
-        > collection(robust_policy);
+    typedef detail::buffer::buffered_piece_collection
+    <
+        typename geometry::ring_type<GeometryOutput>::type,
+        RobustPolicy
+    > collection_type;
+    collection_type collection(robust_policy);
 
     dispatch::buffer_inserter
         <
-            typename tag<GeometryInput>::type,
+            typename tag_cast
+                <
+                    typename tag<GeometryInput>::type,
+                    multi_tag
+                >::type,
             GeometryInput,
             GeometryOutput
         >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
 
-    //std::cout << "BEGIN GET TURNS" << std::endl;
     collection.get_turns(geometry_input, distance_strategy);
-    //std::cout << "END GET TURNS" << std::endl;
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    //collection.map_offsetted(mapper);
-    //collection.map_offsetted_points(mapper);
-    collection.map_turns(mapper);
-    //collection.map_opposite_locations(mapper);
-#endif
 
     collection.discard_rings();
     collection.discard_turns();
     collection.enrich();
     collection.traverse();
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    //collection.map_turns(mapper);
-    collection.template map_pieces<geometry::polygon_tag>(mapper); //, false, true);
-    //collection.map_traverse(mapper);
-#endif
 
     if (distance_strategy.negative()
         && boost::is_same
@@ -567,8 +604,37 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     }
 
     collection.template assign<GeometryOutput>(out);
+
+    {
+        // Visit the piece collection. This does nothing (by default), but
+        // optionally a debugging tool can be attached (e.g. console or svg),
+        // or the piece collection can be unit-tested
+        collection_type const& const_collection = collection;
+        visit_pieces_policy.apply(const_collection);
+    }
 }
 
+template
+<
+    typename GeometryOutput,
+    typename GeometryInput,
+    typename OutputIterator,
+    typename DistanceStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
+    typename RobustPolicy
+>
+inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
+        DistanceStrategy const& distance_strategy,
+        JoinStrategy const& join_strategy,
+        EndStrategy const& end_strategy,
+        RobustPolicy const& robust_policy)
+{
+    detail::buffer::visit_pieces_default_policy visitor;
+    buffer_inserter<GeometryOutput>(geometry_input, out,
+        distance_strategy, join_strategy, end_strategy,
+        robust_policy, visitor);
+}
 
 }} // namespace boost::geometry
 

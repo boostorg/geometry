@@ -19,21 +19,10 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/touches.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
-
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-
-#include <boost/geometry/multi/io/wkt/read.hpp>
-
 #include <boost/variant/variant.hpp>
 
 template <typename Geometry1, typename Geometry2>

@@ -1,25 +1,21 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
-
-
-// Buffer strategies
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-
 
 
 namespace boost { namespace geometry
@@ -35,8 +31,13 @@ template
     typename PointIn,
     typename PointOut
 >
-struct join_round_by_divide
+class join_round_by_divide
 {
+private :
+    geometry::equal_to<PointIn> equals;
+
+public :
+
     inline join_round_by_divide(int max_level = 4)
         : m_max_level(max_level)
     {}
@@ -76,7 +77,7 @@ struct join_round_by_divide
         coordinate_type v_x = (vp1_x + vp2_x) / two;
         coordinate_type v_y = (vp1_y + vp2_y) / two;
 
-        coordinate_type length2 = sqrt(v_x * v_x + v_y * v_y);
+        coordinate_type length2 = geometry::math::sqrt(v_x * v_x + v_y * v_y);
 
         coordinate_type prop = buffer_distance / length2;
 
@@ -101,9 +102,11 @@ struct join_round_by_divide
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-        if (geometry::equals(perp1, perp2))
+        if (equals(perp1, perp2))
         {
-            //std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+            std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#endif
             return;
         }
 
@@ -121,7 +124,8 @@ struct join_round_by_divide
             coordinate_type vix = (get<0>(ip) - get<0>(vertex));
             coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-            coordinate_type length_i = sqrt(vix * vix + viy * viy);
+            coordinate_type length_i =
+                geometry::math::sqrt(vix * vix + viy * viy);
 
             coordinate_type const bd = geometry::math::abs(buffer_distance);
             coordinate_type prop = bd / length_i;
@@ -154,4 +158,4 @@ struct join_round_by_divide
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP

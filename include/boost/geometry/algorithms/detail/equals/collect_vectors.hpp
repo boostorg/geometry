@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -136,7 +136,7 @@ struct range_collect_vectors
 
             // Normalize the vector -> this results in points+direction
             // and is comparible between geometries
-            calculation_type magnitude = sqrt(
+            calculation_type magnitude = math::sqrt(
                 boost::numeric_cast<calculation_type>(v.dx * v.dx + v.dy * v.dy));
 
             // Avoid non-duplicate points (AND division by zero)

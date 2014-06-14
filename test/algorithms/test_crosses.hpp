@@ -21,8 +21,8 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/crosses.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/variant/variant.hpp>

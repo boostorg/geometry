@@ -1,32 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-
-#include <geometry_test_common.hpp>
-
-#include <boost/geometry/algorithms/buffer.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-
-#include <boost/geometry/strategies/strategies.hpp>
-
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
-
 #include <test_buffer.hpp>
 
-#include <boost/geometry/multi/multi.hpp> // TODO: more specific
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/multi_buffer_inserter.hpp>
-
 
 static std::string const simplex = "MULTIPOINT((5 5),(7 7))";
 static std::string const three = "MULTIPOINT((5 8),(9 8),(7 11))";

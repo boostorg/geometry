@@ -1,29 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_HPP
-
-
-// Buffer strategies
-
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-#include <boost/geometry/extensions/strategies/buffer_join_miter.hpp>
-#include <boost/geometry/extensions/strategies/buffer_join_round.hpp>
-#include <boost/geometry/extensions/strategies/buffer_join_round_by_divide.hpp>
-#include <boost/geometry/extensions/strategies/buffer_distance_symmetric.hpp>
-#include <boost/geometry/extensions/strategies/buffer_distance_asymmetric.hpp>
-
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_HPP
 
 namespace boost { namespace geometry
 {
@@ -60,10 +44,30 @@ namespace strategy { namespace buffer
 
 
 
+/*!
+\brief Enumerates options for side of buffer (left/right w.r.t. directed
+    segment)
+\ingroup enum
+\details Around a linestring, a buffer can be defined left or right.
+    Around a polygon, assumed clockwise internally,
+    a buffer is either on the left side (inflates the polygon), or on the
+    right side (deflates the polygon)
+*/
+enum buffer_side_selector { buffer_side_left, buffer_side_right };
+
+/*!
+\brief Enumerates types of pieces (parts of buffer) around geometries
+\ingroup enum
+*/
+enum piece_type
+{
+    buffered_segment, buffered_join, buffered_round_end, buffered_flat_end, buffered_circle
+};
+
 
 }} // namespace strategy::buffer
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_HPP

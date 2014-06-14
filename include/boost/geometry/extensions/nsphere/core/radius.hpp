@@ -147,8 +147,6 @@ inline typename radius_type<G>::type get_radius(G const& geometry)
 template <std::size_t I, typename G>
 inline void set_radius(G& geometry, typename radius_type<G>::type const& radius)
 {
-    typedef typename boost::remove_const<G>::type rconst;
-
     core_dispatch::radius_access<typename tag<G>::type, G,
         typename radius_type<G>::type, I>::set(geometry, radius);
 }

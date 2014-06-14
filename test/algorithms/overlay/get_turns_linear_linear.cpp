@@ -22,8 +22,6 @@
 
 //TEST
 //#include <to_svg.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
 
 template <typename T>
 void test_all()

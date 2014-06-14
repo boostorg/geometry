@@ -1,16 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_ROUND_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_ROUND_HPP
-
-
-// Buffer strategies
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
@@ -18,7 +15,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 
 
 
@@ -78,7 +75,6 @@ class end_round
         }
     }
 
-    // COPIED FROM OCCUPATION_INFO
     template <typename T, typename P1, typename P2>
     static inline T calculate_angle(P1 const& from_point, P2 const& to_point)
     {
@@ -97,7 +93,7 @@ public :
     inline void apply(PointIn const& penultimate_point,
                 PointIn const& perp_left_point,
                 PointIn const& ultimate_point,
-                PointIn const& perp_right_point,
+                PointIn const& ,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
@@ -138,4 +134,4 @@ public :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_END_ROUND_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP

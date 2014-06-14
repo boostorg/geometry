@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -65,7 +65,7 @@ struct line_line_intersection
         set<0>(p, px);
         set<1>(p, py);
 
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
         if (geometry::math::abs(denominator) < 1.0e-7)
         {
             std::cout << "small " << denominator << std::endl;

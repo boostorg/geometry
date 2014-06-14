@@ -21,12 +21,13 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 
-#include <boost/geometry/extensions/algorithms/buffer/buffered_ring.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffer_policies.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/get_piece_turns.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/turn_in_piece_visitor.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
+#include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
+#include <boost/geometry/algorithms/detail/buffer/turn_in_input.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -40,11 +41,6 @@
 #include <boost/geometry/algorithms/detail/partition.hpp>
 
 #include <boost/geometry/util/range.hpp>
-
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_OCCUPATION
-#  include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#  include <boost/geometry/io/wkt/wkt.hpp>
-#endif
 
 
 namespace boost { namespace geometry
@@ -61,48 +57,6 @@ enum segment_relation_code
     segment_relation_on_right,
     segment_relation_within,
     segment_relation_disjoint
-};
-
-
-// Checks if an intersection point is inside a geometry
-// In some cases a trivial check might be done, e.g. using symmetric distance:
-// the point must be further than the distance from the geometry
-
-// NOTE: for negative buffers inside polygons, this check must be skipped TODO
-template <typename Tag>
-struct check_original
-{
-};
-
-template <>
-struct check_original<polygon_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry,
-                            DistanceStrategy const& )
-    {
-        return geometry::covered_by(point, geometry) ? 1 : -1;
-    }
-};
-
-template <>
-struct check_original<linestring_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
-    {
-        return 0;
-    }
-};
-
-template <>
-struct check_original<point_tag>
-{
-    template <typename Point, typename Geometry, typename DistanceStrategy>
-    static inline int apply(Point const& point, Geometry const& geometry, DistanceStrategy const& distance_strategy)
-    {
-        return 0;
-    }
 };
 
 
@@ -161,7 +115,7 @@ struct buffered_piece_collection
 
     struct piece
     {
-        piece_type type;
+        strategy::buffer::piece_type type;
         int index;
 
         // The next two members form together a complete clockwise ring
@@ -415,10 +369,10 @@ struct buffered_piece_collection
         {
             if (it->location == location_ok)
             {
-                int code = check_original
+                int code = turn_in_input
                         <
                             typename geometry::tag<Geometry>::type
-                        >::apply(it->point, input_geometry, distance_strategy);
+                        >::apply(it->point, input_geometry);
                 if (code * factor == 1)
                 {
                     it->location = inside_original;
@@ -636,7 +590,7 @@ struct buffered_piece_collection
 
     //-------------------------------------------------------------------------
 
-    inline piece& add_piece(piece_type type, bool decrease_segment_index_by_one)
+    inline piece& add_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
     {
         piece pc;
         pc.type = type;
@@ -650,15 +604,15 @@ struct buffered_piece_collection
         return m_pieces.back();
     }
 
-    inline void add_piece(piece_type type, point_type const& p1, point_type const& p2,
+    inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
             point_type const& b1, point_type const& b2)
     {
         // If the last type was a join, the segment_id of next segment should be decreased by one.
         bool const last_type_join = ! m_pieces.empty()
                 && m_pieces.back().first_seg_id.multi_index == current_segment_id.multi_index
                 && (
-                        m_pieces.back().type == buffered_join
-                        || m_pieces.back().type == buffered_round_end
+                        m_pieces.back().type == strategy::buffer::buffered_join
+                        || m_pieces.back().type == strategy::buffer::buffered_round_end
                     );
 
         piece& pc = add_piece(type, last_type_join);
@@ -679,7 +633,7 @@ struct buffered_piece_collection
     }
 
     template <typename Range>
-    inline piece& add_piece(piece_type type, Range const& range, bool decrease_segment_index_by_one)
+    inline piece& add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
         piece& pc = add_piece(type, decrease_segment_index_by_one);
 
@@ -709,7 +663,7 @@ struct buffered_piece_collection
     }
 
     template <typename Range>
-    inline void add_piece(piece_type type, point_type const& p, Range const& range)
+    inline void add_piece(strategy::buffer::piece_type type, point_type const& p, Range const& range)
     {
         piece& pc = add_piece(type, range, true);
 
@@ -724,8 +678,8 @@ struct buffered_piece_collection
     template <typename EndcapStrategy, typename Range>
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
     {
-        piece_type pt = strategy.get_piece_type();
-        if (pt == buffered_flat_end)
+        strategy::buffer::piece_type pt = strategy.get_piece_type();
+        if (pt == strategy::buffer::buffered_flat_end)
         {
             // It is flat, should just be added, without helper segments
             add_piece(pt, range, true);
@@ -820,7 +774,7 @@ struct buffered_piece_collection
     }
 
     template <typename GeometryOutput, typename OutputIterator>
-    inline OutputIterator assign(OutputIterator out)
+    inline OutputIterator assign(OutputIterator out) const
     {
         typedef detail::overlay::ring_properties<point_type> properties;
 

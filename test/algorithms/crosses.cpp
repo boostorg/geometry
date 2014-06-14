@@ -13,12 +13,6 @@
 
 #include <algorithms/test_crosses.hpp>
 
-
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/multi/geometries/multi_geometries.hpp>
-
 template <typename P>
 void test_pl()
 {

@@ -1,25 +1,21 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_HPP
-
-
-// Buffer strategies
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/extensions/strategies/buffer_side.hpp>
-
 
 
 namespace boost { namespace geometry
@@ -35,8 +31,13 @@ template
     typename PointIn,
     typename PointOut
 >
-struct join_round
+class join_round
 {
+private :
+    geometry::equal_to<PointIn> equals;
+
+public :
+
     inline join_round(int steps_per_circle = 100)
         : m_steps_per_circle(steps_per_circle)
     {}
@@ -81,10 +82,12 @@ struct join_round
 
         if (n > 1000)
         {
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             // TODO change this / verify this
             std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
             std::cout << angle_diff << " -> " << n << std::endl;
             n = 1000;
+#endif
         }
         else if (n <= 1)
         {
@@ -110,9 +113,11 @@ struct join_round
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-        if (geometry::equals(perp1, perp2))
+        if (equals(perp1, perp2))
         {
-            //std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+            std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#endif
             return;
         }
 
@@ -130,7 +135,8 @@ struct join_round
             coordinate_type vix = (get<0>(ip) - get<0>(vertex));
             coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-            coordinate_type length_i = sqrt(vix * vix + viy * viy);
+            coordinate_type length_i =
+                geometry::math::sqrt(vix * vix + viy * viy);
 
             coordinate_type const bd = geometry::math::abs(buffer_distance);
             coordinate_type prop = bd / length_i;
@@ -154,4 +160,4 @@ struct join_round
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_BUFFER_JOIN_ROUND_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP

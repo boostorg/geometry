@@ -13,11 +13,8 @@
 
 #include <algorithms/test_relate.hpp>
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-
 //TEST
-#include <to_svg.hpp>
+//#include <to_svg.hpp>
 
 template <typename P>
 void test_linestring_linestring()

@@ -17,25 +17,16 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
-
-#include <boost/geometry/multi/algorithms/covered_by.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
-
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
 
 namespace bgdr = bg::detail::relate;
 
