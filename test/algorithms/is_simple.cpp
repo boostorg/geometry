@@ -8,45 +8,51 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#include <iostream>
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_is_simple
 #endif
 
-#include <boost/test/included/unit_test.hpp>
+#include <iostream>
+#include <string>
 
+#include <boost/test/included/unit_test.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
+
+#ifdef GEOMETRY_TEST_DEBUG
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
-#include <boost/geometry/multi/io/wkt/write.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
+#endif
 
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/is_simple.hpp>
 
 namespace bg = ::boost::geometry;
 
-typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
-typedef bg::model::segment<point_type>                segment_type;
-typedef bg::model::linestring<point_type>             linestring_type;
-typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
+typedef bg::model::point<double, 2, bg::cs::cartesian>  point_type;
+typedef bg::model::segment<point_type>                  segment_type;
+typedef bg::model::linestring<point_type>               linestring_type;
+typedef bg::model::multi_linestring<linestring_type>    multi_linestring_type;
 // ccw open and closed polygons
-typedef bg::model::polygon<point_type,false,false>    open_polygon_type;
-typedef bg::model::polygon<point_type,false,true>     closed_polygon_type;
-
+typedef bg::model::polygon<point_type,false,false>      open_ccw_polygon_type;
+typedef bg::model::polygon<point_type,false,true>       closed_ccw_polygon_type;
 // multi-geometries
-typedef bg::model::multi_point<point_type>            multi_point_type;
-typedef bg::model::multi_polygon<open_polygon_type>   multi_polygon_type;
-
+typedef bg::model::multi_point<point_type>              multi_point_type;
+typedef bg::model::multi_polygon<open_ccw_polygon_type> multi_polygon_type;
+// box
+typedef bg::model::box<point_type>                      box_type;
 
 template <typename Geometry>
 Geometry from_wkt(std::string const& wkt)
@@ -56,6 +62,55 @@ Geometry from_wkt(std::string const& wkt)
     return g;
 }
 
+
+//----------------------------------------------------------------------------
+
+
+#ifdef GEOMETRY_TEST_DEBUG
+template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
+struct pretty_print_geometry
+{
+    static inline std::ostream&
+    apply(std::ostream& os, Geometry const& geometry)
+    {
+        os << bg::wkt(geometry);
+        return os;
+    }
+};
+
+template <typename Box>
+struct pretty_print_geometry<Box, bg::box_tag>
+{
+    static inline std::ostream&
+    apply(std::ostream& os, Box const& box)
+    {
+        return os << "BOX" << bg::dsv(box);
+    }
+};
+
+template <typename Segment>
+struct pretty_print_geometry<Segment, bg::segment_tag>
+{
+    static inline std::ostream&
+    apply(std::ostream& os, Segment const& segment)
+    {
+        return os << "SEGMENT" << bg::dsv(segment);
+    }
+};
+
+template <typename Ring>
+struct pretty_print_geometry<Ring, bg::ring_tag>
+{
+    static inline std::ostream&
+    apply(std::ostream& os, Ring const& ring)
+    {
+        return os << "RING" << bg::dsv(ring);
+    }
+};
+#endif
+
+
+//----------------------------------------------------------------------------
 
 
 template <typename Geometry>
@@ -69,7 +124,9 @@ void test_simple(Geometry const& g, bool simple_geometry)
     BOOST_CHECK(simple == simple_geometry);
 
 #ifdef GEOMETRY_TEST_DEBUG
-    std::cout << "Geometry: " << bg::wkt(g) << std::endl;
+    std::cout << "Geometry: ";
+    pretty_print_geometry<Geometry>::apply(std::cout, g);
+    std::cout << std::endl;
     std::cout << std::boolalpha;
     std::cout << "is valid : " << bg::is_valid(g) << std::endl;
     std::cout << "is simple: " << simple << std::endl;
@@ -80,9 +137,9 @@ void test_simple(Geometry const& g, bool simple_geometry)
 #endif
 }
 
-//===========================================================================
-//===========================================================================
-//===========================================================================
+
+//----------------------------------------------------------------------------
+
 
 BOOST_AUTO_TEST_CASE( test_is_simple_point )
 {
@@ -96,6 +153,22 @@ BOOST_AUTO_TEST_CASE( test_is_simple_point )
     typedef point_type G;
 
     test_simple(from_wkt<G>("POINT(0 0)"), true);
+}
+
+BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_simple: MULTIPOINT " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+    typedef multi_point_type G;
+
+    test_simple(from_wkt<G>("MULTIPOINT()"), false);
+    test_simple(from_wkt<G>("MULTIPOINT(0 0)"), true);
+    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
+    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_segment )
@@ -154,22 +227,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
     test_simple(from_wkt<G>("LINESTRING(0 0,3 0,5 0,4 0,2 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(0 0,3 0,2 0,5 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(0 0,2 0,2 2,1 0,0 0)"), false);
-}
-
-BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
-{
-#ifdef GEOMETRY_TEST_DEBUG
-    std::cout << std::endl << std::endl;
-    std::cout << "************************************" << std::endl;
-    std::cout << " is_simple: MULTIPOINT " << std::endl;
-    std::cout << "************************************" << std::endl;
-#endif
-    typedef multi_point_type G;
-
-    test_simple(from_wkt<G>("MULTIPOINT()"), false);
-    test_simple(from_wkt<G>("MULTIPOINT(0 0)"), true);
-    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
-    test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
@@ -242,66 +299,19 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 false);
 }
 
-
-#if 0
-BOOST_AUTO_TEST_CASE( test_is_simple_rest )
+BOOST_AUTO_TEST_CASE( test_is_simple_areal )
 {
-    typedef open_polygon_type op;
-    typedef closed_polygon_type cp;
+    // for areal geometries validity and simplicity are identical
+    // notions
+
+    // here just check that the code compiles
+
+    typedef box_type b;
+    typedef open_ccw_polygon_type o_ccw_p;
     typedef multi_polygon_type mpl;
 
-    test_simple(from_wkt<op>("POLYGON(())"), true);
-    test_simple(from_wkt<op>("POLYGON((),())"), true);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,1 1),())"), true);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,1 0,1 1),())"), true);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,2 0,0.5 0,0.5 1))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,2 0,0.5 0,0.5 0))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,1 1,1 0.5))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,1 1))"), true);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,2 1,2 2,1 3))"), true);
-    test_simple(from_wkt<op>("POLYGON((0 0,2 0,4 1,1 0))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,3 1,-1 2,3 3,3 4,0 4))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,1 0,3 1,0 2,3 3,3 4,0 4))"), false);
-    test_simple(from_wkt<op>("POLYGON((0 0,10 0,10 10,0 10),\
-                             (1 1,1 2,2 2,2 1))"), false);
-
-    test_simple(from_wkt<cp>("POLYGON(())"), true);
-    test_simple(from_wkt<cp>("POLYGON((),())"), true);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,1 1,0 0),())"), true);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,1 0,1 1,0 0),())"), true);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,0 0))"), false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,2 0,0.5 0,0.5 1,0 0))"), false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,2 0,0.5 0,0.5 0,0 0))"), false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,1 1,1 0.5,0 0))"), false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,1 1,0 0))"), true);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,2 1,2 2,1 3,0 0))"), true);
-    test_simple(from_wkt<cp>("POLYGON((0 0,2 0,4 1,1 0,0 0))"), false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,3 1,-1 2,3 3,3 4,0 4,0 0))"),
-                false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,1 0,3 1,0 2,3 3,3 4,0 4,0 0))"),
-                false);
-    test_simple(from_wkt<cp>("POLYGON((0 0,10 0,10 10,0 10,0 0),\
-                              (1 1,1 2,2 2,2 1,1 1))"), false);
-
-
-    test_simple(from_wkt<mpl>("MULTIPOLYGON()"), true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON( ((),()) )"), true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON( (()),(()) )"), true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON( ((),()),(()) )"), true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON( ((0 0),()),(()) )"), true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON( ((0 0),()),((1 1)) )"), true);
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    //    test_simple(from_wkt<mpl>("MULTIPOLYGON( ((0 0),()),((0 0)) )"), false);
-#endif
-
-    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,2 1,2 2,1 3)),\
-                              ((10 0,11 0,11 1)))"), true);
-
-    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 0,2 1,2 2,1 3)),\
-                              ((10 0,11 0,11 1,11 1)))"), true);
-
-    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,3 1,0 2,3 3,3 4,0 4)),\
-                              ((10 0,11 0,11 1)))"), false);
+    test_simple(from_wkt<b>("BOX(0 0,1 1)"), true);
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,1 0,1 1))"), true);
+    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1)),\
+                              ((10 0,20 0,20 10,10 10)))"), true);
 }
-#endif
