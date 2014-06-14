@@ -14,6 +14,7 @@
 #include <cmath>
 #include <boost/geometry/strategies/distance_comparable_to_regular.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -58,7 +59,7 @@ struct comparable_to_regular
 
     static inline calculation_type apply(comparable_calculation_type const& cd)
     {
-        return sqrt( boost::numeric_cast<calculation_type>(cd) );
+        return math::sqrt( boost::numeric_cast<calculation_type>(cd) );
     }
 };
 

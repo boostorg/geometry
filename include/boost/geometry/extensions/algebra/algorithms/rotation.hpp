@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_ROTATION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_ROTATION_HPP
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/algebra/algorithms/detail.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
@@ -55,7 +57,8 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
 
         // angle
         cv_type d = da::dot<0, 0, 3>(v1, v2);
-        cv_type l = ::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2));
+        cv_type l =
+            math::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2));
         cv_type c = d / l;
 
         // rotation angle == 0
@@ -85,7 +88,7 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
         }
 
         // sin
-        cv_type s = ::sqrt(1 - c * c);
+        cv_type s = math::sqrt(1 - c * c);
         cv_type t = 1 - c;
         // normalize axis
         da::normalize<0, 3>(axis);
@@ -128,7 +131,8 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
 
         // angle
         cv_type d = da::dot<0, 0, 2>(v1, v2);
-        cv_type l = ::sqrt(da::dot<0, 0, 2>(v1, v1) * da::dot<0, 0, 2>(v2, v2));
+        cv_type l =
+            math::sqrt(da::dot<0, 0, 2>(v1, v1) * da::dot<0, 0, 2>(v2, v2));
         cv_type c = d / l;
 
         // TODO return also if l == 0;
@@ -200,7 +204,7 @@ struct rotation<V1, V2, Rotation, vector_tag, vector_tag, rotation_quaternion_ta
         // TODO - should store coordinates in more precise variables before the normalization?
 
         cv_type d = da::dot<0, 0, 3>(v1, v2); // l1 * l2 * cos
-        cv_type l = ::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2)); // l1 * l2
+        cv_type l = math::sqrt(da::dot<0, 0, 3>(v1, v1) * da::dot<0, 0, 3>(v2, v2)); // l1 * l2
         cv_type w = l + d; // l1 * l2 * ( 1 + cos )
 
         // rotation angle == 0
