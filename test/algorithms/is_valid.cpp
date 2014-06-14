@@ -26,6 +26,9 @@
 #include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
+
 #include <boost/geometry/io/wkt/read.hpp>
 
 #ifdef GEOMETRY_TEST_DEBUG
