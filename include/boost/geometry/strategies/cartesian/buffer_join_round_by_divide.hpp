@@ -77,7 +77,7 @@ public :
         coordinate_type v_x = (vp1_x + vp2_x) / two;
         coordinate_type v_y = (vp1_y + vp2_y) / two;
 
-        coordinate_type length2 = sqrt(v_x * v_x + v_y * v_y);
+        coordinate_type length2 = geometry::math::sqrt(v_x * v_x + v_y * v_y);
 
         coordinate_type prop = buffer_distance / length2;
 
@@ -104,7 +104,9 @@ public :
     {
         if (equals(perp1, perp2))
         {
-            //std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+            std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#endif
             return;
         }
 
@@ -122,7 +124,8 @@ public :
             coordinate_type vix = (get<0>(ip) - get<0>(vertex));
             coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-            coordinate_type length_i = sqrt(vix * vix + viy * viy);
+            coordinate_type length_i =
+                geometry::math::sqrt(vix * vix + viy * viy);
 
             coordinate_type const bd = geometry::math::abs(buffer_distance);
             coordinate_type prop = bd / length_i;

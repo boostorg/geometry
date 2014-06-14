@@ -7,18 +7,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-//#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
-//#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
-
-#include <geometry_test_common.hpp>
-
 #include <test_buffer.hpp>
 
-#include <boost/geometry/multi/multi.hpp> // TODO: more specific
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/algorithms/detail/buffer/multi_buffer_inserter.hpp>
-
 
 static std::string const simplex = "MULTILINESTRING((0 0,4 5),(5 4,10 0))";
 static std::string const two_bends = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6))";

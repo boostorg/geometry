@@ -10,7 +10,6 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-//#define BOOST_GEOMETRY_DEBUG_WITH_MAPPER
 
 #include <fstream>
 #include <iomanip>
@@ -44,12 +43,10 @@
 
 
 #if defined(TEST_WITH_SVG)
-#  include <boost/geometry/io/svg/svg_mapper.hpp>
-#endif
 
-
-#if defined(TEST_WITH_SVG)
+#include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+
 template <typename Geometry, typename Mapper, typename RescalePolicy>
 void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
 {
@@ -73,6 +70,191 @@ void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& res
         mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
     }
 }
+
+template <typename SvgMapper, typename Tag>
+struct svg_visitor
+{
+    class si
+    {
+    private :
+        bg::segment_identifier m_id;
+
+    public :
+        inline si(bg::segment_identifier const& id)
+            : m_id(id)
+        {}
+
+        template <typename Char, typename Traits>
+        inline friend std::basic_ostream<Char, Traits>& operator<<(
+                std::basic_ostream<Char, Traits>& os,
+                si const& s)
+        {
+            os << s.m_id.multi_index << "." << s.m_id.segment_index;
+            return os;
+        }
+    };
+
+
+    SvgMapper& m_mapper;
+
+    svg_visitor(SvgMapper& mapper)
+        : m_mapper(mapper)
+    {}
+
+    template <typename Turns>
+    inline void map_turns(Turns const& turns)
+    {
+        namespace bgdb = boost::geometry::detail::buffer;
+        typedef typename boost::range_value<Turns const>::type turn_type;
+        typedef typename turn_type::point_type point_type;
+        typedef typename turn_type::robust_point_type robust_point_type;
+
+        std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
+
+        for (typename boost::range_iterator<Turns const>::type it =
+            boost::begin(turns); it != boost::end(turns); ++it)
+        {
+            char color = 'g';
+            std::string fill = "fill:rgb(0,255,0);";
+            switch(it->location)
+            {
+                case bgdb::inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break;
+                case bgdb::inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
+            }
+            if (it->blocked())
+            {
+                fill = "fill:rgb(128,128,128);"; color = '-';
+            }
+
+            fill += "fill-opacity:0.7;";
+            std::ostringstream out;
+            out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
+                << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
+                << std::endl;
+            out << " " << bg::method_char(it->method)
+                << ":" << bg::operation_char(it->operations[0].operation)
+                << "/" << bg::operation_char(it->operations[1].operation);
+            out << " " << (it->count_within > 0 ? "w" : "")
+                << (it->count_on_multi > 0 ? "m" : "")
+                << (it->count_on_occupied > 0 ? "o" : "")
+                << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
+                << (it->count_on_helper > 0 ? "h" : "")
+                ;
+
+            offsets[it->mapped_robust_point] += 10;
+            int offset = offsets[it->mapped_robust_point];
+
+            m_mapper.map(it->point, fill, 6);
+            m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
+
+            offsets[it->mapped_robust_point] += 25;
+        }
+    }
+
+    template <typename Pieces, typename OffsettedRings>
+    inline void map_pieces(Pieces const& pieces,
+                OffsettedRings const& offsetted_rings,
+                bool do_pieces = true, bool do_indices = true)
+    {
+        typedef typename boost::range_value<Pieces const>::type piece_type;
+        typedef typename boost::range_value<OffsettedRings const>::type ring_type;
+
+        for(typename boost::range_iterator<Pieces const>::type it = boost::begin(pieces);
+            it != boost::end(pieces);
+            ++it)
+        {
+            const piece_type& piece = *it;
+            bg::segment_identifier seg_id = piece.first_seg_id;
+            if (seg_id.segment_index < 0)
+            {
+                continue;
+            }
+
+            ring_type corner;
+
+
+            ring_type const& ring = offsetted_rings[seg_id.multi_index];
+
+            std::copy(boost::begin(ring) + seg_id.segment_index,
+                    boost::begin(ring) + piece.last_segment_index,
+                    std::back_inserter(corner));
+            std::copy(boost::begin(piece.helper_segments),
+                    boost::end(piece.helper_segments),
+                    std::back_inserter(corner));
+
+            if (corner.empty())
+            {
+                continue;
+            }
+
+            if (do_pieces)
+            {
+                std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
+                m_mapper.map(corner,
+                    piece.type == bg::strategy::buffer::buffered_segment
+                    ? style + "fill:rgb(255,128,0);"
+                    : style + "fill:rgb(255,0,0);");
+            }
+
+            if (do_indices)
+            {
+
+                // Put starting piece_index / segment_index in centroid
+                typedef typename bg::point_type<ring_type>::type point_type;
+
+                point_type centroid;
+                if (corner.size() > 3)
+                {
+                    bg::centroid(corner, centroid);
+                }
+                else
+                {
+                    centroid = corner.front();
+                }
+                std::ostringstream out;
+                out << piece.index << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                m_mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
+            }
+        }
+    }
+
+    template <typename TraversedRings>
+    inline void map_traversed_rings(TraversedRings const& traversed_rings)
+    {
+        for(typename boost::range_iterator<TraversedRings const>::type it
+                = boost::begin(traversed_rings); it != boost::end(traversed_rings); ++it)
+        {
+            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
+        }
+    }
+
+    template <typename OffsettedRings>
+    inline void map_offsetted_rings(OffsettedRings const& offsetted_rings)
+    {
+        for(typename boost::range_iterator<OffsettedRings const>::type it
+                = boost::begin(offsetted_rings); it != boost::end(offsetted_rings); ++it)
+        {
+            if (it->discarded())
+            {
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:8");
+            }
+            else
+            {
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:8");
+            }
+        }
+    }
+
+    template <typename PieceCollection>
+    inline void apply(PieceCollection const& collection)
+    {
+        map_pieces(collection.m_pieces, collection.offsetted_rings);
+        map_turns(collection.m_turns);
+//        map_traversed_rings(collection.traversed_rings);
+//        map_offsetted_rings(collection.offsetted_rings);
+    }
+};
+
 #endif
 
 //-----------------------------------------------------------------------------
@@ -181,7 +363,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
 #if defined(TEST_WITH_SVG)
     std::ofstream svg(filename.str().c_str());
-    bg::svg_mapper<point_type> mapper(svg, 1000, 1000);
+    typedef bg::svg_mapper<point_type> mapper_type;
+    mapper_type mapper(svg, 1000, 1000);
 
     {
         bg::model::box<point_type> box;
@@ -191,6 +374,10 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);
     }
+
+    svg_visitor<mapper_type, tag> visitor(mapper);
+#else
+    bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
 
     JoinStrategy
@@ -224,17 +411,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         distance_strategy, 
                         join_strategy,
                         end_strategy,
-                        rescale_policy
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-                        , mapper
-#endif
-                                );
-
-    //// Remove duplicate point (this step should go automatically in the end)
-    //BOOST_FOREACH(GeometryOut& polygon, buffered)
-    //{
-    //    bg::unique(polygon);
-    //}
+                        rescale_policy,
+                        visitor);
 
     typename bg::default_area_result<GeometryOut>::type area = 0;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
@@ -293,7 +471,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
         mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
-        //mapper.map(polygon, "opacity:0.2;fill:none;stroke:rgb(255,0,0);stroke-width:3");
         post_map(polygon, mapper, rescale_policy);
     }
 #endif

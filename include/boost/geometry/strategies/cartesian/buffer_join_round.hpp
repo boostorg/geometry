@@ -82,10 +82,12 @@ public :
 
         if (n > 1000)
         {
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             // TODO change this / verify this
             std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
             std::cout << angle_diff << " -> " << n << std::endl;
             n = 1000;
+#endif
         }
         else if (n <= 1)
         {
@@ -113,7 +115,9 @@ public :
     {
         if (equals(perp1, perp2))
         {
-            //std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+            std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#endif
             return;
         }
 
@@ -131,7 +135,8 @@ public :
             coordinate_type vix = (get<0>(ip) - get<0>(vertex));
             coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-            coordinate_type length_i = sqrt(vix * vix + viy * viy);
+            coordinate_type length_i =
+                geometry::math::sqrt(vix * vix + viy * viy);
 
             coordinate_type const bd = geometry::math::abs(buffer_distance);
             coordinate_type prop = bd / length_i;

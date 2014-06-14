@@ -157,7 +157,7 @@ private :
             previous_lambda = lambda; // (13)
             CT sin_lambda = sin(lambda);
             CT cos_lambda = cos(lambda);
-            sin_sigma = sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
+            sin_sigma = math::sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
             CT cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
             sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
             cos2_alpha = c1 - math::sqr(sin_alpha);

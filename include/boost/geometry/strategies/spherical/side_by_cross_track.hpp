@@ -12,6 +12,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>

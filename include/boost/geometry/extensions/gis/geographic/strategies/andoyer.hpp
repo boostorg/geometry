@@ -140,8 +140,8 @@ private :
             return c0;
         }
 
-        CT const omega = atan(sqrt(S / C));
-        CT const r3 = c3 * sqrt(S * C) / omega; // not sure if this is r or greek nu
+        CT const omega = atan(math::sqrt(S / C));
+        CT const r3 = c3 * math::sqrt(S * C) / omega; // not sure if this is r or greek nu
         CT const D = c2 * omega * m_ellipsoid.a();
         CT const H1 = (r3 - c1) / (c2 * C);
         CT const H2 = (r3 + c1) / (c2 * S);

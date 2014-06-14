@@ -14,6 +14,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 
@@ -156,7 +157,7 @@ public :
     {
         typedef typename calculation_type<Point1, Point2>::type calculation_type;
         calculation_type const a = comparable_type::apply(p1, p2);
-        calculation_type const c = calculation_type(2.0) * asin(sqrt(a));
+        calculation_type const c = calculation_type(2.0) * asin(math::sqrt(a));
         return m_radius * c;
     }
 

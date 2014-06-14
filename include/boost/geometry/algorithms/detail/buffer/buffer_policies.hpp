@@ -101,6 +101,9 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
+    typedef Point point_type;
+    typedef RobustPoint robust_point_type;
+
     int turn_index; // TODO: this might go if partition can operate on non-const input
 
     RobustPoint robust_point;
@@ -113,10 +116,6 @@ struct buffer_turn_info
     int count_on_helper;
     int count_on_occupied;
     int count_on_multi;
-
-#ifdef BOOST_GEOMETRY_DEBUG_WITH_MAPPER
-    std::string debug_string;
-#endif
 
     inline buffer_turn_info()
         : turn_index(-1)
@@ -146,28 +145,6 @@ struct buffer_operation_less
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
-
-
-class si
-{
-private :
-    segment_identifier m_id;
-
-public :
-    inline si(segment_identifier const& id)
-        : m_id(id)
-    {}
-
-    template <typename Char, typename Traits>
-    inline friend std::basic_ostream<Char, Traits>& operator<<(
-            std::basic_ostream<Char, Traits>& os,
-            si const& s)
-    {
-        os << s.m_id.multi_index << "." << s.m_id.segment_index;
-        return os;
-    }
-};
-
 
 
 }} // namespace boost::geometry

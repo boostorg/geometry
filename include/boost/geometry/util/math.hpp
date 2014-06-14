@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -16,6 +21,8 @@
 
 #include <cmath>
 #include <limits>
+
+#include <boost/type_traits/is_fundamental.hpp>
 
 #include <boost/math/constants/constants.hpp>
 
@@ -87,6 +94,69 @@ struct smaller<Type, true>
 
 template <typename Type, bool IsFloatingPoint>
 struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
+
+template
+<
+    typename T,
+    bool IsFundemantal = boost::is_fundamental<T>::value /* false */
+>
+struct square_root
+{
+    typedef T return_type;
+
+    static inline T apply(T const& value)
+    {
+        // for non-fundamental number types assume that sqrt is
+        // defined either:
+        // 1) at T's scope, or
+        // 2) at global scope, or
+        // 3) in namespace std
+        using ::sqrt;
+        using std::sqrt;
+
+        return sqrt(value);
+    }
+};
+
+template <>
+struct square_root<float, true>
+{
+    typedef float return_type;
+
+    static inline float apply(float const& value)
+    {
+        // for float use std::sqrt
+        return std::sqrt(value);
+    }
+};
+
+template <>
+struct square_root<long double, true>
+{
+    typedef long double return_type;
+
+    static inline long double apply(long double const& value)
+    {
+        // for long double use std::sqrt
+        return std::sqrt(value);
+    }
+};
+
+template <typename T>
+struct square_root<T, true>
+{
+    typedef double return_type;
+
+    static inline double apply(T const& value)
+    {
+        // for all other fundamental number types use also std::sqrt
+        //
+        // Note: in C++98 the only other possibility is double;
+        //       in C++11 there are also overloads for integral types;
+        //       this specialization works for those as well.
+        return std::sqrt(value);
+    }
+};
 
 
 /*!
@@ -237,6 +307,22 @@ template <typename T>
 inline T sqr(T const& value)
 {
     return value * value;
+}
+
+/*!
+\brief Short utility to return the square root
+\ingroup utility
+\param value Value to calculate the square root from
+\return The square root value
+*/
+template <typename T>
+inline typename detail::square_root<T>::return_type
+sqrt(T const& value)
+{
+    return detail::square_root
+        <
+            T, boost::is_fundamental<T>::value
+        >::apply(value);
 }
 
 /*!
