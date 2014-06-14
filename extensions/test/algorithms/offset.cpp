@@ -23,8 +23,6 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer.hpp>
-
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/multi/algorithms/envelope.hpp>
