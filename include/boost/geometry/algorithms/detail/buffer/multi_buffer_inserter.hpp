@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_MULTI_BUFFER_INSERTER_HPP
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/multi/algorithms/distance.hpp>

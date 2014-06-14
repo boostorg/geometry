@@ -417,12 +417,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         rescale_policy,
                         visitor);
 
-    //// Remove duplicate point (this step should go automatically in the end)
-    //BOOST_FOREACH(GeometryOut& polygon, buffered)
-    //{
-    //    bg::unique(polygon);
-    //}
-
     typename bg::default_area_result<GeometryOut>::type area = 0;
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
