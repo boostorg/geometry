@@ -57,43 +57,6 @@ struct check_original<multi_point_tag>
     }
 };
 
-template
-<
-    typename Multi,
-    typename PolygonOutput
->
-struct multi_buffer_inserter
-{
-    template
-    <
-        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
-    >
-    static inline void apply(Multi const& multi,
-            Collection& collection,
-            DistanceStrategy const& distance,
-            JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
-    {
-        typedef typename geometry::ring_type<PolygonOutput>::type output_ring_type;
-        typedef dispatch::buffer_inserter
-            <
-                typename single_tag_of
-                            <
-                                typename tag<Multi>::type
-                            >::type,
-                typename boost::range_value<Multi const>::type,
-                output_ring_type
-            > policy;
-
-        for (typename boost::range_iterator<Multi const>::type
-                it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
-        {
-            policy::apply(*it, collection, distance, join_strategy, end_strategy);
-        }
-    }
-};
 
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
@@ -105,33 +68,6 @@ namespace dispatch
 {
 
 
-template
-<
-    typename Multi,
-    typename PolygonOutput
->
-struct buffer_inserter<multi_polygon_tag, Multi, PolygonOutput>
-    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
-{};
-
-template
-<
-    typename Multi,
-    typename PolygonOutput
->
-struct buffer_inserter<multi_linestring_tag, Multi, PolygonOutput>
-    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
-{};
-
-
-template
-<
-    typename Multi,
-    typename PolygonOutput
->
-struct buffer_inserter<multi_point_tag, Multi, PolygonOutput>
-    : public detail::buffer::multi_buffer_inserter<Multi, PolygonOutput>
-{};
 
 
 } // namespace dispatch

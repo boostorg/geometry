@@ -272,6 +272,33 @@ struct buffer_point
     }
 };
 
+template
+<
+    typename Multi,
+    typename PolygonOutput,
+    typename Policy
+>
+struct buffer_multi
+{
+    template
+    <
+        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
+    >
+    static inline void apply(Multi const& multi,
+            Collection& collection,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy)
+    {
+        for (typename boost::range_iterator<Multi const>::type
+                it = boost::begin(multi);
+            it != boost::end(multi);
+            ++it)
+        {
+            Policy::apply(*it, collection, distance, join_strategy, end_strategy);
+        }
+    }
+};
 
 struct visit_pieces_default_policy
 {
@@ -491,6 +518,29 @@ public:
 };
 
 
+template
+<
+    typename Multi,
+    typename PolygonOutput
+>
+struct buffer_inserter<multi_tag, Multi, PolygonOutput>
+    : public detail::buffer::buffer_multi
+             <
+                Multi,
+                PolygonOutput,
+                dispatch::buffer_inserter
+                <
+                    typename single_tag_of
+                                <
+                                    typename tag<Multi>::type
+                                >::type,
+                    typename boost::range_value<Multi const>::type,
+                    typename geometry::ring_type<PolygonOutput>::type
+                >
+            >
+{};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -522,7 +572,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     dispatch::buffer_inserter
         <
-            typename tag<GeometryInput>::type,
+            typename tag_cast
+                <
+                    typename tag<GeometryInput>::type,
+                    multi_tag
+                >::type,
             GeometryInput,
             GeometryOutput
         >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
