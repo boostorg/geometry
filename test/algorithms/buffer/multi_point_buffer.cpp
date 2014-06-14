@@ -62,10 +62,6 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
 
-    typedef typename bg::ring_type<GeometryOut>::type ring_type;
-
-	typedef typename bg::tag<Geometry>::type tag;
-
     // extern int point_buffer_count;
     std::ostringstream complete;
     complete

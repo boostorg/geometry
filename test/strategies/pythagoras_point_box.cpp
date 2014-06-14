@@ -33,6 +33,8 @@
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
@@ -184,6 +186,12 @@ inline void test_services()
             <
                 bg::box_tag, bg::point_tag, Box, Point
             >::type reversed_pythagoras_pb_strategy_type;
+
+        boost::ignore_unused
+            <
+                pythagoras_pb_strategy_type,
+                reversed_pythagoras_pb_strategy_type
+            >();
     }
 
     Point p;
