@@ -16,13 +16,13 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
