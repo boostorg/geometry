@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_MULTIPOINT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_MULTIPOINT_HPP
 
 #include <algorithm>
 
@@ -20,7 +20,7 @@
 
 #include <boost/geometry/policies/compare.hpp>
 
-#include <boost/geometry/algorithms/is_valid.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
@@ -39,7 +39,7 @@ struct is_simple_multipoint
 {
     static inline bool apply(MultiPoint const& multipoint)
     {
-        if ( !dispatch::is_valid<MultiPoint>::apply(multipoint) )
+        if ( boost::size(multipoint) == 0 )
         {
             return false;
         }
@@ -63,17 +63,6 @@ struct is_simple_multipoint
 namespace dispatch
 {
 
-// A point is always simple
-template <typename Point>
-struct is_simple<Point, point_tag>
-{
-    static inline bool apply(Point const&)
-    {
-        return true;
-    }
-};
-
-
 
 // A MultiPoint is simple if no two Points in the MultiPoint are equal
 // (have identical coordinate values in X and Y)
@@ -92,4 +81,4 @@ struct is_simple<MultiPoint, multi_point_tag>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_POINTLIKE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_MULTIPOINT_HPP
