@@ -14,10 +14,10 @@
 #include <boost/range/functions.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
-#include <boost/geometry/extensions/strategies/buffer.hpp>
-#include <boost/geometry/extensions/strategies/buffer_distance_asymmetric.hpp>
-#include <boost/geometry/extensions/strategies/buffer_end_skip.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
