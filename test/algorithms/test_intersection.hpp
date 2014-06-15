@@ -14,6 +14,7 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/area.hpp>
