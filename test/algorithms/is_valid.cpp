@@ -240,19 +240,23 @@ BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
     test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0.5 0)"), true);
 
     // linestrings with spikes
-    static const bool accept_spikes = false;
+    static const bool accept_spikes = true;
     test_valid(from_wkt<G>("LINESTRING(0 0,1 2,0 0)"), accept_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,1 2,1 2,0 0)"), accept_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,0 0,1 2,1 2,0 0)"), accept_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,0 0,0 0,1 2,1 2,0 0,0 0)"),
                accept_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,10 0,5 0)"), accept_spikes);    
-    test_valid(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,0 0)"), accept_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,0 0)"),
+               accept_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,6 0)"),
                accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4)"), accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,6 6)"), accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,4 0)"), accept_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4)"),
+               accept_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,6 6)"),
+               accept_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,4 0)"),
+               accept_spikes);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
@@ -297,10 +301,14 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,0 0),(1 0,1 0))"), false);
     test_valid(from_wkt<G>("MULTILINESTRING((0 0),(0 0))"), false);
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0))"), false);
+
+    // multilinstring that has linestrings with spikes
+    static const bool accept_spikes = true;
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,1 0,4 1))"),
-               false);
+               accept_spikes);
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(1 0,2 0))"),
-               false);
+               accept_spikes);
+    
 
     // valid multilinestrings
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,2 0),(5 0,1 0,4 1))"),
