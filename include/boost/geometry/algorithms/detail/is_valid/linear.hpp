@@ -98,7 +98,7 @@ struct is_valid_linestring
             return false;
         }
 
-        if ( linestring_size == num_distinct::two )
+        if ( !AllowSpikes && linestring_size == num_distinct::two )
         {
             return !geometry::equals(range::front(linestring),
                                      range::back(linestring));
