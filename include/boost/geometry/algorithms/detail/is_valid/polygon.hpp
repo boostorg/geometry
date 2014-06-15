@@ -75,12 +75,13 @@ struct acceptable_operation<clockwise>
 
 
 template <typename Polygon>
-struct is_valid_polygon
+class is_valid_polygon
 {
+private:
     template <typename RingIterator, typename ExteriorRing, typename IndexSet>
     static inline bool are_holes_inside(RingIterator first,
                                         RingIterator beyond,
-                                        ExteriorRing exterior_ring,
+                                        ExteriorRing const& exterior_ring,
                                         IndexSet const& rings_with_turns)
     {
         int idx = 0;
@@ -114,6 +115,16 @@ struct is_valid_polygon
         return true;
     }
 
+    template <typename InteriorRings, typename ExteriorRing, typename IndexSet>
+    static inline bool are_holes_inside(InteriorRings const& interior_rings,
+                                        ExteriorRing const& exterior_ring,
+                                        IndexSet const& rings_with_turns)
+    {
+        return are_holes_inside(boost::begin(interior_rings),
+                                boost::end(interior_rings),
+                                exterior_ring,
+                                rings_with_turns);
+    }
 
 
     template <typename Turn, typename Method, typename Operation>
@@ -147,6 +158,26 @@ struct is_valid_polygon
 
 
 
+    template <typename InteriorRings>
+    static bool are_valid_interior_rings(InteriorRings const& interior_rings)
+    {
+        return
+            detail::check_iterator_range
+                <
+                    detail::is_valid::is_valid_ring
+                        <
+                            typename boost::range_value<InteriorRings>::type,
+                            false, // do not check self-intersections
+                            true // indicate that the ring is interior
+                        >,
+                    true // allow the iterator range to be empty
+                >::apply(boost::begin(interior_rings),
+                         boost::end(interior_rings));
+    }
+
+
+
+public:
     static inline bool apply(Polygon const& polygon)
     {
         typedef typename point_type<Polygon>::type point_type;
@@ -169,14 +200,7 @@ struct is_valid_polygon
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "checking interior rings..." << std::endl;
 #endif
-        if ( geometry::num_interior_rings(polygon) > 0
-             && !detail::check_iterator_range
-                 <
-                     // do not check self-intersections, indicate interior ring
-                     detail::is_valid::is_valid_ring<ring_type, false, true>
-                 >::apply(boost::begin(geometry::interior_rings(polygon)),
-                          boost::end(geometry::interior_rings(polygon)))
-             )
+        if ( !are_valid_interior_rings(geometry::interior_rings(polygon)) )
         {
             return false;
         }
@@ -246,8 +270,7 @@ struct is_valid_polygon
         std::cout << "checking if holes are inside the exterior ring..."
                   << std::endl;
 #endif
-        if ( !are_holes_inside(boost::begin(geometry::interior_rings(polygon)),
-                               boost::end(geometry::interior_rings(polygon)),
+        if ( !are_holes_inside(geometry::interior_rings(polygon),
                                geometry::exterior_ring(polygon),
                                rings_with_turns) )
         {
