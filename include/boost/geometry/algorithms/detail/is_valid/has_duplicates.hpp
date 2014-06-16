@@ -10,7 +10,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -38,9 +37,7 @@ struct has_duplicates
 
         view_type view(range);
 
-        BOOST_ASSERT( boost::size(view) > 0 );
-
-        if ( boost::size(view) == 1 )
+        if ( boost::size(view) < 2 )
         {
             return false;
         }
