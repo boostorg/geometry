@@ -12,7 +12,6 @@
 
 #include <algorithm>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -82,10 +81,20 @@ struct has_spikes
         iterator prev = boost::begin(view);
 
         iterator cur = std::find_if(prev, boost::end(view), not_equal(*prev));
-        BOOST_ASSERT( cur != boost::end(view) );
+        if ( cur == boost::end(view) )
+        {
+            // the range has only one distinct point, so it
+            // cannot have a spike
+            return false;
+        }
 
         iterator next = std::find_if(cur, boost::end(view), not_equal(*cur));
-        BOOST_ASSERT( next != boost::end(view) );
+        if ( next == boost::end(view) )
+        {
+            // the range has only two distinct points, so it
+            // cannot have a spike
+            return false;
+        }
 
         while ( next != boost::end(view) )
         {
