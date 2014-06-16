@@ -25,6 +25,7 @@
 #include <boost/type_traits/is_fundamental.hpp>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -154,7 +155,7 @@ struct square_root<T, true>
         // Note: in C++98 the only other possibility is double;
         //       in C++11 there are also overloads for integral types;
         //       this specialization works for those as well.
-        return std::sqrt(value);
+        return std::sqrt(boost::numeric_cast<double>(value));
     }
 };
 
