@@ -46,6 +46,7 @@
 
 #ifdef GEOMETRY_TEST_DEBUG
 #include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 
 
