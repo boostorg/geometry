@@ -13,7 +13,7 @@
 #include <boost/geometry/algorithms/detail/is_simple/always_simple.hpp>
 #include <boost/geometry/algorithms/detail/is_simple/areal.hpp>
 #include <boost/geometry/algorithms/detail/is_simple/linear.hpp>
-#include <boost/geometry/algorithms/detail/is_simple/pointlike.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/multipoint.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
