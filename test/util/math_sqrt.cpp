@@ -17,6 +17,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <boost/config.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 
 #include "number_types.hpp"
