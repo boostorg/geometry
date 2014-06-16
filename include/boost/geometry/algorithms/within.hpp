@@ -136,6 +136,11 @@ struct within<Point, MultiPoint, point_tag, multi_point_tag>
 
 // P/L
 
+template <typename Point, typename Segment>
+struct within<Point, Segment, point_tag, segment_tag>
+    : public detail::within::use_point_in_geometry
+{};
+
 template <typename Point, typename Linestring>
 struct within<Point, Linestring, point_tag, linestring_tag>
     : public detail::within::use_point_in_geometry

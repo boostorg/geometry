@@ -124,6 +124,16 @@ void test_intersects_point_linestring()
 }
 
 template <typename P>
+void test_intersects_point_segment()
+{
+    typedef bg::model::segment<P> seg;
+
+    test_geometry<P, seg>("POINT(0 0)", "LINESTRING(0 0,2 2)", true);
+    test_geometry<P, seg>("POINT(1 1)", "LINESTRING(0 0,2 2)", true);
+    test_geometry<P, seg>("POINT(1 0)", "LINESTRING(0 0,2 2)", false);
+}
+
+template <typename P>
 void test_all()
 {
     typedef bg::model::polygon<P> polygon;
@@ -146,6 +156,7 @@ void test_all()
         "POLYGON((1941 2066,2055 2066,2055 2166,1941 2166))",
         "BOX(1941 2066, 2055 2166)", true);
 
+    test_intersects_point_segment<P>();
     test_intersects_point_linestring<P>();
     test_intersects_polygon_polygon<P>();
     test_intersects_linestring_polygon<P>();

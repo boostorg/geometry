@@ -39,6 +39,11 @@ void test_all()
 
     */
 
+    typedef bg::model::segment<P> seg;
+    test_geometry<P, seg>("POINT(1 1)", "LINESTRING(0 0, 2 2)", true);
+    test_geometry<P, seg>("POINT(0 0)", "LINESTRING(0 0, 1 1)", true);
+    test_geometry<P, seg>("POINT(1 0)", "LINESTRING(0 0, 1 1)", false);
+
     // linestrings
     typedef bg::model::linestring<P> ls;
     test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", true);
