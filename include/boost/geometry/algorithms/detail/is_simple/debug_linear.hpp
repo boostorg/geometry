@@ -15,15 +15,17 @@
 #include <iostream>
 #include <vector>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+
+#include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 
@@ -58,30 +60,31 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 
 
 template <typename MultiLinestring>
-inline void debug_print_endpoints(MultiLinestring const& multilinestring)
+inline void debug_print_boundary_points(MultiLinestring const& multilinestring)
 {
 #ifdef GEOMETRY_TEST_DEBUG
     typedef typename point_type<MultiLinestring>::type point_type;
     typedef std::vector<point_type> point_vector;
 
-    point_vector endpoints;
+    point_vector boundary_points;
     for (typename boost::range_iterator<MultiLinestring const>::type it
              = boost::begin(multilinestring);
          it != boost::end(multilinestring); ++it)
     {
-        BOOST_ASSERT ( boost::size(*it) != 1 );
-        if ( boost::size(*it) != 0 )
+        if ( boost::size(*it) > 1
+             && !geometry::equals(range::front(*it), range::back(*it)) )
         {
-            endpoints.push_back( *boost::begin(*it) );
-            endpoints.push_back( *(--boost::end(*it)) );
+            boundary_points.push_back( range::front(*it) );
+            boundary_points.push_back( range::back(*it) );
         }
     }
 
-    std::sort(endpoints.begin(), endpoints.end(), geometry::less<point_type>());
+    std::sort(boundary_points.begin(), boundary_points.end(),
+              geometry::less<point_type>());
 
-    std::cout << "endpoints: ";
-    for (typename point_vector::const_iterator pit = endpoints.begin();
-         pit != endpoints.end(); ++pit)
+    std::cout << "boundary points: ";
+    for (typename point_vector::const_iterator pit = boundary_points.begin();
+         pit != boundary_points.end(); ++pit)
     {
         std::cout << " " << geometry::dsv(*pit);
     }
