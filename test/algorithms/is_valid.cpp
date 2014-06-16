@@ -163,6 +163,23 @@ BOOST_AUTO_TEST_CASE( test_is_valid_point )
     test_valid(from_wkt<G>("POINT(0 0)"), true);
 }
 
+BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: MULTIPOINT " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
+    typedef multi_point_type G;
+
+    test_valid(from_wkt<G>("MULTIPOINT()"), false);
+    test_valid(from_wkt<G>("MULTIPOINT(0 0,0 0)"), true);
+    test_valid(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
+    test_valid(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), true);
+}
+
 BOOST_AUTO_TEST_CASE( test_is_valid_segment )
 {
 #ifdef GEOMETRY_TEST_DEBUG
@@ -213,6 +230,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
 
     typedef linestring_type G;
 
+    static const bool allow_spikes = true;
+
     // empty linestring
     test_valid(from_wkt<G>("LINESTRING()"), false);
 
@@ -240,39 +259,22 @@ BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
     test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0.5 0)"), true);
 
     // linestrings with spikes
-    static const bool accept_spikes = true;
-    test_valid(from_wkt<G>("LINESTRING(0 0,1 2,0 0)"), accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,1 2,1 2,0 0)"), accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,0 0,1 2,1 2,0 0)"), accept_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,1 2,0 0)"), allow_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,1 2,1 2,0 0)"), allow_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,0 0,1 2,1 2,0 0)"), allow_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,0 0,0 0,1 2,1 2,0 0,0 0)"),
-               accept_spikes);
-    test_valid(from_wkt<G>("LINESTRING(0 0,10 0,5 0)"), accept_spikes);    
+               allow_spikes);
+    test_valid(from_wkt<G>("LINESTRING(0 0,10 0,5 0)"), allow_spikes);    
     test_valid(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,0 0)"),
-               accept_spikes);
+               allow_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,6 0)"),
-               accept_spikes);
+               allow_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4)"),
-               accept_spikes);
+               allow_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,6 6)"),
-               accept_spikes);
+               allow_spikes);
     test_valid(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,4 0)"),
-               accept_spikes);
-}
-
-BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
-{
-#ifdef GEOMETRY_TEST_DEBUG
-    std::cout << std::endl << std::endl;
-    std::cout << "************************************" << std::endl;
-    std::cout << " is_valid: MULTIPOINT " << std::endl;
-    std::cout << "************************************" << std::endl;
-#endif
-    typedef multi_point_type G;
-
-    test_valid(from_wkt<G>("MULTIPOINT()"), false);
-    test_valid(from_wkt<G>("MULTIPOINT(0 0,0 0)"), true);
-    test_valid(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
-    test_valid(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), true);
+               allow_spikes);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
@@ -285,6 +287,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
 #endif
 
     typedef multi_linestring_type G;
+
+    static const bool allow_spikes = true;
 
     // empty multilinestring
     test_valid(from_wkt<G>("MULTILINESTRING()"), false);
@@ -303,11 +307,10 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0))"), false);
 
     // multilinstring that has linestrings with spikes
-    static const bool accept_spikes = true;
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,1 0,4 1))"),
-               accept_spikes);
+               allow_spikes);
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(1 0,2 0))"),
-               accept_spikes);
+               allow_spikes);
     
 
     // valid multilinestrings
@@ -319,19 +322,18 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     test_valid(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(0 1,1 0,2 2))"), true);
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_ring )
+BOOST_AUTO_TEST_CASE( test_is_valid_open_ring )
 {
-    typedef open_ccw_ring_type OG;
-    typedef closed_ccw_ring_type CG;
-
-    // open rings
-    // ----------
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: RING (open) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
+
+    typedef open_ccw_ring_type OG;
+
+    static const bool allow_duplicates = true;
 
     // not enough points
     test_valid(from_wkt<OG>("POLYGON(())"), false);
@@ -342,9 +344,12 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     test_valid(from_wkt<OG>("POLYGON((0 0,0 0,0 0))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"), false);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"),
+               allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"),
+               allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
+               allow_duplicates);
 
     // with spikes
     test_valid(from_wkt<OG>("POLYGON((0 0,2 0,2 2,0 2,1 2))"), false);
@@ -355,8 +360,15 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,4 4,5 5,0 5))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,4 4,3 3,5 5,0 5))"), false);
 
+    // with spikes and duplicate points
+    test_valid(from_wkt<OG>("POLYGON((0 0,0 0,2 0,2 0,1 0,1 0))"), false);
+
     // with self-crossings
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,3 -1,0 5))"), false);
+
+    // with self-crossings and duplicate points
+    test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,5 5,3 -1,0 5,0 5))"),
+               false);
 
     // with self-intersections
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,3 5,3 0,2 0,2 5,0 5))"),
@@ -368,6 +380,13 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 1,1 1,1 2,2 2,3 1,\
                              4 2,5 2,5 5,0 5))"),
                             false);
+
+    // with self-intersections and duplicate points
+    test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,3 5,3 5,3 0,3 0,\
+                            2 0,2 0,2 5,2 5,0 5))"),
+                            false);
+
+
     // next two suggested by Adam Wulkiewicz
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,0 5,4 4,2 2,0 5))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,1 4,4 4,4 1,0 5))"),
@@ -384,9 +403,11 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     typedef open_cw_ring_type OG1;
     test_valid(from_wkt<OG1>("POLYGON((0 0,1 1,1 0))"), true);
     test_valid(from_wkt<OG1>("POLYGON((0 0,0 1,1 1,1 0))"), true);
+}
 
-    // closed rings
-    // ------------
+
+BOOST_AUTO_TEST_CASE( test_is_valid_closed_ring )
+{
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
@@ -394,21 +415,34 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     std::cout << "************************************" << std::endl;
 #endif
 
+    typedef closed_ccw_ring_type CG;
+
+    static const bool allow_duplicates = true;
+
     // not enough points
     test_valid(from_wkt<CG>("POLYGON(())"), false);
     test_valid(from_wkt<CG>("POLYGON((0 0))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,0 0))"), false);
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0))"), false);
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0,2 0))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,2 0))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,2 0,2 0))"), false);
 
     // boundary not closed
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 1,1 2))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,1 1,1 2))"), false);
 
     // duplicate points
+    test_valid(from_wkt<CG>("POLYGON((0 0,0 0,0 0,0 0))"), false);
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,0 0))"), false);
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0,0 0,0 0))"), false);
-    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 1,0 0,0 0))"), false);
-    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"), false);
-    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,0 0,0 0))"), false);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 1,0 0,0 0))"),
+               allow_duplicates);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
+               allow_duplicates);
+    test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,0 0,0 0))"),
+               allow_duplicates);
 
     // with spikes
     test_valid(from_wkt<CG>("POLYGON((0 0,2 0,2 2,0 2,1 2,0 0))"), false);
@@ -421,8 +455,15 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,4 4,3 3,5 5,0 5,0 0))"),
                false);
 
+    // with spikes and duplicate points
+    test_valid(from_wkt<CG>("POLYGON((0 0,0 0,2 0,2 0,1 0,1 0,0 0))"), false);
+
     // with self-crossings
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,3 -1,0 5,0 0))"), false);
+
+    // with self-crossings and duplicate points
+    test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,5 5,3 -1,0 5,0 5,0 0))"),
+               false);
 
     // with self-intersections
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,3 5,3 0,2 0,2 5,0 5,0 0))"),
@@ -435,11 +476,18 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
                              4 2,5 2,5 5,0 5,0 0))"),
                             false);
 
+    // with self-intersections and duplicate points
+    test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,3 5,3 5,3 0,3 0,\
+                            2 0,2 0,2 5,2 5,0 5,0 0))"),
+                            false);
+
     // next two suggested by Adam Wulkiewicz
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,0 5,4 4,2 2,0 5,0 0))"),
                false);
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,1 4,4 4,4 1,0 5,0 0))"),
                false);
+
+    // and a few more
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,4 4,4 1,1 1,1 4,4 4,0 5,0 0))"),
                false);
     test_valid(from_wkt<CG>("POLYGON((0 0,5 0,5 5,4 4,1 4,1 1,4 1,4 4,0 5,0 0))"),
@@ -450,19 +498,19 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
     test_valid(from_wkt<CG>("POLYGON((0 0,1 0,1 1,0 1,0 0))"), true);
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
+BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
 {
-    typedef open_ccw_polygon_type OG;
-    //    typedef closed_ccw_polygon_type CG;
-
-    // open polygons
-    // -------------
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: POLYGON (open) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
+
+    typedef open_ccw_polygon_type OG;
+    //    typedef closed_ccw_polygon_type CG;
+
+    static const bool allow_duplicates = true;
 
     // not enough points in exterior ring
     test_valid(from_wkt<OG>("POLYGON(())"), false);
@@ -478,9 +526,10 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
     test_valid(from_wkt<OG>("POLYGON((0 0,0 0,0 0))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test_valid(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"), false);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
+               allow_duplicates);
 
     // duplicate points in interior ring
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 1,1 1))"),
@@ -489,12 +538,12 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
                false);
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 1))"),
                false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 1))"),
-               false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 1,2 2))"),
-               false);
-    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 1,2 2,1 1))"),
-               false);
+    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,1 1))"),
+               allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 2,2 1))"),
+               allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,2 1,1 1))"),
+               allow_duplicates);
 
     // with spikes in exterior ring
     test_valid(from_wkt<OG>("POLYGON((0 0,2 0,2 2,0 2,1 2))"), false);
@@ -520,6 +569,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
     // with self-crossings in exterior ring
     test_valid(from_wkt<OG>("POLYGON((0 0,5 0,5 5,3 -1,0 5))"),
                false);
+
     // example from Norvald Ryeng
     test_valid(from_wkt<OG>("POLYGON((100 1300,140 1300,140 170,100 1700))"),
                false);
@@ -572,6 +622,9 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
     // hole has common segment with exterior ring
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),\
                             (1 1,1 10,2 10,2 1))"),
+               false);
+    test_valid(from_wkt<OG>("POLYGON((0 0,0 0,10 0,10 10,0 10,0 10),\
+                            (1 1,1 10,1 10,2 10,2 10,2 1))"),
                false);
     // hole touches exterior ring at one point
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),\
@@ -632,6 +685,12 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),\
                             (0 0,1 9,2 9),(0 0,9 2,9 1))"),
                true);
+    test_valid(from_wkt<OG>("POLYGON((0 0,0 0,10 0,10 10,0 10,0 0),\
+                            (0 0,0 0,1 9,2 9),(0 0,0 0,9 2,9 1))"),
+               allow_duplicates);
+    test_valid(from_wkt<OG>("POLYGON((0 10,0 0,0 0,0 0,10 0,10 10),\
+                            (2 9,0 0,0 0,1 9),(9 1,0 0,0 0,9 2))"),
+               allow_duplicates);
     // two holes, one inside the other
     test_valid(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),\
                             (0 0,1 9,9 1),(0 0,4 5,5 4))"),
@@ -680,20 +739,10 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
                              (10 10,8 1,9 1),(10 10,6 1,7 1),\
                              (4 1,5 0,6 1,6 4,4 4))"),
                false);
-
-
-    // valid rings
-    //    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1))"), true);
-    //    test_valid(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 1))"), true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 {
-    typedef bg::model::multi_polygon<open_ccw_polygon_type> OG;
-    //    typedef closed_ccw_polygon_type CG;
-
-    // open multi-polygons
-    // -------------
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
@@ -701,7 +750,18 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
     std::cout << "************************************" << std::endl;
 #endif
 
+    typedef bg::model::multi_polygon<open_ccw_polygon_type> OG;
+    //    typedef closed_ccw_polygon_type CG;
+
+    static const bool allow_duplicates = true;
+
     test_valid(from_wkt<OG>("MULTIPOLYGON((()))"), false);
     test_valid(from_wkt<OG>("MULTIPOLYGON(((0 0)),(()))"), false);
     test_valid(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0)))"), false);
+    test_valid(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),\
+                            ((2 2,3 2,3 3,2 3)))"),
+               true);
+    test_valid(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 0,1 1,0 1)),\
+                            ((2 2,3 2,3 3,3 3,2 3)))"),
+               allow_duplicates);
 }
