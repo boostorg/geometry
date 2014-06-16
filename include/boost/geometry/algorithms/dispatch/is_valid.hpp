@@ -27,7 +27,10 @@ template
 <
     typename Geometry,
     typename Tag = typename tag<Geometry>::type,
-    bool AllowSpikes = true // for linear geometries
+    // for linear geometries: determines if spikes are allowed
+    bool AllowSpikes = true,
+    // for areal geometries: determines if duplicate points are allowed
+    bool AllowDuplicates = true
 >
 struct is_valid
     : not_implemented<Geometry>

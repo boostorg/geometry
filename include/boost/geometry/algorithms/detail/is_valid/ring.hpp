@@ -110,6 +110,7 @@ struct is_properly_oriented
 template
 <
     typename Ring,
+    bool AllowDuplicates,
     bool CheckSelfIntersections = true,
     bool IsInteriorRing = false
 >
@@ -121,13 +122,13 @@ struct is_valid_ring
         // (a) the ring's size is below the minimal one
         // (b) the ring is not topologically closed
         // (c) the ring has spikes
-        // (d) the ring has duplicate points
+        // (d) the ring has duplicate points (if AllowDuplicates is false)
         // (e) the boundary of the ring has self-intersections
         // (f) the order of the points is inconsistent with the defined order
         //
         // Note: no need to check if the area is zero. If this is the
         // case, then the ring must have at least two spikes, which is
-        // checked by condition (d).
+        // checked by condition (c).
 
         closure_selector const closure = geometry::closure<Ring>::value;
 
@@ -135,7 +136,7 @@ struct is_valid_ring
             ( boost::size(ring)
               >= core_detail::closure::minimum_ring_size<closure>::value )
             && is_topologically_closed<Ring, closure>::apply(ring) 
-            && !has_duplicates<Ring, closure>::apply(ring)
+            && (AllowDuplicates || !has_duplicates<Ring, closure>::apply(ring))
             && !has_spikes<Ring, closure>::apply(ring)
             && !(CheckSelfIntersections && geometry::intersects(ring))
             && is_properly_oriented<Ring, IsInteriorRing>::apply(ring);
@@ -157,9 +158,9 @@ namespace dispatch
 // §6.1.7.1, for the definition of LinearRing)
 //
 // Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
-template <typename Ring>
-struct is_valid<Ring, ring_tag>
-    : detail::is_valid::is_valid_ring<Ring>
+template <typename Ring, bool AllowSpikes, bool AllowDuplicates>
+struct is_valid<Ring, ring_tag, AllowSpikes, AllowDuplicates>
+    : detail::is_valid::is_valid_ring<Ring, AllowDuplicates>
 {};
 
 

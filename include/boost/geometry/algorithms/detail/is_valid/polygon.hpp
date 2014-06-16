@@ -74,7 +74,7 @@ struct acceptable_operation<clockwise>
 
 
 
-template <typename Polygon>
+template <typename Polygon, bool AllowDuplicates>
 class is_valid_polygon
 {
 private:
@@ -167,6 +167,7 @@ private:
                     detail::is_valid::is_valid_ring
                         <
                             typename boost::range_value<InteriorRings>::type,
+                            AllowDuplicates,
                             false, // do not check self-intersections
                             true // indicate that the ring is interior
                         >,
@@ -189,7 +190,9 @@ public:
 #endif
         if ( !detail::is_valid::is_valid_ring
                  <
-                     ring_type, false // do not check self intersections
+                     ring_type,
+                     AllowDuplicates,
+                     false // do not check self intersections
                  >::apply(exterior_ring(polygon)) )
         {
             return false;
@@ -320,9 +323,9 @@ namespace dispatch
 // A Polygon is always a simple geometric object provided that it is valid.
 //
 // Reference (for validity of Polygons): OGC 06-103r4 (§6.1.11.1)
-template <typename Polygon>
-struct is_valid<Polygon, polygon_tag>
-    : detail::is_valid::is_valid_polygon<Polygon>
+template <typename Polygon, bool AllowSpikes, bool AllowDuplicates>
+struct is_valid<Polygon, polygon_tag, AllowSpikes, AllowDuplicates>
+    : detail::is_valid::is_valid_polygon<Polygon, AllowDuplicates>
 {};
 
 
@@ -331,16 +334,17 @@ struct is_valid<Polygon, polygon_tag>
 // that the MultiPolygon is also valid.
 //
 // Reference (for validity of MultiPolygons): OGC 06-103r4 (§6.1.14)
-template <typename MultiPolygon>
-struct is_valid<MultiPolygon, multi_polygon_tag>
+template <typename MultiPolygon, bool AllowSpikes, bool AllowDuplicates>
+struct is_valid<MultiPolygon, multi_polygon_tag, AllowSpikes, AllowDuplicates>
 {
     static inline bool apply(MultiPolygon const& multipolygon)
     {
         if ( !detail::check_iterator_range
                   <
-                      dispatch::is_valid
+                      detail::is_valid::is_valid_polygon
                           <
-                              typename boost::range_value<MultiPolygon>::type
+                              typename boost::range_value<MultiPolygon>::type,
+                              AllowDuplicates
                           >
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon)) )
