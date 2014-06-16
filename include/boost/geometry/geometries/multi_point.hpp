@@ -18,10 +18,14 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -66,6 +70,20 @@ public :
     inline multi_point(Iterator begin, Iterator end)
         : base_type(begin, end)
     {}
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+    /// \constructor_initializer_list{multi_point}
+    inline multi_point(std::initializer_list<Point> l)
+        : base_type(l.begin(), l.end())
+    {}
+
+    /// \assignment_initializer_list{multi_point}
+    inline multi_point & operator=(std::initializer_list<Point> l)
+    {
+        base_type::assign(l.begin(), l.end());
+        return *this;
+    }
+#endif
 };
 
 } // namespace model

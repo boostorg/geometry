@@ -79,6 +79,13 @@ public :
     inline linestring(std::initializer_list<Point> l)
         : base_type(l.begin(), l.end())
     {}
+
+    /// \assignment_initializer_list{linestring}
+    inline linestring & operator=(std::initializer_list<Point> l)
+    {
+        base_type::assign(l.begin(), l.end());
+        return *this;
+    }
 #endif
 };
 

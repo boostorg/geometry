@@ -69,6 +69,13 @@ public:
     inline multi_linestring(std::initializer_list<LineString> l)
         : base_type(l.begin(), l.end())
     {}
+
+    /// \assignment_initializer_list{multi_linestring}
+    inline multi_linestring & operator=(std::initializer_list<LineString> l)
+    {
+        base_type::assign(l.begin(), l.end());
+        return *this;
+    }
 #endif
 };
 

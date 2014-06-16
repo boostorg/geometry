@@ -101,6 +101,22 @@ public:
         : m_outer(l.size() > 0 ? *l.begin() : ring_type())
         , m_inners(l.size() > 0 ? l.begin() + 1 : l.begin(), l.end())
     {}
+
+    /// \assignment_initializer_list{polygon}
+    inline polygon & operator=(std::initializer_list<ring_type> l)
+    {
+        if ( l.size() > 0 )
+        {
+            m_outer = *l.begin();
+            m_inners.assign(l.begin() + 1, l.end());
+        }
+        else
+        {
+            m_outer.clear();
+            m_inners.clear();
+        }
+        return *this;
+    }
 #endif
 
     /// Utility method, clears outer and inner rings

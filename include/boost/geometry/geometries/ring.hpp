@@ -83,6 +83,13 @@ public :
     inline ring(std::initializer_list<Point> l)
         : base_type(l.begin(), l.end())
     {}
+
+    /// \assignment_initializer_list{ring}
+    inline ring & operator=(std::initializer_list<Point> l)
+    {
+        base_type::assign(l.begin(), l.end());
+        return *this;
+    }
 #endif
 };
 
