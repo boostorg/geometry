@@ -42,6 +42,13 @@
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/is_simple.hpp>
 
+#include "from_wkt.hpp"
+
+#ifdef GEOMETRY_TEST_DEBUG
+#include "pretty_print_geometry.hpp"
+#endif
+
+
 namespace bg = ::boost::geometry;
 
 typedef bg::model::point<double, 2, bg::cs::cartesian>  point_type;
@@ -56,61 +63,6 @@ typedef bg::model::multi_point<point_type>              multi_point_type;
 typedef bg::model::multi_polygon<open_ccw_polygon_type> multi_polygon_type;
 // box
 typedef bg::model::box<point_type>                      box_type;
-
-template <typename Geometry>
-Geometry from_wkt(std::string const& wkt)
-{
-    Geometry g;
-    bg::read_wkt(wkt, g);
-    return g;
-}
-
-
-//----------------------------------------------------------------------------
-
-
-#ifdef GEOMETRY_TEST_DEBUG
-template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
-struct pretty_print_geometry
-{
-    static inline std::ostream&
-    apply(std::ostream& os, Geometry const& geometry)
-    {
-        os << bg::wkt(geometry);
-        return os;
-    }
-};
-
-template <typename Box>
-struct pretty_print_geometry<Box, bg::box_tag>
-{
-    static inline std::ostream&
-    apply(std::ostream& os, Box const& box)
-    {
-        return os << "BOX" << bg::dsv(box);
-    }
-};
-
-template <typename Segment>
-struct pretty_print_geometry<Segment, bg::segment_tag>
-{
-    static inline std::ostream&
-    apply(std::ostream& os, Segment const& segment)
-    {
-        return os << "SEGMENT" << bg::dsv(segment);
-    }
-};
-
-template <typename Ring>
-struct pretty_print_geometry<Ring, bg::ring_tag>
-{
-    static inline std::ostream&
-    apply(std::ostream& os, Ring const& ring)
-    {
-        return os << "RING" << bg::dsv(ring);
-    }
-};
-#endif
 
 
 //----------------------------------------------------------------------------
