@@ -27,6 +27,7 @@
 #  pragma warning( disable : 4101 )
 #endif
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/timer.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -184,6 +185,12 @@ inline void test_services()
             <
                 bg::box_tag, bg::point_tag, Box, Point
             >::type reversed_pythagoras_pb_strategy_type;
+
+        boost::ignore_unused
+            <
+                pythagoras_pb_strategy_type,
+                reversed_pythagoras_pb_strategy_type
+            >();
     }
 
     Point p;

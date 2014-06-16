@@ -12,17 +12,15 @@
 #ifndef BOOST_GEOMETRY_INDEX_RTREE_HPP
 #define BOOST_GEOMETRY_INDEX_RTREE_HPP
 
+// STD
 #include <algorithm>
 
+// Boost
 #include <boost/tuple/tuple.hpp>
 #include <boost/move/move.hpp>
 
-//#include <boost/geometry/geometry.hpp>
-// START
-#include <boost/geometry/strategies/strategies.hpp>
-
-#include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/algorithms/distance.hpp>
+// Boost.Geometry
+#include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
@@ -34,8 +32,10 @@
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
-// END
 
+#include <boost/geometry/strategies/strategies.hpp>
+
+// Boost.Geometry.Index
 #include <boost/geometry/index/detail/config_begin.hpp>
 
 #include <boost/geometry/index/detail/assert.hpp>
@@ -1797,6 +1797,9 @@ inline void swap(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> &
 }
 
 }}} // namespace boost::geometry::index
+
+// TODO: don't include the implementation at the end of the file
+#include <boost/geometry/algorithms/detail/comparable_distance/implementation.hpp>
 
 #include <boost/geometry/index/detail/config_end.hpp>
 

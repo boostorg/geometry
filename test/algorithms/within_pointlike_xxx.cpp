@@ -37,8 +37,13 @@ void test_p_p()
 template <typename P>
 void test_p_l()
 {
+    typedef bg::model::segment<P> seg;
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
+
+    test_geometry<P, seg>("POINT(1 1)", "LINESTRING(0 0, 2 2)", true);
+    test_geometry<P, seg>("POINT(0 0)", "LINESTRING(0 0, 1 1)", false);
+    test_geometry<P, seg>("POINT(1 0)", "LINESTRING(0 0, 1 1)", false);
 
     test_geometry<P, ls>("POINT(0 0)", "LINESTRING(0 0,1 1,2 2)", false);
     test_geometry<P, ls>("POINT(3 3)", "LINESTRING(0 0,1 1,2 2)", false);

@@ -65,14 +65,11 @@ int point_in_range(Point const& point, Range const& range, Strategy const& strat
     iterator_type it = boost::begin(range);
     iterator_type end = boost::end(range);
 
-    bool stop = false;
-    for ( iterator_type previous = it++ ;
-          it != end && ! stop ;
-          ++previous, ++it )
+    for ( iterator_type previous = it++ ; it != end ; ++previous, ++it )
     {
         if ( ! strategy.apply(point, *previous, *it, state) )
         {
-            stop = true;
+            break;
         }
     }
 
@@ -138,6 +135,8 @@ namespace detail_dispatch { namespace within {
 // returns 0 if P is on the boundry of G
 // returns -1 if P is in the exterior of G
 
+// TODO: replace magic numbers with enum
+
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
 struct point_in_geometry
@@ -155,6 +154,35 @@ struct point_in_geometry<Point2, point_tag>
     }
 };
 
+template <typename Segment>
+struct point_in_geometry<Segment, segment_tag>
+{
+    template <typename Point, typename Strategy> static inline
+    int apply(Point const& point, Segment const& segment, Strategy const& strategy)
+    {
+        typedef typename geometry::point_type<Segment>::type point_type;
+        point_type p0, p1;
+// TODO: don't copy points
+        detail::assign_point_from_index<0>(segment, p0);
+        detail::assign_point_from_index<1>(segment, p1);
+
+        typename Strategy::state_type state;
+        strategy.apply(point, p0, p1, state);
+        int r = detail::within::check_result_type(strategy.result(state));
+
+        if ( r != 0 )
+            return -1; // exterior
+
+        // if the point is equal to the one of the terminal points
+        if ( detail::equals::equals_point_point(point, p0)
+          || detail::equals::equals_point_point(point, p1) )
+            return 0; // boundary
+        else
+            return 1; // interior
+    }
+};
+
+
 template <typename Linestring>
 struct point_in_geometry<Linestring, linestring_tag>
 {
@@ -165,17 +193,17 @@ struct point_in_geometry<Linestring, linestring_tag>
         if ( count > 1 )
         {
             if ( detail::within::point_in_range(point, linestring, strategy) != 0 )
-                return -1;
+                return -1; // exterior
 
             // if the linestring doesn't have a boundary
             if ( detail::equals::equals_point_point(*boost::begin(linestring), *(--boost::end(linestring))) )
-                return 1;
+                return 1; // interior
             // else if the point is equal to the one of the terminal points
             else if ( detail::equals::equals_point_point(point, *boost::begin(linestring))
                    || detail::equals::equals_point_point(point, *(--boost::end(linestring))) )
-                return 0;
+                return 0; // boundary
             else
-                return 1;
+                return 1; // interior
         }
 // TODO: for now degenerated linestrings are ignored
 //       throw an exception here?
@@ -185,7 +213,7 @@ struct point_in_geometry<Linestring, linestring_tag>
                 return 1;
         }*/
 
-        return -1;
+        return -1; // exterior
     }
 };
 
