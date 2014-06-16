@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,6 +19,7 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -25,6 +27,10 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/ring.hpp>
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -82,6 +88,20 @@ public:
 
     inline ring_type& outer() { return m_outer; }
     inline inner_container_type & inners() { return m_inners; }
+
+    /// \constructor_default{polygon}
+    inline polygon()
+        : m_outer()
+        , m_inners()
+    {}
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+    /// \constructor_initializer_list{polygon}
+    inline polygon(std::initializer_list<ring_type> l)
+        : m_outer(l.size() > 0 ? *l.begin() : ring_type())
+        , m_inners(l.size() > 0 ? l.begin() + 1 : l.begin(), l.end())
+    {}
+#endif
 
     /// Utility method, clears outer and inner rings
     inline void clear()

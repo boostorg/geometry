@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,10 +19,14 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -50,6 +55,21 @@ template
 class multi_linestring : public Container<LineString, Allocator<LineString> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Linestring<LineString>) );
+
+    typedef Container<LineString, Allocator<LineString> > base_type;
+
+public:
+    /// \constructor_default{multi_linestring}
+    multi_linestring()
+        : base_type()
+    {}
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+    /// \constructor_initializer_list{multi_linestring}
+    inline multi_linestring(std::initializer_list<LineString> l)
+        : base_type(l.begin(), l.end())
+    {}
+#endif
 };
 
 

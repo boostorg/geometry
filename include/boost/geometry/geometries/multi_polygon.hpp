@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,9 +19,14 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -48,6 +54,21 @@ template
 class multi_polygon : public Container<Polygon, Allocator<Polygon> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Polygon<Polygon>) );
+
+    typedef Container<Polygon, Allocator<Polygon> > base_type;
+
+public:
+    /// \constructor_default{multi_polygon}
+    multi_polygon()
+        : base_type()
+    {}
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+    /// \constructor_initializer_list{multi_polygon}
+    inline multi_polygon(std::initializer_list<Polygon> l)
+        : base_type(l.begin(), l.end())
+    {}
+#endif
 };
 
 

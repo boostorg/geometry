@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,6 +19,7 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tag.hpp>
@@ -25,6 +27,9 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -68,6 +73,13 @@ public :
     inline linestring(Iterator begin, Iterator end)
         : base_type(begin, end)
     {}
+
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+    /// \constructor_initializer_list{linestring}
+    inline linestring(std::initializer_list<Point> l)
+        : base_type(l.begin(), l.end())
+    {}
+#endif
 };
 
 } // namespace model
