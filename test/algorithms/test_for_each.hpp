@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -101,12 +101,12 @@ void test_per_point_const(Geometry const& geometry, int expected)
 
 	bg::for_each_point
         (
-            geometry, 
-            [&sum_x](point_type const& p) 
-                { 
+            geometry,
+            [&sum_x](point_type const& p)
+                {
                     sum_x += bg::get<0>(p);
                 }
-                    
+
         );
 
     BOOST_CHECK_EQUAL(sum_x, expected);
@@ -151,23 +151,23 @@ void test_per_point_non_const(Geometry& geometry,
     geometry = copy;
 	bg::for_each_point
         (
-            geometry, 
-            [](point_type& p) 
-                { 
+            geometry,
+            [](point_type& p)
+                {
                     bg::set<0>(p, bg::get<0>(p) + 100);
                 }
-                    
+
         );
 
 	typename bg::coordinate_type<point_type>::type scale = 100;
 	bg::for_each_point
         (
-            geometry, 
-            [&](point_type& p) 
-                { 
+            geometry,
+            [&](point_type& p)
+                {
                     bg::set<1>(p, bg::get<1>(p) * scale);
                 }
-                    
+
         );
 
     std::ostringstream out3;

@@ -1,9 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -18,17 +24,12 @@
 #include <boost/mpl/if.hpp>
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/geometry.hpp>
-
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
-
 
 #include <boost/geometry/geometries/geometries.hpp>
-
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 template <typename P>
 void test_distance_result()
@@ -133,9 +134,40 @@ void test_all()
     test_distance_linestring<P>();
 }
 
+template <typename T>
+void test_double_result_from_integer()
+{
+    typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
+
+    point_type point;
+
+    // Check linestring
+    bg::model::linestring<point_type> linestring;
+    bg::read_wkt("POINT(2 2)", point);
+    bg::read_wkt("LINESTRING(4 1,1 4)", linestring);
+
+    double normal_distance = bg::distance(point, linestring);
+    double comparable_distance = bg::comparable_distance(point, linestring);
+
+    BOOST_CHECK_CLOSE(normal_distance, std::sqrt(0.5), 0.001);
+    BOOST_CHECK_CLOSE(comparable_distance, 0.5, 0.001);
+
+    // Check polygon
+    bg::model::polygon<point_type> polygon;
+    bg::read_wkt("POLYGON((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))", polygon);
+
+    normal_distance = bg::distance(point, polygon);
+    comparable_distance = bg::comparable_distance(point, polygon);
+
+    BOOST_CHECK_CLOSE(normal_distance, std::sqrt(0.5), 0.001);
+    BOOST_CHECK_CLOSE(comparable_distance, 0.5, 0.001);
+}
+
 int test_main(int, char* [])
 {
-    //test_all<bg::model::d2::point_xy<int> >();
+    test_double_result_from_integer<int>();
+    test_double_result_from_integer<boost::long_long_type>();
+
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 

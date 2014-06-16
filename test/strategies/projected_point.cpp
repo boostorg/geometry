@@ -1,9 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,6 +19,8 @@
 
 
 #include <geometry_test_common.hpp>
+
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
@@ -50,6 +57,23 @@ void test_services()
 
     namespace bgsd = bg::strategy::distance;
     namespace services = bg::strategy::distance::services;
+
+    {
+        // compile-check if there is a strategy for this type
+        typedef typename services::default_strategy
+            <
+                bg::point_tag, bg::segment_tag, P, PS
+            >::type projected_point_strategy_type;
+
+        typedef typename services::default_strategy
+            <
+                bg::segment_tag, bg::point_tag, PS, P
+            >::type reversed_tags_projected_point_strategy_type;
+
+        boost::ignore_unused<projected_point_strategy_type,
+                             reversed_tags_projected_point_strategy_type>();
+    }
+
     // 1: normal, calculate distance:
 
     typedef bgsd::projected_point<CalculationType> strategy_type;

@@ -1,0 +1,524 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Unit Test
+
+// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+
+#ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
+#define BOOST_GEOMETRY_TEST_BUFFER_HPP
+
+
+#include <fstream>
+#include <iomanip>
+
+#include <boost/foreach.hpp>
+#include <geometry_test_common.hpp>
+
+
+#include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/buffer.hpp>
+#include <boost/geometry/algorithms/centroid.hpp>
+#include <boost/geometry/algorithms/union.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
+
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
+
+#include <boost/geometry/strategies/buffer.hpp>
+
+
+
+#include <boost/geometry/io/wkt/wkt.hpp>
+
+
+#if defined(TEST_WITH_SVG)
+
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+
+template <typename Geometry, typename Mapper, typename RescalePolicy>
+void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::detail::overlay::turn_info
+    <
+        point_type,
+        typename bg::segment_ratio_type<point_type, RescalePolicy>::type
+    > turn_info;
+
+    std::vector<turn_info> turns;
+
+    bg::detail::self_get_turn_points::no_interrupt_policy policy;
+    bg::self_turns
+        <
+            bg::detail::overlay::assign_null_policy
+        >(geometry, rescale_policy, turns, policy);
+
+    BOOST_FOREACH(turn_info const& turn, turns)
+    {
+        mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
+    }
+}
+
+template <typename SvgMapper, typename Tag>
+struct svg_visitor
+{
+    class si
+    {
+    private :
+        bg::segment_identifier m_id;
+
+    public :
+        inline si(bg::segment_identifier const& id)
+            : m_id(id)
+        {}
+
+        template <typename Char, typename Traits>
+        inline friend std::basic_ostream<Char, Traits>& operator<<(
+                std::basic_ostream<Char, Traits>& os,
+                si const& s)
+        {
+            os << s.m_id.multi_index << "." << s.m_id.segment_index;
+            return os;
+        }
+    };
+
+
+    SvgMapper& m_mapper;
+
+    svg_visitor(SvgMapper& mapper)
+        : m_mapper(mapper)
+    {}
+
+    template <typename Turns>
+    inline void map_turns(Turns const& turns)
+    {
+        namespace bgdb = boost::geometry::detail::buffer;
+        typedef typename boost::range_value<Turns const>::type turn_type;
+        typedef typename turn_type::point_type point_type;
+        typedef typename turn_type::robust_point_type robust_point_type;
+
+        std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
+
+        for (typename boost::range_iterator<Turns const>::type it =
+            boost::begin(turns); it != boost::end(turns); ++it)
+        {
+            char color = 'g';
+            std::string fill = "fill:rgb(0,255,0);";
+            switch(it->location)
+            {
+                case bgdb::inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break;
+                case bgdb::inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
+            }
+            if (it->blocked())
+            {
+                fill = "fill:rgb(128,128,128);"; color = '-';
+            }
+
+            fill += "fill-opacity:0.7;";
+            std::ostringstream out;
+            out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
+                << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
+                << std::endl;
+            out << " " << bg::method_char(it->method)
+                << ":" << bg::operation_char(it->operations[0].operation)
+                << "/" << bg::operation_char(it->operations[1].operation);
+            out << " " << (it->count_within > 0 ? "w" : "")
+                << (it->count_on_multi > 0 ? "m" : "")
+                << (it->count_on_occupied > 0 ? "o" : "")
+                << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
+                << (it->count_on_helper > 0 ? "h" : "")
+                ;
+
+            offsets[it->mapped_robust_point] += 10;
+            int offset = offsets[it->mapped_robust_point];
+
+            m_mapper.map(it->point, fill, 6);
+            m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
+
+            offsets[it->mapped_robust_point] += 25;
+        }
+    }
+
+    template <typename Pieces, typename OffsettedRings>
+    inline void map_pieces(Pieces const& pieces,
+                OffsettedRings const& offsetted_rings,
+                bool do_pieces = true, bool do_indices = true)
+    {
+        typedef typename boost::range_value<Pieces const>::type piece_type;
+        typedef typename boost::range_value<OffsettedRings const>::type ring_type;
+
+        for(typename boost::range_iterator<Pieces const>::type it = boost::begin(pieces);
+            it != boost::end(pieces);
+            ++it)
+        {
+            const piece_type& piece = *it;
+            bg::segment_identifier seg_id = piece.first_seg_id;
+            if (seg_id.segment_index < 0)
+            {
+                continue;
+            }
+
+            ring_type corner;
+
+
+            ring_type const& ring = offsetted_rings[seg_id.multi_index];
+
+            std::copy(boost::begin(ring) + seg_id.segment_index,
+                    boost::begin(ring) + piece.last_segment_index,
+                    std::back_inserter(corner));
+            std::copy(boost::begin(piece.helper_segments),
+                    boost::end(piece.helper_segments),
+                    std::back_inserter(corner));
+
+            if (corner.empty())
+            {
+                continue;
+            }
+
+            if (do_pieces)
+            {
+                std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
+                m_mapper.map(corner,
+                    piece.type == bg::strategy::buffer::buffered_segment
+                    ? style + "fill:rgb(255,128,0);"
+                    : style + "fill:rgb(255,0,0);");
+            }
+
+            if (do_indices)
+            {
+
+                // Put starting piece_index / segment_index in centroid
+                typedef typename bg::point_type<ring_type>::type point_type;
+
+                point_type centroid;
+                if (corner.size() > 3)
+                {
+                    bg::centroid(corner, centroid);
+                }
+                else
+                {
+                    centroid = corner.front();
+                }
+                std::ostringstream out;
+                out << piece.index << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                m_mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
+            }
+        }
+    }
+
+    template <typename TraversedRings>
+    inline void map_traversed_rings(TraversedRings const& traversed_rings)
+    {
+        for(typename boost::range_iterator<TraversedRings const>::type it
+                = boost::begin(traversed_rings); it != boost::end(traversed_rings); ++it)
+        {
+            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
+        }
+    }
+
+    template <typename OffsettedRings>
+    inline void map_offsetted_rings(OffsettedRings const& offsetted_rings)
+    {
+        for(typename boost::range_iterator<OffsettedRings const>::type it
+                = boost::begin(offsetted_rings); it != boost::end(offsetted_rings); ++it)
+        {
+            if (it->discarded())
+            {
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:8");
+            }
+            else
+            {
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:8");
+            }
+        }
+    }
+
+    template <typename PieceCollection>
+    inline void apply(PieceCollection const& collection)
+    {
+        map_pieces(collection.m_pieces, collection.offsetted_rings);
+        map_turns(collection.m_turns);
+//        map_traversed_rings(collection.traversed_rings);
+//        map_offsetted_rings(collection.offsetted_rings);
+    }
+};
+
+#endif
+
+//-----------------------------------------------------------------------------
+template <template<typename, typename> class JoinStrategy>
+struct JoinTestProperties { };
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
+{ 
+    static std::string name() { return "round"; }
+    static double tolerance() { return 0.1; }
+};
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
+{ 
+    static std::string name() { return "miter"; }
+    static double tolerance() { return 0.001; }
+};
+
+template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
+{ 
+    static std::string name() { return "divide"; }
+    static double tolerance() { return 0.1; }
+};
+
+
+//-----------------------------------------------------------------------------
+template <template<typename, typename> class EndStrategy>
+struct EndTestProperties { };
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
+{ 
+    static std::string name() { return "round"; }
+    static double tolerance() { return 0.1; }
+};
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
+{ 
+    static std::string name() { return "flat"; }
+    static double tolerance() { return 0.001; }
+};
+
+template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
+{ 
+    static std::string name() { return ""; }
+    static double tolerance() { return 0.001; }
+};
+
+template
+<
+    typename GeometryOut,
+    template<typename, typename> class JoinStrategy,
+    template<typename, typename> class EndStrategy,
+    typename Geometry
+>
+void test_buffer(std::string const& caseid, Geometry const& geometry,
+            bool /*check*/, double expected_area,
+            double distance_left, double distance_right)
+{
+    namespace bg = boost::geometry;
+
+    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance;
+
+    typedef typename bg::ring_type<GeometryOut>::type ring_type;
+
+	typedef typename bg::tag<Geometry>::type tag;
+	// TODO use something different here:
+	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
+		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
+		: boost::is_same<tag, bg::point_tag>::value ? "point"
+		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+		: boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
+		: ""
+		;
+
+    typedef typename bg::point_type<GeometryOut>::type output_point_type;
+
+    if (distance_right < -998)
+    {
+        distance_right = distance_left;
+    }
+
+    std::string join_name = JoinTestProperties<JoinStrategy>::name();
+    std::string end_name = EndTestProperties<EndStrategy>::name();
+
+    if (boost::is_same<tag, bg::point_tag>::value 
+        || boost::is_same<tag, bg::multi_point_tag>::value)
+    {
+        join_name.clear();
+    }
+
+    std::ostringstream complete;
+    complete
+        << type << "_"
+        << caseid << "_"
+        << string_from_type<coordinate_type>::name()
+        << "_" << join_name
+        << (end_name.empty() ? "" : "_") << end_name
+        << (distance_left < 0 && distance_right < 0 ? "_deflate" : "")
+         // << "_" << point_buffer_count
+        ;
+
+    //std::cout << complete.str() << std::endl;
+
+    std::ostringstream filename;
+    filename << "buffer_" << complete.str() << ".svg";
+
+#if defined(TEST_WITH_SVG)
+    std::ofstream svg(filename.str().c_str());
+    typedef bg::svg_mapper<point_type> mapper_type;
+    mapper_type mapper(svg, 1000, 1000);
+
+    {
+        bg::model::box<point_type> box;
+        bg::envelope(geometry, box);
+        double d = std::abs(distance_left) + std::abs(distance_right);
+
+        bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
+        mapper.add(box);
+    }
+
+    svg_visitor<mapper_type, tag> visitor(mapper);
+#else
+    bg::detail::buffer::visit_pieces_default_policy visitor;
+#endif
+
+    JoinStrategy
+        <
+            point_type,
+            output_point_type
+        > join_strategy;
+
+    EndStrategy
+        <
+            point_type,
+            output_point_type
+        > end_strategy;
+
+    bg::strategy::buffer::distance_asymmetric
+        <
+            coordinate_type
+        > 
+    distance_strategy(distance_left, distance_right);
+
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef typename bg::rescale_policy_type<point_type>::type
+        rescale_policy_type;
+
+    rescale_policy_type rescale_policy
+            = bg::get_rescale_policy<rescale_policy_type>(geometry);
+
+    std::vector<GeometryOut> buffered;
+
+    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
+                        distance_strategy, 
+                        join_strategy,
+                        end_strategy,
+                        rescale_policy,
+                        visitor);
+
+    typename bg::default_area_result<GeometryOut>::type area = 0;
+    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    {
+        area += bg::area(polygon);
+    }
+
+    //std::cout << caseid << " " << distance_left << std::endl;
+    //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
+    //std::cout << "OUTPUT: " << area << std::endl;
+    //BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    //{
+    //    std::cout << bg::wkt(polygon) << std::endl;
+    //}
+
+
+    if (expected_area > -0.1)
+    {
+        double tol = JoinTestProperties<JoinStrategy>::tolerance() 
+            + EndTestProperties<EndStrategy>::tolerance();
+
+        if (expected_area < 1.0e-5)
+        {
+            tol /= 1.0e6;
+        }
+
+        typename bg::default_area_result<GeometryOut>::type tolerance = tol;
+
+
+        BOOST_CHECK_MESSAGE
+            (
+                bg::math::abs(area - expected_area) < tolerance,
+                complete.str() << " not as expected. " 
+                << std::setprecision(18)
+                << " Expected: "  << expected_area
+                << " Detected: "  << area
+            );
+
+        // Be sure resulting polygon does not contain
+        // self-intersections
+        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        {
+            BOOST_CHECK_MESSAGE
+                (
+                    ! bg::detail::overlay::has_self_intersections(polygon,
+                            rescale_policy, false),
+                    complete.str() << " output is self-intersecting. "
+                );
+        }
+    }
+
+#if defined(TEST_WITH_SVG)
+    // Map input geometry in green
+    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
+
+    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    {
+        mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        post_map(polygon, mapper, rescale_policy);
+    }
+#endif
+}
+
+
+#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
+static int counter = 0;
+#endif
+
+template
+<
+    typename Geometry,
+    template<typename, typename> class JoinStrategy,
+    template<typename, typename> class EndStrategy,
+    typename GeometryOut
+>
+void test_one(std::string const& caseid, std::string const& wkt,
+        double expected_area,
+        double distance_left, double distance_right = -999)
+{
+    namespace bg = boost::geometry;
+    Geometry g;
+    bg::read_wkt(wkt, g);
+
+    typedef typename bg::point_type<Geometry>::type point_type;
+
+
+#ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
+    std::cout
+        << (counter > 0 ? "union " : "")
+        << "select " << counter++
+        << ", '" << caseid << "' as caseid"
+        << ", ST_Area(ST_Buffer(ST_GeomFromText('" << wkt << "'), "
+        << distance_left
+        << ", 'endcap=" << end_name << " join=" << join_name << "'))"
+        << ", "  << expected_area
+        << std::endl;
+#endif
+
+    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
+            (caseid, g, false, expected_area,
+            distance_left, distance_right);
+}
+
+
+
+#endif

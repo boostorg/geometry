@@ -318,6 +318,7 @@
     </simplelist>
     <bridgehead renderas="sect3">Predicates</bridgehead>
     <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.crosses">crosses</link></member>
      <member><link linkend="geometry.reference.algorithms.covered_by">covered_by</link></member>
      <member><link linkend="geometry.reference.algorithms.disjoint">disjoint</link></member>
      <member><link linkend="geometry.reference.algorithms.equals">equals</link></member>
@@ -734,13 +735,13 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.spatial_indexes.group__predicates.contains_geometry_const___">contains(Geometry const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.group__predicates.covered_by_geometry_const___">covered_by(Geometry const &amp;)</link></member>
-        <member><link linkend="geometry.reference.spatial_indexes.group__predicates.covers_geometry_const___">covers(Geometry const &amp;)</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.group__predicates.covers_geometry_const___">covers(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.disjoint_geometry_const___">disjoint(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.intersects_geometry_const___">intersects(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.overlaps_geometry_const___">overlaps(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.within_geometry_const___">within(Geometry const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.satisfies_unarypredicate_const___">satisfies(UnaryPredicate const &amp;)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_point_const____unsigned_">nearest(Point const &amp;, unsigned)</link></member>
+	 <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_geometry_const____unsigned_">nearest(Geometry const &amp;, unsigned)</link></member>
     </simplelist>
    </entry>
    <!--entry valign="top">
