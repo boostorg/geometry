@@ -20,44 +20,48 @@
 #include <boost/geometry/io/wkt/write.hpp>
 
 
-template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
+template
+<
+    typename Geometry,
+    typename Tag = typename boost::geometry::tag<Geometry>::type
+>
 struct pretty_print_geometry
 {
     static inline std::ostream&
     apply(std::ostream& os, Geometry const& geometry)
     {
-        os << bg::wkt(geometry);
+        os << boost::geometry::wkt(geometry);
         return os;
     }
 };
 
 template <typename Box>
-struct pretty_print_geometry<Box, bg::box_tag>
+struct pretty_print_geometry<Box, boost::geometry::box_tag>
 {
     static inline std::ostream&
     apply(std::ostream& os, Box const& box)
     {
-        return os << "BOX" << bg::dsv(box);
+        return os << "BOX" << boost::geometry::dsv(box);
     }
 };
 
 template <typename Segment>
-struct pretty_print_geometry<Segment, bg::segment_tag>
+struct pretty_print_geometry<Segment, boost::geometry::segment_tag>
 {
     static inline std::ostream&
     apply(std::ostream& os, Segment const& segment)
     {
-        return os << "SEGMENT" << bg::dsv(segment);
+        return os << "SEGMENT" << boost::geometry::dsv(segment);
     }
 };
 
 template <typename Ring>
-struct pretty_print_geometry<Ring, bg::ring_tag>
+struct pretty_print_geometry<Ring, boost::geometry::ring_tag>
 {
     static inline std::ostream&
     apply(std::ostream& os, Ring const& ring)
     {
-        return os << "RING" << bg::dsv(ring);
+        return os << "RING" << boost::geometry::dsv(ring);
     }
 };
 
