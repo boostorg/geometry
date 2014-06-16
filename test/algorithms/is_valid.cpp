@@ -443,7 +443,7 @@ void test_is_valid_open_ring()
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1))"), true);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 1))"), true);
 
-    typedef bg::model<Point, true, false> OG1; // cw, open ring
+    typedef bg::model::ring<Point, true, false> OG1; // cw, open ring
 
     typedef test_valid<OG1> test1;
 
@@ -462,7 +462,7 @@ void test_is_valid_closed_ring()
     std::cout << "************************************" << std::endl;
 #endif
 
-    typedef bg::mode::ring<Point, false, false> CG; // ccw, closed ring
+    typedef bg::model::ring<Point, false, false> CG; // ccw, closed ring
 
     typedef test_valid<CG> test;
 
