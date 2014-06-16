@@ -42,11 +42,6 @@ namespace detail { namespace is_valid
 template <typename Range>
 struct number_of_distinct_points
 {
-    static const std::size_t zero = 0;
-    static const std::size_t one = 1;
-    static const std::size_t two = 2;
-    static const std::size_t three_or_more = 3;
-
     static inline std::size_t apply(Range const& range)
     {
         typedef typename point_type<Range>::type point;
@@ -54,7 +49,7 @@ struct number_of_distinct_points
 
         std::size_t size = boost::size(range);
 
-        if ( size < two )
+        if ( size < 2u )
         {
             return size;
         }
@@ -66,7 +61,7 @@ struct number_of_distinct_points
 
         if ( it1 == boost::end(range) )
         {
-            return one;
+            return 1u;
         }
 
         iterator it2 = 
@@ -76,9 +71,9 @@ struct number_of_distinct_points
             ( it2 == boost::end(range)
               || geometry::equals(range::front(range), *it2) )
             ?
-            two
+            2u
             :
-            three_or_more
+            3u
             ;
     }
 };
@@ -93,12 +88,12 @@ struct is_valid_linestring
 
         std::size_t linestring_size = num_distinct::apply(linestring);
 
-        if ( linestring_size < num_distinct::two )
+        if ( linestring_size < 2u )
         {
             return false;
         }
 
-        if ( !AllowSpikes && linestring_size == num_distinct::two )
+        if ( !AllowSpikes && linestring_size == 2u )
         {
             return !geometry::equals(range::front(linestring),
                                      range::back(linestring));
