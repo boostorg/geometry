@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 
+#include <boost/assert.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -123,7 +124,7 @@ void test_simple(Geometry const& g, bool simple_geometry)
 #endif
 
     bool simple = bg::is_simple(g);
-    //    BOOST_CHECK( bg::is_valid(g) );
+    BOOST_ASSERT( bg::is_valid(g) );
     BOOST_CHECK( simple == simple_geometry );
 
 #ifdef GEOMETRY_TEST_DEBUG
