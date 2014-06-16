@@ -17,9 +17,9 @@
 int main()
 {
     boost::polygon::point_data<int> a(1, 2), b(3, 4);
-    std::cout << "Distance (using Boost.Geometry): " 
+    std::cout << "Distance (using Boost.Geometry): "
         << boost::geometry::distance(a, b) << std::endl;
-    std::cout << "Distance (using Boost.Polygon): " 
+    std::cout << "Distance (using Boost.Polygon): "
         << boost::polygon::euclidean_distance(a, b) << std::endl;
 
     return 0;

@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2008-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -112,7 +117,7 @@ public :
         // For convenience
         typedef fp_point_type fp_vector_type;
 
-        /* 
+        /*
             Algorithm [p1: (x1,y1), p2: (x2,y2), p: (px,py)]
             VECTOR v(x2 - x1, y2 - y1)
             VECTOR w(px - x1, py - y1)
@@ -124,12 +129,13 @@ public :
 
         // v is multiplied below with a (possibly) FP-value, so should be in FP
         // For consistency we define w also in FP
-        fp_vector_type v, w;
+        fp_vector_type v, w, projected;
 
         geometry::convert(p2, v);
         geometry::convert(p, w);
-        subtract_point(v, p1);
-        subtract_point(w, p1);
+        geometry::convert(p1, projected);
+        subtract_point(v, projected);
+        subtract_point(w, projected);
 
         Strategy strategy;
         boost::ignore_unused_variable_warning(strategy);
@@ -149,8 +155,6 @@ public :
         // See above, c1 > 0 AND c2 > c1 so: c2 != 0
         calculation_type const b = c1 / c2;
 
-        fp_point_type projected;
-        geometry::convert(p1, projected);
         multiply_value(v, b);
         add_point(projected, v);
 
@@ -174,11 +178,6 @@ struct return_type<projected_point<CalculationType, Strategy>, P, PS>
     : projected_point<CalculationType, Strategy>::template calculation_type<P, PS>
 {};
 
-template <typename CalculationType, typename Strategy>
-struct strategy_point_point<projected_point<CalculationType, Strategy> >
-{
-    typedef Strategy type;
-};
 
 
 template <typename CalculationType, typename Strategy>
@@ -230,7 +229,11 @@ public :
 // of point-to-segment or point-to-linestring.
 // Convenient for geographic coordinate systems especially.
 template <typename Point, typename PointOfSegment, typename Strategy>
-struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, cartesian_tag, Strategy>
+struct default_strategy
+    <
+        point_tag, segment_tag, Point, PointOfSegment,
+        cartesian_tag, cartesian_tag, Strategy
+    >
 {
     typedef strategy::distance::projected_point
     <
@@ -240,12 +243,26 @@ struct default_strategy<segment_tag, Point, PointOfSegment, cartesian_tag, carte
                 boost::is_void<Strategy>,
                 typename default_strategy
                     <
-                        point_tag, Point, PointOfSegment,
+                        point_tag, point_tag, Point, PointOfSegment,
                         cartesian_tag, cartesian_tag
                     >::type,
                 Strategy
             >::type
     > type;
+};
+
+template <typename PointOfSegment, typename Point, typename Strategy>
+struct default_strategy
+    <
+        segment_tag, point_tag, PointOfSegment, Point,
+        cartesian_tag, cartesian_tag, Strategy
+    >
+{
+    typedef typename default_strategy
+        <
+            point_tag, segment_tag, Point, PointOfSegment,
+            cartesian_tag, cartesian_tag, Strategy
+        >::type type;
 };
 
 

@@ -89,11 +89,17 @@
 [include generated/covered_by.qbk]
 [endsect]
 
+[include generated/crosses.qbk]
+
 [include generated/difference.qbk]
 [include generated/disjoint.qbk]
 
 [section:distance distance]
 [include generated/distance.qbk]
+[endsect]
+
+[section:disjoint disjoint]
+[include generated/disjoint.qbk]
 [endsect]
 
 [section:envelope envelope]
@@ -221,7 +227,7 @@
 
 [section:io IO (input/output)]
 [section:wkt WKT (Well-Known Text)]
-[/include generated/wkt.qbk/]
+[include generated/wkt.qbk]
 [endsect]
 [section:svg SVG (Scalable Vector Graphics)]
 [include generated/svg.qbk]

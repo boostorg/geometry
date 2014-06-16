@@ -12,7 +12,9 @@
 
 import os, sys
 
-os.chdir(os.path.dirname(sys.argv[0]))
+script_dir = os.path.dirname(__file__)
+os.chdir(os.path.abspath(script_dir))
+print("Boost.Geometry is making .qbk files in %s" % os.getcwd())
 
 if 'DOXYGEN' in os.environ:
     doxygen_cmd = os.environ['DOXYGEN']
@@ -34,44 +36,53 @@ cmd = cmd + " --copyright src/copyright_block.qbk"
 cmd = cmd + " --output_member_variables false"
 cmd = cmd + " > generated/%s.qbk"
 
+def run_command(command):
+    if os.system(command) != 0:
+        raise Exception("Error running %s" % command)
+
+def remove_all_files(dir):
+    if os.path.exists(dir):
+        for f in os.listdir(dir):
+            os.remove(dir+f)
+
 def call_doxygen():
-    os.chdir("doxy");
-    os.system("rm -f doxygen_output/xml/*.xml")
-    os.system(doxygen_cmd)
+    os.chdir("doxy")
+    remove_all_files("doxygen_output/xml/")
+    run_command(doxygen_cmd)
     os.chdir("..")
 
 def group_to_quickbook(section):
-    os.system(cmd % ("group__" + section.replace("_", "__"), section))
+    run_command(cmd % ("group__" + section.replace("_", "__"), section))
 
 def model_to_quickbook(section):
-    os.system(cmd % ("classboost_1_1geometry_1_1model_1_1" + section.replace("_", "__"), section))
+    run_command(cmd % ("classboost_1_1geometry_1_1model_1_1" + section.replace("_", "__"), section))
 
 def model_to_quickbook2(classname, section):
-    os.system(cmd % ("classboost_1_1geometry_1_1model_1_1" + classname, section))
+    run_command(cmd % ("classboost_1_1geometry_1_1model_1_1" + classname, section))
 
 def struct_to_quickbook(section):
-    os.system(cmd % ("structboost_1_1geometry_1_1" + section.replace("_", "__"), section))
+    run_command(cmd % ("structboost_1_1geometry_1_1" + section.replace("_", "__"), section))
 
 def class_to_quickbook(section):
-    os.system(cmd % ("classboost_1_1geometry_1_1" + section.replace("_", "__"), section))
+    run_command(cmd % ("classboost_1_1geometry_1_1" + section.replace("_", "__"), section))
 
 def strategy_to_quickbook(section):
     p = section.find("::")
     ns = section[:p]
     strategy = section[p+2:]
-    os.system(cmd % ("classboost_1_1geometry_1_1strategy_1_1" 
+    run_command(cmd % ("classboost_1_1geometry_1_1strategy_1_1"
         + ns.replace("_", "__") + "_1_1" + strategy.replace("_", "__"), 
         ns + "_" + strategy))
         
 def cs_to_quickbook(section):
-    os.system(cmd % ("structboost_1_1geometry_1_1cs_1_1" + section.replace("_", "__"), section))
+    run_command(cmd % ("structboost_1_1geometry_1_1cs_1_1" + section.replace("_", "__"), section))
         
 
 call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "difference", "disjoint", "distance" 
+    , "convex_hull", "crosses", "difference", "disjoint", "distance" 
     , "envelope", "equals", "expand", "for_each", "intersection", "intersects" 
     , "length", "num_geometries", "num_interior_rings", "num_points" 
     , "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 
@@ -158,4 +169,4 @@ execfile("make_qbk.py")
 os.chdir("..")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
-os.system("bjam") 
+run_command("b2")

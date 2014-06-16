@@ -213,12 +213,12 @@ bool test_buffer(MultiPolygon& result, int& index,
 		{
 			case 1 :
 				bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
-								distance_strategy, 
+								distance_strategy,
 								bg::strategy::buffer::join_round<point_type, point_type>());
 				break;
 			case 2 :
 				bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
-								distance_strategy, 
+								distance_strategy,
 								bg::strategy::buffer::join_miter<point_type, point_type>());
 				break;
 			default :
