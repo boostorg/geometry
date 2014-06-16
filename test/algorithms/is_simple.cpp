@@ -123,14 +123,14 @@ void test_simple(Geometry const& g, bool simple_geometry)
 #endif
 
     bool simple = bg::is_simple(g);
-    BOOST_CHECK(simple == simple_geometry);
+    //    BOOST_CHECK( bg::is_valid(g) );
+    BOOST_CHECK( simple == simple_geometry );
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << "Geometry: ";
     pretty_print_geometry<Geometry>::apply(std::cout, g);
     std::cout << std::endl;
     std::cout << std::boolalpha;
-    std::cout << "is valid : " << bg::is_valid(g) << std::endl;
     std::cout << "is simple: " << simple << std::endl;
     std::cout << "expected result: " << simple_geometry << std::endl;
     std::cout << "=======" << std::endl;
@@ -167,7 +167,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
 #endif
     typedef multi_point_type G;
 
-    test_simple(from_wkt<G>("MULTIPOINT()"), false);
     test_simple(from_wkt<G>("MULTIPOINT(0 0)"), true);
     test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
     test_simple(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), false);
@@ -184,7 +183,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_segment )
 
     typedef segment_type G;
 
-    test_simple(from_wkt<G>("SEGMENT(0 0,0 0)"), false);
     test_simple(from_wkt<G>("SEGMENT(0 0,1 0)"), true);
 }
 
@@ -198,11 +196,6 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
 #endif
 
     typedef linestring_type G;
-
-    // invalid linestrings
-    test_simple(from_wkt<G>("LINESTRING()"), false);
-    test_simple(from_wkt<G>("LINESTRING(0 0)"), false);
-    test_simple(from_wkt<G>("LINESTRING(0 0,0 0)"), false);
 
     // valid linestrings with multiple points
     test_simple(from_wkt<G>("LINESTRING(0 0,0 0,1 0)"), false);
@@ -242,30 +235,15 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
 
     typedef multi_linestring_type G;
 
-    // empty multilinestring
-    test_simple(from_wkt<G>("MULTILINESTRING()"), false);
-
-    // multilinestrings with empty linestrings
-    test_simple(from_wkt<G>("MULTILINESTRING(())"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((),(),())"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((),(0 1,1 0))"), false);
-
-    // multilinestrings with 1-point linestrings
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0),(0 1,1 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,0 0),(0 1,1 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0),(1 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,0 0),(1 0,1 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0),(0 0))"), false);
-
     // multilinestrings with linestrings with spikes
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,6 0,7 0))"),
+                false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,1 0,4 1))"),
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,1 0,4 0))"),
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(1 0,2 0))"),
                 false);
-
 
     // simple multilinestrings
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(1 1,1 0))"), true);
@@ -279,7 +257,8 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(-1 0,0 0),\
                             (2 0,1 0))"),
                 true);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(-1 0,0 0))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,0 1),\
+                            (0 0,-1 0),(0 0,0 -1))"),
                 true);
 
     // non-simple multilinestrings
@@ -292,6 +271,13 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                             (0 0,1 0,1 1,2 0,2 2))"),
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(2 2,0 0))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,1 1))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,3 3))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,3 3))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,2 2))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,3 3))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,4 4))"), false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(4 4,2 2))"), false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(0 1,1 0))"), false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 0),(1 0,0 1))"), false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(1 1,1 0),\
@@ -299,21 +285,40 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(1 0,1 -1))"),
                 false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(-1 0,0 0))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),\
+                            (0 0,-1 0,-1 -1,0 -1,0 0))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),\
+                            (-1 -1,-1 0,0 0,0 -1,-1 -1))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_areal )
 {
-    // for areal geometries validity and simplicity are identical
-    // notions
-
-    // here just check that the code compiles
-
     typedef box_type b;
     typedef open_ccw_polygon_type o_ccw_p;
     typedef multi_polygon_type mpl;
 
+    // check that is_simple compiles for boxes
     test_simple(from_wkt<b>("BOX(0 0,1 1)"), true);
+
+    // simple polygons and multi-polygons
     test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,1 0,1 1))"), true);
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),\
+                                  (1 1,1 9,9 9,9 1))"),
+                true);
     test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1)),\
-                              ((10 0,20 0,20 10,10 10)))"), true);
+                              ((10 0,20 0,20 10,10 10)))"),
+                true);
+
+    // non-simple polygons & multi-polygons (have duplicate points)
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,1 0,1 0,1 1))"), false);
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),\
+                                  (1 1,1 9,9 9,9 9,9 1))"),
+                false);
+    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1,1 1)),\
+                              ((10 0,20 0,20 0,20 10,10 10)))"),
+                false);
 }
