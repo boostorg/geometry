@@ -118,10 +118,13 @@ BOOST_AUTO_TEST_CASE( test_math_sqrt_fundamental )
     check_sqrt<short, double>::apply(2, sqrt2);
     check_sqrt<int, double>::apply(2, sqrt2);
     check_sqrt<long, double>::apply(2L, sqrt2);
-#if ( __cplusplus >= 201103L )
+#if !defined(BOOST_NO_LONG_LONG)
     check_sqrt<long long, double>::apply(2LL, sqrt2);
 #endif
-    check_sqrt<boost::long_long_type, double>::apply(2LL, sqrt2);
+    check_sqrt
+        <
+            boost::long_long_type, double
+        >::apply(boost::long_long_type(2), sqrt2);
 }
 
 
