@@ -28,7 +28,6 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
-#include <boost/geometry/algorithms/is_valid.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
@@ -36,6 +35,8 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
 #include <boost/geometry/algorithms/detail/is_simple/debug_linear.hpp>
 
@@ -56,16 +57,11 @@ struct is_simple_linestring
 {
     static inline bool apply(Linestring const& linestring)
     {
-        if ( !detail::is_valid::is_valid_linestring
-                 <
-                     Linestring, false // spikes are disallowed
-                 >::apply(linestring)
-             )
-        {
-            return false;
-        }
-
         return !detail::is_valid::has_duplicates
+                    <
+                        Linestring, closed
+                    >::apply(linestring)
+            && !detail::is_valid::has_spikes
                     <
                         Linestring, closed
                     >::apply(linestring)
@@ -76,20 +72,25 @@ struct is_simple_linestring
 
 
 template <typename MultiLinestring>
-struct is_simple_multilinestring
+class is_simple_multilinestring
 {
+private:
     template <typename Point, typename Linestring>
-    static inline bool is_endpoint_of(Point const& point,
-                                      Linestring const& linestring)
+    static inline bool is_boundary_point_of(Point const& point,
+                                            Linestring const& linestring)
     {
         BOOST_ASSERT( boost::size(linestring) > 1 );
-        return geometry::equals(point, range::front(linestring))
-            || geometry::equals(point, range::back(linestring));
+        return
+            !geometry::equals(range::front(linestring),
+                              range::back(linestring))
+            &&
+            ( geometry::equals(point, range::front(linestring))
+              || geometry::equals(point, range::back(linestring)) );
     }
 
     template <typename Linestring1, typename Linestring2>
-    static inline bool have_same_endpoints(Linestring1 const& ls1,
-                                           Linestring2 const& ls2)
+    static inline bool have_same_boundary_points(Linestring1 const& ls1,
+                                                 Linestring2 const& ls2)
     {
         return
             geometry::equals(range::front(ls1), range::front(ls2))
@@ -104,6 +105,7 @@ struct is_simple_multilinestring
     }
 
 
+public:
     static inline bool apply(MultiLinestring const& multilinestring)
     {
         typedef typename boost::range_value<MultiLinestring>::type linestring;
@@ -152,9 +154,9 @@ struct is_simple_multilinestring
                      interrupt_policy);
 
         debug_print_turns(turns.begin(), turns.end());
-        debug_print_endpoints(multilinestring);
+        debug_print_boundary_points(multilinestring);
 
-        // check if the generated turns are all endpoints of the
+        // check if the generated turns are all boundary points of the
         // linestrings in the multi-linestring
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)
@@ -167,15 +169,15 @@ struct is_simple_multilinestring
                 range::at(multilinestring,
                           tit->operations[0].other_id.multi_index);
 
-            if ( !is_endpoint_of(tit->point, ls1)
-                 || !is_endpoint_of(tit->point, ls2) )
+            if ( !is_boundary_point_of(tit->point, ls1)
+                 || !is_boundary_point_of(tit->point, ls2) )
             {
                 return false;
             }
 
             if ( boost::size(ls1) == 2
                  && boost::size(ls2) == 2
-                 && have_same_endpoints(ls1, ls2) )
+                 && have_same_boundary_points(ls1, ls2) )
             {
                 return false;
             }
