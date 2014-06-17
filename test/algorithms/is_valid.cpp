@@ -468,7 +468,7 @@ void test_is_valid_closed_ring()
     std::cout << "************************************" << std::endl;
 #endif
 
-    typedef bg::model::ring<Point, false, false> CG; // ccw, closed ring
+    typedef bg::model::ring<Point, false, true> CG; // ccw, closed ring
 
     typedef test_valid<CG> test;
 
@@ -479,9 +479,6 @@ void test_is_valid_closed_ring()
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,2 0))"), false);
-
-#if 0
-    // TODO: these cases do not run and should be fixed
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0,2 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,2 0,2 0))"), false);
 
@@ -489,7 +486,6 @@ void test_is_valid_closed_ring()
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 1,1 2))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,1 1,1 2))"),
                 false);
-#endif
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_ring )
