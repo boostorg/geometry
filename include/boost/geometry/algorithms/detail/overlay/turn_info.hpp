@@ -120,8 +120,6 @@ struct turn_info
         return has12(type1, type2) || has12(type2, type1);
     }
 
-
-    inline bool is_discarded() const { return discarded; }
     inline bool blocked() const
     {
         return both(operation_blocked);
