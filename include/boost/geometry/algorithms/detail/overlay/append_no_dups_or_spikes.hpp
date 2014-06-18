@@ -15,6 +15,8 @@
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
+#include <boost/geometry/util/range.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -108,7 +110,11 @@ inline void clean_closing_dups_and_spikes(Range& range,
     }
 
     typedef typename boost::range_iterator<Range>::type iterator_type;
-    const bool closed = geometry::closure<Range>::value == geometry::closed;
+    static const bool closed = geometry::closure<Range>::value == geometry::closed;
+
+// TODO: the following algorithm could be rewritten to first look for spikes
+// and then erase some number of points from the beginning of the Range
+
     bool found = false;
     do
     {
@@ -125,13 +131,13 @@ inline void clean_closing_dups_and_spikes(Range& range,
         // considered as a spike w.r.t. the last segment)
         if (point_is_spike_or_equal(*second, *ultimate, *first, robust_policy))
         {
-            range.erase(first);
+            range::erase(range, first);
             if (closed)
             {
                 // Remove closing last point
-                traits::resize<Range>::apply(range, boost::size(range) - 1);
+                range::resize(range, boost::size(range) - 1);
                 // Add new closing point
-                traits::push_back<Range>::apply(range, *boost::begin(range));
+                range::push_back(range, *boost::begin(range));
             }
             found = true;
         }
