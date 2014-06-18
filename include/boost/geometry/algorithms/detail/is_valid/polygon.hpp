@@ -16,7 +16,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -26,15 +25,14 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/policies/compare.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
@@ -214,30 +212,38 @@ public:
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "computing and analyzing turns..." << std::endl;
 #endif
+        typedef typename geometry::rescale_policy_type
+            <
+                point_type
+            >::type rescale_policy_type;
+
         typedef detail::overlay::turn_info
             <
                 point_type,
-                geometry::segment_ratio
+                typename geometry::segment_ratio_type
                     <
-                        typename geometry::coordinate_type<point_type>::type
-                    >
+                        point_type,
+                        rescale_policy_type
+                    >::type
             > turn_info;
 
         typedef detail::overlay::get_turn_info
             <
-                detail::disjoint::assign_disjoint_policy
+                detail::overlay::assign_null_policy
             > turn_policy;
 
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(polygon);
 
         std::deque<turn_info> turns;
         detail::self_get_turn_points::no_interrupt_policy interrupt_policy;
 
-        // MK:: change the no_rescale_policy to rescale-to-integer
         geometry::self_turns<turn_policy>(polygon,
-                                          detail::no_rescale_policy(),
+                                          robust_policy,
                                           turns,
                                           interrupt_policy);
-#if GEOMETRY_TEST_DEBUG
+
+#ifdef GEOMETRY_TEST_DEBUG
         std::cout << "turns:";
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)

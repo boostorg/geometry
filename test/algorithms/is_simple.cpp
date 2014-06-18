@@ -16,6 +16,8 @@
 #include <string>
 
 #include <boost/assert.hpp>
+#include <boost/variant/variant.hpp>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -29,15 +31,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/io/wkt/read.hpp>
-
-#ifdef GEOMETRY_TEST_DEBUG
-#include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
-#endif
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/is_simple.hpp>
@@ -69,23 +63,26 @@ typedef bg::model::box<point_type>                      box_type;
 
 
 template <typename Geometry>
-void test_simple(Geometry const& g, bool simple_geometry)
+void test_simple(Geometry const& geometry, bool expected_result)
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << "=======" << std::endl;
 #endif
 
-    bool simple = bg::is_simple(g);
-    BOOST_ASSERT( bg::is_valid(g) );
-    BOOST_CHECK( simple == simple_geometry );
+    bool simple = bg::is_simple(geometry);
+    BOOST_ASSERT( bg::is_valid(geometry) );
+    BOOST_CHECK_MESSAGE( simple == expected_result,
+        "Expected: " << expected_result
+        << " detected: " << simple
+        << " wkt: " << bg::wkt(geometry) );
 
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << "Geometry: ";
-    pretty_print_geometry<Geometry>::apply(std::cout, g);
+    pretty_print_geometry<Geometry>::apply(std::cout, geometry);
     std::cout << std::endl;
     std::cout << std::boolalpha;
     std::cout << "is simple: " << simple << std::endl;
-    std::cout << "expected result: " << simple_geometry << std::endl;
+    std::cout << "expected result: " << expected_result << std::endl;
     std::cout << "=======" << std::endl;
     std::cout << std::endl << std::endl;
     std::cout << std::noboolalpha;
@@ -118,6 +115,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
     std::cout << " is_simple: MULTIPOINT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
+
     typedef multi_point_type G;
 
     test_simple(from_wkt<G>("MULTIPOINT(0 0)"), true);
@@ -204,47 +202,49 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 true);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(0 0,1 0,2 0,2 2))"), true);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(2 2,2 0,1 0,0 0))"), true);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,-1 0),\
-                            (1 0,2 0))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,-1 0),(1 0,2 0))"),
                 true);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(-1 0,0 0),\
-                            (2 0,1 0))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(-1 0,0 0),(2 0,1 0))"),
                 true);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,0 1),\
-                            (0 0,-1 0),(0 0,0 -1))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,0 1),(0 0,-1 0),(0 0,0 -1))"),
                 true);
 
     // non-simple multilinestrings
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(0 0,2 2))"), false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(2 2,0 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),\
-                            (0 0,1 0,1 1,2 0,2 2))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(0 0,1 0,1 1,2 0,2 2))"),
                 false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),\
-                            (0 0,1 0,1 1,2 0,2 2))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(0 0,1 0,1 1,2 0,2 2))"),
                 false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(2 2,0 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,1 1))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,3 3))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,3 3))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,2 2))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,3 3))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,4 4))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(4 4,2 2))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(0 1,1 0))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 0),(1 0,0 1))"), false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(1 1,1 0),\
-                             (1 1,0 1,0.5,0.5))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(2 2,0 0))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,1 1))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(0 0,3 3))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,3 3))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(1 1,2 2))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,3 3))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(2 2,4 4))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2,4 4),(4 4,2 2))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(0 1,1 0))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 0),(1 0,0 1))"),
+                false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 1),(1 1,1 0),(1 1,0 1,0.5,0.5))"),
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(1 0,1 -1))"),
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(-1 0,0 0))"),
                 false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),\
-                            (0 0,-1 0,-1 -1,0 -1,0 0))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(0 0,-1 0,-1 -1,0 -1,0 0))"),
                 false);
-    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),\
-                            (-1 -1,-1 0,0 0,0 -1,-1 -1))"),
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(-1 -1,-1 0,0 0,0 -1,-1 -1))"),
                 false);
 }
 
@@ -259,19 +259,53 @@ BOOST_AUTO_TEST_CASE( test_is_simple_areal )
 
     // simple polygons and multi-polygons
     test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,1 0,1 1))"), true);
-    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),\
-                                  (1 1,1 9,9 9,9 1))"),
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1))"),
                 true);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1)),\
-                              ((10 0,20 0,20 10,10 10)))"),
+    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1)),((10 0,20 0,20 10,10 10)))"),
                 true);
 
     // non-simple polygons & multi-polygons (have duplicate points)
     test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,1 0,1 0,1 1))"), false);
-    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),\
-                                  (1 1,1 9,9 9,9 9,9 1))"),
+    test_simple(from_wkt<o_ccw_p>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 9,9 1))"),
                 false);
-    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1,1 1)),\
-                              ((10 0,20 0,20 0,20 10,10 10)))"),
+    test_simple(from_wkt<mpl>("MULTIPOLYGON(((0 0,1 0,1 1,1 1)),((10 0,20 0,20 0,20 10,10 10)))"),
                 false);
+}
+
+BOOST_AUTO_TEST_CASE( test_is_simple_variant )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_simple: variant support" << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
+    typedef bg::model::polygon<point_type> polygon_type; // cw, closed
+    typedef boost::variant
+        <
+            linestring_type, multi_linestring_type, polygon_type
+        > variant_geometry;
+
+    variant_geometry vg;
+
+    linestring_type simple_linestring =
+        from_wkt<linestring_type>("LINESTRING(0 0,1 0)");
+    multi_linestring_type non_simple_multi_linestring = from_wkt
+        <
+            multi_linestring_type
+        >("MULTILINESTRING((0 0,1 0,1 1,0 0),(10 0,1 1))");
+    polygon_type simple_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0,0 0))");
+    polygon_type non_simple_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0,1 0,0 0))");
+
+    vg = simple_linestring;
+    test_simple(vg, true);
+    vg = non_simple_multi_linestring;
+    test_simple(vg, false);
+    vg = simple_polygon;
+    test_simple(vg, true);
+    vg = non_simple_polygon;
+    test_simple(vg, false);
 }
