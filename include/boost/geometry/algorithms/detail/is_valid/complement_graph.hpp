@@ -31,11 +31,10 @@ template <typename TurnPoint>
 class graph_vertex
 {
 public:
-    struct nil_vertex {};
-
-    static const nil_vertex nil;
-
-    typedef typename std::set<graph_vertex<TurnPoint> >::iterator vertex_handle;
+    typedef typename std::set
+        <
+            graph_vertex<TurnPoint>
+        >::const_iterator vertex_handle;
 
     struct vertex_handle_less
     {
@@ -46,7 +45,7 @@ public:
     };
 
     typedef std::set<vertex_handle, vertex_handle_less> neighbor_container;
-    typedef typename neighbor_container::iterator neighbor_iterator;
+    typedef typename neighbor_container::const_iterator neighbor_iterator;
 
     graph_vertex(int id, TurnPoint const& dummy = TurnPoint())
         : m_is_ip(false)
@@ -83,7 +82,7 @@ public:
 
     vertex_handle parent() const { return m_parent.first; }
     void parent(vertex_handle p) const { m_parent = std::make_pair(p, true); }
-    void parent(nil_vertex) const
+    void initialize_parent() const
     {
         m_parent = std::make_pair(vertex_handle(), false);
     }
@@ -141,10 +140,9 @@ private:
     typedef std::set<Vertex> vertex_container;
 
 public:
-    typedef typename vertex_container::iterator vertex_handle;
+    typedef typename vertex_container::const_iterator vertex_handle;
 
 private:
-    // implement this with a stack rather than recursively
     bool has_cycles(vertex_handle start_vertex) const
     {
         std::stack<vertex_handle> stack;
@@ -220,7 +218,7 @@ public:
              it != m_vertices.end(); ++it)
         {
             it->visited(false);
-            it->parent(Vertex::nil);
+            it->initialize_parent();
         }
 
         for (vertex_handle it = m_vertices.begin();
