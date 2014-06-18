@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_NUM_DISTINCT_VALUES_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_NUM_DISTINCT_VALUES_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_NUM_DISTINCT_CONSECUTIVE_POINTS_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_NUM_DISTINCT_CONSECUTIVE_POINTS_HPP
 
 #include <cstddef>
 
@@ -23,13 +23,18 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace is_valid
+namespace detail
 {
 
 
 // returns the number of distinct values in the range;
 // return values are 0u through MaximumNumber, where MaximumNumber
 // corresponds to MaximumNumber or more distinct values
+//
+// FUTURE: take into account topologically closed ranges;
+//         add appropriate template parameter(s) to control whether
+//         the closing point for topologically closed ranges is to be
+//         accounted for separately or not
 template
 <
     typename Range,
@@ -37,7 +42,7 @@ template
     bool AllowDuplicates /* true */,
     typename NotEqualTo
 >
-struct number_of_distinct_values
+struct num_distinct_consecutive_points
 {
     static inline std::size_t apply(Range const& range)
     {
@@ -68,7 +73,7 @@ struct number_of_distinct_values
 
 
 template <typename Range, std::size_t MaximumNumber, typename NotEqualTo>
-struct number_of_distinct_values<Range, MaximumNumber, false, NotEqualTo>
+struct num_distinct_consecutive_points<Range, MaximumNumber, false, NotEqualTo>
 {
     static inline std::size_t apply(Range const& range)
     {
@@ -78,11 +83,11 @@ struct number_of_distinct_values<Range, MaximumNumber, false, NotEqualTo>
 };
 
 
-}} // namespace detail::is_valid
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_NUM_DISTINCT_VALUES_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_NUM_DISTINCT_CONSECUTIVE_POINTS_HPP

@@ -23,7 +23,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/num_distinct_values.hpp>
+#include <boost/geometry/algorithms/detail/num_distinct_consecutive_points.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
@@ -41,7 +41,7 @@ struct is_valid_linestring
 {
     static inline bool apply(Linestring const& linestring)
     {
-        std::size_t num_distinct = number_of_distinct_values
+        std::size_t num_distinct = detail::num_distinct_consecutive_points
             <
                 Linestring,
                 3u,
