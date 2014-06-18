@@ -246,12 +246,18 @@ struct svg_visitor
     }
 
     template <typename PieceCollection>
-    inline void apply(PieceCollection const& collection)
+    inline void apply(PieceCollection const& collection, int phase)
     {
-        map_pieces(collection.m_pieces, collection.offsetted_rings);
-        map_turns(collection.m_turns);
+        if(phase == 0)
+        {
+            map_pieces(collection.m_pieces, collection.offsetted_rings);
+            map_turns(collection.m_turns);
+        }
+        if (phase == 1)
+        {
 //        map_traversed_rings(collection.traversed_rings);
 //        map_offsetted_rings(collection.offsetted_rings);
+        }
     }
 };
 

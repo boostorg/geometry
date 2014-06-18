@@ -574,6 +574,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         RobustPolicy
     > collection_type;
     collection_type collection(robust_policy);
+    collection_type const& const_collection = collection;
 
     dispatch::buffer_inserter
         <
@@ -587,6 +588,12 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
 
     collection.get_turns(geometry_input, distance_strategy);
+
+    // Visit the piece collection. This does nothing (by default), but
+    // optionally a debugging tool can be attached (e.g. console or svg),
+    // or the piece collection can be unit-tested
+    // phase 0: turns (before discarded)
+    visit_pieces_policy.apply(const_collection, 0);
 
     collection.discard_rings();
     collection.discard_turns();
@@ -605,13 +612,9 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     collection.template assign<GeometryOutput>(out);
 
-    {
-        // Visit the piece collection. This does nothing (by default), but
-        // optionally a debugging tool can be attached (e.g. console or svg),
-        // or the piece collection can be unit-tested
-        collection_type const& const_collection = collection;
-        visit_pieces_policy.apply(const_collection);
-    }
+    // Visit collection again
+    // phase 1: rings (after discarding and traversing)
+    visit_pieces_policy.apply(const_collection, 1);
 }
 
 template
