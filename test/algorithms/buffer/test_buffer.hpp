@@ -316,7 +316,7 @@ template
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
-            bool /*check*/, double expected_area,
+            bool check_self_intersections, double expected_area,
             double distance_left, double distance_right)
 {
     namespace bg = boost::geometry;
@@ -460,16 +460,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 << " Detected: "  << area
             );
 
-        // Be sure resulting polygon does not contain
-        // self-intersections
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        if (check_self_intersections)
         {
-            BOOST_CHECK_MESSAGE
-                (
-                    ! bg::detail::overlay::has_self_intersections(polygon,
-                            rescale_policy, false),
-                    complete.str() << " output is self-intersecting. "
-                );
+            // Be sure resulting polygon does not contain
+            // self-intersections
+            BOOST_FOREACH(GeometryOut const& polygon, buffered)
+            {
+                BOOST_CHECK_MESSAGE
+                    (
+                        ! bg::detail::overlay::has_self_intersections(polygon,
+                                rescale_policy, false),
+                        complete.str() << " output is self-intersecting. "
+                    );
+            }
         }
     }
 
@@ -499,7 +502,8 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         double expected_area,
-        double distance_left, double distance_right = -999)
+        double distance_left, double distance_right = -999,
+        bool check_self_intersections = true)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -521,7 +525,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 #endif
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
-            (caseid, g, false, expected_area,
+            (caseid, g, check_self_intersections, expected_area,
             distance_left, distance_right);
 }
 
