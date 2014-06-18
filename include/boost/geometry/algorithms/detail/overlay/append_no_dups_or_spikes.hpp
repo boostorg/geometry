@@ -137,7 +137,7 @@ inline void clean_closing_dups_and_spikes(Range& range,
                 // Remove closing last point
                 range::resize(range, boost::size(range) - 1);
                 // Add new closing point
-                range::push_back(range, *boost::begin(range));
+                range::push_back(range, range::front(range));
             }
             found = true;
         }
