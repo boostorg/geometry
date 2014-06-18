@@ -93,6 +93,7 @@ struct turn_info
     Point point;
     method_type method;
     bool discarded;
+    bool selectable_start; // Can be used as starting-turn in traverse
 
 
     Container operations;
@@ -100,6 +101,7 @@ struct turn_info
     inline turn_info()
         : method(method_none)
         , discarded(false)
+        , selectable_start(true)
     {}
 
     inline bool both(operation_type type) const

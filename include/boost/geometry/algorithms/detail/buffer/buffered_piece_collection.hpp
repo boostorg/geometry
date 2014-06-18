@@ -314,23 +314,15 @@ struct buffered_piece_collection
             }
         }
 
-        // 4: From these vectors, get the left turns
-        //    and mark all other turns as to-skip
+        // 4: Mark all turns as not selectable as a starting point for traversing
+        //    rings. They still can be used to continue already started rings.
         for (typename occupation_map_type::iterator it = occupation_map.begin();
             it != occupation_map.end(); ++it)
         {
-            buffer_occupation_info& info = it->second;
-
-            std::vector<detail::left_turns::left_turn> turns_to_keep;
-            info.get_left_turns(it->first, turns_to_keep);
-
-            if (turns_to_keep.empty())
+            typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
+            for (int i = 0; i < turns.size(); i++)
             {
-                typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
-                for (int i = 0; i < turns.size(); i++)
-                {
-                    m_turns[turns[i].turn_index].count_on_occupied++;
-                }
+                m_turns[turns[i].turn_index].selectable_start = false;
             }
         }
     }
@@ -551,7 +543,7 @@ struct buffered_piece_collection
         }
 
 
-        //get_occupation(); // Temporarily disabled, all tests passing...
+        get_occupation();
 
         classify_turns();
 
