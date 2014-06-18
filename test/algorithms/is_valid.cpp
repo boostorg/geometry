@@ -434,6 +434,12 @@ void test_linestrings()
                 AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,4 0)"),
                 AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,0 0,1 0,1 0,1 0,0 0,0 0,2 0)"),
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,0 0,2 0,0 0,3 0,0 0,4 0)"),
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,0 0,2 0,0 0,3 0,0 0,4 0,0 0)"),
+                AllowSpikes);
 
     // other examples
     test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0)"), true);
