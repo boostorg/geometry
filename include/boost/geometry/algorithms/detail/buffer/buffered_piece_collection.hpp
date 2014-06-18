@@ -248,14 +248,6 @@ struct buffered_piece_collection
         // 3: Add vectors (incoming->intersection-point,
         //                 intersection-point -> outgoing)
         //    for all (co-located) points still present in the map
-        //    and fill map segment_pair->turn_index
-        typedef
-        std::map
-        <
-            std::pair<segment_identifier, segment_identifier>,
-            std::set<int>
-        > segment_pair_map;
-        segment_pair_map turn_indices_per_segment_pair;
 
         int index = 0;
         for (iterator_type it = boost::begin(m_turns);
@@ -268,7 +260,6 @@ struct buffered_piece_collection
             if (mit != occupation_map.end())
             {
                 buffer_occupation_info& info = mit->second;
-                // a:
                 for (int i = 0; i < 2; i++)
                 {
                     add_incoming_and_outgoing_angles(it->get_robust_point(), *it,
@@ -278,15 +269,6 @@ struct buffered_piece_collection
                 }
 
                 it->count_on_multi++;
-
-                turn_indices_per_segment_pair
-                    [
-                        ordered_pair
-                            (
-                                it->operations[0].seg_id,
-                                it->operations[1].seg_id
-                            )
-                    ].insert(index);
             }
         }
 
