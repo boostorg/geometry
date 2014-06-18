@@ -28,12 +28,12 @@ namespace detail { namespace is_valid
 
 
 // returns the number of distinct values in the range;
-// return values are 0u through N, where N corresponds to N or
-// more distinct values
+// return values are 0u through MaximumNumber, where MaximumNumber
+// corresponds to MaximumNumber or more distinct values
 template
 <
     typename Range,
-    std::size_t N,
+    std::size_t MaximumNumber,
     bool AllowDuplicates /* true */,
     typename NotEqualTo
 >
@@ -47,7 +47,7 @@ struct number_of_distinct_values
 
         if ( size < 2u )
         {
-            return (size < N) ? size : N;
+            return (size < MaximumNumber) ? size : MaximumNumber;
         }
 
         iterator current = boost::begin(range);
@@ -60,20 +60,20 @@ struct number_of_distinct_values
                                          NotEqualTo(*current));
             current = next;
         }
-        while ( current != boost::end(range) && counter <= N );
+        while ( current != boost::end(range) && counter <= MaximumNumber );
 
         return counter;
     }
 };
 
 
-template <typename Range, std::size_t N, typename NotEqualTo>
-struct number_of_distinct_values<Range, N, false, NotEqualTo>
+template <typename Range, std::size_t MaximumNumber, typename NotEqualTo>
+struct number_of_distinct_values<Range, MaximumNumber, false, NotEqualTo>
 {
     static inline std::size_t apply(Range const& range)
     {
         std::size_t const size = boost::size(range);
-        return (size < N) ? size : N;
+        return (size < MaximumNumber) ? size : MaximumNumber;
     }
 };
 
