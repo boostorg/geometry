@@ -163,6 +163,8 @@ struct buffered_piece_collection
     {}
 
 
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+    // Will (most probably) be removed later
     template <typename OccupationMap>
     inline void adapt_mapped_robust_point(OccupationMap const& map,
             buffer_turn_info_type& turn, int distance) const
@@ -182,8 +184,13 @@ struct buffered_piece_collection
             }
         }
     }
+#endif
 
-    inline void get_occupation(int distance = 0)
+    inline void get_occupation(
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+        int distance = 0
+#endif
+    )
     {
         typedef occupation_info<angle_info<robust_point_type, coordinate_type> >
                 buffer_occupation_info;
@@ -198,8 +205,6 @@ struct buffered_piece_collection
         occupation_map_type occupation_map;
 
         // 1: Add all intersection points to occupation map
-        typedef typename boost::range_iterator<turn_vector_type const>::type
-            const_iterator_type;
         typedef typename boost::range_iterator<turn_vector_type>::type
             iterator_type;
 
@@ -209,11 +214,13 @@ struct buffered_piece_collection
         {
             if (it->count_on_offsetted >= 1)
             {
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
                 if (distance > 0 && ! occupation_map.empty())
                 {
                     adapt_mapped_robust_point(occupation_map, *it, distance);
                 }
-                occupation_map[it->mapped_robust_point].count++;
+#endif
+                occupation_map[it->get_robust_point()].count++;
             }
         }
 
@@ -256,7 +263,7 @@ struct buffered_piece_collection
             ++it, ++index)
         {
             typename occupation_map_type::iterator mit =
-                        occupation_map.find(it->mapped_robust_point);
+                        occupation_map.find(it->get_robust_point());
 
             if (mit != occupation_map.end())
             {
@@ -264,7 +271,7 @@ struct buffered_piece_collection
                 // a:
                 for (int i = 0; i < 2; i++)
                 {
-                    add_incoming_and_outgoing_angles(it->mapped_robust_point, *it,
+                    add_incoming_and_outgoing_angles(it->get_robust_point(), *it,
                                 m_pieces,
                                 index, i, it->operations[i].seg_id,
                                 info);
@@ -283,6 +290,7 @@ struct buffered_piece_collection
             }
         }
 
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
         // X: Check rounding issues
         if (distance == 0)
         {
@@ -299,6 +307,7 @@ struct buffered_piece_collection
                 }
             }
         }
+#endif
 
         // If, in a cluster, one turn is blocked, block them all
         for (typename occupation_map_type::const_iterator it = occupation_map.begin();
@@ -458,7 +467,9 @@ struct buffered_piece_collection
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
             geometry::recalculate(it->robust_point, it->point, m_robust_policy);
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
             it->mapped_robust_point = it->robust_point;
+#endif
 
             robust_turn turn;
             it->turn_index = index;
