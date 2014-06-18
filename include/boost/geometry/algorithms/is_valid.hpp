@@ -10,66 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP
 
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
-#include <boost/geometry/algorithms/dispatch/is_valid.hpp>
-
-#include <boost/geometry/algorithms/detail/is_valid/pointlike.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/linear.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/polygon.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/ring.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/segment.hpp>
-#include <boost/geometry/algorithms/detail/is_valid/box.hpp>
-
-
-namespace boost { namespace geometry
-{
-
-
-namespace resolve_variant {
-
-template <typename Geometry>
-struct is_valid
-{
-    static inline bool apply(Geometry const& geometry)
-    {
-        concept::check<Geometry const>();
-        return dispatch::is_valid<Geometry>::apply(geometry);
-    }
-};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct is_valid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
-{
-    struct visitor : boost::static_visitor<bool>
-    {
-        template <typename Geometry>
-        bool operator()(Geometry const& geometry) const
-        {
-            return is_valid<Geometry>::apply(geometry);
-        }
-    };
-
-    static inline bool
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
-    {
-        return boost::apply_visitor(visitor(), geometry);
-    }
-};
-
-} // namespace resolve_variant
-
-
-
-template <typename Geometry>
-inline bool is_valid(Geometry const& g)
-{
-    return resolve_variant::is_valid<Geometry>::apply(g);
-}
-
-
-}} // namespace boost::geometry
+#include <boost/geometry/algorithms/detail/is_valid/interface.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/implementation.hpp>
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_IS_VALID_HPP
