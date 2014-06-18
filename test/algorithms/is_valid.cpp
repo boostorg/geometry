@@ -16,15 +16,19 @@
 #include <sstream>
 #include <string>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -40,8 +44,11 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
-#include <boost/geometry/algorithms/append.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
+
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
 #include "from_wkt.hpp"
 
@@ -57,16 +64,6 @@ typedef bg::model::segment<point_type>                 segment_type;
 typedef bg::model::box<point_type>                     box_type;
 typedef bg::model::linestring<point_type>              linestring_type;
 typedef bg::model::multi_linestring<linestring_type>   multi_linestring_type;
-// cw, ccw, open and closed rings
-typedef bg::model::ring<point_type,false,false>        open_ccw_ring_type;
-typedef bg::model::ring<point_type,false,true>         closed_ccw_ring_type;
-typedef bg::model::ring<point_type,true,false>         open_cw_ring_type;
-typedef bg::model::ring<point_type,true,true>          closed_cw_ring_type;
-// cw, ccw, open and closed polygons
-typedef bg::model::polygon<point_type,false,false>     open_ccw_polygon_type;
-typedef bg::model::polygon<point_type,false,true>      closed_ccw_polygon_type;
-typedef bg::model::polygon<point_type,true,false>      open_cw_polygon_type;
-typedef bg::model::polygon<point_type,true,true>       closed_cw_polygon_type;
 
 // multi-geometries
 typedef bg::model::multi_point<point_type>             multi_point_type;
@@ -75,104 +72,249 @@ typedef bg::model::multi_point<point_type>             multi_point_type;
 //----------------------------------------------------------------------------
 
 
+// returns true if a geometry can be converted to closed
 template
 <
     typename Geometry,
+    typename Tag = typename bg::tag<Geometry>::type,
+    bg::closure_selector Closure = bg::closure<Geometry>::value
+>
+struct is_convertible_to_closed
+{
+    static inline bool apply(Geometry const&)
+    {
+        return false;
+    }
+};
+
+template <typename Ring>
+struct is_convertible_to_closed<Ring, bg::ring_tag, bg::open>
+{
+    static inline bool apply(Ring const& ring)
+    {
+        return boost::size(ring) > 0;
+    }
+};
+
+template <typename Polygon>
+struct is_convertible_to_closed<Polygon, bg::polygon_tag, bg::open>
+{
+    typedef typename bg::ring_type<Polygon>::type ring_type;
+
+    template <typename InteriorRings>
+    static inline
+    bool apply_to_interior_rings(InteriorRings const& interior_rings)
+    {
+        return bg::detail::check_iterator_range
+            <
+                is_convertible_to_closed<ring_type>,
+                true // allow empty iterator range
+            >::apply(boost::begin(interior_rings),
+                     boost::end(interior_rings));
+    }
+
+    static inline bool apply(Polygon const& polygon)
+    {
+        return boost::size(bg::exterior_ring(polygon)) > 0
+            && apply_to_interior_rings(bg::interior_rings(polygon));
+    }
+};
+
+template <typename MultiPolygon>
+struct is_convertible_to_closed<MultiPolygon, bg::multi_polygon_tag, bg::open>
+{
+    typedef typename boost::range_value<MultiPolygon>::type polygon;
+
+    static inline bool apply(MultiPolygon const& multi_polygon)
+    {
+        return bg::detail::check_iterator_range
+            <
+                is_convertible_to_closed<polygon>
+            >::apply(boost::begin(multi_polygon),
+                     boost::end(multi_polygon));
+    }
+};
+
+
+//----------------------------------------------------------------------------
+
+
+// returns true if a geometry can be converted to cw
+template
+<
+    typename Geometry,
+    typename Tag = typename bg::tag<Geometry>::type,
+    bg::order_selector Order = bg::point_order<Geometry>::value
+>
+struct is_convertible_to_cw
+{
+    static inline bool apply(Geometry const&)
+    {
+        return bg::point_order<Geometry>::value == bg::counterclockwise;
+    }
+};
+
+
+//----------------------------------------------------------------------------
+
+
+struct default_validity_tester
+{
+    template <typename Geometry>    
+    static inline bool apply(Geometry const& geometry,
+                             bool expected_result)
+    {
+        bool valid = bg::is_valid(geometry);
+        BOOST_CHECK_MESSAGE( valid == expected_result,
+            "Expected: " << expected_result
+            << " detected: " << valid
+            << " wkt: " << bg::wkt(geometry) );
+
+        return valid;
+    }
+};
+
+template <bool AllowSpikes>
+struct validity_tester_linear
+{
+    template <typename Geometry>
+    static inline bool apply(Geometry const& geometry,
+                             bool expected_result)
+    {
+        bool valid = bg::dispatch::is_valid
+            <
+                Geometry,
+                typename bg::tag<Geometry>::type,
+                AllowSpikes
+            >::apply(geometry);
+
+        BOOST_CHECK_MESSAGE( valid == expected_result,
+            "Expected: " << expected_result
+            << " detected: " << valid
+            << " wkt: " << bg::wkt(geometry) );
+
+        return valid;
+    }
+};
+
+template <bool AllowDuplicates>
+struct validity_tester_areal
+{
+    template <typename Geometry>
+    static inline bool apply(Geometry const& geometry,
+                             bool expected_result)
+    {
+        bool const irrelevant = true;
+
+        bool valid = bg::dispatch::is_valid
+            <
+                Geometry,
+                typename bg::tag<Geometry>::type,
+                irrelevant,
+                AllowDuplicates
+            >::apply(geometry);
+
+        BOOST_CHECK_MESSAGE( valid == expected_result,
+            "Expected: " << expected_result
+            << " detected: " << valid
+            << " wkt: " << bg::wkt(geometry) );
+
+        return valid;
+    }
+};
+
+
+//----------------------------------------------------------------------------
+
+
+template
+<
+    typename ValidityTester,
+    typename Geometry,
     typename ClosedGeometry = Geometry,
+    typename CWGeometry = Geometry,
+    typename CWClosedGeometry = Geometry,
     typename Tag = typename bg::tag<Geometry>::type
 >
 struct test_valid
 {
-    static inline void apply(Geometry const& g, bool expected_result)
+    template <typename G>
+    static inline void base_test(G const& g, bool expected_result)
     {
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "=======" << std::endl;
 #endif
-        bool valid = bg::is_valid(g);
-        BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << valid
-            << " detected: " << expected_result
-            << " wkt: " << bg::wkt(g) );
+
+        bool valid = ValidityTester::apply(g, expected_result);
+        boost::ignore_unused(valid);
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "Geometry: ";
-        pretty_print_geometry<Geometry>::apply(std::cout, g);
+        pretty_print_geometry<G>::apply(std::cout, g);
         std::cout << std::endl;
+        std::cout << "wkt: " << bg::wkt(g) << std::endl;
         std::cout << std::boolalpha;
         std::cout << "is valid? " << valid << std::endl;
         std::cout << "expected result: " << expected_result << std::endl;
         std::cout << "=======" << std::endl;
-        std::cout << std::endl << std::endl;
         std::cout << std::noboolalpha;
+#endif
+    }
+
+    static inline void apply(Geometry const& geometry, bool expected_result)
+    {
+        base_test(geometry, expected_result);
+
+        if ( is_convertible_to_closed<Geometry>::apply(geometry) )
+        {
+#ifdef GEOMETRY_TEST_DEBUG
+            std::cout << "...checking closed geometry..."
+                      << std::endl;
+#endif
+            ClosedGeometry closed_geometry;
+            bg::convert(geometry, closed_geometry);
+            base_test(closed_geometry, expected_result);
+        }
+        if ( is_convertible_to_cw<Geometry>::apply(geometry) )
+        {
+#ifdef GEOMETRY_TEST_DEBUG
+            std::cout << "...checking cw open geometry..."
+                      << std::endl;
+#endif            
+            CWGeometry cw_geometry;
+            bg::convert(geometry, cw_geometry);
+            base_test(cw_geometry, expected_result);
+            if ( is_convertible_to_closed<CWGeometry>::apply(cw_geometry) )
+            {
+#ifdef GEOMETRY_TEST_DEBUG
+                std::cout << "...checking cw closed geometry..."
+                          << std::endl;
+#endif            
+                CWClosedGeometry cw_closed_geometry;
+                bg::convert(cw_geometry, cw_closed_geometry);
+                base_test(cw_closed_geometry, expected_result);
+            }
+        }
+
+#ifdef GEOMETRY_TEST_DEBUG
+        std::cout << std::endl << std::endl << std::endl;
 #endif
     }
 };
 
-template <typename Ring, typename ClosedRing>
-struct test_valid<Ring, ClosedRing, bg::ring_tag>
+
+//----------------------------------------------------------------------------
+
+
+template <typename VariantGeometry>
+struct test_valid_variant
 {
-    template <typename OpenRing>
-    static inline ClosedRing convert_to_closed(OpenRing const& open_ring)
+    static inline void apply(VariantGeometry const& vg, bool expected_result)
     {
-        ClosedRing closed_ring;
-        bg::append(closed_ring, open_ring);
-        if ( boost::size(open_ring) > 0 )
-        {
-            bg::append(closed_ring, bg::range::front(open_ring));
-        }
-        return closed_ring;
-    }
-
-    static inline void apply(Ring const& ring, bool expected_result)
-    {
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "=======" << std::endl;
-#endif
-
-        bool valid = bg::is_valid(ring);
-        BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << valid
-            << " detected: " << expected_result
-            << " wkt: " << bg::wkt(ring) );
-
-        ClosedRing closed_ring;
-        bool closed_valid(!expected_result);
-        if ( bg::closure<Ring>::value == bg::open )
-        {
-            closed_ring = convert_to_closed(ring);
-            closed_valid = bg::is_valid(closed_ring);
-            BOOST_CHECK( closed_valid == expected_result );
-        };
-
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "Ring (";
-        if ( bg::closure<Ring>::value == bg::open )
-        {
-            std::cout << "open";
-        }
-        else
-        {
-            std::cout << "closed";
-        }
-        std::cout << "): ";
-        pretty_print_geometry<Ring>::apply(std::cout, ring);
-        std::cout << std::endl;
-        std::cout << "open: " << bg::wkt(ring) << std::endl;
-        if ( bg::closure<Ring>::value == bg::open )
-        {
-            std::cout << "closed: " << bg::wkt(closed_ring) << std::endl;
-        }
-        std::cout << std::boolalpha;
-        std::cout << "is valid? " << valid << std::endl;
-        if ( bg::closure<Ring>::value == bg::open )
-        {
-            std::cout << "is valid (closed)? " << closed_valid << std::endl;
-        }
-        std::cout << "expected result: " << expected_result << std::endl;
-        std::cout << "=======" << std::endl;
-        std::cout << std::endl << std::endl;
-        std::cout << std::noboolalpha;
-#endif
+        test_valid
+            <
+                default_validity_tester, VariantGeometry
+            >::base_test(vg, expected_result);
     }
 };
 
@@ -190,8 +332,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_point )
 #endif
 
     typedef point_type G;
-
-    typedef test_valid<G> test;
+    typedef default_validity_tester tester;
+    typedef test_valid<tester, G> test;
 
     test::apply(from_wkt<G>("POINT(0 0)"), true);
 }
@@ -206,8 +348,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
 #endif
 
     typedef multi_point_type G;
-
-    typedef test_valid<G> test;
+    typedef default_validity_tester tester;
+    typedef test_valid<tester, G> test;
 
     test::apply(from_wkt<G>("MULTIPOINT()"), false);
     test::apply(from_wkt<G>("MULTIPOINT(0 0,0 0)"), true);
@@ -225,8 +367,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_segment )
 #endif
 
     typedef segment_type G;
-
-    typedef test_valid<G> test;
+    typedef default_validity_tester tester;
+    typedef test_valid<tester, G> test;
 
     test::apply(from_wkt<G>("SEGMENT(0 0,0 0)"), false);
     test::apply(from_wkt<G>("SEGMENT(0 0,1 0)"), true);
@@ -242,8 +384,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_box )
 #endif
 
     typedef box_type G;
-
-    typedef test_valid<G> test;
+    typedef default_validity_tester tester;
+    typedef test_valid<tester, G> test;
 
     // boxes where the max corner and below and/or to the left of min corner
     test::apply(from_wkt<G>("BOX(0 0,-1 0)"), false);
@@ -258,20 +400,19 @@ BOOST_AUTO_TEST_CASE( test_is_valid_box )
     test::apply(from_wkt<G>("BOX(0 0,1 1)"), true);
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
+template <typename G, bool AllowSpikes>
+void test_linestrings()
 {
 #ifdef GEOMETRY_TEST_DEBUG
-    std::cout << std::endl << std::endl;
-    std::cout << "************************************" << std::endl;
-    std::cout << " is_valid: LINESTRING " << std::endl;
-    std::cout << "************************************" << std::endl;
+    std::cout << "SPIKES ALLOWED? "
+              << std::boolalpha
+              << AllowSpikes
+              << std::noboolalpha
+              << std::endl;
 #endif
 
-    typedef linestring_type G;
-
-    typedef test_valid<G> test;
-
-    static const bool allow_spikes = true;
+    typedef validity_tester_linear<AllowSpikes> tester;
+    typedef test_valid<tester, G> test;
 
     // empty linestring
     test::apply(from_wkt<G>("LINESTRING()"), false);
@@ -291,47 +432,74 @@ BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,2 10)"), true);
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,2 10,0 0)"), true);
     test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0)"), true);
-    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0)"), true);
-    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,3 0)"), true);
-    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,-1 0)"), true);
-    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0 0)"), true);
-
-    // should this be valid? we have two overlapping segments
-    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0.5 0)"), true);
 
     // linestrings with spikes
-    test::apply(from_wkt<G>("LINESTRING(0 0,1 2,0 0)"), allow_spikes);
-    test::apply(from_wkt<G>("LINESTRING(0 0,1 2,1 2,0 0)"), allow_spikes);
-    test::apply(from_wkt<G>("LINESTRING(0 0,0 0,1 2,1 2,0 0)"), allow_spikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 2,0 0)"), AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 2,1 2,0 0)"), AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,0 0,1 2,1 2,0 0)"),
+                AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,0 0,0 0,1 2,1 2,0 0,0 0)"),
-                allow_spikes);
-    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,5 0)"), allow_spikes);    
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,5 0)"), AllowSpikes);    
     test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,0 0)"),
-                allow_spikes);
+                AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,6 0)"),
-                allow_spikes);
+                AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4)"),
-                allow_spikes);
+                AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,6 6)"),
-                allow_spikes);
+                AllowSpikes);
     test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,5 5,4 4,4 0)"),
-                allow_spikes);
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,0 0,1 0,1 0,1 0,0 0,0 0,2 0)"),
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,0 0,2 0,0 0,3 0,0 0,4 0)"),
+                AllowSpikes);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,0 0,2 0,0 0,3 0,0 0,4 0,0 0)"),
+                AllowSpikes);
+
+    // other examples
+    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0)"), true);
+    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,3 0)"),
+                true);
+    test::apply(from_wkt<G>("LINESTRING(0 0,10 0,10 10,5 0,4 0,-1 0)"),
+                true);
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0 0)"),
+                true);
+
+    test::apply(from_wkt<G>("LINESTRING(0 0,1 0,1 1,-1 1,-1 0,0.5 0)"),
+                true);
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
+BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid: MULTILINESTRING " << std::endl;
+    std::cout << " is_valid: LINESTRING " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
-    typedef multi_linestring_type G;
+    bool const allow_spikes = true;
+    bool const do_not_allow_spikes = !allow_spikes;
 
-    typedef test_valid<G> test;
+    test_linestrings<linestring_type, allow_spikes>();
+    test_linestrings<linestring_type, do_not_allow_spikes>();
+}
 
-    static const bool allow_spikes = true;
+template <typename G, bool AllowSpikes>
+void test_multilinestrings()
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << "SPIKES ALLOWED? "
+              << std::boolalpha
+              << AllowSpikes
+              << std::noboolalpha
+              << std::endl;
+#endif
+
+    typedef validity_tester_linear<AllowSpikes> tester;
+    typedef test_valid<tester, G> test;
 
     // empty multilinestring
     test::apply(from_wkt<G>("MULTILINESTRING()"), false);
@@ -351,10 +519,9 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
 
     // multilinstring that has linestrings with spikes
     test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(5 0,1 0,4 1))"),
-                allow_spikes);
+                AllowSpikes);
     test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 0,0 0),(1 0,2 0))"),
-                allow_spikes);
-    
+                AllowSpikes);
 
     // valid multilinestrings
     test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 0,2 0),(5 0,1 0,4 1))"),
@@ -362,27 +529,49 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 0,2 0),(1 0,2 0))"),
                 true);
     test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1),(0 1,1 0))"), true);
-    test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(0 1,1 0,2 2))"),
+    test::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2),(0 1,1 0,2 2))"),   
                 true);
 }
 
+BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: MULTILINESTRING " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
 
-template <typename Point>
-void test_is_valid_open_ring()
+    bool const allow_spikes = true;
+    bool const do_not_allow_spikes = !allow_spikes;
+
+    test_multilinestrings<multi_linestring_type, allow_spikes>();
+    test_multilinestrings<multi_linestring_type, do_not_allow_spikes>();
+}
+
+
+template <typename Point, bool AllowDuplicates>
+void test_open_rings()
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: RING (open) " << std::endl;
     std::cout << "************************************" << std::endl;
+    std::cout << "DUPLICATES ALLOWED? "
+              << std::boolalpha
+              << AllowDuplicates
+              << std::noboolalpha
+              << std::endl;
 #endif
 
     typedef bg::model::ring<Point, false, false> OG; // ccw, open ring
     typedef bg::model::ring<Point, false, true> CG; // ccw, closed ring
+    typedef bg::model::ring<Point, true, false> CW_OG; // cw, open ring
+    typedef bg::model::ring<Point, true, true> CW_CG; // cw, closed ring
  
-    typedef test_valid<OG, CG> test;
-
-    static const bool allow_duplicates = true;
+    typedef validity_tester_areal<AllowDuplicates> tester;
+    typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
     // not enough points
     test::apply(from_wkt<OG>("POLYGON(())"), false);
@@ -394,11 +583,11 @@ void test_is_valid_open_ring()
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"),
-                allow_duplicates);
+                AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"),
-                allow_duplicates);
+                AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
-                allow_duplicates);
+                AllowDuplicates);
 
     // with spikes
     test::apply(from_wkt<OG>("POLYGON((0 0,2 0,2 2,0 2,1 2))"), false);
@@ -433,7 +622,6 @@ void test_is_valid_open_ring()
     test::apply(from_wkt<OG>("POLYGON((0 0,5 0,5 5,3 5,3 5,3 0,3 0,2 0,2 0,2 5,2 5,0 5))"),
                 false);
 
-
     // next two suggested by Adam Wulkiewicz
     test::apply(from_wkt<OG>("POLYGON((0 0,5 0,5 5,0 5,4 4,2 2,0 5))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,5 0,5 5,1 4,4 4,4 1,0 5))"),
@@ -447,30 +635,32 @@ void test_is_valid_open_ring()
 
     // valid rings
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1))"), true);
+    test::apply(from_wkt<OG>("POLYGON((1 0,1 1,0 0))"), true);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 1))"), true);
-
-    typedef bg::model::ring<Point, true, false> OG1; // cw, open ring
-
-    typedef test_valid<OG1> test1;
-
-    test1::apply(from_wkt<OG1>("POLYGON((0 0,1 1,1 0))"), true);
-    test1::apply(from_wkt<OG1>("POLYGON((0 0,0 1,1 1,1 0))"), true);
+    test::apply(from_wkt<OG>("POLYGON((1 0,1 1,0 1,0 0))"), true);
 }
 
 
-template <typename Point>
-void test_is_valid_closed_ring()
+template <typename Point, bool AllowDuplicates>
+void test_closed_rings()
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: RING (closed) " << std::endl;
     std::cout << "************************************" << std::endl;
+    std::cout << "DUPLICATES ALLOWED? "
+              << std::boolalpha
+              << AllowDuplicates
+              << std::noboolalpha
+              << std::endl;
 #endif
 
-    typedef bg::model::ring<Point, false, false> CG; // ccw, closed ring
+    typedef bg::model::ring<Point, false, true> CG; // ccw, closed ring
+    typedef bg::model::ring<Point, true, true> CW_CG; // cw, closed ring
 
-    typedef test_valid<CG> test;
+    typedef validity_tester_areal<AllowDuplicates> tester;
+    typedef test_valid<tester, CG, CG, CW_CG> test;
 
     // not enough points
     test::apply(from_wkt<CG>("POLYGON(())"), false);
@@ -479,9 +669,6 @@ void test_is_valid_closed_ring()
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,2 0))"), false);
-
-#if 0
-    // TODO: these cases do not run and should be fixed
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0,2 0))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,2 0,2 0))"), false);
 
@@ -489,30 +676,42 @@ void test_is_valid_closed_ring()
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 1,1 2))"), false);
     test::apply(from_wkt<CG>("POLYGON((0 0,1 0,1 0,1 1,1 1,1 2))"),
                 false);
-#endif
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_ring )
 {
-    test_is_valid_open_ring<point_type>();
-    test_is_valid_closed_ring<point_type>();
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
+
+    test_open_rings<point_type, allow_duplicates>();
+    test_open_rings<point_type, do_not_allow_duplicates>();
+
+    test_closed_rings<point_type, allow_duplicates>();
+    test_closed_rings<point_type, do_not_allow_duplicates>();
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
+template <typename Point, bool AllowDuplicates>
+void test_open_polygons()
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: POLYGON (open) " << std::endl;
     std::cout << "************************************" << std::endl;
+    std::cout << "DUPLICATES ALLOWED? "
+              << std::boolalpha
+              << AllowDuplicates
+              << std::noboolalpha
+              << std::endl;
 #endif
 
-    typedef open_ccw_polygon_type OG;
-    //    typedef closed_ccw_polygon_type CG;
+    typedef bg::model::polygon<Point, false, false> OG; // ccw, open
+    typedef bg::model::polygon<Point, false, true> CG; // ccw, closed
+    typedef bg::model::polygon<Point, true, false> CW_OG; // cw, open
+    typedef bg::model::polygon<Point, true, true> CW_CG; // cw, closed
 
-    typedef test_valid<OG> test;
-
-    static const bool allow_duplicates = true;
+    typedef validity_tester_areal<AllowDuplicates> tester;
+    typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
     // not enough points in exterior ring
     test::apply(from_wkt<OG>("POLYGON(())"), false);
@@ -529,10 +728,10 @@ BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
     test::apply(from_wkt<OG>("POLYGON((0 0,0 0,0 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
-    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), allow_duplicates);
-    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), allow_duplicates);
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), AllowDuplicates);
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
-                allow_duplicates);
+                AllowDuplicates);
 
     // duplicate points in interior ring
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 1,1 1))"),
@@ -542,11 +741,11 @@ BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 1))"),
                 false);
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,1 1))"),
-                allow_duplicates);
+                AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 2,2 1))"),
-                allow_duplicates);
+                AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,2 1,1 1))"),
-                allow_duplicates);
+                AllowDuplicates);
 
     // with spikes in exterior ring
     test::apply(from_wkt<OG>("POLYGON((0 0,2 0,2 2,0 2,1 2))"), false);
@@ -666,9 +865,9 @@ BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 0,1 9,2 9),(0 0,9 2,9 1))"),
                 true);
     test::apply(from_wkt<OG>("POLYGON((0 0,0 0,10 0,10 10,0 10,0 0),(0 0,0 0,1 9,2 9),(0 0,0 0,9 2,9 1))"),
-                allow_duplicates);
+                AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 10,0 0,0 0,0 0,10 0,10 10),(2 9,0 0,0 0,1 9),(9 1,0 0,0 0,9 2))"),
-                allow_duplicates);
+                AllowDuplicates);
     // two holes, one inside the other
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 0,1 9,9 1),(0 0,4 5,5 4))"),
                 false);
@@ -689,35 +888,45 @@ BOOST_AUTO_TEST_CASE( test_is_valid_open_polygon )
     // fifth hole creating three disconnected components for the interior
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 10,2 1,1 1),(0 10,4 1,3 1),(10 10,9 1,8 1),(10 10,7 1,6 1),(4 1,4 4,6 4,6 1,5 0))"),
                 false);
-    
-
-    typedef open_cw_polygon_type OG1;
-
-    typedef test_valid<OG1> test1;
-
-    test1::apply(from_wkt<OG1>("POLYGON((0 0,0 10,10 10,10 0),(1 1,2 1,1 10))"),
-                 true);
-    test1::apply(from_wkt<OG1>("POLYGON((0 0,0 10,10 10,10 0),(0 10,1 1,2 1),(0 10,3 1,4 1),(10 10,8 1,9 1),(10 10,6 1,7 1))"),
-                 true);
-    test1::apply(from_wkt<OG1>("POLYGON((0 0,0 10,10 10,10 0),(0 10,1 1,2 1),(0 10,3 1,4 1),(10 10,8 1,9 1),(10 10,6 1,7 1),(4 1,5 0,6 1,6 4,4 4))"),
-                 false);
 }
 
-BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
+BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
+{
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
+
+    test_open_polygons<point_type, allow_duplicates>();
+    test_open_polygons<point_type, do_not_allow_duplicates>();
+}
+
+template <typename Point, bool AllowDuplicates>
+void test_open_multipolygons()
 {
 #ifdef GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: MULTIPOLYGON (open) " << std::endl;
     std::cout << "************************************" << std::endl;
+    std::cout << "DUPLICATES ALLOWED? "
+              << std::boolalpha
+              << AllowDuplicates
+              << std::noboolalpha
+              << std::endl;
 #endif
 
-    typedef bg::model::multi_polygon<open_ccw_polygon_type> OG;
-    //    typedef closed_ccw_polygon_type CG;
+    // cw, ccw, open and closed polygons
+    typedef bg::model::polygon<point_type,false,false> ccw_open_polygon_type;
+    typedef bg::model::polygon<point_type,false,true>  ccw_closed_polygon_type;
+    typedef bg::model::polygon<point_type,true,false>  cw_open_polygon_type;
+    typedef bg::model::polygon<point_type,true,true>   cw_closed_polygon_type;
 
-    typedef test_valid<OG> test;
+    typedef bg::model::multi_polygon<ccw_open_polygon_type> OG;
+    typedef bg::model::multi_polygon<ccw_closed_polygon_type> CG;
+    typedef bg::model::multi_polygon<cw_open_polygon_type> CW_OG;
+    typedef bg::model::multi_polygon<cw_closed_polygon_type> CW_CG;
 
-    static const bool allow_duplicates = true;
+    typedef validity_tester_areal<AllowDuplicates> tester;
+    typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
     test::apply(from_wkt<OG>("MULTIPOLYGON((()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0)),(()))"), false);
@@ -725,5 +934,52 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((2 2,3 2,3 3,2 3)))"),
                 true);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 0,1 1,0 1)),((2 2,3 2,3 3,3 3,2 3)))"),
-                allow_duplicates);
+                AllowDuplicates);
+}
+
+BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
+{
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
+
+    test_open_multipolygons<point_type, allow_duplicates>();
+    test_open_multipolygons<point_type, do_not_allow_duplicates>();
+}
+
+BOOST_AUTO_TEST_CASE( test_is_valid_variant )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: variant support" << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
+    typedef bg::model::polygon<point_type> polygon_type; // cw, closed
+
+    typedef boost::variant
+        <
+            linestring_type, multi_linestring_type, polygon_type
+        > variant_geometry;
+    typedef test_valid_variant<variant_geometry> test;
+
+    variant_geometry vg;
+
+    linestring_type valid_linestring =
+        from_wkt<linestring_type>("LINESTRING(0 0,1 0)");
+    multi_linestring_type invalid_multi_linestring =
+        from_wkt<multi_linestring_type>("MULTILINESTRING((0 0,1 0),(0 0))");
+    polygon_type valid_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0,0 0))");
+    polygon_type invalid_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0))");
+
+    vg = valid_linestring;
+    test::apply(vg, true);
+    vg = invalid_multi_linestring;
+    test::apply(vg, false);
+    vg = valid_polygon;
+    test::apply(vg, true);
+    vg = invalid_polygon;
+    test::apply(vg, false);
 }

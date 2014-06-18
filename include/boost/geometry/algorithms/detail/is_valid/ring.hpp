@@ -132,7 +132,7 @@ struct is_valid_ring
 
         closure_selector const closure = geometry::closure<Ring>::value;
 
-        return 
+        return
             ( boost::size(ring)
               >= core_detail::closure::minimum_ring_size<closure>::value )
             && is_topologically_closed<Ring, closure>::apply(ring) 
