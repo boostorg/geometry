@@ -18,6 +18,7 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -165,8 +166,8 @@ struct default_validity_tester
     {
         bool valid = bg::is_valid(geometry);
         BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << valid
-            << " detected: " << expected_result
+            "Expected: " << expected_result
+            << " detected: " << valid
             << " wkt: " << bg::wkt(geometry) );
 
         return valid;
@@ -188,8 +189,8 @@ struct validity_tester_linear
             >::apply(geometry);
 
         BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << valid
-            << " detected: " << expected_result
+            "Expected: " << expected_result
+            << " detected: " << valid
             << " wkt: " << bg::wkt(geometry) );
 
         return valid;
@@ -214,8 +215,8 @@ struct validity_tester_areal
             >::apply(geometry);
 
         BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << valid
-            << " detected: " << expected_result
+            "Expected: " << expected_result
+            << " detected: " << valid
             << " wkt: " << bg::wkt(geometry) );
 
         return valid;
@@ -298,6 +299,22 @@ struct test_valid
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl << std::endl;
 #endif
+    }
+};
+
+
+//----------------------------------------------------------------------------
+
+
+template <typename VariantGeometry>
+struct test_valid_variant
+{
+    static inline void apply(VariantGeometry const& vg, bool expected_result)
+    {
+        test_valid
+            <
+                default_validity_tester, VariantGeometry
+            >::base_test(vg, expected_result);
     }
 };
 
@@ -927,4 +944,42 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 
     test_open_multipolygons<point_type, allow_duplicates>();
     test_open_multipolygons<point_type, do_not_allow_duplicates>();
+}
+
+BOOST_AUTO_TEST_CASE( test_is_valid_variant )
+{
+#ifdef GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: variant support" << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
+    typedef bg::model::polygon<point_type> polygon_type; // cw, closed
+
+    typedef boost::variant
+        <
+            linestring_type, multi_linestring_type, polygon_type
+        > variant_geometry;
+    typedef test_valid_variant<variant_geometry> test;
+
+    variant_geometry vg;
+
+    linestring_type valid_linestring =
+        from_wkt<linestring_type>("LINESTRING(0 0,1 0)");
+    multi_linestring_type invalid_multi_linestring =
+        from_wkt<multi_linestring_type>("MULTILINESTRING((0 0,1 0),(0 0))");
+    polygon_type valid_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0,0 0))");
+    polygon_type invalid_polygon =
+        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0))");
+
+    vg = valid_linestring;
+    test::apply(vg, true);
+    vg = invalid_multi_linestring;
+    test::apply(vg, false);
+    vg = valid_polygon;
+    test::apply(vg, true);
+    vg = invalid_polygon;
+    test::apply(vg, false);
 }
