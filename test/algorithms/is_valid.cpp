@@ -525,8 +525,8 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
     std::cout << "************************************" << std::endl;
 #endif
 
-    static const bool allow_spikes = true;
-    static const bool do_not_allow_spikes = !allow_spikes;
+    bool const allow_spikes = true;
+    bool const do_not_allow_spikes = !allow_spikes;
 
     test_multilinestrings<multi_linestring_type, allow_spikes>();
     test_multilinestrings<multi_linestring_type, do_not_allow_spikes>();
@@ -875,8 +875,8 @@ void test_open_polygons()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 {
-    const bool allow_duplicates = true;
-    const bool do_not_allow_duplicates = !allow_duplicates;
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
 
     test_open_polygons<point_type, allow_duplicates>();
     test_open_polygons<point_type, do_not_allow_duplicates>();
@@ -922,8 +922,8 @@ void test_open_multipolygons()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 {
-    const bool allow_duplicates = true;
-    const bool do_not_allow_duplicates = !allow_duplicates;
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
 
     test_open_multipolygons<point_type, allow_duplicates>();
     test_open_multipolygons<point_type, do_not_allow_duplicates>();
