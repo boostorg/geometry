@@ -43,7 +43,7 @@ struct number_of_distinct_values
     {
         typedef typename boost::range_iterator<Range const>::type iterator;
 
-        std::size_t size = boost::size(range);
+        std::size_t const size = boost::size(range);
 
         if ( size < 2u )
         {
@@ -72,7 +72,7 @@ struct number_of_distinct_values<Range, N, false, NotEqualTo>
 {
     static inline std::size_t apply(Range const& range)
     {
-        std::size_t size = boost::size(range);
+        std::size_t const size = boost::size(range);
         return (size < N) ? size : N;
     }
 };
