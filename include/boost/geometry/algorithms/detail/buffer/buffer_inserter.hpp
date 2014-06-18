@@ -308,7 +308,7 @@ struct buffer_multi
 struct visit_pieces_default_policy
 {
     template <typename Collection>
-    static inline void apply(Collection const&)
+    static inline void apply(Collection const&, int)
     {}
 };
 
