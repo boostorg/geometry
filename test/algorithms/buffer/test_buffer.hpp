@@ -141,13 +141,13 @@ struct svg_visitor
                 << (it->count_on_helper > 0 ? "h" : "")
                 ;
 
-            offsets[it->mapped_robust_point] += 10;
-            int offset = offsets[it->mapped_robust_point];
+            offsets[it->get_robust_point()] += 10;
+            int offset = offsets[it->get_robust_point()];
 
             m_mapper.map(it->point, fill, 6);
             m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
-            offsets[it->mapped_robust_point] += 25;
+            offsets[it->get_robust_point()] += 25;
         }
     }
 
