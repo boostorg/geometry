@@ -41,7 +41,7 @@ typedef bg::strategy::distance::projected_point<> point_segment_strategy;
 template <typename Strategy>
 void test_distance_segment_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "segment/polygon distance tests" << std::endl;
 #endif
@@ -69,7 +69,7 @@ void test_distance_segment_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_linestring_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "linestring/polygon distance tests" << std::endl;
 #endif
@@ -93,7 +93,7 @@ void test_distance_linestring_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multilinestring_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multilinestring/polygon distance tests" << std::endl;
 #endif
@@ -120,7 +120,7 @@ void test_distance_multilinestring_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_segment_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "segment/multipolygon distance tests" << std::endl;
 #endif
@@ -155,7 +155,7 @@ void test_distance_segment_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_linestring_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "linestring/multipolygon distance tests" << std::endl;
 #endif
@@ -190,7 +190,7 @@ void test_distance_linestring_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multilinestring_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multilinestring/multipolygon distance tests" << std::endl;
 #endif
@@ -215,7 +215,7 @@ void test_distance_multilinestring_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_segment_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "2D segment/box distance tests" << std::endl;
 #endif
@@ -653,7 +653,7 @@ void test_distance_segment_box(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_linestring_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "linestring/box distance tests" << std::endl;
 #endif
@@ -683,7 +683,7 @@ void test_distance_linestring_box(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multilinestring_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multilinestring/box distance tests" << std::endl;
 #endif
@@ -710,7 +710,7 @@ void test_distance_multilinestring_box(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_more_empty_input_linear_areal(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "testing on empty inputs... " << std::flush;
 #endif
@@ -739,7 +739,7 @@ void test_more_empty_input_linear_areal(Strategy const& strategy)
     test_empty_input(multiline_empty, polygon_empty, strategy);
     test_empty_input(multiline_empty, multipolygon_empty, strategy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
 }

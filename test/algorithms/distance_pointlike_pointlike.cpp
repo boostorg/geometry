@@ -32,7 +32,7 @@ typedef bg::strategy::distance::pythagoras<> point_point_strategy;
 template <typename Strategy>
 void test_distance_point_point(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/point distance tests" << std::endl;
 #endif
@@ -51,7 +51,7 @@ void test_distance_point_point(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_multipoint(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/multipoint distance tests" << std::endl;
 #endif
@@ -73,7 +73,7 @@ void test_distance_point_multipoint(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_multipoint(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipoint/multipoint distance tests" << std::endl;
 #endif
@@ -95,7 +95,7 @@ void test_distance_multipoint_multipoint(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_more_empty_input_pointlike_pointlike(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "testing on empty inputs... " << std::flush;
 #endif
@@ -112,7 +112,7 @@ void test_more_empty_input_pointlike_pointlike(Strategy const& strategy)
     // both geometries are empty
     test_empty_input(multipoint_empty, multipoint_empty, strategy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
 }

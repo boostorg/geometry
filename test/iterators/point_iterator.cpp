@@ -152,7 +152,7 @@ struct test_assignment
     static inline void apply(Iterator it, ConstIterator cit,
                              Value const& value1, Value const& value2)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "== before assignment ==" << std::endl;
         std::cout << "value1: " << bg::wkt(value1) << std::endl;
         std::cout << "value2: " << bg::wkt(value2) << std::endl;
@@ -171,7 +171,7 @@ struct test_assignment
         BOOST_CHECK( bg::equals(*cit, value2) );
         BOOST_CHECK( !bg::equals(*cit, value1) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "== after 1st assignment ==" << std::endl;
         std::cout << "value1: " << bg::wkt(value1) << std::endl;
         std::cout << "value2: " << bg::wkt(value2) << std::endl;
@@ -185,7 +185,7 @@ struct test_assignment
         BOOST_CHECK( bg::equals(*cit, value1) );
         BOOST_CHECK( !bg::equals(*cit, value2) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "== after 2nd assignment ==" << std::endl;
         std::cout << "value1: " << bg::wkt(value1) << std::endl;
         std::cout << "value2: " << bg::wkt(value2) << std::endl;
@@ -211,7 +211,7 @@ struct test_point_iterator_of_geometry
         BOOST_CHECK( bg::equals(front, *--bg::points_rend(geometry)) );
         BOOST_CHECK( bg::equals(back, *bg::points_rbegin(geometry)) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "front: " << bg::dsv(bg::points_front(geometry))
                   << std::endl;
         std::cout << "back : " << bg::dsv(bg::points_back(geometry))
@@ -237,7 +237,7 @@ struct test_point_iterator_of_geometry
                                    bg::points_end(point_range))
                      );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << header << " geometry: " << bg::wkt(geometry) << std::endl;
         print_point_range(std::cout, begin, end, "point range: ");
         std::cout << std::endl;
@@ -264,13 +264,13 @@ struct test_point_iterator_of_geometry
     {
         base_test<Geometry>(geometry, point_range, "non-const");
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
 #endif
 
         base_test<Geometry const>(geometry, point_range, "const");
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl;
 #endif
 
@@ -353,7 +353,7 @@ struct test_point_iterator_of_geometry
         }
 
         // test with algorithms
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, begin, end, "original:\n") << std::endl;
         print_point_range(std::cout, rbegin, rend, "reverse traversal:\n")
             << std::endl;
@@ -362,14 +362,14 @@ struct test_point_iterator_of_geometry
 #endif
 
         std::reverse(begin, end);
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, begin, end, "reversed:\n") << std::endl;
         std::cout << bg::wkt(geometry) << std::endl;
         std::cout << std::endl;
 #endif
 
         std::reverse(begin, end);
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, begin, end, "re-reversed:\n") << std::endl;
         std::cout << bg::wkt(geometry) << std::endl;
         std::cout << std::endl;
@@ -387,11 +387,11 @@ struct test_point_iterator_of_geometry
                                                             bg::less<point>());
 
             BOOST_CHECK( pit_max != const_end ); // to avoid warnings
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "max point: " << bg::dsv(*pit_max) << std::endl;
 #endif
         }
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
@@ -406,7 +406,7 @@ struct test_point_iterator_of_geometry
 
 BOOST_AUTO_TEST_CASE( test_linestring_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** LINESTRING ***" << std::endl;
 #endif
 
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( test_linestring_point_iterator )
                   ba::tuple_list_of(3,3)(4,4)(5,5)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
 #endif
 }
@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE( test_linestring_point_iterator )
 
 BOOST_AUTO_TEST_CASE( test_polygon_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** POLYGON ***" << std::endl;
 #endif
 
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE( test_polygon_point_iterator )
                   ba::tuple_list_of(3,3)(4,4)(5,5)(6,6)(7,7)(8,8)(9,9)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
 #endif
 }
@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE( test_polygon_point_iterator )
 
 BOOST_AUTO_TEST_CASE( test_multipoint_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** MULTIPOINT ***" << std::endl;
 #endif
 
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE( test_multipoint_point_iterator )
                   ba::tuple_list_of(3,3)(4,4)(5,5)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
 #endif
 }
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE( test_multipoint_point_iterator )
 
 BOOST_AUTO_TEST_CASE( test_multipoint_3d_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** MULTIPOINT 3D ***" << std::endl;
 #endif
 
@@ -522,7 +522,7 @@ BOOST_AUTO_TEST_CASE( test_multipoint_3d_point_iterator )
                   ba::tuple_list_of(3,3,3)(4,4,4)(5,5,5)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
 #endif
 }
@@ -534,7 +534,7 @@ BOOST_AUTO_TEST_CASE( test_multipoint_3d_point_iterator )
 
 BOOST_AUTO_TEST_CASE( test_multilinestring_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** MULTILINESTRING ***" << std::endl;
 #endif
 
@@ -563,7 +563,7 @@ BOOST_AUTO_TEST_CASE( test_multilinestring_point_iterator )
                   ba::tuple_list_of(1,1)(2,2)(3,3)(3,3)(4,4)(5,5)(6,6)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
 #endif
 }
@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE( test_multilinestring_point_iterator )
 
 BOOST_AUTO_TEST_CASE( test_multipolygon_point_iterator )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "*** MULTIPOLYGON ***" << std::endl;
 #endif
 
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE( test_multipolygon_point_iterator )
                   (1,1)(2,2)(10,10)(11,11)(12,12)(13,13)
                   );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
 #endif
 }

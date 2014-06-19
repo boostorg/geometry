@@ -52,7 +52,7 @@
 
 #include "from_wkt.hpp"
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include "pretty_print_geometry.hpp"
 #endif
 
@@ -241,14 +241,14 @@ struct test_valid
     template <typename G>
     static inline void base_test(G const& g, bool expected_result)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "=======" << std::endl;
 #endif
 
         bool valid = ValidityTester::apply(g, expected_result);
         boost::ignore_unused(valid);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry: ";
         pretty_print_geometry<G>::apply(std::cout, g);
         std::cout << std::endl;
@@ -267,7 +267,7 @@ struct test_valid
 
         if ( is_convertible_to_closed<Geometry>::apply(geometry) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "...checking closed geometry..."
                       << std::endl;
 #endif
@@ -277,7 +277,7 @@ struct test_valid
         }
         if ( is_convertible_to_cw<Geometry>::apply(geometry) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "...checking cw open geometry..."
                       << std::endl;
 #endif            
@@ -286,7 +286,7 @@ struct test_valid
             base_test(cw_geometry, expected_result);
             if ( is_convertible_to_closed<CWGeometry>::apply(cw_geometry) )
             {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
                 std::cout << "...checking cw closed geometry..."
                           << std::endl;
 #endif            
@@ -296,7 +296,7 @@ struct test_valid
             }
         }
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl << std::endl;
 #endif
     }
@@ -324,7 +324,7 @@ struct test_valid_variant
 
 BOOST_AUTO_TEST_CASE( test_is_valid_point )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: POINT " << std::endl;
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_point )
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: MULTIPOINT " << std::endl;
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
 
 BOOST_AUTO_TEST_CASE( test_is_valid_segment )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: SEGMENT " << std::endl;
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_segment )
 
 BOOST_AUTO_TEST_CASE( test_is_valid_box )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: BOX " << std::endl;
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_box )
 template <typename G, bool AllowSpikes>
 void test_linestrings()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "SPIKES ALLOWED? "
               << std::boolalpha
               << AllowSpikes
@@ -473,7 +473,7 @@ void test_linestrings()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: LINESTRING " << std::endl;
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_linestring )
 template <typename G, bool AllowSpikes>
 void test_multilinestrings()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "SPIKES ALLOWED? "
               << std::boolalpha
               << AllowSpikes
@@ -535,7 +535,7 @@ void test_multilinestrings()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: MULTILINESTRING " << std::endl;
@@ -553,7 +553,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
 template <typename Point, bool AllowDuplicates>
 void test_open_rings()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: RING (open) " << std::endl;
@@ -644,7 +644,7 @@ void test_open_rings()
 template <typename Point, bool AllowDuplicates>
 void test_closed_rings()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: RING (closed) " << std::endl;
@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
 template <typename Point, bool AllowDuplicates>
 void test_open_polygons()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: POLYGON (open) " << std::endl;
@@ -902,7 +902,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 template <typename Point, bool AllowDuplicates>
 void test_open_multipolygons()
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: MULTIPOLYGON (open) " << std::endl;
@@ -948,7 +948,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 
 BOOST_AUTO_TEST_CASE( test_is_valid_variant )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_valid: variant support" << std::endl;

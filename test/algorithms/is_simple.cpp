@@ -38,7 +38,7 @@
 
 #include "from_wkt.hpp"
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include "pretty_print_geometry.hpp"
 #endif
 
@@ -65,7 +65,7 @@ typedef bg::model::box<point_type>                      box_type;
 template <typename Geometry>
 void test_simple(Geometry const& geometry, bool expected_result)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "=======" << std::endl;
 #endif
 
@@ -76,7 +76,7 @@ void test_simple(Geometry const& geometry, bool expected_result)
         << " detected: " << simple
         << " wkt: " << bg::wkt(geometry) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "Geometry: ";
     pretty_print_geometry<Geometry>::apply(std::cout, geometry);
     std::cout << std::endl;
@@ -95,7 +95,7 @@ void test_simple(Geometry const& geometry, bool expected_result)
 
 BOOST_AUTO_TEST_CASE( test_is_simple_point )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: POINT " << std::endl;
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_point )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: MULTIPOINT " << std::endl;
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multipoint )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_segment )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: SEGMENT " << std::endl;
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_segment )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: LINESTRING " << std::endl;
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: MULTILINESTRING " << std::endl;
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_areal )
 
 BOOST_AUTO_TEST_CASE( test_is_simple_variant )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
     std::cout << " is_simple: variant support" << std::endl;

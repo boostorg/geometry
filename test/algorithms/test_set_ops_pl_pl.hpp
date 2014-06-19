@@ -205,7 +205,7 @@ private:
         set_operation_output(op_name, case_id,
                              geometry1, geometry2, mp_output);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "expected " << op_name << " : "
@@ -226,14 +226,14 @@ public:
                              MultiPoint const& mp_expected21,
                              std::string const& case_id)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
 #endif
 
         base_test(geometry1, geometry2, mp_expected12, case_id);
         base_test(geometry2, geometry1, mp_expected21, case_id);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << std::endl;
 #endif
