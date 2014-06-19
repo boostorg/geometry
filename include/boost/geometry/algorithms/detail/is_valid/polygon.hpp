@@ -25,6 +25,7 @@
 
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
@@ -136,25 +137,27 @@ private:
             && turn.operations[1].operation == operation;
     }
 
-    template <typename Turn>
-    static inline bool is_acceptable_turn(Turn const& turn)
+    struct is_acceptable_turn
     {
-        if ( turn.operations[0].seg_id.ring_index
-             == turn.operations[0].other_id.ring_index )
+        template <typename Turn>
+        static inline bool apply(Turn const& turn)
         {
-            return false;
+            if ( turn.operations[0].seg_id.ring_index
+                 == turn.operations[0].other_id.ring_index )
+            {
+                return false;
+            }
+
+            detail::overlay::operation_type const op = acceptable_operation
+                <
+                    geometry::point_order<Polygon>::value
+                >::value;
+
+            return check_turn(turn, detail::overlay::method_touch_interior, op)
+                || check_turn(turn, detail::overlay::method_touch, op)
+                ;
         }
-
-        detail::overlay::operation_type const op = acceptable_operation
-            <
-                geometry::point_order<Polygon>::value
-            >::value;
-
-        return check_turn(turn, detail::overlay::method_touch_interior, op)
-            || check_turn(turn, detail::overlay::method_touch, op)
-            ;
-    }
-
+    };
 
 
     template <typename InteriorRings>
@@ -234,13 +237,21 @@ public:
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(polygon);
 
-        std::deque<turn_info> turns;
-        detail::self_get_turn_points::no_interrupt_policy interrupt_policy;
+        detail::overlay::predicate_based_interrupt_policy
+            <
+                is_acceptable_turn
+            > interrupt_policy;
 
+        std::deque<turn_info> turns;
         geometry::self_turns<turn_policy>(polygon,
                                           robust_policy,
                                           turns,
                                           interrupt_policy);
+
+        if ( interrupt_policy.has_intersections )
+        {
+            return false;
+        }
 
 #ifdef GEOMETRY_TEST_DEBUG
         std::cout << "turns:";
@@ -261,14 +272,12 @@ public:
         std::cout << std::endl << std::endl;
 #endif
 
+        // put the ring id's that are associated with turns in a
+        // container with fast lookup (std::set)
         std::set<int> rings_with_turns;
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)
         {
-            if ( !is_acceptable_turn(*tit) )
-            {
-                return false;
-            }
             rings_with_turns.insert(tit->operations[0].seg_id.ring_index);
             rings_with_turns.insert(tit->operations[0].other_id.ring_index);
         }
