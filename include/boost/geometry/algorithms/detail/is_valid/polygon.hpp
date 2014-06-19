@@ -237,7 +237,7 @@ public:
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(polygon);
 
-        detail::overlay::predicate_based_interrupt_policy
+        detail::overlay::stateless_predicate_based_interrupt_policy
             <
                 is_acceptable_turn
             > interrupt_policy;
