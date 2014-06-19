@@ -22,7 +22,8 @@ namespace detail
 // predicate.
 // The predicate must be implemented as having a static apply unary
 // method that returns a bool.
-template <typename Predicate, bool AllowEmptyMultiRange = false>
+// By default an empty range is accepted
+template <typename Predicate, bool AllowEmptyRange = true>
 struct check_iterator_range
 {
     template <typename InputIterator>
@@ -35,7 +36,7 @@ struct check_iterator_range
                 return false;
             }
         }
-        return AllowEmptyMultiRange || first != beyond;
+        return AllowEmptyRange || first != beyond;
     };
 };
 

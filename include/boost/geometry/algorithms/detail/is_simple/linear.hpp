@@ -116,7 +116,8 @@ public:
         // check each of the linestrings for simplicity
         if ( !detail::check_iterator_range
                  <
-                     is_simple_linestring<linestring>
+                     is_simple_linestring<linestring>,
+                     false // do not allow empty multilinestring
                  >::apply(boost::begin(multilinestring),
                           boost::end(multilinestring))
              )

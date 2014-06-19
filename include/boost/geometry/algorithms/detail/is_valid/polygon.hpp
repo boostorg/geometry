@@ -169,8 +169,7 @@ private:
                             AllowDuplicates,
                             false, // do not check self-intersections
                             true // indicate that the ring is interior
-                        >,
-                    true // allow the iterator range to be empty
+                        >
                 >::apply(boost::begin(interior_rings),
                          boost::end(interior_rings));
     }
@@ -352,7 +351,8 @@ struct is_valid<MultiPolygon, multi_polygon_tag, AllowSpikes, AllowDuplicates>
                           <
                               typename boost::range_value<MultiPolygon>::type,
                               AllowDuplicates
-                          >
+                          >,
+                      false // do not allow empty multi-polygons
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon)) )
         {
