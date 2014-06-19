@@ -323,9 +323,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance;
-
-    typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
 	typedef typename bg::tag<Geometry>::type tag;
 	// TODO use something different here:
@@ -508,8 +505,6 @@ void test_one(std::string const& caseid, std::string const& wkt,
     namespace bg = boost::geometry;
     Geometry g;
     bg::read_wkt(wkt, g);
-
-    typedef typename bg::point_type<Geometry>::type point_type;
 
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
