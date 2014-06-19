@@ -19,7 +19,6 @@
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -71,16 +70,13 @@ private :
     typedef typename Indexed::type turn_operation_type;
     typedef typename geometry::point_type<Geometry1>::type point_type;
 
-    typedef model::point
+    typedef typename geometry::robust_point_type
     <
-            typename detail::robust_type
-                <
-                    typename select_coordinate_type<Geometry1, Geometry2>::type
-                >::type,
-            geometry::dimension<Geometry1>::value,
-            typename geometry::coordinate_system<Geometry1>::type
-        > robust_point_type;
+        point_type,
+        RobustPolicy
+    >::type robust_point_type;
 
+    // TODO: this function is shared with enrich_intersection_points
     // Still called by #case_102_multi, #case_107_multi
     // #case_recursive_boxes_3
     inline void get_situation_map(Indexed const& left, Indexed const& right,
@@ -88,7 +84,6 @@ private :
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
                               robust_point_type& si_rob, robust_point_type& sj_rob) const
     {
-        typedef typename geometry::point_type<Geometry1>::type point_type;
         point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,

@@ -311,9 +311,7 @@ void test_all()
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p6", rt_p6, 18.4853, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p7", rt_p7, 26.2279, 1.0);
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p8", rt_p8, 29.0563, 1.0);
-#if !defined(_MSC_VER)
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p9", rt_p9, 26.1421, 1.0);
-#endif
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p10", rt_p10, 23.3995, 1.0);
 
     test_one<multi_polygon_type, buf::join_miter, buf::end_skip, polygon_type>("rt_p11", rt_p11, 28.7426, 1.0);

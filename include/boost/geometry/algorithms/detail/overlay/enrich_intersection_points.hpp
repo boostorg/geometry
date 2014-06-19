@@ -29,7 +29,6 @@
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
-#include <boost/geometry/algorithms/detail/zoom_to_robust.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
@@ -77,6 +76,7 @@ template
     typename TurnPoints,
     typename Indexed,
     typename Geometry1, typename Geometry2,
+    typename RobustPolicy,
     bool Reverse1, bool Reverse2,
     typename Strategy
 >
@@ -85,11 +85,13 @@ struct sort_on_segment_and_ratio
     inline sort_on_segment_and_ratio(TurnPoints const& turn_points
             , Geometry1 const& geometry1
             , Geometry2 const& geometry2
+            , RobustPolicy const& robust_policy
             , Strategy const& strategy
             , bool* clustered)
         : m_turn_points(turn_points)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
+        , m_robust_policy(robust_policy)
         , m_strategy(strategy)
         , m_clustered(clustered)
     {
@@ -100,25 +102,26 @@ private :
     TurnPoints const& m_turn_points;
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
+    RobustPolicy const& m_robust_policy;
     Strategy const& m_strategy;
     mutable bool* m_clustered;
 
-    typedef model::point
-        <
-            typename detail::robust_type
-                <
-                    typename select_coordinate_type<Geometry1, Geometry2>::type
-                >::type,
-            geometry::dimension<Geometry1>::value,
-            typename geometry::coordinate_system<Geometry1>::type
-        > robust_point_type;
+    typedef typename geometry::point_type<Geometry1>::type point_type;
+    typedef typename geometry::robust_point_type
+    <
+        point_type,
+        RobustPolicy
+    >::type robust_point_type;
 
+    // TODO: this function is shared with handle_tangencies
+    // The one in handle_tangencies will go as soon as we have
+    // reliable "cluster_info" (using occupation_map, get_left_turns)
     inline void get_situation_map(Indexed const& left, Indexed const& right,
                               robust_point_type& pi_rob, robust_point_type& pj_rob,
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
                               robust_point_type& si_rob, robust_point_type& sj_rob) const
     {
-        typename geometry::point_type<Geometry1>::type pi, pj, ri, rj, si, sj;
+        point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             left.subject.seg_id,
@@ -129,8 +132,13 @@ private :
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
             right.subject.other_id,
             si, sj);
-        detail::zoom_to_robust(pi, pj, ri, rj, si, sj,
-                                    pi_rob, pj_rob, ri_rob, rj_rob, si_rob, sj_rob);
+
+        geometry::recalculate(pi_rob, pi, m_robust_policy);
+        geometry::recalculate(pj_rob, pj, m_robust_policy);
+        geometry::recalculate(ri_rob, ri, m_robust_policy);
+        geometry::recalculate(rj_rob, rj, m_robust_policy);
+        geometry::recalculate(si_rob, si, m_robust_policy);
+        geometry::recalculate(sj_rob, sj, m_robust_policy);
     }
 
     inline bool consider_relative_order(Indexed const& left,
@@ -235,9 +243,10 @@ inline void enrich_sort(Container& operations,
                         TurnPoints,
                         IndexType,
                         Geometry1, Geometry2,
+                        RobustPolicy,
                         Reverse1, Reverse2,
                         Strategy
-                    >(turn_points, geometry1, geometry2, strategy, &clustered));
+                    >(turn_points, geometry1, geometry2, robust_policy, strategy, &clustered));
 
     // DONT'T discard xx / (for union) ix / ii / (for intersection) ux / uu here
     // It would give way to "lonely" ui turn points, traveling all
