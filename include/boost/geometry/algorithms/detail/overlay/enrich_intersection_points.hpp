@@ -151,11 +151,6 @@ private :
                 robust_point_type
             >::apply(pi, pj, ri, rj, si, sj);
         //debug("r/o", order == -1);
-        if (order == 0)
-        {
-            // also order is the same.
-            return left.subject.seg_id < right.subject.seg_id;
-        }
         return order == -1;
     }
 
@@ -175,6 +170,9 @@ public :
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
+                // TODO: reconsider this. Using integer maths, this will
+                // ALWAYS return 0 because either fractions are different, or
+                // the (currently calculated) relative-order is identical
                 if (m_turn_points[left.index].method == method_crosses
                     && m_turn_points[right.index].method == method_crosses)
                 {
@@ -184,8 +182,6 @@ public :
                 // If that is not the case, cluster it later on.
                 // Indicate that this is necessary.
                 *m_clustered = true;
-
-                return left.subject.seg_id < right.subject.seg_id;
             }
         }
         return sl == sr
