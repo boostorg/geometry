@@ -162,7 +162,7 @@ inline void pop_back(Range & rng)
 
 /*!
 \brief Short utility to conveniently remove an element from a mutable range.
-       It uses std::copy() and resize(). It requires mutable iterator as parameter.
+       It uses std::copy() and resize(). Version taking mutable iterators.
 \ingroup utility
 */
 template <typename Range>
@@ -185,8 +185,30 @@ erase(Range & rng,
 }
 
 /*!
+\brief Short utility to conveniently remove an element from a mutable range.
+       It uses std::copy() and resize(). Version taking non-mutable iterators.
+\ingroup utility
+*/
+template <typename Range>
+inline typename boost::range_iterator<Range const>::type
+erase(Range & rng,
+      typename boost::range_iterator<Range const>::type cit)
+{
+    BOOST_RANGE_CONCEPT_ASSERT(( boost::RandomAccessRangeConcept<Range> ));
+
+    typename boost::range_iterator<Range>::type
+        it = boost::begin(rng)
+                + std::distance(boost::const_begin(rng), cit);
+
+    erase(rng, it);
+
+    // NOTE: assuming that resize() doesn't invalidate the iterators
+    return cit;
+}
+
+/*!
 \brief Short utility to conveniently remove a range of elements from a mutable range.
-       It uses std::copy() and resize(). It requires mutable iterators as parameters.
+       It uses std::copy() and resize(). Version taking mutable iterators.
 \ingroup utility
 */
 template <typename Range>
@@ -212,6 +234,32 @@ erase(Range & rng,
 
     // NOTE: assuming that resize() doesn't invalidate the iterators
     return first;
+}
+
+/*!
+\brief Short utility to conveniently remove a range of elements from a mutable range.
+       It uses std::copy() and resize(). Version taking non-mutable iterators.
+\ingroup utility
+*/
+template <typename Range>
+inline typename boost::range_iterator<Range const>::type
+erase(Range & rng,
+      typename boost::range_iterator<Range const>::type cfirst,
+      typename boost::range_iterator<Range const>::type clast)
+{
+    BOOST_RANGE_CONCEPT_ASSERT(( boost::RandomAccessRangeConcept<Range> ));
+
+    typename boost::range_iterator<Range>::type
+        first = boost::begin(rng)
+                    + std::distance(boost::const_begin(rng), cfirst);
+    typename boost::range_iterator<Range>::type
+        last = boost::begin(rng)
+                    + std::distance(boost::const_begin(rng), clast);
+
+    erase(rng, first, last);
+
+    // NOTE: assuming that resize() doesn't invalidate the iterators
+    return cfirst;
 }
 
 }}} // namespace boost::geometry::range

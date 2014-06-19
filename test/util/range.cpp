@@ -15,9 +15,59 @@
 #include <vector>
 #include <boost/geometry/util/range.hpp>
 
-int test_main(int, char* [])
+namespace bgt {
+
+template <bool MutableIterator>
+struct beginner
+{
+    template <typename Range>
+    typename boost::range_iterator<Range>::type
+    operator()(Range & rng)
+    {
+        return boost::begin(rng);
+    }
+};
+template <>
+struct beginner<false>
+{
+    template <typename Range>
+    typename boost::range_iterator<Range const>::type
+    operator()(Range & rng)
+    {
+        return boost::const_begin(rng);
+    }
+};
+
+template <bool MutableIterator>
+struct ender
+{
+    template <typename Range>
+    typename boost::range_iterator<Range>::type
+    operator()(Range & rng)
+    {
+        return boost::end(rng);
+    }
+};
+template <>
+struct ender<false>
+{
+    template <typename Range>
+    typename boost::range_iterator<Range const>::type
+    operator()(Range & rng)
+    {
+        return boost::const_end(rng);
+    }
+};
+
+} // namespace bgt
+
+template <bool MutableIterator>
+void test_all()
 {
     namespace bgr = bg::range;
+
+    bgt::beginner<MutableIterator> begin;
+    bgt::ender<MutableIterator> end;
 
     std::vector<int> v;
     for (int i = 0 ; i < 20 ; ++i)
@@ -42,46 +92,52 @@ int test_main(int, char* [])
     BOOST_CHECK(boost::size(v) == 14); // [0,13]
     BOOST_CHECK(bgr::back(v) == 13);
     
-    bgr::erase(v, boost::end(v) - 1);
+    bgr::erase(v, end(v) - 1);
     BOOST_CHECK(boost::size(v) == 13); // [0,12]
     BOOST_CHECK(bgr::back(v) == 12);
 
-    bgr::erase(v, boost::end(v) - 3, boost::end(v));
+    bgr::erase(v, end(v) - 3, end(v));
     BOOST_CHECK(boost::size(v) == 10); // [0,9]
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v) + 2);
+    bgr::erase(v, begin(v) + 2);
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v) + 2, boost::begin(v) + 2);
+    bgr::erase(v, begin(v) + 2, begin(v) + 2);
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v) + 2, boost::begin(v) + 5);
+    bgr::erase(v, begin(v) + 2, begin(v) + 5);
     BOOST_CHECK(boost::size(v) == 6); // {0,1,6..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v));
+    bgr::erase(v, begin(v));
     BOOST_CHECK(boost::size(v) == 5); // {1,6..9}
     BOOST_CHECK(bgr::at(v, 0) == 1);
     BOOST_CHECK(bgr::at(v, 1) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v), boost::begin(v) + 3);
+    bgr::erase(v, begin(v), begin(v) + 3);
     BOOST_CHECK(boost::size(v) == 2); // {8,9}
     BOOST_CHECK(bgr::at(v, 0) == 8);
     BOOST_CHECK(bgr::at(v, 1) == 9);
     BOOST_CHECK(bgr::back(v) == 9);
 
-    bgr::erase(v, boost::begin(v), boost::end(v));
+    bgr::erase(v, begin(v), end(v));
     BOOST_CHECK(boost::size(v) == 0);
+}
+
+int test_main(int, char* [])
+{
+    test_all<true>();
+    test_all<false>();
 
     return 0;
 }
