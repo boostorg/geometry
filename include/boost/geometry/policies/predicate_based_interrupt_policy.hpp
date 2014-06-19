@@ -29,13 +29,13 @@ template
     typename IsAcceptableTurnPredicate,
     bool AllowEmptyTurnRange = true // by default, allow an empty turn range
 >
-struct predicate_based_interrupt_policy
+struct stateless_predicate_based_interrupt_policy
 {
     static bool const enabled = true;
     bool has_intersections; // set to true if there is at least one
                             // unacceptable turn
 
-    inline predicate_based_interrupt_policy()
+    inline stateless_predicate_based_interrupt_policy()
         : has_intersections(false)
     {}
 
@@ -52,6 +52,42 @@ struct predicate_based_interrupt_policy
         return has_intersections;
     }
 };
+
+
+
+
+template
+<
+    typename IsAcceptableTurnPredicate,
+    bool AllowEmptyTurnRange = true // by default, allow an empty turn range
+>
+struct predicate_based_interrupt_policy
+{
+    static bool const enabled = true;
+    bool has_intersections; // set to true if there is at least one
+                            // unacceptable turn
+    IsAcceptableTurnPredicate const& m_predicate;
+
+    inline
+    predicate_based_interrupt_policy(IsAcceptableTurnPredicate const& predicate)
+        : has_intersections(false)
+        , m_predicate(predicate)
+    {}
+
+    template <typename Range>
+    inline bool apply(Range const& range)
+    {
+        // if there is at least one unacceptable turn in the range, return false
+        has_intersections = !detail::check_iterator_range
+            <
+                IsAcceptableTurnPredicate,
+                AllowEmptyTurnRange
+            >::apply(boost::begin(range), boost::end(range), m_predicate);
+
+        return has_intersections;
+    }
+};
+
 
 
 
