@@ -29,7 +29,7 @@ public :
 
     template <typename Point>
     inline CoordinateType apply(Point const& , Point const& ,
-                buffer_side_selector side)  const
+                buffer_side_selector )  const
     {
         return m_distance;
     }

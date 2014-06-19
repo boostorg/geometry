@@ -132,8 +132,8 @@ template<typename Pieces>
 inline void move_index(Pieces const& pieces, int& index, int& piece_index, int direction)
 {
     BOOST_ASSERT(direction == 1 || direction == -1);
-    BOOST_ASSERT(piece_index >= 0 && piece_index < boost::size(pieces));
-    BOOST_ASSERT(index >= 0 && index < boost::size(pieces[piece_index].robust_ring));
+    BOOST_ASSERT(piece_index >= 0 && piece_index < static_cast<int>(boost::size(pieces)) );
+    BOOST_ASSERT(index >= 0 && index < static_cast<int>(boost::size(pieces[piece_index].robust_ring)));
 
     index += direction;
     if (direction == -1 && index < 0)
@@ -145,10 +145,11 @@ inline void move_index(Pieces const& pieces, int& index, int& piece_index, int d
         }
         index = boost::size(pieces[piece_index].robust_ring) - 1;
     }
-    if (direction == 1 && index >= boost::size(pieces[piece_index].robust_ring))
+    if (direction == 1
+        && index >= static_cast<int>(boost::size(pieces[piece_index].robust_ring)))
     {
         piece_index++;
-        if (piece_index >= boost::size(pieces))
+        if (piece_index >= static_cast<int>(boost::size(pieces)))
         {
             piece_index = 0;
         }
