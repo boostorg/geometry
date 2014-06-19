@@ -151,6 +151,11 @@ private :
                 robust_point_type
             >::apply(pi, pj, ri, rj, si, sj);
         //debug("r/o", order == -1);
+        if (order == 0)
+        {
+            // also order is the same.
+            return left.subject.seg_id < right.subject.seg_id;
+        }
         return order == -1;
     }
 
@@ -180,7 +185,7 @@ public :
                 // Indicate that this is necessary.
                 *m_clustered = true;
 
-                return left.subject.fraction < right.subject.fraction;
+                return left.subject.seg_id < right.subject.seg_id;
             }
         }
         return sl == sr
