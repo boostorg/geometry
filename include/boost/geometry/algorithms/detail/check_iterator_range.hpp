@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -46,6 +48,10 @@ struct check_iterator_range
                              InputIterator beyond,
                              Predicate const& predicate)
     {
+        // in case predicate's apply method is static, MSVC will
+        // complain that predicate is not used
+        boost::ignore_unused(predicate);
+
         for (InputIterator it = first; it != beyond; ++it)
         {
             if ( !predicate.apply(*it) )
