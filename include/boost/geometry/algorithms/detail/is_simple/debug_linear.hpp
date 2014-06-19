@@ -37,10 +37,10 @@ namespace detail { namespace is_simple
 {
 
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "turns:";
     for (TurnIterator tit = first; tit != beyond; ++tit)
     {
@@ -55,14 +55,19 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
                   << "] ";
     }
     std::cout << std::endl << std::endl;
-#endif // BOOST_GEOMETRY_TEST_DEBUG
 }
+#else
+template <typename TurnIterator>
+inline void debug_print_turns(TurnIterator, TurnIterator)
+{
+}
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 template <typename MultiLinestring>
 inline void debug_print_boundary_points(MultiLinestring const& multilinestring)
 {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
     typedef typename point_type<MultiLinestring>::type point_type;
     typedef std::vector<point_type> point_vector;
 
@@ -89,8 +94,13 @@ inline void debug_print_boundary_points(MultiLinestring const& multilinestring)
         std::cout << " " << geometry::dsv(*pit);
     }
     std::cout << std::endl << std::endl;
-#endif // BOOST_GEOMETRY_TEST_DEBUG
 }
+#else
+template <typename MultiLinestring>
+inline void debug_print_boundary_points(MultiLinestring const&)
+{
+}
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 
 }} // namespace detail::is_simple
