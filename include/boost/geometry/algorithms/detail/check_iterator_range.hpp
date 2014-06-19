@@ -38,6 +38,23 @@ struct check_iterator_range
         }
         return AllowEmptyRange || first != beyond;
     };
+
+
+    // version where we can pass a predicate with state
+    template <typename InputIterator>
+    static inline bool apply(InputIterator first,
+                             InputIterator beyond,
+                             Predicate const& predicate)
+    {
+        for (InputIterator it = first; it != beyond; ++it)
+        {
+            if ( !predicate.apply(*it) )
+            {
+                return false;
+            }
+        }
+        return AllowEmptyRange || first != beyond;
+    };
 };
 
 } // namespace detail
