@@ -115,7 +115,7 @@ inline void clean_closing_dups_and_spikes(Range& range,
     }
 
     typedef typename boost::range_iterator<Range>::type iterator_type;
-    static const bool closed = geometry::closure<Range>::value == geometry::closed;
+    static bool const closed = geometry::closure<Range>::value == geometry::closed;
 
 // TODO: the following algorithm could be rewritten to first look for spikes
 // and then erase some number of points from the beginning of the Range
