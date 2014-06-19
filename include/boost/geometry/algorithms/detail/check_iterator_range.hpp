@@ -40,7 +40,7 @@ struct check_iterator_range
     };
 
 
-    // version where we can pass a predicate with state
+    // version where we can pass a predicate object
     template <typename InputIterator>
     static inline bool apply(InputIterator first,
                              InputIterator beyond,
