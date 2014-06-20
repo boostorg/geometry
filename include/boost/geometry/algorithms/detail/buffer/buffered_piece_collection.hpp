@@ -297,7 +297,7 @@ struct buffered_piece_collection
         {
             typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
             bool blocked = false;
-            for (int i = 0; i < turns.size(); i++)
+            for (std::size_t i = 0; i < turns.size(); i++)
             {
                 if (m_turns[turns[i].turn_index].blocked())
                 {
@@ -307,7 +307,7 @@ struct buffered_piece_collection
             }
             if (blocked)
             {
-                for (int i = 0; i < turns.size(); i++)
+                for (std::size_t i = 0; i < turns.size(); i++)
                 {
                     m_turns[turns[i].turn_index].count_on_occupied++;
                 }
@@ -320,7 +320,7 @@ struct buffered_piece_collection
             it != occupation_map.end(); ++it)
         {
             typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
-            for (int i = 0; i < turns.size(); i++)
+            for (std::size_t i = 0; i < turns.size(); i++)
             {
                 m_turns[turns[i].turn_index].selectable_start = false;
             }
