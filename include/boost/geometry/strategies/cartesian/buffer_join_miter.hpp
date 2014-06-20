@@ -65,16 +65,14 @@ struct join_miter
             coordinate_type length = geometry::math::sqrt(dx * dx + dy * dy);
 
             // TODO: make max-mitre-limit flexible
-            coordinate_type ten = 10.0;
+            const coordinate_type ten = 10.0;
             const coordinate_type zero_seven = 1.7;
 
-            coordinate_type max = ten * geometry::math::abs(buffer_distance);
+            const coordinate_type max = ten * geometry::math::abs(buffer_distance);
 
             if (length > max)
             {
-
-                coordinate_type prop = zero_seven * buffer_distance;
-                prop /= length;
+                const coordinate_type prop = zero_seven * buffer_distance / length;
                 set<0>(p, get<0>(vertex) + dx * prop);
                 set<1>(p, get<1>(vertex) + dy * prop);
             }
