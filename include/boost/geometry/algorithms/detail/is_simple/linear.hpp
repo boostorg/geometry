@@ -38,7 +38,8 @@
 #include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
-#include <boost/geometry/algorithms/detail/is_simple/debug_linear.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/debug_print_boundary_points.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
@@ -194,7 +195,7 @@ public:
                      turns,
                      interrupt_policy);
 
-        debug_print_turns(turns.begin(), turns.end());
+        detail::is_valid::debug_print_turns(turns.begin(), turns.end());
         debug_print_boundary_points(multilinestring);
 
         return !interrupt_policy.has_intersections;
