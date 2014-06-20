@@ -19,6 +19,8 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const spike_simplex
+    = "POLYGON ((0 0,1 5,3 3,5 5,3 3,5 1,0 0))";
 static std::string const chained_box
     = "POLYGON((0 0,0 4,4 4,8 4,12 4,12 0,8 0,4 0,0 0))";
 
@@ -77,6 +79,14 @@ void test_all()
 
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 14.5616, 0.5);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("concave_simplex", concave_simplex, 16.3861, 0.5);
+
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("spike_simplex15", spike_simplex, 50.3633, 1.5);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("spike_simplex15", spike_simplex, 55.3759, 1.5);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("spike_simplex30", spike_simplex, 100.9199, 3.0);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("spike_simplex30", spike_simplex, 120.9859, 3.0);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("spike_simplex150", spike_simplex, 998.9530, 15.0);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("spike_simplex150", spike_simplex, 1532.6543, 15.0);
+
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("chained_box", chained_box, 83.1403, 1.0);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("chained_box", chained_box, 84, 1.0);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("L", letter_L, 13.7314, 0.5);
@@ -231,8 +241,8 @@ void test_all()
             test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>(out.str(), bowl, expected_miter[i - 1], double(i) / 2.0);
         }
     }
-    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01);
-    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01);
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01, 0.01, false);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01, 0.01, false);
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);

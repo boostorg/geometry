@@ -66,7 +66,7 @@ struct join_miter
 
             // TODO: make max-mitre-limit flexible
             coordinate_type ten = 10.0;
-            coordinate_type zero_seven = 0.7;
+            const coordinate_type zero_seven = 1.7;
 
             coordinate_type max = ten * geometry::math::abs(buffer_distance);
 
