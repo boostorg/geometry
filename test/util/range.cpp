@@ -92,46 +92,55 @@ void test_all()
     BOOST_CHECK(boost::size(v) == 14); // [0,13]
     BOOST_CHECK(bgr::back(v) == 13);
     
-    bgr::erase(v, end(v) - 1);
+    std::vector<int>::iterator
+        it = bgr::erase(v, end(v) - 1);
     BOOST_CHECK(boost::size(v) == 13); // [0,12]
     BOOST_CHECK(bgr::back(v) == 12);
+    BOOST_CHECK(it == end(v));
 
-    bgr::erase(v, end(v) - 3, end(v));
+    it = bgr::erase(v, end(v) - 3, end(v));
     BOOST_CHECK(boost::size(v) == 10); // [0,9]
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == end(v));
 
-    bgr::erase(v, begin(v) + 2);
+    it = bgr::erase(v, begin(v) + 2);
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == begin(v) + 2);
 
-    bgr::erase(v, begin(v) + 2, begin(v) + 2);
+    it = bgr::erase(v, begin(v) + 2, begin(v) + 2);
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == begin(v) + 2);
 
-    bgr::erase(v, begin(v) + 2, begin(v) + 5);
+    it = bgr::erase(v, begin(v) + 2, begin(v) + 5);
     BOOST_CHECK(boost::size(v) == 6); // {0,1,6..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == begin(v) + 2);
 
-    bgr::erase(v, begin(v));
+    it = bgr::erase(v, begin(v));
     BOOST_CHECK(boost::size(v) == 5); // {1,6..9}
     BOOST_CHECK(bgr::at(v, 0) == 1);
     BOOST_CHECK(bgr::at(v, 1) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == begin(v));
 
-    bgr::erase(v, begin(v), begin(v) + 3);
+    it = bgr::erase(v, begin(v), begin(v) + 3);
     BOOST_CHECK(boost::size(v) == 2); // {8,9}
     BOOST_CHECK(bgr::at(v, 0) == 8);
     BOOST_CHECK(bgr::at(v, 1) == 9);
     BOOST_CHECK(bgr::back(v) == 9);
+    BOOST_CHECK(it == begin(v));
 
-    bgr::erase(v, begin(v), end(v));
+    it = bgr::erase(v, begin(v), end(v));
     BOOST_CHECK(boost::size(v) == 0);
+    BOOST_CHECK(it == end(v));
 }
 
 int test_main(int, char* [])

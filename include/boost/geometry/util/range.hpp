@@ -190,7 +190,7 @@ erase(Range & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_iterator<Range const>::type
+inline typename boost::range_iterator<Range>::type
 erase(Range & rng,
       typename boost::range_iterator<Range const>::type cit)
 {
@@ -200,10 +200,7 @@ erase(Range & rng,
         it = boost::begin(rng)
                 + std::distance(boost::const_begin(rng), cit);
 
-    erase(rng, it);
-
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return cit;
+    return erase(rng, it);
 }
 
 /*!
@@ -242,7 +239,7 @@ erase(Range & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_iterator<Range const>::type
+inline typename boost::range_iterator<Range>::type
 erase(Range & rng,
       typename boost::range_iterator<Range const>::type cfirst,
       typename boost::range_iterator<Range const>::type clast)
@@ -256,10 +253,7 @@ erase(Range & rng,
         last = boost::begin(rng)
                     + std::distance(boost::const_begin(rng), clast);
 
-    erase(rng, first, last);
-
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return cfirst;
+    return erase(rng, first, last);
 }
 
 }}} // namespace boost::geometry::range
