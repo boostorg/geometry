@@ -18,11 +18,13 @@
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/config.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/empty.hpp>
 #include <boost/range/size.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 
 #include <boost/geometry/core/mutable_range.hpp>
 
@@ -160,6 +162,55 @@ inline void pop_back(Range & rng)
     range::resize(rng, boost::size(rng) - 1);
 }
 
+namespace detail {
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+
+template <typename It,
+          typename OutIt = It,
+          bool UseMove = boost::is_convertible
+                            <
+                                typename std::iterator_traits<It>::value_type &&,
+                                typename std::iterator_traits<OutIt>::value_type
+                            >::value>
+struct copy_or_move_impl
+{
+    static inline OutIt apply(It first, It last, OutIt out)
+    {
+        return std::move(first, last, out);
+    }
+};
+
+template <typename It, typename OutIt>
+struct copy_or_move_impl<It, OutIt, false>
+{
+    static inline OutIt apply(It first, It last, OutIt out)
+    {
+        return std::copy(first, last, out);
+    }
+};
+
+#else
+
+template <typename It, typename OutIt = It, bool /*UseMove*/ = false>
+struct copy_or_move_impl
+{
+    static inline OutIt apply(It first, It last, OutIt out)
+    {
+        return std::copy(first, last, out);
+    }
+};
+
+#endif
+
+template <typename It, typename OutIt>
+inline OutIt copy_or_move(It first, It last, OutIt out)
+{
+    return copy_or_move_impl<It, OutIt>::apply(first, last, out);
+}
+
+} // namespace detail
+
 /*!
 \brief Short utility to conveniently remove an element from a mutable range.
        It uses std::copy() and resize(). Version taking mutable iterators.
@@ -177,7 +228,8 @@ erase(Range & rng,
         next = it;
     ++next;
 
-    std::copy(next, boost::end(rng), it);
+    //std::copy(next, boost::end(rng), it);
+    detail::copy_or_move(next, boost::end(rng), it);
     range::resize(rng, boost::size(rng) - 1);
 
     // NOTE: assuming that resize() doesn't invalidate the iterators
@@ -225,7 +277,8 @@ erase(Range & rng,
     
     if ( count > 0 )
     {
-        std::copy(last, boost::end(rng), first);
+        //std::copy(last, boost::end(rng), first);
+        detail::copy_or_move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
     }
 
