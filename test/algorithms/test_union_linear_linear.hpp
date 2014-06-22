@@ -59,7 +59,7 @@ private:
         set_operation_output("union", case_id,
                              geometry1, geometry2, mls_output);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
         std::cout << "union : " << bg::wkt(mls_output) << std::endl;
@@ -74,7 +74,7 @@ private:
         if ( !vector_deque_already_tested && test_vector_and_deque )
         {
             vector_deque_already_tested = true;
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << std::endl;
             std::cout << "Testing with vector and deque as output container..."
                       << std::endl;
@@ -88,7 +88,7 @@ private:
             BOOST_CHECK(multilinestring_equals<false>::apply(mls_union1,
                                                              ls_deque_output));
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
 #endif
         }
@@ -104,7 +104,7 @@ private:
                              << " -> Expected: " << bg::wkt(mls_union2)
                              << " computed: " << bg::wkt(mls_output) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry1) << std::endl;
         std::cout << "union : " << bg::wkt(mls_output) << std::endl;
@@ -125,7 +125,7 @@ public:
                              MultiLineString const& mls_union2,
                              std::string const& case_id)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
         std::stringstream sstr;
         sstr << "svgs/" << case_id << ".svg";
@@ -139,7 +139,7 @@ public:
         bg::reverse<Geometry2>(rg2);
 
         test_get_turns_ll_invariance<>::apply(geometry1, geometry2);
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl
                   << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
                   << std::endl << std::endl;
@@ -151,7 +151,7 @@ public:
         //        base_test(rg1, geometry2, mls_sym_diff);
         base_test(rg1, rg2, mls_union1, mls_union2, case_id);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << std::endl;
 #endif
