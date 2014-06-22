@@ -59,7 +59,7 @@ class piece_turn_visitor
     int m_last_piece_index;
 
     template <typename Piece>
-    inline bool is_neighbor(Piece const& piece1, Piece const& piece2) const
+    inline bool is_adjacent(Piece const& piece1, Piece const& piece2) const
     {
         if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
         {
@@ -74,12 +74,6 @@ class piece_turn_visitor
         return (piece1.index == 0 && piece2.index == m_last_piece_index)
             || (piece1.index == m_last_piece_index && piece2.index == 0)
             ;
-    }
-
-    template <typename Piece>
-    inline bool skip_neighbor(Piece const& piece1, Piece const& piece2) const
-    {
-        return piece1.type != piece2.type && is_neighbor(piece1, piece2);
     }
 
     template <typename Range, typename Iterator>
@@ -190,11 +184,13 @@ public:
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
-        if ( ! detail::disjoint::disjoint_box_box(piece1.robust_envelope, piece2.robust_envelope)
-          && ! skip_neighbor(piece1, piece2) )
+        if ( is_adjacent(piece1, piece2)
+          || detail::disjoint::disjoint_box_box(piece1.robust_envelope,
+                    piece2.robust_envelope))
         {
-            calculate_turns(piece1, piece2);
+            return;
         }
+        calculate_turns(piece1, piece2);
     }
 };
 
