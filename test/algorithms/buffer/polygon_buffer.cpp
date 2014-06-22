@@ -124,7 +124,7 @@ void test_all()
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("indentation12", indentation, 46.3541, 1.2);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("indentation12", indentation, 45.0537, 1.2);
 
-	// TODO: fix, the buffered pieces are currently counterclockwise, that should be reversed
+    // TODO: fix, the buffered pieces are currently counterclockwise, that should be reversed
     //test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("indentation4_neg", indentation, 6.99098413022335, -0.4);
     //test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("indentation4_neg", indentation, 7.25523322189147, -0.4);
     //test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("indentation8_neg", indentation, 1.36941992048731, -0.8);
@@ -171,7 +171,7 @@ void test_all()
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake6", snake, 75.44, 0.6);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("snake16", snake, 114.24, 1.6);
 
-	test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate2", funnelgate, 120.982, 2);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate2", funnelgate, 120.982, 2);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate3", funnelgate, 13*13, 3);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("funnelgate4", funnelgate, 15*15, 4);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("gammagate1", gammagate, 88, 1);
@@ -207,18 +207,18 @@ void test_all()
     // Saw
     {
         // SQL Server:
-// 68.6258859984014 90.2254986930165 112.799509089077 136.392823913949 161.224547934625 187.427508982734
-//215.063576036522 244.167935815974 274.764905445676 306.878264367143 340.530496138041 375.720107548269
+        // 68.6258859984014 90.2254986930165 112.799509089077 136.392823913949 161.224547934625 187.427508982734
+        //215.063576036522 244.167935815974 274.764905445676 306.878264367143 340.530496138041 375.720107548269
         int const n = 12;
-        double expected_round[n] = 
-            { 
-                 68.6252,  90.222, 112.792, 136.397, 161.230, 187.435,
+        double expected_round[n] =
+            {
+                68.6252,  90.222, 112.792, 136.397, 161.230, 187.435,
                 215.073, 244.179, 274.779, 306.894, 340.543, 375.734
             };
-        double expected_miter[n] = 
+        double expected_miter[n] =
             {
                 70.7706,  98.804, 132.101, 170.661, 214.484, 263.57,
-               317.92,  377.532, 442.408, 512.546, 587.948, 668.613
+                317.92,  377.532, 442.408, 512.546, 587.948, 668.613
             };
 
         for (int i = 1; i <= n; i++)
@@ -233,21 +233,19 @@ void test_all()
     // Bowl
     {
         // SQL Server values - see query below.
-//1	43.2425133175081 60.0257800296593 78.3497997564532 98.2145746255142 119.620102487345 142.482792724034
-//2	166.499856911107 191.763334982583 218.446279387336 246.615018368511 276.300134755606 307.518458532186
+        //1	43.2425133175081 60.0257800296593 78.3497997564532 98.2145746255142 119.620102487345 142.482792724034
+        //2	166.499856911107 191.763334982583 218.446279387336 246.615018368511 276.300134755606 307.518458532186
 
         int const n = 12;
-        double expected_round[n] = 
-            { 
-                 43.2423,  60.025,  78.3477,  98.2109, 119.614, 142.487,
+        double expected_round[n] =
+            {
+                43.2423,  60.025,  78.3477,  98.2109, 119.614, 142.487,
                 166.505, 191.77, 218.455, 246.625, 276.312, 307.532
             };
-
-
-        double expected_miter[n] = 
+        double expected_miter[n] =
             {
                 43.4895,  61.014,  80.5726,  102.166, 125.794, 151.374,
-               178.599, 207.443, 237.904, 270.000, 304.0, 340.000
+                178.599, 207.443, 237.904, 270.000, 304.0, 340.000
             };
 
         for (int i = 1; i <= n; i++)
@@ -310,35 +308,3 @@ int test_main(int, char* [])
     
     return 0;
 }
-
-
-/*
-BOWL QUERY
-===
-with bowl as
-(
-	select geometry::STGeomFromText('POLYGON((1 2,1 7,2 7,3 5,5 4,7 5,8 7,9 7,9 2,1 2))',0) as q
-)
-select 
-'1-6' as row
-,q.STBuffer(0.5).STArea() as b1
-,q.STBuffer(1.0).STArea() as b2
-,q.STBuffer(1.5).STArea() as b3
-,q.STBuffer(2.0).STArea() as b4
-,q.STBuffer(2.5).STArea() as b5
-,q.STBuffer(3.0).STArea() as b6
-
-from bowl
-union all
-select 
-'7-12'
-,q.STBuffer(3.5).STArea() as b7
-,q.STBuffer(4.0).STArea() as b8
-,q.STBuffer(4.5).STArea() as b9
-,q.STBuffer(5.0).STArea() as b10
-,q.STBuffer(5.5).STArea() as b11
-,q.STBuffer(6.0).STArea() as b12
-from bowl
-	
-
-*/
