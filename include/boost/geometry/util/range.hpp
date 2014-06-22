@@ -271,9 +271,6 @@ erase(Range & rng,
       typename boost::range_iterator<Range>::type last)
 {
     typename boost::range_difference<Range>::type const
-        d = std::distance(boost::begin(rng), first);
-
-    typename boost::range_difference<Range>::type const
         diff = std::distance(first, last);
     BOOST_ASSERT(diff >= 0);
 
@@ -282,6 +279,9 @@ erase(Range & rng,
     
     if ( count > 0 )
     {
+        typename boost::range_difference<Range>::type const
+            d = std::distance(boost::begin(rng), first);
+
         detail::copy_or_move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
 
