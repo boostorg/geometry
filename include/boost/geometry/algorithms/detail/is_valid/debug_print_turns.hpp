@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_DEBUG_PRINT_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_DEBUG_PRINT_TURNS_HPP
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <iostream>
 
 #include <boost/geometry/io/dsv/write.hpp>
@@ -24,7 +24,7 @@ namespace boost { namespace geometry
 namespace detail { namespace is_valid
 {
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 {
@@ -55,7 +55,7 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator /*first*/, TurnIterator /*beyond*/)
 {}
-#endif // GEOMETRY_TEST_DEBUG
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 }} // namespace detail::is_valid
 
