@@ -144,24 +144,33 @@ struct buffer_range
                 RobustPolicy const& robust_policy,
                 bool /*close*/ = false)
     {
-        output_point_type previous_p1, previous_p2;
-        output_point_type first_p1, first_p2;
-
-        bool first = true;
-
-        Iterator it = begin;
-
-        // We want to memorize the last segment too.
         typedef typename std::iterator_traits
         <
             Iterator
         >::value_type point_type;
 
+        typedef typename robust_point_type
+        <
+            point_type,
+            RobustPolicy
+        >::type robust_point_type;
+
+        robust_point_type previous_robust_input;
+        output_point_type previous_p1, previous_p2;
+        output_point_type first_p1, first_p2;
         point_type penultimate_point, ultimate_point; // last two points from begin/end
+
+        bool first = true;
+
+        Iterator it = begin;
+
+        geometry::recalculate(previous_robust_input, *begin, robust_policy);
 
         for (Iterator prev = it++; it != end; ++it)
         {
-            if (! detail::equals::equals_point_point(*prev, *it))
+            robust_point_type robust_input;
+            geometry::recalculate(robust_input, *it, robust_policy);
+            if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
             {
                 output_point_type p1, p2;
                 generate_side(*prev, *it, side, distance_strategy, p1, p2);
@@ -189,6 +198,7 @@ struct buffer_range
                     first_p2 = p2;
                 }
             }
+            previous_robust_input = robust_input;
         }
 
         // TODO: take care of degenerate segments
