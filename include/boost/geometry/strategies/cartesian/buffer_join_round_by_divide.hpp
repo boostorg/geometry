@@ -97,7 +97,7 @@ public :
     }
 
     template <typename RangeOut>
-    inline void apply(PointIn const& ip, PointIn const& vertex,
+    inline bool apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
@@ -107,48 +107,48 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
 #endif
-            return;
+            return false;
         }
 
-        coordinate_type zero = 0;
-        int signum = buffer_distance > zero ? 1
+        coordinate_type const zero = 0;
+        int const signum = buffer_distance > zero ? 1
                    : buffer_distance < zero ? -1
                    : 0;
 
         if (side::apply(perp1, ip, perp2) == signum)
         {
+            return false;
         }
-        else
+
+        // Generate 'vectors'
+        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
+        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
+
+        coordinate_type length_i =
+            geometry::math::sqrt(vix * vix + viy * viy);
+
+        coordinate_type const bd = geometry::math::abs(buffer_distance);
+        coordinate_type prop = bd / length_i;
+
+        PointIn bp;
+        set<0>(bp, get<0>(vertex) + vix * prop);
+        set<1>(bp, get<1>(vertex) + viy * prop);
+
+        range_out.push_back(perp1);
+
+        if (m_max_level > 1)
         {
-            // Generate 'vectors'
-            coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-            coordinate_type viy = (get<1>(ip) - get<1>(vertex));
-
-            coordinate_type length_i =
-                geometry::math::sqrt(vix * vix + viy * viy);
-
-            coordinate_type const bd = geometry::math::abs(buffer_distance);
-            coordinate_type prop = bd / length_i;
-
-            PointIn bp;
-            set<0>(bp, get<0>(vertex) + vix * prop);
-            set<1>(bp, get<1>(vertex) + viy * prop);
-
-            range_out.push_back(perp1);
-
-            if (m_max_level > 1)
-            {
-                mid_points(vertex, perp1, bp, bd, range_out);
-                range_out.push_back(bp);
-                mid_points(vertex, bp, perp2, bd, range_out);
-            }
-            else if (m_max_level == 1)
-            {
-                range_out.push_back(bp);
-            }
-
-            range_out.push_back(perp2);
+            mid_points(vertex, perp1, bp, bd, range_out);
+            range_out.push_back(bp);
+            mid_points(vertex, bp, perp2, bd, range_out);
         }
+        else if (m_max_level == 1)
+        {
+            range_out.push_back(bp);
+        }
+
+        range_out.push_back(perp2);
+        return true;
     }
 };
 

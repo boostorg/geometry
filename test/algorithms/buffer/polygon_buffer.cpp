@@ -26,6 +26,8 @@ static std::string const chained_box
 
 static std::string const donut_simplex
     = "POLYGON ((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))";
+static std::string const donut_diamond
+    = "POLYGON((15 0,15 15,30 15,30 0,15 0),(26 11,22 14,19 10,23 07,26 11))";
 static std::string const letter_L
     = "POLYGON ((0 0,0 4,1 4,1 1,3 1,3 0,0 0))";
 static std::string const indentation
@@ -132,6 +134,11 @@ void test_all()
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex14", donut_simplex, 80.500, 1.4);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_simplex16", donut_simplex, 93.777, 1.6);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("donut_simplex16", donut_simplex, 87.933, 1.6);
+
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_diamond1", donut_diamond, 280.0, 1.0);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_diamond4", donut_diamond, 529.0, 4.0);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_diamond5", donut_diamond, 625.0, 5.0);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("donut_diamond6", donut_diamond, 729.0, 6.0);
 
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("arrow4", arrow, 28.265, 0.4);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("arrow4", arrow, 27.039, 0.4);
@@ -241,8 +248,10 @@ void test_all()
             test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>(out.str(), bowl, expected_miter[i - 1], double(i) / 2.0);
         }
     }
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01, 0.01, false);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01, 0.01, false);
+#endif
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);

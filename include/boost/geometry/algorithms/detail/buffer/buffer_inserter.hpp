@@ -125,15 +125,18 @@ struct buffer_range
                 std::vector<output_point_type> range_out;
                 if (! first)
                 {
-                    output_point_type p;
+                    output_point_type ip;
                     segment_type s1(p1, p2);
                     segment_type s2(previous_p1, previous_p2);
 
-                    if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
+                    if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, ip))
                     {
-                        join_strategy.apply(p, *prev, previous_p2, p1,
+                        if (!join_strategy.apply(ip, *prev, previous_p2, p1,
                                     distance.apply(*prev, *it, side),
-                                    range_out);
+                                    range_out))
+                        {
+                            collection.add_piece(strategy::buffer::buffered_concave, *prev, previous_p2, p1);
+                        }
                     }
                 }
                 else
@@ -173,6 +176,10 @@ struct buffer_range
                 if (! range_out.empty())
                 {
                     collection.add_piece(strategy::buffer::buffered_join, *begin, range_out);
+                }
+                else
+                {
+                    collection.add_piece(strategy::buffer::buffered_concave, *begin, previous_p2, first_p1);
                 }
             }
 

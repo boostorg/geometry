@@ -617,6 +617,18 @@ struct buffered_piece_collection
         pc.helper_segments.push_back(b1);
     }
 
+    inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
+            point_type const& b1, point_type const& b2)
+    {
+        piece& pc = add_piece(type, false);
+        add_point(b1);
+        pc.last_segment_index = add_point(b2);
+        pc.helper_segments.push_back(b2);
+        pc.helper_segments.push_back(p);
+        pc.helper_segments.push_back(b1);
+    }
+
+
     template <typename Range>
     inline piece& add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
