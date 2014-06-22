@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
-#include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -198,22 +197,12 @@ struct svg_visitor
 
             if (do_indices)
             {
-
-                // Put starting piece_index / segment_index in centroid
+                // Label starting piece_index / segment_index
                 typedef typename bg::point_type<ring_type>::type point_type;
 
-                point_type centroid;
-                if (corner.size() > 3)
-                {
-                    bg::centroid(corner, centroid);
-                }
-                else
-                {
-                    centroid = corner.front();
-                }
                 std::ostringstream out;
-                out << piece.index << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                m_mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
+                out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                m_mapper.text(corner.front(), out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -224,7 +213,7 @@ struct svg_visitor
         for(typename boost::range_iterator<TraversedRings const>::type it
                 = boost::begin(traversed_rings); it != boost::end(traversed_rings); ++it)
         {
-            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
+            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:2");
         }
     }
 
@@ -236,11 +225,11 @@ struct svg_visitor
         {
             if (it->discarded())
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:2");
             }
             else
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:2");
             }
         }
     }
