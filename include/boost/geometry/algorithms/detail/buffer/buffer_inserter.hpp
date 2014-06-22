@@ -43,7 +43,6 @@ struct buffer_range
 {
     typedef typename point_type<RingOutput>::type output_point_type;
     typedef typename coordinate_type<RingOutput>::type coordinate_type;
-    typedef model::referring_segment<output_point_type const> segment_type;
 
 
     template
@@ -103,11 +102,9 @@ struct buffer_range
             RobustPolicy const& )
     {
 
-        segment_type previous_segment(prev_perp1, prev_perp2);
-        segment_type segment(perp1, perp2);
         output_point_type intersection_point;
-        if (line_line_intersection<output_point_type, segment_type>::apply(
-                    segment, previous_segment, intersection_point))
+        if (line_line_intersection::apply(
+                    perp1, perp2, prev_perp1, prev_perp2, intersection_point))
         {
             std::vector<output_point_type> range_out;
             if (join_strategy.apply(intersection_point,
@@ -247,7 +244,6 @@ struct buffer_point
 {
     typedef typename point_type<RingOutput>::type output_point_type;
     typedef typename coordinate_type<RingOutput>::type coordinate_type;
-    typedef model::referring_segment<output_point_type const> segment_type;
 
     typedef typename geometry::select_most_precise
         <
