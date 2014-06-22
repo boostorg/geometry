@@ -13,7 +13,7 @@
 #define BOOST_TEST_MODULE test_intersection_linear_linear
 #endif
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #define BOOST_GEOMETRY_DEBUG_TURNS
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #endif
@@ -40,7 +40,7 @@ typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 
 BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** LINESTRING / LINESTRING INTERSECTION ***" << std::endl;
     std::cout << std::endl;
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
 
 BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** LINESTRING / MULTILINESTRING INTERSECTION ***"
               << std::endl;
@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_multilinestring )
 #ifndef BOOST_GEOMETRY_TEST_NO_DEGENERATE
 BOOST_AUTO_TEST_CASE( test_intersection_l_ml_degenerate )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** LINESTRING / MULTILINESTRING INTERSECTION"
               << " (DEGENERATE) ***"
@@ -779,7 +779,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_l_ml_degenerate )
 
 BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / LINESTRING INTERSECTION ***"
               << std::endl;
@@ -836,7 +836,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_linestring )
 
 BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / MULTILINESTRING INTERSECTION ***"
               << std::endl;
@@ -1134,7 +1134,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_multilinestring_multilinestring )
 #ifndef BOOST_GEOMETRY_TEST_NO_DEGENERATE
 BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / MULTILINESTRING INTERSECTION"
               << " (DEGENERATE) ***"
@@ -1275,7 +1275,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
 
 BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_spikes )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / MULTILINESTRING INTERSECTION" 
               << " (WITH SPIKES) ***"

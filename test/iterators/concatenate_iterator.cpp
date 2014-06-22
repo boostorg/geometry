@@ -85,7 +85,7 @@ struct test_concatenate_iterator
         *c_first = *it_max + 1;
         BOOST_CHECK( *c.begin() == new_value );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << "modified element of ";
         std::cout << (second_container ? "2nd" : "1st");
@@ -106,7 +106,7 @@ struct test_concatenate_iterator
                              std::string const& case_id,
                              std::string const& containers_id)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::stringstream sstream;
         sstream << case_id << " [" << containers_id << "]";
 
@@ -173,7 +173,7 @@ struct test_concatenate_iterator
         test_size(const_begin, const_end, combined);
 
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_container(std::cout, c1.begin(), c1.end(), "first   :")
             << std::endl;
         print_container(std::cout, c2.begin(), c2.end(), "second  :")
@@ -204,7 +204,7 @@ struct test_concatenate_iterator
         // test std::count_if / std::remove_if
         test_using_remove_if(begin, end, combined);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "====================" << std::endl << std::endl;
 #endif
     }
@@ -215,7 +215,7 @@ template <typename Container1, typename Container2>
 inline void test_concatenation_of_containers(Container1& c1, Container2& c2,
                                              std::string const& containers_id)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl
               << " TESTING CONTAINERS COMBINATION: "

@@ -18,11 +18,13 @@
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/config.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/empty.hpp>
 #include <boost/range/size.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 
 #include <boost/geometry/core/mutable_range.hpp>
 
@@ -160,6 +162,52 @@ inline void pop_back(Range & rng)
     range::resize(rng, boost::size(rng) - 1);
 }
 
+namespace detail {
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+
+template <typename It,
+          typename OutIt,
+          bool UseMove = boost::is_convertible
+                            <
+                                typename std::iterator_traits<It>::value_type &&,
+                                typename std::iterator_traits<OutIt>::value_type
+                            >::value>
+struct copy_or_move_impl
+{
+    static inline OutIt apply(It first, It last, OutIt out)
+    {
+        return std::move(first, last, out);
+    }
+};
+
+template <typename It, typename OutIt>
+struct copy_or_move_impl<It, OutIt, false>
+{
+    static inline OutIt apply(It first, It last, OutIt out)
+    {
+        return std::copy(first, last, out);
+    }
+};
+
+template <typename It, typename OutIt>
+inline OutIt copy_or_move(It first, It last, OutIt out)
+{
+    return copy_or_move_impl<It, OutIt>::apply(first, last, out);
+}
+
+#else
+
+template <typename It, typename OutIt>
+inline OutIt copy_or_move(It first, It last, OutIt out)
+{
+    return std::copy(first, last, out);
+}
+
+#endif
+
+} // namespace detail
+
 /*!
 \brief Short utility to conveniently remove an element from a mutable range.
        It uses std::copy() and resize(). Version taking mutable iterators.
@@ -173,15 +221,23 @@ erase(Range & rng,
     BOOST_ASSERT(!boost::empty(rng));
     BOOST_ASSERT(it != boost::end(rng));
 
+    typename boost::range_difference<Range>::type const
+        d = std::distance(boost::begin(rng), it);
+
     typename boost::range_iterator<Range>::type
         next = it;
     ++next;
 
-    std::copy(next, boost::end(rng), it);
+    detail::copy_or_move(next, boost::end(rng), it);
     range::resize(rng, boost::size(rng) - 1);
 
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return it;
+    // NOTE: In general this should be sufficient:
+    //    return it;
+    // But in MSVC using the returned iterator causes
+    // assertion failures when iterator debugging is enabled
+    // Furthermore the code below should work in the case if resize()
+    // invalidates iterators when the container is resized down.
+    return boost::begin(rng) + d;
 }
 
 /*!
@@ -190,7 +246,7 @@ erase(Range & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_iterator<Range const>::type
+inline typename boost::range_iterator<Range>::type
 erase(Range & rng,
       typename boost::range_iterator<Range const>::type cit)
 {
@@ -200,10 +256,7 @@ erase(Range & rng,
         it = boost::begin(rng)
                 + std::distance(boost::const_begin(rng), cit);
 
-    erase(rng, it);
-
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return cit;
+    return erase(rng, it);
 }
 
 /*!
@@ -217,10 +270,8 @@ erase(Range & rng,
       typename boost::range_iterator<Range>::type first,
       typename boost::range_iterator<Range>::type last)
 {
-    typename std::iterator_traits
-        <
-            typename boost::range_iterator<Range>::type
-        >::difference_type const diff = std::distance(first, last);
+    typename boost::range_difference<Range>::type const
+        diff = std::distance(first, last);
     BOOST_ASSERT(diff >= 0);
 
     std::size_t const count = static_cast<std::size_t>(diff);
@@ -228,11 +279,21 @@ erase(Range & rng,
     
     if ( count > 0 )
     {
-        std::copy(last, boost::end(rng), first);
+        typename boost::range_difference<Range>::type const
+            d = std::distance(boost::begin(rng), first);
+
+        detail::copy_or_move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
+
+        // NOTE: In general this should be sufficient:
+        //    return first;
+        // But in MSVC using the returned iterator causes
+        // assertion failures when iterator debugging is enabled
+        // Furthermore the code below should work in the case if resize()
+        // invalidates iterators when the container is resized down.
+        return boost::begin(rng) + d;
     }
 
-    // NOTE: assuming that resize() doesn't invalidate the iterators
     return first;
 }
 
@@ -242,7 +303,7 @@ erase(Range & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_iterator<Range const>::type
+inline typename boost::range_iterator<Range>::type
 erase(Range & rng,
       typename boost::range_iterator<Range const>::type cfirst,
       typename boost::range_iterator<Range const>::type clast)
@@ -256,10 +317,7 @@ erase(Range & rng,
         last = boost::begin(rng)
                     + std::distance(boost::const_begin(rng), clast);
 
-    erase(rng, first, last);
-
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return cfirst;
+    return erase(rng, first, last);
 }
 
 }}} // namespace boost::geometry::range

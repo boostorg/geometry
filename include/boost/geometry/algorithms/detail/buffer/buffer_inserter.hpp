@@ -51,16 +51,17 @@ struct buffer_range
             typename Point,
             typename DistanceStrategy
         >
-    static inline void generate_side(Point const& ip1, Point const& ip2,
+    static inline void generate_side(
+                Point const& input_p1, Point const& input_p2,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
-                output_point_type& p1, output_point_type& p2)
+                output_point_type& side_p1, output_point_type& side_p2)
     {
         // Generate a block along (left or right of) the segment
 
         // Simulate a vector d (dx,dy)
-        coordinate_type dx = get<0>(ip2) - get<0>(ip1);
-        coordinate_type dy = get<1>(ip2) - get<1>(ip1);
+        coordinate_type dx = get<0>(input_p2) - get<0>(input_p1);
+        coordinate_type dy = get<1>(input_p2) - get<1>(input_p1);
 
         // For normalization [0,1] (=dot product d.d, sqrt)
         // TODO promoted_type
@@ -73,12 +74,56 @@ struct buffer_range
         coordinate_type const px = -dy / length;
         coordinate_type const py = dx / length;
 
-        coordinate_type const d = distance.apply(ip1, ip2, side);
+        coordinate_type const d = distance.apply(input_p1, input_p2, side);
 
-        set<0>(p1, get<0>(ip1) + px * d);
-        set<1>(p1, get<1>(ip1) + py * d);
-        set<0>(p2, get<0>(ip2) + px * d);
-        set<1>(p2, get<1>(ip2) + py * d);
+        set<0>(side_p1, get<0>(input_p1) + px * d);
+        set<1>(side_p1, get<1>(input_p1) + py * d);
+        set<0>(side_p2, get<0>(input_p2) + px * d);
+        set<1>(side_p2, get<1>(input_p2) + py * d);
+    }
+
+    template
+    <
+        typename Collection,
+        typename Point,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename RobustPolicy
+    >
+    static inline void add_join(Collection& collection,
+            Point const& previous_input,
+            output_point_type const& prev_perp1,
+            output_point_type const& prev_perp2,
+            Point const& input,
+            output_point_type const& perp1,
+            output_point_type const& perp2,
+            strategy::buffer::buffer_side_selector side,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy,
+            RobustPolicy const& )
+    {
+
+        segment_type previous_segment(prev_perp1, prev_perp2);
+        segment_type segment(perp1, perp2);
+        output_point_type intersection_point;
+        if (line_line_intersection<output_point_type, segment_type>::apply(
+                    segment, previous_segment, intersection_point))
+        {
+            std::vector<output_point_type> range_out;
+            if (join_strategy.apply(intersection_point,
+                        previous_input, prev_perp2, perp1,
+                        distance.apply(previous_input, input, side),
+                        range_out))
+            {
+                collection.add_piece(strategy::buffer::buffered_join,
+                        previous_input, range_out);
+            }
+            else
+            {
+                collection.add_piece(strategy::buffer::buffered_concave,
+                        previous_input, prev_perp2, perp1);
+            }
+        }
     }
 
     template
@@ -87,72 +132,73 @@ struct buffer_range
         typename Iterator,
         typename DistanceStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
-                DistanceStrategy const& distance,
+                DistanceStrategy const& distance_strategy,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
+                RobustPolicy const& robust_policy,
                 bool /*close*/ = false)
     {
-        output_point_type previous_p1, previous_p2;
-        output_point_type first_p1, first_p2;
-
-        bool first = true;
-
-        Iterator it = begin;
-
-        // We want to memorize the last segment too.
         typedef typename std::iterator_traits
         <
             Iterator
         >::value_type point_type;
 
+        typedef typename robust_point_type
+        <
+            point_type,
+            RobustPolicy
+        >::type robust_point_type;
+
+        robust_point_type previous_robust_input;
+        output_point_type previous_p1, previous_p2;
+        output_point_type first_p1, first_p2;
         point_type penultimate_point, ultimate_point; // last two points from begin/end
 
+        bool first = true;
+
+        Iterator it = begin;
+
+        geometry::recalculate(previous_robust_input, *begin, robust_policy);
 
         for (Iterator prev = it++; it != end; ++it)
         {
-            if (! detail::equals::equals_point_point(*prev, *it))
+            robust_point_type robust_input;
+            geometry::recalculate(robust_input, *it, robust_policy);
+            if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
             {
                 output_point_type p1, p2;
-                penultimate_point = *prev;
-                ultimate_point = *it;
-                generate_side(*prev, *it, side, distance, p1, p2);
+                generate_side(*prev, *it, side, distance_strategy, p1, p2);
 
-                std::vector<output_point_type> range_out;
                 if (! first)
                 {
-                    output_point_type p;
-                    segment_type s1(p1, p2);
-                    segment_type s2(previous_p1, previous_p2);
-
-                    if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
-                    {
-                        join_strategy.apply(p, *prev, previous_p2, p1,
-                                    distance.apply(*prev, *it, side),
-                                    range_out);
-                    }
+                    add_join(collection,
+                        *prev, previous_p1, previous_p2,
+                        *it, p1, p2,
+                        side,
+                        distance_strategy, join_strategy, robust_policy);
                 }
-                else
+                collection.add_piece(strategy::buffer::buffered_segment,
+                    *prev, *it, p1, p2, first);
+
+                penultimate_point = *prev;
+                ultimate_point = *it;
+                previous_p1 = p1;
+                previous_p2 = p2;
+                prev = it;
+                if (first)
                 {
                     first = false;
                     first_p1 = p1;
                     first_p2 = p2;
                 }
-                if (! range_out.empty())
-                {
-                    collection.add_piece(strategy::buffer::buffered_join, *prev, range_out);
-                    range_out.clear();
-                }
-                collection.add_piece(strategy::buffer::buffered_segment, *prev, *it, p1, p2);
-
-                previous_p1 = p1;
-                previous_p2 = p2;
-                prev = it;
             }
+            previous_robust_input = robust_input;
         }
 
         // TODO: take care of degenerate segments
@@ -161,20 +207,11 @@ struct buffer_range
         if(boost::is_same<Tag, ring_tag>::value)
         {
             // Generate closing corner
-            output_point_type p;
-            segment_type s1(previous_p1, previous_p2);
-            segment_type s2(first_p1, first_p2);
-            if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
-            {
-                std::vector<output_point_type> range_out;
-                join_strategy.apply(p, *begin, previous_p2, first_p1,
-                    distance.apply(*(end - 1), *begin, side),
-                    range_out);
-                if (! range_out.empty())
-                {
-                    collection.add_piece(strategy::buffer::buffered_join, *begin, range_out);
-                }
-            }
+            add_join(collection,
+                *(end - 1), previous_p1, previous_p2,
+                *begin, first_p1, first_p2,
+                side,
+                distance_strategy, join_strategy, robust_policy);
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
         }
@@ -189,11 +226,11 @@ struct buffer_range
                     side == strategy::buffer::buffer_side_left
                     ? strategy::buffer::buffer_side_right
                     : strategy::buffer::buffer_side_left,
-                    distance, rp2, rp1);
+                    distance_strategy, rp2, rp1);
 
             std::vector<output_point_type> range_out;
 
-            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance, range_out);
+            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance_strategy, range_out);
             collection.add_endcap(end_strategy, range_out, ultimate_point);
         }
     }
@@ -259,13 +296,15 @@ struct buffer_point
         typename Collection,
         typename DistanceStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void generate_circle(Point const& point,
                 Collection& collection,
                 DistanceStrategy const& distance,
                 JoinStrategy const& ,
-                EndStrategy const& )
+                EndStrategy const& ,
+                RobustPolicy const& )
     {
         std::vector<output_point_type> range_out;
 
@@ -287,20 +326,25 @@ struct buffer_multi
 {
     template
     <
-        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void apply(Multi const& multi,
             Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         for (typename boost::range_iterator<Multi const>::type
                 it = boost::begin(multi);
             it != boost::end(multi);
             ++it)
         {
-            Policy::apply(*it, collection, distance, join_strategy, end_strategy);
+            Policy::apply(*it, collection, distance, join_strategy, end_strategy, robust_policy);
         }
     }
 };
@@ -339,15 +383,23 @@ template
 struct buffer_inserter<point_tag, Point, RingOutput>
     : public detail::buffer::buffer_point<Point, RingOutput>
 {
-    template<typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
+    template
+    <
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename RobustPolicy
+    >
     static inline void apply(Point const& point, Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         collection.start_new_ring();
             typedef detail::buffer::buffer_point<Point, RingOutput> base;
-        base::generate_circle(point, collection, distance, join_strategy, end_strategy);
+        base::generate_circle(point, collection, distance, join_strategy, end_strategy, robust_policy);
     }
 };
 
@@ -372,13 +424,18 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
 
     template
     <
-        typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void apply(RingInput const& ring,
             Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         if (boost::size(ring) > 3)
         {
@@ -389,13 +446,13 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
                 // TODO: decide this.
                 base::iterate(collection, boost::rbegin(ring), boost::rend(ring),
                         strategy::buffer::buffer_side_right,
-                        distance, join_strategy, end_strategy);
+                        distance, join_strategy, end_strategy, robust_policy);
             }
             else
             {
                 base::iterate(collection, boost::begin(ring), boost::end(ring),
                         strategy::buffer::buffer_side_left,
-                        distance, join_strategy, end_strategy);
+                        distance, join_strategy, end_strategy, robust_policy);
             }
         }
     }
@@ -420,22 +477,30 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             linestring_tag
         > base;
 
-    template<typename Collection, typename DistanceStrategy, typename JoinStrategy, typename EndStrategy>
+    template
+    <
+        typename Collection,
+        typename DistanceStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename RobustPolicy
+    >
     static inline void apply(Linestring const& linestring, Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         if (boost::size(linestring) > 1)
         {
             collection.start_new_ring();
             base::iterate(collection, boost::begin(linestring), boost::end(linestring),
                     strategy::buffer::buffer_side_left,
-                    distance, join_strategy, end_strategy);
+                    distance, join_strategy, end_strategy, robust_policy);
 
             base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
                     strategy::buffer::buffer_side_right,
-                    distance, join_strategy, end_strategy, true);
+                    distance, join_strategy, end_strategy, robust_policy, true);
         }
 
     }
@@ -462,19 +527,21 @@ private:
         typename Collection,
         typename DistanceStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline
     void iterate(Iterator begin, Iterator end,
             Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         for (Iterator it = begin; it != end; ++it)
         {
             collection.start_new_ring();
-            policy::apply(*it, collection, distance, join_strategy, end_strategy);
+            policy::apply(*it, collection, distance, join_strategy, end_strategy, robust_policy);
         }
     }
 
@@ -484,17 +551,19 @@ private:
         typename Collection,
         typename DistanceStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline
     void apply_interior_rings(InteriorRings const& interior_rings,
             Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         iterate(boost::begin(interior_rings), boost::end(interior_rings),
-            collection, distance, join_strategy, end_strategy);
+            collection, distance, join_strategy, end_strategy, robust_policy);
     }
 
 public:
@@ -503,22 +572,24 @@ public:
         typename Collection,
         typename DistanceStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void apply(PolygonInput const& polygon,
             Collection& collection,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy)
+            EndStrategy const& end_strategy,
+            RobustPolicy const& robust_policy)
     {
         {
             collection.start_new_ring();
             policy::apply(exterior_ring(polygon), collection,
-                    distance, join_strategy, end_strategy);
+                    distance, join_strategy, end_strategy, robust_policy);
         }
 
         apply_interior_rings(interior_rings(polygon),
-            collection, distance, join_strategy, end_strategy);
+            collection, distance, join_strategy, end_strategy, robust_policy);
     }
 };
 
@@ -585,7 +656,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
                 >::type,
             GeometryInput,
             GeometryOutput
-        >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy);
+        >::apply(geometry_input, collection, distance_strategy, join_strategy, end_strategy, robust_policy);
 
     collection.get_turns(geometry_input, distance_strategy);
 

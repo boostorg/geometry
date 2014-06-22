@@ -37,6 +37,7 @@ static std::string const chained3 = "LINESTRING(0 0,1 1,2 2,3 3)";
 static std::string const chained4 = "LINESTRING(0 0,1 1,2 2,3 3,4 4)";
 
 static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
+static std::string const aimes175 = "LINESTRING(-2.3116 52.354326,-2.311555 52.35417,-2.311489 52.354145,-2.311335 52.354178)";
 
 
 template <typename P>
@@ -120,6 +121,9 @@ void test_all()
     test_one<linestring, buf::join_round, buf::end_flat, polygon>("chained4", chained4, 22.6274, 2.5, 1.5);
 
     //test_one<linestring, buf::join_round, buf::end_flat, polygon>("reallife1", reallife1, 99, 16.5, 6.5);
+
+    test_one<linestring, buf::join_miter, buf::end_flat, polygon>("aimes175", aimes175, 2.81111809385947709e-08, 0.000036, 0.000036, true, 0.0001);
+    test_one<linestring, buf::join_round, buf::end_round, polygon>("aimes175", aimes175, 3.21215765097804251e-08, 0.000036, 0.000036, true, 0.0001);
 }
 
 

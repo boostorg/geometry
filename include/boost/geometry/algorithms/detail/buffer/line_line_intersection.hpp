@@ -33,7 +33,16 @@ struct line_line_intersection
         return a * d - b * c;
     }
 
-    static inline bool apply(Line1 const& line1, Line2 const& line2, Point& p)
+    // Returns true if two parallel segments (vectors dx1,dy1 and dx2,dy2)
+    // move forward (one continues each other - they have the same signs)
+    template <typename T>
+    static inline bool parallel_continue(T dx1, T dy1, T dx2, T dy2)
+    {
+        return math::sign(dx1) == math::sign(dx2)
+            && math::sign(dy1) == math::sign(dy2);
+    }
+
+    static inline bool apply(Line1 const& line1, Line2 const& line2, Point& ip)
     {
         // See http://mathworld.wolfram.com/Line-LineIntersection.html
         typedef typename coordinate_type<Point>::type coordinate_type;
@@ -44,17 +53,33 @@ struct line_line_intersection
 
         coordinate_type denominator = det(x1 - x2, y1 - y2, x3 - x4, y3 - y4);
 
-        // TODO: use something else then denominator (sides?) to determine this.
+        // TODO: maybe use something else then denominator (sides?) to determine this.
 
-        // If denominator is zero, segments are parallel.
-        // We have context information, so know that it should then
-        // be the case that line1.p2 == line2.p1, and that is the
-        // intersection point.
-        if (geometry::math::equals(denominator, 0.0))
+        // The limit is arbitrary. If it is small, the IP will be far far away.
+        // For round joins, it will not be used at all.
+        // For miter joints, there is a miter limit
+        // If segments are parallel we must be distinguish two cases
+        coordinate_type const limit = 1.0e-9;
+        if (geometry::math::abs(denominator) < limit)
         {
-            set<0>(p, x2);
-            set<1>(p, y2);
-            return false;
+            // If denominator is small or zero, segments are (nearly) parallel
+            // Either they continue each other
+            // +---------------+--------------+
+            // x1,y1      x2,y2=x3,y3       x4,y4
+            // We then return false
+
+            // Or they form a spikey feature
+            // x1,y1
+            // +---------------+ x2,y2
+            // +---------------/ x3,y4
+            // x4,y4
+            // We then calculate the IP from one of the segments up to a certain distance
+            if (parallel_continue(x4 - x3, y4 - y3, x2 - x1, y2 - y1))
+            {
+                return false;
+            }
+            // Spikey, set something arbitrary and calculate px,py far away
+            denominator = limit;
         }
 
         coordinate_type d1 = det(x1, y1, x2, y2);
@@ -62,16 +87,10 @@ struct line_line_intersection
         coordinate_type px = det(d1, x1 - x2, d2, x3 - x4) / denominator;
         coordinate_type py = det(d1, y1 - y2, d2, y3 - y4) / denominator;
 
-        set<0>(p, px);
-        set<1>(p, py);
+        set<0>(ip, px);
+        set<1>(ip, py);
 
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
-        if (geometry::math::abs(denominator) < 1.0e-7)
-        {
-            std::cout << "small " << denominator << std::endl;
-        }
-#endif
-        return geometry::math::abs(denominator) > 1.0e-7;
+        return true;
     }
 };
 

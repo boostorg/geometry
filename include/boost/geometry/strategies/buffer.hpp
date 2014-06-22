@@ -61,7 +61,12 @@ enum buffer_side_selector { buffer_side_left, buffer_side_right };
 */
 enum piece_type
 {
-    buffered_segment, buffered_join, buffered_round_end, buffered_flat_end, buffered_circle
+    buffered_segment,
+    buffered_join,
+    buffered_round_end,
+    buffered_flat_end,
+    buffered_circle,
+    buffered_concave   // always on the inside
 };
 
 

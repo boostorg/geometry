@@ -590,22 +590,14 @@ struct buffered_piece_collection
     }
 
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
-            point_type const& b1, point_type const& b2)
+            point_type const& b1, point_type const& b2, bool first)
     {
-        // If the last type was a join, the segment_id of next segment should be decreased by one.
-        bool const last_type_join = ! m_pieces.empty()
-                && m_pieces.back().first_seg_id.multi_index == current_segment_id.multi_index
-                && (
-                        m_pieces.back().type == strategy::buffer::buffered_join
-                        || m_pieces.back().type == strategy::buffer::buffered_round_end
-                    );
-
-        piece& pc = add_piece(type, last_type_join);
+        piece& pc = add_piece(type, ! first);
 
         // If it follows a non-join (so basically the same piece-type) point b1 should be added.
         // There should be two intersections later and it should be discarded.
         // But for now we need it to calculate intersections
-        if (! last_type_join)
+        if (first)
         {
             add_point(b1);
         }
@@ -616,6 +608,18 @@ struct buffered_piece_collection
         pc.helper_segments.push_back(p1);
         pc.helper_segments.push_back(b1);
     }
+
+    inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
+            point_type const& b1, point_type const& b2)
+    {
+        piece& pc = add_piece(type, false);
+        add_point(b1);
+        pc.last_segment_index = add_point(b2);
+        pc.helper_segments.push_back(b2);
+        pc.helper_segments.push_back(p);
+        pc.helper_segments.push_back(b1);
+    }
+
 
     template <typename Range>
     inline piece& add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)

@@ -37,7 +37,7 @@ typedef bg::strategy::distance::pythagoras_box_box<> box_box_strategy;
 template <typename Strategy>
 void test_distance_polygon_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "polygon/polygon distance tests" << std::endl;
 #endif
@@ -66,7 +66,7 @@ void test_distance_polygon_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_polygon_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "polygon/multipolygon distance tests" << std::endl;
 #endif
@@ -91,7 +91,7 @@ void test_distance_polygon_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipolygon_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipolygon/multipolygon distance tests" << std::endl;
 #endif
@@ -118,7 +118,7 @@ void test_distance_multipolygon_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_box_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "box/box distance tests" << std::endl;
 #endif
@@ -155,7 +155,7 @@ void test_distance_box_box(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_polygon_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "polygon/box distance tests" << std::endl;
 #endif
@@ -187,7 +187,7 @@ void test_distance_polygon_box(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipolygon_box(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipolygon/box distance tests" << std::endl;
 #endif
@@ -214,7 +214,7 @@ void test_distance_multipolygon_box(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_more_empty_input_areal_areal(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "testing on empty inputs... " << std::flush;
 #endif
@@ -238,7 +238,7 @@ void test_more_empty_input_areal_areal(Strategy const& strategy)
     test_empty_input(multipolygon_empty, polygon_empty, strategy);
     test_empty_input(multipolygon_empty, multipolygon_empty, strategy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
 }

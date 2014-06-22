@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
-#include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -198,22 +197,12 @@ struct svg_visitor
 
             if (do_indices)
             {
-
-                // Put starting piece_index / segment_index in centroid
+                // Label starting piece_index / segment_index
                 typedef typename bg::point_type<ring_type>::type point_type;
 
-                point_type centroid;
-                if (corner.size() > 3)
-                {
-                    bg::centroid(corner, centroid);
-                }
-                else
-                {
-                    centroid = corner.front();
-                }
                 std::ostringstream out;
-                out << piece.index << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                m_mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
+                out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                m_mapper.text(corner.front(), out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -224,7 +213,7 @@ struct svg_visitor
         for(typename boost::range_iterator<TraversedRings const>::type it
                 = boost::begin(traversed_rings); it != boost::end(traversed_rings); ++it)
         {
-            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
+            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:2");
         }
     }
 
@@ -236,11 +225,11 @@ struct svg_visitor
         {
             if (it->discarded())
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:2");
             }
             else
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:2");
             }
         }
     }
@@ -270,19 +259,16 @@ struct JoinTestProperties { };
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
 { 
     static std::string name() { return "miter"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
 { 
     static std::string name() { return "divide"; }
-    static double tolerance() { return 0.1; }
 };
 
 
@@ -293,19 +279,16 @@ struct EndTestProperties { };
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 { 
     static std::string name() { return "flat"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
 { 
     static std::string name() { return ""; }
-    static double tolerance() { return 0.001; }
 };
 
 template
@@ -317,7 +300,8 @@ template
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             bool check_self_intersections, double expected_area,
-            double distance_left, double distance_right)
+            double distance_left, double distance_right,
+            double tolerance)
 {
     namespace bg = boost::geometry;
 
@@ -437,17 +421,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
-        double tol = JoinTestProperties<JoinStrategy>::tolerance() 
-            + EndTestProperties<EndStrategy>::tolerance();
-
-        if (expected_area < 1.0e-5)
-        {
-            tol /= 1.0e6;
-        }
-
-        typename bg::default_area_result<GeometryOut>::type tolerance = tol;
-
-
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(area - expected_area) < tolerance,
@@ -500,7 +473,8 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         double expected_area,
         double distance_left, double distance_right = -999,
-        bool check_self_intersections = true)
+        bool check_self_intersections = true,
+        double tolerance = 0.01)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -521,7 +495,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
             (caseid, g, check_self_intersections, expected_area,
-            distance_left, distance_right);
+            distance_left, distance_right, tolerance);
 }
 
 
