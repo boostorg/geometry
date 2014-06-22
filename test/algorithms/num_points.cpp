@@ -10,12 +10,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_num_points
-#endif
-
 #include <iostream>
-#include <boost/test/included/unit_test.hpp>
+
+#include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
@@ -38,9 +35,8 @@ inline void test_num_points(std::string const& wkt, std::size_t expected)
     detected = bg::num_points(geometry, true);
 }
 
-BOOST_AUTO_TEST_CASE( test_num_points_closed )
+int test_main(int, char* [])
 {
-    namespace bg = boost::geometry;
     typedef bg::model::point<double,2,bg::cs::cartesian> point;
     typedef bg::model::linestring<point> linestring;
     typedef bg::model::segment<point> segment;
@@ -61,5 +57,7 @@ BOOST_AUTO_TEST_CASE( test_num_points_closed )
     test_num_points<multi_point>("MULTIPOINT((0 0),(1 1))", 2u);
     test_num_points<multi_linestring>("MULTILINESTRING((0 0,1 1),(2 2,3 3,4 4))", 5u);
     test_num_points<multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 10,1 10,1 9,0 10)))", 9u);
+
+    return 0;
 }
 
