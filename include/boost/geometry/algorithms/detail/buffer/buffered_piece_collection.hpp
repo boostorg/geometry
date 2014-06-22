@@ -590,13 +590,8 @@ struct buffered_piece_collection
     }
 
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
-            point_type const& b1, point_type const& b2)
+            point_type const& b1, point_type const& b2, bool first)
     {
-        // For the first segment, add starting point, else skip that and
-        // decrease next segment_index because it uses the last one
-        bool const first = m_pieces.empty()
-                || m_pieces.back().first_seg_id.multi_index != current_segment_id.multi_index;
-
         piece& pc = add_piece(type, ! first);
 
         // If it follows a non-join (so basically the same piece-type) point b1 should be added.

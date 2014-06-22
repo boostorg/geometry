@@ -159,23 +159,14 @@ struct buffer_range
 
         point_type penultimate_point, ultimate_point; // last two points from begin/end
 
-
         for (Iterator prev = it++; it != end; ++it)
         {
             if (! detail::equals::equals_point_point(*prev, *it))
             {
                 output_point_type p1, p2;
-                penultimate_point = *prev;
-                ultimate_point = *it;
                 generate_side(*prev, *it, side, distance_strategy, p1, p2);
 
-                if (first)
-                {
-                    first = false;
-                    first_p1 = p1;
-                    first_p2 = p2;
-                }
-                else
+                if (! first)
                 {
                     add_join(collection,
                         *prev, previous_p1, previous_p2,
@@ -183,11 +174,20 @@ struct buffer_range
                         side,
                         distance_strategy, join_strategy, robust_policy);
                 }
-                collection.add_piece(strategy::buffer::buffered_segment, *prev, *it, p1, p2);
+                collection.add_piece(strategy::buffer::buffered_segment,
+                    *prev, *it, p1, p2, first);
 
+                penultimate_point = *prev;
+                ultimate_point = *it;
                 previous_p1 = p1;
                 previous_p2 = p2;
                 prev = it;
+                if (first)
+                {
+                    first = false;
+                    first_p1 = p1;
+                    first_p2 = p2;
+                }
             }
         }
 
