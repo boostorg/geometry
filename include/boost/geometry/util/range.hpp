@@ -167,7 +167,7 @@ namespace detail {
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
 
 template <typename It,
-          typename OutIt = It,
+          typename OutIt,
           bool UseMove = boost::is_convertible
                             <
                                 typename std::iterator_traits<It>::value_type &&,
@@ -190,24 +190,21 @@ struct copy_or_move_impl<It, OutIt, false>
     }
 };
 
-#else
-
-template <typename It, typename OutIt = It, bool /*UseMove*/ = false>
-struct copy_or_move_impl
-{
-    static inline OutIt apply(It first, It last, OutIt out)
-    {
-        return std::copy(first, last, out);
-    }
-};
-
-#endif
-
 template <typename It, typename OutIt>
 inline OutIt copy_or_move(It first, It last, OutIt out)
 {
     return copy_or_move_impl<It, OutIt>::apply(first, last, out);
 }
+
+#else
+
+template <typename It, typename OutIt>
+inline OutIt copy_or_move(It first, It last, OutIt out)
+{
+    return std::copy(first, last, out);
+}
+
+#endif
 
 } // namespace detail
 
@@ -228,7 +225,6 @@ erase(Range & rng,
         next = it;
     ++next;
 
-    //std::copy(next, boost::end(rng), it);
     detail::copy_or_move(next, boost::end(rng), it);
     range::resize(rng, boost::size(rng) - 1);
 
@@ -277,7 +273,6 @@ erase(Range & rng,
     
     if ( count > 0 )
     {
-        //std::copy(last, boost::end(rng), first);
         detail::copy_or_move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
     }
