@@ -39,6 +39,10 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
                   << "/"
                   << geometry::operation_char(tit->operations[1].operation)
                   << " {"
+                  << tit->operations[0].seg_id.multi_index
+                  << ", "
+                  << tit->operations[0].other_id.multi_index
+                  << "} {"
                   << tit->operations[0].seg_id.ring_index
                   << ", "
                   << tit->operations[0].other_id.ring_index
