@@ -46,7 +46,7 @@ struct has_valid_corners
 template <typename Box>
 struct has_valid_corners<Box, 0>
 {
-    static inline bool apply(Box const& box)
+    static inline bool apply(Box const& /*box*/)
     {
         return true;
     }

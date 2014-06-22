@@ -24,11 +24,10 @@ namespace boost { namespace geometry
 namespace detail { namespace is_valid
 {
 
-
+#ifdef GEOMETRY_TEST_DEBUG
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 {
-#ifdef GEOMETRY_TEST_DEBUG
     std::cout << "turns:";
     for (TurnIterator tit = first; tit != beyond; ++tit)
     {
@@ -51,9 +50,12 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
                   << "]";
     }
     std::cout << std::endl << std::endl;
-#endif // GEOMETRY_TEST_DEBUG
 }
-
+#else
+template <typename TurnIterator>
+inline void debug_print_turns(TurnIterator /*first*/, TurnIterator /*beyond*/)
+{}
+#endif // GEOMETRY_TEST_DEBUG
 
 }} // namespace detail::is_valid
 
