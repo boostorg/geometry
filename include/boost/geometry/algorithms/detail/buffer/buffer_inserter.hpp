@@ -85,6 +85,47 @@ struct buffer_range
     template
     <
         typename Collection,
+        typename Point,
+        typename DistanceStrategy,
+        typename JoinStrategy
+    >
+    static inline void add_join(Collection& collection,
+            Point const& previous_input,
+            output_point_type const& prev_perp1,
+            output_point_type const& prev_perp2,
+            Point const& input,
+            output_point_type const& perp1,
+            output_point_type const& perp2,
+            strategy::buffer::buffer_side_selector side,
+            DistanceStrategy const& distance,
+            JoinStrategy const& join_strategy)
+    {
+        segment_type previous_segment(prev_perp1, prev_perp2);
+        segment_type segment(perp1, perp2);
+        output_point_type intersection_point;
+        if (line_line_intersection<output_point_type, segment_type>::apply(
+                    segment, previous_segment, intersection_point))
+        {
+            std::vector<output_point_type> range_out;
+            if (join_strategy.apply(intersection_point,
+                        previous_input, prev_perp2, perp1,
+                        distance.apply(previous_input, input, side),
+                        range_out))
+            {
+                collection.add_piece(strategy::buffer::buffered_join,
+                        previous_input, range_out);
+            }
+            else
+            {
+                collection.add_piece(strategy::buffer::buffered_concave,
+                        previous_input, prev_perp2, perp1);
+            }
+        }
+    }
+
+    template
+    <
+        typename Collection,
         typename Iterator,
         typename DistanceStrategy,
         typename JoinStrategy,
@@ -93,7 +134,7 @@ struct buffer_range
     static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
-                DistanceStrategy const& distance,
+                DistanceStrategy const& distance_strategy,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
                 bool /*close*/ = false)
@@ -121,35 +162,20 @@ struct buffer_range
                 output_point_type p1, p2;
                 penultimate_point = *prev;
                 ultimate_point = *it;
-                generate_side(*prev, *it, side, distance, p1, p2);
+                generate_side(*prev, *it, side, distance_strategy, p1, p2);
 
-                std::vector<output_point_type> range_out;
-                if (! first)
-                {
-                    output_point_type ip;
-                    segment_type s1(p1, p2);
-                    segment_type s2(previous_p1, previous_p2);
-
-                    if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, ip))
-                    {
-                        if (!join_strategy.apply(ip, *prev, previous_p2, p1,
-                                    distance.apply(*prev, *it, side),
-                                    range_out))
-                        {
-                            collection.add_piece(strategy::buffer::buffered_concave, *prev, previous_p2, p1);
-                        }
-                    }
-                }
-                else
+                if (first)
                 {
                     first = false;
                     first_p1 = p1;
                     first_p2 = p2;
                 }
-                if (! range_out.empty())
+                else
                 {
-                    collection.add_piece(strategy::buffer::buffered_join, *prev, range_out);
-                    range_out.clear();
+                    add_join(collection,
+                        *prev, previous_p1, previous_p2,
+                        *it, p1, p2,
+                        side, distance_strategy, join_strategy);
                 }
                 collection.add_piece(strategy::buffer::buffered_segment, *prev, *it, p1, p2);
 
@@ -165,24 +191,10 @@ struct buffer_range
         if(boost::is_same<Tag, ring_tag>::value)
         {
             // Generate closing corner
-            output_point_type p;
-            segment_type s1(previous_p1, previous_p2);
-            segment_type s2(first_p1, first_p2);
-            if (line_line_intersection<output_point_type, segment_type>::apply(s1, s2, p))
-            {
-                std::vector<output_point_type> range_out;
-                join_strategy.apply(p, *begin, previous_p2, first_p1,
-                    distance.apply(*(end - 1), *begin, side),
-                    range_out);
-                if (! range_out.empty())
-                {
-                    collection.add_piece(strategy::buffer::buffered_join, *begin, range_out);
-                }
-                else
-                {
-                    collection.add_piece(strategy::buffer::buffered_concave, *begin, previous_p2, first_p1);
-                }
-            }
+            add_join(collection,
+                *(end - 1), previous_p1, previous_p2,
+                *begin, first_p1, first_p2,
+                side, distance_strategy, join_strategy);
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
         }
@@ -197,11 +209,11 @@ struct buffer_range
                     side == strategy::buffer::buffer_side_left
                     ? strategy::buffer::buffer_side_right
                     : strategy::buffer::buffer_side_left,
-                    distance, rp2, rp1);
+                    distance_strategy, rp2, rp1);
 
             std::vector<output_point_type> range_out;
 
-            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance, range_out);
+            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance_strategy, range_out);
             collection.add_endcap(end_strategy, range_out, ultimate_point);
         }
     }
