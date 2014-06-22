@@ -221,6 +221,9 @@ erase(Range & rng,
     BOOST_ASSERT(!boost::empty(rng));
     BOOST_ASSERT(it != boost::end(rng));
 
+    typename boost::range_difference<Range>::type const
+        d = std::distance(boost::begin(rng), it);
+
     typename boost::range_iterator<Range>::type
         next = it;
     ++next;
@@ -228,8 +231,13 @@ erase(Range & rng,
     detail::copy_or_move(next, boost::end(rng), it);
     range::resize(rng, boost::size(rng) - 1);
 
-    // NOTE: assuming that resize() doesn't invalidate the iterators
-    return it;
+    // NOTE: In general this should be sufficient:
+    //    return it;
+    // But in MSVC using the returned iterator causes
+    // assertion failures when iterator debugging is enabled
+    // Furthermore the code below should work in the case if resize()
+    // invalidates iterators when the container is resized down.
+    return boost::begin(rng) + d;
 }
 
 /*!
@@ -262,10 +270,11 @@ erase(Range & rng,
       typename boost::range_iterator<Range>::type first,
       typename boost::range_iterator<Range>::type last)
 {
-    typename std::iterator_traits
-        <
-            typename boost::range_iterator<Range>::type
-        >::difference_type const diff = std::distance(first, last);
+    typename boost::range_difference<Range>::type const
+        d = std::distance(boost::begin(rng), first);
+
+    typename boost::range_difference<Range>::type const
+        diff = std::distance(first, last);
     BOOST_ASSERT(diff >= 0);
 
     std::size_t const count = static_cast<std::size_t>(diff);
@@ -275,9 +284,16 @@ erase(Range & rng,
     {
         detail::copy_or_move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
+
+        // NOTE: In general this should be sufficient:
+        //    return first;
+        // But in MSVC using the returned iterator causes
+        // assertion failures when iterator debugging is enabled
+        // Furthermore the code below should work in the case if resize()
+        // invalidates iterators when the container is resized down.
+        return boost::begin(rng) + d;
     }
 
-    // NOTE: assuming that resize() doesn't invalidate the iterators
     return first;
 }
 

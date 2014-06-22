@@ -172,29 +172,41 @@ void test_all()
 
 void test_detail()
 {
-    int arr[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     bgr::detail::copy_or_move(arr + 1, arr + 10, arr);
+    BOOST_CHECK(arr[0] == 1);
+
     std::vector<int> v(10, 0);
     bgr::detail::copy_or_move(v.begin() + 1, v.begin() + 10, v.begin());
     BOOST_CHECK(boost::size(v) == 10);
     bgr::erase(v, v.begin() + 1);
     BOOST_CHECK(boost::size(v) == 9);
 
-    int * arr2[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bgt::NonMovable * arr2[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bgt::NonMovable foo;
+    arr2[1] = &foo;
     bgr::detail::copy_or_move(arr2 + 1, arr2 + 10, arr2);
-    std::vector<int*> v2(10, 0);
+    BOOST_CHECK(arr2[0] == &foo);
+
+    // Storing pointers in a std::vector is not possible in MinGW C++98
+#if __cplusplus >= 201103L
+    std::vector<bgt::NonMovable*> v2(10, 0);
     bgr::detail::copy_or_move(v2.begin() + 1, v2.begin() + 10, v2.begin());
     BOOST_CHECK(boost::size(v2) == 10);
     bgr::erase(v2, v2.begin() + 1);
     BOOST_CHECK(boost::size(v2) == 9);
+#endif
 }
 
 int test_main(int, char* [])
 {
     test_all<int, true>();
     test_all<int, false>();
+    // Storing non-movable elements in a std::vector is not possible in MSVC
+#ifndef _MSC_VER
     test_all<bgt::NonMovable, true>();
     test_all<bgt::NonMovable, false>();
+#endif
     test_all<bgt::CopyableAndMovable, true>();
     test_all<bgt::CopyableAndMovable, false>();
 
