@@ -51,8 +51,8 @@ inline void debug_print_complement_graph(OutputStream& os,
 }
 #else
 template <typename OutputStream, typename Vertex>
-void debug_print_complement_graph(OutputStream& /*os*/,
-                                  complement_graph<Vertex> const& /*graph*/)
+void debug_print_complement_graph(OutputStream&,
+                                  complement_graph<Vertex> const&)
 {
 }
 #endif
