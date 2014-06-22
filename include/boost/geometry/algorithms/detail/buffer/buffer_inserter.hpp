@@ -51,16 +51,17 @@ struct buffer_range
             typename Point,
             typename DistanceStrategy
         >
-    static inline void generate_side(Point const& ip1, Point const& ip2,
+    static inline void generate_side(
+                Point const& input_p1, Point const& input_p2,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
-                output_point_type& p1, output_point_type& p2)
+                output_point_type& side_p1, output_point_type& side_p2)
     {
         // Generate a block along (left or right of) the segment
 
         // Simulate a vector d (dx,dy)
-        coordinate_type dx = get<0>(ip2) - get<0>(ip1);
-        coordinate_type dy = get<1>(ip2) - get<1>(ip1);
+        coordinate_type dx = get<0>(input_p2) - get<0>(input_p1);
+        coordinate_type dy = get<1>(input_p2) - get<1>(input_p1);
 
         // For normalization [0,1] (=dot product d.d, sqrt)
         // TODO promoted_type
@@ -73,12 +74,12 @@ struct buffer_range
         coordinate_type const px = -dy / length;
         coordinate_type const py = dx / length;
 
-        coordinate_type const d = distance.apply(ip1, ip2, side);
+        coordinate_type const d = distance.apply(input_p1, input_p2, side);
 
-        set<0>(p1, get<0>(ip1) + px * d);
-        set<1>(p1, get<1>(ip1) + py * d);
-        set<0>(p2, get<0>(ip2) + px * d);
-        set<1>(p2, get<1>(ip2) + py * d);
+        set<0>(side_p1, get<0>(input_p1) + px * d);
+        set<1>(side_p1, get<1>(input_p1) + py * d);
+        set<0>(side_p2, get<0>(input_p2) + px * d);
+        set<1>(side_p2, get<1>(input_p2) + py * d);
     }
 
     template
