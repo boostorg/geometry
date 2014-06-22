@@ -225,7 +225,7 @@ void test_all()
         {
             std::ostringstream out;
             out << "saw_" << i;
-            test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>(out.str(), saw, expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>(out.str(), saw, expected_round[i - 1], double(i) / 2.0, -999, true, 0.1);
             test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>(out.str(), saw, expected_miter[i - 1], double(i) / 2.0);
         }
     }
@@ -252,14 +252,12 @@ void test_all()
         {
             std::ostringstream out;
             out << "bowl_" << i;
-            test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>(out.str(), bowl, expected_round[i - 1], double(i) / 2.0);
+            test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>(out.str(), bowl, expected_round[i - 1], double(i) / 2.0, -999, true, 0.1);
             test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>(out.str(), bowl, expected_miter[i - 1], double(i) / 2.0);
         }
     }
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01, 0.01, false);
-    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01, 0.01, false);
-#endif
+    test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("county1", county1, 0.00114092, 0.01);
+    test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("county1", county1, 0.00132859, 0.01);
 
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("parcel1_10", parcel1, 7571.39121246337891, 10.0);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("parcel1_10", parcel1, 8207.45314788818359, 10.0);

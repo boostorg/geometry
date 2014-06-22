@@ -35,8 +35,8 @@ void test_all()
 	double const pi = boost::geometry::math::pi<double>();
 
     test_one<P, buf::join_miter, buf::end_round, polygon>("simplex1", simplex, pi, 1.0, 1.0);
-    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, pi * 4.0, 2.0, 2.0);
-    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex3", simplex, pi * 9.0, 3.0, 3.0);
+    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, pi * 4.0, 2.0, 2.0, true, 0.1);
+    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex3", simplex, pi * 9.0, 3.0, 3.0, true, 0.1);
 }
 
 

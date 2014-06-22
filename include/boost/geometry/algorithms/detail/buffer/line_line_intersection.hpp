@@ -59,7 +59,7 @@ struct line_line_intersection
         // For round joins, it will not be used at all.
         // For miter joints, there is a miter limit
         // If segments are parallel we must be distinguish two cases
-        coordinate_type const limit = 1.0e-5;
+        coordinate_type const limit = 1.0e-9;
         if (geometry::math::abs(denominator) < limit)
         {
             // If denominator is small or zero, segments are (nearly) parallel

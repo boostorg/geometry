@@ -259,19 +259,16 @@ struct JoinTestProperties { };
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
 { 
     static std::string name() { return "miter"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
 { 
     static std::string name() { return "divide"; }
-    static double tolerance() { return 0.1; }
 };
 
 
@@ -282,19 +279,16 @@ struct EndTestProperties { };
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 { 
     static std::string name() { return "flat"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
 { 
     static std::string name() { return ""; }
-    static double tolerance() { return 0.001; }
 };
 
 template
@@ -306,7 +300,8 @@ template
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             bool check_self_intersections, double expected_area,
-            double distance_left, double distance_right)
+            double distance_left, double distance_right,
+            double tolerance)
 {
     namespace bg = boost::geometry;
 
@@ -426,17 +421,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
-        double tol = JoinTestProperties<JoinStrategy>::tolerance() 
-            + EndTestProperties<EndStrategy>::tolerance();
-
-        if (expected_area < 1.0e-5)
-        {
-            tol /= 1.0e6;
-        }
-
-        typename bg::default_area_result<GeometryOut>::type tolerance = tol;
-
-
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(area - expected_area) < tolerance,
@@ -489,7 +473,8 @@ template
 void test_one(std::string const& caseid, std::string const& wkt,
         double expected_area,
         double distance_left, double distance_right = -999,
-        bool check_self_intersections = true)
+        bool check_self_intersections = true,
+        double tolerance = 0.01)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -510,7 +495,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
             (caseid, g, check_self_intersections, expected_area,
-            distance_left, distance_right);
+            distance_left, distance_right, tolerance);
 }
 
 
