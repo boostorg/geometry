@@ -197,9 +197,7 @@ protected:
 
         if ( is_entering(*it, *op_it) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Entering");
-#endif
 
             entered = true;
             if ( enter_count == 0 )
@@ -213,9 +211,7 @@ protected:
         }
         else if ( is_leaving(*it, *op_it, entered) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Leaving");
-#endif
 
             --enter_count;
             if ( enter_count == 0 )
@@ -230,9 +226,7 @@ protected:
         else if ( FollowIsolatedPoints
                   && is_isolated_point(*it, *op_it, entered) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Isolated point");
-#endif
 
             action::isolated_point(current_piece, linestring,
                                    current_segment_id,
@@ -242,9 +236,7 @@ protected:
         else if ( FollowContinueTurns
                   && is_staying_inside(*it, *op_it, entered) )
         {
-#ifdef GEOMETRY_TEST_DEBUG
             detail::turns::debug_turn(*it, *op_it, "-> Staying inside");
-#endif
 
             entered = true;
         }

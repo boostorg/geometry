@@ -107,7 +107,7 @@ struct test_disjoint
         result = bg::disjoint(geometry2, geometry1);
         BOOST_CHECK( result == expected_result );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "G1 - G2: ";
         pretty_print_geometry<Geometry1>::apply(geometry1) << " - ";
         pretty_print_geometry<Geometry2>::apply(geometry2) << std::endl;

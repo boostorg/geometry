@@ -42,7 +42,7 @@
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
@@ -184,7 +184,7 @@ public:
         typedef typename ring_type<Polygon>::type ring_type;
 
         // check validity of exterior ring
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "checking exterior ring..." << std::endl;
 #endif
         if ( !detail::is_valid::is_valid_ring
@@ -199,7 +199,7 @@ public:
 
 
         // check validity of interior rings
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "checking interior rings..." << std::endl;
 #endif
         if ( !are_valid_interior_rings(geometry::interior_rings(polygon)) )
@@ -209,7 +209,7 @@ public:
 
 
         // compute turns and check if all are acceptable
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "computing and analyzing turns..." << std::endl;
 #endif
         typedef typename geometry::rescale_policy_type
@@ -243,7 +243,7 @@ public:
                                           turns,
                                           interrupt_policy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "turns:";
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)
@@ -276,7 +276,7 @@ public:
 
 
         // check if all interior rings are inside the exterior ring
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "checking if holes are inside the exterior ring..."
                   << std::endl;
 #endif
@@ -289,7 +289,7 @@ public:
 
 
         // check whether the interior of the polygon is a connected set
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "checking connectivity of interior..." << std::endl;
 #endif
         typedef graph_vertex<typename turn_info::point_type> graph_vertex;
@@ -309,7 +309,7 @@ public:
             g.add_edge(v2, vip);
         }
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         g.print();
 #endif
         return !g.has_cycles();

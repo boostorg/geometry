@@ -95,7 +95,7 @@ void test_distance(Geometry1 const& geometry1,
 {
     typename bg::default_distance_result<Geometry1>::type distance = bg::distance(geometry1, geometry2);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry1>::type).name()
         << std::endl

@@ -70,7 +70,7 @@ void test_empty_input(Geometry1 const& geometry1, Geometry2 const& geometry2)
 
 
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 // pretty print geometry -- START
 template <typename Geometry, typename GeometryTag>
 struct pretty_print_geometry_dispatch
@@ -119,7 +119,7 @@ struct pretty_print_geometry
     }
 };
 // pretty print geometry -- END
-#endif // GEOMETRY_TEST_DEBUG
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 
 //========================================================================
@@ -197,7 +197,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                Strategy const& strategy,
                bool test_reversed = true)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         typedef pretty_print_geometry<Geometry1> PPG1;
         typedef pretty_print_geometry<Geometry2> PPG2;
         PPG1::apply(geometry1, std::cout);
@@ -286,7 +286,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 default_comparable_distance_result
             >::apply(cdist, expected_comparable_distance);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << string_from_type<typename bg::coordinate_type<Geometry1>::type>::name()
                   << string_from_type<typename bg::coordinate_type<Geometry2>::type>::name()
                   << " -> "
@@ -342,7 +342,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                     default_comparable_distance_result
                 >::apply(cdist, expected_comparable_distance);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "distance[reversed args] (def. startegy) = "
                       << dist_def << " ; "
                       << "distance[reversed args] (passed startegy) = "
@@ -411,7 +411,7 @@ struct test_distance_of_geometries
         base::apply(segment, polygon, expected_distance,
                     expected_comparable_distance, strategy);
         if ( bg::num_interior_rings(polygon) == 0 ) {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "... testing also exterior ring ..." << std::endl;
 #endif
             test_distance_of_geometries
@@ -554,7 +554,7 @@ struct test_distance_of_geometries
                 comparable_distance_result_type
             >::apply(comparable_distance_generic, expected_comparable_distance);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "... testing with naive seg-box distance algorithm..."
                   << std::endl;
         std::cout << "distance (generic algorithm) = "

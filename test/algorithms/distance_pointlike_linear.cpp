@@ -38,7 +38,7 @@ typedef bg::strategy::distance::projected_point<> point_segment_strategy;
 template <typename Strategy>
 void test_distance_point_segment(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/segment distance tests" << std::endl;
 #endif
@@ -56,7 +56,7 @@ void test_distance_point_segment(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_linestring(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/linestring distance tests" << std::endl;
 #endif
@@ -75,7 +75,7 @@ void test_distance_point_linestring(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_multilinestring(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/multilinestring distance tests" << std::endl;
 #endif
@@ -106,7 +106,7 @@ void test_distance_point_multilinestring(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_linestring_multipoint(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "linestring/multipoint distance tests" << std::endl;
 #endif
@@ -134,7 +134,7 @@ void test_distance_linestring_multipoint(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_multilinestring(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipoint/multilinestring distance tests" << std::endl;
 #endif
@@ -162,7 +162,7 @@ void test_distance_multipoint_multilinestring(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_segment(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipoint/segment distance tests" << std::endl;
 #endif
@@ -187,7 +187,7 @@ void test_distance_multipoint_segment(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_more_empty_input_pointlike_linear(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "testing on empty inputs... " << std::flush;
 #endif
@@ -210,7 +210,7 @@ void test_more_empty_input_pointlike_linear(Strategy const& strategy)
     test_empty_input(multipoint_empty, line_empty, strategy);
     test_empty_input(multipoint_empty, multiline_empty, strategy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
 }
