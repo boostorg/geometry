@@ -53,7 +53,7 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 }
 #else
 template <typename TurnIterator>
-inline void debug_print_turns(TurnIterator /*first*/, TurnIterator /*beyond*/)
+inline void debug_print_turns(TurnIterator, TurnIterator)
 {}
 #endif // BOOST_GEOMETRY_TEST_DEBUG
 
