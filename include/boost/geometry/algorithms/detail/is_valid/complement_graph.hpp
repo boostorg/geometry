@@ -12,7 +12,6 @@
 
 #include <cstddef>
 
-#include <iostream>
 #include <set>
 #include <stack>
 #include <utility>
@@ -232,29 +231,9 @@ public:
         return false;
     }
 
-    void print(std::ostream& os = std::cout) const
-    {
-        os << "num rings: " << m_num_rings << std::endl;
-        os << "vertex ids: {";
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            os << " " << it->id();
-        }
-        os << " }" << std::endl;        
-
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            os << "neighbors of " << it->id() << ": {";
-            for (typename Vertex::neighbor_iterator nit = it->neighbors_begin();
-                 nit != it->neighbors_end(); ++nit)
-            {
-                os << " " << (*nit)->id();
-            }
-            os << "}" << std::endl;        
-        }
-    }
+    template <typename OStream, typename V>
+    friend inline
+    void debug_print_complement_graph(OStream&, complement_graph<V> const&);
 
 private:
     std::size_t m_num_rings, m_num_turns;

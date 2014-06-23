@@ -38,7 +38,8 @@
 #include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
-#include <boost/geometry/algorithms/detail/is_simple/debug_linear.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/debug_print_boundary_points.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
@@ -75,34 +76,71 @@ template <typename MultiLinestring>
 class is_simple_multilinestring
 {
 private:
-    template <typename Point, typename Linestring>
-    static inline bool is_boundary_point_of(Point const& point,
-                                            Linestring const& linestring)
+    class is_acceptable_turn
     {
-        BOOST_ASSERT( boost::size(linestring) > 1 );
-        return
-            !geometry::equals(range::front(linestring),
-                              range::back(linestring))
-            &&
-            ( geometry::equals(point, range::front(linestring))
-              || geometry::equals(point, range::back(linestring)) );
-    }
+    private:
+        template <typename Point, typename Linestring>
+        static inline bool is_boundary_point_of(Point const& point,
+                                                Linestring const& linestring)
+        {
+            BOOST_ASSERT( boost::size(linestring) > 1 );
+            return
+                !geometry::equals(range::front(linestring),
+                                  range::back(linestring))
+                &&
+                ( geometry::equals(point, range::front(linestring))
+                  || geometry::equals(point, range::back(linestring)) );
+        }
 
-    template <typename Linestring1, typename Linestring2>
-    static inline bool have_same_boundary_points(Linestring1 const& ls1,
-                                                 Linestring2 const& ls2)
-    {
-        return
-            geometry::equals(range::front(ls1), range::front(ls2))
-            ?
-            geometry::equals(range::back(ls1), range::back(ls2))
-            :
-            (geometry::equals(range::front(ls1), range::back(ls2))
-             &&
-             geometry::equals(range::back(ls1), range::front(ls2))
-             )
-            ;
-    }
+        template <typename Linestring1, typename Linestring2>
+        static inline bool have_same_boundary_points(Linestring1 const& ls1,
+                                                     Linestring2 const& ls2)
+        {
+            return
+                geometry::equals(range::front(ls1), range::front(ls2))
+                ?
+                geometry::equals(range::back(ls1), range::back(ls2))
+                :
+                (geometry::equals(range::front(ls1), range::back(ls2))
+                 &&
+                 geometry::equals(range::back(ls1), range::front(ls2))
+                 )
+                ;
+        }
+
+    public:
+        is_acceptable_turn(MultiLinestring const& multilinestring)
+            : m_multilinestring(multilinestring)
+        {}
+
+        template <typename Turn>
+        inline bool apply(Turn const& turn) const
+        {
+            typedef typename boost::range_value
+                <
+                    MultiLinestring
+                >::type linestring;
+
+            linestring const& ls1 =
+                range::at(m_multilinestring,
+                          turn.operations[0].seg_id.multi_index);
+
+            linestring const& ls2 =
+                range::at(m_multilinestring,
+                          turn.operations[0].other_id.multi_index);
+
+            return
+                is_boundary_point_of(turn.point, ls1)
+                && is_boundary_point_of(turn.point, ls2)
+                &&
+                ( boost::size(ls1) != 2
+                  || boost::size(ls2) != 2
+                  || !have_same_boundary_points(ls1, ls2) );
+        }
+
+    private:
+        MultiLinestring const& m_multilinestring;        
+    };
 
 
 public:
@@ -116,7 +154,8 @@ public:
         // check each of the linestrings for simplicity
         if ( !detail::check_iterator_range
                  <
-                     is_simple_linestring<linestring>
+                     is_simple_linestring<linestring>,
+                     false // do not allow empty multilinestring
                  >::apply(boost::begin(multilinestring),
                           boost::end(multilinestring))
              )
@@ -142,8 +181,11 @@ public:
                 detail::disjoint::assign_disjoint_policy
             > turn_policy;
 
-        detail::self_get_turn_points::no_interrupt_policy
-            interrupt_policy;
+        is_acceptable_turn predicate(multilinestring);
+        detail::overlay::predicate_based_interrupt_policy
+            <
+                is_acceptable_turn
+            > interrupt_policy(predicate);
 
         detail::self_get_turn_points::get_turns
             <
@@ -153,37 +195,10 @@ public:
                      turns,
                      interrupt_policy);
 
-        debug_print_turns(turns.begin(), turns.end());
+        detail::is_valid::debug_print_turns(turns.begin(), turns.end());
         debug_print_boundary_points(multilinestring);
 
-        // check if the generated turns are all boundary points of the
-        // linestrings in the multi-linestring
-        for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
-             tit != turns.end(); ++tit)
-        {            
-            linestring const& ls1 =
-                range::at(multilinestring,
-                          tit->operations[0].seg_id.multi_index);
-
-            linestring const& ls2 =
-                range::at(multilinestring,
-                          tit->operations[0].other_id.multi_index);
-
-            if ( !is_boundary_point_of(tit->point, ls1)
-                 || !is_boundary_point_of(tit->point, ls2) )
-            {
-                return false;
-            }
-
-            if ( boost::size(ls1) == 2
-                 && boost::size(ls2) == 2
-                 && have_same_boundary_points(ls1, ls2) )
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return !interrupt_policy.has_intersections;
     }
 
 };

@@ -61,8 +61,7 @@ private:
                     is_simple_ring
                         <
                             typename boost::range_value<InteriorRings>::type
-                        >,
-                    true // allow the iterator range to be empty
+                        >
                 >::apply(boost::begin(interior_rings),
                          boost::end(interior_rings));
     }
@@ -126,7 +125,8 @@ struct is_simple<MultiPolygon, multi_polygon_tag>
                     detail::is_simple::is_simple_polygon
                         <
                             typename boost::range_value<MultiPolygon>::type
-                        >
+                        >,
+                    false // do not allow empty multi-polygon
                 >::apply(boost::begin(multipolygon), boost::end(multipolygon));
     }
 };

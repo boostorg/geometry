@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_LINEAR_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_LINEAR_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_PRINT_BOUNDARY_POINTS_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_PRINT_BOUNDARY_POINTS_HPP
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <algorithm>
@@ -26,7 +26,6 @@
 #include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #endif
 
 
@@ -35,33 +34,6 @@ namespace boost { namespace geometry
 
 namespace detail { namespace is_simple
 {
-
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-template <typename TurnIterator>
-inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
-{
-    std::cout << "turns:";
-    for (TurnIterator tit = first; tit != beyond; ++tit)
-    {
-        std::cout << " ["
-                  << geometry::method_char(tit->method)
-                  << ","
-                  << geometry::operation_char(tit->operations[0].operation)
-                  << "/"
-                  << geometry::operation_char(tit->operations[1].operation)
-                  << " "
-                  << geometry::dsv(tit->point)
-                  << "] ";
-    }
-    std::cout << std::endl << std::endl;
-}
-#else
-template <typename TurnIterator>
-inline void debug_print_turns(TurnIterator, TurnIterator)
-{
-}
-#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -107,4 +79,4 @@ inline void debug_print_boundary_points(MultiLinestring const&)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_LINEAR_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_DEBUG_PRINT_BOUNDARY_POINTS_HPP

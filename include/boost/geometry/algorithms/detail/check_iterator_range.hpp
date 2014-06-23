@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -22,7 +24,8 @@ namespace detail
 // predicate.
 // The predicate must be implemented as having a static apply unary
 // method that returns a bool.
-template <typename Predicate, bool AllowEmptyMultiRange = false>
+// By default an empty range is accepted
+template <typename Predicate, bool AllowEmptyRange = true>
 struct check_iterator_range
 {
     template <typename InputIterator>
@@ -35,7 +38,28 @@ struct check_iterator_range
                 return false;
             }
         }
-        return AllowEmptyMultiRange || first != beyond;
+        return AllowEmptyRange || first != beyond;
+    };
+
+
+    // version where we can pass a predicate object
+    template <typename InputIterator>
+    static inline bool apply(InputIterator first,
+                             InputIterator beyond,
+                             Predicate const& predicate)
+    {
+        // in case predicate's apply method is static, MSVC will
+        // complain that predicate is not used
+        boost::ignore_unused(predicate);
+
+        for (InputIterator it = first; it != beyond; ++it)
+        {
+            if ( !predicate.apply(*it) )
+            {
+                return false;
+            }
+        }
+        return AllowEmptyRange || first != beyond;
     };
 };
 

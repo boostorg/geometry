@@ -129,7 +129,8 @@ struct is_convertible_to_closed<MultiPolygon, bg::multi_polygon_tag, bg::open>
     {
         return bg::detail::check_iterator_range
             <
-                is_convertible_to_closed<polygon>
+                is_convertible_to_closed<polygon>,
+                false // do not allow empty multi-polygon
             >::apply(boost::begin(multi_polygon),
                      boost::end(multi_polygon));
     }
