@@ -16,6 +16,10 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+#include <boost/geometry/io/wkt/wkt.hpp>
+#endif
+
 
 namespace boost { namespace geometry
 {

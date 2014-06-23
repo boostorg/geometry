@@ -7,12 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-#include <geometry_test_common.hpp>
-
-#define BOOST_GEOMETRY_TEST_BUFFER_POLYGON
 #include <test_buffer.hpp>
-
 
 
 static std::string const simplex
