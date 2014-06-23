@@ -11,7 +11,6 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -33,7 +32,6 @@ template
 >
 struct join_miter
 {
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
     // Constructor compatible with other join strategies:
@@ -46,16 +44,6 @@ struct join_miter
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-        coordinate_type const zero = 0;
-        int const signum = buffer_distance > zero ? 1
-                   : buffer_distance < zero ? -1
-                   : 0;
-
-        if (side::apply(perp1, ip, perp2) == signum)
-        {
-            return false;
-        }
-
         PointIn p = ip;
 
         // Normalize it and give it X*dist.

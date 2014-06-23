@@ -13,7 +13,6 @@
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -42,7 +41,6 @@ public :
         : m_max_level(max_level)
     {}
 
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointOut>::type coordinate_type;
 
     typedef typename geometry::select_most_precise
@@ -107,16 +105,6 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
 #endif
-            return false;
-        }
-
-        coordinate_type const zero = 0;
-        int const signum = buffer_distance > zero ? 1
-                   : buffer_distance < zero ? -1
-                   : 0;
-
-        if (side::apply(perp1, ip, perp2) == signum)
-        {
             return false;
         }
 
