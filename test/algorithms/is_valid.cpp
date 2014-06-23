@@ -834,6 +834,10 @@ void test_open_polygons()
     // "hole" is completely outside the exterior ring
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(20 20,20 21,21 21,21 20))"),
                 false);
+    // two "holes" completely outside the exterior ring, that touch
+    // each other
+    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(20 0,25 10,21 0),(30 0,25 10,31 0))"),
+                false);
 
     // example from Norvald Ryeng
     test::apply(from_wkt<OG>("POLYGON((58 31,56.57 30,62 33),(35 9,28 14,31 16),(23 11,29 5,26 4))"),
@@ -878,6 +882,10 @@ void test_open_polygons()
     // 1st hole touches 2nd hole at two points
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 8,2 8,2 1),(2 5,5 8,5 5))"),
                 false);
+    // two holes completely inside exterior ring but touching each
+    // other at a point
+    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,2 9),(1 1,9 2,9 1))"),
+                true);    
     // four holes, each two touching at different points
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 10,2 1,1 1),(0 10,4 1,3 1),(10 10,9 1,8 1),(10 10,7 1,6 1))"),
                 true);
@@ -929,13 +937,38 @@ void test_open_multipolygons()
     typedef validity_tester_areal<AllowDuplicates> tester;
     typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
+    // not enough points
     test::apply(from_wkt<OG>("MULTIPOLYGON((()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0)),(()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0)))"), false);
+
+    // two disjoint polygons
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((2 2,3 2,3 3,2 3)))"),
                 true);
+
+    // two disjoint polygons with multiple points
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 0,1 1,0 1)),((2 2,3 2,3 3,3 3,2 3)))"),
                 AllowDuplicates);
+
+    // two polygons touch at a point
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((1 1,2 1,2 2,1 2)))"),
+                true);
+
+    // two polygons share a segment at a point
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1.5 0,1.5 1,0 1)),((1 1,2 1,2 2,1 2)))"),
+                false);
+
+    // one polygon inside another and boundaries touching
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((0 0,9 1,9 2)))"),
+                false);
+
+    // one polygon inside another and boundaries not touching
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((1 1,9 1,9 2)))"),
+                false);
+
+    // free space is disconnected
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((1 1,2 1,2 2,1 2)),((0 1,0 2,-1 2,-1 -1)),((1 2,1 3,0 3,0 2)))"),
+                true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
