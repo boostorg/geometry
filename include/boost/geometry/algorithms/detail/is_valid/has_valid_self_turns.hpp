@@ -16,10 +16,6 @@
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
-#ifndef USE_INTERRUPT_POLICY
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#endif
-
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
@@ -74,31 +70,17 @@ public:
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(geometry);
 
-#define USE_INTERRUPT_POLICY
-
-#ifdef USE_INTERRUPT_POLICY
         detail::overlay::stateless_predicate_based_interrupt_policy
             <
                 IsAcceptableTurn
             > interrupt_policy;
-#else
-        detail::self_get_turn_points::no_interrupt_policy interrupt_policy;
-#endif
+
         geometry::self_turns<turn_policy>(geometry,
                                           robust_policy,
                                           turns,
                                           interrupt_policy);
 
-#ifdef USE_INTERRUPT_POLICY
         return !interrupt_policy.has_intersections;
-#else
-        bool has_valid_turns = check_iterator_range
-            <
-                IsAcceptableTurn
-            >::apply(turns.begin(), turns.end());
-
-        return has_valid_turns;
-#endif
     }
 };
 
