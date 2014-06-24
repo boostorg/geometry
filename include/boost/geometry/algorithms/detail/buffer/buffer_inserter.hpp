@@ -25,6 +25,7 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
+#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
 
 namespace boost { namespace geometry
@@ -87,10 +88,13 @@ struct buffer_range
         typename Point,
         typename DistanceStrategy,
         typename JoinStrategy,
+        typename EndStrategy,
         typename RobustPolicy
     >
-    static inline void add_join(Collection& collection,
-            strategy::buffer::join_selector join,
+    static inline
+    void add_join(Collection& collection,
+            int phase,
+            Point const& penultimate_input,
             Point const& previous_input,
             output_point_type const& prev_perp1,
             output_point_type const& prev_perp2,
@@ -100,46 +104,55 @@ struct buffer_range
             strategy::buffer::buffer_side_selector side,
             DistanceStrategy const& distance,
             JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy,
             RobustPolicy const& )
     {
+        output_point_type intersection_point;
+
+        strategy::buffer::join_selector join
+                = get_join_type(penultimate_input, previous_input, input);
+        if (join == strategy::buffer::join_convex)
+        {
+            // Calculate the intersection-point formed by the two sides.
+            // It might be that the two sides are not convex, but continue
+            // or spikey, we then change the join-type
+            join = line_line_intersection::apply(
+                        perp1, perp2, prev_perp1, prev_perp2,
+                        intersection_point);
+
+        }
         switch(join)
         {
             case strategy::buffer::join_continue :
                 // No join, we get two consecutive sides
                 return;
-            case strategy::buffer::join_convex :
-                break; // All code below handles this
             case strategy::buffer::join_concave :
                 collection.add_piece(strategy::buffer::buffered_concave,
                         previous_input, prev_perp2, perp1);
                 return;
             case strategy::buffer::join_spike :
-                // TODO use end strategy
-                // For now: use join strategy
-                //return;
-                break;
+                //if (phase == 0) avoid duplicate joins at spikes? this still causes other issues
+                {
+                    // For linestrings, only add spike at one side to avoid
+                    // duplicates
+                    std::vector<output_point_type> range_out;
+                    end_strategy.apply(penultimate_input, prev_perp2, previous_input, perp1, side, distance, range_out);
+                    collection.add_endcap(end_strategy, range_out, previous_input);
+                }
+                return;
+            case strategy::buffer::join_convex :
+                break; // All code below handles this
         }
 
-        output_point_type intersection_point;
-        line_line_intersection::apply(
-                    perp1, perp2, prev_perp1, prev_perp2,
-                    intersection_point);
+        // The corner is convex, we create a join
+        // TODO - try to avoid a separate vector, add the piece directly
         std::vector<output_point_type> range_out;
-        if (join_strategy.apply(intersection_point,
+        join_strategy.apply(intersection_point,
                     previous_input, prev_perp2, perp1,
                     distance.apply(previous_input, input, side),
-                    range_out))
-        {
-            collection.add_piece(strategy::buffer::buffered_join,
-                    previous_input, range_out);
-        }
-    }
-
-    template <typename T>
-    static inline bool parallel_continue(T dx1, T dy1, T dx2, T dy2)
-    {
-        return math::sign(dx1) == math::sign(dx2)
-            && math::sign(dy1) == math::sign(dy2);
+                    range_out);
+        collection.add_piece(strategy::buffer::buffered_join,
+                previous_input, range_out);
     }
 
     static inline strategy::buffer::join_selector get_join_type(
@@ -175,6 +188,7 @@ struct buffer_range
         typename RobustPolicy
     >
     static inline void iterate(Collection& collection,
+                int phase, // 0/1 for left/right of rings. For polygons: 0
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance_strategy,
@@ -199,6 +213,23 @@ struct buffer_range
         output_point_type first_p1, first_p2;
         point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
+        /*
+         * prev.p1    prev.p2  these are the "previous perpendicular points"
+         * --------------
+         * |            |
+         * *------------*____  <- *prev
+         * pup          |    | p1           "current perpendiculat point 1"
+         *              |    |
+         *              |    |       this forms a "side", a side is a piece
+         *              |    |
+         *              *____| p2
+         *
+         *              ^
+         *             *it
+         *
+         * pup: penultimate_point
+         */
+
         bool first = true;
 
         Iterator it = begin;
@@ -216,12 +247,13 @@ struct buffer_range
 
                 if (! first)
                 {
-                    add_join(collection,
-                        get_join_type(penultimate_point, *prev, *it),
-                        *prev, previous_p1, previous_p2,
-                        *it, p1, p2,
-                        side,
-                        distance_strategy, join_strategy, robust_policy);
+                     add_join(collection, phase,
+                            penultimate_point,
+                            *prev, previous_p1, previous_p2,
+                            *it, p1, p2,
+                            side,
+                            distance_strategy, join_strategy, end_strategy,
+                            robust_policy);
                 }
                 collection.add_piece(strategy::buffer::buffered_segment,
                     *prev, *it, p1, p2, first);
@@ -248,12 +280,13 @@ struct buffer_range
         if(boost::is_same<Tag, ring_tag>::value)
         {
             // Generate closing corner
-            add_join(collection,
-                get_join_type(penultimate_point, ultimate_point, second_point),
+            add_join(collection, phase,
+                penultimate_point,
                 *(end - 1), previous_p1, previous_p2,
-                *begin, first_p1, first_p2,
+                *(begin + 1), first_p1, first_p2,
                 side,
-                distance_strategy, join_strategy, robust_policy);
+                distance_strategy, join_strategy, end_strategy,
+                robust_policy);
 
             // Buffer is closed automatically by last closing corner (NOT FOR OPEN POLYGONS - TODO)
         }
@@ -271,7 +304,6 @@ struct buffer_range
                     distance_strategy, rp2, rp1);
 
             std::vector<output_point_type> range_out;
-
             end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance_strategy, range_out);
             collection.add_endcap(end_strategy, range_out, ultimate_point);
         }
@@ -485,13 +517,13 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
                 // Walk backwards (rings will be reversed afterwards)
                 // It might be that this will be changed later.
                 // TODO: decide this.
-                base::iterate(collection, boost::rbegin(ring), boost::rend(ring),
+                base::iterate(collection, 0, boost::rbegin(ring), boost::rend(ring),
                         strategy::buffer::buffer_side_right,
                         distance, join_strategy, end_strategy, robust_policy);
             }
             else
             {
-                base::iterate(collection, boost::begin(ring), boost::end(ring),
+                base::iterate(collection, 0, boost::begin(ring), boost::end(ring),
                         strategy::buffer::buffer_side_left,
                         distance, join_strategy, end_strategy, robust_policy);
             }
@@ -535,11 +567,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         if (boost::size(linestring) > 1)
         {
             collection.start_new_ring();
-            base::iterate(collection, boost::begin(linestring), boost::end(linestring),
+            base::iterate(collection, 0, boost::begin(linestring), boost::end(linestring),
                     strategy::buffer::buffer_side_left,
                     distance, join_strategy, end_strategy, robust_policy);
 
-            base::iterate(collection, boost::rbegin(linestring), boost::rend(linestring),
+            base::iterate(collection, 1, boost::rbegin(linestring), boost::rend(linestring),
                     strategy::buffer::buffer_side_right,
                     distance, join_strategy, end_strategy, robust_policy, true);
         }
