@@ -10,7 +10,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
 
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
 namespace boost { namespace geometry
 {
@@ -24,43 +27,54 @@ namespace detail { namespace buffer
 // TODO: once change this to proper strategy
 // It is different from current segment intersection because these are not segments but lines
 // If we have the Line concept, we can create a strategy
+// Assumes a convex corner
 struct line_line_intersection
 {
-    template <typename A, typename B, typename C, typename D>
-    static inline A det(A const& a, B const& b, C const& c, D const& d)
-    {
-        return a * d - b * c;
-    }
 
     template <typename Point>
-    static inline bool apply(Point const& pi, Point const& pj,
+    static inline strategy::buffer::join_selector apply(Point const& pi, Point const& pj,
         Point const& qi, Point const& qj, Point& ip)
     {
         // See http://mathworld.wolfram.com/Line-LineIntersection.html
         typedef typename coordinate_type<Point>::type coordinate_type;
 
-        coordinate_type denominator = det(get<0>(pi) - get<0>(pj), get<1>(pi) - get<1>(pj), get<0>(qi) - get<0>(qj), get<1>(qi) - get<1>(qj));
-
-        // TODO: code below will be removed - curve type is now checked before
+        coordinate_type const denominator
+            = determinant<coordinate_type>(get<0>(pi) - get<0>(pj),
+                get<1>(pi) - get<1>(pj),
+                get<0>(qi) - get<0>(qj),
+                get<1>(qi) - get<1>(qj));
 
         // The limit is arbitrary. If it is small, the IP will be far far away.
         // For round joins, it will not be used at all.
         // For miter joints, there is a miter limit
         // If segments are parallel we must be distinguish two cases
+
+        // Even if the corner was checked before (so it is convex now), that
+        // was done on the original geometry. This function runs on the buffered
+        // geometries, where sides are generated and might be slightly off. In
+        // Floating Point, that slightly might just exceed the limit and we have
+        // to check it again.
         coordinate_type const limit = 1.0e-9;
         if (geometry::math::abs(denominator) < limit)
         {
-            denominator = limit;
+            return parallel_continue(get<0>(qj) - get<0>(qi),
+            -                    get<1>(qj) - get<1>(qi),
+            -                    get<0>(pj) - get<0>(pi),
+            -                    get<1>(pj) - get<1>(pi))
+                ? strategy::buffer::join_continue
+                : strategy::buffer::join_spike
+                ;
         }
-        // END TODO
 
-        coordinate_type d1 = det(get<0>(pi), get<1>(pi), get<0>(pj), get<1>(pj));
-        coordinate_type d2 = det(get<0>(qi), get<1>(qi), get<0>(qj), get<1>(qj));
+        coordinate_type d1 = determinant<coordinate_type>(get<0>(pi), get<1>(pi), get<0>(pj), get<1>(pj));
+        coordinate_type d2 = determinant<coordinate_type>(get<0>(qi), get<1>(qi), get<0>(qj), get<1>(qj));
 
-        set<0>(ip, det(d1, get<0>(pi) - get<0>(pj), d2, get<0>(qi) - get<0>(qj)) / denominator);
-        set<1>(ip, det(d1, get<1>(pi) - get<1>(pj), d2, get<1>(qi) - get<1>(qj)) / denominator);
+        double const multiplier = 1.0 / denominator;
 
-        return true;
+        set<0>(ip, determinant<coordinate_type>(d1, get<0>(pi) - get<0>(pj), d2, get<0>(qi) - get<0>(qj)) * multiplier);
+        set<1>(ip, determinant<coordinate_type>(d1, get<1>(pi) - get<1>(pj), d2, get<1>(qi) - get<1>(qj)) * multiplier);
+
+        return strategy::buffer::join_convex;
     }
 };
 

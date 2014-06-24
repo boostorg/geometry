@@ -667,6 +667,10 @@ struct buffered_piece_collection
     template <typename EndcapStrategy, typename Range>
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
     {
+        if (range.empty())
+        {
+            return;
+        }
         strategy::buffer::piece_type pt = strategy.get_piece_type();
         if (pt == strategy::buffer::buffered_flat_end)
         {
