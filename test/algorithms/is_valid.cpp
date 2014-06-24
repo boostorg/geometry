@@ -666,6 +666,12 @@ void test_open_multipolygons()
     // free space is disconnected
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((1 1,2 1,2 2,1 2)),((0 1,0 2,-1 2,-1 -1)),((1 2,1 3,0 3,0 2)))"),
                 true);
+
+    // multi-polygon with a polygon inside the hole of another polygon
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((2 2,98 2,98 98,2 98)))"),
+                true);
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((1 1,98 2,98 98,2 98)))"),
+                true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
