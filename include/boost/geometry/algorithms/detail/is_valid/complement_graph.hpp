@@ -16,6 +16,8 @@
 #include <stack>
 #include <utility>
 
+#include <boost/assert.hpp>
+
 #include <boost/geometry/policies/compare.hpp>
 
 
@@ -26,14 +28,18 @@ namespace detail { namespace is_valid
 {
 
 
-template <typename TurnPoint>
+template <typename TurnPoint, typename Graph = void>
 class graph_vertex
 {
 public:
-    typedef typename std::set
-        <
-            graph_vertex<TurnPoint>
-        >::const_iterator vertex_handle;
+    template <typename OtherGraph>
+    struct rebind
+    {
+        typedef graph_vertex<TurnPoint, OtherGraph> other;
+    };
+
+private:
+    typedef typename Graph::vertex_handle vertex_handle;
 
     struct vertex_handle_less
     {
@@ -44,6 +50,8 @@ public:
     };
 
     typedef std::set<vertex_handle, vertex_handle_less> neighbor_container;
+
+public:
     typedef typename neighbor_container::const_iterator neighbor_iterator;
 
     graph_vertex(int id, TurnPoint const& dummy = TurnPoint())
@@ -51,7 +59,7 @@ public:
         , m_id(id)
         , m_turn_point(dummy)
         , m_neighbors()
-        , m_parent()
+        , m_parent_id(-1)
         , m_visited(false)
     {}
 
@@ -60,49 +68,29 @@ public:
         , m_id(-1)
         , m_turn_point(turn_point)
         , m_neighbors()
-        , m_parent()
+        , m_parent_id(-1)
         , m_visited(false)
     {}
 
-    int id() const { return m_id; }
-    void id(int id) const { m_id = id; }
-    int parent_id() const
-    {
-        if ( m_parent.second )
-        {
-            return m_parent.first->id();
-        }
-        return -1;
-    }
+    inline int  id() const { return m_id; }
+    inline void id(int id) const { m_id = id; }
 
-    // for DFS -- start
-    bool visited() const { return m_visited; }
-    void visited(bool value) const { m_visited = value; }
-
-    vertex_handle parent() const { return m_parent.first; }
-    void parent(vertex_handle p) const { m_parent = std::make_pair(p, true); }
-    void initialize_parent() const
-    {
-        m_parent = std::make_pair(vertex_handle(), false);
-    }
-    // for DFS -- end
-
-    void add_neighbor(vertex_handle v) const
+    inline void add_neighbor(vertex_handle v) const
     {
         m_neighbors.insert(v);
     }
 
-    neighbor_iterator neighbors_begin() const
+    inline neighbor_iterator neighbors_begin() const
     {
         return m_neighbors.begin();
     }
 
-    neighbor_iterator neighbors_end() const
+    inline neighbor_iterator neighbors_end() const
     {
         return m_neighbors.end();
     }
 
-    bool operator<(graph_vertex const& other) const
+    inline bool operator<(graph_vertex const& other) const
     {
         if ( m_is_ip && other.m_is_ip )
         {
@@ -118,6 +106,13 @@ public:
         return other.m_is_ip;
     }
 
+    // for DFS -- start
+    inline int  parent_id() const { return m_parent_id; }
+    inline void parent_id(int id) const { m_parent_id = id; }
+    inline bool visited() const { return m_visited; }
+    inline void visited(bool value) const { m_visited = value; }
+    // for DFS -- end
+
 private:
     // the following bool determines the type of the vertex
     // true : vertex corresponds to an IP
@@ -127,16 +122,36 @@ private:
     mutable int m_id;
     TurnPoint const& m_turn_point;
     mutable neighbor_container m_neighbors;
-    mutable std::pair<vertex_handle, bool> m_parent; // for DFS
-    mutable bool m_visited; // for DFS
+
+    // for DFS
+    mutable int m_parent_id; // set to -1 for no parent
+    mutable bool m_visited;
+};
+
+template <typename TurnPoint>
+struct graph_vertex<TurnPoint, void>
+{
+    struct vertex_handle {};
+
+    template <typename OtherGraph>
+    struct rebind
+    {
+        typedef graph_vertex<TurnPoint, OtherGraph> other;
+    };
 };
 
 
-template <typename Vertex>
+
+template <typename TurnPoint>
 class complement_graph
 {
 private:
-    typedef std::set<Vertex> vertex_container;
+    typedef typename graph_vertex<TurnPoint>::template rebind
+        <
+            complement_graph<TurnPoint>
+        >::other vertex;
+
+    typedef std::set<vertex> vertex_container;
 
 public:
     typedef typename vertex_container::const_iterator vertex_handle;
@@ -153,14 +168,14 @@ private:
             stack.pop();
             
             v->visited(true);
-            for (typename Vertex::neighbor_iterator nit = v->neighbors_begin();
+            for (typename vertex::neighbor_iterator nit = v->neighbors_begin();
                  nit != v->neighbors_end(); ++nit)
             {
                 if ( (*nit)->id() != v->parent_id() )
                 {
                     if ( !(*nit)->visited() )
                     {
-                        (*nit)->parent(v);
+                        (*nit)->parent_id(v->id());
                         stack.push(*nit);
                     }
                     else
@@ -181,19 +196,19 @@ public:
         , m_vertices()
     {}
 
-    // inserts a ring vertex in the graph and returns its id
-    vertex_handle add_vertex(int ring_id)
+    // inserts a ring vertex in the graph and returns its handle
+    // ring id's are zero-based (so the first interior ring has id 1)
+    vertex_handle add_vertex(std::size_t id)
     {
-        Vertex v(static_cast<std::size_t>(ring_id + 1));
-        return m_vertices.insert(v).first;
+        return m_vertices.insert(vertex(id)).first;
     }
 
     // inserts an IP in the graph and returns its id
-    template <typename TurnPoint>
     vertex_handle add_vertex(TurnPoint const& turn_point)
     {
-        Vertex v(turn_point);
-        std::pair<vertex_handle, bool> res = m_vertices.insert(v);
+        std::pair<vertex_handle, bool> res
+            = m_vertices.insert(vertex(turn_point));
+
         if ( res.second )
         {
             // a new element is inserted
@@ -213,13 +228,15 @@ public:
 
     bool has_cycles() const
     {
+        // initialize all vertices as non-visited and with no parent set
         for (vertex_handle it = m_vertices.begin();
              it != m_vertices.end(); ++it)
         {
             it->visited(false);
-            it->initialize_parent();
+            it->parent_id(-1);
         }
 
+        // for each non-visited vertex, start a DFS from that vertex
         for (vertex_handle it = m_vertices.begin();
              it != m_vertices.end(); ++it)
         {
@@ -231,9 +248,9 @@ public:
         return false;
     }
 
-    template <typename OStream, typename V>
+    template <typename OStream, typename TP>
     friend inline
-    void debug_print_complement_graph(OStream&, complement_graph<V> const&);
+    void debug_print_complement_graph(OStream&, complement_graph<TP> const&);
 
 private:
     std::size_t m_num_rings, m_num_turns;

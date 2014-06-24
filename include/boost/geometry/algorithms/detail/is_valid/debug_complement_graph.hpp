@@ -22,11 +22,12 @@ namespace detail { namespace is_valid
 
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-template <typename OutputStream, typename Vertex>
-inline void debug_print_complement_graph(OutputStream& os,
-                                         complement_graph<Vertex> const& graph)
+template <typename OutputStream, typename TurnPoint>
+inline void
+debug_print_complement_graph(OutputStream& os,
+                             complement_graph<TurnPoint> const& graph)
 {
-    typedef typename complement_graph<Vertex>::vertex_handle vertex_handle;
+    typedef typename complement_graph<TurnPoint>::vertex_handle vertex_handle;
 
     os << "num rings: " << graph.m_num_rings << std::endl;
     os << "vertex ids: {";
@@ -41,7 +42,8 @@ inline void debug_print_complement_graph(OutputStream& os,
          it != graph.m_vertices.end(); ++it)
     {
         os << "neighbors of " << it->id() << ": {";
-        for (typename Vertex::neighbor_iterator nit = it->neighbors_begin();
+        for (typename complement_graph<TurnPoint>::vertex::neighbor_iterator
+                 nit = it->neighbors_begin();
              nit != it->neighbors_end(); ++nit)
         {
             os << " " << (*nit)->id();
@@ -50,9 +52,9 @@ inline void debug_print_complement_graph(OutputStream& os,
     }
 }
 #else
-template <typename OutputStream, typename Vertex>
+template <typename OutputStream, typename TurnPoint>
 void debug_print_complement_graph(OutputStream&,
-                                  complement_graph<Vertex> const&)
+                                  complement_graph<TurnPoint> const&)
 {
 }
 #endif
