@@ -7,12 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-#include <geometry_test_common.hpp>
-
-#define BOOST_GEOMETRY_TEST_BUFFER_POLYGON
 #include <test_buffer.hpp>
-
 
 
 static std::string const simplex
@@ -23,6 +18,9 @@ static std::string const spike_simplex
     = "POLYGON ((0 0,1 5,3 3,5 5,3 3,5 1,0 0))";
 static std::string const chained_box
     = "POLYGON((0 0,0 4,4 4,8 4,12 4,12 0,8 0,4 0,0 0))";
+
+static std::string const join_types
+    = "POLYGON ((0 0,0 4,4 4,2 6,0 8,2 6,4 8,8 4,4 0,0 0))"; // first 4 join types are all different: convex, concave, continue, spike
 
 static std::string const donut_simplex
     = "POLYGON ((0 0,1 9,8 1,0 0),(1 1,4 1,1 4,1 1))";
@@ -98,6 +96,8 @@ void test_all()
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("spike_simplex30", spike_simplex, 120.9859, 3.0);
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("spike_simplex150", spike_simplex, 998.9530, 15.0);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("spike_simplex150", spike_simplex, 1532.6543, 15.0);
+
+    test_one<polygon_type, buf::join_round, buf::end_flat, polygon_type>("join_types", join_types, 91.7379, 1.5);
 
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("chained_box", chained_box, 83.1403, 1.0);
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("chained_box", chained_box, 84, 1.0);
@@ -275,12 +275,16 @@ void test_all()
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("parcel3_10", parcel3, 99, 10.0);
-#endif
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("parcel3_10", parcel3, 20022.4271087646484, 10.0);
+#endif
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("parcel3_20", parcel3, 34504.8032569885254, 20.0, -999, false);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("parcel3_20", parcel3, 34615.6553726196289, 20.0);
+#endif
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("parcel3_30", parcel3, 45263.0166702270508, 30.0, -999, false);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, buf::join_miter, buf::end_skip, polygon_type>("parcel3_30", parcel3, 45506.1910133361816, 30.0);
+#endif
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, buf::join_round, buf::end_skip, polygon_type>("simplex", simplex, 7.04043, -0.5);

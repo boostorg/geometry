@@ -22,6 +22,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
@@ -43,8 +44,6 @@ struct buffer_range
 {
     typedef typename point_type<RingOutput>::type output_point_type;
     typedef typename coordinate_type<RingOutput>::type coordinate_type;
-    typedef model::referring_segment<output_point_type const> segment_type;
-
 
     template
         <
@@ -91,6 +90,7 @@ struct buffer_range
         typename RobustPolicy
     >
     static inline void add_join(Collection& collection,
+            strategy::buffer::join_selector join,
             Point const& previous_input,
             output_point_type const& prev_perp1,
             output_point_type const& prev_perp2,
@@ -102,28 +102,67 @@ struct buffer_range
             JoinStrategy const& join_strategy,
             RobustPolicy const& )
     {
-
-        segment_type previous_segment(prev_perp1, prev_perp2);
-        segment_type segment(perp1, perp2);
-        output_point_type intersection_point;
-        if (line_line_intersection<output_point_type, segment_type>::apply(
-                    segment, previous_segment, intersection_point))
+        switch(join)
         {
-            std::vector<output_point_type> range_out;
-            if (join_strategy.apply(intersection_point,
-                        previous_input, prev_perp2, perp1,
-                        distance.apply(previous_input, input, side),
-                        range_out))
-            {
-                collection.add_piece(strategy::buffer::buffered_join,
-                        previous_input, range_out);
-            }
-            else
-            {
+            case strategy::buffer::join_continue :
+                // No join, we get two consecutive sides
+                return;
+            case strategy::buffer::join_convex :
+                break; // All code below handles this
+            case strategy::buffer::join_concave :
                 collection.add_piece(strategy::buffer::buffered_concave,
                         previous_input, prev_perp2, perp1);
-            }
+                return;
+            case strategy::buffer::join_spike :
+                // TODO use end strategy
+                // For now: use join strategy
+                //return;
+                break;
         }
+
+        output_point_type intersection_point;
+        line_line_intersection::apply(
+                    perp1, perp2, prev_perp1, prev_perp2,
+                    intersection_point);
+        std::vector<output_point_type> range_out;
+        if (join_strategy.apply(intersection_point,
+                    previous_input, prev_perp2, perp1,
+                    distance.apply(previous_input, input, side),
+                    range_out))
+        {
+            collection.add_piece(strategy::buffer::buffered_join,
+                    previous_input, range_out);
+        }
+    }
+
+    template <typename T>
+    static inline bool parallel_continue(T dx1, T dy1, T dx2, T dy2)
+    {
+        return math::sign(dx1) == math::sign(dx2)
+            && math::sign(dy1) == math::sign(dy2);
+    }
+
+    static inline strategy::buffer::join_selector get_join_type(
+            output_point_type const& p0,
+            output_point_type const& p1,
+            output_point_type const& p2)
+    {
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<output_point_type>::type
+            >::type side_strategy;
+
+        int const side = side_strategy::apply(p0, p1, p2);
+        return side == -1 ? strategy::buffer::join_convex
+            :  side == 1  ? strategy::buffer::join_concave
+            :  parallel_continue
+                    (
+                        get<0>(p2) - get<0>(p1),
+                        get<1>(p2) - get<1>(p1),
+                        get<0>(p1) - get<0>(p0),
+                        get<1>(p1) - get<1>(p0)
+                    )  ? strategy::buffer::join_continue
+            : strategy::buffer::join_spike;
     }
 
     template
@@ -158,7 +197,7 @@ struct buffer_range
         robust_point_type previous_robust_input;
         output_point_type previous_p1, previous_p2;
         output_point_type first_p1, first_p2;
-        point_type penultimate_point, ultimate_point; // last two points from begin/end
+        point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
         bool first = true;
 
@@ -178,6 +217,7 @@ struct buffer_range
                 if (! first)
                 {
                     add_join(collection,
+                        get_join_type(penultimate_point, *prev, *it),
                         *prev, previous_p1, previous_p2,
                         *it, p1, p2,
                         side,
@@ -194,6 +234,7 @@ struct buffer_range
                 if (first)
                 {
                     first = false;
+                    second_point = *it;
                     first_p1 = p1;
                     first_p2 = p2;
                 }
@@ -208,6 +249,7 @@ struct buffer_range
         {
             // Generate closing corner
             add_join(collection,
+                get_join_type(penultimate_point, ultimate_point, second_point),
                 *(end - 1), previous_p1, previous_p2,
                 *begin, first_p1, first_p2,
                 side,
@@ -247,7 +289,6 @@ struct buffer_point
 {
     typedef typename point_type<RingOutput>::type output_point_type;
     typedef typename coordinate_type<RingOutput>::type coordinate_type;
-    typedef model::referring_segment<output_point_type const> segment_type;
 
     typedef typename geometry::select_most_precise
         <

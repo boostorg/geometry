@@ -70,6 +70,19 @@ enum piece_type
 };
 
 
+/*!
+\brief Enumerates types of joins
+\ingroup enum
+*/
+enum join_selector
+{
+    join_convex,
+    join_concave,
+    join_continue, // collinear, next segment touches previous segment
+    join_spike     // collinear, with overlap, next segment goes back
+};
+
+
 }} // namespace strategy::buffer
 
 
