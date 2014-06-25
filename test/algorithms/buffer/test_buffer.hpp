@@ -21,6 +21,7 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -479,6 +480,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
     namespace bg = boost::geometry;
     Geometry g;
     bg::read_wkt(wkt, g);
+    bg::correct(g);
 
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS

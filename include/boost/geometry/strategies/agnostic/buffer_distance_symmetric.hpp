@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_BUFFER_DISTANCE_SYMMETRIC_HPP
 
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -43,6 +44,12 @@ public :
     {
         return m_distance < 0;
     }
+
+    inline CoordinateType simplify_distance() const
+    {
+        return geometry::math::abs(m_distance) / 1000.0;
+    }
+
 
 private :
     CoordinateType m_distance;
