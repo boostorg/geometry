@@ -198,7 +198,7 @@ public:
 
     // inserts a ring vertex in the graph and returns its handle
     // ring id's are zero-based (so the first interior ring has id 1)
-    vertex_handle add_vertex(std::size_t id)
+    vertex_handle add_vertex(int id)
     {
         return m_vertices.insert(vertex(id)).first;
     }
@@ -212,7 +212,7 @@ public:
         if ( res.second )
         {
             // a new element is inserted
-            res.first->id( m_num_rings + m_num_turns );
+            res.first->id( static_cast<int>(m_num_rings + m_num_turns) );
             ++m_num_turns;
         }
         return res.first;

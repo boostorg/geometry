@@ -155,11 +155,6 @@ protected:
 
 
 
-    static inline std::size_t get_vertex_id(int ring_id)
-    {
-        return static_cast<std::size_t>(ring_id + 1);
-    }
-
     template <typename TurnIterator>
     static inline bool has_connected_interior(Polygon const& polygon,
                                               TurnIterator first,
@@ -175,9 +170,9 @@ protected:
         for (TurnIterator tit = first; tit != beyond; ++tit)
         {
             typename graph::vertex_handle v1 = g.add_vertex
-                ( get_vertex_id(tit->operations[0].seg_id.ring_index) );
+                ( tit->operations[0].seg_id.ring_index + 1 );
             typename graph::vertex_handle v2 = g.add_vertex
-                ( get_vertex_id(tit->operations[0].other_id.ring_index) );
+                ( tit->operations[0].other_id.ring_index + 1 );
             typename graph::vertex_handle vip = g.add_vertex(tit->point);
 
             g.add_edge(v1, vip);
