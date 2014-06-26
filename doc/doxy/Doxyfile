@@ -177,6 +177,7 @@ WARN_LOGFILE           =
 INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/algorithms \
 			../../../../boost/geometry/algorithms/detail \
+			../../../../boost/geometry/algorithms/detail/comparable_distance \
 			../../../../boost/geometry/algorithms/detail/disjoint \
 			../../../../boost/geometry/algorithms/detail/distance \
 			../../../../boost/geometry/algorithms/detail/equals \
