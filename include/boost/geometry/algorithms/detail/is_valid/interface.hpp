@@ -57,11 +57,19 @@ struct is_valid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 } // namespace resolve_variant
 
 
+/*!
+\brief \brief_check{is valid (in the OGC sense)}
+\ingroup is_valid
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_check{is valid (in the OGC sense)}
 
+\qbk{[include reference/algorithms/is_valid.qbk]}
+*/
 template <typename Geometry>
-inline bool is_valid(Geometry const& g)
+inline bool is_valid(Geometry const& geometry)
 {
-    return resolve_variant::is_valid<Geometry>::apply(g);
+    return resolve_variant::is_valid<Geometry>::apply(geometry);
 }
 
 
