@@ -27,6 +27,8 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
+#include <boost/geometry/algorithms/simplify.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -240,6 +242,8 @@ struct buffer_range
         {
             robust_point_type robust_input;
             geometry::recalculate(robust_input, *it, robust_policy);
+            // Check on equality - however, if input is simplified, this is highly
+            // unlikely (though possible by rescaling)
             if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
             {
                 output_point_type p1, p2;
@@ -273,8 +277,6 @@ struct buffer_range
             }
             previous_robust_input = robust_input;
         }
-
-        // TODO: take care of degenerate segments
 
         // Might be replaced by specialization
         if(boost::is_same<Tag, ring_tag>::value)
@@ -512,18 +514,30 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
     {
         if (boost::size(ring) > 3)
         {
+            // We have to simplify the ring before to avoid very small-scaled
+            // features in the original (convex/concave/convex) being enlarged
+            // in a very large scale and causing issues (IP's within pieces).
+            // This might be reconsidered later. Simplifying with a very small
+            // distance (1%% of the buffer) will never be visible in the result,
+            // if it is using round joins. For miter joins they are even more
+            // sensitive to small scale input features, however the result will
+            // look better.
+            // It also get rid of duplicate points
+            RingOutput simplified;
+            geometry::simplify(ring, simplified, distance.simplify_distance());
+
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)
                 // It might be that this will be changed later.
                 // TODO: decide this.
-                base::iterate(collection, 0, boost::rbegin(ring), boost::rend(ring),
+                base::iterate(collection, 0, boost::rbegin(simplified), boost::rend(simplified),
                         strategy::buffer::buffer_side_right,
                         distance, join_strategy, end_strategy, robust_policy);
             }
             else
             {
-                base::iterate(collection, 0, boost::begin(ring), boost::end(ring),
+                base::iterate(collection, 0, boost::begin(simplified), boost::end(simplified),
                         strategy::buffer::buffer_side_left,
                         distance, join_strategy, end_strategy, robust_policy);
             }
@@ -566,12 +580,15 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
     {
         if (boost::size(linestring) > 1)
         {
+            Linestring simplified;
+            geometry::simplify(linestring, simplified, distance.simplify_distance());
+
             collection.start_new_ring();
-            base::iterate(collection, 0, boost::begin(linestring), boost::end(linestring),
+            base::iterate(collection, 0, boost::begin(simplified), boost::end(simplified),
                     strategy::buffer::buffer_side_left,
                     distance, join_strategy, end_strategy, robust_policy);
 
-            base::iterate(collection, 1, boost::rbegin(linestring), boost::rend(linestring),
+            base::iterate(collection, 1, boost::rbegin(simplified), boost::rend(simplified),
                     strategy::buffer::buffer_side_right,
                     distance, join_strategy, end_strategy, robust_policy, true);
         }
