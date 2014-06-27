@@ -594,6 +594,13 @@ void test_open_polygons()
     // fifth hole creating three disconnected components for the interior
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 10,2 1,1 1),(0 10,4 1,3 1),(10 10,9 1,8 1),(10 10,7 1,6 1),(4 1,4 4,6 4,6 1,5 0))"),
                 false);
+
+    // both examples: a polygon with one hole, where the hole contains
+    // the exterior ring
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))"),
+                false);
+    test::apply(from_wkt<OG>("POLYGON((-10 -10,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
@@ -672,6 +679,19 @@ void test_open_multipolygons()
                 true);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((1 1,98 2,98 98,2 98)))"),
                 true);
+
+    // test case suggested by Barend Gehrels: take two valid polygons P1 and
+    // P2 with holes H1 and H2, respectively, and consider P2 to be
+    // fully inside H1; now invalidate the multi-polygon by
+    // considering H2 as a hole of P1 and H1 as a hole of P2; this
+    // should be invalid
+    //
+    // first the valid case:
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((2 2,98 2,98 98,2 98),(3 3,3 97,97 97,97 3)))"),
+                true);
+    // and the invalid case:
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(3 3,3 97,97 97,97 3)),((2 2,98 2,98 98,2 98),(1 1,1 99,99 99,99 1)))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
