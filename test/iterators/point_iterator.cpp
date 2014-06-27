@@ -231,8 +231,6 @@ struct test_point_iterator_of_geometry
                   << "returns a reference..."
                   << std::endl;
 #endif
-        typedef typename bg::point_type<G>::type point_type;
-
         BOOST_CHECK( bg::equals(bg::points_front(geometry), front) );
         BOOST_CHECK( bg::equals(bg::points_back(geometry), back) );
 
