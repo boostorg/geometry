@@ -109,7 +109,8 @@ models = ["point", "linestring", "box"
     , "multi_linestring", "multi_point", "multi_polygon", "referring_segment"]
 
 
-strategies = ["distance::pythagoras", "distance::haversine"
+strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
+    , "distance::pythagoras_point_box", "distance::haversine"
     , "distance::cross_track", "distance::projected_point"
     , "within::winding", "within::franklin", "within::crossings_multiply"
     , "area::surveyor", "area::huiller"
