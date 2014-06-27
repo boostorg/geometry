@@ -64,13 +64,31 @@ private:
 
 
 
-    template <typename PolygonIterator>
-    static inline bool are_polygon_interiors_disjoint(PolygonIterator first,
-                                                      PolygonIterator beyond)
+    template <typename PolygonIterator, typename TurnIterator>
+    static inline
+    bool are_polygon_interiors_disjoint(PolygonIterator polygons_first,
+                                        PolygonIterator polygons_beyond,
+                                        TurnIterator turns_first,
+                                        TurnIterator turns_beyond)
     {
-        for (PolygonIterator it1 = first; it1 != beyond; ++it1)
+        std::set<int> multi_indices;
+        for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
-            for (PolygonIterator it2 = first; it2 != beyond; ++it2)
+            multi_indices.insert(tit->operations[0].seg_id.multi_index);
+            multi_indices.insert(tit->operations[0].other_id.multi_index);
+        }
+
+        int multi_index = 0;
+        for (PolygonIterator it1 = polygons_first; it1 != polygons_beyond;
+             ++it1, ++multi_index)
+        {
+            if ( multi_indices.find(multi_index) != multi_indices.end() )
+            {
+                continue;
+            }
+
+            for (PolygonIterator it2 = polygons_first;
+                 it2 != polygons_beyond; ++it2)
             {
                 if ( it1 != it2
                      &&
@@ -104,33 +122,76 @@ private:
         int const m_multi_index;
     };
 
-    template <typename PolygonIterator, typename Turns>
-    static inline bool have_connected_interior(PolygonIterator first,
-                                               PolygonIterator beyond,
-                                               Turns const& turns)
+
+
+    template <typename Predicate>
+    struct has_property_per_polygon
     {
-        int multi_index = 0;
-        for (PolygonIterator it = first; it != beyond; ++it, ++multi_index)
+        template <typename PolygonIterator, typename TurnIterator>
+        static inline bool apply(PolygonIterator polygons_first,
+                                 PolygonIterator polygons_beyond,
+                                 TurnIterator turns_first,
+                                 TurnIterator turns_beyond)
         {
-            has_multi_index predicate(multi_index);
-
-            typedef boost::filter_iterator
-                <
-                    has_multi_index,
-                    typename boost::range_iterator<Turns const>::type
-                > turn_iterator;
-
-            turn_iterator turns_first(predicate, turns.begin(), turns.end());
-            turn_iterator turns_beyond(predicate, turns.end(), turns.end());
-
-            if ( !base::has_connected_interior(*it, turns_first, turns_beyond) )
+            int multi_index = 0;
+            for (PolygonIterator it = polygons_first; it != polygons_beyond;
+                 ++it, ++multi_index)
             {
-                return false;
+                has_multi_index index_predicate(multi_index);
+
+                typedef boost::filter_iterator
+                    <
+                        has_multi_index, TurnIterator
+                    > filtered_turn_iterator;
+
+                filtered_turn_iterator filtered_turns_first(index_predicate,
+                                                            turns_first,
+                                                            turns_beyond);
+
+                filtered_turn_iterator filtered_turns_beyond(index_predicate,
+                                                             turns_beyond,
+                                                             turns_beyond);
+
+                if ( !Predicate::apply(*it,
+                                       filtered_turns_first,
+                                       filtered_turns_beyond) )
+                {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
+    };
+
+
+
+    template <typename PolygonIterator, typename TurnIterator>
+    static inline bool have_holes_inside(PolygonIterator polygons_first,
+                                         PolygonIterator polygons_beyond,
+                                         TurnIterator turns_first,
+                                         TurnIterator turns_beyond)
+    {
+        return has_property_per_polygon
+            <
+                typename base::has_holes_inside
+            >::apply(polygons_first, polygons_beyond,
+                     turns_first, turns_beyond);
     }
 
+
+
+    template <typename PolygonIterator, typename TurnIterator>
+    static inline bool have_connected_interior(PolygonIterator polygons_first,
+                                               PolygonIterator polygons_beyond,
+                                               TurnIterator turns_first,
+                                               TurnIterator turns_beyond)
+    {
+        return has_property_per_polygon
+            <
+                typename base::has_connected_interior
+            >::apply(polygons_first, polygons_beyond,
+                     turns_first, turns_beyond);
+    }
 
 
 public:
@@ -156,9 +217,8 @@ public:
         debug_phase::apply(2);
 
         typedef has_valid_self_turns<MultiPolygon> has_valid_turns;
-        typedef typename has_valid_turns::turn_type turn_type;
 
-        std::deque<turn_type> turns;
+        std::deque<typename has_valid_turns::turn_type> turns;
         bool has_invalid_turns = !has_valid_turns::apply(multipolygon, turns);
         debug_print_turns(turns.begin(), turns.end());
 
@@ -172,11 +232,10 @@ public:
         // exterior and not one inside the other
         debug_phase::apply(3);
 
-        if ( !check_iterator_range
-                 <
-                     typename base::has_holes_inside
-                 >::apply(boost::begin(multipolygon),
-                          boost::end(multipolygon)) )
+        if ( !have_holes_inside(boost::begin(multipolygon),
+                                boost::end(multipolygon),
+                                turns.begin(),
+                                turns.end()) )
         {
             return false;
         }
@@ -187,7 +246,8 @@ public:
 
         if ( !have_connected_interior(boost::begin(multipolygon),
                                       boost::end(multipolygon),
-                                      turns) )
+                                      turns.begin(),
+                                      turns.end()) )
         {
             return false;
         }
@@ -196,7 +256,9 @@ public:
         // check if polygon interiors are disjoint
         debug_phase::apply(5);
         return are_polygon_interiors_disjoint(boost::begin(multipolygon),
-                                              boost::end(multipolygon));
+                                              boost::end(multipolygon),
+                                              turns.begin(),
+                                              turns.end());
     }
 };
 
