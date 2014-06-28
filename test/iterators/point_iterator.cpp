@@ -31,6 +31,7 @@
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
 #include <boost/geometry/multi/geometries/register/multi_point.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
@@ -220,6 +221,69 @@ struct test_point_iterator_of_geometry
 #endif
     }
 
+    template <typename G, typename Point>
+    static inline void test_mutable_front_and_back(G geometry,
+                                                   Point const& front,
+                                                   Point const& back)
+    {
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "test the version of points_front/_back that "
+                  << "returns a reference..."
+                  << std::endl;
+#endif
+        BOOST_CHECK( bg::equals(bg::points_front(geometry), front) );
+        BOOST_CHECK( bg::equals(bg::points_back(geometry), back) );
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "Geometry: " << bg::wkt(geometry)
+                  << std::endl;
+        std::cout << "front: " << bg::dsv(bg::points_front(geometry))
+                  << std::endl;
+        std::cout << "back : " << bg::dsv(bg::points_back(geometry))
+                  << std::endl;
+        std::cout << std::endl;
+#endif
+
+        if ( !bg::equals(front, back) )
+        {
+            bg::assign(bg::points_front(geometry), back);
+            bg::assign(bg::points_back(geometry), front);
+
+            BOOST_CHECK( !bg::equals(bg::points_front(geometry), front) );
+            BOOST_CHECK( bg::equals(bg::points_front(geometry), back) );
+
+            BOOST_CHECK( !bg::equals(bg::points_back(geometry), back) );
+            BOOST_CHECK( bg::equals(bg::points_back(geometry), front) );
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "Geometry (updated): " << bg::wkt(geometry)
+                      << std::endl;
+            std::cout << "front: " << bg::dsv(bg::points_front(geometry))
+                      << std::endl;
+            std::cout << "back : " << bg::dsv(bg::points_back(geometry))
+                      << std::endl;
+            std::cout << std::endl;
+#endif
+
+            bg::assign(bg::points_front(geometry), front);
+            bg::assign(bg::points_back(geometry), back);
+            BOOST_CHECK( bg::equals(bg::points_front(geometry), front) );
+            BOOST_CHECK( !bg::equals(bg::points_front(geometry), back) );
+            BOOST_CHECK( bg::equals(bg::points_back(geometry), back) );
+            BOOST_CHECK( !bg::equals(bg::points_back(geometry), front) );
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "Geometry (reverted): " << bg::wkt(geometry)
+                  << std::endl;
+            std::cout << "front: " << bg::dsv(bg::points_front(geometry))
+                      << std::endl;
+            std::cout << "back : " << bg::dsv(bg::points_back(geometry))
+                      << std::endl;
+            std::cout << std::endl;
+#endif
+        }
+    }
+
     template <typename G>
     static inline void base_test(G& geometry,
                                  PointRange const& point_range,
@@ -257,6 +321,10 @@ struct test_point_iterator_of_geometry
             test_front_and_back(geometry,
                                 bg::points_front(point_range),
                                 bg::points_back(point_range));
+
+            test_mutable_front_and_back(geometry,
+                                        bg::points_front(point_range),
+                                        bg::points_back(point_range));
         }
     }
 
