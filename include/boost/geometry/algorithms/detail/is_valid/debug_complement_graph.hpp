@@ -42,9 +42,12 @@ debug_print_complement_graph(OutputStream& os,
          it != graph.m_vertices.end(); ++it)
     {
         os << "neighbors of " << it->id() << ": {";
-        for (typename complement_graph<TurnPoint>::vertex::neighbor_iterator
-                 nit = it->neighbors_begin();
-             nit != it->neighbors_end(); ++nit)
+        for (typename complement_graph
+                 <
+                     TurnPoint
+                 >::neighbor_container::const_iterator
+                 nit = graph.m_neighbors[it->id()].begin();
+             nit != graph.m_neighbors[it->id()].end(); ++nit)
         {
             os << " " << (*nit)->id();
         }
