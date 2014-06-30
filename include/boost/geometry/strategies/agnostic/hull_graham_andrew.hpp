@@ -323,7 +323,7 @@ private:
         while (output_size >= 3)
         {
             rev_iterator rit = output.rbegin();
-            point_type const& last = *rit++;
+            point_type const last = *rit++;
             point_type const& last2 = *rit++;
 
             if (Factor * side::apply(*rit, last, last2) <= 0)
