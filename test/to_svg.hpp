@@ -66,14 +66,14 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool /*enrich*/ = 
             lineheight = 6;
         }
 
-        //if (! turn.is_discarded() && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
+        //if (! turn.discarded && ! turn.blocked() && ! turn.both(bg::detail::overlay::operation_union))
         //if (! turn.discarded)
         {
             std::ostringstream out;
             out << index
                 << ": " << bg::method_char(turn.method);
 
-            if ( turn.is_discarded() )
+            if ( turn.discarded )
                 out << " (discarded)\n";
             else if ( turn.blocked() )
                 out << " (blocked)\n";

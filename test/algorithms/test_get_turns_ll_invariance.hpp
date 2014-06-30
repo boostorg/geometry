@@ -138,7 +138,7 @@ public:
         remove_duplicate_turns::apply(rturns_all);
         remove_duplicate_turns::apply(rturns_wo_cont);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl;
         std::cout << "### ORIGINAL TURNS ###" << std::endl;
         bg_turns::print_turns(linear1, linear2, turns_all);

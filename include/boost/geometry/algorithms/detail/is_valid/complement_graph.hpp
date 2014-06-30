@@ -12,7 +12,6 @@
 
 #include <cstddef>
 
-#include <iostream>
 #include <set>
 #include <stack>
 #include <utility>
@@ -31,11 +30,10 @@ template <typename TurnPoint>
 class graph_vertex
 {
 public:
-    struct nil_vertex {};
-
-    static const nil_vertex nil;
-
-    typedef typename std::set<graph_vertex<TurnPoint> >::iterator vertex_handle;
+    typedef typename std::set
+        <
+            graph_vertex<TurnPoint>
+        >::const_iterator vertex_handle;
 
     struct vertex_handle_less
     {
@@ -46,7 +44,7 @@ public:
     };
 
     typedef std::set<vertex_handle, vertex_handle_less> neighbor_container;
-    typedef typename neighbor_container::iterator neighbor_iterator;
+    typedef typename neighbor_container::const_iterator neighbor_iterator;
 
     graph_vertex(int id, TurnPoint const& dummy = TurnPoint())
         : m_is_ip(false)
@@ -83,7 +81,7 @@ public:
 
     vertex_handle parent() const { return m_parent.first; }
     void parent(vertex_handle p) const { m_parent = std::make_pair(p, true); }
-    void parent(nil_vertex) const
+    void initialize_parent() const
     {
         m_parent = std::make_pair(vertex_handle(), false);
     }
@@ -141,10 +139,9 @@ private:
     typedef std::set<Vertex> vertex_container;
 
 public:
-    typedef typename vertex_container::iterator vertex_handle;
+    typedef typename vertex_container::const_iterator vertex_handle;
 
 private:
-    // implement this with a stack rather than recursively
     bool has_cycles(vertex_handle start_vertex) const
     {
         std::stack<vertex_handle> stack;
@@ -220,7 +217,7 @@ public:
              it != m_vertices.end(); ++it)
         {
             it->visited(false);
-            it->parent(Vertex::nil);
+            it->initialize_parent();
         }
 
         for (vertex_handle it = m_vertices.begin();
@@ -234,29 +231,9 @@ public:
         return false;
     }
 
-    void print(std::ostream& os = std::cout) const
-    {
-        os << "num rings: " << m_num_rings << std::endl;
-        os << "vertex ids: {";
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            os << " " << it->id();
-        }
-        os << " }" << std::endl;        
-
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            os << "neighbors of " << it->id() << ": {";
-            for (typename Vertex::neighbor_iterator nit = it->neighbors_begin();
-                 nit != it->neighbors_end(); ++nit)
-            {
-                os << " " << (*nit)->id();
-            }
-            os << "}" << std::endl;        
-        }
-    }
+    template <typename OStream, typename V>
+    friend inline
+    void debug_print_complement_graph(OStream&, complement_graph<V> const&);
 
 private:
     std::size_t m_num_rings, m_num_turns;

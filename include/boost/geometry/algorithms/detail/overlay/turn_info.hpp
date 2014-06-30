@@ -93,6 +93,7 @@ struct turn_info
     Point point;
     method_type method;
     bool discarded;
+    bool selectable_start; // Can be used as starting-turn in traverse
 
 
     Container operations;
@@ -100,6 +101,7 @@ struct turn_info
     inline turn_info()
         : method(method_none)
         , discarded(false)
+        , selectable_start(true)
     {}
 
     inline bool both(operation_type type) const
@@ -118,8 +120,6 @@ struct turn_info
         return has12(type1, type2) || has12(type2, type1);
     }
 
-
-    inline bool is_discarded() const { return discarded; }
     inline bool blocked() const
     {
         return both(operation_blocked);

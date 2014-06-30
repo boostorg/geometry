@@ -268,7 +268,7 @@ public :
                 ++it)
             {
                 // Skip discarded ones
-                if (! (it->is_discarded() || it->blocked()))
+                if (! (it->discarded || ! it->selectable_start || it->blocked()))
                 {
                     for (turn_operation_iterator_type iit = boost::begin(it->operations);
                         state.good() && iit != boost::end(it->operations);

@@ -480,8 +480,20 @@ void test_aimes()
 
             std::ostringstream name;
             name << "aimes_" << i << "_" << width;
-            test_one<linestring, buf::join_miter, buf::end_flat, polygon>(name.str(), testcases[i], expectations[i][expectation_index], aimes_width, aimes_width);
-            test_one<linestring, buf::join_round, buf::end_round, polygon>(name.str(), testcases[i], expectations[i][expectation_index + 1], aimes_width, aimes_width);
+            test_one<linestring, buf::join_miter, buf::end_flat, polygon>
+            (
+                name.str(),
+                testcases[i], expectations[i][expectation_index],
+                aimes_width, aimes_width,
+                false
+            );
+            test_one<linestring, buf::join_round, buf::end_round, polygon>
+            (
+                name.str(),
+                testcases[i], expectations[i][expectation_index + 1],
+                aimes_width, aimes_width,
+                false
+            );
         }
     }
 }

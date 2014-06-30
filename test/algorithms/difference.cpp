@@ -98,7 +98,6 @@ void test_all()
 
     test_areal_linear<polygon, linestring>();
 
-
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
@@ -327,29 +326,20 @@ void test_all()
         1, 11, 3370866.2295081965,
         1, 5, 384.2295081964694, 0.01);
 
-#ifdef _MSC_VER
-    // 2011-07-02
+    // 2011-07-02 / 2014-06-19
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
     // PostGIS gives: 0.0 (no output)
-    // Boost.Geometry gives results depending on FP-type, and compiler, and operating system.
-    // For double, it is zero (skipped). On gcc/Linux, for float either.
-    // Because we cannot predict this, we only test for MSVC
-    if (boost::is_same<ct, double>::value
-#if defined(HAVE_TTMATH)
-        || boost::is_same<ct, ttmath_big>::value
-#endif
-        )
-    {
-        test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
-            ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-                if_typed_tt<ct>(1, 0), -1,
-                if_typed_tt<ct>(0.0000000000001105367, 0.0),
-            1, -1, 3577.40960816756,
-            0.01
-            );
-    }
-#endif
+    // Boost.Geometry gave results depending on FP-type, and compiler, and operating system.
+    // Since rescaling to integer results are equal w.r.t. compiler/FP type,
+    // however, some long spikes are still generated in the resulting difference
+    test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
+        ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
+        1, -1,
+        if_typed_tt<ct>(0.0000000000001105367, 0.00021401892),
+        1, -1, 3577.40960816756,
+        0.01
+        );
 
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",

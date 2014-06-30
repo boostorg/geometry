@@ -11,9 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_LINEAR_HPP
 
 #include <cstddef>
-#include <algorithm>
 
-#include <boost/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -25,6 +23,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
+#include <boost/geometry/algorithms/detail/num_distinct_consecutive_points.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
@@ -37,69 +36,26 @@ namespace detail { namespace is_valid
 {
 
 
-// returns the number of distinct points in the range;
-// return values are zero, one, two, three_or_more
-template <typename Range>
-struct number_of_distinct_points
-{
-    static inline std::size_t apply(Range const& range)
-    {
-        typedef typename point_type<Range>::type point;
-        typedef typename boost::range_iterator<Range const>::type iterator;
-
-        std::size_t size = boost::size(range);
-
-        if ( size < 2u )
-        {
-            return size;
-        }
-
-        iterator it1 =
-            std::find_if(boost::begin(range),
-                         boost::end(range),
-                         not_equal_to<point>(range::front(range)));
-
-        if ( it1 == boost::end(range) )
-        {
-            return 1u;
-        }
-
-        iterator it2 = 
-            std::find_if(it1, boost::end(range), not_equal_to<point>(*it1));
-
-        return
-            ( it2 == boost::end(range)
-              || geometry::equals(range::front(range), *it2) )
-            ?
-            2u
-            :
-            3u
-            ;
-    }
-};
-
-
 template <typename Linestring, bool AllowSpikes>
 struct is_valid_linestring
 {
     static inline bool apply(Linestring const& linestring)
     {
-        typedef number_of_distinct_points<Linestring> num_distinct;
+        std::size_t num_distinct = detail::num_distinct_consecutive_points
+            <
+                Linestring,
+                3u,
+                true,
+                not_equal_to<typename point_type<Linestring>::type>
+            >::apply(linestring);
 
-        std::size_t linestring_size = num_distinct::apply(linestring);
-
-        if ( linestring_size < 2u )
+        if ( num_distinct < 2u )
         {
             return false;
         }
 
-        if ( !AllowSpikes && linestring_size == 2u )
-        {
-            return !geometry::equals(range::front(linestring),
-                                     range::back(linestring));
-        }
-
-        return AllowSpikes
+        return num_distinct == 2u
+            || AllowSpikes
             || !has_spikes<Linestring, closed>::apply(linestring);
     }
 };
@@ -151,7 +107,8 @@ struct is_valid<MultiLinestring, multi_linestring_tag, AllowSpikes>
                     <
                         typename boost::range_value<MultiLinestring>::type,
                         AllowSpikes
-                    >
+                    >,
+                false // do not allow empty multilinestring
             >::apply(boost::begin(multilinestring),
                      boost::end(multilinestring));
     }

@@ -24,7 +24,6 @@
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/filter_continue_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/remove_duplicate_turns.hpp>
-#include <boost/geometry/algorithms/detail/turns/print_turns.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow_linear_linear.hpp>

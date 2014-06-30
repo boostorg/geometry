@@ -10,11 +10,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_DEBUG_TURN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_DEBUG_TURN_HPP
 
+#ifdef BOOST_GEOMETRY_DEBUG_TURNS
 #include <iostream>
 #include <string>
 
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#endif // BOOST_GEOMETRY_DEBUG_TURNS
+
 
 namespace boost { namespace geometry
 {
@@ -24,8 +27,8 @@ namespace detail { namespace turns
 {
 
 
-template <typename Turn, typename Operation>
 #ifdef BOOST_GEOMETRY_DEBUG_TURNS
+template <typename Turn, typename Operation>
 inline void debug_turn(Turn const& turn, Operation op,
                        std::string const& header)
 {
@@ -44,6 +47,7 @@ inline void debug_turn(Turn const& turn, Operation op,
     }
 }
 #else
+template <typename Turn, typename Operation>
 inline void debug_turn(Turn const& , Operation, const char*)
 {
 }
