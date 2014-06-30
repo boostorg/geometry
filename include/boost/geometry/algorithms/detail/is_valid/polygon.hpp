@@ -16,7 +16,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -26,28 +25,26 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/policies/compare.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio.hpp>
+#include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/ring.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/complement_graph.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/debug_validity_phase.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/debug_complement_graph.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
-
-#ifdef GEOMETRY_TEST_DEBUG
-#include <boost/geometry/io/dsv/write.hpp>
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-#endif
 
 
 namespace boost { namespace geometry
@@ -138,25 +135,27 @@ private:
             && turn.operations[1].operation == operation;
     }
 
-    template <typename Turn>
-    static inline bool is_acceptable_turn(Turn const& turn)
+    struct is_acceptable_turn
     {
-        if ( turn.operations[0].seg_id.ring_index
-             == turn.operations[0].other_id.ring_index )
+        template <typename Turn>
+        static inline bool apply(Turn const& turn)
         {
-            return false;
+            if ( turn.operations[0].seg_id.ring_index
+                 == turn.operations[0].other_id.ring_index )
+            {
+                return false;
+            }
+
+            detail::overlay::operation_type const op = acceptable_operation
+                <
+                    geometry::point_order<Polygon>::value
+                >::value;
+
+            return check_turn(turn, detail::overlay::method_touch_interior, op)
+                || check_turn(turn, detail::overlay::method_touch, op)
+                ;
         }
-
-        detail::overlay::operation_type const op = acceptable_operation
-            <
-                geometry::point_order<Polygon>::value
-            >::value;
-
-        return check_turn(turn, detail::overlay::method_touch_interior, op)
-            || check_turn(turn, detail::overlay::method_touch, op)
-            ;
-    }
-
+    };
 
 
     template <typename InteriorRings>
@@ -171,8 +170,7 @@ private:
                             AllowDuplicates,
                             false, // do not check self-intersections
                             true // indicate that the ring is interior
-                        >,
-                    true // allow the iterator range to be empty
+                        >
                 >::apply(boost::begin(interior_rings),
                          boost::end(interior_rings));
     }
@@ -185,10 +183,11 @@ public:
         typedef typename point_type<Polygon>::type point_type;
         typedef typename ring_type<Polygon>::type ring_type;
 
+        typedef debug_validity_phase<Polygon> debug_phase;
+
         // check validity of exterior ring
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "checking exterior ring..." << std::endl;
-#endif
+        debug_phase::apply(1);
+
         if ( !detail::is_valid::is_valid_ring
                  <
                      ring_type,
@@ -199,11 +198,9 @@ public:
             return false;
         }
 
-
         // check validity of interior rings
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "checking interior rings..." << std::endl;
-#endif
+        debug_phase::apply(2);
+
         if ( !are_valid_interior_rings(geometry::interior_rings(polygon)) )
         {
             return false;
@@ -211,69 +208,63 @@ public:
 
 
         // compute turns and check if all are acceptable
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "computing and analyzing turns..." << std::endl;
-#endif
+        debug_phase::apply(3);
+
+        typedef typename geometry::rescale_policy_type
+            <
+                point_type
+            >::type rescale_policy_type;
+
         typedef detail::overlay::turn_info
             <
                 point_type,
-                geometry::segment_ratio
+                typename geometry::segment_ratio_type
                     <
-                        typename geometry::coordinate_type<point_type>::type
-                    >
+                        point_type,
+                        rescale_policy_type
+                    >::type
             > turn_info;
 
         typedef detail::overlay::get_turn_info
             <
-                detail::disjoint::assign_disjoint_policy
+                detail::overlay::assign_null_policy
             > turn_policy;
 
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(polygon);
+
+        detail::overlay::stateless_predicate_based_interrupt_policy
+            <
+                is_acceptable_turn
+            > interrupt_policy;
 
         std::deque<turn_info> turns;
-        detail::self_get_turn_points::no_interrupt_policy interrupt_policy;
-
-        // MK:: change the no_rescale_policy to rescale-to-integer
         geometry::self_turns<turn_policy>(polygon,
-                                          detail::no_rescale_policy(),
+                                          robust_policy,
                                           turns,
                                           interrupt_policy);
-#if GEOMETRY_TEST_DEBUG
-        std::cout << "turns:";
-        for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
-             tit != turns.end(); ++tit)
-        {
-            std::cout << " [" << geometry::method_char(tit->method);
-            std::cout << ","
-                      << geometry::operation_char(tit->operations[0].operation);
-            std::cout << "/"
-                      << geometry::operation_char(tit->operations[1].operation);
-            std::cout << " {" << tit->operations[0].seg_id.ring_index
-                      << ", " << tit->operations[0].other_id.ring_index
-                      << "}";
-            std::cout << " " << geometry::dsv(tit->point);
-            std::cout << "] ";
-        }
-        std::cout << std::endl << std::endl;
-#endif
 
+        if ( interrupt_policy.has_intersections )
+        {
+            return false;
+        }
+
+        debug_print_turns(turns.begin(), turns.end());
+
+        // put the ring id's that are associated with turns in a
+        // container with fast lookup (std::set)
         std::set<int> rings_with_turns;
         for (typename std::deque<turn_info>::const_iterator tit = turns.begin();
              tit != turns.end(); ++tit)
         {
-            if ( !is_acceptable_turn(*tit) )
-            {
-                return false;
-            }
             rings_with_turns.insert(tit->operations[0].seg_id.ring_index);
             rings_with_turns.insert(tit->operations[0].other_id.ring_index);
         }
 
 
         // check if all interior rings are inside the exterior ring
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "checking if holes are inside the exterior ring..."
-                  << std::endl;
-#endif
+        debug_phase::apply(4);
+
         if ( !are_holes_inside(geometry::interior_rings(polygon),
                                geometry::exterior_ring(polygon),
                                rings_with_turns) )
@@ -283,9 +274,8 @@ public:
 
 
         // check whether the interior of the polygon is a connected set
-#ifdef GEOMETRY_TEST_DEBUG
-        std::cout << "checking connectivity of interior..." << std::endl;
-#endif
+        debug_phase::apply(5);
+
         typedef graph_vertex<typename turn_info::point_type> graph_vertex;
         typedef complement_graph<graph_vertex> graph;
 
@@ -303,9 +293,8 @@ public:
             g.add_edge(v2, vip);
         }
 
-#ifdef GEOMETRY_TEST_DEBUG
-        g.print();
-#endif
+        debug_print_complement_graph(std::cout, g);
+
         return !g.has_cycles();
     }
 };
@@ -346,7 +335,8 @@ struct is_valid<MultiPolygon, multi_polygon_tag, AllowSpikes, AllowDuplicates>
                           <
                               typename boost::range_value<MultiPolygon>::type,
                               AllowDuplicates
-                          >
+                          >,
+                      false // do not allow empty multi-polygons
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon)) )
         {

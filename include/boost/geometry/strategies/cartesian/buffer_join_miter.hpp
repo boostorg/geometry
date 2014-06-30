@@ -11,7 +11,6 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -33,7 +32,6 @@ template
 >
 struct join_miter
 {
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointIn>::type coordinate_type;
 
     // Constructor compatible with other join strategies:
@@ -41,49 +39,36 @@ struct join_miter
     {}
 
     template <typename RangeOut>
-    inline void apply(PointIn const& ip, PointIn const& vertex,
+    inline bool apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
     {
-        coordinate_type zero = 0;
-        int signum = buffer_distance > zero ? 1
-                   : buffer_distance < zero ? -1
-                   : 0;
+        PointIn p = ip;
 
-        if (side::apply(perp1, ip, perp2) == signum)
+        // Normalize it and give it X*dist.
+        coordinate_type dx = get<0>(ip) - get<0>(vertex);
+        coordinate_type dy = get<1>(ip) - get<1>(vertex);
+
+        coordinate_type length = geometry::math::sqrt(dx * dx + dy * dy);
+
+        // TODO: make max-mitre-limit flexible
+        const coordinate_type ten = 10.0;
+        const coordinate_type zero_seven = 1.7;
+
+        const coordinate_type max = ten * geometry::math::abs(buffer_distance);
+
+        if (length > max)
         {
-        }
-        else
-        {
-            PointIn p = ip;
-
-            // Normalize it and give it X*dist.
-            coordinate_type dx = get<0>(ip) - get<0>(vertex);
-            coordinate_type dy = get<1>(ip) - get<1>(vertex);
-
-            coordinate_type length = geometry::math::sqrt(dx * dx + dy * dy);
-
-            // TODO: make max-mitre-limit flexible
-            coordinate_type ten = 10.0;
-            coordinate_type zero_seven = 0.7;
-
-            coordinate_type max = ten * geometry::math::abs(buffer_distance);
-
-            if (length > max)
-            {
-
-                coordinate_type prop = zero_seven * buffer_distance;
-                prop /= length;
-                set<0>(p, get<0>(vertex) + dx * prop);
-                set<1>(p, get<1>(vertex) + dy * prop);
-            }
-
-            range_out.push_back(perp1);
-            range_out.push_back(p);
-            range_out.push_back(perp2);
+            const coordinate_type prop = zero_seven * buffer_distance / length;
+            set<0>(p, get<0>(vertex) + dx * prop);
+            set<1>(p, get<1>(vertex) + dy * prop);
         }
 
+        range_out.push_back(perp1);
+        range_out.push_back(p);
+        range_out.push_back(perp2);
+        return true;
     }
 };
 

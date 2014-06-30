@@ -46,7 +46,7 @@ void test_geometry(std::string const& wkt1,
         << " -> Expected: " << expected
         << " detected: " << detected);
 
-#if !defined(GEOMETRY_TEST_DEBUG)
+#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
     detected = bg::crosses(
         geometry1,
         boost::variant<Geometry2>(geometry2));

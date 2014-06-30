@@ -45,7 +45,7 @@ static inline void print_turns(Geometry1 const& g1,
         out << index
             << ": " << geometry::method_char(turn.method);
 
-        if ( turn.is_discarded() )
+        if ( turn.discarded )
             out << " (discarded)\n";
         else if ( turn.blocked() )
             out << " (blocked)\n";

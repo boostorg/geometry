@@ -13,7 +13,7 @@
 #define BOOST_TEST_MODULE test_union_linear_linear
 #endif
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #define BOOST_GEOMETRY_DEBUG_TURNS
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #endif
@@ -40,7 +40,7 @@ typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 
 BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** LINESTRING / LINESTRING UNION ***" << std::endl;
     std::cout << std::endl;
@@ -467,7 +467,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
 
 BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** LINESTRING / MULTILINESTRING UNION ***"
               << std::endl;
@@ -697,7 +697,7 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_multilinestring )
 
 BOOST_AUTO_TEST_CASE( test_union_multilinestring_linestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / LINESTRING UNION ***"
               << std::endl;
@@ -751,7 +751,7 @@ BOOST_AUTO_TEST_CASE( test_union_multilinestring_linestring )
 
 BOOST_AUTO_TEST_CASE( test_union_multilinestring_multilinestring )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTILINESTRING / MULTILINESTRING UNION ***"
               << std::endl;

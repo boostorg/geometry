@@ -21,7 +21,7 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
-#include <boost/geometry/algorithms/centroid.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -141,13 +141,13 @@ struct svg_visitor
                 << (it->count_on_helper > 0 ? "h" : "")
                 ;
 
-            offsets[it->mapped_robust_point] += 10;
-            int offset = offsets[it->mapped_robust_point];
+            offsets[it->get_robust_point()] += 10;
+            int offset = offsets[it->get_robust_point()];
 
             m_mapper.map(it->point, fill, 6);
             m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
-            offsets[it->mapped_robust_point] += 25;
+            offsets[it->get_robust_point()] += 25;
         }
     }
 
@@ -198,22 +198,12 @@ struct svg_visitor
 
             if (do_indices)
             {
-
-                // Put starting piece_index / segment_index in centroid
+                // Label starting piece_index / segment_index
                 typedef typename bg::point_type<ring_type>::type point_type;
 
-                point_type centroid;
-                if (corner.size() > 3)
-                {
-                    bg::centroid(corner, centroid);
-                }
-                else
-                {
-                    centroid = corner.front();
-                }
                 std::ostringstream out;
-                out << piece.index << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                m_mapper.text(centroid, out.str(), "fill:rgb(255,0,0);font-family='Arial';", 5, 5);
+                out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                m_mapper.text(corner.front(), out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -224,7 +214,7 @@ struct svg_visitor
         for(typename boost::range_iterator<TraversedRings const>::type it
                 = boost::begin(traversed_rings); it != boost::end(traversed_rings); ++it)
         {
-            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:8");
+            m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,255,0);stroke-width:2");
         }
     }
 
@@ -236,22 +226,28 @@ struct svg_visitor
         {
             if (it->discarded())
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(255,0,0);stroke-width:2");
             }
             else
             {
-                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:8");
+                m_mapper.map(*it, "opacity:0.4;fill:none;stroke:rgb(0,0,255);stroke-width:2");
             }
         }
     }
 
     template <typename PieceCollection>
-    inline void apply(PieceCollection const& collection)
+    inline void apply(PieceCollection const& collection, int phase)
     {
-        map_pieces(collection.m_pieces, collection.offsetted_rings);
-        map_turns(collection.m_turns);
+        if(phase == 0)
+        {
+            map_pieces(collection.m_pieces, collection.offsetted_rings);
+            map_turns(collection.m_turns);
+        }
+        if (phase == 1)
+        {
 //        map_traversed_rings(collection.traversed_rings);
 //        map_offsetted_rings(collection.offsetted_rings);
+        }
     }
 };
 
@@ -264,19 +260,16 @@ struct JoinTestProperties { };
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
 { 
     static std::string name() { return "miter"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
 { 
     static std::string name() { return "divide"; }
-    static double tolerance() { return 0.1; }
 };
 
 
@@ -287,19 +280,16 @@ struct EndTestProperties { };
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
 { 
     static std::string name() { return "round"; }
-    static double tolerance() { return 0.1; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 { 
     static std::string name() { return "flat"; }
-    static double tolerance() { return 0.001; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
 { 
     static std::string name() { return ""; }
-    static double tolerance() { return 0.001; }
 };
 
 template
@@ -310,16 +300,14 @@ template
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
-            bool /*check*/, double expected_area,
-            double distance_left, double distance_right)
+            bool check_self_intersections, double expected_area,
+            double distance_left, double distance_right,
+            double tolerance)
 {
     namespace bg = boost::geometry;
 
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance;
-
-    typedef typename bg::ring_type<GeometryOut>::type ring_type;
 
 	typedef typename bg::tag<Geometry>::type tag;
 	// TODO use something different here:
@@ -434,17 +422,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
-        double tol = JoinTestProperties<JoinStrategy>::tolerance() 
-            + EndTestProperties<EndStrategy>::tolerance();
-
-        if (expected_area < 1.0e-5)
-        {
-            tol /= 1.0e6;
-        }
-
-        typename bg::default_area_result<GeometryOut>::type tolerance = tol;
-
-
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(area - expected_area) < tolerance,
@@ -454,16 +431,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 << " Detected: "  << area
             );
 
-        // Be sure resulting polygon does not contain
-        // self-intersections
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        if (check_self_intersections)
         {
-            BOOST_CHECK_MESSAGE
-                (
-                    ! bg::detail::overlay::has_self_intersections(polygon,
-                            rescale_policy, false),
-                    complete.str() << " output is self-intersecting. "
-                );
+            // Be sure resulting polygon does not contain
+            // self-intersections
+            BOOST_FOREACH(GeometryOut const& polygon, buffered)
+            {
+                BOOST_CHECK_MESSAGE
+                    (
+                        ! bg::detail::overlay::has_self_intersections(polygon,
+                                rescale_policy, false),
+                        complete.str() << " output is self-intersecting. "
+                    );
+            }
         }
     }
 
@@ -493,13 +473,14 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         double expected_area,
-        double distance_left, double distance_right = -999)
+        double distance_left, double distance_right = -999,
+        bool check_self_intersections = true,
+        double tolerance = 0.01)
 {
     namespace bg = boost::geometry;
     Geometry g;
     bg::read_wkt(wkt, g);
-
-    typedef typename bg::point_type<Geometry>::type point_type;
+    bg::correct(g);
 
 
 #ifdef BOOST_GEOMETRY_CHECK_WITH_POSTGIS
@@ -515,8 +496,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
 #endif
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
-            (caseid, g, false, expected_area,
-            distance_left, distance_right);
+            (caseid, g, check_self_intersections, expected_area,
+            distance_left, distance_right, tolerance);
 }
 
 

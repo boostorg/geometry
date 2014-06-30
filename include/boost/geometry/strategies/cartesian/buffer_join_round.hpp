@@ -13,9 +13,12 @@
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+#include <boost/geometry/io/wkt/wkt.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -42,7 +45,6 @@ public :
         : m_steps_per_circle(steps_per_circle)
     {}
 
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
     typedef typename coordinate_type<PointOut>::type coordinate_type;
 
     typedef typename geometry::select_most_precise
@@ -108,7 +110,7 @@ public :
     }
 
     template <typename RangeOut>
-    inline void apply(PointIn const& ip, PointIn const& vertex,
+    inline bool apply(PointIn const& ip, PointIn const& vertex,
                 PointIn const& perp1, PointIn const& perp2,
                 coordinate_type const& buffer_distance,
                 RangeOut& range_out) const
@@ -118,37 +120,27 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
 #endif
-            return;
+            return false;
         }
 
-        coordinate_type zero = 0;
-        int signum = buffer_distance > zero ? 1
-                   : buffer_distance < zero ? -1
-                   : 0;
+        // Generate 'vectors'
+        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
+        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-        if (side::apply(perp1, ip, perp2) == signum)
-        {
-        }
-        else
-        {
-            // Generate 'vectors'
-            coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-            coordinate_type viy = (get<1>(ip) - get<1>(vertex));
+        coordinate_type length_i =
+            geometry::math::sqrt(vix * vix + viy * viy);
 
-            coordinate_type length_i =
-                geometry::math::sqrt(vix * vix + viy * viy);
+        coordinate_type const bd = geometry::math::abs(buffer_distance);
+        coordinate_type prop = bd / length_i;
 
-            coordinate_type const bd = geometry::math::abs(buffer_distance);
-            coordinate_type prop = bd / length_i;
+        PointIn bp;
+        set<0>(bp, get<0>(vertex) + vix * prop);
+        set<1>(bp, get<1>(vertex) + viy * prop);
 
-            PointIn bp;
-            set<0>(bp, get<0>(vertex) + vix * prop);
-            set<1>(bp, get<1>(vertex) + viy * prop);
-
-            range_out.push_back(perp1);
-            generate_points(vertex, perp1, perp2, bd, range_out);
-            range_out.push_back(perp2);
-        }
+        range_out.push_back(perp1);
+        generate_points(vertex, perp1, perp2, bd, range_out);
+        range_out.push_back(perp2);
+        return true;
     }
 };
 

@@ -40,7 +40,7 @@ typedef bg::strategy::distance::pythagoras_point_box<> point_box_strategy;
 template <typename Strategy>
 void test_distance_point_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/polygon distance tests" << std::endl;
 #endif
@@ -69,7 +69,7 @@ void test_distance_point_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "point/multipolygon distance tests" << std::endl;
 #endif
@@ -102,7 +102,7 @@ void test_distance_point_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_polygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipoint/polygon distance tests" << std::endl;
 #endif
@@ -131,7 +131,7 @@ void test_distance_multipoint_polygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_multipolygon(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "multipoint/multipolygon distance tests" << std::endl;
 #endif
@@ -167,7 +167,7 @@ void test_distance_multipoint_multipolygon(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_box_2d(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "2D point/box distance tests" << std::endl;
 #endif
@@ -223,7 +223,7 @@ void test_distance_point_box_2d(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_box_different_point_types(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "2D point/box distance tests with different points"
               << std::endl;
@@ -281,7 +281,7 @@ void test_distance_point_box_different_point_types(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_point_box_3d(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "3D point/box distance tests" << std::endl;
 #endif
@@ -418,7 +418,7 @@ void test_distance_point_box_3d(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_box_2d(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "2D multipoint/box distance tests" << std::endl;
 #endif
@@ -452,7 +452,7 @@ void test_distance_multipoint_box_2d(Strategy const& strategy)
 template <typename Strategy>
 void test_distance_multipoint_box_3d(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "3D multipoint/box distance tests" << std::endl;
 #endif
@@ -489,7 +489,7 @@ void test_distance_multipoint_box_3d(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_more_empty_input_pointlike_areal(Strategy const& strategy)
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "testing on empty inputs... " << std::flush;
 #endif
@@ -512,7 +512,7 @@ void test_more_empty_input_pointlike_areal(Strategy const& strategy)
     test_empty_input(multipoint_empty, polygon_empty, strategy);
     test_empty_input(multipoint_empty, multipolygon_empty, strategy);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
 }

@@ -13,7 +13,7 @@
 #define BOOST_TEST_MODULE test_difference_pointlike_pointlike
 #endif
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #define BOOST_GEOMETRY_DEBUG_TURNS
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #endif
@@ -36,7 +36,7 @@ typedef bg::model::multi_point<point_type>  multi_point_type;
 
 BOOST_AUTO_TEST_CASE( test_difference_point_point )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** POINT / POINT DIFFERENCE ***" << std::endl;
     std::cout << std::endl;
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( test_difference_point_point )
 
 BOOST_AUTO_TEST_CASE( test_difference_multipoint_point )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTIPOINT / POINT DIFFERENCE ***" << std::endl;
     std::cout << std::endl;
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multipoint_point )
 
 BOOST_AUTO_TEST_CASE( test_difference_point_multipoint )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** POINT / MULTIPOINT DIFFERENCE ***" << std::endl;
     std::cout << std::endl;
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_difference_point_multipoint )
 
 BOOST_AUTO_TEST_CASE( test_difference_multipoint_multipoint )
 {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
     std::cout << "*** MULTIPOINT / MULTIPOINT DIFFERENCE ***" << std::endl;
     std::cout << std::endl;

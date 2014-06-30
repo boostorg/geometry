@@ -163,6 +163,8 @@ struct buffered_piece_collection
     {}
 
 
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+    // Will (most probably) be removed later
     template <typename OccupationMap>
     inline void adapt_mapped_robust_point(OccupationMap const& map,
             buffer_turn_info_type& turn, int distance) const
@@ -182,8 +184,13 @@ struct buffered_piece_collection
             }
         }
     }
+#endif
 
-    inline void get_occupation(int distance = 0)
+    inline void get_occupation(
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+        int distance = 0
+#endif
+    )
     {
         typedef occupation_info<angle_info<robust_point_type, coordinate_type> >
                 buffer_occupation_info;
@@ -198,8 +205,6 @@ struct buffered_piece_collection
         occupation_map_type occupation_map;
 
         // 1: Add all intersection points to occupation map
-        typedef typename boost::range_iterator<turn_vector_type const>::type
-            const_iterator_type;
         typedef typename boost::range_iterator<turn_vector_type>::type
             iterator_type;
 
@@ -209,11 +214,13 @@ struct buffered_piece_collection
         {
             if (it->count_on_offsetted >= 1)
             {
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
                 if (distance > 0 && ! occupation_map.empty())
                 {
                     adapt_mapped_robust_point(occupation_map, *it, distance);
                 }
-                occupation_map[it->mapped_robust_point].count++;
+#endif
+                occupation_map[it->get_robust_point()].count++;
             }
         }
 
@@ -241,14 +248,6 @@ struct buffered_piece_collection
         // 3: Add vectors (incoming->intersection-point,
         //                 intersection-point -> outgoing)
         //    for all (co-located) points still present in the map
-        //    and fill map segment_pair->turn_index
-        typedef
-        std::map
-        <
-            std::pair<segment_identifier, segment_identifier>,
-            std::set<int>
-        > segment_pair_map;
-        segment_pair_map turn_indices_per_segment_pair;
 
         int index = 0;
         for (iterator_type it = boost::begin(m_turns);
@@ -256,33 +255,24 @@ struct buffered_piece_collection
             ++it, ++index)
         {
             typename occupation_map_type::iterator mit =
-                        occupation_map.find(it->mapped_robust_point);
+                        occupation_map.find(it->get_robust_point());
 
             if (mit != occupation_map.end())
             {
                 buffer_occupation_info& info = mit->second;
-                // a:
                 for (int i = 0; i < 2; i++)
                 {
-                    add_incoming_and_outgoing_angles(it->mapped_robust_point, *it,
+                    add_incoming_and_outgoing_angles(it->get_robust_point(), *it,
                                 m_pieces,
                                 index, i, it->operations[i].seg_id,
                                 info);
                 }
 
                 it->count_on_multi++;
-
-                turn_indices_per_segment_pair
-                    [
-                        ordered_pair
-                            (
-                                it->operations[0].seg_id,
-                                it->operations[1].seg_id
-                            )
-                    ].insert(index);
             }
         }
 
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
         // X: Check rounding issues
         if (distance == 0)
         {
@@ -299,6 +289,7 @@ struct buffered_piece_collection
                 }
             }
         }
+#endif
 
         // If, in a cluster, one turn is blocked, block them all
         for (typename occupation_map_type::const_iterator it = occupation_map.begin();
@@ -306,7 +297,7 @@ struct buffered_piece_collection
         {
             typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
             bool blocked = false;
-            for (int i = 0; i < turns.size(); i++)
+            for (std::size_t i = 0; i < turns.size(); i++)
             {
                 if (m_turns[turns[i].turn_index].blocked())
                 {
@@ -316,30 +307,22 @@ struct buffered_piece_collection
             }
             if (blocked)
             {
-                for (int i = 0; i < turns.size(); i++)
+                for (std::size_t i = 0; i < turns.size(); i++)
                 {
                     m_turns[turns[i].turn_index].count_on_occupied++;
                 }
             }
         }
 
-        // 4: From these vectors, get the left turns
-        //    and mark all other turns as to-skip
+        // 4: Mark all turns as not selectable as a starting point for traversing
+        //    rings. They still can be used to continue already started rings.
         for (typename occupation_map_type::iterator it = occupation_map.begin();
             it != occupation_map.end(); ++it)
         {
-            buffer_occupation_info& info = it->second;
-
-            std::vector<detail::left_turns::left_turn> turns_to_keep;
-            info.get_left_turns(it->first, turns_to_keep);
-
-            if (turns_to_keep.empty())
+            typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
+            for (std::size_t i = 0; i < turns.size(); i++)
             {
-                typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
-                for (int i = 0; i < turns.size(); i++)
-                {
-                    m_turns[turns[i].turn_index].count_on_occupied++;
-                }
+                m_turns[turns[i].turn_index].selectable_start = false;
             }
         }
     }
@@ -458,7 +441,9 @@ struct buffered_piece_collection
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
             geometry::recalculate(it->robust_point, it->point, m_robust_policy);
+#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
             it->mapped_robust_point = it->robust_point;
+#endif
 
             robust_turn turn;
             it->turn_index = index;
@@ -558,7 +543,7 @@ struct buffered_piece_collection
         }
 
 
-        //get_occupation(); // Temporarily disabled, all tests passing...
+        get_occupation();
 
         classify_turns();
 
@@ -605,22 +590,14 @@ struct buffered_piece_collection
     }
 
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
-            point_type const& b1, point_type const& b2)
+            point_type const& b1, point_type const& b2, bool first)
     {
-        // If the last type was a join, the segment_id of next segment should be decreased by one.
-        bool const last_type_join = ! m_pieces.empty()
-                && m_pieces.back().first_seg_id.multi_index == current_segment_id.multi_index
-                && (
-                        m_pieces.back().type == strategy::buffer::buffered_join
-                        || m_pieces.back().type == strategy::buffer::buffered_round_end
-                    );
-
-        piece& pc = add_piece(type, last_type_join);
+        piece& pc = add_piece(type, ! first);
 
         // If it follows a non-join (so basically the same piece-type) point b1 should be added.
         // There should be two intersections later and it should be discarded.
         // But for now we need it to calculate intersections
-        if (! last_type_join)
+        if (first)
         {
             add_point(b1);
         }
@@ -631,6 +608,18 @@ struct buffered_piece_collection
         pc.helper_segments.push_back(p1);
         pc.helper_segments.push_back(b1);
     }
+
+    inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
+            point_type const& b1, point_type const& b2)
+    {
+        piece& pc = add_piece(type, false);
+        add_point(b1);
+        pc.last_segment_index = add_point(b2);
+        pc.helper_segments.push_back(b2);
+        pc.helper_segments.push_back(p);
+        pc.helper_segments.push_back(b1);
+    }
+
 
     template <typename Range>
     inline piece& add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
@@ -678,6 +667,10 @@ struct buffered_piece_collection
     template <typename EndcapStrategy, typename Range>
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
     {
+        if (range.empty())
+        {
+            return;
+        }
         strategy::buffer::piece_type pt = strategy.get_piece_type();
         if (pt == strategy::buffer::buffered_flat_end)
         {
