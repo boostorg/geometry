@@ -139,7 +139,7 @@ public :
 
 
 /*!
-\brief Strategy to calculate the distance between two points or boxes
+\brief Strategy to calculate the distance between two boxes
 \ingroup strategies
 \tparam CalculationType \tparam_calculation
 

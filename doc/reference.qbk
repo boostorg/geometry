@@ -289,6 +289,8 @@
 
 [section:strategies Strategies]
 [include generated/distance_pythagoras.qbk]
+[include generated/distance_pythagoras_box_box.qbk]
+[include generated/distance_pythagoras_point_box.qbk]
 [include generated/distance_haversine.qbk]
 [include generated/distance_projected_point.qbk]
 [include generated/distance_cross_track.qbk]
