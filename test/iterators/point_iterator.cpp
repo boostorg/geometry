@@ -200,26 +200,6 @@ struct test_assignment
 template <typename Geometry, typename PointRange>
 struct test_point_iterator_of_geometry
 {
-    template <typename G, typename Point>
-    static inline void test_front_and_back(G& geometry,
-                                           Point const& front,
-                                           Point const& back)
-    {
-        BOOST_CHECK( bg::equals(bg::points_front(geometry), front) );
-        BOOST_CHECK( bg::equals(bg::points_back(geometry), back) );
-
-        BOOST_CHECK( bg::equals(front, *--bg::points_rend(geometry)) );
-        BOOST_CHECK( bg::equals(back, *bg::points_rbegin(geometry)) );
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "front: " << bg::dsv(bg::points_front(geometry))
-                  << std::endl;
-        std::cout << "back : " << bg::dsv(bg::points_back(geometry))
-                  << std::endl;
-        std::cout << std::endl;
-#endif
-    }
-
     template <typename G>
     static inline void base_test(G& geometry,
                                  PointRange const& point_range,
@@ -250,14 +230,6 @@ struct test_point_iterator_of_geometry
                           "expected point range: ");
         std::cout << std::endl;
 #endif
-
-        // test points_front and points_back
-        if ( bg::points_begin(point_range) != bg::points_end(point_range) )
-        {
-            test_front_and_back(geometry,
-                                bg::points_front(point_range),
-                                bg::points_back(point_range));
-        }
     }
 
     static inline void apply(Geometry geometry, PointRange const& point_range)
