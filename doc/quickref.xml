@@ -519,6 +519,8 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_distance_projected_point">strategy::distance::projected_point</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_distance_pythagoras">strategy::distance::pythagoras</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_pythagoras_box_box">strategy::distance::pythagoras_box_box</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_distance_pythagoras_point_box">strategy::distance::pythagoras_point_box</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_distance_cross_track">strategy::distance::cross_track</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_distance_haversine">strategy::distance::haversine</link></member>
     </simplelist>
