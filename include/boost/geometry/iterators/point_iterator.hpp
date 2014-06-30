@@ -280,30 +280,6 @@ points_end(Geometry& geometry)
 }
 
 
-// MK:: need to add doc here
-template <typename Geometry>
-inline typename point_type<Geometry>::type
-points_front(Geometry& geometry)
-{
-    BOOST_ASSERT( dispatch::points_begin<Geometry>::apply(geometry)
-                  != dispatch::points_end<Geometry>::apply(geometry) );
-    return *dispatch::points_begin<Geometry>::apply(geometry);
-}
-
-
-// MK:: need to add doc here
-template <typename Geometry>
-inline typename point_type<Geometry>::type
-points_back(Geometry& geometry)
-{
-    BOOST_ASSERT( dispatch::points_begin<Geometry>::apply(geometry)
-                  != dispatch::points_end<Geometry>::apply(geometry) );
-    return *--dispatch::points_end<Geometry>::apply(geometry);
-}
-
-
-
-
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ITERATORS_POINT_ITERATOR_HPP
