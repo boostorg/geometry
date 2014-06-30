@@ -84,11 +84,12 @@ namespace comparable
 {
 
 /*!
-\brief Strategy to calculate comparable distance between two points
-\ingroup strategies
-\tparam Point \tparam_first_point
-\tparam Box \tparam_second_box
-\tparam CalculationType \tparam_calculation
+    \brief Strategy to calculate comparable distance between a point
+    and a box
+    \ingroup strategies
+    \tparam Point \tparam_first_point
+    \tparam Box \tparam_second_box
+    \tparam CalculationType \tparam_calculation
 */
 template <typename CalculationType = void>
 class pythagoras_point_box
@@ -132,7 +133,7 @@ public :
 
 
 /*!
-\brief Strategy to calculate the distance between two points or boxes
+\brief Strategy to calculate the distance between a point and a box
 \ingroup strategies
 \tparam CalculationType \tparam_calculation
 
