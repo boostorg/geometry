@@ -100,8 +100,8 @@ private:
     {
     public:
         has_cycles_dfs_data(std::size_t num_nodes)
-            : m_visited(num_nodes)
-            , m_parent_id(num_nodes)
+            : m_visited(num_nodes, false)
+            , m_parent_id(num_nodes, -1)
         {}
 
         inline int parent_id(vertex_handle v) const
@@ -139,7 +139,7 @@ private:
         {
             vertex_handle v = stack.top();
             stack.pop();
-            
+
             data.set_visited(v, true);
             for (typename neighbor_container::const_iterator nit
                      = m_neighbors[v->id()].begin();
@@ -205,15 +205,9 @@ public:
 
     inline bool has_cycles() const
     {
-        has_cycles_dfs_data data(m_vertices.size());
-
         // initialize all vertices as non-visited and with no parent set
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            data.set_visited(it, false);
-            data.set_parent_id(it, -1);
-        }
+        // this is done by the constructor of has_cycles_dfs_data
+        has_cycles_dfs_data data(m_num_rings + m_num_turns);
 
         // for each non-visited vertex, start a DFS from that vertex
         for (vertex_handle it = m_vertices.begin();
