@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <boost/assert.hpp>
+#include <boost/core/addressof.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
@@ -33,17 +34,14 @@ template <typename TurnPoint>
 class complement_graph_vertex
 {
 public:
-    complement_graph_vertex(std::size_t id,
-                            TurnPoint const& dummy = TurnPoint())
-        : m_is_ip(false)
-        , m_id(id)
-        , m_turn_point(dummy)
+    complement_graph_vertex(std::size_t id)
+        : m_id(id)
+        , m_turn_point(NULL)
     {}
 
-    complement_graph_vertex(TurnPoint const& turn_point,
+    complement_graph_vertex(TurnPoint const* turn_point,
                             std::size_t expected_id)
-        : m_is_ip(true)
-        , m_id(expected_id)
+        : m_id(expected_id)
         , m_turn_point(turn_point)
     {}
 
@@ -51,28 +49,27 @@ public:
 
     inline bool operator<(complement_graph_vertex const& other) const
     {
-        if ( m_is_ip && other.m_is_ip )
+        if ( m_turn_point != NULL && other.m_turn_point != NULL )
         {
             return geometry::less
                 <
                     TurnPoint
-                >()(m_turn_point, other.m_turn_point);
+                >()(*m_turn_point, *other.m_turn_point);
         }
-        if ( !m_is_ip && !other.m_is_ip )
+        if ( m_turn_point == NULL && other.m_turn_point == NULL )
         {
             return m_id < other.m_id;
         }
-        return other.m_is_ip;
+        return m_turn_point == NULL;
     }
 
 private:
-    // the following bool determines the type of the vertex
-    // true : vertex corresponds to an IP
-    // false: vertex corresponds to a hole or outer space, and the id
-    //        is the ring id of the corresponding ring of the polygon
-    bool m_is_ip;
+    // the value of m_turn_point determines the type of the vertex
+    // non-NULL: vertex corresponds to an IP
+    // NULL    : vertex corresponds to a hole or outer space, and the id
+    //           is the ring id of the corresponding ring of the polygon
     std::size_t m_id;
-    TurnPoint const& m_turn_point;
+    TurnPoint const* m_turn_point;
 };
 
 
@@ -185,7 +182,9 @@ public:
     inline vertex_handle add_vertex(TurnPoint const& turn_point)
     {
         std::pair<vertex_handle, bool> res
-            = m_vertices.insert(vertex(turn_point, m_num_rings + m_num_turns));
+            = m_vertices.insert(vertex(boost::addressof(turn_point),
+                                       m_num_rings + m_num_turns)
+                                );
 
         if ( res.second )
         {
