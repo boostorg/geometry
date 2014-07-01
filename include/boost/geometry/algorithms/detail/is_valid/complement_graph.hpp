@@ -33,19 +33,21 @@ template <typename TurnPoint>
 class complement_graph_vertex
 {
 public:
-    complement_graph_vertex(int id, TurnPoint const& dummy = TurnPoint())
+    complement_graph_vertex(std::size_t id,
+                            TurnPoint const& dummy = TurnPoint())
         : m_is_ip(false)
         , m_id(id)
         , m_turn_point(dummy)
     {}
 
-    complement_graph_vertex(TurnPoint const& turn_point, int expected_id = -1)
+    complement_graph_vertex(TurnPoint const& turn_point,
+                            std::size_t expected_id)
         : m_is_ip(true)
         , m_id(expected_id)
         , m_turn_point(turn_point)
     {}
 
-    inline int id() const { return m_id; }
+    inline std::size_t id() const { return m_id; }
 
     inline bool operator<(complement_graph_vertex const& other) const
     {
@@ -69,7 +71,7 @@ private:
     // false: vertex corresponds to a hole or outer space, and the id
     //        is the ring id of the corresponding ring of the polygon
     bool m_is_ip;
-    int m_id;
+    std::size_t m_id;
     TurnPoint const& m_turn_point;
 };
 
@@ -146,16 +148,16 @@ private:
                      = m_neighbors[v->id()].begin();
                  nit != m_neighbors[v->id()].end(); ++nit)
             {
-                if ( (*nit)->id() != data.parent_id(v) )
+                if ( static_cast<int>((*nit)->id()) != data.parent_id(v) )
                 {
-                    if ( !data.visited(*nit) )
+                    if ( data.visited(*nit) )
                     {
-                        data.set_parent_id(*nit, v->id());
-                        stack.push(*nit);
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        data.set_parent_id(*nit, static_cast<int>(v->id()));
+                        stack.push(*nit);
                     }
                 }
             }
@@ -176,15 +178,14 @@ public:
     // ring id's are zero-based (so the first interior ring has id 1)
     inline vertex_handle add_vertex(int id)
     {
-        return m_vertices.insert(vertex(id)).first;
+        return m_vertices.insert(vertex(static_cast<std::size_t>(id))).first;
     }
 
     // inserts an IP in the graph and returns its id
     inline vertex_handle add_vertex(TurnPoint const& turn_point)
     {
-        int expected_id  = static_cast<int>(m_num_rings + m_num_turns);
         std::pair<vertex_handle, bool> res
-            = m_vertices.insert(vertex(turn_point, expected_id));
+            = m_vertices.insert(vertex(turn_point, m_num_rings + m_num_turns));
 
         if ( res.second )
         {
