@@ -19,11 +19,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_COMPARABLE_DISTANCE_RESULT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_DEFAULT_COMPARABLE_DISTANCE_RESULT_HPP
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/comparable_distance_result.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 namespace boost { namespace geometry
 {
@@ -36,20 +33,8 @@ namespace boost { namespace geometry
  */
 template <typename Geometry1, typename Geometry2 = Geometry1>
 struct default_comparable_distance_result
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            typename strategy::distance::services::comparable_type
-                <
-                    typename detail::distance::default_strategy
-                        <
-                            Geometry1, Geometry2
-                        >::type
-                >::type,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >::type type;
-};
+    : comparable_distance_result<Geometry1, Geometry2, void>
+{};
 
 
 }} // namespace boost::geometry
