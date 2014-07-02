@@ -23,30 +23,23 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/core/point_type.hpp>
-
-#include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-
-#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
-
-#include <boost/geometry/geometries/concepts/check.hpp>
-
-#include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/default_distance_result.hpp>
-
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
-
-#include <boost/geometry/util/compress_variant.hpp>
-#include <boost/geometry/util/transform_variant.hpp>
-#include <boost/geometry/util/combine_if.hpp>
-//#include <boost/geometry/util/is_implemented.hpp>
-
 #include <boost/mpl/always.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/vector.hpp>
+
+#include <boost/geometry/core/point_type.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/default_distance_result.hpp>
+#include <boost/geometry/strategies/distance_result.hpp>
+
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
+
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 
 namespace boost { namespace geometry
@@ -98,31 +91,8 @@ struct distance
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_strategy {
-
-namespace result_of
+namespace resolve_strategy
 {
-
-template <typename Geometry1, typename Geometry2, typename Strategy>
-struct distance
-    : strategy::distance::services::return_type
-        <
-            Strategy,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >
-{};
-
-template <typename Geometry1, typename Geometry2>
-struct distance<Geometry1, Geometry2, default_strategy>
-    : default_distance_result
-        <
-            Geometry1, Geometry2
-        >
-{};
-
-} // namespace result_of
-
 
 struct distance
 {
@@ -151,89 +121,6 @@ struct distance
 
 namespace resolve_variant
 {
-
-namespace result_of
-{
-
-template <typename Geometry1, typename Geometry2, typename Strategy>
-struct distance
-    : resolve_strategy::result_of::distance
-        <
-            Geometry1,
-            Geometry2,
-            Strategy
-        >
-{};
-
-
-template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
-{
-    // A set of all variant type combinations that are compatible and implemented
-    typedef typename util::combine_if<
-        typename mpl::vector1<Geometry1>,
-        typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-        // Here we want should remove most of the combinations that are not valid
-        // mostly to limit the size of the resulting MPL set.
-        // But is_implementedn is not ready for prime time
-        //
-        // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
-        mpl::always<mpl::true_>
-    >::type possible_input_types;
-
-    // The (possibly variant) result type resulting from these combinations
-    typedef typename compress_variant<
-        typename transform_variant<
-            possible_input_types,
-            resolve_strategy::result_of::distance<
-                point_type<mpl::first<mpl::_> >,
-                point_type<mpl::second<mpl::_> >,
-                Strategy
-            >,
-            mpl::back_inserter<mpl::vector0<> >
-        >::type
-    >::type type;
-};
-
-
-// Distance arguments are commutative
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2, typename Strategy>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy>
-    : public distance<Geometry2, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
-{};
-
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
-{
-    // A set of all variant type combinations that are compatible and implemented
-    typedef typename util::combine_if
-        <
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            // Here we want to try to remove most of the combinations that are not valid
-            // mostly to limit the size of the resulting MPL vector.
-            // But is_implementedn is not ready for prime time
-            //
-            // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
-            mpl::always<mpl::true_>
-        >::type possible_input_types;
-
-    // The (possibly variant) result type resulting from these combinations
-    typedef typename compress_variant<
-        typename transform_variant<
-            possible_input_types,
-            resolve_strategy::result_of::distance<
-                point_type<mpl::first<mpl::_> >,
-                point_type<mpl::second<mpl::_> >,
-                Strategy
-            >,
-            mpl::back_inserter<mpl::vector0<> >
-        >::type
-    >::type type;
-};
-
-} // namespace result_of
 
 
 template <typename Geometry1, typename Geometry2>
@@ -453,12 +340,7 @@ for distance, it is probably so that there is no specialization
 for return_type<...> for your strategy.
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename resolve_variant::result_of::distance
-    <
-        Geometry1,
-        Geometry2,
-        Strategy
-    >::type
+inline typename distance_result<Geometry1, Geometry2, Strategy>::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2,
          Strategy const& strategy)
@@ -490,12 +372,7 @@ distance(Geometry1 const& geometry1,
 \qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename resolve_variant::result_of::distance
-    <
-        Geometry1,
-        Geometry2,
-        default_strategy
-    >::type
+inline typename default_distance_result<Geometry1, Geometry2>::type
 distance(Geometry1 const& geometry1,
          Geometry2 const& geometry2)
 {
