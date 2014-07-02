@@ -169,12 +169,8 @@ template
     typename Strategy = void
 >
 struct distance_result
-{
-    typedef typename resolve_variant::result_of::distance
-        <
-            Geometry1, Geometry2, Strategy
-        >::type type;
-};
+    : resolve_variant::result_of::distance<Geometry1, Geometry2, Strategy>
+{};
 
 
 template <typename Geometry1, typename Geometry2>
