@@ -25,7 +25,7 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/vector.hpp>
 
-#include <boost/variant/variant.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
