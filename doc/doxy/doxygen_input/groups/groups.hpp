@@ -40,6 +40,8 @@
 \defgroup interior_rings interior_rings: interior_rings
 \defgroup intersection intersection: calculate new geometry
 \defgroup intersects intersects: detect if a geometry self-intersects or if two geometries intersect
+\defgroup is_simple is_simple: detect if a geometry is simple
+\defgroup is_valid is_valid: detect if a geometry is valid
 \defgroup iterators iterators: iterators
 \defgroup length length: calculate length of a linear geometry
 \defgroup make make: construct geometries

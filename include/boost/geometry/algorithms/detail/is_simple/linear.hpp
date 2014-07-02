@@ -23,6 +23,7 @@
 
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 

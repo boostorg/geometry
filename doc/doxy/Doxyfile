@@ -181,6 +181,8 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/algorithms/detail/disjoint \
 			../../../../boost/geometry/algorithms/detail/distance \
 			../../../../boost/geometry/algorithms/detail/equals \
+			../../../../boost/geometry/algorithms/detail/is_simple \
+			../../../../boost/geometry/algorithms/detail/is_valid \
 			../../../../boost/geometry/algorithms/detail/overlay \
 			../../../../boost/geometry/algorithms/detail/relate \
 			../../../../boost/geometry/algorithms/detail/sections \
