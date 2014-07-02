@@ -44,6 +44,9 @@ int main()
 Output:
 [pre
 is simple? no
+
+[$img/algorithms/is_simple_example.png]
+
 ]
 
 */
