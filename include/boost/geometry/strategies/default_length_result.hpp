@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,13 +19,56 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_LENGTH_RESULT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_DEFAULT_LENGTH_RESULT_HPP
 
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
+
+#include <boost/geometry/util/compress_variant.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/transform_variant.hpp>
 
 
 namespace boost { namespace geometry
 {
+
+
+namespace resolve_strategy { namespace result_of
+{
+
+template <typename Geometry>
+struct length
+{
+    typedef typename select_most_precise
+        <
+            typename coordinate_type<Geometry>::type,
+            long double
+        >::type type;
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    typedef typename compress_variant<
+        typename transform_variant<
+            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            length<boost::mpl::placeholders::_>
+        >::type
+    >::type type;
+};
+
+}} // namespace resolve_strategy::result_of
+
+
+namespace resolve_variant { namespace result_of
+{
+
+template <typename Geometry>
+struct length
+    : resolve_strategy::result_of::length<Geometry>
+{};
+
+}} // namespace resolve_variant::result_of
+
 
 /*!
     \brief Meta-function defining return type of length function
@@ -32,15 +80,10 @@ namespace boost { namespace geometry
  */
 template <typename Geometry>
 struct default_length_result
-{
-    typedef typename select_most_precise
-        <
-            typename coordinate_type<Geometry>::type,
-            long double
-        >::type type;
-};
+    : resolve_variant::result_of::length<Geometry>
+{};
+
 
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_STRATEGIES_DEFAULT_LENGTH_RESULT_HPP
