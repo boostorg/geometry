@@ -20,6 +20,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_COMPARABLE_DISTANCE_INTERFACE_HPP
 
 #include <boost/geometry/strategies/default_comparable_distance_result.hpp>
+#include <boost/geometry/strategies/comparable_distance_result.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/interface.hpp>
 
@@ -46,15 +47,7 @@ namespace boost { namespace geometry
 \qbk{distinguish,with strategy}
  */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename strategy::distance::services::return_type
-                <
-                    typename strategy::distance::services::comparable_type
-                        <
-                            Strategy
-                        >::type,
-                    typename point_type<Geometry1>::type,
-                    typename point_type<Geometry2>::type
-                >::type
+inline typename comparable_distance_result<Geometry1, Geometry2, Strategy>::type
 comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2,
                     Strategy const& strategy)
 {
