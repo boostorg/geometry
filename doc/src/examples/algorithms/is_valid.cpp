@@ -27,7 +27,7 @@ int main()
 
     polygon_type poly;
     boost::geometry::read_wkt(
-        "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 2,0 0),(0 0,1 9,2 9,0 0),(2 9,9 2,9 9,2 9))"
+        "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 2,0 0),(0 0,2 9,1 9,0 0),(2 9,9 2,9 9,2 9))"
             , poly);
 
     std::cout << "is valid? " << (boost::geometry::is_valid(poly) ? "yes" : "no") << std::endl;
@@ -42,6 +42,9 @@ int main()
 Output:
 [pre
 is valid? no
+
+[$img/algorithms/is_valid_example.png]
+
 ]
 
 */

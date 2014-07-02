@@ -27,7 +27,6 @@
 
 #include <boost/geometry/util/range.hpp>
 
-// MK:: the following include may not be needed
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/within.hpp>
