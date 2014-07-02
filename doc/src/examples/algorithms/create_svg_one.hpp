@@ -35,7 +35,7 @@ void create_svg(std::string const& filename, Geometry const& g)
     boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);
     mapper.add(g);
 
-    mapper.map(g, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:2");
+    mapper.map(g, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:2");
 #else
     boost::ignore_unused(filename, g);
 #endif
