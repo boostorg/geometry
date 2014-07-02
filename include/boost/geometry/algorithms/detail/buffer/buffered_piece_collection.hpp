@@ -589,8 +589,9 @@ struct buffered_piece_collection
         return m_pieces.back();
     }
 
+    template <typename Range>
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
-            point_type const& b1, point_type const& b2, bool first)
+            Range const& range, bool first)
     {
         piece& pc = add_piece(type, ! first);
 
@@ -599,14 +600,14 @@ struct buffered_piece_collection
         // But for now we need it to calculate intersections
         if (first)
         {
-            add_point(b1);
+            add_point(range.front());
         }
-        pc.last_segment_index = add_point(b2);
+        pc.last_segment_index = add_point(range.back());
 
-        pc.helper_segments.push_back(b2);
+        pc.helper_segments.push_back(range.back());
         pc.helper_segments.push_back(p2);
         pc.helper_segments.push_back(p1);
-        pc.helper_segments.push_back(b1);
+        pc.helper_segments.push_back(range.front());
     }
 
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
