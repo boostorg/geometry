@@ -203,6 +203,9 @@ struct buffer_range
 
         geometry::recalculate(previous_robust_input, *begin, robust_policy);
 
+        std::vector<output_point_type> generated_side;
+        generated_side.reserve(2);
+
         for (Iterator prev = it++; it != end; ++it)
         {
             robust_point_type robust_input;
@@ -211,35 +214,35 @@ struct buffer_range
             // unlikely (though possible by rescaling)
             if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
             {
-                output_point_type p1, p2;
-
+                generated_side.clear();
                 strategy::buffer::buffer_side::apply(*prev,
-                    *it, side, distance_strategy, p1, p2);
+                    *it, side, distance_strategy, generated_side);
 
                 if (! first)
                 {
                      add_join(collection, phase,
                             penultimate_point,
                             *prev, previous_p1, previous_p2,
-                            *it, p1, p2,
+                            *it, generated_side.front(), generated_side.back(),
                             side,
                             distance_strategy, join_strategy, end_strategy,
                             robust_policy);
                 }
+
                 collection.add_piece(strategy::buffer::buffered_segment,
-                    *prev, *it, p1, p2, first);
+                    *prev, *it, generated_side, first);
 
                 penultimate_point = *prev;
                 ultimate_point = *it;
-                previous_p1 = p1;
-                previous_p2 = p2;
+                previous_p1 = generated_side.front();
+                previous_p2 = generated_side.back();
                 prev = it;
                 if (first)
                 {
                     first = false;
                     second_point = *it;
-                    first_p1 = p1;
-                    first_p2 = p2;
+                    first_p1 = generated_side.front();
+                    first_p2 = generated_side.back();
                 }
             }
             previous_robust_input = robust_input;
@@ -265,16 +268,16 @@ struct buffer_range
             // Generate perpendicular points to the reverse side,
             // these points are necessary for all end-cap strategies
             // TODO fix this (approach) for one-side buffer (1.5 - -1.0)
-            output_point_type rp1, rp2;
+            generated_side.clear();
             strategy::buffer::buffer_side::apply(ultimate_point,
                     penultimate_point,
                     side == strategy::buffer::buffer_side_left
                     ? strategy::buffer::buffer_side_right
                     : strategy::buffer::buffer_side_left,
-                    distance_strategy, rp2, rp1);
+                    distance_strategy, generated_side);
 
             std::vector<output_point_type> range_out;
-            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, rp2, side, distance_strategy, range_out);
+            end_strategy.apply(penultimate_point, previous_p2, ultimate_point, generated_side.front(), side, distance_strategy, range_out);
             collection.add_endcap(end_strategy, range_out, ultimate_point);
         }
     }

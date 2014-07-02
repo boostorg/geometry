@@ -41,15 +41,14 @@ struct buffer_side
     template
     <
         typename Point,
-        typename OutputPointType,
+        typename OutputRange,
         typename DistanceStrategy
     >
     static inline void apply(
                 Point const& input_p1, Point const& input_p2,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
-                // TODO: the output will be a range
-                OutputPointType& side_p1, OutputPointType& side_p2)
+                OutputRange& output_range)
     {
         typedef typename coordinate_type<Point>::type coordinate_type;
         // Generate a block along (left or right of) the segment
@@ -71,10 +70,12 @@ struct buffer_side
 
         coordinate_type const d = distance.apply(input_p1, input_p2, side);
 
-        set<0>(side_p1, get<0>(input_p1) + px * d);
-        set<1>(side_p1, get<1>(input_p1) + py * d);
-        set<0>(side_p2, get<0>(input_p2) + px * d);
-        set<1>(side_p2, get<1>(input_p2) + py * d);
+        output_range.resize(2);
+
+        set<0>(output_range.front(), get<0>(input_p1) + px * d);
+        set<1>(output_range.front(), get<1>(input_p1) + py * d);
+        set<0>(output_range.back(), get<0>(input_p2) + px * d);
+        set<1>(output_range.back(), get<1>(input_p2) + py * d);
     }
 };
 
