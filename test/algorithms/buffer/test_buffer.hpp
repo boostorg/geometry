@@ -36,6 +36,7 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
 
 
 
@@ -389,6 +390,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > 
     distance_strategy(distance_left, distance_right);
 
+    bg::strategy::buffer::buffer_side side_strategy;
+
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
@@ -399,7 +402,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     std::vector<GeometryOut> buffered;
 
     bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
-                        distance_strategy, 
+                        distance_strategy,
+                        side_strategy,
                         join_strategy,
                         end_strategy,
                         rescale_policy,
