@@ -87,7 +87,7 @@ void test_services()
     BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
 
     // 2: the strategy should return the same result if we reverse parameters
-    result = strategy.apply(p, p1, p2);
+    result = strategy.apply(p, p2, p1);
     BOOST_CHECK_CLOSE(result, return_type(expected), 0.001);
 
 
@@ -105,12 +105,29 @@ void test_services()
     BOOST_CHECK_CLOSE(c_result, return_type(sqr_expected), 0.001);
 }
 
+template <typename T1, typename T2>
+void test_check_close(T1 const& v1, T2 const& v2, double f)
+{
+    BOOST_CHECK_CLOSE(v1, v2, f);
+}
 
-template <typename P1, typename P2, typename T>
-void test_all_2d(std::string const& wkt_p,
-                 std::string const& wkt_sp1,
-                 std::string const& wkt_sp2,
-                 T expected_distance)
+template <typename T1, typename T2>
+void test_check_close(bg::strategy::distance::detail::projected_point_ax_result<T1> const& v1,
+                      bg::strategy::distance::detail::projected_point_ax_result<T2> const& v2,
+                      double f)
+{
+    BOOST_CHECK_CLOSE(v1.atd, v2.atd, f);
+    BOOST_CHECK_CLOSE(v1.xtd, v2.xtd, f);
+}
+
+template <typename P1, typename P2, typename T, typename Strategy, typename ComparableStrategy>
+void test_2d(std::string const& wkt_p,
+             std::string const& wkt_sp1,
+             std::string const& wkt_sp2,
+             T expected_distance,
+             T expected_comparable_distance,
+             Strategy strategy,
+             ComparableStrategy comparable_strategy)
 {
     P1 p;
     P2 sp1, sp2;
@@ -118,43 +135,57 @@ void test_all_2d(std::string const& wkt_p,
     bg::read_wkt(wkt_sp1, sp1);
     bg::read_wkt(wkt_sp2, sp2);
 
+    BOOST_CONCEPT_ASSERT
+        (
+            (bg::concept::PointSegmentDistanceStrategy<Strategy, P1, P2>)
+        );
+    BOOST_CONCEPT_ASSERT
+        (
+            (bg::concept::PointSegmentDistanceStrategy<ComparableStrategy, P1, P2>)
+        );
+
     {
-        typedef bg::strategy::distance::projected_point<> strategy_type;
-
-        BOOST_CONCEPT_ASSERT
-            (
-                (bg::concept::PointSegmentDistanceStrategy<strategy_type, P1, P2>)
-            );
-
-        strategy_type strategy;
-        typedef typename bg::strategy::distance::services::return_type<strategy_type, P1, P2>::type return_type;
+        typedef typename bg::strategy::distance::services::return_type<Strategy, P1, P2>::type return_type;
         return_type d = strategy.apply(p, sp1, sp2);
-        BOOST_CHECK_CLOSE(d, expected_distance, 0.001);
+        test_check_close(d, expected_distance, 0.001);
     }
 
     // Test combination with the comparable strategy
     {
-        typedef bg::strategy::distance::projected_point
-            <
-                void,
-                bg::strategy::distance::comparable::pythagoras<>
-            > strategy_type;
-        strategy_type strategy;
-        typedef typename bg::strategy::distance::services::return_type<strategy_type, P1, P2>::type return_type;
-        return_type d = strategy.apply(p, sp1, sp2);
-        T expected_squared_distance = expected_distance * expected_distance;
-        BOOST_CHECK_CLOSE(d, expected_squared_distance, 0.01);
+        typedef typename bg::strategy::distance::services::return_type<ComparableStrategy, P1, P2>::type return_type;
+        return_type d = comparable_strategy.apply(p, sp1, sp2);
+        test_check_close(d, expected_comparable_distance, 0.01);
     }
 
+}
+
+template <typename P1, typename P2, typename T>
+void test_2d(std::string const& wkt_p,
+             std::string const& wkt_sp1,
+             std::string const& wkt_sp2,
+             T expected_distance)
+{
+    typedef bg::strategy::distance::projected_point<> strategy_type;
+    typedef bg::strategy::distance::projected_point
+        <
+            void,
+            bg::strategy::distance::comparable::pythagoras<>
+        > comparable_strategy_type;
+
+    strategy_type strategy;
+    comparable_strategy_type comparable_strategy;
+
+    T expected_squared_distance = expected_distance * expected_distance;
+    test_2d<P1, P2>(wkt_p, wkt_sp1, wkt_sp2, expected_distance, expected_squared_distance, strategy, comparable_strategy);
 }
 
 template <typename P1, typename P2>
 void test_all_2d()
 {
-    test_all_2d<P1, P2>("POINT(1 1)", "POINT(0 0)", "POINT(2 3)", 0.27735203958327);
-    test_all_2d<P1, P2>("POINT(2 2)", "POINT(1 4)", "POINT(4 1)", 0.5 * sqrt(2.0));
-    test_all_2d<P1, P2>("POINT(6 1)", "POINT(1 4)", "POINT(4 1)", 2.0);
-    test_all_2d<P1, P2>("POINT(1 6)", "POINT(1 4)", "POINT(4 1)", 2.0);
+    test_2d<P1, P2>("POINT(1 1)", "POINT(0 0)", "POINT(2 3)", 0.27735203958327);
+    test_2d<P1, P2>("POINT(2 2)", "POINT(1 4)", "POINT(4 1)", 0.5 * sqrt(2.0));
+    test_2d<P1, P2>("POINT(6 1)", "POINT(1 4)", "POINT(4 1)", 2.0);
+    test_2d<P1, P2>("POINT(1 6)", "POINT(1 4)", "POINT(4 1)", 2.0);
 }
 
 template <typename P>
@@ -168,6 +199,53 @@ void test_all_2d()
     test_all_2d<P, bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all_2d<P, bg::model::point<double, 2, bg::cs::cartesian> >();
     test_all_2d<P, bg::model::point<long double, 2, bg::cs::cartesian> >();
+}
+
+template <typename P1, typename P2>
+void test_all_2d_ax()
+{
+    typedef bg::strategy::distance::detail::projected_point_ax<> strategy_type;
+    typedef bg::strategy::distance::detail::projected_point_ax
+        <
+            void,
+            bg::strategy::distance::comparable::pythagoras<>
+        > comparable_strategy_type;
+
+    typedef typename strategy_type::result_type<P1, P2>::type result_type;
+
+    strategy_type strategy;
+    comparable_strategy_type comparable_strategy;
+    boost::ignore_unused(strategy);
+    boost::ignore_unused(comparable_strategy);
+
+    test_2d<P1, P2>("POINT(1 1)", "POINT(0 0)", "POINT(2 3)",
+                    result_type(0, 0.27735203958327),
+                    result_type(0, 0.27735203958327 * 0.27735203958327),
+                    strategy, comparable_strategy);
+
+    test_2d<P1, P2>("POINT(2 2)", "POINT(1 4)", "POINT(4 1)",
+                    result_type(0, 0.5 * sqrt(2.0)),
+                    result_type(0, 0.5),
+                    strategy, comparable_strategy);
+
+    test_2d<P1, P2>("POINT(6 1)", "POINT(1 4)", "POINT(4 1)",
+                    result_type(sqrt(2.0), sqrt(2.0)),
+                    result_type(2.0, 2.0),
+                    strategy, comparable_strategy);
+
+    test_2d<P1, P2>("POINT(1 6)", "POINT(1 4)", "POINT(4 1)",
+                    result_type(sqrt(2.0), sqrt(2.0)),
+                    result_type(2.0, 2.0),
+                    strategy, comparable_strategy);
+}
+
+template <typename P>
+void test_all_2d_ax()
+{
+    test_all_2d_ax<P, bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all_2d_ax<P, bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all_2d_ax<P, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all_2d_ax<P, bg::model::point<long double, 2, bg::cs::cartesian> >();
 }
 
 int test_main(int, char* [])
@@ -196,6 +274,10 @@ int test_main(int, char* [])
             bg::model::point<ttmath_big, 2, bg::cs::cartesian>
         >();
 #endif
+
+    test_all_2d_ax<bg::model::point<int, 2, bg::cs::cartesian> >();
+    test_all_2d_ax<bg::model::point<float, 2, bg::cs::cartesian> >();
+    test_all_2d_ax<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }
