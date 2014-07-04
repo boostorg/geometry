@@ -286,36 +286,10 @@ struct projected_point_ax_result
 
     T atd, xtd;
 
-    // ^....
-    // |....
-    // +--->
-    friend bool operator<(projected_point_ax_result const& left,
-                          projected_point_ax_result const& right)
-    {
-        return left.atd < right.atd && left.xtd < right.xtd;
-    }
-
-    // .........
-    // .........
-    //       ...
-    // ^     ...
-    // |     ...
-    // +---> ...
     friend bool operator>(projected_point_ax_result const& left,
                           projected_point_ax_result const& right)
     {
         return left.atd > right.atd || left.xtd > right.xtd;
-    }
-
-    // ......
-    // ^    .
-    // |    .
-    // +--->.
-    friend bool operator==(projected_point_ax_result const& left,
-                           projected_point_ax_result const& right)
-    {
-        return ( left.atd == right.atd && left.xtd <= right.xtd )
-            || ( left.atd <= right.atd && left.xtd == right.xtd );
     }
 };
 
