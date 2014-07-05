@@ -8,6 +8,7 @@
 // Modifications copyright (c) 2014, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -16,8 +17,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
 
 
 #include <boost/concept_check.hpp>
@@ -49,55 +50,76 @@ namespace boost { namespace geometry
 namespace strategy { namespace distance
 {
 
-/*!
-\brief Strategy for distance point to segment
-\ingroup strategies
-\details Calculates distance using projected-point method, and (optionally) Pythagoras
-\author Adapted from: http://geometryalgorithms.com/Archive/algorithm_0102/algorithm_0102.htm
-\tparam CalculationType \tparam_calculation
-\tparam Strategy underlying point-point distance strategy
-\par Concepts for Strategy:
-- cartesian_distance operator(Point,Point)
-\note If the Strategy is a "comparable::pythagoras", this strategy
-    automatically is a comparable projected_point strategy (so without sqrt)
 
-\qbk{
-[heading See also]
-[link geometry.reference.algorithms.distance.distance_3_with_strategy distance (with strategy)]
-}
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
 
-*/
+template <typename T>
+struct projected_point_ax_result
+{
+    projected_point_ax_result(T const& c = T(0))
+        : atd(c), xtd(c)
+    {}
+
+    projected_point_ax_result(T const& a, T const& x)
+        : atd(a), xtd(x)
+    {}
+
+    T atd, xtd;
+
+    friend bool operator>(projected_point_ax_result const& left,
+                          projected_point_ax_result const& right)
+    {
+        return left.atd > right.atd || left.xtd > right.xtd;
+    }
+};
+
+// This strategy returns 2-component Point/Segment distance.
+// The ATD (along track distance) is parallel to the Segment
+// and is a distance between Point projected into a line defined by a Segment and the nearest Segment's endpoint.
+// If the projected Point intersects the Segment the ATD is equal to 0.
+// The XTD (cross track distance) is perpendicular to the Segment
+// and is a distance between input Point and its projection.
+// If the Segment has length equal to 0, ATD and XTD has value equal
+// to the distance between the input Point and one of the Segment's endpoints.
+//
+//          p3         p4
+//          ^         7
+//          |        /
+// p1<-----e========e----->p2
+//
+// p1: atd=D,   xtd=0
+// p2: atd=D,   xtd=0
+// p3: atd=0,   xtd=D
+// p4: atd=D/2, xtd=D
 template
 <
     typename CalculationType = void,
     typename Strategy = pythagoras<CalculationType>
 >
-class projected_point
+class projected_point_ax
 {
 public :
-    // The three typedefs below are necessary to calculate distances
-    // from segments defined in integer coordinates.
-
-    // Integer coordinates can still result in FP distances.
-    // There is a division, which must be represented in FP.
-    // So promote.
     template <typename Point, typename PointOfSegment>
     struct calculation_type
-        : promote_floating_point
-          <
-              typename strategy::distance::services::return_type
-                  <
-                      Strategy,
-                      Point,
-                      PointOfSegment
-                  >::type
-          >
+        : public projected_point<CalculationType, Strategy>
+            ::template calculation_type<Point, PointOfSegment>
     {};
+
+    template <typename Point, typename PointOfSegment>
+    struct result_type
+    {
+        typedef projected_point_ax_result
+                    <
+                        typename calculation_type<Point, PointOfSegment>::type
+                    > type;
+    };
 
 public :
 
     template <typename Point, typename PointOfSegment>
-    inline typename calculation_type<Point, PointOfSegment>::type
+    inline typename result_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& p1, PointOfSegment const& p2) const
     {
         assert_dimension_equal<Point, PointOfSegment>();
@@ -139,52 +161,70 @@ public :
         Strategy strategy;
         boost::ignore_unused_variable_warning(strategy);
 
+        typename result_type<Point, PointOfSegment>::type result;
+
         calculation_type const zero = calculation_type();
-        calculation_type const c1 = dot_product(w, v);
-        if (c1 <= zero)
-        {
-            return strategy.apply(p, p1);
-        }
         calculation_type const c2 = dot_product(v, v);
-        if (c2 <= c1)
+        if ( math::equals(c2, zero) )
         {
-            return strategy.apply(p, p2);
+            result.xtd = strategy.apply(p, projected);
+            result.atd = result.xtd;
+            return result;
         }
 
-        // See above, c1 > 0 AND c2 > c1 so: c2 != 0
+        calculation_type const c1 = dot_product(w, v);
         calculation_type const b = c1 / c2;
-
         multiply_value(v, b);
         add_point(projected, v);
 
-        return strategy.apply(p, projected);
+        result.xtd = strategy.apply(p, projected);
+
+        if (c1 <= zero)
+        {
+            result.atd = strategy.apply(p1, projected);
+        }
+        else if (c2 <= c1)
+        {
+            result.atd = strategy.apply(p2, projected);
+        }
+        else
+        {
+            result.atd = 0;
+        }
+
+        return result;
     }
 };
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 namespace services
 {
 
+
 template <typename CalculationType, typename Strategy>
-struct tag<projected_point<CalculationType, Strategy> >
+struct tag<detail::projected_point_ax<CalculationType, Strategy> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct return_type<projected_point<CalculationType, Strategy>, P, PS>
-    : projected_point<CalculationType, Strategy>::template calculation_type<P, PS>
-{};
-
+struct return_type<detail::projected_point_ax<CalculationType, Strategy>, P, PS>
+{
+    typedef typename detail::projected_point_ax<CalculationType, Strategy>
+                        ::template result_type<P, PS>::type type;
+};
 
 
 template <typename CalculationType, typename Strategy>
-struct comparable_type<projected_point<CalculationType, Strategy> >
+struct comparable_type<detail::projected_point_ax<CalculationType, Strategy> >
 {
     // Define a projected_point strategy with its underlying point-point-strategy
     // being comparable
-    typedef projected_point
+    typedef detail::projected_point_ax
         <
             CalculationType,
             typename comparable_type<Strategy>::type
@@ -193,14 +233,14 @@ struct comparable_type<projected_point<CalculationType, Strategy> >
 
 
 template <typename CalculationType, typename Strategy>
-struct get_comparable<projected_point<CalculationType, Strategy> >
+struct get_comparable<detail::projected_point_ax<CalculationType, Strategy> >
 {
     typedef typename comparable_type
         <
-            projected_point<CalculationType, Strategy>
+            detail::projected_point_ax<CalculationType, Strategy>
         >::type comparable_type;
 public :
-    static inline comparable_type apply(projected_point<CalculationType, Strategy> const& )
+    static inline comparable_type apply(detail::projected_point_ax<CalculationType, Strategy> const& )
     {
         return comparable_type();
     }
@@ -208,60 +248,20 @@ public :
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct result_from_distance<projected_point<CalculationType, Strategy>, P, PS>
+struct result_from_distance<detail::projected_point_ax<CalculationType, Strategy>, P, PS>
 {
 private :
-    typedef typename return_type<projected_point<CalculationType, Strategy>, P, PS>::type return_type;
+    typedef typename return_type<detail::projected_point_ax<CalculationType, Strategy>, P, PS>::type return_type;
 public :
     template <typename T>
-    static inline return_type apply(projected_point<CalculationType, Strategy> const& , T const& value)
+    static inline return_type apply(detail::projected_point_ax<CalculationType, Strategy> const& , T const& value)
     {
         Strategy s;
-        return result_from_distance<Strategy, P, PS>::apply(s, value);
+        return_type ret;
+        ret.atd = result_from_distance<Strategy, P, PS>::apply(s, value.atd);
+        ret.xtd = result_from_distance<Strategy, P, PS>::apply(s, value.xtd);
+        return ret;
     }
-};
-
-
-// Get default-strategy for point-segment distance calculation
-// while still have the possibility to specify point-point distance strategy (PPS)
-// It is used in algorithms/distance.hpp where users specify PPS for distance
-// of point-to-segment or point-to-linestring.
-// Convenient for geographic coordinate systems especially.
-template <typename Point, typename PointOfSegment, typename Strategy>
-struct default_strategy
-    <
-        point_tag, segment_tag, Point, PointOfSegment,
-        cartesian_tag, cartesian_tag, Strategy
-    >
-{
-    typedef strategy::distance::projected_point
-    <
-        void,
-        typename boost::mpl::if_
-            <
-                boost::is_void<Strategy>,
-                typename default_strategy
-                    <
-                        point_tag, point_tag, Point, PointOfSegment,
-                        cartesian_tag, cartesian_tag
-                    >::type,
-                Strategy
-            >::type
-    > type;
-};
-
-template <typename PointOfSegment, typename Point, typename Strategy>
-struct default_strategy
-    <
-        segment_tag, point_tag, PointOfSegment, Point,
-        cartesian_tag, cartesian_tag, Strategy
-    >
-{
-    typedef typename default_strategy
-        <
-            point_tag, segment_tag, Point, PointOfSegment,
-            cartesian_tag, cartesian_tag, Strategy
-        >::type type;
 };
 
 
@@ -275,4 +275,4 @@ struct default_strategy
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
