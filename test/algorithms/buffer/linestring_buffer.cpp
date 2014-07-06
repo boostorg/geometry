@@ -90,7 +90,6 @@ void test_all()
 
     // Cases below should still be fixed because of remaining flat-end/inside bug
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     // Different cases with intersection points on flat and (left/right from line itself)
     test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping_asym_150_010", overlapping, 48.308, 1.5, 0.25);
     test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_010", overlapping, 50.770, 1.5, 0.25);
@@ -98,12 +97,11 @@ void test_all()
     test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_075", overlapping, 60.985, 1.5, 0.75);
     test_one<linestring, buf::join_round, buf::end_flat, polygon>("overlapping_asym_150_100", overlapping, 62.514, 1.5, 1.0);
     test_one<linestring, buf::join_miter, buf::end_flat, polygon>("overlapping_asym_150_100", overlapping, 64.984, 1.5, 1.0);
-#endif
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     // Having flat end
     test_one<linestring, buf::join_round, buf::end_flat, polygon>("for_collinear", for_collinear, 68.561, 2.0, 2.0);
     test_one<linestring, buf::join_miter, buf::end_flat, polygon>("for_collinear", for_collinear, 72, 2.0, 2.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<linestring, buf::join_round, buf::end_flat, polygon>("for_collinear2", for_collinear2, 74.387, 2.0, 2.0);
     test_one<linestring, buf::join_miter, buf::end_flat, polygon>("for_collinear2", for_collinear2, 78.0, 2.0, 2.0);
 #endif

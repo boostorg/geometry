@@ -118,6 +118,9 @@ struct buffered_piece_collection
         strategy::buffer::piece_type type;
         int index;
 
+        int left_index; // points to previous piece
+        int right_index; // points to next piece
+
         // The next two members form together a complete clockwise ring
         // for each piece (with one dupped point)
 
@@ -139,6 +142,7 @@ struct buffered_piece_collection
 
     piece_vector_type m_pieces;
     turn_vector_type m_turns;
+    int m_first_piece_index;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
     std::vector< std::vector < robust_point_type > > robust_offsetted_rings;
@@ -159,7 +163,8 @@ struct buffered_piece_collection
     };
 
     buffered_piece_collection(RobustPolicy const& robust_policy)
-        : m_robust_policy(robust_policy)
+        : m_first_piece_index(-1)
+        , m_robust_policy(robust_policy)
     {}
 
 
@@ -530,8 +535,8 @@ struct buffered_piece_collection
             // Check if it is inside any of the pieces
             turn_in_piece_visitor
                 <
-                    turn_vector_type
-                > visitor(m_turns);
+                    turn_vector_type, piece_vector_type
+                > visitor(m_turns, m_pieces);
 
             geometry::partition
                 <
@@ -559,6 +564,19 @@ struct buffered_piece_collection
         current_segment_id.segment_index = 0;
 
         offsetted_rings.resize(n + 1);
+
+        m_first_piece_index = boost::size(m_pieces);
+    }
+
+    inline void finish_ring()
+    {
+        BOOST_ASSERT(m_first_piece_index != -1);
+
+        // Reassign left-of-first and right-of-last
+        geometry::range::at(m_pieces, m_first_piece_index).left_index
+                                                = boost::size(m_pieces) - 1;
+        geometry::range::back(m_pieces).right_index = m_first_piece_index;
+        m_first_piece_index = -1;
     }
 
     inline int add_point(point_type const& p)
@@ -581,6 +599,10 @@ struct buffered_piece_collection
         pc.type = type;
         pc.index = boost::size(m_pieces);
         pc.first_seg_id = current_segment_id;
+
+        // Assign left/right (for first/last piece per ring they will be re-assigned later)
+        pc.left_index = pc.index - 1;
+        pc.right_index = pc.index + 1;
 
         std::size_t const n = boost::size(offsetted_rings.back());
         pc.first_seg_id.segment_index = decrease_segment_index_by_one ? n - 1 : n;

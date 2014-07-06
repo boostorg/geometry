@@ -413,8 +413,9 @@ struct buffer_inserter<point_tag, Point, RingOutput>
             RobustPolicy const& robust_policy)
     {
         collection.start_new_ring();
-            typedef detail::buffer::buffer_point<Point, RingOutput> base;
+        typedef detail::buffer::buffer_point<Point, RingOutput> base;
         base::generate_circle(point, collection, distance, join_strategy, end_strategy, robust_policy);
+        collection.finish_ring();
     }
 };
 
@@ -621,6 +622,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                     strategy::buffer::buffer_side_right,
                     distance, side_strategy, join_strategy, end_strategy, robust_policy,
                     first_p1);
+            collection.finish_ring();
         }
     }
 };
@@ -663,6 +665,7 @@ private:
         {
             collection.start_new_ring();
             policy::apply(*it, collection, distance, side_strategy, join_strategy, end_strategy, robust_policy);
+            collection.finish_ring();
         }
     }
 
@@ -711,6 +714,7 @@ public:
             collection.start_new_ring();
             policy::apply(exterior_ring(polygon), collection,
                     distance, side_strategy, join_strategy, end_strategy, robust_policy);
+            collection.finish_ring();
         }
 
         apply_interior_rings(interior_rings(polygon),
