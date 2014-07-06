@@ -202,8 +202,8 @@ int test_main(int, char* [])
 {
     test_all<int, true>();
     test_all<int, false>();
-    // Storing non-movable elements in a std::vector is not possible in MSVC
-#ifndef _MSC_VER
+    // Storing non-movable elements in a std::vector is not possible in some implementations of STD lib
+#ifdef BOOST_GEOMETRY_TEST_NONMOVABLE_ELEMENTS
     test_all<bgt::NonMovable, true>();
     test_all<bgt::NonMovable, false>();
 #endif
