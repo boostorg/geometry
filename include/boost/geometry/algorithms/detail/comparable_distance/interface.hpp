@@ -19,10 +19,15 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_COMPARABLE_DISTANCE_INTERFACE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_COMPARABLE_DISTANCE_INTERFACE_HPP
 
-#include <boost/geometry/strategies/default_comparable_distance_result.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/strategies/comparable_distance_result.hpp>
+#include <boost/geometry/strategies/default_comparable_distance_result.hpp>
+#include <boost/geometry/strategies/default_comparable_strategy.hpp>
+#include <boost/geometry/strategies/distance.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/interface.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -87,16 +92,7 @@ comparable_distance(Geometry1 const& geometry1, Geometry2 const& geometry2)
     concept::check<Geometry1 const>();
     concept::check<Geometry2 const>();
 
-    // Define the default-distance-strategy
-    typedef typename strategy::distance::services::comparable_type
-        <
-            typename detail::distance::default_strategy
-                <
-                    Geometry1, Geometry2
-                >::type
-        >::type default_comparable_strategy_type;
-
-    return distance(geometry1, geometry2, default_comparable_strategy_type());
+    return distance(geometry1, geometry2, default_comparable_strategy());
 }
 
 
