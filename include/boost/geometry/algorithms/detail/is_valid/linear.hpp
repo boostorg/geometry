@@ -83,7 +83,7 @@ namespace dispatch
 // If allow_spikes is set to true, spikes are allowed, false otherwise.
 // By default, spikes are disallowed
 //
-// Reference: OGC 06-103r4 (§6.1.6.1)
+// Reference: OGC 06-103r4 (6.1.6.1)
 template <typename Linestring, bool AllowSpikes>
 struct is_valid<Linestring, linestring_tag, AllowSpikes>
     : detail::is_valid::is_valid_linestring<Linestring, AllowSpikes>
@@ -95,7 +95,7 @@ struct is_valid<Linestring, linestring_tag, AllowSpikes>
 // only intersections between any two elements occur at Points that
 // are on the boundaries of both elements.
 //
-// Reference: OGC 06-103r4 (§6.1.8.1; Fig. 9)
+// Reference: OGC 06-103r4 (6.1.8.1; Fig. 9)
 template <typename MultiLinestring, bool AllowSpikes>
 struct is_valid<MultiLinestring, multi_linestring_tag, AllowSpikes>
 {

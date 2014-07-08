@@ -306,7 +306,7 @@ namespace dispatch
 
 // A Polygon is always a simple geometric object provided that it is valid.
 //
-// Reference (for validity of Polygons): OGC 06-103r4 (§6.1.11.1)
+// Reference (for validity of Polygons): OGC 06-103r4 (6.1.11.1)
 template <typename Polygon, bool AllowSpikes, bool AllowDuplicates>
 struct is_valid<Polygon, polygon_tag, AllowSpikes, AllowDuplicates>
     : detail::is_valid::is_valid_polygon<Polygon, AllowDuplicates>
