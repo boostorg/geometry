@@ -10,14 +10,17 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_COMPARABLE_DISTANCE_RESULT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_COMPARABLE_DISTANCE_RESULT_HPP
 
-#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/strategies/default_comparable_strategy.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/distance_result.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 
 namespace boost { namespace geometry
 {
+
 
 /*!
 \brief Meta-function defining return type of comparable_distance function
@@ -30,30 +33,32 @@ template
     typename Strategy = void
 >
 struct comparable_distance_result
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            typename strategy::distance::services::comparable_type
-                <
-                    Strategy
-                >::type,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >::type type;
-};
-
-
-template <typename Geometry1, typename Geometry2>
-struct comparable_distance_result<Geometry1, Geometry2, void>
-    : comparable_distance_result
+    : distance_result
         <
             Geometry1,
             Geometry2,
-            typename detail::distance::default_strategy
+            typename strategy::distance::services::comparable_type
                 <
-                    Geometry1, Geometry2
+                    Strategy
                 >::type
         >
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct comparable_distance_result<Geometry1, Geometry2, default_strategy>
+    : distance_result<Geometry1, Geometry2, default_comparable_strategy>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct comparable_distance_result
+    <
+        Geometry1, Geometry2, default_comparable_strategy
+    > : distance_result<Geometry1, Geometry2, default_comparable_strategy>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct comparable_distance_result<Geometry1, Geometry2, void>
+    : distance_result<Geometry1, Geometry2, default_comparable_strategy>
 {};
 
 
