@@ -276,7 +276,7 @@ namespace dispatch
 // Right now we check that each element is simple (in fact valid), and
 // that the MultiPolygon is also valid.
 //
-// Reference (for validity of MultiPolygons): OGC 06-103r4 (§6.1.14)
+// Reference (for validity of MultiPolygons): OGC 06-103r4 (6.1.14)
 template <typename MultiPolygon, bool AllowSpikes, bool AllowDuplicates>
 struct is_valid<MultiPolygon, multi_polygon_tag, AllowSpikes, AllowDuplicates>
     : detail::is_valid::is_valid_multipolygon<MultiPolygon, AllowDuplicates>

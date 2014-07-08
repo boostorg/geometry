@@ -219,7 +219,7 @@ namespace dispatch
 // A curve is simple if it does not pass through the same point twice,
 // with the possible exception of its two endpoints
 //
-// Reference: OGC 06-103r4 (§6.1.6.1)
+// Reference: OGC 06-103r4 (6.1.6.1)
 template <typename Linestring>
 struct is_simple<Linestring, linestring_tag>
     : detail::is_simple::is_simple_linestring<Linestring>
@@ -231,7 +231,7 @@ struct is_simple<Linestring, linestring_tag>
 // only intersections between any two elements occur at Points that
 // are on the boundaries of both elements.
 //
-// Reference: OGC 06-103r4 (§6.1.8.1; Fig. 9)
+// Reference: OGC 06-103r4 (6.1.8.1; Fig. 9)
 template <typename MultiLinestring>
 struct is_simple<MultiLinestring, multi_linestring_tag>
     : detail::is_simple::is_simple_multilinestring<MultiLinestring>

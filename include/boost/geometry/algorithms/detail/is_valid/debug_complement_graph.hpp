@@ -56,8 +56,8 @@ debug_print_complement_graph(OutputStream& os,
 }
 #else
 template <typename OutputStream, typename TurnPoint>
-void debug_print_complement_graph(OutputStream&,
-                                  complement_graph<TurnPoint> const&)
+inline void debug_print_complement_graph(OutputStream&,
+                                         complement_graph<TurnPoint> const&)
 {
 }
 #endif

@@ -17,8 +17,6 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
 /*<-*/ #include "create_svg_one.hpp" /*->*/
 
 int main()

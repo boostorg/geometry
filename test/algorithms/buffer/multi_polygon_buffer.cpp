@@ -36,23 +36,23 @@ static std::string const rt_b
 
 // Case with geometry::equals( turn.point(7.0000000000000000, 4.3368086899420177e-019), helper_segment(7.0000000000000000, 0.00000000000000000))) (round)
 static std::string const rt_c
-	= "MULTIPOLYGON(((6 1,6 2,7 2,7 1,6 1)),((8 0,8 1,9 1,9 0,8 0)))";
+    = "MULTIPOLYGON(((6 1,6 2,7 2,7 1,6 1)),((8 0,8 1,9 1,9 0,8 0)))";
 
 // Case with round corner on same perpendicular points (round)
 static std::string const rt_d
-	= "MULTIPOLYGON(((2 2,2 3,3 2,2 2)),((2 5,2 6,3 5,2 5)),((2 4,2 5,3 4,2 4)),((3 2,3 3,4 2,3 2)),((4 4,4 5,5 4,4 4)),((5 6,5 5,4 5,4 6,5 7,5 6)),((2 2,3 1,3 0,2 0,2 1,1 1,1 2,2 2)),((1 3,1 2,0 2,1 3)),((1 4,2 4,2 3,1 3,1 4)))";
+    = "MULTIPOLYGON(((2 2,2 3,3 2,2 2)),((2 5,2 6,3 5,2 5)),((2 4,2 5,3 4,2 4)),((3 2,3 3,4 2,3 2)),((4 4,4 5,5 4,4 4)),((5 6,5 5,4 5,4 6,5 7,5 6)),((2 2,3 1,3 0,2 0,2 1,1 1,1 2,2 2)),((1 3,1 2,0 2,1 3)),((1 4,2 4,2 3,1 3,1 4)))";
 
 // Case with missing turning point (miter) and many intersections (round, OK)
 static std::string const rt_e
-	= "MULTIPOLYGON(((0 6,0 7,1 6,0 6)),((3 7,3 8,4 8,4 7,3 7)),((4 6,4 7,5 7,4 6)),((3 6,3 7,4 6,3 6)),((1 9,2 10,2 9,1 9)),((1 9,1 8,0 8,0 9,1 9)),((3 5,3 4,2 4,2 5,2 6,3 5)))";
+    = "MULTIPOLYGON(((0 6,0 7,1 6,0 6)),((3 7,3 8,4 8,4 7,3 7)),((4 6,4 7,5 7,4 6)),((3 6,3 7,4 6,3 6)),((1 9,2 10,2 9,1 9)),((1 9,1 8,0 8,0 9,1 9)),((3 5,3 4,2 4,2 5,2 6,3 5)))";
 
 // Extract of e (miter)
 static std::string const rt_f
-	= "MULTIPOLYGON(((0 6,0 7,1 6,0 6)),((1 9,1 8,0 8,0 9,1 9)))";
+    = "MULTIPOLYGON(((0 6,0 7,1 6,0 6)),((1 9,1 8,0 8,0 9,1 9)))";
 
 // Robustness / turn problem (collinearity with turn after), solved in get_turn-info
 static std::string const rt_g1
-	= "MULTIPOLYGON(((3 8,3 9,4 9,3 8)),((7 5,7 6,8 5,7 5)),((1 8,1 9,2 9,1 8)),((1 6,1 7,2 7,1 6)))";
+    = "MULTIPOLYGON(((3 8,3 9,4 9,3 8)),((7 5,7 6,8 5,7 5)),((1 8,1 9,2 9,1 8)),((1 6,1 7,2 7,1 6)))";
 
 static std::string const rt_g2
     = "MULTIPOLYGON(((6 5,7 5,6 4,5 4,5 5,6 5)),((4 2,4 3,5 3,4 2)))";
@@ -63,36 +63,36 @@ static std::string const rt_g3
 
 // IP on match of 3 lines
 static std::string const rt_h
-	= "MULTIPOLYGON(((4 7,4 8,5 7,4 7)),((4 8,5 9,5 8,4 8)),((9 1,10 2,10 1,9 1)),((4 1,4 2,5 2,4 1)),((2 9,2 10,3 10,2 9)),((7 7,8 8,8 7,7 7)),((3 4,4 4,3 3,2 3,2 4,3 4)))";
+    = "MULTIPOLYGON(((4 7,4 8,5 7,4 7)),((4 8,5 9,5 8,4 8)),((9 1,10 2,10 1,9 1)),((4 1,4 2,5 2,4 1)),((2 9,2 10,3 10,2 9)),((7 7,8 8,8 7,7 7)),((3 4,4 4,3 3,2 3,2 4,3 4)))";
 
 // r=1.16 (touching)
 static std::string const rt_i
-	= "MULTIPOLYGON(((2 1,2 2,3 2,2 1)),((3 2,3 3,4 3,3 2)))";
+    = "MULTIPOLYGON(((2 1,2 2,3 2,2 1)),((3 2,3 3,4 3,3 2)))";
 
 // r=1.16 (touching in the middle)
 static std::string const rt_j
-	= "MULTIPOLYGON(((2 4,2 5,3 5,2 4)),((5 3,5 4,6 4,5 3)),((9 4,9 5,10 5,10 4,9 4)),((0 2,0 3,1 3,0 2)))";
+    = "MULTIPOLYGON(((2 4,2 5,3 5,2 4)),((5 3,5 4,6 4,5 3)),((9 4,9 5,10 5,10 4,9 4)),((0 2,0 3,1 3,0 2)))";
 
 // Occupied (but not completely - due to duplicate point there)
 static std::string const rt_k
-	= "MULTIPOLYGON(((3 7,3 8,4 8,3 7)),((0 4,0 5,1 5,0 4)),((3 5,3 6,4 6,4 5,3 5)),((2 6,3 7,3 6,2 6)),((3 2,3 1,2 1,2 2,3 3,3 2)),((0 9,1 10,1 9,1 8,0 8,0 9)))";
+    = "MULTIPOLYGON(((3 7,3 8,4 8,3 7)),((0 4,0 5,1 5,0 4)),((3 5,3 6,4 6,4 5,3 5)),((2 6,3 7,3 6,2 6)),((3 2,3 1,2 1,2 2,3 3,3 2)),((0 9,1 10,1 9,1 8,0 8,0 9)))";
 
 // Segment-intersection problem (nearly collinear not reported as collinear), fixed
 static std::string const rt_l
-	= "MULTIPOLYGON(((2 5,2 6,3 5,2 5)),((6 1,6 2,7 1,6 1)))";
+    = "MULTIPOLYGON(((2 5,2 6,3 5,2 5)),((6 1,6 2,7 1,6 1)))";
 
 // Segment-intersection problem (missed touch because of robustness) (with 4), fixed
 static std::string const rt_m1
-	= "MULTIPOLYGON(((4 2,4 3,5 2,4 2)),((1 2,2 3,2 2,1 2)))";
+    = "MULTIPOLYGON(((4 2,4 3,5 2,4 2)),((1 2,2 3,2 2,1 2)))";
 
 // Same, with 2
 static std::string const rt_m2
-	= "MULTIPOLYGON(((0 3,1 4,1 3,0 3)),((3 6,4 7,4 6,4 5,3 5,3 6)))";
+    = "MULTIPOLYGON(((0 3,1 4,1 3,0 3)),((3 6,4 7,4 6,4 5,3 5,3 6)))";
 
 
 // Segment-intersection problem (disjoint nearly collinear segments were reported as intersecting), fixed.
 static std::string const rt_n
-	= "MULTIPOLYGON(((0 0,1 1,1 0,0 0)),((3 3,4 4,4 3,3 3)))";
+    = "MULTIPOLYGON(((0 0,1 1,1 0,0 0)),((3 3,4 4,4 3,3 3)))";
 
 // Segment intersection of 3 pieces in one point, plus all intersection points are within the other piece (due to precision)
 static std::string const rt_o1
@@ -174,15 +174,15 @@ static std::string const rt_p17
 
 // Occupation map - outputting no valid turns (needing to take other turns into account)
 static std::string const rt_p18
-	= "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((7 3,7 4,8 3,7 3)),((5 4,6 5,6 4,5 4)))";
+    = "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((7 3,7 4,8 3,7 3)),((5 4,6 5,6 4,5 4)))";
 
 // Occupation map - showing wrong approach in p17/p18, now new approach with keep_indices
 static std::string const rt_p19
-	= "MULTIPOLYGON(((0 5,1 6,1 5,0 5)),((0 7,0 8,1 7,0 7)),((3 4,3 5,4 4,3 4)))";
+    = "MULTIPOLYGON(((0 5,1 6,1 5,0 5)),((0 7,0 8,1 7,0 7)),((3 4,3 5,4 4,3 4)))";
 
 // Occupation map: two non-collinear segments non-intersecting, needing relaxed_equal
 static std::string const rt_p20
-	= "MULTIPOLYGON(((2 3,2 4,3 4,3 3,2 3)),((0 5,0 6,1 6,0 5)),((2 7,2 8,3 8,2 7)))";
+    = "MULTIPOLYGON(((2 3,2 4,3 4,3 3,2 3)),((0 5,0 6,1 6,0 5)),((2 7,2 8,3 8,2 7)))";
 
 // Occupation map: turn more right should still be included
 static std::string const rt_p21

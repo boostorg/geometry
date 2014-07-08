@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -36,6 +36,7 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
 
 
 
@@ -309,16 +310,16 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
 
-	typedef typename bg::tag<Geometry>::type tag;
-	// TODO use something different here:
-	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
-		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
-		: boost::is_same<tag, bg::point_tag>::value ? "point"
-		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
-		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
-		: boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
-		: ""
-		;
+    typedef typename bg::tag<Geometry>::type tag;
+    // TODO use something different here:
+    std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
+        : boost::is_same<tag, bg::linestring_tag>::value ? "line"
+        : boost::is_same<tag, bg::point_tag>::value ? "point"
+        : boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+        : boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+        : boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
+        : ""
+        ;
 
     typedef typename bg::point_type<GeometryOut>::type output_point_type;
 
@@ -389,6 +390,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > 
     distance_strategy(distance_left, distance_right);
 
+    bg::strategy::buffer::buffer_side side_strategy;
+
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
@@ -399,7 +402,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     std::vector<GeometryOut> buffered;
 
     bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
-                        distance_strategy, 
+                        distance_strategy,
+                        side_strategy,
                         join_strategy,
                         end_strategy,
                         rescale_policy,
