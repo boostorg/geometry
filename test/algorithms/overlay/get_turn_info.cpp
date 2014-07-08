@@ -79,7 +79,7 @@ void test_with_point(std::string const& caseid,
     }
 
     BOOST_CHECK_MESSAGE(detected == expected,
-    	caseid
+        caseid
             << (caseid.find("_") == std::string::npos ? "  " : "")
             << " method: " << method
             << " detected: " << detected

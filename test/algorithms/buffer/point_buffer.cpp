@@ -32,7 +32,7 @@ void test_all()
     namespace buf = bg::strategy::buffer;
     typedef bg::model::polygon<P> polygon;
 
-	double const pi = boost::geometry::math::pi<double>();
+    double const pi = boost::geometry::math::pi<double>();
 
     test_one<P, buf::join_miter, buf::end_round, polygon>("simplex1", simplex, pi, 1.0, 1.0);
     test_one<P, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, pi * 4.0, 2.0, 2.0, true, 0.1);

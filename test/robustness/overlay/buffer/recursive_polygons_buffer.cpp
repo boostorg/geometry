@@ -45,8 +45,8 @@
 
 struct buffer_settings : public common_settings
 {
-	int join_code;
-	double distance;
+    int join_code;
+    double distance;
 };
 
 namespace bg = boost::geometry;
@@ -89,28 +89,28 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
 {
     bool result = true;
 
-	// Area of buffer must be larger than of original polygon
-	BOOST_AUTO(area_mp, bg::area(mp));
-	BOOST_AUTO(area_buf, bg::area(buffer));
+    // Area of buffer must be larger than of original polygon
+    BOOST_AUTO(area_mp, bg::area(mp));
+    BOOST_AUTO(area_buf, bg::area(buffer));
 
-	if (area_buf < area_mp)
-	{
-		result = false;
-	}
+    if (area_buf < area_mp)
+    {
+        result = false;
+    }
 
-	if (result)
-	{
-		typedef boost::range_value<MultiPolygon const>::type polygon_type;
-		BOOST_FOREACH(polygon_type const& polygon, mp)
-		{
-			typename bg::point_type<polygon_type>::type point;
-			bg::point_on_border(point, polygon);
-			if (! bg::within(point, buffer))
-			{
-				result = false;
-			}
-		}
-	}
+    if (result)
+    {
+        typedef boost::range_value<MultiPolygon const>::type polygon_type;
+        BOOST_FOREACH(polygon_type const& polygon, mp)
+        {
+            typename bg::point_type<polygon_type>::type point;
+            bg::point_on_border(point, polygon);
+            if (! bg::within(point, buffer))
+            {
+                result = false;
+            }
+        }
+    }
 
     bool svg = settings.svg;
     bool wkt = settings.wkt;
@@ -123,10 +123,10 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         wkt = true;
     }
 
-	if (svg || wkt)
-	{
-		//std::cout << caseid << std::endl;
-	}
+    if (svg || wkt)
+    {
+        //std::cout << caseid << std::endl;
+    }
 
     if (svg)
     {
@@ -190,7 +190,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::unique(mp);
     bg::unique(mp);
     bg::correct(mp);
-	result = mp;
+    result = mp;
 
 
     typedef typename bg::coordinate_type<MultiPolygon>::type coordinate_type;
@@ -207,31 +207,31 @@ bool test_buffer(MultiPolygon& result, int& index,
     std::ostringstream out;
     out << "recursive_polygons_buffer_" << index++ << "_" << level;
 
-	try
-	{
-		switch(settings.join_code)
-		{
-			case 1 :
-				bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
-								distance_strategy,
-								bg::strategy::buffer::join_round<point_type, point_type>());
-				break;
-			case 2 :
-				bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
-								distance_strategy,
-								bg::strategy::buffer::join_miter<point_type, point_type>());
-				break;
-			default :
-				return false;
-		}
-	}
+    try
+    {
+        switch(settings.join_code)
+        {
+            case 1 :
+                bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
+                                distance_strategy,
+                                bg::strategy::buffer::join_round<point_type, point_type>());
+                break;
+            case 2 :
+                bg::buffer_inserter<polygon_type>(mp, std::back_inserter(buffered),
+                                distance_strategy,
+                                bg::strategy::buffer::join_miter<point_type, point_type>());
+                break;
+            default :
+                return false;
+        }
+    }
     catch(std::exception const& e)
     {
-		MultiPolygon empty;
-		std::cout << out.str() << std::endl;
+        MultiPolygon empty;
+        std::cout << out.str() << std::endl;
         std::cout << "Exception " << e.what() << std::endl;
-	    verify(out.str(), mp, empty, settings);
-		return false;
+        verify(out.str(), mp, empty, settings);
+        return false;
     }
 
 
@@ -309,14 +309,14 @@ int main(int argc, char** argv)
         if (varmap.count("help")
             || (form != "box" && form != "triangle")
             || (join != "round" && join != "miter")
-			)
+            )
         {
             std::cout << description << std::endl;
             return 1;
         }
 
         settings.triangular = form != "box";
-		settings.join_code = join == "round" ? 1 : 2;
+        settings.join_code = join == "round" ? 1 : 2;
 
         if (ccw && open)
         {

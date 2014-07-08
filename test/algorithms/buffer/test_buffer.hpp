@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -310,16 +310,16 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
 
-	typedef typename bg::tag<Geometry>::type tag;
-	// TODO use something different here:
-	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
-		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
-		: boost::is_same<tag, bg::point_tag>::value ? "point"
-		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
-		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
-		: boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
-		: ""
-		;
+    typedef typename bg::tag<Geometry>::type tag;
+    // TODO use something different here:
+    std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
+        : boost::is_same<tag, bg::linestring_tag>::value ? "line"
+        : boost::is_same<tag, bg::point_tag>::value ? "point"
+        : boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+        : boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+        : boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
+        : ""
+        ;
 
     typedef typename bg::point_type<GeometryOut>::type output_point_type;
 

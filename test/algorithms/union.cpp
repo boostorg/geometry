@@ -256,7 +256,7 @@ void test_areal()
     // PostGIS gives:        2515271327070.52
     // Boost.Geometry gives: 2515271327070.5237746891 (ttmath)
     //                       2515271327070.5156 (double)
-    //                       2515271320603.0000	(int)
+    //                       2515271320603.0000 (int)
     // Note the int-test was tested outside of this unit test. It is in two points 0.37 off (logical for an int).
     // Because of the width of the polygon (400000 meter) this causes a substantial difference.
 
