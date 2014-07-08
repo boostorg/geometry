@@ -43,11 +43,11 @@ namespace boost { namespace geometry
 {
 
 
-namespace resolve_strategy { namespace result_of
+namespace resolve_strategy
 {
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
-struct distance
+struct distance_result
     : strategy::distance::services::return_type
         <
             Strategy,
@@ -57,8 +57,8 @@ struct distance
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct distance<Geometry1, Geometry2, default_strategy>
-    : distance
+struct distance_result<Geometry1, Geometry2, default_strategy>
+    : distance_result
         <
             Geometry1,
             Geometry2,
@@ -69,15 +69,31 @@ struct distance<Geometry1, Geometry2, default_strategy>
         >
 {};
 
-}} // namespace resolve_strategy::result_of
+template <typename Geometry1, typename Geometry2>
+struct distance_result<Geometry1, Geometry2, default_comparable_strategy>
+    : distance_result
+        <
+            Geometry1,
+            Geometry2,
+            typename strategy::distance::services::comparable_type
+                <
+                    typename detail::distance::default_strategy
+                        <
+                            Geometry1, Geometry2
+                        >::type
+                >::type
+        >
+{};
+
+} // namespace resolve_strategy
 
 
-namespace resolve_variant { namespace result_of
+namespace resolve_variant
 {
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
-struct distance
-    : resolve_strategy::result_of::distance
+struct distance_result
+    : resolve_strategy::distance_result
         <
             Geometry1,
             Geometry2,
@@ -86,15 +102,24 @@ struct distance
 {};
 
 
-template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
+template
+<
+    typename Geometry1,
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Strategy
+>
+struct distance_result
+    <
+        Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+    >
 {
-    // A set of all variant type combinations that are compatible and implemented
+    // A set of all variant type combinations that are compatible and
+    // implemented
     typedef typename util::combine_if<
         typename mpl::vector1<Geometry1>,
         typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-        // Here we want should remove most of the combinations that are not valid
-        // mostly to limit the size of the resulting MPL set.
+        // Here we want should remove most of the combinations that
+        // are not valid, mostly to limit the size of the resulting MPL set.
         // But is_implementedn is not ready for prime time
         //
         // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
@@ -105,9 +130,9 @@ struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
     typedef typename compress_variant<
         typename transform_variant<
             possible_input_types,
-            resolve_strategy::result_of::distance<
-                point_type<mpl::first<mpl::_> >,
-                point_type<mpl::second<mpl::_> >,
+            resolve_strategy::distance_result<
+                mpl::first<mpl::_>,
+                mpl::second<mpl::_>,
                 Strategy
             >,
             mpl::back_inserter<mpl::vector0<> >
@@ -117,23 +142,42 @@ struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 
 
 // Distance arguments are commutative
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2, typename Strategy>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy>
-    : public distance<Geometry2, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Geometry2,
+    typename Strategy
+>
+struct distance_result
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+        Geometry2,
+        Strategy
+    > : public distance_result
+        <
+            Geometry2, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+        >
 {};
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
+struct distance_result
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+        Strategy
+    >
 {
-    // A set of all variant type combinations that are compatible and implemented
+    // A set of all variant type combinations that are compatible and
+    // implemented
     typedef typename util::combine_if
         <
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-            // Here we want to try to remove most of the combinations that are not valid
-            // mostly to limit the size of the resulting MPL vector.
-            // But is_implementedn is not ready for prime time
+            typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+            // Here we want to try to remove most of the combinations
+            // that are not valid, mostly to limit the size of the
+            // resulting MPL vector.
+            // But is_implemented is not ready for prime time
             //
             // util::is_implemented2<mpl::_1, mpl::_2, dispatch::distance<mpl::_1, mpl::_2> >
             mpl::always<mpl::true_>
@@ -143,9 +187,9 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENU
     typedef typename compress_variant<
         typename transform_variant<
             possible_input_types,
-            resolve_strategy::result_of::distance<
-                point_type<mpl::first<mpl::_> >,
-                point_type<mpl::second<mpl::_> >,
+            resolve_strategy::distance_result<
+                mpl::first<mpl::_>,
+                mpl::second<mpl::_>,
                 Strategy
             >,
             mpl::back_inserter<mpl::vector0<> >
@@ -153,7 +197,7 @@ struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, variant<BOOST_VARIANT_ENU
     >::type type;
 };
 
-}} // namespace resolve_variant::result_of
+} // namespace resolve_variant
 
 
 /*!
@@ -169,7 +213,7 @@ template
     typename Strategy = void
 >
 struct distance_result
-    : resolve_variant::result_of::distance<Geometry1, Geometry2, Strategy>
+    : resolve_variant::distance_result<Geometry1, Geometry2, Strategy>
 {};
 
 
