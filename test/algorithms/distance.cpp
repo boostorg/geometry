@@ -464,7 +464,10 @@ void test_variant()
     BOOST_MPL_ASSERT((
         boost::is_same
             <
-                typename bg::resolve_variant::result_of::distance<variant_type, variant_type, bg::default_strategy>::type,
+                typename bg::distance_result
+                    <
+                        variant_type, variant_type, bg::default_strategy
+                    >::type,
                 double
             >
     ));
