@@ -31,13 +31,12 @@
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/extensions/algorithms/midpoints.hpp>
 
-#include <boost/geometry/extensions/algorithms/buffer/buffer_inserter.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/multi/multi.hpp> // TODO: more specific
-#include <boost/geometry/extensions/algorithms/buffer/multi_buffer_inserter.hpp>
 
-#include <boost/geometry/extensions/strategies/buffer.hpp>
-
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
 
 #include <common/common_settings.hpp>
 #include <common/make_square_polygon.hpp>
@@ -100,7 +99,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
 
     if (result)
     {
-        typedef boost::range_value<MultiPolygon const>::type polygon_type;
+        typedef typename boost::range_value<MultiPolygon const>::type polygon_type;
         BOOST_FOREACH(polygon_type const& polygon, mp)
         {
             typename bg::point_type<polygon_type>::type point;
@@ -195,7 +194,7 @@ bool test_buffer(MultiPolygon& result, int& index,
 
     typedef typename bg::coordinate_type<MultiPolygon>::type coordinate_type;
     typedef typename bg::point_type<MultiPolygon>::type point_type;
-    typedef bg::strategy::buffer::distance_assymetric<coordinate_type> distance_strategy_type;
+    typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance_strategy_type;
     distance_strategy_type distance_strategy(settings.distance, settings.distance);
 
     typedef bg::strategy::buffer::join_round<point_type, point_type> join_strategy_type;
