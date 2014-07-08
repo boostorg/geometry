@@ -67,12 +67,27 @@ struct projected_point_ax_result
     {}
 
     T atd, xtd;
+};
 
-    friend bool operator>(projected_point_ax_result const& left,
-                          projected_point_ax_result const& right)
+// This less-comparator may be used as a parameter of detail::douglas_peucker.
+// In this simplify strategy distances are compared in 2 places
+// 1. to choose the furthest candidate (md < dist)
+// 2. to check if the candidate is further than max_distance (max_distance < md)
+template <typename Distance>
+class projected_point_ax_less
+{
+public:
+    projected_point_ax_less(Distance const& max_distance)
+        : m_max_distance(max_distance)
+    {}
+
+    template <typename T>
+    inline bool operator()(Distance const& left, Distance const& right) const
     {
-        return left.atd > right.atd || left.xtd > right.xtd;
+        return left.xtd < right.xtd && right.atd < m_max_distance.atd;
     }
+private:
+    Distance const& m_max_distance;
 };
 
 // This strategy returns 2-component Point/Segment distance.
