@@ -41,7 +41,7 @@ struct is_valid<Point, point_tag>
 // A MultiPoint is simple if no two Points in the MultiPoint are equal
 // (have identical coordinate values in X and Y)
 //
-// Reference: OGC 06-103r4 (§6.1.5)
+// Reference: OGC 06-103r4 (6.1.5)
 template <typename MultiPoint>
 struct is_valid<MultiPoint, multi_point_tag>
 {

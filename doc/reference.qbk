@@ -121,6 +121,9 @@
 [include generated/intersects.qbk]
 [endsect]
 
+[include generated/is_simple.qbk]
+[include generated/is_valid.qbk]
+
 [section:length length]
 [include generated/length.qbk]
 [endsect]

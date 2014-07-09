@@ -13,314 +13,11 @@
 #endif
 
 #include <iostream>
-#include <sstream>
-#include <string>
-
-#include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
-#include <boost/variant/variant.hpp>
 
 #include <boost/test/included/unit_test.hpp>
 
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/multi_point.hpp>
-#include <boost/geometry/geometries/multi_linestring.hpp>
-#include <boost/geometry/geometries/multi_polygon.hpp>
-
-#include <boost/geometry/strategies/strategies.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/is_valid.hpp>
-
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-
 #include "from_wkt.hpp"
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-#include "pretty_print_geometry.hpp"
-#endif
-
-
-namespace bg = ::boost::geometry;
-
-typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
-typedef bg::model::segment<point_type>                 segment_type;
-typedef bg::model::box<point_type>                     box_type;
-typedef bg::model::linestring<point_type>              linestring_type;
-typedef bg::model::multi_linestring<linestring_type>   multi_linestring_type;
-
-// multi-geometries
-typedef bg::model::multi_point<point_type>             multi_point_type;
-
-
-//----------------------------------------------------------------------------
-
-
-// returns true if a geometry can be converted to closed
-template
-<
-    typename Geometry,
-    typename Tag = typename bg::tag<Geometry>::type,
-    bg::closure_selector Closure = bg::closure<Geometry>::value
->
-struct is_convertible_to_closed
-{
-    static inline bool apply(Geometry const&)
-    {
-        return false;
-    }
-};
-
-template <typename Ring>
-struct is_convertible_to_closed<Ring, bg::ring_tag, bg::open>
-{
-    static inline bool apply(Ring const& ring)
-    {
-        return boost::size(ring) > 0;
-    }
-};
-
-template <typename Polygon>
-struct is_convertible_to_closed<Polygon, bg::polygon_tag, bg::open>
-{
-    typedef typename bg::ring_type<Polygon>::type ring_type;
-
-    template <typename InteriorRings>
-    static inline
-    bool apply_to_interior_rings(InteriorRings const& interior_rings)
-    {
-        return bg::detail::check_iterator_range
-            <
-                is_convertible_to_closed<ring_type>,
-                true // allow empty iterator range
-            >::apply(boost::begin(interior_rings),
-                     boost::end(interior_rings));
-    }
-
-    static inline bool apply(Polygon const& polygon)
-    {
-        return boost::size(bg::exterior_ring(polygon)) > 0
-            && apply_to_interior_rings(bg::interior_rings(polygon));
-    }
-};
-
-template <typename MultiPolygon>
-struct is_convertible_to_closed<MultiPolygon, bg::multi_polygon_tag, bg::open>
-{
-    typedef typename boost::range_value<MultiPolygon>::type polygon;
-
-    static inline bool apply(MultiPolygon const& multi_polygon)
-    {
-        return bg::detail::check_iterator_range
-            <
-                is_convertible_to_closed<polygon>,
-                false // do not allow empty multi-polygon
-            >::apply(boost::begin(multi_polygon),
-                     boost::end(multi_polygon));
-    }
-};
-
-
-//----------------------------------------------------------------------------
-
-
-// returns true if a geometry can be converted to cw
-template
-<
-    typename Geometry,
-    typename Tag = typename bg::tag<Geometry>::type,
-    bg::order_selector Order = bg::point_order<Geometry>::value
->
-struct is_convertible_to_cw
-{
-    static inline bool apply(Geometry const&)
-    {
-        return bg::point_order<Geometry>::value == bg::counterclockwise;
-    }
-};
-
-
-//----------------------------------------------------------------------------
-
-
-struct default_validity_tester
-{
-    template <typename Geometry>    
-    static inline bool apply(Geometry const& geometry,
-                             bool expected_result)
-    {
-        bool valid = bg::is_valid(geometry);
-        BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << expected_result
-            << " detected: " << valid
-            << " wkt: " << bg::wkt(geometry) );
-
-        return valid;
-    }
-};
-
-template <bool AllowSpikes>
-struct validity_tester_linear
-{
-    template <typename Geometry>
-    static inline bool apply(Geometry const& geometry,
-                             bool expected_result)
-    {
-        bool valid = bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                AllowSpikes
-            >::apply(geometry);
-
-        BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << expected_result
-            << " detected: " << valid
-            << " wkt: " << bg::wkt(geometry) );
-
-        return valid;
-    }
-};
-
-template <bool AllowDuplicates>
-struct validity_tester_areal
-{
-    template <typename Geometry>
-    static inline bool apply(Geometry const& geometry,
-                             bool expected_result)
-    {
-        bool const irrelevant = true;
-
-        bool valid = bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                irrelevant,
-                AllowDuplicates
-            >::apply(geometry);
-
-        BOOST_CHECK_MESSAGE( valid == expected_result,
-            "Expected: " << expected_result
-            << " detected: " << valid
-            << " wkt: " << bg::wkt(geometry) );
-
-        return valid;
-    }
-};
-
-
-//----------------------------------------------------------------------------
-
-
-template
-<
-    typename ValidityTester,
-    typename Geometry,
-    typename ClosedGeometry = Geometry,
-    typename CWGeometry = Geometry,
-    typename CWClosedGeometry = Geometry,
-    typename Tag = typename bg::tag<Geometry>::type
->
-struct test_valid
-{
-    template <typename G>
-    static inline void base_test(G const& g, bool expected_result)
-    {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "=======" << std::endl;
-#endif
-
-        bool valid = ValidityTester::apply(g, expected_result);
-        boost::ignore_unused(valid);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "Geometry: ";
-        pretty_print_geometry<G>::apply(std::cout, g);
-        std::cout << std::endl;
-        std::cout << "wkt: " << bg::wkt(g) << std::endl;
-        std::cout << std::boolalpha;
-        std::cout << "is valid? " << valid << std::endl;
-        std::cout << "expected result: " << expected_result << std::endl;
-        std::cout << "=======" << std::endl;
-        std::cout << std::noboolalpha;
-#endif
-    }
-
-    static inline void apply(Geometry const& geometry, bool expected_result)
-    {
-        base_test(geometry, expected_result);
-
-        if ( is_convertible_to_closed<Geometry>::apply(geometry) )
-        {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "...checking closed geometry..."
-                      << std::endl;
-#endif
-            ClosedGeometry closed_geometry;
-            bg::convert(geometry, closed_geometry);
-            base_test(closed_geometry, expected_result);
-        }
-        if ( is_convertible_to_cw<Geometry>::apply(geometry) )
-        {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "...checking cw open geometry..."
-                      << std::endl;
-#endif            
-            CWGeometry cw_geometry;
-            bg::convert(geometry, cw_geometry);
-            base_test(cw_geometry, expected_result);
-            if ( is_convertible_to_closed<CWGeometry>::apply(cw_geometry) )
-            {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-                std::cout << "...checking cw closed geometry..."
-                          << std::endl;
-#endif            
-                CWClosedGeometry cw_closed_geometry;
-                bg::convert(cw_geometry, cw_closed_geometry);
-                base_test(cw_closed_geometry, expected_result);
-            }
-        }
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << std::endl << std::endl << std::endl;
-#endif
-    }
-};
-
-
-//----------------------------------------------------------------------------
-
-
-template <typename VariantGeometry>
-struct test_valid_variant
-{
-    static inline void apply(VariantGeometry const& vg, bool expected_result)
-    {
-        test_valid
-            <
-                default_validity_tester, VariantGeometry
-            >::base_test(vg, expected_result);
-    }
-};
-
-
-//----------------------------------------------------------------------------
+#include "test_is_valid.hpp"
 
 
 BOOST_AUTO_TEST_CASE( test_is_valid_point )
@@ -834,6 +531,10 @@ void test_open_polygons()
     // "hole" is completely outside the exterior ring
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(20 20,20 21,21 21,21 20))"),
                 false);
+    // two "holes" completely outside the exterior ring, that touch
+    // each other
+    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(20 0,25 10,21 0),(30 0,25 10,31 0))"),
+                false);
 
     // example from Norvald Ryeng
     test::apply(from_wkt<OG>("POLYGON((58 31,56.57 30,62 33),(35 9,28 14,31 16),(23 11,29 5,26 4))"),
@@ -878,6 +579,13 @@ void test_open_polygons()
     // 1st hole touches 2nd hole at two points
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 8,2 8,2 1),(2 5,5 8,5 5))"),
                 false);
+    // polygon with many holes, where the last two touch at two points
+    test::apply(from_wkt<OG>("POLYGON((0 0,20 0,20 20,0 20),(1 18,1 19,2 19,2 18),(3 18,3 19,4 19,4 18),(5 18,5 19,6 19,6 18),(7 18,7 19,8 19,8 18),(9 18,9 19,10 19,10 18),(11 18,11 19,12 19,12 18),(13 18,13 19,14 19,14 18),(15 18,15 19,16 19,16 18),(17 18,17 19,18 19,18 18),(1 1,1 9,9 9,9 8,2 8,2 1),(2 5,5 8,5 5))"),
+                false);
+    // two holes completely inside exterior ring but touching each
+    // other at a point
+    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,2 9),(1 1,9 2,9 1))"),
+                true);    
     // four holes, each two touching at different points
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 10,2 1,1 1),(0 10,4 1,3 1),(10 10,9 1,8 1),(10 10,7 1,6 1))"),
                 true);
@@ -889,6 +597,34 @@ void test_open_polygons()
     // fifth hole creating three disconnected components for the interior
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(0 10,2 1,1 1),(0 10,4 1,3 1),(10 10,9 1,8 1),(10 10,7 1,6 1),(4 1,4 4,6 4,6 1,5 0))"),
                 false);
+
+    // both examples: a polygon with one hole, where the hole contains
+    // the exterior ring
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))"),
+                false);
+    test::apply(from_wkt<OG>("POLYGON((-10 -10,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))"),
+                false);
+}
+
+template <typename Point>
+inline void test_doc_example_polygon()
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: doc example polygon " << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
+    typedef bg::model::polygon<Point> CCW_CG;
+
+    CCW_CG poly;
+
+    typedef validity_tester_areal<true> tester;
+    typedef test_valid<tester, CCW_CG> test;
+
+    test::apply(from_wkt<CCW_CG>("POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 2,0 0),(0 0,2 9,1 9,0 0),(2 9,9 2,9 9,2 9))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
@@ -898,6 +634,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 
     test_open_polygons<point_type, allow_duplicates>();
     test_open_polygons<point_type, do_not_allow_duplicates>();
+    test_doc_example_polygon<point_type>();
 }
 
 template <typename Point, bool AllowDuplicates>
@@ -929,13 +666,57 @@ void test_open_multipolygons()
     typedef validity_tester_areal<AllowDuplicates> tester;
     typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
+    // not enough points
     test::apply(from_wkt<OG>("MULTIPOLYGON((()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0)),(()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0)))"), false);
+
+    // two disjoint polygons
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((2 2,3 2,3 3,2 3)))"),
                 true);
+
+    // two disjoint polygons with multiple points
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 0,1 1,0 1)),((2 2,3 2,3 3,3 3,2 3)))"),
                 AllowDuplicates);
+
+    // two polygons touch at a point
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((1 1,2 1,2 2,1 2)))"),
+                true);
+
+    // two polygons share a segment at a point
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1.5 0,1.5 1,0 1)),((1 1,2 1,2 2,1 2)))"),
+                false);
+
+    // one polygon inside another and boundaries touching
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((0 0,9 1,9 2)))"),
+                false);
+
+    // one polygon inside another and boundaries not touching
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((1 1,9 1,9 2)))"),
+                false);
+
+    // free space is disconnected
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0,1 1,0 1)),((1 1,2 1,2 2,1 2)),((0 1,0 2,-1 2,-1 -1)),((1 2,1 3,0 3,0 2)))"),
+                true);
+
+    // multi-polygon with a polygon inside the hole of another polygon
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((2 2,98 2,98 98,2 98)))"),
+                true);
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((1 1,98 2,98 98,2 98)))"),
+                true);
+
+    // test case suggested by Barend Gehrels: take two valid polygons P1 and
+    // P2 with holes H1 and H2, respectively, and consider P2 to be
+    // fully inside H1; now invalidate the multi-polygon by
+    // considering H2 as a hole of P1 and H1 as a hole of P2; this
+    // should be invalid
+    //
+    // first the valid case:
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(1 1,1 99,99 99,99 1)),((2 2,98 2,98 98,2 98),(3 3,3 97,97 97,97 3)))"),
+                true);
+    // and the invalid case:
+    test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,100 0,100 100,0 100),(3 3,3 97,97 97,97 3)),((2 2,98 2,98 98,2 98),(1 1,1 99,99 99,99 1)))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )

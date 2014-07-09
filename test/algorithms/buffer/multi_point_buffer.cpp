@@ -30,7 +30,7 @@ void test_all()
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_point<P> multi_point_type;
 
-	double const pi = boost::geometry::math::pi<double>();
+    double const pi = boost::geometry::math::pi<double>();
 
     test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("simplex1", simplex, 2.0 * pi, 1.0, 1.0);
     test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, 22.8372, 2.0, 2.0);
