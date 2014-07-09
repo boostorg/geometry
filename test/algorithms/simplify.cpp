@@ -90,12 +90,29 @@ union all select astext(ST_Simplify(geomfromtext('LINESTRING(0 0, 5 5, 6 5, 10 1
 etc
 */
 
-    // Just check compilation
+    {
+
+        // Test with explicit strategy
+
+        typedef bg::strategy::simplify::douglas_peucker
+        <
+            P,
+            bg::strategy::distance::projected_point<double>
+        > dp;
+
+        test_geometry<bg::model::linestring<P> >(
+            "LINESTRING(0 0,5 5,10 10)",
+            "LINESTRING(0 0,10 10)", 1.0, dp());
+    }
+
+
+    // POINT: check compilation
     test_geometry<P>(
         "POINT(0 0)",
         "POINT(0 0)", 1.0);
 
 
+    // RING: check compilation and behaviour
     test_geometry<bg::model::ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
