@@ -188,7 +188,8 @@ public :
         if ( math::equals(c2, zero) )
         {
             result.xtd = strategy.apply(p, projected);
-            result.atd = result.xtd;
+            // assume that the 0-length segment is perpendicular to the Pt->ProjPt vector
+            result.atd = 0;
             return result;
         }
 
