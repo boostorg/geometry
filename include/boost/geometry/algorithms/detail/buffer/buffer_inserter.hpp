@@ -37,6 +37,23 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
+template <typename Range, typename DistanceStrategy>
+inline void simplify_input(Range const& range,
+        DistanceStrategy const& distance,
+        Range& simplified)
+{
+    // We have to simplify the ring before to avoid very small-scaled
+    // features in the original (convex/concave/convex) being enlarged
+    // in a very large scale and causing issues (IP's within pieces).
+    // This might be reconsidered later. Simplifying with a very small
+    // distance (1%% of the buffer) will never be visible in the result,
+    // if it is using round joins. For miter joins they are even more
+    // sensitive to small scale input features, however the result will
+    // look better.
+    // It also get rid of duplicate points
+    geometry::simplify(range, simplified, distance.simplify_distance());
+    //simplified = range;
+}
 
 template <typename RingOutput>
 struct buffer_range
@@ -489,17 +506,8 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
     {
         if (boost::size(ring) > 3)
         {
-            // We have to simplify the ring before to avoid very small-scaled
-            // features in the original (convex/concave/convex) being enlarged
-            // in a very large scale and causing issues (IP's within pieces).
-            // This might be reconsidered later. Simplifying with a very small
-            // distance (1%% of the buffer) will never be visible in the result,
-            // if it is using round joins. For miter joins they are even more
-            // sensitive to small scale input features, however the result will
-            // look better.
-            // It also get rid of duplicate points
             RingOutput simplified;
-            geometry::simplify(ring, simplified, distance.simplify_distance());
+            detail::buffer::simplify_input(ring, distance, simplified);
 
             if (distance.negative())
             {
@@ -609,7 +617,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         if (boost::size(linestring) > 1)
         {
             Linestring simplified;
-            geometry::simplify(linestring, simplified, distance.simplify_distance());
+            detail::buffer::simplify_input(linestring, distance, simplified);
 
             collection.start_new_ring();
             output_point_type first_p1;
