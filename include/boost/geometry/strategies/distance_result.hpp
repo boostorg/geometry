@@ -29,6 +29,7 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/strategies/default_comparable_strategy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 
