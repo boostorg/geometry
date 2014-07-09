@@ -22,6 +22,12 @@
 #include <test_geometries/wrapped_boost_array.hpp>
 #include <test_common/test_point.hpp>
 
+// #define TEST_PULL89
+#ifdef TEST_PULL89
+#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
+#endif
+
+
 
 template <typename P>
 void test_all()
@@ -91,7 +97,6 @@ etc
 */
 
     {
-
         // Test with explicit strategy
 
         typedef bg::strategy::simplify::douglas_peucker
@@ -116,6 +121,43 @@ etc
     test_geometry<bg::model::ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
+
+
+#ifdef TEST_PULL89
+    {
+        // PREPARE for pull #89
+
+        // Test this with explicit strategy
+
+        typedef bg::strategy::distance::detail::projected_point_ax<> ax_type;
+        typedef typename bg::strategy::distance::services::return_type
+        <
+            bg::strategy::distance::detail::projected_point_ax<>,
+            P,
+            P
+        >::type return_type;
+
+        typedef bg::strategy::distance::detail::projected_point_ax_less
+        <
+            return_type
+        > comparator_type;
+
+        typedef bg::strategy::simplify::detail::douglas_peucker
+        <
+            P,
+            bg::strategy::distance::detail::projected_point_ax<>,
+            comparator_type
+        > dp_ax;
+
+        return_type max_distance(10, 7);
+        comparator_type comparator(max_distance);
+        dp_ax strategy(comparator);
+
+        test_geometry<bg::model::linestring<P> >(
+            "LINESTRING(0 0,120 6,80 10,200 0)",
+            "LINESTRING(0 0,80 10,200 0)", max_distance, strategy);
+    }
+#endif
 }
 
 
