@@ -28,6 +28,42 @@
 #endif
 
 
+#ifdef TEST_PULL89
+template <typename Geometry, typename T>
+void test_with_ax(std::string const& wkt,
+        std::string const& expected,
+        T const& adt,
+        T const& xdt)
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::strategy::distance::detail::projected_point_ax<> ax_type;
+    typedef typename bg::strategy::distance::services::return_type
+    <
+        bg::strategy::distance::detail::projected_point_ax<>,
+        point_type,
+        point_type
+    >::type return_type;
+
+    typedef bg::strategy::distance::detail::projected_point_ax_less
+    <
+        return_type
+    > comparator_type;
+
+    typedef bg::strategy::simplify::detail::douglas_peucker
+    <
+        point_type,
+        bg::strategy::distance::detail::projected_point_ax<>,
+        comparator_type
+    > dp_ax;
+
+    return_type max_distance(adt, xdt);
+    comparator_type comparator(max_distance);
+    dp_ax strategy(comparator);
+
+    test_geometry<Geometry>(wkt, expected, max_distance, strategy);
+}
+#endif
+
 
 template <typename P>
 void test_all()
@@ -52,7 +88,6 @@ void test_all()
     test_geometry<bg::model::linestring<P> >(
         "LINESTRING(0 0,80 10,120 6,200 0)",
         "LINESTRING(0 0,80 10,200 0)", 7);
-
 
     // Mail 2013-10-07, real-life test, piece of River Leine
     // PostGIS returns exactly the same result
@@ -124,40 +159,35 @@ etc
 
 
 #ifdef TEST_PULL89
-    {
-        // PREPARE for pull #89
-
-        // Test this with explicit strategy
-
-        typedef bg::strategy::distance::detail::projected_point_ax<> ax_type;
-        typedef typename bg::strategy::distance::services::return_type
-        <
-            bg::strategy::distance::detail::projected_point_ax<>,
-            P,
-            P
-        >::type return_type;
-
-        typedef bg::strategy::distance::detail::projected_point_ax_less
-        <
-            return_type
-        > comparator_type;
-
-        typedef bg::strategy::simplify::detail::douglas_peucker
-        <
-            P,
-            bg::strategy::distance::detail::projected_point_ax<>,
-            comparator_type
-        > dp_ax;
-
-        return_type max_distance(10, 7);
-        comparator_type comparator(max_distance);
-        dp_ax strategy(comparator);
-
-        test_geometry<bg::model::linestring<P> >(
-            "LINESTRING(0 0,120 6,80 10,200 0)",
-            "LINESTRING(0 0,80 10,200 0)", max_distance, strategy);
-    }
+    test_with_ax<bg::model::linestring<P> >(
+        "LINESTRING(0 0,120 6,80 10,200 0)",
+        "LINESTRING(0 0,80 10,200 0)", 10, 7);
 #endif
+}
+
+template <typename P>
+void test_zigzag()
+{
+    static const std::string zigzag = "LINESTRING(0 10,1 7,1 9,2 6,2 7,3 4,3 5,5 3,4 5,6 2,6 3,9 1,7 3,10 1,9 2,12 1,10 2,13 1,11 2,14 1,12 2,16 1,14 2,17 3,15 3,18 4,16 4,19 5,17 5,20 6,18 6,21 8,19 7,21 9,19 8,21 10,19 9,21 11,19 10,20 13,19 11)";
+
+    static const std::string expected100 = "LINESTRING(0 10,3 4,5 3,4 5,6 2,9 1,7 3,10 1,9 2,16 1,14 2,17 3,15 3,18 4,16 4,19 5,17 5,21 8,19 7,21 9,19 8,21 10,19 9,21 11,19 10,20 13,19 11)";
+    static const std::string expected150 = "LINESTRING(0 10,6 2,16 1,14 2,21 8,19 7,21 9,19 8,21 10,19 9,20 13,19 11)";
+    static const std::string expected200 = "LINESTRING(0 10,6 2,16 1,14 2,21 8,19 7,20 13,19 11)";
+    static const std::string expected225 = "LINESTRING(0 10,6 2,16 1,21 8,19 11)";
+    test_geometry<bg::model::linestring<P> >(zigzag, expected100, 1.0001);
+    test_geometry<bg::model::linestring<P> >(zigzag, expected150, 1.5001);
+    test_geometry<bg::model::linestring<P> >(zigzag, expected200, 2.0001);
+    test_geometry<bg::model::linestring<P> >(zigzag, expected225, 2.25); // should be larger than sqrt(5)=2.236
+
+#ifdef TEST_PULL89
+    // This should work (results might vary but should have LESS points then expected above
+    // Small xtd, larger adt,
+    test_with_ax<bg::model::linestring<P> >(zigzag, expected100, 1.0001, 1.0001);
+    test_with_ax<bg::model::linestring<P> >(zigzag, expected150, 1.5001, 1.0001);
+    test_with_ax<bg::model::linestring<P> >(zigzag, expected200, 2.0001, 1.0001);
+    test_with_ax<bg::model::linestring<P> >(zigzag, expected225, 2.25, 1.0001);
+#endif
+
 }
 
 
@@ -179,6 +209,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
     test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+
+    test_zigzag<bg::model::d2::point_xy<double> >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::d2::point_xy<ttmath_big> >();
