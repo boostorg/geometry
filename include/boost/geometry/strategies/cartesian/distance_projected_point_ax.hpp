@@ -66,6 +66,12 @@ struct projected_point_ax_result
         : atd(a), xtd(x)
     {}
 
+    friend inline bool operator<(projected_point_ax_result const& left,
+                                 projected_point_ax_result const& right)
+    {
+        return left.xtd < right.xtd || left.atd < right.atd;
+    }
+
     T atd, xtd;
 };
 
@@ -81,7 +87,6 @@ public:
         : m_max_distance(max_distance)
     {}
 
-    template <typename T>
     inline bool operator()(Distance const& left, Distance const& right) const
     {
         return left.xtd < right.xtd && right.atd < m_max_distance.atd;
