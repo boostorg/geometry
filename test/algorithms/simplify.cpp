@@ -38,6 +38,16 @@ void test_all()
         "LINESTRING(0 0,5 5,7 5,10 10)",
         "LINESTRING(0 0,5 5,7 5,10 10)", 1.0);
 
+    // Lightning-form which fails for Douglas-Peucker
+    test_geometry<bg::model::linestring<P> >(
+        "LINESTRING(0 0,120 6,80 10,200 0)",
+        "LINESTRING(0 0,120 6,80 10,200 0)", 7);
+    // Same which reordered coordinates
+    test_geometry<bg::model::linestring<P> >(
+        "LINESTRING(0 0,80 10,120 6,200 0)",
+        "LINESTRING(0 0,80 10,200 0)", 7);
+
+
     // Mail 2013-10-07, real-life test, piece of River Leine
     // PostGIS returns exactly the same result
     test_geometry<bg::model::linestring<P> >(
