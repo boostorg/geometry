@@ -75,6 +75,42 @@ void check_geometry(Geometry const& geometry,
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
 
+
+template <typename Geometry, typename DistanceMeasure>
+void test_geometry(std::string const& wkt,
+        std::string const& expected,
+        DistanceMeasure distance)
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    boost::variant<Geometry> v(geometry);
+
+    // Define default strategy for testing
+    typedef bg::strategy::simplify::douglas_peucker
+        <
+            typename bg::point_type<Geometry>::type,
+            bg::strategy::distance::projected_point<double>
+        > dp;
+
+    check_geometry(geometry, expected, distance);
+    check_geometry(v, expected, distance);
+
+
+    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<dp, point_type>) );
+
+    check_geometry(geometry, expected, distance, dp());
+    check_geometry(v, expected, distance, dp());
+
+    // Check inserter (if applicable)
+    test_inserter
+        <
+            typename bg::tag<Geometry>::type,
+            Geometry
+        >::apply(geometry, expected, distance);
+}
+
 template <typename Geometry, typename Strategy, typename DistanceMeasure>
 void test_geometry(std::string const& wkt,
         std::string const& expected,
@@ -87,37 +123,10 @@ void test_geometry(std::string const& wkt,
     bg::read_wkt(wkt, geometry);
     boost::variant<Geometry> v(geometry);
 
-    check_geometry(geometry, expected, distance);
-    check_geometry(v, expected, distance);
-
-
     //BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<Strategy, point_type>) );
 
     check_geometry(geometry, expected, distance, strategy);
     check_geometry(v, expected, distance, strategy);
-
-    // Check inserter (if applicable)
-    test_inserter
-        <
-            typename bg::tag<Geometry>::type,
-            Geometry
-        >::apply(geometry, expected, distance);
 }
-
-template <typename Geometry, typename DistanceMeasure>
-void test_geometry(std::string const& wkt,
-        std::string const& expected,
-        DistanceMeasure distance)
-{
-    // Define default strategy for testing
-    typedef bg::strategy::simplify::douglas_peucker
-        <
-            typename bg::point_type<Geometry>::type,
-            bg::strategy::distance::projected_point<double>
-        > dp;
-
-    test_geometry<Geometry>(wkt, expected, distance, dp());
-}
-
 
 #endif
