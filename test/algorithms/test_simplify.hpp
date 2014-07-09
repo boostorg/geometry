@@ -32,15 +32,43 @@ struct test_inserter<bg::linestring_tag, Geometry>
 {
     static void apply(Geometry& geometry, std::string const& expected, double distance)
     {
-        Geometry simplified;
-        bg::detail::simplify::simplify_insert(geometry,
-            std::back_inserter(simplified), distance);
+        {
+            Geometry simplified;
+            bg::detail::simplify::simplify_insert(geometry,
+                std::back_inserter(simplified), distance);
 
-        std::ostringstream out;
-        // TODO: instead of comparing the full string (with more or less decimal digits),
-        // we should call something more robust to check the test for example geometry::equals
-        out << std::setprecision(12) << bg::wkt(simplified);
-        BOOST_CHECK_EQUAL(out.str(), expected);
+            std::ostringstream out;
+            // TODO: instead of comparing the full string (with more or less decimal digits),
+            // we should call something more robust to check the test for example geometry::equals
+            out << std::setprecision(12) << bg::wkt(simplified);
+            BOOST_CHECK_EQUAL(out.str(), expected);
+        }
+
+        {
+            typedef typename bg::point_type<Geometry>::type point_type;
+            typedef typename bg::strategy::distance::detail::projected_point_ax<>::template result_type<point_type, point_type>::type distance_type;
+            typedef bg::strategy::distance::detail::projected_point_ax_less<distance_type> less_comparator;
+
+            distance_type max_distance(distance);
+            less_comparator less(max_distance);
+
+            bg::strategy::simplify::detail::douglas_peucker
+                <
+                    point_type,
+                    bg::strategy::distance::detail::projected_point_ax<>,
+                    less_comparator
+                > strategy(less);
+
+            Geometry simplified;
+            bg::detail::simplify::simplify_insert(geometry,
+                std::back_inserter(simplified), max_distance, strategy);
+
+            std::ostringstream out;
+            // TODO: instead of comparing the full string (with more or less decimal digits),
+            // we should call something more robust to check the test for example geometry::equals
+            out << std::setprecision(12) << bg::wkt(simplified);
+            BOOST_CHECK_EQUAL(out.str(), expected);
+        }
     }
 };
 
@@ -104,6 +132,25 @@ void test_geometry(std::string const& wkt, std::string const& expected, double d
             typename bg::tag<Geometry>::type,
             Geometry
         >::apply(geometry, expected, distance);
+
+    // Check using non-default less comparator in douglass_peucker
+    typedef typename bg::strategy::distance::detail::projected_point_ax<>::template result_type<point_type, point_type>::type distance_type;
+    typedef bg::strategy::distance::detail::projected_point_ax_less<distance_type> less_comparator;
+
+    distance_type const max_distance(distance);
+    less_comparator const less(max_distance);
+
+    typedef bg::strategy::simplify::detail::douglas_peucker
+        <
+            point_type,
+            bg::strategy::distance::detail::projected_point_ax<>,
+            less_comparator
+        > douglass_peucker_with_less;
+
+    BOOST_CONCEPT_ASSERT( (bg::concept::SimplifyStrategy<douglass_peucker_with_less, point_type>) );
+
+    check_geometry(geometry, expected, distance, douglass_peucker_with_less(less));
+    check_geometry(v, expected, distance, douglass_peucker_with_less(less));
 }
 
 

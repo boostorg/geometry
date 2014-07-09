@@ -49,7 +49,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace distance
 {
 
-
 /*!
 \brief Strategy for distance point to segment
 \ingroup strategies
@@ -118,7 +117,7 @@ public :
         typedef fp_point_type fp_vector_type;
 
         /*
-            Algorithm [p1: (x1,y1), p2: (x2,y2), p: (px,py)]
+            Algorithm [p: (px,py), p1: (x1,y1), p2: (x2,y2)]
             VECTOR v(x2 - x1, y2 - y1)
             VECTOR w(px - x1, py - y1)
             c1 = w . v
