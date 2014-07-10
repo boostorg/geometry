@@ -215,16 +215,16 @@
 </tgroup>
 
 <!-- ###### CONSTANTS / COORDINATE SYSTEMS ################################ -->
-<tgroup cols="2">
+<tgroup cols="3">
  <colspec colname="a"/>
  <colspec colname="b"/>
  <colspec colname="c"/>
-  <thead>
+ <thead>
   <row>
    <entry valign="center" namest="a" nameend="b">
     <bridgehead renderas="sect2">Constants</bridgehead>
    </entry>
-   <entry valign="center" namest="b" nameend="c">
+   <entry valign="center" namest="c" nameend="c">
     <bridgehead renderas="sect2">Coordinate Systems</bridgehead>
    </entry>
   </row>
