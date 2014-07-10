@@ -259,9 +259,7 @@ inline std::string to_section_name(std::string const& name)
     return boost::to_lower_copy(boost::replace_all_copy(name, "::", "_"));
 }
 
-
-
-void quickbook_short_output(function const& f, std::ostream& out)
+void quickbook_output_function_parameters(function const& f, std::ostream& out)
 {
     BOOST_FOREACH(parameter const& p, f.parameters)
     {
@@ -272,12 +270,13 @@ void quickbook_short_output(function const& f, std::ostream& out)
     }
     out << std::endl;
     out << std::endl;
+}
 
+void quickbook_output_function_return(function const& f, std::ostream& out)
+{
     if (! f.return_description.empty())
     {
-        out << "][" << std::endl;
         out << f.return_description << std::endl;
-        out << std::endl;
     }
 
     out << std::endl;
@@ -495,8 +494,15 @@ void quickbook_output_function(std::vector<function> const& functions,
             out << "[[";
             quickbook_synopsis(f, out);
             out << "] [" << f.brief_description << "] [";
-            quickbook_short_output(f, out);
-            out << "]]" << std::endl;
+            quickbook_output_function_parameters(f, out);
+            out << "]";
+            if ( type != function_constructor_destructor )
+            {
+                out << "[" << std::endl;
+                quickbook_output_function_return(f, out);
+                out << "]" << std::endl;
+            }
+            out << "]" << std::endl;
         }
     }
     out << "]" << std::endl
