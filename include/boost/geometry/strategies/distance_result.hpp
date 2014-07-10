@@ -29,7 +29,6 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/strategies/default_comparable_strategy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -70,22 +69,6 @@ struct distance_result<Geometry1, Geometry2, default_strategy>
         >
 {};
 
-template <typename Geometry1, typename Geometry2>
-struct distance_result<Geometry1, Geometry2, default_comparable_strategy>
-    : distance_result
-        <
-            Geometry1,
-            Geometry2,
-            typename strategy::distance::services::comparable_type
-                <
-                    typename detail::distance::default_strategy
-                        <
-                            Geometry1, Geometry2
-                        >::type
-                >::type
-        >
-{};
-
 } // namespace resolve_strategy
 
 
@@ -111,14 +94,14 @@ template
 >
 struct distance_result
     <
-        Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+        Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
     >
 {
     // A set of all variant type combinations that are compatible and
     // implemented
     typedef typename util::combine_if<
         typename mpl::vector1<Geometry1>,
-        typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
+        typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
         // Here we want should remove most of the combinations that
         // are not valid, mostly to limit the size of the resulting MPL set.
         // But is_implementedn is not ready for prime time
