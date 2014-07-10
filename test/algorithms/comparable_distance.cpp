@@ -200,22 +200,6 @@ struct test_variant_different_default_strategy
                 >
         ));
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type,
-                            variant_type,
-                            bg::default_comparable_strategy
-                        >::type,
-                    typename bg::comparable_distance_result
-                        <
-                            point_type, point_type, bg::default_strategy
-                        >::type
-                >
-        ));
-
         // Default strategy
         v1 = point;
         v2 = point;
@@ -292,32 +276,6 @@ struct test_variant_same_default_strategy
                     typename bg::comparable_distance_result
                         <
                             point_type, point_type, bg::default_strategy
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
-
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type,
-                            variant_type,
-                            bg::default_comparable_strategy
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
-
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            point_type,
-                            point_type,
-                            bg::default_comparable_strategy
                         >::type,
                     ExpectedResultType
                 >
@@ -517,20 +475,7 @@ struct test_variant_boxes
                 >
         ));
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type,
-                            variant_type,
-                            bg::default_comparable_strategy
-                        >::type,
-                    expected_result_type
-                >
-        ));
-
-    // Default strategy
+        // Default strategy
         check_result<T>::apply(bg::comparable_distance(v1, v2),
                                bg::comparable_distance(box1, box2));
         check_result<T>::apply(bg::comparable_distance(v1, box2),
