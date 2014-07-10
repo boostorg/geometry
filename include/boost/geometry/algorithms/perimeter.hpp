@@ -110,14 +110,14 @@ namespace resolve_strategy {
 struct perimeter
 {
     template <typename Geometry, typename Strategy>
-    static inline typename result_of::length<Geometry>::type
+    static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         return dispatch::perimeter<Geometry>::apply(geometry, strategy);
     }
 
     template <typename Geometry>
-    static inline typename result_of::length<Geometry>::type
+    static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, default_strategy)
     {
         typedef typename strategy::distance::services::default_strategy
@@ -138,7 +138,7 @@ template <typename Geometry>
 struct perimeter
 {
     template <typename Strategy>
-    static inline typename result_of::length<Geometry>::type
+    static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         concept::check<Geometry const>();
@@ -149,7 +149,7 @@ struct perimeter
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    typedef typename result_of::length
+    typedef typename default_length_result
         <
             boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>
         >::type result_type;
@@ -162,7 +162,7 @@ struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         visitor(Strategy const& strategy): m_strategy(strategy) {}
 
         template <typename Geometry>
-        typename result_of::length<Geometry>::type
+        typename default_length_result<Geometry>::type
         operator()(Geometry const& geometry) const
         {
             return perimeter<Geometry>::apply(geometry, m_strategy);
