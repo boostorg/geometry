@@ -187,7 +187,7 @@ template <typename Geometry>
 struct length
 {
     template <typename Strategy>
-    static inline typename result_of::length<Geometry>::type
+    static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         return dispatch::length<Geometry>::apply(geometry, strategy);
@@ -197,7 +197,7 @@ struct length
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    typedef typename result_of::length
+    typedef typename default_length_result
         <
             boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>
         >::type result_type;
@@ -213,7 +213,7 @@ struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         {}
 
         template <typename Geometry>
-        inline typename result_of::length<Geometry>::type
+        inline typename default_length_result<Geometry>::type
         operator()(Geometry const& geometry) const
         {
             return length<Geometry>::apply(geometry, m_strategy);
