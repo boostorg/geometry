@@ -21,6 +21,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_PROJECTED_POINT_AX_HPP
 
 
+#include <algorithm>
+
 #include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits.hpp>
@@ -58,6 +60,8 @@ namespace detail
 template <typename T>
 struct projected_point_ax_result
 {
+    typedef T value_type;
+
     projected_point_ax_result(T const& c = T(0))
         : atd(c), xtd(c)
     {}
@@ -89,7 +93,19 @@ public:
 
     inline bool operator()(Distance const& left, Distance const& right) const
     {
-        return left.xtd < right.xtd && right.atd < m_max_distance.atd;
+        //return left.xtd < right.xtd && right.atd < m_max_distance.atd;
+
+        typedef typename Distance::value_type value_type;
+
+        value_type const lx = left.xtd > m_max_distance.xtd ? left.xtd - m_max_distance.xtd : 0;
+        value_type const rx = right.xtd > m_max_distance.xtd ? right.xtd - m_max_distance.xtd : 0;
+        value_type const la = left.atd > m_max_distance.atd ? left.atd - m_max_distance.atd : 0;
+        value_type const ra = right.atd > m_max_distance.atd ? right.atd - m_max_distance.atd : 0;
+
+        value_type const l = (std::max)(lx, la);
+        value_type const r = (std::max)(rx, ra);
+
+        return l < r;
     }
 private:
     Distance const& m_max_distance;
