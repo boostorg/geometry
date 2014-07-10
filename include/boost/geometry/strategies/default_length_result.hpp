@@ -32,11 +32,11 @@ namespace boost { namespace geometry
 {
 
 
-namespace resolve_strategy { namespace result_of
+namespace resolve_strategy
 {
 
 template <typename Geometry>
-struct length
+struct default_length_result
 {
     typedef typename select_most_precise
         <
@@ -45,29 +45,29 @@ struct length
         >::type type;
 };
 
+} // namespace resolve_strategy
+
+
+namespace resolve_variant
+{
+
+template <typename Geometry>
+struct default_length_result
+    : resolve_strategy::default_length_result<Geometry>
+{};
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct default_length_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     typedef typename compress_variant<
         typename transform_variant<
             boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            length<boost::mpl::placeholders::_>
+            resolve_strategy::default_length_result<boost::mpl::placeholders::_>
         >::type
     >::type type;
 };
 
-}} // namespace resolve_strategy::result_of
-
-
-namespace resolve_variant { namespace result_of
-{
-
-template <typename Geometry>
-struct length
-    : resolve_strategy::result_of::length<Geometry>
-{};
-
-}} // namespace resolve_variant::result_of
+} // namespace resolve_variant
 
 
 /*!
@@ -80,7 +80,7 @@ struct length
  */
 template <typename Geometry>
 struct default_length_result
-    : resolve_variant::result_of::length<Geometry>
+    : resolve_variant::default_length_result<Geometry>
 {};
 
 
