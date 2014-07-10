@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -30,8 +35,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/util/compress_variant.hpp>
-#include <boost/geometry/util/transform_variant.hpp>
 
 namespace boost { namespace geometry
 {
@@ -134,10 +137,8 @@ namespace resolve_variant {
 template <typename Geometry>
 struct perimeter
 {
-    typedef typename default_length_result<Geometry>::type result_type;
-
     template <typename Strategy>
-    static inline result_type
+    static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         concept::check<Geometry const>();
@@ -148,12 +149,10 @@ struct perimeter
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    typedef typename compress_variant<
-        typename transform_variant<
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            default_length_result<boost::mpl::placeholders::_>
-        >::type
-    >:: type result_type;
+    typedef typename default_length_result
+        <
+            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>
+        >::type result_type;
 
     template <typename Strategy>
     struct visitor: boost::static_visitor<result_type>
@@ -163,7 +162,8 @@ struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         visitor(Strategy const& strategy): m_strategy(strategy) {}
 
         template <typename Geometry>
-        result_type operator()(Geometry const& geometry) const
+        typename default_length_result<Geometry>::type
+        operator()(Geometry const& geometry) const
         {
             return perimeter<Geometry>::apply(geometry, m_strategy);
         }
@@ -193,7 +193,7 @@ struct perimeter<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry>
-inline typename resolve_variant::perimeter<Geometry>::result_type perimeter(
+inline typename default_length_result<Geometry>::type perimeter(
         Geometry const& geometry)
 {
     // detail::throw_on_empty_input(geometry);
@@ -215,7 +215,7 @@ inline typename resolve_variant::perimeter<Geometry>::result_type perimeter(
 \qbk{[include reference/algorithms/perimeter.qbk]}
  */
 template<typename Geometry, typename Strategy>
-inline typename resolve_variant::perimeter<Geometry>::result_type perimeter(
+inline typename default_length_result<Geometry>::type perimeter(
         Geometry const& geometry, Strategy const& strategy)
 {
     // detail::throw_on_empty_input(geometry);

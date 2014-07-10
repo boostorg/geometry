@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -181,36 +186,21 @@ namespace resolve_variant {
 template <typename Geometry>
 struct length
 {
-    typedef typename default_length_result<Geometry>::type result_type;
-
     template <typename Strategy>
-    static inline result_type apply(Geometry const& geometry,
-                                    Strategy const& strategy)
+    static inline typename default_length_result<Geometry>::type
+    apply(Geometry const& geometry, Strategy const& strategy)
     {
         return dispatch::length<Geometry>::apply(geometry, strategy);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct length<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    typedef typename mpl::fold<
-                typename mpl::transform<
-                    typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-                    default_length_result<mpl::_>
-                >::type,
-                mpl::set0<>,
-                mpl::insert<mpl::_1, mpl::_2>
-            >::type possible_result_types;
-
-    typedef typename mpl::if_<
-                mpl::greater<
-                    mpl::size<possible_result_types>,
-                    mpl::int_<1>
-                >,
-                typename make_variant_over<possible_result_types>::type,
-                typename mpl::front<possible_result_types>::type
-            >::type result_type;
+    typedef typename default_length_result
+        <
+            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>
+        >::type result_type;
 
     template <typename Strategy>
     struct visitor
@@ -223,7 +213,7 @@ struct length<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         {}
 
         template <typename Geometry>
-        inline typename length<Geometry>::result_type
+        inline typename default_length_result<Geometry>::type
         operator()(Geometry const& geometry) const
         {
             return length<Geometry>::apply(geometry, m_strategy);
@@ -255,7 +245,7 @@ struct length<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \qbk{[length] [length_output]}
  */
 template<typename Geometry>
-inline typename resolve_variant::length<Geometry>::result_type
+inline typename default_length_result<Geometry>::type
 length(Geometry const& geometry)
 {
     concept::check<Geometry const>();
@@ -287,7 +277,7 @@ length(Geometry const& geometry)
 \qbk{[length_with_strategy] [length_with_strategy_output]}
  */
 template<typename Geometry, typename Strategy>
-inline typename resolve_variant::length<Geometry>::result_type
+inline typename default_length_result<Geometry>::type
 length(Geometry const& geometry, Strategy const& strategy)
 {
     concept::check<Geometry const>();
