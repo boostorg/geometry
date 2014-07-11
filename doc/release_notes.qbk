@@ -22,6 +22,10 @@
 * New algorithm buffer for inflating/deflating geometries (buffer itself already existed but that was only to enlarge a box)
 * New algorithm remove_spikes, algorithm to remove spikes from a ring, polygon or multi_polygon.
 * New algorithm point_on_surface, generating a point lying on the surface (interior) of the polygon
+* New algorithm is_simple, returning true if a geometry is simple according to the OGC standard
+* New algorithm is_valid, returning true if a geometry is valid according to the OGC standard
+* The set operation algorithms (difference, intersection, sym_difference and union) now support as input pairs of pointlike or linear geometries
+* The distance and comparable_distance algorithms now support all pairs of geometry combinations
 
 [*Solved tickets]
 
@@ -30,6 +34,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/8310 8310] Wrong results with overlapping polygons (fixed using point_on_surface for disjoint)
 * [@https://svn.boost.org/trac/boost/ticket/9871 9871] Remove spike in polygon with only a spike
 * [@https://svn.boost.org/trac/boost/ticket/9563 9563] (Sym)difference not successful, fixed by rescaling to robust type
+* [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection
 
 [*Bugfixes]
 
