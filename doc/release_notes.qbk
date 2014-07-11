@@ -24,8 +24,17 @@
 * New algorithm point_on_surface, generating a point lying on the surface (interior) of the polygon
 * New algorithm is_simple, returning true if a geometry is simple according to the OGC standard
 * New algorithm is_valid, returning true if a geometry is valid according to the OGC standard
+* New algorithm crosses for checking this spatial relation according to the OGC standard
 * The set operation algorithms (difference, intersection, sym_difference and union) now support as input pairs of pointlike or linear geometries
 * The distance and comparable_distance algorithms now support all pairs of geometry combinations
+* The spatial relations which didn't support it (covered_by, touches, within, etc.) now support as input linear and/or areal geometries
+* The support for boost::variants as input geometries in various algorithms
+* The rtree support for indexing segments
+* The rtree nearest() predicate support for arbitrary geometries
+
+[*Improvements]
+
+* The rtree pack-creation algorithm optimization (thanks to Lu Wang)
 
 [*Solved tickets]
 
@@ -39,7 +48,10 @@
 [*Bugfixes]
 
 * intersects(polygon) could return a self-intersection-point for its closing point, fixed
-
+* equals() could return invalid results for non-simple linear geometries according to the OGC standard, fixed
+* touches() didn't work properly for CCW areal geomtries, fixed
+* rtree nearest queries returned wrong elements for non-cartesian coordinate systems, fixed
+* rtree crashed in some cases when used with Interprocess allocator, fixed
 
 [/=================]
 [heading Boost 1.55]
