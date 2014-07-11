@@ -110,7 +110,7 @@ Below you can find features that will (or probably will) be added in the future 
 
 [heading Dependencies]
 
-R-tree depends on *Boost.Move*, *Boost.Container*, *Boost.Tuple*, *Boost.Utility*, *Boost.MPL*.
+R-tree depends on Boost.Container, Boost.Core, Boost.Move, Boost.MPL, Boost.Range, Boost.Tuple.
 
 [heading Contributors]
 
