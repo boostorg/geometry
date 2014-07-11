@@ -875,6 +875,11 @@ BOOST_AUTO_TEST_CASE( test_all_linestring_ring )
     test_distance_linestring_ring(point_segment_strategy());
 }
 
+BOOST_AUTO_TEST_CASE( test_all_multilinestring_ring )
+{
+    test_distance_multilinestring_ring(point_segment_strategy());
+}
+
 BOOST_AUTO_TEST_CASE( test_all_segment_box )
 {
     test_distance_segment_box(point_segment_strategy());
