@@ -25,6 +25,7 @@ typedef bg::model::point<double,3,bg::cs::cartesian>  point_type_3d;
 typedef bg::model::multi_point<point_type_3d>         multi_point_type_3d;
 typedef bg::model::polygon<point_type, false>         polygon_type;
 typedef bg::model::multi_polygon<polygon_type>        multi_polygon_type;
+typedef bg::model::ring<point_type, false>            ring_type;
 typedef bg::model::box<point_type>                    box_type;
 typedef bg::model::box<point_type_3d>                 box_type_3d;
 
@@ -62,6 +63,30 @@ void test_distance_point_polygon(Strategy const& strategy)
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),\
                    (-5 -5,-5 5,5 5,5 -5,-5 -5))",
                   5, 25, strategy);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_point_ring(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/ring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, ring_type> tester;
+
+    tester::apply("point(0 -20)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy);
+
+    tester::apply("point(12 0)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  2, 4, strategy);
+
+    tester::apply("point(0 0)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -124,6 +149,30 @@ void test_distance_multipoint_polygon(Strategy const& strategy)
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),\
                    (-5 -5,-5 5,5 5,5 -5,-5 -5))",
                   3, 9, strategy);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_multipoint_ring(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multipoint/ring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<multi_point_type, ring_type> tester;
+
+    tester::apply("multipoint(0 -20,0 -15)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  5, 25, strategy);
+
+    tester::apply("multipoint(16 0,12 0)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  2, 4, strategy);
+
+    tester::apply("multipoint(0 0,5 5,4 4)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -496,21 +545,27 @@ void test_more_empty_input_pointlike_areal(Strategy const& strategy)
     bg::model::multi_point<Point> multipoint_empty;
     bg::model::polygon<Point> polygon_empty;
     bg::model::multi_polygon<bg::model::polygon<Point> > multipolygon_empty;
+    bg::model::ring<Point> ring_empty;
 
     Point point = from_wkt<Point>("point(0 0)");
     bg::model::polygon<Point> polygon =
         from_wkt<bg::model::polygon<Point> >("polygon((0 0,1 0,0 1))");
+    bg::model::ring<Point> ring =
+        from_wkt<bg::model::ring<Point> >("polygon((0 0,1 0,0 1))");
 
     // 1st geometry is empty
     test_empty_input(multipoint_empty, polygon, strategy);
+    test_empty_input(multipoint_empty, ring, strategy);
 
     // 2nd geometry is empty
     test_empty_input(point, polygon_empty, strategy);
     test_empty_input(point, multipolygon_empty, strategy);
+    test_empty_input(point, ring_empty, strategy);
 
     // both geometries are empty
     test_empty_input(multipoint_empty, polygon_empty, strategy);
     test_empty_input(multipoint_empty, multipolygon_empty, strategy);
+    test_empty_input(multipoint_empty, ring_empty, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
@@ -531,6 +586,12 @@ BOOST_AUTO_TEST_CASE( test_all_point_multipolygon )
     test_distance_point_multipolygon(point_segment_strategy());
 }
 
+BOOST_AUTO_TEST_CASE( test_all_point_ring )
+{
+    test_distance_point_ring(point_point_strategy()); // back-compatibility
+    test_distance_point_ring(point_segment_strategy());
+}
+
 BOOST_AUTO_TEST_CASE( test_all_multipoint_polygon )
 {
     test_distance_multipoint_polygon(point_point_strategy()); // back-compatibility
@@ -541,6 +602,11 @@ BOOST_AUTO_TEST_CASE( test_all_multipoint_multipolygon )
 {
     test_distance_multipoint_multipolygon(point_point_strategy()); // back-compatibility
     test_distance_multipoint_multipolygon(point_segment_strategy());
+}
+
+BOOST_AUTO_TEST_CASE( test_all_multipoint_ring )
+{
+    test_distance_multipoint_ring(point_segment_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_point_box_2d )
