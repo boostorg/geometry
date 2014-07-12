@@ -117,7 +117,7 @@ public:
 
                 // TODO: O(N)
                 // Optimize!
-                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
+                pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
 
                 // hole outside
                 if ( pig < 0 )
@@ -153,7 +153,7 @@ public:
 
                 // TODO: O(N)
                 // Optimize!
-                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
+                pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
 
                 // hole inside
                 if ( pig > 0 )

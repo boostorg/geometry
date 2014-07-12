@@ -57,7 +57,6 @@ static const double RV6 = .04243827160493827160; /* 55/1296 */
 /* initialize geographic shape parameters */
 inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
 {
-    int i = 0;
     double b = 0.0;
     double e = 0.0;
     std::string name;
@@ -127,7 +126,7 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
         } else if (pj_param(parameters, "bR_h").i) { /* sphere--harmonic mean */
             a = 2. * a * b / (a + b);
             es = 0.;
-        } else if ((i = pj_param(parameters, "tR_lat_a").i) || /* sphere--arith. */
+        } else if ((int i = pj_param(parameters, "tR_lat_a").i) || /* sphere--arith. */
             pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
             double tmp;
 
