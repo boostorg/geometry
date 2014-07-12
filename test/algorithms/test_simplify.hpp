@@ -47,6 +47,7 @@ struct test_inserter<bg::linestring_tag, Geometry>
             BOOST_CHECK_EQUAL(out.str(), expected);
         }
 
+#ifdef TEST_PULL89
         {
             typedef typename bg::point_type<Geometry>::type point_type;
             typedef typename bg::strategy::distance::detail::projected_point_ax<>::template result_type<point_type, point_type>::type distance_type;
@@ -72,6 +73,7 @@ struct test_inserter<bg::linestring_tag, Geometry>
             out << std::setprecision(12) << bg::wkt(simplified);
             BOOST_CHECK_EQUAL(out.str(), expected);
         }
+#endif
     }
 };
 
@@ -138,6 +140,7 @@ void test_geometry(std::string const& wkt,
             Geometry
         >::apply(geometry, expected, distance);
 
+#ifdef TEST_PULL89
     // Check using non-default less comparator in douglass_peucker
     typedef typename bg::strategy::distance::detail::projected_point_ax<>::template result_type<point_type, point_type>::type distance_type;
     typedef bg::strategy::distance::detail::projected_point_ax_less<distance_type> less_comparator;
@@ -156,6 +159,7 @@ void test_geometry(std::string const& wkt,
 
     check_geometry(geometry, expected, distance, douglass_peucker_with_less(less));
     check_geometry(v, expected, distance, douglass_peucker_with_less(less));
+#endif
 }
 
 template <typename Geometry, typename Strategy, typename DistanceMeasure>
