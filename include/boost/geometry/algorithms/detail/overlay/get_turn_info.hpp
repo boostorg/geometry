@@ -354,9 +354,6 @@ struct touch : public base_turn_handler
             else
             {
                 // Pk at other side than Qi/Pk
-                int const side_qk_q = side.qk_wrt_q1();
-                bool const q_turns_left = side_qk_q == 1;
-
                 ti.operations[0].operation = q_turns_left
                             ? operation_intersection
                             : operation_union;
@@ -481,8 +478,6 @@ struct equal : public base_turn_handler
         // If they turn to same side (not opposite sides)
         if (! opposite(side_pk_p, side_qk_p))
         {
-            int const side_pk_q2 = side.pk_wrt_q2();
-
             // If pk is left of q2 or collinear: p: union, q: intersection
             ui_else_iu(side_pk_q2 != -1, ti);
         }
