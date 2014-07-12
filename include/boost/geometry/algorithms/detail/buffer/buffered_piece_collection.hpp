@@ -571,11 +571,14 @@ struct buffered_piece_collection
     inline void finish_ring()
     {
         BOOST_ASSERT(m_first_piece_index != -1);
-
-        // Reassign left-of-first and right-of-last
-        geometry::range::at(m_pieces, m_first_piece_index).left_index
-                                                = boost::size(m_pieces) - 1;
-        geometry::range::back(m_pieces).right_index = m_first_piece_index;
+        if (m_first_piece_index < boost::size(m_pieces))
+        {
+            // If piece was added
+            // Reassign left-of-first and right-of-last
+            geometry::range::at(m_pieces, m_first_piece_index).left_index
+                                                    = boost::size(m_pieces) - 1;
+            geometry::range::back(m_pieces).right_index = m_first_piece_index;
+        }
         m_first_piece_index = -1;
     }
 
