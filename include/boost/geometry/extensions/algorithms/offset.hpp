@@ -18,6 +18,7 @@
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
 #include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
@@ -39,43 +40,48 @@ template
     typename RangeOut
 >
 struct offset_range
-    : public geometry::detail::buffer::buffer_range
-        <
-            RangeOut,
-            linestring_tag
-        >
 {
     typedef geometry::detail::buffer::buffer_range
         <
-            RangeOut,
-            linestring_tag
-        > super;
+            Range
+        > per_range;
+
     template
     <
         typename Collection,
         typename DistanceStrategy,
+        typename SideStrategy,
         typename JoinStrategy,
-        typename EndStrategy
+        typename EndStrategy,
+        typename RobustPolicy
     >
     static inline void apply(Collection& collection, Range const& range,
                 DistanceStrategy const& distance_strategy,
+                SideStrategy const& side_strategy,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
+                RobustPolicy const& robust_policy,
                 bool reverse)
     {
         collection.start_new_ring();
+        typedef typename point_type<RangeOut>::type output_point_type;
+        output_point_type first_p1, first_p2, last_p1, last_p2;
+
         if (reverse)
         {
-            super::iterate(collection, boost::rbegin(range), boost::rend(range),
-                buffer_side_left,
-                distance_strategy, join_strategy, end_strategy);
+            per_range::iterate(collection, 0, boost::rbegin(range), boost::rend(range),
+                strategy::buffer::buffer_side_left,
+                distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
+                first_p1, first_p2, last_p1, last_p2);
         }
         else
         {
-            super::iterate(collection, boost::begin(range), boost::end(range),
-                buffer_side_left,
-                distance_strategy, join_strategy, end_strategy);
+            per_range::iterate(collection, 0, boost::begin(range), boost::end(range),
+                strategy::buffer::buffer_side_left,
+                distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
+                first_p1, first_p2, last_p1, last_p2);
         }
+        collection.finish_ring();
     }
 };
 
@@ -160,6 +166,8 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
             point_type
         > end_strategy;
 
+    strategy::buffer::buffer_side side_strategy;
+
     dispatch::offset
         <
             typename tag<Geometry>::type,
@@ -169,11 +177,13 @@ inline void offset(Geometry const& geometry, GeometryOut& out,
         >::apply(collection,
                  geometry,
                  distance_strategy,
+                 side_strategy,
                  join_strategy,
                  end_strategy,
+                robust_policy,
                  reverse);
 
-    collection.assign_offsetted_rings(out);
+    // TODO collection.template assign<GeometryOut>(out);
 }
 
 
