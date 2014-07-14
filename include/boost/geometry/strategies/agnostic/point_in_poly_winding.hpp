@@ -112,21 +112,21 @@ class winding
     template <size_t D>
     static inline int check_segment(Point const& point,
                 PointOfSegment const& seg1, PointOfSegment const& seg2,
-                counter& state)
+                counter& state, bool& eq1, bool& eq2)
     {
         calculation_type const p = get<D>(point);
         calculation_type const s1 = get<D>(seg1);
         calculation_type const s2 = get<D>(seg2);
 
         // Check if one of segment endpoints is at same level of point
-        bool eq1 = math::equals(s1, p);
-        bool eq2 = math::equals(s2, p);
+        eq1 = math::equals(s1, p);
+        eq2 = math::equals(s2, p);
 
         if (eq1 && eq2)
         {
             // Both equal p -> segment is horizontal (or vertical for D=0)
             // The only thing which has to be done is check if point is ON segment
-            return check_touch<1 - D>(point, seg1, seg2,state);
+            return check_touch<1 - D>(point, seg1, seg2, state);
         }
 
         return
@@ -137,7 +137,48 @@ class winding
             : 0;
     }
 
-
+    // Fix for https://svn.boost.org/trac/boost/ticket/9628
+    // For floating point coordinates, the <1> coordinate of a point is compared
+    // with the segment's points using some EPS. If the coordinates are "equal"
+    // the sides are calculated. Therefore we can treat a segment as a long areal
+    // geometry having some width. There is a small ~triangular area somewhere
+    // between the segment's effective area and a segment's line used in sides
+    // calculation where the segment is on the one side of the line but on the
+    // other side of a segment (due to the width).
+    // For the s1 of a segment going NE the real side is RIGHT but the point may
+    // be detected as LEFT, like this:
+    //                     RIGHT
+    //                 ___----->
+    //                  ^      O Pt  __ __
+    //                 EPS     __ __
+    //                  v__ __ BUT DETECTED AS LEFT OF THIS LINE
+    //             _____7
+    //       _____/
+    // _____/
+    template <size_t D>
+    static inline int side_equal(Point const& point,
+                    PointOfSegment const& se,
+                    int count)
+    {
+        // TODO: possible optimization of cartesian CS
+        // math::equals(p<1-D>, se<1-D>) ?
+        //   0 :
+        //   p<1-D> < se<1-D> ?
+        //     (UP ? LEFT : RIGHT) :
+        //     (UP ? RIGHT : LEFT) ;
+        
+        PointOfSegment ss1(se);
+        PointOfSegment ss2(se);
+        if ( count > 0 ) // UP
+        {
+            set<D>(ss1, 0); set<D>(ss2, 1);
+        }
+        else // DOWN
+        {
+            set<D>(ss1, 1); set<D>(ss2, 0);
+        }
+        return strategy_side_type::apply(ss1, ss2, point);
+    }
 
 
 public :
@@ -151,10 +192,23 @@ public :
                 PointOfSegment const& s1, PointOfSegment const& s2,
                 counter& state)
     {
-        int count = check_segment<1>(point, s1, s2, state);
+        bool eq1 = false;
+        bool eq2 = false;
+        boost::ignore_unused(eq2);
+
+        int count = check_segment<1>(point, s1, s2, state, eq1, eq2);
         if (count != 0)
         {
-            int side = strategy_side_type::apply(s1, s2, point);
+            int side = 0;
+            if ( count == 1 || count == -1 )
+            {
+                side = side_equal<1>(point, eq1 ? s1 : s2, count);
+            }
+            else
+            {
+                side = strategy_side_type::apply(s1, s2, point);
+            }
+            
             if (side == 0)
             {
                 // Point is lying on segment
