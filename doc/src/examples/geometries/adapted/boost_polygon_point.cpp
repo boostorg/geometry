@@ -2,13 +2,14 @@
 // QuickBook Example
 
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[boost_polygon
-//`Shows how to use Boost.Polygon points within Boost.Geometry
+//[boost_polygon_point
+//`Shows how to use Boost.Polygon point_data within Boost.Geometry
 
 #include <iostream>
 #include <boost/geometry.hpp>
@@ -27,7 +28,7 @@ int main()
 
 //]
 
-//[boost_polygon_output
+//[boost_polygon_point_output
 /*`
 Output:
 [pre
