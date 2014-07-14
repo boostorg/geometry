@@ -167,16 +167,23 @@ class winding
         //     (UP ? LEFT : RIGHT) :
         //     (UP ? RIGHT : LEFT) ;
         
-        PointOfSegment ss1(se);
-        PointOfSegment ss2(se);
+        // Create a vertical segment intersecting the original segment's endpoint
+        // equal to the point, with the derived direction (UP/DOWN).
+        // Set only the 2 first coordinates, the other ones are ignored
+        PointOfSegment ss1, ss2;
+        set<1-D>(ss1, get<1-D>(se));
+        set<1-D>(ss2, get<1-D>(se));
         if ( count > 0 ) // UP
         {
-            set<D>(ss1, 0); set<D>(ss2, 1);
+            set<D>(ss1, 0);
+            set<D>(ss2, 1);
         }
         else // DOWN
         {
-            set<D>(ss1, 1); set<D>(ss2, 0);
+            set<D>(ss1, 1);
+            set<D>(ss2, 0);
         }
+        // Check the side using this vertical segment
         return strategy_side_type::apply(ss1, ss2, point);
     }
 
