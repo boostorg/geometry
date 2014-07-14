@@ -186,7 +186,7 @@ void test_tickets()
     typedef boost::geometry::model::d2::point_xy<double> pt;
     typedef boost::geometry::model::ring<pt> ring;
 
-    https://svn.boost.org/trac/boost/ticket/9628
+    // https://svn.boost.org/trac/boost/ticket/9628
     {
         ring r;
         r.push_back(pt(-19155.669324773193,54820.312032458620));
