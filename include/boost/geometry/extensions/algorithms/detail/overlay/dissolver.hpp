@@ -554,7 +554,7 @@ struct dissolver_generic
 
             // Re-initialize the list
             index_vector.clear();
-            int index = 0;
+            index = 0;
             for(typename boost::range_iterator<helper_vector_type const>::type
                 it = boost::begin(helper_vector);
                 it != boost::end(helper_vector);

@@ -82,7 +82,10 @@
 [import src/examples/geometries/adapted/c_array.cpp]
 [import src/examples/geometries/adapted/boost_array.cpp]
 [import src/examples/geometries/adapted/boost_fusion.cpp]
-[import src/examples/geometries/adapted/boost_polygon.cpp]
+[import src/examples/geometries/adapted/boost_polygon_box.cpp]
+[import src/examples/geometries/adapted/boost_polygon_point.cpp]
+[import src/examples/geometries/adapted/boost_polygon_polygon.cpp]
+[import src/examples/geometries/adapted/boost_polygon_ring.cpp]
 [import src/examples/geometries/adapted/boost_tuple.cpp]
 
 [import src/examples/geometries/adapted/boost_range/filtered.cpp]

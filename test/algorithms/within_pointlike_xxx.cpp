@@ -181,6 +181,46 @@ void test_large_integers()
     BOOST_CHECK_MESSAGE(wi == wd, "within<a double> different from within<an int>");
 }
 
+void test_tickets()
+{
+    typedef boost::geometry::model::d2::point_xy<double> pt;
+    typedef boost::geometry::model::ring<pt> ring;
+
+    // https://svn.boost.org/trac/boost/ticket/9628
+    {
+        ring r;
+        r.push_back(pt(-19155.669324773193,54820.312032458620));
+        r.push_back(pt(-13826.169324773080,54820.312032458627));
+        r.push_back(pt(-13826.169324773078,52720.312032458663));
+        r.push_back(pt(-12755.169324773129,52720.312032458663));
+        r.push_back(pt(-12755.169324773129,51087.312032458671));
+        r.push_back(pt(-12760.669324773080,51087.312032458671));
+        r.push_back(pt(-12760.669324773082,51070.312032458627));
+        r.push_back(pt(-19155.669324779392,51070.312032458620));
+        r.push_back(pt(-19155.669324773193,54820.312032458620));
+
+        pt p( -12260.669324773118, 54820.312032458634 );
+
+        //boost::geometry::correct(r);
+
+        bool within = boost::geometry::within(p, r);
+        BOOST_CHECK_EQUAL(within, false);
+    }
+    // similar
+    {
+        ring r;
+        r.push_back(pt(-14155.6,54820.312032458620));
+        r.push_back(pt(-13826.1,54820.312032458625));
+        r.push_back(pt(-12155.6,53720.3));
+        r.push_back(pt(-14155.6,54820.312032458620));
+
+        pt p( -13826.0, 54820.312032458634 );
+
+        bool within = boost::geometry::within(p, r);
+        BOOST_CHECK_EQUAL(within, false);
+    }
+}
+
 int test_main( int , char* [] )
 {
     test_large_integers();
@@ -194,6 +234,8 @@ int test_main( int , char* [] )
     test_all<bg::model::d2::point_xy<ttmath_big> >();
     test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 #endif
+
+    test_tickets();
 
     return 0;
 }

@@ -74,7 +74,7 @@ public:
 
         typedef typename geometry::point_type<Areal>::type point_type;
         point_type pt;
-        bool ok = boost::geometry::point_on_border(pt, areal);
+        bool const ok = boost::geometry::point_on_border(pt, areal);
 
         // TODO: for now ignore, later throw an exception?
         if ( !ok )
@@ -85,7 +85,7 @@ public:
         // check if the areal is inside the other_areal
         // TODO: This is O(N)
         // Run in a loop O(NM) - optimize!
-        int pig = detail::within::point_in_geometry(pt, m_other_areal);
+        int const pig = detail::within::point_in_geometry(pt, m_other_areal);
         //BOOST_ASSERT( pig != 0 );
         
         // inside
@@ -117,10 +117,10 @@ public:
 
                 // TODO: O(N)
                 // Optimize!
-                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
+                int const hpig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
 
                 // hole outside
-                if ( pig < 0 )
+                if ( hpig < 0 )
                 {
                     update<interior, exterior, '2', TransposeResult>(m_result);
                     update<boundary, exterior, '1', TransposeResult>(m_result);
@@ -153,10 +153,10 @@ public:
 
                 // TODO: O(N)
                 // Optimize!
-                int pig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
+                int const hpig = detail::within::point_in_geometry(range::front(range_ref), m_other_areal);
 
                 // hole inside
-                if ( pig > 0 )
+                if ( hpig > 0 )
                 {
                     update<interior, interior, '2', TransposeResult>(m_result);
                     update<boundary, interior, '1', TransposeResult>(m_result);
@@ -339,7 +339,7 @@ struct areal_areal
             static const std::size_t other_op_id = (OpId + 1) % 2;
             static const bool transpose_result = OpId != 0;
 
-            overlay::operation_type op = turn.operations[OpId].operation;
+            overlay::operation_type const op = turn.operations[OpId].operation;
 
             if ( op == overlay::operation_union )
             {
@@ -405,7 +405,7 @@ struct areal_areal
         {
             //BOOST_ASSERT( it != last );
 
-            overlay::operation_type op = it->operations[op_id].operation;
+            overlay::operation_type const op = it->operations[op_id].operation;
 
             if ( op != overlay::operation_union
               && op != overlay::operation_intersection
@@ -615,7 +615,7 @@ struct areal_areal
 
             // TODO: optimize! e.g. use spatial index
             // O(N) - running it in a loop would gives O(NM)
-            int pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
+            int const pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
             //BOOST_ASSERT(pig != 0);
             if ( pig > 0 )

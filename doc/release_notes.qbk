@@ -43,7 +43,9 @@
 * [@https://svn.boost.org/trac/boost/ticket/8310 8310] Wrong results with overlapping polygons (fixed using point_on_surface for disjoint)
 * [@https://svn.boost.org/trac/boost/ticket/9871 9871] Remove spike in polygon with only a spike
 * [@https://svn.boost.org/trac/boost/ticket/9563 9563] (Sym)difference not successful, fixed by rescaling to robust type
+* [@https://svn.boost.org/trac/boost/ticket/9628 9628] Wrong result of within() due to the winding strategy not working correctly for nearly-horizontal segments
 * [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection
+* [@https://svn.boost.org/trac/boost/ticket/10077 10077] Wrong types in concept checks in boost/geometry/arithmetic/arithmetic.hpp
 
 [*Bugfixes]
 

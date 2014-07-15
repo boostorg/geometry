@@ -612,7 +612,6 @@ struct get_turn_info_for_endpoint
         // If they turn to same side (not opposite sides)
         if ( ! base_turn_handler::opposite(side_pk_p, side_qk_p) )
         {
-            int const side_pk_q2 = side.pk_wrt_q2();
             // If pk is left of q2 or collinear: p: union, q: intersection
             if ( side_pk_q2 != -1 )
             {
