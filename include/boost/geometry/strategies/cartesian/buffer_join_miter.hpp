@@ -9,8 +9,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_MITER_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_MITER_HPP
 
+#include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/strategies/tags.hpp>
+#include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -25,42 +26,51 @@ namespace strategy { namespace buffer
 
 // TODO: condider merging/baseclassing join strategies to avoid duplicate code
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
 struct join_miter
 {
-    typedef typename coordinate_type<PointIn>::type coordinate_type;
 
     // Constructor compatible with other join strategies:
     inline join_miter(int = 0)
     {}
 
-    template <typename RangeOut>
-    inline bool apply(PointIn const& ip, PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2,
-                coordinate_type const& buffer_distance,
+    template <typename Point, typename DistanceType, typename RangeOut>
+    inline bool apply(Point const& ip, Point const& vertex,
+                Point const& perp1, Point const& perp2,
+                DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        PointIn p = ip;
+        geometry::equal_to<Point> equals;
+        if (equals(ip, vertex))
+        {
+            return false;
+        }
+
+        typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename geometry::select_most_precise
+        <
+            coordinate_type,
+            double
+        >::type promoted_type;
+
+        Point p = ip;
 
         // Normalize it and give it X*dist.
-        coordinate_type dx = get<0>(ip) - get<0>(vertex);
-        coordinate_type dy = get<1>(ip) - get<1>(vertex);
+        coordinate_type const dx = get<0>(ip) - get<0>(vertex);
+        coordinate_type const dy = get<1>(ip) - get<1>(vertex);
 
-        coordinate_type length = geometry::math::sqrt(dx * dx + dy * dy);
+        promoted_type const length = geometry::math::sqrt(dx * dx + dy * dy);
+
+        BOOST_ASSERT(length != 0.0); // because ip/vertex are not equal
 
         // TODO: make max-mitre-limit flexible
-        const coordinate_type ten = 10.0;
-        const coordinate_type zero_seven = 1.7;
+        promoted_type const ten = 10.0;
+        promoted_type const zero_seven = 0.7;
 
-        const coordinate_type max = ten * geometry::math::abs(buffer_distance);
+        promoted_type const max = ten * geometry::math::abs(buffer_distance);
 
         if (length > max)
         {
-            const coordinate_type prop = zero_seven * buffer_distance / length;
+            promoted_type const prop = zero_seven * buffer_distance / length;
             set<0>(p, get<0>(vertex) + dx * prop);
             set<1>(p, get<1>(vertex) + dy * prop);
         }

@@ -740,6 +740,10 @@ struct buffer_inserter<multi_tag, Multi, PolygonOutput>
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace buffer
+{
+
 template
 <
     typename GeometryOutput,
@@ -841,6 +845,9 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         end_strategy, circle_strategy,
         robust_policy, visitor);
 }
+#endif // DOXYGEN_NO_DETAIL
+
+}} // namespace detail::buffer
 
 }} // namespace boost::geometry
 

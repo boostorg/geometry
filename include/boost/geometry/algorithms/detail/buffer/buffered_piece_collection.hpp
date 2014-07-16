@@ -23,6 +23,8 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
+#include <boost/geometry/geometries/ring.hpp>
+
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>

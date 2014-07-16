@@ -37,8 +37,6 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
-#include <boost/geometry/strategies/cartesian/buffer_circle.hpp>
 
 
 
@@ -256,7 +254,7 @@ struct svg_visitor
 #endif
 
 //-----------------------------------------------------------------------------
-template <template<typename, typename> class JoinStrategy>
+template <typename JoinStrategy>
 struct JoinTestProperties { };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
@@ -276,7 +274,7 @@ template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_rou
 
 
 //-----------------------------------------------------------------------------
-template <template<typename, typename> class EndStrategy>
+template <typename EndStrategy>
 struct EndTestProperties { };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
@@ -287,11 +285,6 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 { 
     static std::string name() { return "flat"; }
-};
-
-template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
-{ 
-    static std::string name() { return ""; }
 };
 
 
@@ -320,8 +313,8 @@ std::size_t count_self_ips(Geometry const& geometry, RescalePolicy const& rescal
 template
 <
     typename GeometryOut,
-    template<typename, typename> class JoinStrategy,
-    template<typename, typename> class EndStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
@@ -397,17 +390,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
 
-    JoinStrategy
-        <
-            point_type,
-            output_point_type
-        > join_strategy;
+    JoinStrategy join_strategy;
 
-    EndStrategy
-        <
-            point_type,
-            output_point_type
-        > end_strategy;
+    EndStrategy end_strategy;
 
     bg::strategy::buffer::distance_asymmetric
         <
@@ -431,7 +416,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     std::vector<GeometryOut> buffered;
 
-    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
+    bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
+                        std::back_inserter(buffered),
                         distance_strategy,
                         side_strategy,
                         join_strategy,
@@ -513,8 +499,8 @@ static int counter = 0;
 template
 <
     typename Geometry,
-    template<typename, typename> class JoinStrategy,
-    template<typename, typename> class EndStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
     typename GeometryOut
 >
 void test_one(std::string const& caseid, std::string const& wkt,
@@ -550,8 +536,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
 template
 <
     typename Geometry,
-    template<typename, typename> class JoinStrategy,
-    template<typename, typename> class EndStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
     typename GeometryOut
 >
 void test_one(std::string const& caseid, std::string const& wkt,
