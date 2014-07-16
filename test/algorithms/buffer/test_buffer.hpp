@@ -32,6 +32,7 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
@@ -46,7 +47,6 @@
 #if defined(TEST_WITH_SVG)
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
-#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 template <typename Geometry, typename Mapper, typename RescalePolicy>
 void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
@@ -293,6 +293,29 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
     static std::string name() { return ""; }
 };
 
+
+
+template <typename Geometry, typename RescalePolicy>
+std::size_t count_self_ips(Geometry const& geometry, RescalePolicy const& rescale_policy)
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::detail::overlay::turn_info
+    <
+        point_type,
+        typename bg::segment_ratio_type<point_type, RescalePolicy>::type
+    > turn_info;
+
+    std::vector<turn_info> turns;
+
+    bg::detail::self_get_turn_points::no_interrupt_policy policy;
+    bg::self_turns
+        <
+            bg::detail::overlay::assign_null_policy
+        >(geometry, rescale_policy, turns, policy);
+
+    return turns.size();
+}
+
 template
 <
     typename GeometryOut,
@@ -303,7 +326,8 @@ template
 void test_buffer(std::string const& caseid, Geometry const& geometry,
             bool check_self_intersections, double expected_area,
             double distance_left, double distance_right,
-            double tolerance)
+            double tolerance,
+            std::size_t* self_ip_count)
 {
     namespace bg = boost::geometry;
 
@@ -461,6 +485,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         post_map(polygon, mapper, rescale_policy);
     }
 #endif
+
+    if (self_ip_count != NULL)
+    {
+        std::size_t count = 0;
+        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        {
+            count += count_self_ips(polygon, rescale_policy);
+        }
+
+        *self_ip_count += count;
+    }
 }
 
 
@@ -501,9 +536,32 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
     test_buffer<GeometryOut, JoinStrategy, EndStrategy>
             (caseid, g, check_self_intersections, expected_area,
-            distance_left, distance_right, tolerance);
+            distance_left, distance_right, tolerance, NULL);
 }
 
+// Version (currently for the Aimes test) counting self-ip's instead of checking
+template
+<
+    typename Geometry,
+    template<typename, typename> class JoinStrategy,
+    template<typename, typename> class EndStrategy,
+    typename GeometryOut
+>
+void test_one(std::string const& caseid, std::string const& wkt,
+        double expected_area,
+        double distance_left, double distance_right,
+        std::size_t& self_ip_count,
+        double tolerance = 0.01)
+{
+    namespace bg = boost::geometry;
+    Geometry g;
+    bg::read_wkt(wkt, g);
+    bg::correct(g);
+
+    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
+            (caseid, g, false, expected_area,
+            distance_left, distance_right, tolerance, &self_ip_count);
+}
 
 
 #endif
