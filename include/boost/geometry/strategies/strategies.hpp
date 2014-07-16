@@ -64,7 +64,6 @@
 
 #include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
 #include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
 #include <boost/geometry/strategies/agnostic/hull_graham_andrew.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_point.hpp>

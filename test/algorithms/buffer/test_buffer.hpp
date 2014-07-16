@@ -287,11 +287,6 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
     static std::string name() { return "flat"; }
 };
 
-template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
-{ 
-    static std::string name() { return ""; }
-};
-
 
 
 template <typename Geometry, typename RescalePolicy>
