@@ -107,7 +107,6 @@ struct buffer_range
     >
     static inline
     void add_join(Collection& collection,
-            int phase,
             Point const& penultimate_input,
             Point const& previous_input,
             output_point_type const& prev_perp1,
@@ -145,7 +144,6 @@ struct buffer_range
                         previous_input, prev_perp2, perp1);
                 return;
             case strategy::buffer::join_spike :
-                //if (phase == 0) avoid duplicate joins at spikes? this still causes other issues
                 {
                     // For linestrings, only add spike at one side to avoid
                     // duplicates
@@ -203,7 +201,6 @@ struct buffer_range
         typename RobustPolicy
     >
     static inline void iterate(Collection& collection,
-                int phase, // 0/1 for left/right of rings. For polygons: 0
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance_strategy,
@@ -270,7 +267,7 @@ struct buffer_range
 
                 if (! first)
                 {
-                     add_join(collection, phase,
+                     add_join(collection,
                             penultimate_point,
                             *prev, last_p1, last_p2,
                             *it, generated_side.front(), generated_side.back(),
@@ -434,13 +431,13 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
 
         typedef detail::buffer::buffer_range<RingOutput> buffer_range;
 
-        buffer_range::iterate(collection, 0, begin, end,
+        buffer_range::iterate(collection, begin, end,
                 side,
                 distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
                 first_p1, first_p2, last_p1, last_p2);
 
         // Generate closing join
-        buffer_range::add_join(collection, 0,
+        buffer_range::add_join(collection,
             *(end - 2),
             *(end - 1), last_p1, last_p2,
             *(begin + 1), first_p1, first_p2,
@@ -530,7 +527,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         typename EndStrategy,
         typename RobustPolicy
     >
-    static inline void iterate(Collection& collection, int phase,
+    static inline void iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance_strategy,
@@ -555,7 +552,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
         output_point_type first_p2, last_p1, last_p2;
 
         detail::buffer::buffer_range<output_ring_type>::iterate(collection,
-                phase, begin, end, side,
+                begin, end, side,
                 distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
                 first_p1, first_p2, last_p1, last_p2);
 
@@ -589,12 +586,12 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
 
             collection.start_new_ring();
             output_point_type first_p1;
-            iterate(collection, 0, boost::begin(simplified), boost::end(simplified),
+            iterate(collection, boost::begin(simplified), boost::end(simplified),
                     strategy::buffer::buffer_side_left,
                     distance, side_strategy, join_strategy, end_strategy, robust_policy,
                     first_p1);
 
-            iterate(collection, 1, boost::rbegin(simplified), boost::rend(simplified),
+            iterate(collection, boost::rbegin(simplified), boost::rend(simplified),
                     strategy::buffer::buffer_side_right,
                     distance, side_strategy, join_strategy, end_strategy, robust_policy,
                     first_p1);
