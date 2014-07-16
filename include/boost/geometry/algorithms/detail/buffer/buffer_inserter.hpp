@@ -159,7 +159,7 @@ struct buffer_range
         }
 
         // The corner is convex, we create a join
-        // TODO - try to avoid a separate vector, add the piece directly
+        // TODO (future) - avoid a separate vector, add the piece directly
         std::vector<output_point_type> range_out;
         join_strategy.apply(intersection_point,
                     previous_input, prev_perp2, perp1,
@@ -449,7 +449,6 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             robust_policy);
 
         // Buffer is closed automatically by last closing corner
-        // (OPEN IT FOR OPEN POLYGONS - TODO)
     }
 
     template
