@@ -20,6 +20,7 @@
 [import src/examples/algorithms/assign_3d_point.cpp]
 [import src/examples/algorithms/assign_inverse.cpp]
 [import src/examples/algorithms/assign_points.cpp]
+[import src/examples/algorithms/buffer_with_strategies.cpp]
 [import src/examples/algorithms/clear.cpp]
 [import src/examples/algorithms/centroid.cpp]
 [import src/examples/algorithms/comparable_distance.cpp]

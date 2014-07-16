@@ -27,6 +27,7 @@ exe assign_points : assign_points.cpp ;
 # exe assign_point_from_index : assign_point_from_index.cpp ;
 # exe assign_point_to_index : assign_point_to_index.cpp ;
 
+exe buffer_with_strategies : buffer_with_strategies.cpp ;
 exe centroid : centroid.cpp ;
 exe clear : clear.cpp ;
 exe comparable_distance : comparable_distance.cpp ;

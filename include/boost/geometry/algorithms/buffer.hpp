@@ -209,6 +209,28 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
     return geometry_out;
 }
 
+/*!
+\brief \brief_calc{buffer}
+\ingroup buffer
+\details \details_calc{buffer, \det_buffer}.
+\tparam GeometryIn \tparam_geometry
+\tparam MultiPolygon \tparam_geometry
+\tparam DistanceStrategy A strategy defining distance behaviour (symmetric, asymetric)
+\tparam SideStrategy A strategy defining side behaviour
+\tparam JoinStrategy A strategy defining join behaviour (round, miter)
+\tparam EndStrategy A strategy defining end behaviour (round, flat)
+\tparam CircleStrategy A strategy defining circle behaviour
+\param geometry_in \param_geometry
+\param geometry_out output multi polygon (or std:: collection of polygons), contains buffer of input geometry
+\param distance_strategy The distance strategy to be used
+\param side_strategy The side strategy to be used
+\param join_strategy The join strategy to be used
+\param end_strategy The end strategy to be used
+\param circle_strategy The circle strategy to be used
+
+\qbk{distinguish,with strategies}
+\qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
+ */
 template
 <
     typename GeometryIn,
