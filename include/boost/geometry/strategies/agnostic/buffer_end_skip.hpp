@@ -20,20 +20,15 @@ namespace strategy { namespace buffer
 {
 
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
 class end_skip
 {
 public :
 
-    template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& ,
-                PointIn const& ,
-                PointIn const& ,
-                PointIn const& ,
+    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    inline void apply(Point const& ,
+                Point const& ,
+                Point const& ,
+                Point const& ,
                 buffer_side_selector ,
                 DistanceStrategy const& ,
                 RangeOut& ) const
