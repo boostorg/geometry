@@ -416,7 +416,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     std::vector<GeometryOut> buffered;
 
-    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
+    bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
+                        std::back_inserter(buffered),
                         distance_strategy,
                         side_strategy,
                         join_strategy,
