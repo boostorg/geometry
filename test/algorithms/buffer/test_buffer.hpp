@@ -37,8 +37,6 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
-#include <boost/geometry/strategies/cartesian/buffer_circle.hpp>
 
 
 
