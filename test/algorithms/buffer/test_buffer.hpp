@@ -38,6 +38,7 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_side.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_circle.hpp>
 
 
 
@@ -416,6 +417,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     bg::strategy::buffer::buffer_side side_strategy;
 
+    // For (multi)points a buffer with 88 points is used for testing.
+    // More points will give a more precise result - expected area should be
+    // adapted then
+    bg::strategy::buffer::buffer_circle circle_strategy(88);
+
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
@@ -430,6 +436,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         side_strategy,
                         join_strategy,
                         end_strategy,
+                        circle_strategy,
                         rescale_policy,
                         visitor);
 
