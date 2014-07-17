@@ -487,13 +487,12 @@
 -->
 
 <!-- ###### STRATEGIES ######################################################################### -->
-<tgroup cols="3">
+<tgroup cols="2">
  <colspec colname="a"/>
  <colspec colname="b"/>
- <colspec colname="c"/>
   <thead>
   <row>
-   <entry valign="center" namest="a" nameend="c">
+   <entry valign="center" namest="a" nameend="b">
     <bridgehead renderas="sect2">Strategies</bridgehead>
    </entry>
   </row>
