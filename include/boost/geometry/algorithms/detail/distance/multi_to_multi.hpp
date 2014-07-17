@@ -104,10 +104,10 @@ public:
             if (first || cdist < min_cdist)
             {
                 min_cdist = cdist;
-            }
-            if ( geometry::math::equals(min_cdist, 0) )
-            {
-                break;
+                if ( geometry::math::equals(min_cdist, 0) )
+                {
+                    break;
+                }
             }
         }
 
