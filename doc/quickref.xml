@@ -630,6 +630,37 @@
   </row>
  </tbody>
 </tgroup>
+
+<!-- ###### IO ########################################################################### -->
+<tgroup cols="2">
+ <colspec colname="a"/>
+ <colspec colname="b"/>
+ <thead>
+  <row>
+   <entry valign="center" namest="a" nameend="b">
+    <bridgehead renderas="sect2">IO</bridgehead>
+   </entry>
+  </row>
+ </thead>
+ <tbody>
+  <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">WKT (Well-Known Text)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.io.wkt.read_wkt">read_wkt</link></member>
+     <member><link linkend="geometry.reference.io.wkt.wkt">wkt</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">SVG (Scalable Vector Graphics)</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.io.svg.svg">svg</link></member>
+     <member><link linkend="geometry.reference.io.svg.svg_mapper">svg_mapper</link></member>
+    </simplelist>
+   </entry>
+  </row>
+ </tbody>
+</tgroup>
     
 <!-- ###### SPATIAL INDEXES ######################################################################### -->
 <tgroup cols="3">
