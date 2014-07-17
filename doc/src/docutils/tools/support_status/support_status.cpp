@@ -260,7 +260,7 @@ void support_status()
     test_unary_algorithm<length, all_types, OutputFactory>("length");
     test_unary_algorithm<num_geometries, all_types, OutputFactory>("num_geometries");
     test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_interior_rings");
-    test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_points");
+    test_unary_algorithm<num_points, all_types, OutputFactory>("num_points");
     test_binary_algorithm<overlaps, all_types, all_types, OutputFactory>("overlaps");
     test_unary_algorithm<perimeter, all_types, OutputFactory>("perimeter");
     test_unary_algorithm<reverse, all_types, OutputFactory>("reverse");
