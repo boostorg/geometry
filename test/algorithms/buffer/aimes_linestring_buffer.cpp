@@ -7,6 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX
+
 #include <test_buffer.hpp>
 
 #include <boost/geometry/algorithms/buffer.hpp>
@@ -464,6 +466,8 @@ void test_aimes()
 #endif
 
     // Aimes tested originally with 0.000018 degrees (around 2 m)
+    std::size_t self_ip_count = 0;
+
     int expectation_index = 0;
     for (int width = 18; width <= 36; width += 18, expectation_index += 2)
     {
@@ -485,17 +489,18 @@ void test_aimes()
                 name.str(),
                 testcases[i], expectations[i][expectation_index],
                 aimes_width, aimes_width,
-                false
+                self_ip_count, 0.00001
             );
             test_one<linestring, buf::join_round, buf::end_round, polygon>
             (
                 name.str(),
                 testcases[i], expectations[i][expectation_index + 1],
                 aimes_width, aimes_width,
-                false
+                self_ip_count, 0.00001
             );
         }
     }
+    std::cout << "Total self-ips: " << self_ip_count << std::endl;
 }
 
 

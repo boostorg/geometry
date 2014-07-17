@@ -1,0 +1,28 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2012 Bruno Lalande, Paris, France.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[def __this_function__ buffer]
+
+[heading_conformance_ogc __this_function__..Buffer]
+
+[heading Examples]
+[buffer_with_strategies]
+
+[heading Output]
+The linestring case
+[$svg_buffer_linestring.png]
+
+The multi_point case
+[$svg_buffer_multi_point.png]
+
+The multi_polygon case
+[$svg_buffer_multi_polygon.png]

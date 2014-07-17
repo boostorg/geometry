@@ -9,10 +9,10 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_BY_DIVIDE_HPP
 
+#include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -28,44 +28,23 @@ namespace strategy { namespace buffer
 {
 
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
 class join_round_by_divide
 {
-private :
-    geometry::equal_to<PointIn> equals;
-
 public :
 
     inline join_round_by_divide(int max_level = 4)
         : m_max_level(max_level)
     {}
 
-    typedef typename coordinate_type<PointOut>::type coordinate_type;
-
-    typedef typename geometry::select_most_precise
-        <
-            typename geometry::select_most_precise
-                <
-                    typename geometry::coordinate_type<PointIn>::type,
-                    typename geometry::coordinate_type<PointOut>::type
-                >::type,
-            double
-        >::type promoted_type;
-
-
-    int m_max_level;
-
-    template <typename RangeOut>
-    inline void mid_points(PointIn const& vertex,
-                PointIn const& p1, PointIn const& p2,
-                coordinate_type const& buffer_distance,
+    template <typename Point, typename DistanceType, typename RangeOut>
+    inline void mid_points(Point const& vertex,
+                Point const& p1, Point const& p2,
+                DistanceType const& buffer_distance,
                 RangeOut& range_out,
                 int level = 1) const
     {
+        typedef typename coordinate_type<Point>::type coordinate_type;
+
         // Generate 'vectors'
         coordinate_type vp1_x = get<0>(p1) - get<0>(vertex);
         coordinate_type vp1_y = get<1>(p1) - get<1>(vertex);
@@ -82,7 +61,7 @@ public :
 
         coordinate_type prop = buffer_distance / length2;
 
-        PointIn mid_point;
+        Point mid_point;
         set<0>(mid_point, get<0>(vertex) + v_x * prop);
         set<1>(mid_point, get<1>(vertex) + v_y * prop);
 
@@ -97,12 +76,22 @@ public :
         }
     }
 
-    template <typename RangeOut>
-    inline bool apply(PointIn const& ip, PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2,
-                coordinate_type const& buffer_distance,
+    template <typename Point, typename DistanceType, typename RangeOut>
+    inline bool apply(Point const& ip, Point const& vertex,
+                Point const& perp1, Point const& perp2,
+                DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
+        typedef typename coordinate_type<Point>::type coordinate_type;
+
+        typedef typename geometry::select_most_precise
+            <
+                coordinate_type,
+                double
+            >::type promoted_type;
+
+        geometry::equal_to<Point> equals;
+
         if (equals(perp1, perp2))
         {
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
@@ -121,7 +110,7 @@ public :
         coordinate_type const bd = geometry::math::abs(buffer_distance);
         coordinate_type prop = bd / length_i;
 
-        PointIn bp;
+        Point bp;
         set<0>(bp, get<0>(vertex) + vix * prop);
         set<1>(bp, get<1>(vertex) + viy * prop);
 
@@ -141,6 +130,9 @@ public :
         range_out.push_back(perp2);
         return true;
     }
+
+private :
+    int m_max_level;
 };
 
 
