@@ -13,7 +13,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-/*<-*/ #include "create_svg_two.hpp" /*->*/
+/*<-*/ #include "../examples_utils/create_svg_buffer.hpp" /*->*/
 
 int main()
 {
@@ -41,9 +41,9 @@ int main()
     boost::geometry::buffer(ls, result,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, circle_strategy);
-    /*<-*/ create_svg("buffer_linestring.svg", ls, result); /*->*/
+    /*<-*/ create_svg_buffer("buffer_linestring.svg", ls, result); /*->*/
 
-    // Declare/fill of a multi point
+    // Declare/fill a multi point
     boost::geometry::model::multi_point<point> mp;
     boost::geometry::read_wkt("MULTIPOINT((3 3),(4 4))", mp);
 
@@ -51,17 +51,17 @@ int main()
     boost::geometry::buffer(mp, result,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, circle_strategy);
-    /*<-*/ create_svg("buffer_multi_point.svg", mp, result); /*->*/
+    /*<-*/ create_svg_buffer("buffer_multi_point.svg", mp, result); /*->*/
 
-    // Declare/fill of a multi_polygon
+    // Declare/fill a multi_polygon
     boost::geometry::model::multi_polygon<polygon> mpol;
     boost::geometry::read_wkt("MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))", mpol);
 
-    // Create the buffer of a polygon
+    // Create the buffer of a multi polygon
     boost::geometry::buffer(mpol, result,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, circle_strategy);
-    /*<-*/ create_svg("buffer_multi_polygon.svg", mpol, result); /*->*/
+    /*<-*/ create_svg_buffer("buffer_multi_polygon.svg", mpol, result); /*->*/
 
     return 0;
 }
