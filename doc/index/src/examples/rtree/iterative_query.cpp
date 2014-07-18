@@ -32,7 +32,7 @@ int main(void)
     rtree_t rtree;
 
     // create some values
-    for ( float f = 0 ; f < 10 ; f += 1 )
+    for ( double f = 0 ; f < 10 ; f += 1 )
     {
         // insert new value
         rtree.insert(point(f, f));
