@@ -36,7 +36,13 @@ public :
         : m_max_level(max_level)
     {}
 
-    template <typename Point, typename DistanceType, typename RangeOut>
+    template
+    <
+        typename PromotedType,
+        typename Point,
+        typename DistanceType,
+        typename RangeOut
+    >
     inline void mid_points(Point const& vertex,
                 Point const& p1, Point const& p2,
                 DistanceType const& buffer_distance,
@@ -46,20 +52,20 @@ public :
         typedef typename coordinate_type<Point>::type coordinate_type;
 
         // Generate 'vectors'
-        coordinate_type vp1_x = get<0>(p1) - get<0>(vertex);
-        coordinate_type vp1_y = get<1>(p1) - get<1>(vertex);
+        coordinate_type const vp1_x = get<0>(p1) - get<0>(vertex);
+        coordinate_type const vp1_y = get<1>(p1) - get<1>(vertex);
 
-        coordinate_type vp2_x = (get<0>(p2) - get<0>(vertex));
-        coordinate_type vp2_y = (get<1>(p2) - get<1>(vertex));
+        coordinate_type const vp2_x = (get<0>(p2) - get<0>(vertex));
+        coordinate_type const vp2_y = (get<1>(p2) - get<1>(vertex));
 
         // Average them to generate vector in between
-        coordinate_type two = 2;
-        coordinate_type v_x = (vp1_x + vp2_x) / two;
-        coordinate_type v_y = (vp1_y + vp2_y) / two;
+        coordinate_type const two = 2;
+        coordinate_type const v_x = (vp1_x + vp2_x) / two;
+        coordinate_type const v_y = (vp1_y + vp2_y) / two;
 
-        coordinate_type length2 = geometry::math::sqrt(v_x * v_x + v_y * v_y);
+        PromotedType const length2 = geometry::math::sqrt(v_x * v_x + v_y * v_y);
 
-        coordinate_type prop = buffer_distance / length2;
+        PromotedType prop = buffer_distance / length2;
 
         Point mid_point;
         set<0>(mid_point, get<0>(vertex) + v_x * prop);
@@ -67,12 +73,12 @@ public :
 
         if (level < m_max_level)
         {
-            mid_points(vertex, p1, mid_point, buffer_distance, range_out, level + 1);
+            mid_points<PromotedType>(vertex, p1, mid_point, buffer_distance, range_out, level + 1);
         }
         range_out.push_back(mid_point);
         if (level < m_max_level)
         {
-            mid_points(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
+            mid_points<PromotedType>(vertex, mid_point, p2, buffer_distance, range_out, level + 1);
         }
     }
 
@@ -101,14 +107,13 @@ public :
         }
 
         // Generate 'vectors'
-        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
+        coordinate_type const vix = (get<0>(ip) - get<0>(vertex));
+        coordinate_type const viy = (get<1>(ip) - get<1>(vertex));
 
-        coordinate_type length_i =
-            geometry::math::sqrt(vix * vix + viy * viy);
+        promoted_type const length_i = geometry::math::sqrt(vix * vix + viy * viy);
 
-        coordinate_type const bd = geometry::math::abs(buffer_distance);
-        coordinate_type prop = bd / length_i;
+        promoted_type const bd = geometry::math::abs(buffer_distance);
+        promoted_type prop = bd / length_i;
 
         Point bp;
         set<0>(bp, get<0>(vertex) + vix * prop);
@@ -118,9 +123,9 @@ public :
 
         if (m_max_level > 1)
         {
-            mid_points(vertex, perp1, bp, bd, range_out);
+            mid_points<promoted_type>(vertex, perp1, bp, bd, range_out);
             range_out.push_back(bp);
-            mid_points(vertex, bp, perp2, bd, range_out);
+            mid_points<promoted_type>(vertex, bp, perp2, bd, range_out);
         }
         else if (m_max_level == 1)
         {
