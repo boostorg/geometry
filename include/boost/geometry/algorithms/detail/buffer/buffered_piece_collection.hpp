@@ -573,7 +573,7 @@ struct buffered_piece_collection
     inline void finish_ring()
     {
         BOOST_ASSERT(m_first_piece_index != -1);
-        if (m_first_piece_index < boost::size(m_pieces))
+        if (m_first_piece_index < static_cast<int>(boost::size(m_pieces)))
         {
             // If piece was added
             // Reassign left-of-first and right-of-last

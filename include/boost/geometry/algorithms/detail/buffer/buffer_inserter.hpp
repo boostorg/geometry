@@ -576,7 +576,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             SideStrategy const& side_strategy,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
-            PointStrategy const& point_strategy,
+            PointStrategy const& ,
             RobustPolicy const& robust_policy)
     {
         if (boost::size(linestring) > 1)
