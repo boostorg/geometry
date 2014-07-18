@@ -6,13 +6,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Code to create SVG for examples
+// Code to create SVG for buffer examples
 
 #ifndef CREATE_SVG_BUFFER_HPP
 #define CREATE_SVG_BUFFER_HPP
 
 #include <fstream>
-#include <boost/algorithm/string.hpp>
 
 #if defined(HAVE_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
@@ -22,8 +21,6 @@ template <typename Geometry1, typename Geometry2>
 void create_svg_buffer(std::string const& filename, Geometry1 const& original, Geometry2 const& buffer)
 {
 #if defined(HAVE_SVG)
-    std::cout  << std::endl << "[$img/algorithms/" << boost::replace_all_copy(filename, ".svg", ".png") << "]" << std::endl << std::endl;
-
     typedef typename boost::geometry::point_type<Geometry1>::type point_type;
     std::ofstream svg(filename.c_str());
 
@@ -31,7 +28,7 @@ void create_svg_buffer(std::string const& filename, Geometry1 const& original, G
     mapper.add(original);
     mapper.add(buffer);
 
-    // Draw buffer below
+    // Draw buffer at bottom
     mapper.map(buffer, "fill-opacity:0.6;fill:rgb(255,255,64);stroke:rgb(255,128,0);stroke-width:5;stroke-dasharray:1,7;stroke-linecap:round");
 
     // Draw original on top
@@ -45,7 +42,7 @@ void create_svg_buffer(std::string const& filename, Geometry1 const& original, G
 }
 
 // NOTE: convert manually from svg to png using Inkscape ctrl-shift-E
-// and copy png to html/img/algorithms/
+// and copy png to html/img/...
 
 
 #endif // CREATE_SVG_BUFFER_HPP
