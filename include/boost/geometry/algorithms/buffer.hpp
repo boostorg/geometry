@@ -216,17 +216,17 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 \tparam GeometryIn \tparam_geometry
 \tparam MultiPolygon \tparam_geometry
 \tparam DistanceStrategy A strategy defining distance behaviour (symmetric, asymetric)
-\tparam SideStrategy A strategy defining side behaviour
-\tparam JoinStrategy A strategy defining join behaviour (round, miter)
-\tparam EndStrategy A strategy defining end behaviour (round, flat)
-\tparam CircleStrategy A strategy defining circle behaviour
+\tparam SideStrategy A strategy defining creation of buffer along sides
+\tparam JoinStrategy A strategy defining creation of buffer around convex joins (round, miter)
+\tparam EndStrategy A strategy defining creation of buffer at linestring ends (round, flat)
+\tparam PointStrategy A strategy defining creation of buffer around points
 \param geometry_in \param_geometry
 \param geometry_out output multi polygon (or std:: collection of polygons), contains buffer of input geometry
 \param distance_strategy The distance strategy to be used
 \param side_strategy The side strategy to be used
 \param join_strategy The join strategy to be used
 \param end_strategy The end strategy to be used
-\param circle_strategy The circle strategy to be used
+\param point_strategy The point strategy to be used
 
 \qbk{distinguish,with strategies}
 \qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
@@ -239,7 +239,7 @@ template
     typename SideStrategy,
     typename JoinStrategy,
     typename EndStrategy,
-    typename CircleStrategy
+    typename PointStrategy
 >
 inline void buffer(GeometryIn const& geometry_in,
                 MultiPolygon& geometry_out,
@@ -247,7 +247,7 @@ inline void buffer(GeometryIn const& geometry_in,
                 SideStrategy const& side_strategy,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
-                CircleStrategy const& circle_strategy)
+                PointStrategy const& point_strategy)
 {
     typedef typename boost::range_value<MultiPolygon>::type polygon_type;
     concept::check<GeometryIn const>();
@@ -266,7 +266,7 @@ inline void buffer(GeometryIn const& geometry_in,
                 side_strategy,
                 join_strategy,
                 end_strategy,
-                circle_strategy,
+                point_strategy,
                 rescale_policy);
 }
 
