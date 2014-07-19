@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="bg_logo.svg">
+   sodipodi:docname="logo.svg">
   <defs
      id="defs4">
     <linearGradient
@@ -892,7 +892,7 @@
       <stop
          id="stop3329-7-0-1-0"
          offset="0"
-         style="stop-opacity:1;stop-color:#aeaeb3" />
+         style="stop-color:#e0e0e0;stop-opacity:1;" />
       <stop
          id="stop3331-4-3-0-0"
          offset="0.949438"
@@ -4444,10 +4444,10 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="982"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1600"
+     inkscape:window-height="840"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -4469,9 +4469,9 @@
        id="g3319-1-2-5-1"
        transform="matrix(0.10419818,0,0,-0.10419818,91.831603,495.46092)"
        style="fill:url(#radialGradient4520);fill-opacity:1"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523">
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001">
       <g
          clip-path="url(#clipPath3323-7-2-4-5)"
          id="g3321-9-2-7-4"
@@ -4487,9 +4487,9 @@
        id="g3347-6-8-3-7"
        transform="matrix(0.125,0,0,-0.125,66.805103,558.27964)"
        style="fill:url(#linearGradient4514);fill-opacity:1"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523">
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001">
       <g
          clip-path="url(#clipPath3351-4-7-3-5)"
          id="g3349-5-5-4-7"
@@ -4506,16 +4506,16 @@
        d="m 168.35861,192.9448 19.42981,0.15544 11.34701,19.42981 -19.27438,-0.15544 z"
        id="path4616-8-3-2-3"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <g
        id="g3365-4-1-2-7-4"
        transform="matrix(0.12493619,0,0,-0.12493619,36.575169,557.37624)"
        style="fill:url(#radialGradient4508);fill-opacity:1"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523">
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001">
       <g
          clip-path="url(#clipPath3369-5-5-4-6-4)"
          id="g3367-0-3-7-3-8"
@@ -4533,16 +4533,16 @@
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
        d="m 149.07022,216.14089 13.106,-22.3925 25.99649,0 13.21487,22.60874 -13.21487,22.39128 -25.99649,0 -13.106,-22.60752 z m 40.53761,-24.8925 -28.86524,0 -0.72412,1.23749 -13.106,22.39251 -0.73575,1.25625 0.73087,1.26 13.106,22.60747 0.72263,1.24634 28.86374,0 0.72512,-1.22884 13.215,-22.39122 0.74625,-1.265 -0.74,-1.26751 -13.21537,-22.60875 -0.72313,-1.23874"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <g
        id="g3365-0-4-1-9"
        transform="matrix(0.125,0,0,-0.125,66.805103,558.27964)"
        style="fill:url(#linearGradient4502);fill-opacity:1"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523">
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001">
       <g
          clip-path="url(#clipPath3369-1-5-6-1)"
          id="g3367-2-4-2-8"
@@ -4559,24 +4559,24 @@
        d="m 206.44104,171.33885 -10.8807,18.18629 11.03612,18.80806 10.56983,-18.34174 z"
        id="path4626-8-9-7-5"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <path
        id="path3381-6-8-0-0"
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
        d="m 196.58633,189.85713 12.3925,-21.38999 25.99625,0 13.27125,22.37625 -13.27125,22.7025 -24.56875,0.11 -13.82,-23.79876 z m 39.8125,-23.88999 -28.86125,0 -0.7225,1.24625 -12.3925,21.39 -0.72625,1.255 0.7275,1.25374 13.82,23.79876 0.7275,1.25125 1.44625,-0.006 24.56875,-0.11 1.4275,-0.006 0.72,-1.2325 13.27125,-22.7025 0.7425,-1.27 -0.75125,-1.26625 -13.27125,-22.37625 -0.72625,-1.225"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <g
        id="g3383-5-5-2-2"
        transform="matrix(0.125,0,0,-0.125,66.805103,558.27964)"
        style="fill:url(#linearGradient4496);fill-opacity:1"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523">
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001">
       <g
          clip-path="url(#clipPath3387-3-6-4-2)"
          id="g3385-0-6-4-8"
@@ -4593,26 +4593,26 @@
        d="m 168.51405,185.17288 20.82875,0 10.1035,-17.25367 -20.98419,-0.15544 z"
        id="path4606-0-0-0-0"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <path
        id="path3399-6-7-3-2"
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
        d="m 162.36809,170.87713 12.92424,-22.56624 25.68775,0 6.95625,12.21375 -3.94375,0 -14.56837,24.7025 -19.11525,-0.055 -7.94087,-14.295 z m 40.06574,-25.06624 -28.59012,0 -0.71975,1.2575 -12.92537,22.56625 -0.70112,1.22375 0.68512,1.23249 7.94137,14.295 0.71087,1.2825 1.46638,0.004 19.11525,0.055 1.43212,0.004 0.729,-1.23375 13.84375,-23.47249 6.81625,0 -2.12875,-3.7375 -6.95625,-12.21375 -0.71875,-1.2625"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <path
        id="path3381-4-9-6-5-5"
        style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
        d="m 167.79799,189.22578 11.52272,-19.88872 24.17166,0 12.33979,20.80574 -12.33979,21.1091 -22.84435,0.10229 z m 37.27064,-22.66629 -27.35662,0 -0.68484,1.18127 -11.74644,20.27488 -0.68839,1.18957 0.68957,1.18839 13.09952,22.55805 0.68957,1.18601 1.37085,-0.006 23.2879,-0.10427 1.35309,-0.006 0.68247,-1.16825 12.57937,-21.51894 0.7038,-1.20378 -0.7121,-1.20024 -12.57938,-21.2097 -0.68837,-1.16114"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccccccccccccccccc"
-       inkscape:export-filename="C:\Users\Adam\Desktop\bg_logo1.png"
-       inkscape:export-xdpi="63.625523"
-       inkscape:export-ydpi="63.625523" />
+       inkscape:export-filename="/home/adam/Desktop/pic.png"
+       inkscape:export-xdpi="63.630001"
+       inkscape:export-ydpi="63.630001" />
     <g
        transform="matrix(1.25,0,0,-1.25,59.742689,571.30013)"
        id="g3465-0"
