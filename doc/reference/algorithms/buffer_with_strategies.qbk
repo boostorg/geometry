@@ -15,7 +15,6 @@
 [heading Examples]
 [buffer_with_strategies]
 
-
 [heading The linestring case]
 [$img/algorithms/buffer_linestring.png]
 
@@ -24,3 +23,7 @@
 
 [heading The multi_polygon case]
 [$img/algorithms/buffer_multi_polygon.png]
+
+[heading Available Strategies]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_circle Circle (cartesian)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_square Square (cartesian)]

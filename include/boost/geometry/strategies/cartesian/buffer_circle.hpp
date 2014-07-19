@@ -22,14 +22,38 @@ namespace boost { namespace geometry
 namespace strategy { namespace buffer
 {
 
-// Strategy to create a buffer around a point using a specified amount of points
+/*!
+\brief Create a circular buffer around a point
+\ingroup strategies
+\details This strategy can be used as PointStrategy for the buffer algorithm.
+    It creates a circular buffer around a point. It can be applied
+    for points and multi_points, but also for a linestring (if it is degenerate,
+    so consisting of only one point) and for polygons (if it is degenerate).
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_circle]
+[heading Output]
+[$img/strategies/buffer_circle.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
 class buffer_circle
 {
 public :
+    //! Constructs the strategy with default number of points (90)
+    buffer_circle()
+        : m_count(90)
+    {}
+
+    //! Constructs the strategy specifying the nuber of points
     explicit buffer_circle(std::size_t count)
         : m_count(count)
     {}
 
+    //! Fills output_range with a circle around point using distance_strategy
     template
     <
         typename Point,

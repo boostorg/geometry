@@ -300,6 +300,8 @@
 [include generated/distance_cross_track.qbk]
 [include generated/area_surveyor.qbk]
 [include generated/area_huiller.qbk]
+[include generated/buffer_buffer_circle.qbk]
+[include generated/buffer_buffer_square.qbk]
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
 [include generated/convex_hull_graham_andrew.qbk]

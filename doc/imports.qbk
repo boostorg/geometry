@@ -114,5 +114,8 @@
 [import src/examples/io/wkt.cpp]
 [import src/examples/io/read_wkt.cpp]
 
+[import src/examples/strategies/buffer_circle.cpp]
+[import src/examples/strategies/buffer_square.cpp]
+
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]
