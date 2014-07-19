@@ -1,0 +1,109 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+
+#include <cstddef>
+
+#include <boost/range.hpp>
+
+#include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/strategies/buffer.hpp>
+
+
+namespace boost { namespace geometry
+{
+
+namespace strategy { namespace buffer
+{
+
+/*!
+\brief Create a circular buffer around a point
+\ingroup strategies
+\details This strategy can be used as PointStrategy for the buffer algorithm.
+    It creates a circular buffer around a point. It can be applied
+    for points and multi_points, but also for a linestring (if it is degenerate,
+    so consisting of only one point) and for polygons (if it is degenerate).
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_circle]
+[heading Output]
+[$img/strategies/buffer_circle.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
+class buffer_circle
+{
+public :
+    //! Constructs the strategy with default number of points (90)
+    buffer_circle()
+        : m_count(90)
+    {}
+
+    //! Constructs the strategy specifying the nuber of points
+    explicit buffer_circle(std::size_t count)
+        : m_count(count)
+    {}
+
+    //! Fills output_range with a circle around point using distance_strategy
+    template
+    <
+        typename Point,
+        typename OutputRange,
+        typename DistanceStrategy
+    >
+    inline void apply(Point const& point,
+                DistanceStrategy const& distance_strategy,
+                OutputRange& output_range) const
+    {
+        typedef typename boost::range_value<OutputRange>::type output_point_type;
+
+        typedef typename geometry::select_most_precise
+            <
+                typename geometry::select_most_precise
+                    <
+                        typename geometry::coordinate_type<Point>::type,
+                        typename geometry::coordinate_type<output_point_type>::type
+                    >::type,
+                double
+            >::type promoted_type;
+
+        promoted_type const buffer_distance = distance_strategy.apply(point, point,
+                        strategy::buffer::buffer_side_left);
+
+        promoted_type const two = 2.0;
+        promoted_type const two_pi = two * geometry::math::pi<promoted_type>();
+
+        promoted_type const diff = two_pi / promoted_type(m_count);
+        promoted_type a = 0;
+
+        for (std::size_t i = 0; i < m_count; i++, a -= diff)
+        {
+            output_point_type p;
+            set<0>(p, get<0>(point) + buffer_distance * cos(a));
+            set<1>(p, get<1>(point) + buffer_distance * sin(a));
+            output_range.push_back(p);
+        }
+
+        // Close it:
+        output_range.push_back(output_range.front());
+    }
+
+private :
+    std::size_t m_count;
+};
+
+
+}} // namespace strategy::buffer
+
+}} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP

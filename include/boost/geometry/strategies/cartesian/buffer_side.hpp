@@ -8,24 +8,16 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_HPP
 
 #include <cstddef>
-#include <iterator>
 
-#include <boost/numeric/conversion/cast.hpp>
+#include <boost/assert.hpp>
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
-
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
-#include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
-#include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
-#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
-#include <boost/geometry/algorithms/simplify.hpp>
 
 
 namespace boost { namespace geometry

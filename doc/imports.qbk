@@ -20,6 +20,7 @@
 [import src/examples/algorithms/assign_3d_point.cpp]
 [import src/examples/algorithms/assign_inverse.cpp]
 [import src/examples/algorithms/assign_points.cpp]
+[import src/examples/algorithms/buffer_with_strategies.cpp]
 [import src/examples/algorithms/clear.cpp]
 [import src/examples/algorithms/centroid.cpp]
 [import src/examples/algorithms/comparable_distance.cpp]
@@ -82,7 +83,10 @@
 [import src/examples/geometries/adapted/c_array.cpp]
 [import src/examples/geometries/adapted/boost_array.cpp]
 [import src/examples/geometries/adapted/boost_fusion.cpp]
-[import src/examples/geometries/adapted/boost_polygon.cpp]
+[import src/examples/geometries/adapted/boost_polygon_box.cpp]
+[import src/examples/geometries/adapted/boost_polygon_point.cpp]
+[import src/examples/geometries/adapted/boost_polygon_polygon.cpp]
+[import src/examples/geometries/adapted/boost_polygon_ring.cpp]
 [import src/examples/geometries/adapted/boost_tuple.cpp]
 
 [import src/examples/geometries/adapted/boost_range/filtered.cpp]
@@ -109,6 +113,9 @@
 [import src/examples/io/svg.cpp]
 [import src/examples/io/wkt.cpp]
 [import src/examples/io/read_wkt.cpp]
+
+[import src/examples/strategies/buffer_circle.cpp]
+[import src/examples/strategies/buffer_square.cpp]
 
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]

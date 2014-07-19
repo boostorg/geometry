@@ -1,0 +1,29 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================/]
+
+[def __this_function__ buffer]
+
+[heading_conformance_ogc __this_function__..Buffer]
+
+[heading Examples]
+[buffer_with_strategies]
+
+[heading The linestring case]
+[$img/algorithms/buffer_linestring.png]
+
+[heading The multi_point case]
+[$img/algorithms/buffer_multi_point.png]
+
+[heading The multi_polygon case]
+[$img/algorithms/buffer_multi_polygon.png]
+
+[heading Available Strategies]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_circle Circle (cartesian)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_square Square (cartesian)]

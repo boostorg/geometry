@@ -27,38 +27,28 @@ namespace strategy { namespace buffer
 {
 
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
 class end_flat
 {
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
-    typedef typename coordinate_type<PointOut>::type coordinate_type;
-
-    typedef typename geometry::select_most_precise
-        <
-            typename geometry::select_most_precise
-                <
-                    typename geometry::coordinate_type<PointIn>::type,
-                    typename geometry::coordinate_type<PointOut>::type
-                >::type,
-            double
-        >::type promoted_type;
-
 
 public :
 
-    template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& penultimate_point,
-                PointIn const& perp_left_point,
-                PointIn const& ultimate_point,
-                PointIn const& perp_right_point,
+    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    inline void apply(Point const& penultimate_point,
+                Point const& perp_left_point,
+                Point const& ultimate_point,
+                Point const& perp_right_point,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
+        typedef typename coordinate_type<Point>::type coordinate_type;
+
+        typedef typename geometry::select_most_precise
+        <
+            coordinate_type,
+            double
+        >::type promoted_type;
+
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
 

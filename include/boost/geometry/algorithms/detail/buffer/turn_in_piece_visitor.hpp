@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>

@@ -19,4 +19,5 @@ build-project algorithms ;
 build-project core ;
 build-project geometries ;
 build-project io ;
+build-project strategies ;
 build-project views ;
