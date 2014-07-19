@@ -27,6 +27,23 @@ namespace strategy { namespace buffer
 {
 
 
+/*!
+\brief Let the buffer create rounded ends
+\ingroup strategies
+\details This strategy can be used as EndStrategy for the buffer algorithm.
+    It creates a rounded end for each linestring-end. It can be applied
+    for (multi)linestrings. Also it is applicable for spikes in (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_end_round]
+[heading Output]
+[$img/strategies/buffer_end_round.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
 class end_round
 {
 private :
@@ -74,10 +91,17 @@ private :
     }
 
 public :
-    inline end_round(int steps_per_circle = 100)
+    //! Constructs the strategy with default number of points (100)
+    inline end_round()
+        : m_steps_per_circle(100)
+    {}
+
+    //! Constructs the strategy specifying the nuber of points
+    explicit inline end_round(int steps_per_circle)
         : m_steps_per_circle(steps_per_circle)
     {}
 
+    //! Fills output_range with a flat end
     template <typename Point, typename RangeOut, typename DistanceStrategy>
     inline void apply(Point const& penultimate_point,
                 Point const& perp_left_point,
@@ -120,6 +144,7 @@ public :
         }
     }
 
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_round_end;

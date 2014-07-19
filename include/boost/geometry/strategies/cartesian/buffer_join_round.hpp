@@ -28,15 +28,40 @@ namespace boost { namespace geometry
 namespace strategy { namespace buffer
 {
 
+/*!
+\brief Let the buffer create rounded corners
+\ingroup strategies
+\details This strategy can be used as JoinStrategy for the buffer algorithm.
+    It creates a rounded corners around each convex vertex. It can be applied
+    for (multi)linestrings and (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+    The specified number of points is for a full circle, which will in practice
+    never be the case
 
+\qbk{
+[heading Example]
+[buffer_join_round]
+[heading Output]
+[$img/strategies/buffer_join_round.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
 class join_round
 {
 public :
 
-    inline join_round(int steps_per_circle = 100)
+    //! Constructs the strategy with default number of points (100)
+    inline join_round()
+        : m_steps_per_circle(100)
+    {}
+
+    //! Constructs the strategy specifying the nuber of points
+    explicit inline join_round(int steps_per_circle)
         : m_steps_per_circle(steps_per_circle)
     {}
 
+private :
     template <typename Point, typename DistanceType, typename RangeOut>
     inline void generate_points(Point const& vertex,
                 Point const& perp1, Point const& perp2,
@@ -99,6 +124,9 @@ public :
         }
     }
 
+public :
+
+    //! Fills output_range with a rounded shape around a vertex
     template <typename Point, typename DistanceType, typename RangeOut>
     inline bool apply(Point const& ip, Point const& vertex,
                 Point const& perp1, Point const& perp2,
@@ -139,10 +167,7 @@ private :
 };
 
 
-
-
 }} // namespace strategy::buffer
-
 
 }} // namespace boost::geometry
 

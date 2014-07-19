@@ -13,3 +13,9 @@ project boost-geometry-doc-example-strategies
 
 exe buffer_circle : buffer_circle.cpp ;
 exe buffer_square : buffer_square.cpp ;
+exe buffer_join_round : buffer_join_round.cpp ;
+exe buffer_join_miter : buffer_join_miter.cpp ;
+exe buffer_end_round : buffer_end_round.cpp ;
+exe buffer_end_flat : buffer_end_flat.cpp ;
+exe buffer_distance_symmetric : buffer_distance_symmetric.cpp ;
+exe buffer_distance_asymmetric : buffer_distance_asymmetric.cpp ;

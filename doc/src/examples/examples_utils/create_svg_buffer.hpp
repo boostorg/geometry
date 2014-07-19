@@ -29,10 +29,10 @@ void create_svg_buffer(std::string const& filename, Geometry1 const& original, G
     mapper.add(buffer);
 
     // Draw buffer at bottom
-    mapper.map(buffer, "fill-opacity:0.6;fill:rgb(255,255,64);stroke:rgb(255,128,0);stroke-width:5;stroke-dasharray:1,7;stroke-linecap:round");
+    mapper.map(buffer, "fill-opacity:0.6;fill:rgb(255,255,64);stroke:rgb(255,128,0);stroke-width:3");
 
     // Draw original on top
-    mapper.map(original, "fill-opacity:0.6;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:3");
+    mapper.map(original, "fill-opacity:0.6;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:2");
 
 #else
     boost::ignore_unused_variable_warning(filename);

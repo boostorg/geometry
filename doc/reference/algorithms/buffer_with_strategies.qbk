@@ -25,5 +25,11 @@
 [$img/algorithms/buffer_multi_polygon.png]
 
 [heading Available Strategies]
+* JoinStrategy: [link geometry.reference.strategies.strategy_buffer_join_round Round (cartesian)]
+* JoinStrategy: [link geometry.reference.strategies.strategy_buffer_join_miter Miter (cartesian)]
+* EndStrategy: [link geometry.reference.strategies.strategy_buffer_end_round Round (cartesian)]
+* EndStrategy: [link geometry.reference.strategies.strategy_buffer_end_flat Flat (cartesian)]
+* DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_symmetric Symmetric]
+* DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_asymmetric Asymmetric]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_circle Circle (cartesian)]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_square Square (cartesian)]

@@ -26,13 +26,35 @@ namespace strategy { namespace buffer
 
 // TODO: condider merging/baseclassing join strategies to avoid duplicate code
 
-struct join_miter
-{
+/*!
+\brief Let the buffer create sharp corners
+\ingroup strategies
+\details This strategy can be used as JoinStrategy for the buffer algorithm.
+    It creates a sharp corners around each convex vertex. It can be applied
+    for (multi)linestrings and (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
 
-    // Constructor compatible with other join strategies:
-    inline join_miter(int = 0)
+\qbk{
+[heading Example]
+[buffer_join_miter]
+[heading Output]
+[$img/strategies/buffer_join_miter.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
+class join_miter
+{
+public:
+    //! Constructs the strategy
+    inline join_miter()
     {}
 
+    //! Constructs the strategy with a (currently dummy) integer
+    explicit inline join_miter(int)
+    {}
+
+    //! Fills output_range with a sharp shape around a vertex
     template <typename Point, typename DistanceType, typename RangeOut>
     inline bool apply(Point const& ip, Point const& vertex,
                 Point const& perp1, Point const& perp2,
@@ -81,7 +103,6 @@ struct join_miter
         return true;
     }
 };
-
 
 
 }} // namespace strategy::buffer
