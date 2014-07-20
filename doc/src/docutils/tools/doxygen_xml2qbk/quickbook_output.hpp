@@ -58,6 +58,27 @@ std::string qbk_escaped(std::string const& s)
 }
 
 
+inline void next_item(std::string const& first, std::string const& indent,
+                std::size_t items_per_line,
+                std::size_t& index, std::ostream& out)
+{
+    if (index > 0)
+    {
+        if (index % items_per_line == 0)
+        {
+            out << "," << std::endl << indent;
+        }
+        else
+        {
+            out << ", ";
+        }
+    }
+    else
+    {
+        std::cout << first;
+    }
+    index++;
+}
 
 void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
                 std::string const& related_name,
@@ -65,16 +86,19 @@ void quickbook_template_parameter_list(std::vector<parameter> const& parameters,
 {
     if (!parameters.empty())
     {
-        out << "template<" ;
-        bool first = true;
+        std::string const header = "template<";
+        std::size_t index = 0;
+        std::string const indent(header.length(), ' ');
+        out << header;
         BOOST_FOREACH(parameter const& p, parameters)
         {
             if (p.fulltype.empty())
             {
                 std::cerr << "Warning: template parameter " << p.name << " has no type in " << related_name << std::endl;
             }
-            out << (first ? "" : ", ") << p.fulltype;
-            first = false;
+
+            next_item("", indent, 4, index, out);
+            out << p.fulltype;
         }
         out << ">" << std::endl;
     }
@@ -108,21 +132,21 @@ void quickbook_synopsis(function const& f, std::ostream& out)
     // Output the parameters
     // Because we want to be able to skip, we cannot use the argstring
     {
-        bool first = true;
+        std::size_t index = 0;
+        std::string const indent(f.name.length() + f.return_type.length() + 2, ' ');
         BOOST_FOREACH(parameter const& p, f.parameters)
         {
             if (! p.skip)
             {
-                out
-                    << (first ? "(" : ", ")
-                    << p.fulltype << (p.fulltype.empty() ? "" : " ")
+                next_item("(", indent, 3, index, out);
+
+                out << p.fulltype << (p.fulltype.empty() ? "" : " ")
                     << p.name
                     << (p.default_value.empty() ? "" : " = ")
                     << p.default_value;
-                first = false;
             }
         }
-        if (! first)
+        if (index > 0)
         {
             out << ")";
         }
