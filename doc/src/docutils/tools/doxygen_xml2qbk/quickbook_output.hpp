@@ -480,7 +480,7 @@ void quickbook_output(enumeration const& e, configuration const& config, std::os
 void quickbook_output_function(std::vector<function> const& functions,
                                 function_type type,
                                 std::string const& title,
-                                configuration const& config, std::ostream& out)
+                                configuration const& , std::ostream& out)
 {
     std::string returns = type == function_constructor_destructor ? "" : " [Returns]";
     out << "[heading " << title << "(s)]" << std::endl
@@ -689,7 +689,7 @@ std::string replace_brackets(std::string const& str)
 }
 
 void quickbook_output_enumerations(std::vector<enumeration> const& enumerations,
-                                  configuration const& config,
+                                  configuration const& ,
                                   std::ostream& out)
 {
     out << "[table" << std::endl
@@ -731,7 +731,7 @@ void quickbook_synopsis_short(function const& f, std::ostream& out)
 
 void quickbook_output_functions(std::vector<function> const& functions,
                                 function_type type,
-                                configuration const& config,
+                                configuration const& ,
                                 std::ostream& out,
                                 bool display_all = false,
                                 std::string const& ColTitle = "Function")
@@ -1066,7 +1066,7 @@ bool has_brief_description(Range const& rng, function_type t)
 
 void quickbook_output_functions_details(std::vector<function> const& functions,
                                         function_type type,
-                                        configuration const& config,
+                                        configuration const& ,
                                         std::ostream& out,
                                         bool display_all = false)
 {
@@ -1195,7 +1195,7 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
     }
 }
 
-void quickbook_output_enumeration_details(enumeration const& e, configuration const& config, std::ostream& out)
+void quickbook_output_enumeration_details(enumeration const& e, configuration const& , std::ostream& out)
 {
     out << "[#" << e.id << "]\n";
     out << "[section " << e.name << "]" << std::endl
