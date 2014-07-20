@@ -214,14 +214,15 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 \ingroup buffer
 \details \details_calc{buffer, \det_buffer}.
 \tparam GeometryIn \tparam_geometry
-\tparam MultiPolygon \tparam_geometry
-\tparam DistanceStrategy A strategy defining distance behaviour (symmetric, asymetric)
-\tparam SideStrategy A strategy defining creation of buffer along sides
-\tparam JoinStrategy A strategy defining creation of buffer around convex joins (round, miter)
-\tparam EndStrategy A strategy defining creation of buffer at linestring ends (round, flat)
-\tparam PointStrategy A strategy defining creation of buffer around points
+\tparam MultiPolygon \tparam_geometry{MultiPolygon}
+\tparam DistanceStrategy A strategy defining distance (or radius)
+\tparam SideStrategy A strategy defining creation along sides
+\tparam JoinStrategy A strategy defining creation around convex corners
+\tparam EndStrategy A strategy defining creation at linestring ends
+\tparam PointStrategy A strategy defining creation around points
 \param geometry_in \param_geometry
-\param geometry_out output multi polygon (or std:: collection of polygons), contains buffer of input geometry
+\param geometry_out output multi polygon (or std:: collection of polygons),
+    will contain a buffered version of the input geometry
 \param distance_strategy The distance strategy to be used
 \param side_strategy The side strategy to be used
 \param join_strategy The join strategy to be used

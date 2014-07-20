@@ -45,7 +45,7 @@ int main()
 
     // Declare/fill a multi point
     boost::geometry::model::multi_point<point> mp;
-    boost::geometry::read_wkt("MULTIPOINT((3 3),(4 4))", mp);
+    boost::geometry::read_wkt("MULTIPOINT((3 3),(4 4),(6 2))", mp);
 
     // Create the buffer of a multi point
     boost::geometry::buffer(mp, result,

@@ -24,7 +24,7 @@ The next figure shows where in the generated buffer the strategies have effect
 [$img/algorithms/buffer_strategies.png]
 
 [heading_conformance_ogc __this_function__..Buffer]
-It is conformant if used with the following combination of strategies
+It is conformant if used with the following combination of strategies:
 [link geometry.reference.strategies.strategy_buffer_join_round join_round],
 [link geometry.reference.strategies.strategy_buffer_end_round end_round],
 [link geometry.reference.strategies.strategy_buffer_distance_symmetric distance_symmetric],
