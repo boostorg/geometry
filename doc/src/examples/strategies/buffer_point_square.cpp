@@ -31,7 +31,7 @@ int main()
     boost::geometry::strategy::buffer::distance_symmetric<coordinate_type> distance_strategy(buffer_distance);
     boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
     boost::geometry::strategy::buffer::end_round end_strategy(points_per_circle);
-    boost::geometry::strategy::buffer::buffer_side side_strategy;
+    boost::geometry::strategy::buffer::side_straight side_strategy;
 
     // Declare output
     boost::geometry::model::multi_polygon<polygon> result;

@@ -40,9 +40,9 @@
 #include <boost/geometry/strategies/cartesian/buffer_join_miter.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_join_round.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_join_round_by_divide.hpp>
-#include <boost/geometry/strategies/cartesian/buffer_side.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_point_circle.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_point_square.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side_straight.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>

@@ -400,7 +400,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         > 
     distance_strategy(distance_left, distance_right);
 
-    bg::strategy::buffer::buffer_side side_strategy;
+    bg::strategy::buffer::side_straight side_strategy;
 
     // For (multi)points a buffer with 88 points is used for testing.
     // More points will give a more precise result - expected area should be

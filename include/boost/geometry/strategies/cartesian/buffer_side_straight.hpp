@@ -4,8 +4,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_STRAIGHT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_STRAIGHT_HPP
 
 #include <cstddef>
 
@@ -27,7 +27,7 @@ namespace strategy { namespace buffer
 {
 
 
-class buffer_side
+class side_straight
 {
 public :
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -78,4 +78,4 @@ public :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_STRAIGHT_HPP

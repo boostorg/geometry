@@ -27,7 +27,7 @@ int main()
 
     // Declare other strategies
     boost::geometry::strategy::buffer::distance_symmetric<double> distance_strategy(1.0);
-    boost::geometry::strategy::buffer::buffer_side side_strategy;
+    boost::geometry::strategy::buffer::side_straight side_strategy;
     boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
     boost::geometry::strategy::buffer::point_circle point_strategy(points_per_circle);
 
