@@ -318,6 +318,7 @@ template
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
+            JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
             bool check_self_intersections, double expected_area,
             double distance_left, double distance_right,
             double tolerance,
@@ -389,10 +390,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 #else
     bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
-
-    JoinStrategy join_strategy;
-
-    EndStrategy end_strategy;
 
     bg::strategy::buffer::distance_asymmetric
         <
@@ -499,11 +496,12 @@ static int counter = 0;
 template
 <
     typename Geometry,
+    typename GeometryOut,
     typename JoinStrategy,
-    typename EndStrategy,
-    typename GeometryOut
+    typename EndStrategy
 >
 void test_one(std::string const& caseid, std::string const& wkt,
+        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
         double distance_left, double distance_right = -999,
         bool check_self_intersections = true,
@@ -527,8 +525,9 @@ void test_one(std::string const& caseid, std::string const& wkt,
         << std::endl;
 #endif
 
-    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
-            (caseid, g, check_self_intersections, expected_area,
+    test_buffer<GeometryOut>
+            (caseid, g, join_strategy, end_strategy,
+            check_self_intersections, expected_area,
             distance_left, distance_right, tolerance, NULL);
 }
 
@@ -536,11 +535,12 @@ void test_one(std::string const& caseid, std::string const& wkt,
 template
 <
     typename Geometry,
+    typename GeometryOut,
     typename JoinStrategy,
-    typename EndStrategy,
-    typename GeometryOut
+    typename EndStrategy
 >
 void test_one(std::string const& caseid, std::string const& wkt,
+        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
         double distance_left, double distance_right,
         std::size_t& self_ip_count,
@@ -551,8 +551,8 @@ void test_one(std::string const& caseid, std::string const& wkt,
     bg::read_wkt(wkt, g);
     bg::correct(g);
 
-    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
-            (caseid, g, false, expected_area,
+    test_buffer<GeometryOut>(caseid, g, join_strategy, end_strategy,
+            false, expected_area,
             distance_left, distance_right, tolerance, &self_ip_count);
 }
 
