@@ -172,7 +172,7 @@ void quickbook_synopsis(enumeration const& e, std::ostream& out)
         if (! value.initializer.empty())
         {
             // Doxygen 1.6 does not include "=" in the <initializer> tag, Doxygen 1.8 does.
-            // We just remove the "=" to have consisten output
+            // We just remove the "=" to have consistent output
             out << " = " << boost::trim_copy(boost::replace_all_copy(value.initializer, "=", ""));
         }
         first = false;
@@ -234,7 +234,7 @@ void quickbook_header(std::string const& location,
                 << std::endl << std::endl;
             BOOST_FOREACH(std::string const& header, including_headers)
             {
-                out << "`#include <" << config.start_include << header << ">`" << std::endl;
+                out << "`#include <" << config.start_include << header << ">`" << std::endl << std::endl;
             }
 
             out << std::endl << "Or" << std::endl << std::endl;
