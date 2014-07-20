@@ -35,8 +35,6 @@ namespace strategy { namespace buffer
     It creates a rounded corners around each convex vertex. It can be applied
     for (multi)linestrings and (multi)polygons.
     This strategy is only applicable for Cartesian coordinate systems.
-    The specified number of points is for a full circle, which will in practice
-    never be the case
 
 \qbk{
 [heading Example]
@@ -52,14 +50,10 @@ class join_round
 {
 public :
 
-    //! Constructs the strategy with default number of points (100)
-    inline join_round()
-        : m_steps_per_circle(100)
-    {}
-
-    //! Constructs the strategy specifying the nuber of points
-    explicit inline join_round(int steps_per_circle)
-        : m_steps_per_circle(steps_per_circle)
+    //! \brief Constructs the strategy
+    //! \param points_per_circle points which would be used for a full circle
+    explicit inline join_round(std::size_t points_per_circle = 90)
+        : m_points_per_circle(points_per_circle)
     {}
 
 private :
@@ -92,7 +86,7 @@ private :
         promoted_type angle_diff = acos(dx1 * dx2 + dy1 * dy2);
 
         promoted_type two = 2.0;
-        promoted_type steps = m_steps_per_circle;
+        promoted_type steps = m_points_per_circle;
         int n = boost::numeric_cast<int>(steps * angle_diff
                     / (two * geometry::math::pi<promoted_type>()));
 
@@ -166,7 +160,7 @@ public :
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    int m_steps_per_circle;
+    std::size_t m_points_per_circle;
 };
 
 

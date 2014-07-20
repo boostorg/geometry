@@ -44,13 +44,9 @@ namespace strategy { namespace buffer
 class point_circle
 {
 public :
-    //! Constructs the strategy with default number of points (90)
-    point_circle()
-        : m_count(90)
-    {}
-
-    //! Constructs the strategy specifying the nuber of points
-    explicit point_circle(std::size_t count)
+    //! \brief Constructs the strategy
+    //! \param count number of points for the created circle
+    explicit point_circle(std::size_t count = 90)
         : m_count(count)
     {}
 

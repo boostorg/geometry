@@ -21,15 +21,14 @@ int main()
     typedef boost::geometry::model::linestring<point> linestring;
     typedef boost::geometry::model::polygon<point> polygon;
 
-    // Declare the join_round strategy
-    const int points_per_circle = 36;
-    boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
+    // Declare the join_round strategy with 72 points for a full circle
+    boost::geometry::strategy::buffer::join_round join_strategy(72);
 
     // Declare other strategies
     boost::geometry::strategy::buffer::distance_symmetric<double> distance_strategy(1.0);
     boost::geometry::strategy::buffer::end_flat end_strategy;
     boost::geometry::strategy::buffer::side_straight side_strategy;
-    boost::geometry::strategy::buffer::point_circle point_strategy(points_per_circle);
+    boost::geometry::strategy::buffer::point_circle point_strategy;
 
     // Declare/fill a multi polygon
     boost::geometry::model::multi_polygon<polygon> mp;

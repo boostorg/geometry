@@ -48,7 +48,7 @@ namespace strategy { namespace buffer
 class end_round
 {
 private :
-    int m_steps_per_circle;
+    std::size_t m_points_per_circle;
 
     template
     <
@@ -65,7 +65,7 @@ private :
         PromotedType const two = 2.0;
         PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
-        int point_buffer_count = m_steps_per_circle;
+        std::size_t point_buffer_count = m_points_per_circle;
 
         PromotedType const diff = two_pi / PromotedType(point_buffer_count);
 
@@ -92,14 +92,11 @@ private :
     }
 
 public :
-    //! Constructs the strategy with default number of points (100)
-    inline end_round()
-        : m_steps_per_circle(100)
-    {}
 
-    //! Constructs the strategy specifying the nuber of points
-    explicit inline end_round(int steps_per_circle)
-        : m_steps_per_circle(steps_per_circle)
+    //! \brief Constructs the strategy
+    //! \param points_per_circle points which would be used for a full circle
+    explicit inline end_round(std::size_t points_per_circle = 90)
+        : m_points_per_circle(points_per_circle)
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -32,7 +32,7 @@ class join_round_by_divide
 {
 public :
 
-    inline join_round_by_divide(int max_level = 4)
+    inline join_round_by_divide(std::size_t max_level = 4)
         : m_max_level(max_level)
     {}
 
@@ -47,7 +47,7 @@ public :
                 Point const& p1, Point const& p2,
                 DistanceType const& buffer_distance,
                 RangeOut& range_out,
-                int level = 1) const
+                std::size_t level = 1) const
     {
         typedef typename coordinate_type<Point>::type coordinate_type;
 
@@ -137,7 +137,7 @@ public :
     }
 
 private :
-    int m_max_level;
+    std::size_t m_max_level;
 };
 
 

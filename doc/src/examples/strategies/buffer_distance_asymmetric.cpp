@@ -25,11 +25,10 @@ int main()
     boost::geometry::strategy::buffer::distance_asymmetric<double> distance_strategy(1.0, 0.5);
 
     // Declare other strategies
-    const int points_per_circle = 36;
     boost::geometry::strategy::buffer::side_straight side_strategy;
-    boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
-    boost::geometry::strategy::buffer::end_round end_strategy(points_per_circle);
-    boost::geometry::strategy::buffer::point_circle point_strategy(points_per_circle);
+    boost::geometry::strategy::buffer::join_round join_strategy;
+    boost::geometry::strategy::buffer::end_round end_strategy;
+    boost::geometry::strategy::buffer::point_circle point_strategy;
 
     // Declare/fill a multi linestring
     boost::geometry::model::multi_linestring<linestring> ml;

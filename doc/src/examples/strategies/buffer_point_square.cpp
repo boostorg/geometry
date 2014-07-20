@@ -18,29 +18,24 @@
 
 int main()
 {
-    typedef double coordinate_type;
-    typedef boost::geometry::model::d2::point_xy<coordinate_type> point;
+    typedef boost::geometry::model::d2::point_xy<double> point;
     typedef boost::geometry::model::polygon<point> polygon;
 
     // Declare the point_square strategy
     boost::geometry::strategy::buffer::point_square point_strategy;
 
     // Declare other strategies
-    const int points_per_circle = 36;
-    const double buffer_distance = 0.5;
-    boost::geometry::strategy::buffer::distance_symmetric<coordinate_type> distance_strategy(buffer_distance);
-    boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
-    boost::geometry::strategy::buffer::end_round end_strategy(points_per_circle);
+    boost::geometry::strategy::buffer::distance_symmetric<double> distance_strategy(0.5);
+    boost::geometry::strategy::buffer::join_round join_strategy;
+    boost::geometry::strategy::buffer::end_round end_strategy;
     boost::geometry::strategy::buffer::side_straight side_strategy;
-
-    // Declare output
-    boost::geometry::model::multi_polygon<polygon> result;
 
     // Declare/fill of a multi point
     boost::geometry::model::multi_point<point> mp;
     boost::geometry::read_wkt("MULTIPOINT((3 3),(3 4),(4 4),(7 3))", mp);
 
     // Create the buffer of a multi point
+    boost::geometry::model::multi_polygon<polygon> result;
     boost::geometry::buffer(mp, result,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, point_strategy);

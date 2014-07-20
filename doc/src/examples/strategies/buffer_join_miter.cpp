@@ -28,7 +28,7 @@ int main()
     boost::geometry::strategy::buffer::distance_symmetric<double> distance_strategy(0.5);
     boost::geometry::strategy::buffer::end_flat end_strategy;
     boost::geometry::strategy::buffer::side_straight side_strategy;
-    boost::geometry::strategy::buffer::point_circle point_strategy(36);
+    boost::geometry::strategy::buffer::point_circle point_strategy;
 
     // Declare/fill a multi polygon
     boost::geometry::model::multi_polygon<polygon> mp;
