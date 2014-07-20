@@ -87,7 +87,7 @@ void test_all()
 {
     typedef bg::model::polygon<P> polygon_type;
 
-    bg::strategy::buffer::join_miter join_miter;
+    bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
@@ -277,7 +277,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 11648.0537185668945, 20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 14184.0223083496094, 20.0);
     test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_round, end_flat, 16350.3611068725586, 30.0);
-    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_miter, end_flat, 22046.5098342895508, 30.0);
+    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_miter, end_flat, 22417.8007659912109, 30.0);
 
     test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_round, end_flat, 5000.85063171386719, 10.0);
     test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_miter, end_flat, 5091.12226867675781, 10.0);
