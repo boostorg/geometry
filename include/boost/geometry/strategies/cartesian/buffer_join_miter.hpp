@@ -24,8 +24,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace buffer
 {
 
-// TODO: condider merging/baseclassing join strategies to avoid duplicate code
-
 /*!
 \brief Let the buffer create sharp corners
 \ingroup strategies

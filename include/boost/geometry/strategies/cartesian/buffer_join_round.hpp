@@ -90,18 +90,7 @@ private :
         int n = boost::numeric_cast<int>(steps * angle_diff
                     / (two * geometry::math::pi<promoted_type>()));
 
-//std::cout << "n= " << n << " angle=" << geometry::math::r2d * angle_diff << std::endl;
-
-        if (n > 1000)
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
-            // TODO change this / verify this
-            std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
-            std::cout << angle_diff << " -> " << n << std::endl;
-            n = 1000;
-#endif
-        }
-        else if (n <= 1)
+        if (n <= 1)
         {
             return;
         }
