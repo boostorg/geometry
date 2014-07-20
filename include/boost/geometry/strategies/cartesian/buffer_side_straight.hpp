@@ -27,6 +27,21 @@ namespace strategy { namespace buffer
 {
 
 
+
+/*!
+\brief Let the buffer use straight sides along segments (the default)
+\ingroup strategies
+\details This strategy can be used as SideStrategy for the buffer algorithm.
+    It is currently the only provided strategy for this purpose
+
+\qbk{
+[heading Example]
+See the examples for other buffer strategies\, for example
+[link geometry.reference.strategies.strategy_buffer_join_round join_round]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+}
+ */
 class side_straight
 {
 public :

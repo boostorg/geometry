@@ -308,6 +308,7 @@
 [include generated/buffer_distance_asymmetric.qbk]
 [include generated/buffer_point_circle.qbk]
 [include generated/buffer_point_square.qbk]
+[include generated/buffer_side_straight.qbk]
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
 [include generated/convex_hull_graham_andrew.qbk]
