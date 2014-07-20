@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_join_miter
-//` Shows how the buffer_join_miter strategy can be used as a JoinStrategy to create sharp corners
+//` Shows how the join_miter strategy can be used as a JoinStrategy to create sharp corners
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

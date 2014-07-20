@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_distance_asymmetric
-//` Shows how the buffer_distance_asymmetric strategy can be used as a EndStrategy to create rounded ends
+//` Shows how the distance_asymmetric strategy can be used as a DistanceStrategy to create asymmetric buffers
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

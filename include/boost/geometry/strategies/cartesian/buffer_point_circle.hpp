@@ -38,6 +38,7 @@ namespace strategy { namespace buffer
 [$img/strategies/buffer_point_circle.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_point_square point_square]
 }
  */
 class point_circle

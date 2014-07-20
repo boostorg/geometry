@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_end_round
-//` Shows how the buffer_end_round strategy can be used as a EndStrategy to create rounded ends
+//` Shows how the end_round strategy can be used as a EndStrategy to create rounded ends
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

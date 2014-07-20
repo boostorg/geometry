@@ -42,6 +42,7 @@ namespace strategy { namespace buffer
 [$img/strategies/buffer_end_flat.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_end_round end_round]
 }
  */
 class end_flat

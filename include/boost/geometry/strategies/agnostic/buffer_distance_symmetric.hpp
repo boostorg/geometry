@@ -23,10 +23,12 @@ namespace strategy { namespace buffer
 /*!
 \brief Let the buffer algorithm create buffers with same distances
 \ingroup strategies
+\tparam NumericType \tparam_numeric
 \details This strategy can be used as DistanceStrategy for the buffer algorithm.
     It can be applied for all geometries. It uses one distance for left and
     for right.
-    The distance can also be negative: it creates a deflated polygon.
+    If the distance is negative and used with a (multi)polygon or ring, the
+    geometry will shrink (deflate) instead of expand (inflate).
 
 \qbk{
 [heading Example]
@@ -35,26 +37,28 @@ namespace strategy { namespace buffer
 [$img/strategies/buffer_distance_symmetric.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_distance_asymmetric distance_asymmetric]
 }
  */
-template<typename CoordinateType>
+template<typename NumericType>
 class distance_symmetric
 {
 public :
-    //! Constructs the strategy, a distance must be specified
-    explicit inline distance_symmetric(CoordinateType const& distance)
+    //! \brief Constructs the strategy, a distance must be specified
+    //! \param distance The distance (or radius) of the buffer
+    explicit inline distance_symmetric(NumericType const& distance)
         : m_distance(distance)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Returns the distance-value
     template <typename Point>
-    inline CoordinateType apply(Point const& , Point const& ,
+    inline NumericType apply(Point const& , Point const& ,
                 buffer_side_selector )  const
     {
         return m_distance;
     }
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Returns 1 (used internally)
     inline int factor() const
     {
@@ -68,14 +72,14 @@ public :
     }
 
     //! Returns the distance at which the input is simplified before the buffer process
-    inline CoordinateType simplify_distance() const
+    inline NumericType simplify_distance() const
     {
         return geometry::math::abs(m_distance) / 1000.0;
     }
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    CoordinateType m_distance;
+    NumericType m_distance;
 };
 
 

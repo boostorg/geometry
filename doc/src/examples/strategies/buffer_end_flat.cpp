@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_end_flat
-//` Shows how the buffer_end_flat strategy can be used as a EndStrategy to create flat ends
+//` Shows how the end_flat strategy can be used as a EndStrategy to create flat ends
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

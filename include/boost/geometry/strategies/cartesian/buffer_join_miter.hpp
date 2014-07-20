@@ -41,6 +41,7 @@ namespace strategy { namespace buffer
 [$img/strategies/buffer_join_miter.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_join_round join_round]
 }
  */
 class join_miter

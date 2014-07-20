@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[buffer_join_round
-//` Shows how the buffer_join_round strategy can be used as a JoinStrategy to create rounded corners
+//` Shows how the join_round strategy can be used as a JoinStrategy to create rounded corners
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
