@@ -4,8 +4,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP
 
 #include <cstddef>
 
@@ -33,23 +33,23 @@ namespace strategy { namespace buffer
 
 \qbk{
 [heading Example]
-[buffer_circle]
+[buffer_point_circle]
 [heading Output]
-[$img/strategies/buffer_circle.png]
+[$img/strategies/buffer_point_circle.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
 }
  */
-class buffer_circle
+class point_circle
 {
 public :
     //! Constructs the strategy with default number of points (90)
-    buffer_circle()
+    point_circle()
         : m_count(90)
     {}
 
     //! Constructs the strategy specifying the nuber of points
-    explicit buffer_circle(std::size_t count)
+    explicit point_circle(std::size_t count)
         : m_count(count)
     {}
 
@@ -108,4 +108,4 @@ private :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP

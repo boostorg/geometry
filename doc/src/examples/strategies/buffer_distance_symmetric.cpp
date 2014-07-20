@@ -29,7 +29,7 @@ int main()
     boost::geometry::strategy::buffer::buffer_side side_strategy;
     boost::geometry::strategy::buffer::join_round join_strategy(points_per_circle);
     boost::geometry::strategy::buffer::end_round end_strategy(points_per_circle);
-    boost::geometry::strategy::buffer::buffer_circle point_strategy(points_per_circle);
+    boost::geometry::strategy::buffer::point_circle point_strategy(points_per_circle);
 
     // Declare/fill a multi linestring
     boost::geometry::model::multi_linestring<linestring> ml;

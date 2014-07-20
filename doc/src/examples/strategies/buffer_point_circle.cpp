@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[buffer_circle
-//` Shows how the buffer_circle strategy can be used as a PointStrategy to create circular buffers around points
+//[buffer_point_circle
+//` Shows how the point_circle strategy can be used as a PointStrategy to create circular buffers around points
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -21,10 +21,10 @@ int main()
     typedef boost::geometry::model::d2::point_xy<coordinate_type> point;
     typedef boost::geometry::model::polygon<point> polygon;
 
-    // Declare the buffer_circle strategy
+    // Declare the point_circle strategy
     const int points_per_circle = 360;
 
-    boost::geometry::strategy::buffer::buffer_circle circle_strategy(points_per_circle);
+    boost::geometry::strategy::buffer::point_circle point_strategy(points_per_circle);
 
     // Declare other strategies
     const double buffer_distance = 0.7;
@@ -43,8 +43,8 @@ int main()
     // Create the buffer of a multi point
     boost::geometry::buffer(mp, result,
                 distance_strategy, side_strategy,
-                join_strategy, end_strategy, circle_strategy);
-    /*<-*/ create_svg_buffer("buffer_circle.svg", mp, result); /*->*/
+                join_strategy, end_strategy, point_strategy);
+    /*<-*/ create_svg_buffer("buffer_point_circle.svg", mp, result); /*->*/
 
     return 0;
 }

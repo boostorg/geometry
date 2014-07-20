@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[buffer_square
-//` Shows how the buffer_square strategy can be used as a PointStrategy to create square buffers where the original point lies in the center
+//[buffer_point_square
+//` Shows how the point_square strategy can be used as a PointStrategy to create square buffers where the original point lies in the center
 
 
 #include <boost/geometry.hpp>
@@ -22,8 +22,8 @@ int main()
     typedef boost::geometry::model::d2::point_xy<coordinate_type> point;
     typedef boost::geometry::model::polygon<point> polygon;
 
-    // Declare the buffer_square strategy
-    boost::geometry::strategy::buffer::buffer_square square_strategy;
+    // Declare the point_square strategy
+    boost::geometry::strategy::buffer::point_square point_strategy;
 
     // Declare other strategies
     const int points_per_circle = 36;
@@ -43,8 +43,8 @@ int main()
     // Create the buffer of a multi point
     boost::geometry::buffer(mp, result,
                 distance_strategy, side_strategy,
-                join_strategy, end_strategy, square_strategy);
-    /*<-*/ create_svg_buffer("buffer_square.svg", mp, result); /*->*/
+                join_strategy, end_strategy, point_strategy);
+    /*<-*/ create_svg_buffer("buffer_point_square.svg", mp, result); /*->*/
 
     return 0;
 }

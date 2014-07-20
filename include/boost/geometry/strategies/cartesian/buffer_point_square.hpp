@@ -4,8 +4,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SQUARE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SQUARE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_SQUARE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_SQUARE_HPP
 
 #include <cstddef>
 
@@ -33,14 +33,14 @@ namespace strategy { namespace buffer
 
 \qbk{
 [heading Example]
-[buffer_square]
+[buffer_point_square]
 [heading Output]
-[$img/strategies/buffer_square.png]
+[$img/strategies/buffer_point_square.png]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
 }
  */
-class buffer_square
+class point_square
 {
     template
     <
@@ -105,4 +105,4 @@ public :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SQUARE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_SQUARE_HPP

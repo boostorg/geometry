@@ -31,5 +31,5 @@
 * EndStrategy: [link geometry.reference.strategies.strategy_buffer_end_flat Flat (cartesian)]
 * DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_symmetric Symmetric]
 * DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_asymmetric Asymmetric]
-* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_circle Circle (cartesian)]
-* PointStrategy: [link geometry.reference.strategies.strategy_buffer_buffer_square Square (cartesian)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_circle Circle (cartesian)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_square Square (cartesian)]
