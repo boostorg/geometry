@@ -101,6 +101,8 @@ public :
         : m_steps_per_circle(steps_per_circle)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
     //! Fills output_range with a flat end
     template <typename Point, typename RangeOut, typename DistanceStrategy>
     inline void apply(Point const& penultimate_point,
@@ -149,6 +151,7 @@ public :
     {
         return buffered_round_end;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

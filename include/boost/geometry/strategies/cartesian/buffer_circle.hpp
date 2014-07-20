@@ -53,6 +53,7 @@ public :
         : m_count(count)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Fills output_range with a circle around point using distance_strategy
     template
     <
@@ -96,6 +97,7 @@ public :
         // Close it:
         output_range.push_back(output_range.front());
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
     std::size_t m_count;

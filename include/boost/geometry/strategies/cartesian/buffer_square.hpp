@@ -42,7 +42,6 @@ namespace strategy { namespace buffer
  */
 class buffer_square
 {
-private :
     template
     <
         typename Point,
@@ -82,6 +81,7 @@ private :
 
 public :
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Fills output_range with a square around point using distance_strategy
     template
     <
@@ -96,6 +96,7 @@ public :
         add_points(point, distance_strategy.apply(point, point,
                         strategy::buffer::buffer_side_left), output_range);
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 };
 

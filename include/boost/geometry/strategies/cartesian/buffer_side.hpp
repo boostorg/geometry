@@ -27,9 +27,10 @@ namespace strategy { namespace buffer
 {
 
 
-struct buffer_side
+class buffer_side
 {
-
+public :
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     template
     <
         typename Point,
@@ -69,6 +70,7 @@ struct buffer_side
         set<0>(output_range.back(), get<0>(input_p2) + px * d);
         set<1>(output_range.back(), get<1>(input_p2) + py * d);
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

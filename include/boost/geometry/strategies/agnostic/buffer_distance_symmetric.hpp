@@ -54,6 +54,7 @@ public :
         return m_distance;
     }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Returns 1 (used internally)
     inline int factor() const
     {
@@ -71,7 +72,7 @@ public :
     {
         return geometry::math::abs(m_distance) / 1000.0;
     }
-
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
     CoordinateType m_distance;

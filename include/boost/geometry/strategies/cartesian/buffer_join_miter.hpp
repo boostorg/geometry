@@ -54,6 +54,7 @@ public:
     explicit inline join_miter(int)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Fills output_range with a sharp shape around a vertex
     template <typename Point, typename DistanceType, typename RangeOut>
     inline bool apply(Point const& ip, Point const& vertex,
@@ -102,8 +103,8 @@ public:
         range_out.push_back(perp2);
         return true;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
-
 
 }} // namespace strategy::buffer
 

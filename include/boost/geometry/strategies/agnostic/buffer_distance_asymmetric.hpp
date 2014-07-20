@@ -48,6 +48,7 @@ public :
         , m_right(right)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Returns the distance-value for the specified side
     template <typename Point>
     inline CoordinateType apply(Point const& , Point const& ,
@@ -76,7 +77,7 @@ public :
         CoordinateType const right = geometry::math::abs(m_right);
         return (left < right ? left : right) / 1000.0;
     }
-
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
     CoordinateType m_left;
