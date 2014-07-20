@@ -73,7 +73,7 @@ private :
         point_buffer_count /= 2;
         point_buffer_count++;
 
-        for (int i = 0; i < point_buffer_count; i++, alpha -= diff)
+        for (std::size_t i = 0; i < point_buffer_count; i++, alpha -= diff)
         {
             typename boost::range_value<RangeOut>::type p;
             set<0>(p, get<0>(point) + buffer_distance * cos(alpha));
