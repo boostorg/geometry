@@ -14,6 +14,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -59,6 +60,12 @@ public :
                 OutputRange& output_range)
     {
         typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename geometry::select_most_precise
+        <
+            coordinate_type,
+            double
+        >::type promoted_type;
+
         // Generate a block along (left or right of) the segment
 
         // Simulate a vector d (dx,dy)
@@ -66,17 +73,16 @@ public :
         coordinate_type dy = get<1>(input_p2) - get<1>(input_p1);
 
         // For normalization [0,1] (=dot product d.d, sqrt)
-        // TODO promoted_type
-        coordinate_type const length = geometry::math::sqrt(dx * dx + dy * dy);
+        promoted_type const length = geometry::math::sqrt(dx * dx + dy * dy);
 
         // Because coordinates are not equal, length should not be zero
         BOOST_ASSERT((! geometry::math::equals(length, 0)));
 
         // Generate the normalized perpendicular p, to the left (ccw)
-        coordinate_type const px = -dy / length;
-        coordinate_type const py = dx / length;
+        promoted_type const px = -dy / length;
+        promoted_type const py = dx / length;
 
-        coordinate_type const d = distance.apply(input_p1, input_p2, side);
+        promoted_type const d = distance.apply(input_p1, input_p2, side);
 
         output_range.resize(2);
 
