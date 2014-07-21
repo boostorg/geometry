@@ -40,6 +40,9 @@
 #include <boost/geometry/strategies/cartesian/buffer_join_miter.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_join_round.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_join_round_by_divide.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_point_circle.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_point_square.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side_straight.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
@@ -47,6 +50,7 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
+#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
@@ -61,7 +65,6 @@
 
 #include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
 #include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
-#include <boost/geometry/strategies/agnostic/buffer_end_skip.hpp>
 #include <boost/geometry/strategies/agnostic/hull_graham_andrew.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_point.hpp>

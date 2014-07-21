@@ -58,10 +58,19 @@ struct is_simple<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 
 
+/*!
+\brief \brief_check{is simple}
+\ingroup is_simple
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_check{is simple}
+
+\qbk{[include reference/algorithms/is_simple.qbk]}
+*/
 template <typename Geometry>
-inline bool is_simple(Geometry const& g)
+inline bool is_simple(Geometry const& geometry)
 {
-    return resolve_variant::is_simple<Geometry>::apply(g);
+    return resolve_variant::is_simple<Geometry>::apply(geometry);
 }
 
 

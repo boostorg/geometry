@@ -7,6 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX
+
 #include <test_buffer.hpp>
 
 #include <boost/geometry/algorithms/buffer.hpp>
@@ -421,10 +423,8 @@ void test_aimes()
     { 1.79612058559542E-08, 1.79676149514307E-08, 3.5905237893985E-08, 3.59159741947224E-08}
     };
 
-    namespace buf = bg::strategy::buffer;
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
-
 
     int const n = sizeof(testcases) / sizeof(testcases[0]);
     int const ne = sizeof(expectations) / sizeof(expectations[0]);
@@ -463,7 +463,14 @@ void test_aimes()
     }
 #endif
 
+    bg::strategy::buffer::join_miter join_miter;
+    bg::strategy::buffer::join_round join_round(100);
+    bg::strategy::buffer::end_flat end_flat;
+    bg::strategy::buffer::end_round end_round(100);
+
     // Aimes tested originally with 0.000018 degrees (around 2 m)
+    std::size_t self_ip_count = 0;
+
     int expectation_index = 0;
     for (int width = 18; width <= 36; width += 18, expectation_index += 2)
     {
@@ -480,22 +487,23 @@ void test_aimes()
 
             std::ostringstream name;
             name << "aimes_" << i << "_" << width;
-            test_one<linestring, buf::join_miter, buf::end_flat, polygon>
+            test_one<linestring, polygon>
             (
-                name.str(),
-                testcases[i], expectations[i][expectation_index],
+                name.str(), testcases[i], join_miter, end_flat,
+                expectations[i][expectation_index],
                 aimes_width, aimes_width,
-                false
+                self_ip_count, 0.00001
             );
-            test_one<linestring, buf::join_round, buf::end_round, polygon>
+            test_one<linestring, polygon>
             (
-                name.str(),
-                testcases[i], expectations[i][expectation_index + 1],
+                name.str(), testcases[i], join_round, end_round,
+                expectations[i][expectation_index + 1],
                 aimes_width, aimes_width,
-                false
+                self_ip_count, 0.00001
             );
         }
     }
+    std::cout << "Total self-ips: " << self_ip_count << std::endl;
 }
 
 

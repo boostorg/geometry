@@ -61,7 +61,6 @@ g_backtrack_warning_count++;
 //std::cout << "!";
 //std::cout << "WARNING " << reason << std::endl;
 
-        // TODO this is a copy of dissolve, check this for buffer
         state.m_good = false;
 
         // Make bad output clean

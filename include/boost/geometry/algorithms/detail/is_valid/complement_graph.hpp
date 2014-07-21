@@ -15,6 +15,10 @@
 #include <set>
 #include <stack>
 #include <utility>
+#include <vector>
+
+#include <boost/assert.hpp>
+#include <boost/core/addressof.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
@@ -27,122 +31,106 @@ namespace detail { namespace is_valid
 
 
 template <typename TurnPoint>
-class graph_vertex
+class complement_graph_vertex
 {
 public:
-    typedef typename std::set
-        <
-            graph_vertex<TurnPoint>
-        >::const_iterator vertex_handle;
+    complement_graph_vertex(std::size_t id)
+        : m_id(id)
+        , m_turn_point(NULL)
+    {}
 
+    complement_graph_vertex(TurnPoint const* turn_point,
+                            std::size_t expected_id)
+        : m_id(expected_id)
+        , m_turn_point(turn_point)
+    {}
+
+    inline std::size_t id() const { return m_id; }
+
+    inline bool operator<(complement_graph_vertex const& other) const
+    {
+        if ( m_turn_point != NULL && other.m_turn_point != NULL )
+        {
+            return geometry::less
+                <
+                    TurnPoint
+                >()(*m_turn_point, *other.m_turn_point);
+        }
+        if ( m_turn_point == NULL && other.m_turn_point == NULL )
+        {
+            return m_id < other.m_id;
+        }
+        return m_turn_point == NULL;
+    }
+
+private:
+    // the value of m_turn_point determines the type of the vertex
+    // non-NULL: vertex corresponds to an IP
+    // NULL    : vertex corresponds to a hole or outer space, and the id
+    //           is the ring id of the corresponding ring of the polygon
+    std::size_t m_id;
+    TurnPoint const* m_turn_point;
+};
+
+
+
+
+template <typename TurnPoint>
+class complement_graph
+{
+private:
+    typedef complement_graph_vertex<TurnPoint> vertex;
+    typedef std::set<vertex> vertex_container;
+
+public:
+    typedef typename vertex_container::const_iterator vertex_handle;
+
+private:
     struct vertex_handle_less
     {
-        bool operator()(vertex_handle v1, vertex_handle v2) const
+        inline bool operator()(vertex_handle v1, vertex_handle v2) const
         {
             return v1->id() < v2->id();
         }
     };
 
     typedef std::set<vertex_handle, vertex_handle_less> neighbor_container;
-    typedef typename neighbor_container::const_iterator neighbor_iterator;
 
-    graph_vertex(int id, TurnPoint const& dummy = TurnPoint())
-        : m_is_ip(false)
-        , m_id(id)
-        , m_turn_point(dummy)
-        , m_neighbors()
-        , m_parent()
-        , m_visited(false)
-    {}
-
-    graph_vertex(TurnPoint const& turn_point)
-        : m_is_ip(true)
-        , m_id(-1)
-        , m_turn_point(turn_point)
-        , m_neighbors()
-        , m_parent()
-        , m_visited(false)
-    {}
-
-    int id() const { return m_id; }
-    void id(int id) const { m_id = id; }
-    int parent_id() const
+    class has_cycles_dfs_data
     {
-        if ( m_parent.second )
+    public:
+        has_cycles_dfs_data(std::size_t num_nodes)
+            : m_visited(num_nodes, false)
+            , m_parent_id(num_nodes, -1)
+        {}
+
+        inline int parent_id(vertex_handle v) const
         {
-            return m_parent.first->id();
+            return m_parent_id[v->id()];
         }
-        return -1;
-    }
 
-    // for DFS -- start
-    bool visited() const { return m_visited; }
-    void visited(bool value) const { m_visited = value; }
-
-    vertex_handle parent() const { return m_parent.first; }
-    void parent(vertex_handle p) const { m_parent = std::make_pair(p, true); }
-    void initialize_parent() const
-    {
-        m_parent = std::make_pair(vertex_handle(), false);
-    }
-    // for DFS -- end
-
-    void add_neighbor(vertex_handle v) const
-    {
-        m_neighbors.insert(v);
-    }
-
-    neighbor_iterator neighbors_begin() const
-    {
-        return m_neighbors.begin();
-    }
-
-    neighbor_iterator neighbors_end() const
-    {
-        return m_neighbors.end();
-    }
-
-    bool operator<(graph_vertex const& other) const
-    {
-        if ( m_is_ip && other.m_is_ip )
+        inline void set_parent_id(vertex_handle v, int id)
         {
-            return geometry::less
-                <
-                    TurnPoint
-                >()(m_turn_point, other.m_turn_point);
+            m_parent_id[v->id()] = id;
         }
-        if ( !m_is_ip && !other.m_is_ip )
+
+        inline bool visited(vertex_handle v) const
         {
-            return m_id < other.m_id;
+            return m_visited[v->id()];
         }
-        return other.m_is_ip;
-    }
 
-private:
-    // the following bool determines the type of the vertex
-    // true : vertex corresponds to an IP
-    // false: vertex corresponds to a hole or outer space, and the id
-    //        is the ring id of the corresponding ring of the polygon
-    bool m_is_ip;
-    mutable int m_id;
-    TurnPoint const& m_turn_point;
-    mutable neighbor_container m_neighbors;
-    mutable std::pair<vertex_handle, bool> m_parent; // for DFS
-    mutable bool m_visited; // for DFS
-};
+        inline void set_visited(vertex_handle v, bool value)
+        {
+            m_visited[v->id()] = value;
+        }
+    private:
+        std::vector<bool> m_visited;
+        std::vector<int> m_parent_id;
+    };
 
 
-template <typename Vertex>
-class complement_graph
-{
-private:
-    typedef std::set<Vertex> vertex_container;
-
-public:
-    typedef typename vertex_container::const_iterator vertex_handle;
-
-private:
-    bool has_cycles(vertex_handle start_vertex) const
+    inline bool has_cycles(vertex_handle start_vertex,
+                           has_cycles_dfs_data& data) const
     {
         std::stack<vertex_handle> stack;
         stack.push(start_vertex);
@@ -151,21 +139,22 @@ private:
         {
             vertex_handle v = stack.top();
             stack.pop();
-            
-            v->visited(true);
-            for (typename Vertex::neighbor_iterator nit = v->neighbors_begin();
-                 nit != v->neighbors_end(); ++nit)
+
+            data.set_visited(v, true);
+            for (typename neighbor_container::const_iterator nit
+                     = m_neighbors[v->id()].begin();
+                 nit != m_neighbors[v->id()].end(); ++nit)
             {
-                if ( (*nit)->id() != v->parent_id() )
+                if ( static_cast<int>((*nit)->id()) != data.parent_id(v) )
                 {
-                    if ( !(*nit)->visited() )
+                    if ( data.visited(*nit) )
                     {
-                        (*nit)->parent(v);
-                        stack.push(*nit);
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        data.set_parent_id(*nit, static_cast<int>(v->id()));
+                        stack.push(*nit);
                     }
                 }
             }
@@ -179,51 +168,52 @@ public:
         : m_num_rings(num_rings)
         , m_num_turns(0)
         , m_vertices()
+        , m_neighbors(num_rings)
     {}
 
-    // inserts a ring vertex in the graph and returns its id
-    vertex_handle add_vertex(int ring_id)
+    // inserts a ring vertex in the graph and returns its handle
+    // ring id's are zero-based (so the first interior ring has id 1)
+    inline vertex_handle add_vertex(int id)
     {
-        Vertex v(static_cast<std::size_t>(ring_id + 1));
-        return m_vertices.insert(v).first;
+        return m_vertices.insert(vertex(static_cast<std::size_t>(id))).first;
     }
 
     // inserts an IP in the graph and returns its id
-    template <typename TurnPoint>
-    vertex_handle add_vertex(TurnPoint const& turn_point)
+    inline vertex_handle add_vertex(TurnPoint const& turn_point)
     {
-        Vertex v(turn_point);
-        std::pair<vertex_handle, bool> res = m_vertices.insert(v);
+        std::pair<vertex_handle, bool> res
+            = m_vertices.insert(vertex(boost::addressof(turn_point),
+                                       m_num_rings + m_num_turns)
+                                );
+
         if ( res.second )
         {
             // a new element is inserted
-            res.first->id( m_num_rings + m_num_turns );
+            m_neighbors.push_back(neighbor_container());
             ++m_num_turns;
         }
         return res.first;
     }
 
-    void add_edge(vertex_handle v1, vertex_handle v2)
+    inline void add_edge(vertex_handle v1, vertex_handle v2)
     {
         BOOST_ASSERT( v1 != m_vertices.end() );
         BOOST_ASSERT( v2 != m_vertices.end() );
-        v1->add_neighbor(v2);
-        v2->add_neighbor(v1);
+        m_neighbors[v1->id()].insert(v2);
+        m_neighbors[v2->id()].insert(v1);
     }
 
-    bool has_cycles() const
+    inline bool has_cycles() const
     {
-        for (vertex_handle it = m_vertices.begin();
-             it != m_vertices.end(); ++it)
-        {
-            it->visited(false);
-            it->initialize_parent();
-        }
+        // initialize all vertices as non-visited and with no parent set
+        // this is done by the constructor of has_cycles_dfs_data
+        has_cycles_dfs_data data(m_num_rings + m_num_turns);
 
+        // for each non-visited vertex, start a DFS from that vertex
         for (vertex_handle it = m_vertices.begin();
              it != m_vertices.end(); ++it)
         {
-            if ( !it->visited() && has_cycles(it) )
+            if ( !data.visited(it) && has_cycles(it, data) )
             {
                 return true;
             }
@@ -231,13 +221,14 @@ public:
         return false;
     }
 
-    template <typename OStream, typename V>
+    template <typename OStream, typename TP>
     friend inline
-    void debug_print_complement_graph(OStream&, complement_graph<V> const&);
+    void debug_print_complement_graph(OStream&, complement_graph<TP> const&);
 
 private:
     std::size_t m_num_rings, m_num_turns;
     vertex_container m_vertices;
+    std::vector<neighbor_container> m_neighbors;
 };
 
 

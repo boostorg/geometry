@@ -46,6 +46,12 @@
 [include ../src/examples/rtree/value_index_results.qbk]
 [endsect]
 
+[section Iterative query]
+[rtree_iterative_query]
+[h4 Expected results]
+[include ../src/examples/rtree/iterative_query.qbk]
+[endsect]
+
 [section Index stored in shared memory using Boost.Interprocess]
 [rtree_interprocess]
 [h4 Expected results]

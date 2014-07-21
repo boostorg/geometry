@@ -36,7 +36,7 @@ namespace dispatch
 // endpoints of the segment coincide, since in this case it is
 // 0-dimensional.
 //
-// Reference: OGC 06-103r4 (§6.1.6.1)
+// Reference: OGC 06-103r4 (6.1.6.1)
 template <typename Segment>
 struct is_valid<Segment, segment_tag>
 {

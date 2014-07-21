@@ -358,6 +358,20 @@ struct distance
 
 
 
+template <typename Ring1, typename Ring2, typename Strategy>
+struct distance
+    <
+        Ring1, Ring2, Strategy,
+        ring_tag, ring_tag,
+        strategy_tag_distance_point_segment, false
+    >
+    : detail::distance::geometry_to_geometry_rtree
+        <
+            Ring1, Ring2, Strategy
+        >
+{};
+
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

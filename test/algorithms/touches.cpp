@@ -237,7 +237,7 @@ int test_main( int , char* [] )
 with viewy as
 (
 select geometry::STGeomFromText('POLYGON((0 0,0 100,100 100,100 0,0 0))',0) as p
-	, geometry::STGeomFromText('POLYGON((200 0,100 50,200 100,200 0))',0) as q
+     , geometry::STGeomFromText('POLYGON((200 0,100 50,200 100,200 0))',0) as q
 )
 -- select p from viewy union all select q from viewy
 select p.STTouches(q) from viewy

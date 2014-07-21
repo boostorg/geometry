@@ -123,7 +123,7 @@ int test_main(int, char* [])
 with viewy as
 (
 select geometry::STGeomFromText('MULTIPOLYGON(((2 2,2 8,8 8,8 2,2 2)),((20 0,20 10,30 10,30 0,20 0)))',0) as p
-	, geometry::STGeomFromText('MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))',0) as q
+     , geometry::STGeomFromText('MULTIPOLYGON(((2 12,2 18,8 18,8 12,2 12)),((22 2,28 2,28 8,22 8,22 2)))',0) as q
 )
  select p from viewy union all select q from viewy
 -- select p.STDisjoint(q) from viewy

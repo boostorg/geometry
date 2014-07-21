@@ -57,7 +57,7 @@ struct is_simple<Point, point_tag>
 // A curve is simple if it does not pass through the same point twice,
 // with the possible exception of its two endpoints
 //
-// Reference: OGC 06-103r4 (§6.1.6.1)
+// Reference: OGC 06-103r4 (6.1.6.1)
 template <typename Segment>
 struct is_simple<Segment, segment_tag>
     : detail::is_simple::always_simple<Segment>
@@ -67,7 +67,7 @@ struct is_simple<Segment, segment_tag>
 // A valid box is always simple
 // A box is a Polygon, and it satisfies the conditions for Polygon validity.
 //
-// Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
+// Reference (for polygon validity): OGC 06-103r4 (6.1.11.1)
 template <typename Box>
 struct is_simple<Box, box_tag>
     : detail::is_simple::always_simple<Box>

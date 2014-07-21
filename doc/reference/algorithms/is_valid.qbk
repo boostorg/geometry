@@ -1,0 +1,26 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2014, Oracle and/or its affiliates.
+
+  Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
+  Licensed under the Boost Software License version 1.0.
+  http://www.boost.org/users/license.html
+=============================================================================/]
+
+[def __this_function__ is_valid]
+
+[heading_conformance_no_ogc __this_function__]
+
+[heading Complexity]
+Constant-time for points, segments and boxes
+
+Currently, worst-case quadratic for all other geometries
+
+[heading Example]
+[is_valid]
+[is_valid_output]
+
+[heading See also]
+* [link geometry.reference.algorithms.is_simple is_simple]

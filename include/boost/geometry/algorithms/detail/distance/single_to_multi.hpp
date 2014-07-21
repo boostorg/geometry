@@ -111,10 +111,10 @@ public:
             if (first || cdist < min_cdist)
             {
                 min_cdist = cdist;
-            }
-            if ( geometry::math::equals(min_cdist, 0) )
-            {
-                break;
+                if ( geometry::math::equals(min_cdist, 0) )
+                {
+                    break;
+                }
             }
         }
 
@@ -356,6 +356,25 @@ struct distance_multi_to_single
 template
 <
     typename MultiPoint,
+    typename Ring,
+    typename Strategy
+>
+struct distance_multi_to_single
+    <
+        MultiPoint, Ring, Strategy,
+        multi_point_tag, ring_tag,
+        strategy_tag_distance_point_segment
+    > : detail::distance::distance_multi_to_single_generic
+        <
+            MultiPoint, Ring, Strategy
+        >
+{};
+
+
+
+template
+<
+    typename MultiPoint,
     typename Box,
     typename Strategy
 >
@@ -384,6 +403,18 @@ struct distance_multi_to_single
 {};
 
 
+template <typename MultiLinestring, typename Ring, typename Strategy>
+struct distance_multi_to_single
+    <
+        MultiLinestring, Ring, Strategy,
+        multi_linestring_tag, ring_tag,
+        strategy_tag_distance_point_segment
+    > : detail::distance::geometry_to_geometry_rtree
+        <
+            MultiLinestring, Ring, Strategy
+        >
+{};
+
 
 template <typename MultiLinestring, typename Box, typename Strategy>
 struct distance_multi_to_single
@@ -411,6 +442,18 @@ struct distance_multi_to_single
         >
 {};
 
+
+template <typename MultiPolygon, typename Ring, typename Strategy>
+struct distance_multi_to_single
+    <
+        MultiPolygon, Ring, Strategy,
+        multi_polygon_tag, ring_tag,
+        strategy_tag_distance_point_segment
+    > : detail::distance::geometry_to_geometry_rtree
+        <
+            MultiPolygon, Ring, Strategy
+        >
+{};
 
 
 template <typename MultiPolygon, typename Box, typename Strategy>

@@ -27,6 +27,7 @@ typedef bg::model::linestring<point_type>             linestring_type;
 typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 typedef bg::model::polygon<point_type, false>         polygon_type;
 typedef bg::model::multi_polygon<polygon_type>        multi_polygon_type;
+typedef bg::model::ring<point_type, false>            ring_type;
 typedef bg::model::box<point_type>                    box_type;
 typedef bg::model::box<int_point_type>                int_box_type;
 
@@ -207,6 +208,85 @@ void test_distance_multilinestring_multipolygon(Strategy const& strategy)
     tester::apply("multilinestring((19 0,19.9 -1),(12 0,20.5 0.5))",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
+                  0, 0, strategy, true);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_segment_ring(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "segment/ring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<segment_type, ring_type> tester;
+
+    tester::apply("segment(-1 20,1 20)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy);
+
+    tester::apply("segment(1 20,2 40)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy);
+
+    tester::apply("segment(-1 20,-1 5)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy);
+
+    tester::apply("segment(-1 20,-1 -20)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_linestring_ring(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/ring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<linestring_type, ring_type> tester;
+
+    tester::apply("linestring(-1 20,1 20,1 30)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy, true);
+  
+    tester::apply("linestring(-1 20,1 20,1 5)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy, true);
+
+    tester::apply("linestring(-1 20,1 20,1 -20)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy, true);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_multilinestring_ring(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multilinestring/ring distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            multi_linestring_type, ring_type
+        > tester;
+
+    tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy, true);
+  
+    tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 5))",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  0, 0, strategy, true);
+
+    tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 -20))",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy, true);
 }
 
@@ -718,6 +798,7 @@ void test_more_empty_input_linear_areal(Strategy const& strategy)
     bg::model::polygon<Point> polygon_empty;
     bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
     bg::model::multi_polygon<bg::model::polygon<Point> > multipolygon_empty;
+    bg::model::ring<Point> ring_empty;
 
     bg::model::linestring<Point> line =
         from_wkt<bg::model::linestring<Point> >("linestring(0 0,1 1)");
@@ -725,19 +806,27 @@ void test_more_empty_input_linear_areal(Strategy const& strategy)
     bg::model::polygon<Point> polygon =
         from_wkt<bg::model::polygon<Point> >("polygon((0 0,1 0,0 1))");
 
+    bg::model::ring<Point> ring =
+        from_wkt<bg::model::ring<Point> >("polygon((0 0,1 0,0 1))");
+
     // 1st geometry is empty
     test_empty_input(line_empty, polygon, strategy);
+    test_empty_input(line_empty, ring, strategy);
     test_empty_input(multiline_empty, polygon, strategy);
+    test_empty_input(multiline_empty, ring, strategy);
 
     // 2nd geometry is empty
     test_empty_input(line, polygon_empty, strategy);
     test_empty_input(line, multipolygon_empty, strategy);
+    test_empty_input(line, ring_empty, strategy);
 
     // both geometries are empty
     test_empty_input(line_empty, polygon_empty, strategy);
     test_empty_input(line_empty, multipolygon_empty, strategy);
+    test_empty_input(line_empty, ring_empty, strategy);
     test_empty_input(multiline_empty, polygon_empty, strategy);
     test_empty_input(multiline_empty, multipolygon_empty, strategy);
+    test_empty_input(multiline_empty, ring_empty, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
@@ -774,6 +863,21 @@ BOOST_AUTO_TEST_CASE( test_all_linestring_multipolygon )
 BOOST_AUTO_TEST_CASE( test_all_multilinestring_multipolygon )
 {
     test_distance_multilinestring_multipolygon(point_segment_strategy());
+}
+
+BOOST_AUTO_TEST_CASE( test_all_segment_ring )
+{
+    test_distance_segment_ring(point_segment_strategy());
+}
+
+BOOST_AUTO_TEST_CASE( test_all_linestring_ring )
+{
+    test_distance_linestring_ring(point_segment_strategy());
+}
+
+BOOST_AUTO_TEST_CASE( test_all_multilinestring_ring )
+{
+    test_distance_multilinestring_ring(point_segment_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_segment_box )

@@ -76,7 +76,7 @@ public:
     template <typename Linestring>
     bool operator()(Linestring const& linestring)
     {
-        std::size_t count = boost::size(linestring);
+        std::size_t const count = boost::size(linestring);
         
         // invalid input
         if ( count < 2 )
@@ -92,7 +92,7 @@ public:
             return false;
         }
 
-        int pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
+        int const pig = detail::within::point_in_geometry(range::front(linestring), m_geometry2);
         //BOOST_ASSERT_MSG(pig != 0, "There should be no IPs");
 
         if ( pig > 0 )
@@ -160,7 +160,7 @@ public:
 
         typedef typename geometry::point_type<Areal>::type point_type;
         point_type dummy;
-        bool ok = boost::geometry::point_on_border(dummy, areal);
+        bool const ok = boost::geometry::point_on_border(dummy, areal);
 
         // TODO: for now ignore, later throw an exception?
         if ( !ok )
@@ -596,10 +596,11 @@ struct linear_areal
                     update<interior, boundary, '1', TransposeResult>(res);
                 }
 
-                bool this_b = is_ip_on_boundary<boundary_front>(it->point,
-                                                                it->operations[op_id],
-                                                                boundary_checker,
-                                                                seg_id);
+                bool const this_b
+                    = is_ip_on_boundary<boundary_front>(it->point,
+                                                        it->operations[op_id],
+                                                        boundary_checker,
+                                                        seg_id);
                 // going inside on boundary point
                 if ( this_b )
                 {
@@ -616,10 +617,10 @@ struct linear_areal
                       && it->operations[op_id].position != overlay::position_front )
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool from_inside = first_in_range
-                                            && calculate_from_inside(geometry,
-                                                                    other_geometry,
-                                                                    *it);
+                        bool const from_inside = first_in_range
+                                              && calculate_from_inside(geometry,
+                                                                       other_geometry,
+                                                                       *it);
 
                         if ( from_inside )
                             update<interior, interior, '1', TransposeResult>(res);
@@ -629,9 +630,9 @@ struct linear_areal
                         // if it's the first IP then the first point is outside
                         if ( first_in_range )
                         {
-                            bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                range::front(sub_range(geometry, seg_id)),
-                                                boundary_checker);
+                            bool const front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_range(geometry, seg_id)),
+                                                    boundary_checker);
 
                             // if there is a boundary on the first point
                             if ( front_b )
@@ -648,8 +649,8 @@ struct linear_areal
             // u/u, x/u
             else if ( op == overlay::operation_union || op == overlay::operation_blocked )
             {
-                bool op_blocked = op == overlay::operation_blocked;
-                bool no_enters_detected = m_exit_watcher.is_outside()
+                bool const op_blocked = op == overlay::operation_blocked;
+                bool const no_enters_detected = m_exit_watcher.is_outside()
 // TODO: is this condition ok?
 // TODO: move it into the exit_watcher?
                     && m_exit_watcher.get_exit_operation() == overlay::operation_none;
@@ -687,10 +688,10 @@ struct linear_areal
                 // we're outside or inside and this is the first turn
                 else
                 {
-                    bool this_b = is_ip_on_boundary<boundary_any>(it->point,
-                                                                    it->operations[op_id],
-                                                                    boundary_checker,
-                                                                    seg_id);                        
+                    bool const this_b = is_ip_on_boundary<boundary_any>(it->point,
+                                                                        it->operations[op_id],
+                                                                        boundary_checker,
+                                                                        seg_id);
                     // if current IP is on boundary of the geometry
                     if ( this_b )
                     {
@@ -706,10 +707,10 @@ struct linear_areal
                     if ( it->operations[op_id].position != overlay::position_front )
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool first_from_inside = first_in_range
-                                                && calculate_from_inside(geometry,
-                                                                        other_geometry,
-                                                                        *it);
+                        bool const first_from_inside = first_in_range
+                                                    && calculate_from_inside(geometry,
+                                                                             other_geometry,
+                                                                             *it);
                         if ( first_from_inside )
                         {
                             update<interior, interior, '1', TransposeResult>(res);
@@ -725,9 +726,9 @@ struct linear_areal
                         // first IP on the last segment point - this means that the first point is outside or inside
                         if ( first_in_range && ( !this_b || op_blocked ) )
                         {
-                            bool front_b = is_endpoint_on_boundary<boundary_front>(
-                                                range::front(sub_range(geometry, seg_id)),
-                                                boundary_checker);
+                            bool const front_b = is_endpoint_on_boundary<boundary_front>(
+                                                    range::front(sub_range(geometry, seg_id)),
+                                                    boundary_checker);
 
                             // if there is a boundary on the first point
                             if ( front_b )
@@ -784,9 +785,9 @@ struct linear_areal
 
                 segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-                bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                        range::back(sub_range(geometry, prev_seg_id)),
-                                        boundary_checker);
+                bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_range(geometry, prev_seg_id)),
+                                            boundary_checker);
 
                 // if there is a boundary on the last point
                 if ( prev_back_b )
@@ -807,9 +808,9 @@ struct linear_areal
 
                 segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
 
-                bool prev_back_b = is_endpoint_on_boundary<boundary_back>(
-                                        range::back(sub_range(geometry, prev_seg_id)),
-                                        boundary_checker);
+                bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_range(geometry, prev_seg_id)),
+                                            boundary_checker);
 
                 // if there is a boundary on the last point
                 if ( prev_back_b )
@@ -843,13 +844,13 @@ struct linear_areal
             typedef typename boost::range_iterator<range2_type>::type range2_iterator;
             range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
-            std::size_t s1 = boost::size(range1);
-            std::size_t s2 = boost::size(range2);
+            std::size_t const s1 = boost::size(range1);
+            std::size_t const s2 = boost::size(range2);
             BOOST_ASSERT(s1 > 1 && s2 > 2);
-            std::size_t seg_count2 = s2 - 1;
+            std::size_t const seg_count2 = s2 - 1;
 
-            std::size_t p_seg_ij = turn.operations[op_id].seg_id.segment_index;
-            std::size_t q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
+            std::size_t const p_seg_ij = turn.operations[op_id].seg_id.segment_index;
+            std::size_t const q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
 
             BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
 
@@ -858,7 +859,7 @@ struct linear_areal
             point2_type const& qj = range::at(range2, q_seg_ij + 1);
             point1_type qi_conv;
             geometry::convert(qi, qi_conv);
-            bool is_ip_qj = equals::equals_point_point(turn.point, qj);
+            bool const is_ip_qj = equals::equals_point_point(turn.point, qj);
 // TODO: test this!
 //            BOOST_ASSERT(!equals::equals_point_point(turn.point, pi));
 //            BOOST_ASSERT(!equals::equals_point_point(turn.point, qi));
@@ -867,7 +868,7 @@ struct linear_areal
 
             if ( is_ip_qj )
             {
-                std::size_t q_seg_jk = (q_seg_ij + 1) % seg_count2;
+                std::size_t const q_seg_jk = (q_seg_ij + 1) % seg_count2;
 // TODO: the following function should return immediately, however the worst case complexity is O(N)
 // It would be good to replace it with some O(1) mechanism
                 range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),

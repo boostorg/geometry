@@ -185,20 +185,22 @@ struct cs_tag<cs::cartesian>
 
 /*!
 \brief Meta-function returning coordinate system tag (cs family) of any geometry
+\tparam Geometry \tparam_geometry
 \ingroup core
 */
-template <typename G>
+template <typename Geometry>
 struct cs_tag
 {
     typedef typename traits::cs_tag
         <
-            typename geometry::coordinate_system<G>::type
+            typename geometry::coordinate_system<Geometry>::type
         >::type type;
 };
 
 
 /*!
 \brief Meta-function to verify if a coordinate system is radian
+\tparam CoordinateSystem Any coordinate system.
 \ingroup core
 */
 template <typename CoordinateSystem>
