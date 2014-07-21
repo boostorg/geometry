@@ -88,18 +88,18 @@ void test_per_point_const(Geometry const& geometry, int expected)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
 
-	// Class (functor)
+    // Class (functor)
     sum_x_functor<point_type> functor;
     functor = bg::for_each_point(geometry, functor);
     BOOST_CHECK_EQUAL(functor.sum, expected);
 
 
-	// Lambda
+    // Lambda
 #if !defined(BOOST_NO_CXX11_LAMBDAS)
 
-	typename bg::coordinate_type<point_type>::type sum_x = 0;
+    typename bg::coordinate_type<point_type>::type sum_x = 0;
 
-	bg::for_each_point
+    bg::for_each_point
         (
             geometry,
             [&sum_x](point_type const& p)
@@ -146,10 +146,10 @@ void test_per_point_non_const(Geometry& geometry,
         << " got " << bg::wkt(geometry));
 
 #if !defined(BOOST_NO_CXX11_LAMBDAS)
-	// Lambda, both functions above together. Without / with capturing
+    // Lambda, both functions above together. Without / with capturing
 
     geometry = copy;
-	bg::for_each_point
+    bg::for_each_point
         (
             geometry,
             [](point_type& p)
@@ -159,8 +159,8 @@ void test_per_point_non_const(Geometry& geometry,
 
         );
 
-	typename bg::coordinate_type<point_type>::type scale = 100;
-	bg::for_each_point
+    typename bg::coordinate_type<point_type>::type scale = 100;
+    bg::for_each_point
         (
             geometry,
             [&](point_type& p)

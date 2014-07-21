@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library) 
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
@@ -32,6 +32,7 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
@@ -45,7 +46,6 @@
 #if defined(TEST_WITH_SVG)
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
-#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 template <typename Geometry, typename Mapper, typename RescalePolicy>
 void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
@@ -254,7 +254,7 @@ struct svg_visitor
 #endif
 
 //-----------------------------------------------------------------------------
-template <template<typename, typename> class JoinStrategy>
+template <typename JoinStrategy>
 struct JoinTestProperties { };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
@@ -274,7 +274,7 @@ template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_rou
 
 
 //-----------------------------------------------------------------------------
-template <template<typename, typename> class EndStrategy>
+template <typename EndStrategy>
 struct EndTestProperties { };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
@@ -287,38 +287,58 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
     static std::string name() { return "flat"; }
 };
 
-template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_skip>
-{ 
-    static std::string name() { return ""; }
-};
+
+
+template <typename Geometry, typename RescalePolicy>
+std::size_t count_self_ips(Geometry const& geometry, RescalePolicy const& rescale_policy)
+{
+    typedef typename bg::point_type<Geometry>::type point_type;
+    typedef bg::detail::overlay::turn_info
+    <
+        point_type,
+        typename bg::segment_ratio_type<point_type, RescalePolicy>::type
+    > turn_info;
+
+    std::vector<turn_info> turns;
+
+    bg::detail::self_get_turn_points::no_interrupt_policy policy;
+    bg::self_turns
+        <
+            bg::detail::overlay::assign_null_policy
+        >(geometry, rescale_policy, turns, policy);
+
+    return turns.size();
+}
 
 template
 <
     typename GeometryOut,
-    template<typename, typename> class JoinStrategy,
-    template<typename, typename> class EndStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
+            JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
             bool check_self_intersections, double expected_area,
             double distance_left, double distance_right,
-            double tolerance)
+            double tolerance,
+            std::size_t* self_ip_count)
 {
     namespace bg = boost::geometry;
 
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
 
-	typedef typename bg::tag<Geometry>::type tag;
-	// TODO use something different here:
-	std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
-		: boost::is_same<tag, bg::linestring_tag>::value ? "line"
-		: boost::is_same<tag, bg::point_tag>::value ? "point"
-		: boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
-		: boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
-		: boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
-		: ""
-		;
+    typedef typename bg::tag<Geometry>::type tag;
+    // TODO use something different here:
+    std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
+        : boost::is_same<tag, bg::linestring_tag>::value ? "line"
+        : boost::is_same<tag, bg::point_tag>::value ? "point"
+        : boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+        : boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+        : boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
+        : ""
+        ;
 
     typedef typename bg::point_type<GeometryOut>::type output_point_type;
 
@@ -371,23 +391,18 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
 
-    JoinStrategy
-        <
-            point_type,
-            output_point_type
-        > join_strategy;
-
-    EndStrategy
-        <
-            point_type,
-            output_point_type
-        > end_strategy;
-
     bg::strategy::buffer::distance_asymmetric
         <
             coordinate_type
         > 
     distance_strategy(distance_left, distance_right);
+
+    bg::strategy::buffer::side_straight side_strategy;
+
+    // For (multi)points a buffer with 88 points is used for testing.
+    // More points will give a more precise result - expected area should be
+    // adapted then
+    bg::strategy::buffer::point_circle circle_strategy(88);
 
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
@@ -398,10 +413,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     std::vector<GeometryOut> buffered;
 
-    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
-                        distance_strategy, 
+    bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
+                        std::back_inserter(buffered),
+                        distance_strategy,
+                        side_strategy,
                         join_strategy,
                         end_strategy,
+                        circle_strategy,
                         rescale_policy,
                         visitor);
 
@@ -457,6 +475,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         post_map(polygon, mapper, rescale_policy);
     }
 #endif
+
+    if (self_ip_count != NULL)
+    {
+        std::size_t count = 0;
+        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        {
+            count += count_self_ips(polygon, rescale_policy);
+        }
+
+        *self_ip_count += count;
+    }
 }
 
 
@@ -467,11 +496,12 @@ static int counter = 0;
 template
 <
     typename Geometry,
-    template<typename, typename> class JoinStrategy,
-    template<typename, typename> class EndStrategy,
-    typename GeometryOut
+    typename GeometryOut,
+    typename JoinStrategy,
+    typename EndStrategy
 >
 void test_one(std::string const& caseid, std::string const& wkt,
+        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
         double expected_area,
         double distance_left, double distance_right = -999,
         bool check_self_intersections = true,
@@ -495,11 +525,36 @@ void test_one(std::string const& caseid, std::string const& wkt,
         << std::endl;
 #endif
 
-    test_buffer<GeometryOut, JoinStrategy, EndStrategy>
-            (caseid, g, check_self_intersections, expected_area,
-            distance_left, distance_right, tolerance);
+    test_buffer<GeometryOut>
+            (caseid, g, join_strategy, end_strategy,
+            check_self_intersections, expected_area,
+            distance_left, distance_right, tolerance, NULL);
 }
 
+// Version (currently for the Aimes test) counting self-ip's instead of checking
+template
+<
+    typename Geometry,
+    typename GeometryOut,
+    typename JoinStrategy,
+    typename EndStrategy
+>
+void test_one(std::string const& caseid, std::string const& wkt,
+        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
+        double expected_area,
+        double distance_left, double distance_right,
+        std::size_t& self_ip_count,
+        double tolerance = 0.01)
+{
+    namespace bg = boost::geometry;
+    Geometry g;
+    bg::read_wkt(wkt, g);
+    bg::correct(g);
+
+    test_buffer<GeometryOut>(caseid, g, join_strategy, end_strategy,
+            false, expected_area,
+            distance_left, distance_right, tolerance, &self_ip_count);
+}
 
 
 #endif

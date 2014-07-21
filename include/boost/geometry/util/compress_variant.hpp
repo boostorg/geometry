@@ -78,7 +78,7 @@ struct variant_or_single:
         typedef mpl::vector<int, float, long> result_types;
         BOOST_MPL_ASSERT(( mpl::equal<compressed::types, result_types> ));
 
-        tpyedef variant<int, int, int> one_type_variant_type;
+        typedef variant<int, int, int> one_type_variant_type;
         typedef compress_variant<one_type_variant_type>::type single_type;
         BOOST_MPL_ASSERT(( boost::equals<single_type, int> ));
     \endcode

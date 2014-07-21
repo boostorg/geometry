@@ -33,6 +33,78 @@ namespace boost { namespace geometry
 namespace strategy { namespace within
 {
 
+
+// Fix for https://svn.boost.org/trac/boost/ticket/9628
+// For floating point coordinates, the <1> coordinate of a point is compared
+// with the segment's points using some EPS. If the coordinates are "equal"
+// the sides are calculated. Therefore we can treat a segment as a long areal
+// geometry having some width. There is a small ~triangular area somewhere
+// between the segment's effective area and a segment's line used in sides
+// calculation where the segment is on the one side of the line but on the
+// other side of a segment (due to the width).
+// For the s1 of a segment going NE the real side is RIGHT but the point may
+// be detected as LEFT, like this:
+//                     RIGHT
+//                 ___----->
+//                  ^      O Pt  __ __
+//                 EPS     __ __
+//                  v__ __ BUT DETECTED AS LEFT OF THIS LINE
+//             _____7
+//       _____/
+// _____/
+template <typename CSTag>
+struct winding_side_equal
+{
+    typedef typename strategy::side::services::default_strategy
+        <
+            CSTag
+        >::type strategy_side_type;
+
+    template <size_t D, typename Point, typename PointOfSegment>
+    static inline int apply(Point const& point,
+                            PointOfSegment const& se,
+                            int count)
+    {
+        // Create a vertical segment intersecting the original segment's endpoint
+        // equal to the point, with the derived direction (UP/DOWN).
+        // Set only the 2 first coordinates, the other ones are ignored
+        PointOfSegment ss1, ss2;
+        set<1-D>(ss1, get<1-D>(se));
+        set<1-D>(ss2, get<1-D>(se));
+        if ( count > 0 ) // UP
+        {
+            set<D>(ss1, 0);
+            set<D>(ss2, 1);
+        }
+        else // DOWN
+        {
+            set<D>(ss1, 1);
+            set<D>(ss2, 0);
+        }
+        // Check the side using this vertical segment
+        return strategy_side_type::apply(ss1, ss2, point);
+    }
+};
+
+// The optimization for cartesian
+template <>
+struct winding_side_equal<cartesian_tag>
+{
+    template <size_t D, typename Point, typename PointOfSegment>
+    static inline int apply(Point const& point,
+                            PointOfSegment const& se,
+                            int count)
+    {
+        return math::equals(get<1-D>(point), get<1-D>(se)) ?
+                0 :
+                get<1-D>(point) < get<1-D>(se) ?
+                    // assuming count is equal to 1 or -1
+                    count : // ( count > 0 ? 1 : -1) :
+                    -count; // ( count > 0 ? -1 : 1) ;
+    }
+};
+
+
 /*!
 \brief Within detection using winding rule
 \ingroup strategies
@@ -112,21 +184,21 @@ class winding
     template <size_t D>
     static inline int check_segment(Point const& point,
                 PointOfSegment const& seg1, PointOfSegment const& seg2,
-                counter& state)
+                counter& state, bool& eq1, bool& eq2)
     {
         calculation_type const p = get<D>(point);
         calculation_type const s1 = get<D>(seg1);
         calculation_type const s2 = get<D>(seg2);
 
         // Check if one of segment endpoints is at same level of point
-        bool eq1 = math::equals(s1, p);
-        bool eq2 = math::equals(s2, p);
+        eq1 = math::equals(s1, p);
+        eq2 = math::equals(s2, p);
 
         if (eq1 && eq2)
         {
             // Both equal p -> segment is horizontal (or vertical for D=0)
             // The only thing which has to be done is check if point is ON segment
-            return check_touch<1 - D>(point, seg1, seg2,state);
+            return check_touch<1 - D>(point, seg1, seg2, state);
         }
 
         return
@@ -136,8 +208,6 @@ class winding
             : s2 < p && s1 > p ? -2     // Point between s2 -> s1 --> DOWN
             : 0;
     }
-
-
 
 
 public :
@@ -151,10 +221,24 @@ public :
                 PointOfSegment const& s1, PointOfSegment const& s2,
                 counter& state)
     {
-        int count = check_segment<1>(point, s1, s2, state);
+        bool eq1 = false;
+        bool eq2 = false;
+        boost::ignore_unused(eq2);
+
+        int count = check_segment<1>(point, s1, s2, state, eq1, eq2);
         if (count != 0)
         {
-            int side = strategy_side_type::apply(s1, s2, point);
+            int side = 0;
+            if ( count == 1 || count == -1 )
+            {
+                side = winding_side_equal<typename cs_tag<Point>::type>
+                            ::template apply<1>(point, eq1 ? s1 : s2, count);
+            }
+            else
+            {
+                side = strategy_side_type::apply(s1, s2, point);
+            }
+            
             if (side == 0)
             {
                 // Point is lying on segment

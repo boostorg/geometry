@@ -6,12 +6,13 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-exe quick_start : quick_start.cpp ;
-exe polygons_vector : polygons_vector.cpp ;
+exe iterative_query : iterative_query.cpp ;
 exe polygons_shared_ptr : polygons_shared_ptr.cpp ;
-exe variants_map : variants_map.cpp ;
-exe value_shared_ptr : value_shared_ptr.cpp ;
+exe polygons_vector : polygons_vector.cpp ;
+exe quick_start : quick_start.cpp ;
 exe value_index : value_index.cpp ;
+exe value_shared_ptr : value_shared_ptr.cpp ;
+exe variants_map : variants_map.cpp ;
 
 exe interprocess : interprocess.cpp /boost/thread//boost_thread
         :

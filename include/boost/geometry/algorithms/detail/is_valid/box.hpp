@@ -68,7 +68,7 @@ namespace dispatch
 // The only thing we have to check is whether the max corner lies in
 // the upper-right quadrant as defined by the min corner
 //
-// Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
+// Reference (for polygon validity): OGC 06-103r4 (6.1.11.1)
 template <typename Box>
 struct is_valid<Box, box_tag>
     : detail::is_valid::has_valid_corners<Box, dimension<Box>::value>

@@ -29,14 +29,16 @@ static std::string const simplex = "POINT(5 5)";
 template <typename P>
 void test_all()
 {
-    namespace buf = bg::strategy::buffer;
     typedef bg::model::polygon<P> polygon;
 
-	double const pi = boost::geometry::math::pi<double>();
+    bg::strategy::buffer::join_miter join_miter;
+    bg::strategy::buffer::end_flat end_flat;
 
-    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex1", simplex, pi, 1.0, 1.0);
-    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, pi * 4.0, 2.0, 2.0, true, 0.1);
-    test_one<P, buf::join_miter, buf::end_round, polygon>("simplex3", simplex, pi * 9.0, 3.0, 3.0, true, 0.1);
+    double const pi = boost::geometry::math::pi<double>();
+
+    test_one<P, polygon>("simplex1", simplex, join_miter, end_flat, pi, 1.0, 1.0);
+    test_one<P, polygon>("simplex2", simplex, join_miter, end_flat, pi * 4.0, 2.0, 2.0, true, 0.1);
+    test_one<P, polygon>("simplex3", simplex, join_miter, end_flat, pi * 9.0, 3.0, 3.0, true, 0.1);
 }
 
 

@@ -185,9 +185,9 @@ public:
 template<typename Policy>
 struct simplify_multi
 {
-    template <typename MultiGeometry, typename Strategy>
+    template <typename MultiGeometry, typename Strategy, typename Distance>
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
-                             double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         traits::resize<MultiGeometry>::apply(out, boost::size(multi));
 

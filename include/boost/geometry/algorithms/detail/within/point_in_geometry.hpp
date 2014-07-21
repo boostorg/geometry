@@ -135,8 +135,6 @@ namespace detail_dispatch { namespace within {
 // returns 0 if P is on the boundry of G
 // returns -1 if P is in the exterior of G
 
-// TODO: replace magic numbers with enum
-
 template <typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type>
 struct point_in_geometry

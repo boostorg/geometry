@@ -131,9 +131,8 @@ struct function : public element
     std::string precondition;
 
     std::string return_type_without_links;
-    bool is_static, is_const, is_explicit, is_virtual;
-
     bool unique;
+    bool is_static, is_const, is_explicit, is_virtual;
 
     function()
         : type(function_unknown)

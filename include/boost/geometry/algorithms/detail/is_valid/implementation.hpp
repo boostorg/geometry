@@ -13,6 +13,7 @@
 #include <boost/geometry/algorithms/detail/is_valid/pointlike.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/linear.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/polygon.hpp>
+#include <boost/geometry/algorithms/detail/is_valid/multipolygon.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/ring.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/segment.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/box.hpp>

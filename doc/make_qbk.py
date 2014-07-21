@@ -83,10 +83,11 @@ call_doxygen()
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
     , "convex_hull", "crosses", "difference", "disjoint", "distance" 
-    , "envelope", "equals", "expand", "for_each", "intersection", "intersects" 
-    , "length", "num_geometries", "num_interior_rings", "num_points" 
-    , "overlaps", "perimeter", "reverse", "simplify", "sym_difference" 
-    , "touches", "transform", "union", "unique", "within"]
+    , "envelope", "equals", "expand", "for_each", "is_simple", "is_valid"
+    , "intersection", "intersects", "length", "num_geometries"
+    , "num_interior_rings", "num_points", "overlaps", "perimeter"
+    , "reverse", "simplify", "sym_difference", "touches", "transform"
+    , "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
@@ -114,6 +115,11 @@ strategies = ["distance::pythagoras", "distance::pythagoras_box_box"
     , "distance::cross_track", "distance::projected_point"
     , "within::winding", "within::franklin", "within::crossings_multiply"
     , "area::surveyor", "area::huiller"
+    , "buffer::point_circle", "buffer::point_square"
+    , "buffer::join_round", "buffer::join_miter"
+    , "buffer::end_round", "buffer::end_flat"
+    , "buffer::distance_symmetric", "buffer::distance_asymmetric"
+    , "buffer::side_straight"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
     , "simplify::douglas_peucker"

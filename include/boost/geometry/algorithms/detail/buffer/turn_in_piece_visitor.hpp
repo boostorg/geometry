@@ -11,6 +11,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
@@ -44,10 +45,12 @@ struct turn_ovelaps_box
         return ! geometry::disjoint(box, turn.robust_point);
     }
 };
-template <typename Turns>
+
+template <typename Turns, typename Pieces>
 class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
+    Pieces const& m_pieces; // to check for piece-type
 
     template <typename Point>
     static inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
@@ -103,10 +106,12 @@ class turn_in_piece_visitor
         return false;
     }
 
+
 public:
 
-    inline turn_in_piece_visitor(Turns& turns)
+    inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces)
         : m_turns(turns)
+        , m_pieces(pieces)
     {}
 
     template <typename Turn, typename Piece>
@@ -133,9 +138,23 @@ public:
             {
                 return;
             }
+
+            typename boost::range_value<Pieces>::type const& pc
+                                = m_pieces[turn.operations[i].piece_index];
+            if (pc.type == strategy::buffer::buffered_flat_end)
+            {
+                if (pc.left_index == piece.index
+                    || pc.right_index == piece.index)
+                {
+                    // If it is a flat end, don't compare against its neighbor:
+                    // it will always be located on one of the helper segments
+                    return;
+                }
+            }
         }
 
         int geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+
         if (geometry_code == -1)
         {
             return;
@@ -149,7 +168,6 @@ public:
                 // It is on the border but not on the offsetted ring.
                 // Then it is somewhere on the helper-segments
                 // Classify it as inside
-                // TODO: for neighbouring flat ends this does not apply
                 geometry_code = 1;
                 mutable_turn.count_on_helper++;
             }

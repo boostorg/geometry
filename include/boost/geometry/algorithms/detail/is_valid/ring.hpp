@@ -155,9 +155,9 @@ namespace dispatch
 
 // A Ring is a Polygon with exterior boundary only.
 // The Ring's boundary must be a LinearRing (see OGC 06-103-r4,
-// §6.1.7.1, for the definition of LinearRing)
+// 6.1.7.1, for the definition of LinearRing)
 //
-// Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
+// Reference (for polygon validity): OGC 06-103r4 (6.1.11.1)
 template <typename Ring, bool AllowSpikes, bool AllowDuplicates>
 struct is_valid<Ring, ring_tag, AllowSpikes, AllowDuplicates>
     : detail::is_valid::is_valid_ring<Ring, AllowDuplicates>

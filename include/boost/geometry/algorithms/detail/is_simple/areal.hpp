@@ -94,7 +94,7 @@ namespace dispatch
 // A Ring is a Polygon.
 // A Polygon is always a simple geometric object provided that it is valid.
 //
-// Reference (for polygon validity): OGC 06-103r4 (§6.1.11.1)
+// Reference (for polygon validity): OGC 06-103r4 (6.1.11.1)
 template <typename Ring>
 struct is_simple<Ring, ring_tag>
     : detail::is_simple::is_simple_ring<Ring>
@@ -103,7 +103,7 @@ struct is_simple<Ring, ring_tag>
 
 // A Polygon is always a simple geometric object provided that it is valid.
 //
-// Reference (for validity of Polygons): OGC 06-103r4 (§6.1.11.1)
+// Reference (for validity of Polygons): OGC 06-103r4 (6.1.11.1)
 template <typename Polygon>
 struct is_simple<Polygon, polygon_tag>
     : detail::is_simple::is_simple_polygon<Polygon>
@@ -113,7 +113,7 @@ struct is_simple<Polygon, polygon_tag>
 // Not clear what the definition is.
 // Right now we consider a MultiPolygon as simple if it is valid.
 //
-// Reference (for validity of MultiPolygons): OGC 06-103r4 (§6.1.14)
+// Reference (for validity of MultiPolygons): OGC 06-103r4 (6.1.14)
 template <typename MultiPolygon>
 struct is_simple<MultiPolygon, multi_polygon_tag>
 {

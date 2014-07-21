@@ -37,11 +37,11 @@ namespace left_turns
 template <typename Point>
 struct turn_angle_info
 {
-    bg::segment_identifier seg_id;
+    segment_identifier seg_id;
     int turn_index;
     Point points[2];
 
-    turn_angle_info(bg::segment_identifier const& id, Point const& from, Point const& to)
+    turn_angle_info(segment_identifier const& id, Point const& from, Point const& to)
         : seg_id(id)
         , turn_index(-1)
     {
@@ -54,12 +54,12 @@ struct turn_angle_info
 template <typename Point>
 struct angle_info
 {
-    bg::segment_identifier seg_id;
+    segment_identifier seg_id;
     Point point;
     bool incoming;
     bool blocked;
 
-    inline angle_info(bg::segment_identifier const& id, bool inc, Point const& p)
+    inline angle_info(segment_identifier const& id, bool inc, Point const& p)
         : seg_id(id)
         , point(p)
         , incoming(inc)
