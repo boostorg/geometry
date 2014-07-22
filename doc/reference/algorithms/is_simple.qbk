@@ -20,7 +20,7 @@ Constant-time for points, segments and boxes
 
 Linear for rings, polygons and multi-polygons
 
-Worst-case quadratic for linestrings and multi-linestrings
+Linearithmic for multi-points, linestrings and multi-linestrings
 
 [heading Example]
 [is_simple]
