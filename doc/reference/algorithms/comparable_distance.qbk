@@ -22,7 +22,11 @@ a strategy available which can determine (more efficient than the standard
 strategy) a measure of comparable distance.
 
 [heading Complexity]
-Linear
+For point to geometry: linear
+
+For multi-point to ring/polygon/multi-polygon: currently quadratic
+
+For all other geometry combinations: linearithmic
 
 [heading Example]
 [comparable_distance]
