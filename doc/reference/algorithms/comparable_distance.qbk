@@ -21,6 +21,8 @@ It depends on the coordinate system of the geometry's point type if there is
 a strategy available which can determine (more efficient than the standard
 strategy) a measure of comparable distance.
 
+[include reference/status/distance_status.qbk]
+
 [heading Complexity]
 For point to geometry: linear
 
