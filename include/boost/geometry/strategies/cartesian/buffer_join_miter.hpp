@@ -105,6 +105,13 @@ public:
         range_out.push_back(perp2);
         return true;
     }
+
+    template <typename NumericType>
+    inline NumericType max_distance(NumericType const& distance) const
+    {
+        return distance * m_miter_limit;
+    }
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :

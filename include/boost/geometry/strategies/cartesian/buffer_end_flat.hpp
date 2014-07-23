@@ -90,6 +90,12 @@ public :
         // In other cases it does no harm but is further useless
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
     //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {

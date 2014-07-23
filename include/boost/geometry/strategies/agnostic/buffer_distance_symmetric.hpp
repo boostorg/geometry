@@ -71,6 +71,17 @@ public :
         return m_distance < 0;
     }
 
+    //! Returns the max distance distance up to the buffer will reach
+    template <typename JoinStrategy, typename EndStrategy>
+    inline NumericType max_distance(JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy) const
+    {
+        NumericType const dist = geometry::math::abs(m_distance);
+        return (std::max)(join_strategy.max_distance(dist),
+                          end_strategy.max_distance(dist));
+    }
+
+
     //! Returns the distance at which the input is simplified before the buffer process
     inline NumericType simplify_distance() const
     {

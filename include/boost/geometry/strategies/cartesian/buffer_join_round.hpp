@@ -108,6 +108,7 @@ private :
 
 public :
 
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Fills output_range with a rounded shape around a vertex
     template <typename Point, typename DistanceType, typename RangeOut>
@@ -155,6 +156,13 @@ public :
         range_out.push_back(perp2);
         return true;
     }
+
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :

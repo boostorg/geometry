@@ -347,6 +347,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         distance_right = distance_left;
     }
 
+    bg::model::box<point_type> envelope;
+    bg::envelope(geometry, envelope);
+
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
@@ -378,10 +381,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     mapper_type mapper(svg, 1000, 1000);
 
     {
-        bg::model::box<point_type> box;
-        bg::envelope(geometry, box);
         double d = std::abs(distance_left) + std::abs(distance_right);
 
+        bg::model::box<point_type> box = envelope;
         bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);
     }
@@ -408,8 +410,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
 
+    // Enlarge the box to get a proper rescale policy
+    bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
+
     rescale_policy_type rescale_policy
-            = bg::get_rescale_policy<rescale_policy_type>(geometry);
+            = bg::get_rescale_policy<rescale_policy_type>(envelope);
 
     std::vector<GeometryOut> buffered;
 
