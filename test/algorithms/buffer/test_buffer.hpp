@@ -154,7 +154,7 @@ struct svg_visitor
     template <typename Pieces, typename OffsettedRings>
     inline void map_pieces(Pieces const& pieces,
                 OffsettedRings const& offsetted_rings,
-                bool do_pieces = true, bool do_indices = true)
+                bool do_pieces, bool do_indices)
     {
         typedef typename boost::range_value<Pieces const>::type piece_type;
         typedef typename boost::range_value<OffsettedRings const>::type ring_type;
@@ -240,7 +240,7 @@ struct svg_visitor
     {
         if(phase == 0)
         {
-            map_pieces(collection.m_pieces, collection.offsetted_rings);
+            map_pieces(collection.m_pieces, collection.offsetted_rings, true, false);
             map_turns(collection.m_turns);
         }
         if (phase == 1)
@@ -485,6 +485,10 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         }
 
         *self_ip_count += count;
+        if (count > 0)
+        {
+            std::cout << complete.str() << " " << count << std::endl;
+        }
     }
 }
 
