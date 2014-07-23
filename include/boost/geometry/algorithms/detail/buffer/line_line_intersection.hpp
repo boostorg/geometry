@@ -58,9 +58,9 @@ struct line_line_intersection
         if (geometry::math::abs(denominator) < limit)
         {
             return parallel_continue(get<0>(qj) - get<0>(qi),
-            -                    get<1>(qj) - get<1>(qi),
-            -                    get<0>(pj) - get<0>(pi),
-            -                    get<1>(pj) - get<1>(pi))
+                                get<1>(qj) - get<1>(qi),
+                                get<0>(pj) - get<0>(pi),
+                                get<1>(pj) - get<1>(pi))
                 ? strategy::buffer::join_continue
                 : strategy::buffer::join_spike
                 ;
