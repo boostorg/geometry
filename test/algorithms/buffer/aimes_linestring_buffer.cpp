@@ -477,30 +477,29 @@ void test_aimes()
         double aimes_width = static_cast<double>(width) / 1000000.0;
         for (int i = 0; i < n; i++)
         {
-            if (i == 196 // circular with some issue to be investigated
-                || (i == 22 && width == 36) // generates larger miter than PostGIS does
-                || (i == 131 && width == 36) // error in generation
-                )
-            {
-                continue;
-            }
-
             std::ostringstream name;
-            name << "aimes_" << i << "_" << width;
-            test_one<linestring, polygon>
-            (
-                name.str(), testcases[i], join_miter, end_flat,
-                expectations[i][expectation_index],
-                aimes_width, aimes_width,
-                self_ip_count, 0.00001
-            );
-            test_one<linestring, polygon>
-            (
-                name.str(), testcases[i], join_round, end_round,
-                expectations[i][expectation_index + 1],
-                aimes_width, aimes_width,
-                self_ip_count, 0.00001
-            );
+            try
+            {
+                name << "aimes_" << i << "_" << width;
+                test_one<linestring, polygon>
+                (
+                    name.str(), testcases[i], join_miter, end_flat,
+                    expectations[i][expectation_index],
+                    aimes_width, aimes_width,
+                    self_ip_count, 0.00001
+                );
+                test_one<linestring, polygon>
+                (
+                    name.str(), testcases[i], join_round, end_round,
+                    expectations[i][expectation_index + 1],
+                    aimes_width, aimes_width,
+                    self_ip_count, 0.00001
+                );
+            }
+            catch(std::exception const& e)
+            {
+                std::cout << "Exception: " << e.what() << " in " << name.str() << std::endl;
+            }
         }
     }
     std::cout << "Total self-ips: " << self_ip_count << std::endl;
