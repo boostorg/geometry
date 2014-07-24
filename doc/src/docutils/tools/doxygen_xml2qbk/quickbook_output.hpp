@@ -209,10 +209,29 @@ inline bool includes(std::string const& filename, std::string const& header)
 }
 
 
-void quickbook_header(std::string const& location,
+std::string fix_location(std::string const& raw_location)
+{
+    if ( raw_location.find("detail/") == std::string::npos
+         || raw_location.find("/interface.hpp") == std::string::npos )
+    {
+        return raw_location;
+    }
+
+    std::string fixed_location(raw_location);
+
+    fixed_location.erase(fixed_location.find("detail/"), 7u);
+    fixed_location.erase(fixed_location.find("/interface"), 10u);
+
+    return fixed_location;
+}
+
+
+void quickbook_header(std::string const& raw_location,
     configuration const& config,
     std::ostream& out)
 {
+    std::string location = fix_location(raw_location);
+
     if (! location.empty())
     {
         std::vector<std::string> including_headers;
