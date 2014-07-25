@@ -168,7 +168,7 @@ void test_geometry(std::string const& wkt,
         DistanceMeasure const& distance,
         Strategy const& strategy)
 {
-    typedef typename bg::point_type<Geometry>::type point_type;
+    //typedef typename bg::point_type<Geometry>::type point_type;
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
