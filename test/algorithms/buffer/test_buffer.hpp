@@ -340,7 +340,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         : ""
         ;
 
-    typedef typename bg::point_type<GeometryOut>::type output_point_type;
+    //    typedef typename bg::point_type<GeometryOut>::type output_point_type;
 
     if (distance_right < -998)
     {
