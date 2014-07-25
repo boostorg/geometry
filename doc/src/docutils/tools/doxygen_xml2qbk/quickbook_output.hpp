@@ -226,6 +226,21 @@ std::string fix_location(std::string const& raw_location)
 }
 
 
+std::string fix_include_header(std::string const& header)
+{
+    if ( header.find("geometry/geometry.hpp") == std::string::npos )
+    {
+        return header;
+    }
+
+    std::string fixed_header(header);
+
+    fixed_header.erase(fixed_header.find("geometry/"), 9u);
+
+    return fixed_header;
+}
+
+
 void quickbook_header(std::string const& raw_location,
     configuration const& config,
     std::ostream& out)
@@ -253,7 +268,7 @@ void quickbook_header(std::string const& raw_location,
                 << std::endl << std::endl;
             BOOST_FOREACH(std::string const& header, including_headers)
             {
-                out << "`#include <" << config.start_include << header << ">`" << std::endl << std::endl;
+                out << "`#include <" << fix_include_header(config.start_include + header) << ">`" << std::endl << std::endl;
             }
 
             out << std::endl << "Or" << std::endl << std::endl;
