@@ -20,8 +20,6 @@
 #include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/io/wkt/wkt.hpp>
-
 #include <boost/foreach.hpp>
 
 int main()
