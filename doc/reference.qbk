@@ -103,10 +103,6 @@
 [include generated/distance.qbk]
 [endsect]
 
-[section:disjoint disjoint]
-[include generated/disjoint.qbk]
-[endsect]
-
 [section:envelope envelope]
 [include generated/envelope.qbk]
 [endsect]
