@@ -492,7 +492,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         std::size_t count = 0;
         BOOST_FOREACH(GeometryOut const& polygon, buffered)
         {
-            count += count_self_ips(polygon, rescale_policy);
+            if (bg::detail::overlay::has_self_intersections(polygon,
+                    rescale_policy, false))
+            {
+                count += count_self_ips(polygon, rescale_policy);
+            }
         }
 
         *self_ip_count += count;
