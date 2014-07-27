@@ -54,7 +54,7 @@ inline void simplify_input(Range const& range,
     // if it is using round joins. For miter joins they are even more
     // sensitive to small scale input features, however the result will
     // look better.
-    // It also get rid of duplicate points
+    // It also gets rid of duplicate points
 #if ! defined(BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX)
     geometry::simplify(range, simplified, distance.simplify_distance());
 #else
