@@ -299,7 +299,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_miter, end_flat, 18.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_round, end_flat, 17.536, 1.0);
-    //test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_miter, end_flat, 20.9142, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_miter, end_flat, 20.9142, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_o2", rt_o2, join_miter, end_flat, 25.7426, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_o3", rt_o3, join_miter, end_flat, 28.8247, 1.0);

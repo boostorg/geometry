@@ -135,7 +135,7 @@ void test_all()
 
     double tolerance = 1.0e-10;
 
-    test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, true, tolerance);
+    test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
     test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
