@@ -304,14 +304,7 @@ private:
         {
             if ( i_info().count == 2 )
             {
-                if ( ! d_info().opposite )
-                {
-                    return arrival != -1;
-                }
-                else
-                {
-                    return arrival != -1;
-                }
+                return arrival != -1;
             }
             else
             {
