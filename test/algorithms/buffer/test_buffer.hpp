@@ -203,7 +203,13 @@ struct svg_visitor
 
                 std::ostringstream out;
                 out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                m_mapper.text(corner.front(), out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
+                point_type label_point = corner.front();
+                if (corner.size() >= 2)
+                {
+                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
+                }
+                m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -240,7 +246,7 @@ struct svg_visitor
     {
         if(phase == 0)
         {
-            map_pieces(collection.m_pieces, collection.offsetted_rings, true, false);
+            map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
             map_turns(collection.m_turns);
         }
         if (phase == 1)
