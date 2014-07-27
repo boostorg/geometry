@@ -125,9 +125,11 @@ public:
             return;
         }
 
-        if (piece.type == strategy::buffer::buffered_flat_end)
+        if (piece.type == strategy::buffer::buffered_flat_end
+            || piece.type == strategy::buffer::buffered_concave)
         {
             // Turns cannot be inside a flat end (though they can be on border)
+            // Neither we need to check if they are inside concave helper pieces
             return;
         }
 

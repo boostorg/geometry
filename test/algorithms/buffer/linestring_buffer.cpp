@@ -35,6 +35,7 @@ static std::string const chained3 = "LINESTRING(0 0,1 1,2 2,3 3)";
 static std::string const chained4 = "LINESTRING(0 0,1 1,2 2,3 3,4 4)";
 
 static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
+static std::string const aimes120 = "LINESTRING(-2.505218 52.189211,-2.505069 52.189019,-2.504941 52.188854)";
 static std::string const aimes175 = "LINESTRING(-2.3116 52.354326,-2.311555 52.35417,-2.311489 52.354145,-2.311335 52.354178)";
 static std::string const aimes171 = "LINESTRING(-2.393161 52.265087,-2.393002 52.264965,-2.392901 52.264891)";
 static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.435016,-2.320697 52.434978,-2.3207 52.434977,-2.320741 52.434964,-2.320807 52.434964,-2.320847 52.434986,-2.320903 52.435022)";
@@ -129,6 +130,10 @@ void test_all()
     //test_one<linestring, polygon>("reallife1", reallife1, join_round, end_flat, 99, 16.5, 6.5);
 
     double tolerance = 1.0e-10;
+
+    test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, true, tolerance);
+    test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
+
     test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
     test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
 
