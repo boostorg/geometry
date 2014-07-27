@@ -159,12 +159,14 @@ struct buffer_range
         // The corner is convex, we create a join
         // TODO (future) - avoid a separate vector, add the piece directly
         std::vector<output_point_type> range_out;
-        join_strategy.apply(intersection_point,
+        if (join_strategy.apply(intersection_point,
                     previous_input, prev_perp2, perp1,
                     distance.apply(previous_input, input, side),
-                    range_out);
-        collection.add_piece(strategy::buffer::buffered_join,
-                previous_input, range_out);
+                    range_out))
+        {
+            collection.add_piece(strategy::buffer::buffered_join,
+                    previous_input, range_out);
+        }
     }
 
     static inline strategy::buffer::join_selector get_join_type(

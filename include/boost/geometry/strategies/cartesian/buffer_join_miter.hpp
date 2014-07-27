@@ -70,6 +70,10 @@ public:
         {
             return false;
         }
+        if (equals(perp1, perp2))
+        {
+            return false;
+        }
 
         typedef typename coordinate_type<Point>::type coordinate_type;
         typedef typename geometry::select_most_precise
