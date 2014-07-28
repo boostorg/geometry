@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-
+#include <iostream>
 #include <fstream>
 #include <iomanip>
 
@@ -154,7 +154,7 @@ struct svg_visitor
     template <typename Pieces, typename OffsettedRings>
     inline void map_pieces(Pieces const& pieces,
                 OffsettedRings const& offsetted_rings,
-                bool do_pieces = true, bool do_indices = true)
+                bool do_pieces, bool do_indices)
     {
         typedef typename boost::range_value<Pieces const>::type piece_type;
         typedef typename boost::range_value<OffsettedRings const>::type ring_type;
@@ -203,7 +203,13 @@ struct svg_visitor
 
                 std::ostringstream out;
                 out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                m_mapper.text(corner.front(), out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
+                point_type label_point = corner.front();
+                if (corner.size() >= 2)
+                {
+                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
+                }
+                m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -240,7 +246,7 @@ struct svg_visitor
     {
         if(phase == 0)
         {
-            map_pieces(collection.m_pieces, collection.offsetted_rings);
+            map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
             map_turns(collection.m_turns);
         }
         if (phase == 1)
@@ -340,12 +346,13 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         : ""
         ;
 
-    typedef typename bg::point_type<GeometryOut>::type output_point_type;
-
     if (distance_right < -998)
     {
         distance_right = distance_left;
     }
+
+    bg::model::box<point_type> envelope;
+    bg::envelope(geometry, envelope);
 
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
@@ -378,10 +385,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     mapper_type mapper(svg, 1000, 1000);
 
     {
-        bg::model::box<point_type> box;
-        bg::envelope(geometry, box);
         double d = std::abs(distance_left) + std::abs(distance_right);
 
+        bg::model::box<point_type> box = envelope;
         bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
         mapper.add(box);
     }
@@ -408,8 +414,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
 
+    // Enlarge the box to get a proper rescale policy
+    bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
+
     rescale_policy_type rescale_policy
-            = bg::get_rescale_policy<rescale_policy_type>(geometry);
+            = bg::get_rescale_policy<rescale_policy_type>(envelope);
 
     std::vector<GeometryOut> buffered;
 
@@ -481,10 +490,18 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         std::size_t count = 0;
         BOOST_FOREACH(GeometryOut const& polygon, buffered)
         {
-            count += count_self_ips(polygon, rescale_policy);
+            if (bg::detail::overlay::has_self_intersections(polygon,
+                    rescale_policy, false))
+            {
+                count += count_self_ips(polygon, rescale_policy);
+            }
         }
 
         *self_ip_count += count;
+        if (count > 0)
+        {
+            std::cout << complete.str() << " " << count << std::endl;
+        }
     }
 }
 

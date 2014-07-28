@@ -143,7 +143,7 @@ public :
         static const num_type scale = 1000000.0;
         m_approximation =
             m_denominator == 0 ? 0
-            : boost::numeric_cast<int>
+            : boost::numeric_cast<double>
                 (
                     boost::numeric_cast<num_type>(m_numerator) * scale
                   / boost::numeric_cast<num_type>(m_denominator)
@@ -227,7 +227,7 @@ private :
     // Boost.Rational is used if the approximations are close.
     // Reason: performance, Boost.Rational does a GCD by default and also the
     // comparisons contain while-loops.
-    int m_approximation;
+    double m_approximation;
 };
 
 

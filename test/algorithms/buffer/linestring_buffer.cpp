@@ -34,8 +34,12 @@ static std::string const chained2 = "LINESTRING(0 0,1 1,2 2)";
 static std::string const chained3 = "LINESTRING(0 0,1 1,2 2,3 3)";
 static std::string const chained4 = "LINESTRING(0 0,1 1,2 2,3 3,4 4)";
 
-static std::string const reallife1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
+static std::string const field_sprayer1 = "LINESTRING(76396.40464822574 410095.6795147947,76397.85016212701 410095.211865792,76401.30666443033 410095.0466387949,76405.05892643372 410096.1007777959,76409.45103273794 410098.257640797,76412.96309264141 410101.6522238015)";
+static std::string const aimes120 = "LINESTRING(-2.505218 52.189211,-2.505069 52.189019,-2.504941 52.188854)";
+static std::string const aimes167 = "LINESTRING(-2.378569 52.312133,-2.37857 52.312127,-2.378544 52.31209)";
 static std::string const aimes175 = "LINESTRING(-2.3116 52.354326,-2.311555 52.35417,-2.311489 52.354145,-2.311335 52.354178)";
+static std::string const aimes171 = "LINESTRING(-2.393161 52.265087,-2.393002 52.264965,-2.392901 52.264891)";
+static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.435016,-2.320697 52.434978,-2.3207 52.434977,-2.320741 52.434964,-2.320807 52.434964,-2.320847 52.434986,-2.320903 52.435022)";
 
 
 template <typename P>
@@ -93,8 +97,6 @@ void test_all()
     test_one<linestring, polygon>("overlapping150", overlapping, join_round, end_flat, 65.6786, 1.5, 1.5);
     test_one<linestring, polygon>("overlapping150", overlapping, join_miter, end_flat, 68.140, 1.5, 1.5);
 
-    // Cases below should still be fixed because of remaining flat-end/inside bug
-
     // Different cases with intersection points on flat and (left/right from line itself)
     test_one<linestring, polygon>("overlapping_asym_150_010", overlapping, join_round, end_flat, 48.308, 1.5, 0.25);
     test_one<linestring, polygon>("overlapping_asym_150_010", overlapping, join_miter, end_flat, 50.770, 1.5, 0.25);
@@ -124,10 +126,34 @@ void test_all()
     test_one<linestring, polygon>("chained3", chained3, join_round, end_flat, 16.9706, 2.5, 1.5);
     test_one<linestring, polygon>("chained4", chained4, join_round, end_flat, 22.6274, 2.5, 1.5);
 
-    //test_one<linestring, polygon>("reallife1", reallife1, join_round, end_flat, 99, 16.5, 6.5);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // Having flat end causing self-intersection
+    test_one<linestring, polygon>("field_sprayer1", reallife1, join_round, end_flat, 99, 16.5, 6.5);
+#endif
+    test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_round, 718.761877, 16.5, 6.5);
+    test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_miter, end_round, 718.939628, 16.5, 6.5);
 
-    test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, 0.0001);
-    test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, 0.0001);
+    double tolerance = 1.0e-10;
+
+    test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
+    test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // Having flat end causing self-intersection
+    test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, true, tolerance);
+#endif
+    test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
+
+    test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
+    test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
+
+    test_one<linestring, polygon>("aimes171", aimes171, join_miter, end_flat, 1.1721873249825876e-08, 0.000018, 0.000018, true, tolerance);
+    test_one<linestring, polygon>("aimes171", aimes171, join_round, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
+    test_one<linestring, polygon>("aimes171", aimes171, join_round_by_divide, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
+
+    test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, true, tolerance);
+    test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+    test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
 }
 
 

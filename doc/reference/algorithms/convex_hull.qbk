@@ -17,7 +17,7 @@
 [include reference/status/convex_hull_status.qbk]
 
 [heading Complexity]
-Logarithmic
+Linearithmic
 
 [heading Example]
 [convex_hull]

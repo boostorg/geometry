@@ -18,7 +18,6 @@
 int main()
 {
     typedef boost::geometry::model::d2::point_xy<double> point;
-    typedef boost::geometry::model::linestring<point> linestring;
     typedef boost::geometry::model::polygon<point> polygon;
 
     // Declare the join_miter strategy

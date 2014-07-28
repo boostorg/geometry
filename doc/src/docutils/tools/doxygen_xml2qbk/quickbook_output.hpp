@@ -209,10 +209,44 @@ inline bool includes(std::string const& filename, std::string const& header)
 }
 
 
-void quickbook_header(std::string const& location,
+std::string fix_location(std::string const& raw_location)
+{
+    if ( raw_location.find("detail/") == std::string::npos
+         || raw_location.find("/interface.hpp") == std::string::npos )
+    {
+        return raw_location;
+    }
+
+    std::string fixed_location(raw_location);
+
+    fixed_location.erase(fixed_location.find("detail/"), 7u);
+    fixed_location.erase(fixed_location.find("/interface"), 10u);
+
+    return fixed_location;
+}
+
+
+std::string fix_include_header(std::string const& header)
+{
+    if ( header.find("geometry/geometry.hpp") == std::string::npos )
+    {
+        return header;
+    }
+
+    std::string fixed_header(header);
+
+    fixed_header.erase(fixed_header.find("geometry/"), 9u);
+
+    return fixed_header;
+}
+
+
+void quickbook_header(std::string const& raw_location,
     configuration const& config,
     std::ostream& out)
 {
+    std::string location = fix_location(raw_location);
+
     if (! location.empty())
     {
         std::vector<std::string> including_headers;
@@ -234,7 +268,7 @@ void quickbook_header(std::string const& location,
                 << std::endl << std::endl;
             BOOST_FOREACH(std::string const& header, including_headers)
             {
-                out << "`#include <" << config.start_include << header << ">`" << std::endl << std::endl;
+                out << "`#include <" << fix_include_header(config.start_include + header) << ">`" << std::endl << std::endl;
             }
 
             out << std::endl << "Or" << std::endl << std::endl;

@@ -125,12 +125,15 @@ public:
             return;
         }
 
-        if (piece.type == strategy::buffer::buffered_flat_end)
+        if (piece.type == strategy::buffer::buffered_flat_end
+            || piece.type == strategy::buffer::buffered_concave)
         {
             // Turns cannot be inside a flat end (though they can be on border)
+            // Neither we need to check if they are inside concave helper pieces
             return;
         }
 
+        bool neighbour = false;
         for (int i = 0; i < 2; i++)
         {
             // Don't compare against one of the two source-pieces
@@ -141,15 +144,16 @@ public:
 
             typename boost::range_value<Pieces>::type const& pc
                                 = m_pieces[turn.operations[i].piece_index];
-            if (pc.type == strategy::buffer::buffered_flat_end)
+            if (pc.left_index == piece.index
+                || pc.right_index == piece.index)
             {
-                if (pc.left_index == piece.index
-                    || pc.right_index == piece.index)
+                if (pc.type == strategy::buffer::buffered_flat_end)
                 {
                     // If it is a flat end, don't compare against its neighbor:
                     // it will always be located on one of the helper segments
                     return;
                 }
+                neighbour = true;
             }
         }
 
@@ -161,8 +165,11 @@ public:
         }
 
         Turn& mutable_turn = m_turns[turn.turn_index];
-        if (geometry_code == 0)
+        if (geometry_code == 0 && ! neighbour)
         {
+            // If it is on the border and they are neighbours, it should be
+            // on the offsetted ring
+
             if (! on_offsetted(turn.robust_point, piece))
             {
                 // It is on the border but not on the offsetted ring.

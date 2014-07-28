@@ -115,6 +115,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == parameters.get_max_elements() + 1, "unexpected elements number");
 
         // copy original elements
+        // TODO: use container_from_elements_type for std::allocator
         elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
         elements_type elements_backup(elements1);                                                           // MAY THROW, STRONG (alloc, copy)
         

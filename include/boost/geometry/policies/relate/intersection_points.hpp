@@ -56,8 +56,8 @@ struct segments_intersection_points
         typedef typename geometry::coordinate_type<Point>::type coordinate_type;
 
         // Calculate the intersection point based on segment_ratio
-        // Up to know, division was postponed. Here we divide using numerator/
-        // denominator. In case of integer this might result in an integer
+        // Up to now, division was postponed. Here we divide using numerator/
+        // denominator. In case of integer this results in an integer
         // division.
         BOOST_ASSERT(ratio.denominator() != 0);
         set<0>(point, boost::numeric_cast<coordinate_type>(
