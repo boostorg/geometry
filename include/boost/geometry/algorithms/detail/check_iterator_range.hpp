@@ -39,7 +39,7 @@ struct check_iterator_range
             }
         }
         return AllowEmptyRange || first != beyond;
-    };
+    }
 
 
     // version where we can pass a predicate object
@@ -60,7 +60,7 @@ struct check_iterator_range
             }
         }
         return AllowEmptyRange || first != beyond;
-    };
+    }
 };
 
 } // namespace detail

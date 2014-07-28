@@ -338,6 +338,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
         BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
         // copy original elements
+        // TODO: use container_from_elements_type for std::allocator
         elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
 
         // calculate initial seeds

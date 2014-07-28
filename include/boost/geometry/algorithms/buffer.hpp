@@ -22,10 +22,11 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
@@ -259,8 +260,12 @@ inline void buffer(GeometryIn const& geometry_in,
 
     geometry_out.clear();
 
+    model::box<point_type> box;
+    envelope(geometry_in, box);
+    buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
+
     rescale_policy_type rescale_policy
-            = boost::geometry::get_rescale_policy<rescale_policy_type>(geometry_in);
+            = boost::geometry::get_rescale_policy<rescale_policy_type>(box);
 
     detail::buffer::buffer_inserter<polygon_type>(geometry_in, std::back_inserter(geometry_out),
                 distance_strategy,

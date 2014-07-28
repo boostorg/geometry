@@ -170,7 +170,7 @@ struct buffered_piece_collection
     {}
 
 
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
     // Will (most probably) be removed later
     template <typename OccupationMap>
     inline void adapt_mapped_robust_point(OccupationMap const& map,
@@ -194,7 +194,7 @@ struct buffered_piece_collection
 #endif
 
     inline void get_occupation(
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
         int distance = 0
 #endif
     )
@@ -221,7 +221,7 @@ struct buffered_piece_collection
         {
             if (it->count_on_offsetted >= 1)
             {
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
                 if (distance > 0 && ! occupation_map.empty())
                 {
                     adapt_mapped_robust_point(occupation_map, *it, distance);
@@ -279,7 +279,7 @@ struct buffered_piece_collection
             }
         }
 
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
         // X: Check rounding issues
         if (distance == 0)
         {
@@ -448,7 +448,7 @@ struct buffered_piece_collection
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
             geometry::recalculate(it->robust_point, it->point, m_robust_policy);
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
             it->mapped_robust_point = it->robust_point;
 #endif
 

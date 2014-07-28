@@ -54,7 +54,7 @@ inline void simplify_input(Range const& range,
     // if it is using round joins. For miter joins they are even more
     // sensitive to small scale input features, however the result will
     // look better.
-    // It also get rid of duplicate points
+    // It also gets rid of duplicate points
 #if ! defined(BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX)
     geometry::simplify(range, simplified, distance.simplify_distance());
 #else
@@ -159,12 +159,14 @@ struct buffer_range
         // The corner is convex, we create a join
         // TODO (future) - avoid a separate vector, add the piece directly
         std::vector<output_point_type> range_out;
-        join_strategy.apply(intersection_point,
+        if (join_strategy.apply(intersection_point,
                     previous_input, prev_perp2, perp1,
                     distance.apply(previous_input, input, side),
-                    range_out);
-        collection.add_piece(strategy::buffer::buffered_join,
-                previous_input, range_out);
+                    range_out))
+        {
+            collection.add_piece(strategy::buffer::buffered_join,
+                    previous_input, range_out);
+        }
     }
 
     static inline strategy::buffer::join_selector get_join_type(

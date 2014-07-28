@@ -70,6 +70,10 @@ public:
         {
             return false;
         }
+        if (equals(perp1, perp2))
+        {
+            return false;
+        }
 
         typedef typename coordinate_type<Point>::type coordinate_type;
         typedef typename geometry::select_most_precise
@@ -105,6 +109,13 @@ public:
         range_out.push_back(perp2);
         return true;
     }
+
+    template <typename NumericType>
+    inline NumericType max_distance(NumericType const& distance) const
+    {
+        return distance * m_miter_limit;
+    }
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :

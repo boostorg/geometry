@@ -44,23 +44,22 @@ struct line_line_intersection
                 get<0>(qi) - get<0>(qj),
                 get<1>(qi) - get<1>(qj));
 
-        // The limit is arbitrary. If it is small, the IP will be far far away.
-        // For round joins, it will not be used at all.
-        // For miter joints, there is a miter limit
-        // If segments are parallel we must be distinguish two cases
-
         // Even if the corner was checked before (so it is convex now), that
         // was done on the original geometry. This function runs on the buffered
         // geometries, where sides are generated and might be slightly off. In
         // Floating Point, that slightly might just exceed the limit and we have
         // to check it again.
-        coordinate_type const limit = 1.0e-9;
-        if (geometry::math::abs(denominator) < limit)
+
+        // For round joins, it will not be used at all.
+        // For miter joints, there is a miter limit
+        // If segments are parallel/collinear we must be distinguish two cases:
+        // they continue each other, or they form a spike
+        if (math::equals(denominator, coordinate_type()))
         {
             return parallel_continue(get<0>(qj) - get<0>(qi),
-            -                    get<1>(qj) - get<1>(qi),
-            -                    get<0>(pj) - get<0>(pi),
-            -                    get<1>(pj) - get<1>(pi))
+                                get<1>(qj) - get<1>(qi),
+                                get<0>(pj) - get<0>(pi),
+                                get<1>(pj) - get<1>(pi))
                 ? strategy::buffer::join_continue
                 : strategy::buffer::join_spike
                 ;

@@ -106,7 +106,7 @@ struct buffer_turn_info
     int turn_index; // TODO: this might go if partition can operate on non-const input
 
     RobustPoint robust_point;
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
     // Will (most probably) be removed later
     RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
 #endif
@@ -114,7 +114,7 @@ struct buffer_turn_info
 
     inline RobustPoint const& get_robust_point() const
     {
-#if BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS
+#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
         return mapped_robust_point;
 #endif
         return robust_point;

@@ -121,6 +121,9 @@ int main()
     //    (delimiter separated values)
     std::cout << dsv(pt3) << std::endl;
 
+    // 5. or wkt
+    std::cout << wkt(p4) << (equals(p4, p5) ? " equals " : " don't equals ") << wkt(p5) << std::endl;
+
     // There are 3-dimensional points too
     model::point<double, 3, cs::cartesian> d3a, d3b;
     assign_values(d3a, 1, 2, 3);

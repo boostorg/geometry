@@ -74,13 +74,26 @@ public :
         return m_left < 0 && m_right < 0;
     }
 
+    //! Returns the max distance distance up to the buffer will reach
+    template <typename JoinStrategy, typename EndStrategy>
+    inline NumericType max_distance(JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy) const
+    {
+        NumericType const left = geometry::math::abs(m_left);
+        NumericType const right = geometry::math::abs(m_right);
+        NumericType const dist = (std::max)(left, right);
+        return (std::max)(join_strategy.max_distance(dist),
+                          end_strategy.max_distance(dist));
+    }
+
     //! Returns the distance at which the input is simplified before the buffer process
     inline NumericType simplify_distance() const
     {
         NumericType const left = geometry::math::abs(m_left);
         NumericType const right = geometry::math::abs(m_right);
-        return (left < right ? left : right) / 1000.0;
+        return (std::min)(left, right) / 1000.0;
     }
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :

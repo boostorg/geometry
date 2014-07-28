@@ -202,6 +202,9 @@ private:
 
         BOOST_TRY
         {
+            // NOTE: those are elements of the internal node which means that copy/move shouldn't throw
+            // Though it's safer in case if the pointer type could throw in copy ctor.
+            // In the future this try-catch block could be removed.
             rtree::move_from_back(elements, underfl_el_it);                                             // MAY THROW (E: copy)
             elements.pop_back();
         }

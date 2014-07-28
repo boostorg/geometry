@@ -136,6 +136,12 @@ public :
         return true;
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
 private :
     std::size_t m_max_level;
 };
