@@ -67,7 +67,8 @@ int main(void)
 #endif
 
     // Calculate intersection points (turn points)
-    typedef bg::detail::overlay::turn_info<point_2d> turn_info;
+    typedef bg::segment_ratio_type<point_2d, bg::detail::no_rescale_policy>::type segment_ratio;
+    typedef bg::detail::overlay::turn_info<point_2d, segment_ratio> turn_info;
     std::vector<turn_info> turns;
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::detail::no_rescale_policy rescale_policy;

@@ -25,6 +25,7 @@
 #endif // defined(_MSC_VER)
 
 #include <boost/config.hpp>
+#include <boost/concept_check.hpp>
 
 
 #if defined(BOOST_INTEL_CXX_VERSION)

@@ -27,10 +27,28 @@ namespace strategy { namespace buffer
 {
 
 
+/*!
+\brief Let the buffer create rounded ends
+\ingroup strategies
+\details This strategy can be used as EndStrategy for the buffer algorithm.
+    It creates a rounded end for each linestring-end. It can be applied
+    for (multi)linestrings. Also it is applicable for spikes in (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_end_round]
+[heading Output]
+[$img/strategies/buffer_end_round.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_end_flat end_flat]
+}
+ */
 class end_round
 {
 private :
-    int m_steps_per_circle;
+    std::size_t m_points_per_circle;
 
     template
     <
@@ -47,7 +65,7 @@ private :
         PromotedType const two = 2.0;
         PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
-        int point_buffer_count = m_steps_per_circle;
+        std::size_t point_buffer_count = m_points_per_circle;
 
         PromotedType const diff = two_pi / PromotedType(point_buffer_count);
 
@@ -55,7 +73,7 @@ private :
         point_buffer_count /= 2;
         point_buffer_count++;
 
-        for (int i = 0; i < point_buffer_count; i++, alpha -= diff)
+        for (std::size_t i = 0; i < point_buffer_count; i++, alpha -= diff)
         {
             typename boost::range_value<RangeOut>::type p;
             set<0>(p, get<0>(point) + buffer_distance * cos(alpha));
@@ -74,10 +92,16 @@ private :
     }
 
 public :
-    inline end_round(int steps_per_circle = 100)
-        : m_steps_per_circle(steps_per_circle)
+
+    //! \brief Constructs the strategy
+    //! \param points_per_circle points which would be used for a full circle
+    explicit inline end_round(std::size_t points_per_circle = 90)
+        : m_points_per_circle(points_per_circle)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+    //! Fills output_range with a flat end
     template <typename Point, typename RangeOut, typename DistanceStrategy>
     inline void apply(Point const& penultimate_point,
                 Point const& perp_left_point,
@@ -120,10 +144,18 @@ public :
         }
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_round_end;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

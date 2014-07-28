@@ -27,11 +27,31 @@ namespace strategy { namespace buffer
 {
 
 
+/*!
+\brief Let the buffer create flat ends
+\ingroup strategies
+\details This strategy can be used as EndStrategy for the buffer algorithm.
+    It creates a flat end for each linestring-end. It can be applied
+    for (multi)linestrings. Also it is applicable for spikes in (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_end_flat]
+[heading Output]
+[$img/strategies/buffer_end_flat.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_end_round end_round]
+}
+ */
 class end_flat
 {
 
 public :
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    //! Fills output_range with a flat end
     template <typename Point, typename RangeOut, typename DistanceStrategy>
     inline void apply(Point const& penultimate_point,
                 Point const& perp_left_point,
@@ -70,10 +90,18 @@ public :
         // In other cases it does no harm but is further useless
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_flat_end;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

@@ -380,6 +380,8 @@ int main(int , char** )
     algorithms.push_back(algorithm("centroid")); // NOTE: current doc contains 2D / 3D
     algorithms.push_back(algorithm("envelope"));
     algorithms.push_back(algorithm("length"));
+    algorithms.push_back(algorithm("is_simple"));
+    algorithms.push_back(algorithm("is_valid"));
     algorithms.push_back(algorithm("num_points"));
     algorithms.push_back(algorithm("perimeter"));
 

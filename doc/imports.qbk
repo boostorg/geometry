@@ -115,5 +115,14 @@
 [import src/examples/io/wkt.cpp]
 [import src/examples/io/read_wkt.cpp]
 
+[import src/examples/strategies/buffer_join_round.cpp]
+[import src/examples/strategies/buffer_join_miter.cpp]
+[import src/examples/strategies/buffer_end_round.cpp]
+[import src/examples/strategies/buffer_end_flat.cpp]
+[import src/examples/strategies/buffer_distance_symmetric.cpp]
+[import src/examples/strategies/buffer_distance_asymmetric.cpp]
+[import src/examples/strategies/buffer_point_circle.cpp]
+[import src/examples/strategies/buffer_point_square.cpp]
+
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]

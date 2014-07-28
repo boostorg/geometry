@@ -22,10 +22,11 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
@@ -214,19 +215,20 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 \ingroup buffer
 \details \details_calc{buffer, \det_buffer}.
 \tparam GeometryIn \tparam_geometry
-\tparam MultiPolygon \tparam_geometry
-\tparam DistanceStrategy A strategy defining distance behaviour (symmetric, asymetric)
-\tparam SideStrategy A strategy defining side behaviour
-\tparam JoinStrategy A strategy defining join behaviour (round, miter)
-\tparam EndStrategy A strategy defining end behaviour (round, flat)
-\tparam CircleStrategy A strategy defining circle behaviour
+\tparam MultiPolygon \tparam_geometry{MultiPolygon}
+\tparam DistanceStrategy A strategy defining distance (or radius)
+\tparam SideStrategy A strategy defining creation along sides
+\tparam JoinStrategy A strategy defining creation around convex corners
+\tparam EndStrategy A strategy defining creation at linestring ends
+\tparam PointStrategy A strategy defining creation around points
 \param geometry_in \param_geometry
-\param geometry_out output multi polygon (or std:: collection of polygons), contains buffer of input geometry
+\param geometry_out output multi polygon (or std:: collection of polygons),
+    will contain a buffered version of the input geometry
 \param distance_strategy The distance strategy to be used
 \param side_strategy The side strategy to be used
 \param join_strategy The join strategy to be used
 \param end_strategy The end strategy to be used
-\param circle_strategy The circle strategy to be used
+\param point_strategy The point strategy to be used
 
 \qbk{distinguish,with strategies}
 \qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
@@ -239,7 +241,7 @@ template
     typename SideStrategy,
     typename JoinStrategy,
     typename EndStrategy,
-    typename CircleStrategy
+    typename PointStrategy
 >
 inline void buffer(GeometryIn const& geometry_in,
                 MultiPolygon& geometry_out,
@@ -247,7 +249,7 @@ inline void buffer(GeometryIn const& geometry_in,
                 SideStrategy const& side_strategy,
                 JoinStrategy const& join_strategy,
                 EndStrategy const& end_strategy,
-                CircleStrategy const& circle_strategy)
+                PointStrategy const& point_strategy)
 {
     typedef typename boost::range_value<MultiPolygon>::type polygon_type;
     concept::check<GeometryIn const>();
@@ -258,15 +260,19 @@ inline void buffer(GeometryIn const& geometry_in,
 
     geometry_out.clear();
 
+    model::box<point_type> box;
+    envelope(geometry_in, box);
+    buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
+
     rescale_policy_type rescale_policy
-            = boost::geometry::get_rescale_policy<rescale_policy_type>(geometry_in);
+            = boost::geometry::get_rescale_policy<rescale_policy_type>(box);
 
     detail::buffer::buffer_inserter<polygon_type>(geometry_in, std::back_inserter(geometry_out),
                 distance_strategy,
                 side_strategy,
                 join_strategy,
                 end_strategy,
-                circle_strategy,
+                point_strategy,
                 rescale_policy);
 }
 

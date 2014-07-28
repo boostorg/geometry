@@ -4,8 +4,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP
 
 #include <cstddef>
 
@@ -22,14 +22,36 @@ namespace boost { namespace geometry
 namespace strategy { namespace buffer
 {
 
-// Strategy to create a buffer around a point using a specified amount of points
-class buffer_circle
+/*!
+\brief Create a circular buffer around a point
+\ingroup strategies
+\details This strategy can be used as PointStrategy for the buffer algorithm.
+    It creates a circular buffer around a point. It can be applied
+    for points and multi_points, but also for a linestring (if it is degenerate,
+    so consisting of only one point) and for polygons (if it is degenerate).
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_point_circle]
+[heading Output]
+[$img/strategies/buffer_point_circle.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_point_square point_square]
+}
+ */
+class point_circle
 {
 public :
-    explicit buffer_circle(std::size_t count)
+    //! \brief Constructs the strategy
+    //! \param count number of points for the created circle
+    explicit point_circle(std::size_t count = 90)
         : m_count(count)
     {}
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    //! Fills output_range with a circle around point using distance_strategy
     template
     <
         typename Point,
@@ -72,6 +94,7 @@ public :
         // Close it:
         output_range.push_back(output_range.front());
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
     std::size_t m_count;
@@ -82,4 +105,4 @@ private :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_CIRCLE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_POINT_CIRCLE_HPP

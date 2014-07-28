@@ -13,10 +13,16 @@
 
 [heading_conformance_no_ogc __this_function__]
 
-[heading Complexity]
-Constant-time for points, segments and boxes
+[include reference/status/is_valid_status.qbk]
 
-Currently, worst-case quadratic for all other geometries
+[heading Complexity]
+Constant-time for points, segments, boxes and multi-points
+
+Linear for linestrings and multi-linestrings
+
+Linearithmic for rings
+
+Currently, worst-case quadratic for polygons and multi-polygons
 
 [heading Example]
 [is_valid]

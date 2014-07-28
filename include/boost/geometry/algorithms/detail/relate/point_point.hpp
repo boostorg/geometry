@@ -14,6 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_POINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_POINT_HPP
 
+#include <algorithm>
+#include <vector>
+
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
@@ -190,7 +193,8 @@ struct multipoint_multipoint
         for ( iterator it = boost::begin(iterated_mpt) ;
               it != boost::end(iterated_mpt) ; ++it )
         {
-            bool ii = binary_search(points.begin(), points.end(), *it, less());
+            bool ii =
+                std::binary_search(points.begin(), points.end(), *it, less());
             if ( ii )
                 found_inside = true;
             else

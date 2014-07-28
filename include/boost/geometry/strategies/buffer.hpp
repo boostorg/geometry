@@ -65,7 +65,7 @@ enum piece_type
     buffered_join,
     buffered_round_end,
     buffered_flat_end,
-    buffered_circle,
+    buffered_point,
     buffered_concave   // always on the inside
 };
 

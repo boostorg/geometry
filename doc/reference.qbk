@@ -1,10 +1,15 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-  Copyright (c) 2009-2012 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2014 Barend Gehrels, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+  Copyright (c) 2009-2014 Bruno Lalande, Paris, France.
   Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+
+  This file was modified by Oracle on 2014.
+  Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+  Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -96,10 +101,6 @@
 
 [section:distance distance]
 [include generated/distance.qbk]
-[endsect]
-
-[section:disjoint disjoint]
-[include generated/disjoint.qbk]
 [endsect]
 
 [section:envelope envelope]
@@ -301,6 +302,15 @@
 [include generated/distance_cross_track.qbk]
 [include generated/area_surveyor.qbk]
 [include generated/area_huiller.qbk]
+[include generated/buffer_join_round.qbk]
+[include generated/buffer_join_miter.qbk]
+[include generated/buffer_end_round.qbk]
+[include generated/buffer_end_flat.qbk]
+[include generated/buffer_distance_symmetric.qbk]
+[include generated/buffer_distance_asymmetric.qbk]
+[include generated/buffer_point_circle.qbk]
+[include generated/buffer_point_square.qbk]
+[include generated/buffer_side_straight.qbk]
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
 [include generated/convex_hull_graham_andrew.qbk]
