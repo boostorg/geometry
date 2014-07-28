@@ -16,7 +16,15 @@
 
 // Shortcut to include all header files
 
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/coordinate_system.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/interior_type.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -89,8 +97,14 @@
 
 #include <boost/geometry/views/box_view.hpp>
 #include <boost/geometry/views/segment_view.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/identity_view.hpp>
 
 #include <boost/geometry/io/io.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/io/svg/write_svg.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP
