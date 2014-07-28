@@ -91,20 +91,20 @@
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/views/box_view.hpp>
-#include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/views/identity_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/segment_view.hpp>
 
 #include <boost/geometry/io/io.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/io/svg/write_svg.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/io/svg/write_svg.hpp>
-#include <boost/geometry/io/svg/svg_mapper.hpp>
 
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP
