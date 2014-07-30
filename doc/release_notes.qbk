@@ -1,10 +1,10 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2013 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2013 Bruno Lalande, Paris, France.
-  Copyright (c) 2009-2013 Mateusz Loskot <mateusz@loskot.net>, London, UK
-  Copyright (c) 2011-2013 Adam Wulkiewicz
+  Copyright (c) 2009-2014 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2014 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2014 Mateusz Loskot <mateusz@loskot.net>, London, UK
+  Copyright (c) 2011-2014 Adam Wulkiewicz
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -25,7 +25,7 @@
 * New algorithm is_simple, returning true if a geometry is simple according to the OGC standard
 * New algorithm is_valid, returning true if a geometry is valid according to the OGC standard
 * New algorithm crosses for checking this spatial relation according to the OGC standard
-* The set operation algorithms (difference, intersection, sym_difference and union) now support as input pairs of pointlike or linear geometries
+* The set operation algorithms (difference, intersection, sym_difference and union_) now support as input pairs of pointlike or linear geometries
 * The distance and comparable_distance algorithms now support all pairs of geometry combinations
 * The spatial relations which didn't support it (covered_by, touches, within, etc.) now support as input linear and/or areal geometries
 * The support for boost::variants as input geometries in various algorithms
