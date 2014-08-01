@@ -14,9 +14,10 @@
 #include <vector>
 
 #include <boost/assert.hpp>
+#include <boost/core/ignore_unused.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/mpl/if.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -103,7 +104,7 @@ public:
                 <
                     Strategy
                 >::apply(strategy);
-        boost::ignore_unused_variable_warning(cstrategy);
+        boost::ignore_unused(cstrategy);
 
         // get segment points
         segment_point p[2];
@@ -181,7 +182,7 @@ public:
                 <
                     Strategy
                 >::apply(strategy);
-        boost::ignore_unused_variable_warning(cstrategy);
+        boost::ignore_unused(cstrategy);
 
         // get segment points
         segment_point p[2];
@@ -199,7 +200,7 @@ public:
         }
 
         point_box_comparable_strategy pb_cstrategy;
-        boost::ignore_unused_variable_warning(pb_cstrategy);
+        boost::ignore_unused(pb_cstrategy);
         cd[4] = pb_cstrategy.apply(p[0], box);
         cd[5] = pb_cstrategy.apply(p[1], box);
 
@@ -281,6 +282,8 @@ private:
                                        PPStrategy const& pp_strategy,
                                        PSStrategy const& ps_strategy)
         {
+            boost::ignore_unused(pp_strategy, ps_strategy);
+
             // the implementation below is written for non-negative slope
             // segments
             //
@@ -325,6 +328,8 @@ private:
                                        BoxPoint const& top_left,
                                        PSStrategy const& ps_strategy)
         {
+            boost::ignore_unused(ps_strategy);
+
             // the segment lies above the box
 
             typedef cast_to_result<ReturnType> cast;
