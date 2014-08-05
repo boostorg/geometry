@@ -50,6 +50,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/9947 9947] Missing info about WKT in documentation
 * [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection
 * [@https://svn.boost.org/trac/boost/ticket/10077 10077] Wrong types in concept checks in boost/geometry/arithmetic/arithmetic.hpp
+* [@https://svn.boost.org/trac/boost/ticket/10234 10234] Wrong results of covered_by() for nearly-horizontal segments
 
 [*Bugfixes]
 
