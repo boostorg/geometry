@@ -16,6 +16,7 @@
 #include <deque>
 #include <iterator>
 #include <set>
+#include <vector>
 
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
@@ -27,11 +28,16 @@
 
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/complement_graph.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
@@ -111,6 +117,46 @@ protected:
     };
 
 
+    // structs from partition -- start
+    struct expand_box
+    {
+        template <typename Box, typename RingIterator>
+        static inline void apply(Box& total, RingIterator const& rit)
+        {
+            geometry::expand(total, geometry::return_envelope<Box>(*rit));
+        }
+
+    };
+
+    struct overlaps_ring
+    {
+        template <typename Box, typename RingIterator>
+        static inline bool apply(Box const& box, RingIterator const& rit)
+        {
+            return !geometry::disjoint(*rit, box);
+        }
+    };
+
+
+    struct item_visitor
+    {
+        bool rings_overlap;
+
+        item_visitor() : rings_overlap(false) {}
+
+        template <typename Item1, typename Item2>
+        inline void apply(Item1 const& item1, Item2 const& item2)
+        {
+            if ( !rings_overlap
+                 && (geometry::within(range::front(*item1), *item2)
+                     || geometry::within(range::front(*item2), *item1))
+                 )
+            {
+                rings_overlap = true;
+            }
+        }
+    };
+    // structs for partition -- end
 
 
     template
@@ -162,24 +208,28 @@ protected:
             ring_indices.insert(tit->operations[0].other_id.ring_index);
         }
 
-        ring_index = 0;
-        for (RingIterator it1 = rings_first; it1 != rings_beyond;
-             ++it1, ++ring_index)
+        // put iterators for interior rings without turns in a vector
+        std::vector<RingIterator> ring_iterators;
+        for (RingIterator it = rings_first; it != rings_beyond; ++it)
         {
-            // do not examine rings that are associated with turns
             if ( ring_indices.find(ring_index) == ring_indices.end() )
             {
-                for (RingIterator it2 = rings_first; it2 != rings_beyond; ++it2)
-                {
-                    if ( it1 != it2
-                         && geometry::within(range::front(*it1), *it2) )
-                    {
-                        return false;
-                    }
-                }
+                ring_iterators.push_back(it);
             }
         }
-        return true;
+
+        // call partition to check is interior rings are disjoint from
+        // each other
+        item_visitor visitor;
+
+        geometry::partition
+            <
+                geometry::model::box<typename point_type<Polygon>::type>,
+                expand_box,
+                overlaps_ring
+            >::apply(ring_iterators, visitor);
+
+        return !visitor.rings_overlap;
     }
 
     template
