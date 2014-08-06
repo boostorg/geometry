@@ -28,6 +28,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
+#include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -49,7 +50,6 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/multi/algorithms/append.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
