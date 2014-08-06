@@ -155,18 +155,18 @@ public:
         // Sanity check
         if ( from_index > to_index
           || from_index < 0
-          || to_index >= int(boost::size(ls)) )
+          || to_index >= static_cast<int>(boost::size(ls)) )
         {
             return;
         }
 
-        typedef typename boost::range_difference<LineString>::type size_type;
-        size_type const count = to_index - from_index + 1;
+        typedef typename boost::range_difference<LineString>::type diff_t;
+        diff_t const count = to_index - from_index + 1;
 
         typename boost::range_iterator<LineString const>::type
             it = boost::begin(ls) + from_index;
 
-        for (size_type i = 0; i < count; ++i, ++it)
+        for (diff_t i = 0; i < count; ++i, ++it)
         {
             append_to_output(current_output, *it, robust_policy,
                              boost::integral_constant<bool, RemoveSpikes>());
