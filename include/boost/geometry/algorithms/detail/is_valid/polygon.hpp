@@ -120,20 +120,20 @@ protected:
     // structs from partition -- start
     struct expand_box
     {
-        template <typename Box, typename RingIterator>
-        static inline void apply(Box& total, RingIterator const& rit)
+        template <typename Box, typename Iterator>
+        static inline void apply(Box& total, Iterator const& it)
         {
-            geometry::expand(total, geometry::return_envelope<Box>(*rit));
+            geometry::expand(total, geometry::return_envelope<Box>(*it));
         }
 
     };
 
-    struct overlaps_ring
+    struct overlaps_box
     {
-        template <typename Box, typename RingIterator>
-        static inline bool apply(Box const& box, RingIterator const& rit)
+        template <typename Box, typename Iterator>
+        static inline bool apply(Box const& box, Iterator const& it)
         {
-            return !geometry::disjoint(*rit, box);
+            return !geometry::disjoint(*it, box);
         }
     };
 
@@ -210,7 +210,9 @@ protected:
 
         // put iterators for interior rings without turns in a vector
         std::vector<RingIterator> ring_iterators;
-        for (RingIterator it = rings_first; it != rings_beyond; ++it)
+        ring_index = 0;
+        for (RingIterator it = rings_first; it != rings_beyond;
+             ++it, ++ring_index)
         {
             if ( ring_indices.find(ring_index) == ring_indices.end() )
             {
@@ -226,7 +228,7 @@ protected:
             <
                 geometry::model::box<typename point_type<Polygon>::type>,
                 expand_box,
-                overlaps_ring
+                overlaps_box
             >::apply(ring_iterators, visitor);
 
         return !visitor.rings_overlap;
