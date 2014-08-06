@@ -339,10 +339,12 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if ( it->count_within > 0
-              || it->count_on_occupied > 0 )
+            if (it->count_within > 0)
             {
-                it->location = inside_buffer;
+                // Within can have in rare cases a rounding issue. We don't discard this
+                // point, so it can be used to continue started rings in traversal. But
+                // will never start a new ring from this type of points.
+                it->selectable_start = false;
             }
         }
     }
@@ -550,7 +552,7 @@ struct buffered_piece_collection
         }
 
 
-        get_occupation();
+        //get_occupation();
 
         classify_turns();
 

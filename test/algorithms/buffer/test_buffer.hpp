@@ -118,8 +118,12 @@ struct svg_visitor
             std::string fill = "fill:rgb(0,255,0);";
             switch(it->location)
             {
-                case bgdb::inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break;
+                case bgdb::inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break; // does not happen anymore
                 case bgdb::inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
+            }
+            if (!it->selectable_start)
+            {
+                fill = "fill:rgb(255,192,0);"; color = 'o'; // orange
             }
             if (it->blocked())
             {
@@ -134,7 +138,7 @@ struct svg_visitor
             out << " " << bg::method_char(it->method)
                 << ":" << bg::operation_char(it->operations[0].operation)
                 << "/" << bg::operation_char(it->operations[1].operation);
-            out << " " << (it->count_within > 0 ? "w" : "")
+            out << " " << (!it->selectable_start ? "w" : "")
                 << (it->count_on_multi > 0 ? "m" : "")
                 << (it->count_on_occupied > 0 ? "o" : "")
                 << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
