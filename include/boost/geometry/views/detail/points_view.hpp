@@ -105,7 +105,7 @@ class points_view
         }
 
         Point const* m_points;
-        int m_index;
+        difference_type m_index;
     };
 
 public :

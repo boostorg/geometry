@@ -160,7 +160,7 @@ struct range_to_range
         // point for open output.
         view_type view(rview);
 
-        int n = boost::size(view);
+        boost::range_size<Range1>::type n = boost::size(view);
         if (geometry::closure<Range2>::value == geometry::open)
         {
             n--;
