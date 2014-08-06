@@ -30,6 +30,8 @@
 
 #include <boost/geometry/geometries/box.hpp>
 
+#include <boost/geometry/iterators/point_iterator.hpp>
+
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -140,19 +142,19 @@ protected:
 
     struct item_visitor
     {
-        bool rings_overlap;
+        bool items_overlap;
 
-        item_visitor() : rings_overlap(false) {}
+        item_visitor() : items_overlap(false) {}
 
         template <typename Item1, typename Item2>
         inline void apply(Item1 const& item1, Item2 const& item2)
         {
-            if ( !rings_overlap
-                 && (geometry::within(range::front(*item1), *item2)
-                     || geometry::within(range::front(*item2), *item1))
+            if ( !items_overlap
+                 && (geometry::within(*points_begin(*item1), *item2)
+                     || geometry::within(*points_begin(*item2), *item1))
                  )
             {
-                rings_overlap = true;
+                items_overlap = true;
             }
         }
     };
@@ -231,7 +233,7 @@ protected:
                 overlaps_box
             >::apply(ring_iterators, visitor);
 
-        return !visitor.rings_overlap;
+        return !visitor.items_overlap;
     }
 
     template
