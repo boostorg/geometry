@@ -1,10 +1,10 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2013 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
-  Copyright (c) 2009-2013 Bruno Lalande, Paris, France.
-  Copyright (c) 2009-2013 Mateusz Loskot <mateusz@loskot.net>, London, UK
-  Copyright (c) 2011-2013 Adam Wulkiewicz
+  Copyright (c) 2009-2014 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2014 Bruno Lalande, Paris, France.
+  Copyright (c) 2009-2014 Mateusz Loskot <mateusz@loskot.net>, London, UK
+  Copyright (c) 2011-2014 Adam Wulkiewicz
 
   Use, modification and distribution is subject to the Boost Software License,
   Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -25,7 +25,7 @@
 * New algorithm is_simple, returning true if a geometry is simple according to the OGC standard
 * New algorithm is_valid, returning true if a geometry is valid according to the OGC standard
 * New algorithm crosses for checking this spatial relation according to the OGC standard
-* The set operation algorithms (difference, intersection, sym_difference and union) now support as input pairs of pointlike or linear geometries
+* The set operation algorithms (difference, intersection, sym_difference and union_) now support as input pairs of pointlike or linear geometries
 * The distance and comparable_distance algorithms now support all pairs of geometry combinations
 * The spatial relations which didn't support it (covered_by, touches, within, etc.) now support as input linear and/or areal geometries
 * The support for boost::variants as input geometries in various algorithms
@@ -39,14 +39,18 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/8310 8310] Wrong results with overlapping polygons (fixed using point_on_surface for disjoint)
+* [@https://svn.boost.org/trac/boost/ticket/8375 8375] sym_difference of non-closed polygons returns closed polygon
+* [@https://svn.boost.org/trac/boost/ticket/8376 8376] difference of non-closed polygons returns closed polygon
 * [@https://svn.boost.org/trac/boost/ticket/9081 9081] Booleans create self-intersecting polygons from non-self-intersecting polygons
 * [@https://svn.boost.org/trac/boost/ticket/9245 9245] Check for process errors in make_qbk.py
 * [@https://svn.boost.org/trac/boost/ticket/9563 9563] (Sym)difference not successful, fixed by rescaling to robust type
 * [@https://svn.boost.org/trac/boost/ticket/9628 9628] Wrong result of within() due to the winding strategy not working correctly for nearly-horizontal segments
+* [@https://svn.boost.org/trac/boost/ticket/9828 9828] boost::geometry::union_(...) creates redundant closing point
 * [@https://svn.boost.org/trac/boost/ticket/9871 9871] Remove spike in polygon with only a spike
 * [@https://svn.boost.org/trac/boost/ticket/9947 9947] Missing info about WKT in documentation
 * [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection
 * [@https://svn.boost.org/trac/boost/ticket/10077 10077] Wrong types in concept checks in boost/geometry/arithmetic/arithmetic.hpp
+* [@https://svn.boost.org/trac/boost/ticket/10234 10234] Wrong results of covered_by() for nearly-horizontal segments
 
 [*Bugfixes]
 

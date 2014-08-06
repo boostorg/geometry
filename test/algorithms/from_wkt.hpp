@@ -13,6 +13,8 @@
 #ifndef BOOST_GEOMETRY_TEST_FROM_WKT_HPP
 #define BOOST_GEOMETRY_TEST_FROM_WKT_HPP
 
+#include <string>
+
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
