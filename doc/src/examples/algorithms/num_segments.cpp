@@ -26,7 +26,7 @@ int main()
                     boost::geometry::model::d2::point_xy<double>, true, false // cw, open polygon
                 >
         > mp;
-    boost::geometry::read_wkt("MULTIPOLYGON(((0 0,0 10,10 0),(1 1,1 9,9 1)),((10 10,10 7,7 10)))", mp);
+    boost::geometry::read_wkt("MULTIPOLYGON(((0 0,0 10,10 0),(1 1,8 1,1 8)),((10 10,10 20,20 10)))", mp);
     std::cout << "Number of segments: " << boost::geometry::num_segments(mp) << std::endl;
     std::cout << "Number of segments (add_to_open <- true): " << boost::geometry::num_segments(mp, true) << std::endl;
     return 0;
