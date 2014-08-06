@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -49,6 +54,28 @@ struct num_interior_rings<Polygon, polygon_tag>
     static inline std::size_t apply(Polygon const& polygon)
     {
         return boost::size(geometry::interior_rings(polygon));
+    }
+
+};
+
+
+template <typename MultiPolygon>
+struct num_interior_rings<MultiPolygon, multi_polygon_tag>
+{
+    static inline std::size_t apply(MultiPolygon const& multi_polygon)
+    {
+        std::size_t n = 0;
+        for (typename boost::range_iterator<MultiPolygon const>::type
+            it = boost::begin(multi_polygon);
+            it != boost::end(multi_polygon);
+            ++it)
+        {
+            n += num_interior_rings
+                    <
+                        typename boost::range_value<MultiPolygon const>::type
+                    >::apply(*it);
+        }
+        return n;
     }
 
 };
