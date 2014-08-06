@@ -40,6 +40,7 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/for_each.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
@@ -51,7 +52,6 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/multi/algorithms/intersection.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
