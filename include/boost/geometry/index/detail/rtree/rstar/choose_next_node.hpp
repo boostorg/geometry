@@ -117,7 +117,9 @@ private:
                 // calculate nearly minimum overlap cost
 
                 // sort by content_diff
-                std::partial_sort(children_contents.begin(), children_contents.begin() + overlap_cost_threshold, children_contents.end(), content_diff_less);
+                //std::partial_sort(children_contents.begin(), children_contents.begin() + overlap_cost_threshold, children_contents.end(), content_diff_less);
+                std::nth_element(children_contents.begin(), children_contents.begin() + overlap_cost_threshold, children_contents.end(), content_diff_less);
+                std::sort(children_contents.begin(), children_contents.begin() + overlap_cost_threshold, content_diff_less);
                 choosen_index = choose_by_minimum_overlap_cost_sorted_by_content(children, indexable, children_count, overlap_cost_threshold, children_contents);
             }
             else
