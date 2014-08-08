@@ -12,6 +12,9 @@
 
 #include <cstddef>
 
+#include <boost/mpl/size_t.hpp>
+#include <boost/mpl/times.hpp>
+
 #include <boost/range.hpp>
 
 #include <boost/variant/static_visitor.hpp>
@@ -19,44 +22,22 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/interior_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/util/ipower.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
-#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
+
+#include <boost/geometry/algorithms/detail/counting.hpp>
 
 
 namespace boost { namespace geometry
 {
-
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-template
-<
-    typename Geometry,
-    typename Tag = typename tag<Geometry>::type
->
-struct num_segments
-    : not_implemented<Tag>
-{};
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace num_segments
@@ -75,7 +56,8 @@ struct range_count
         }
         if (add_for_open
             && geometry::closure<Range>::value == open
-            && geometry::disjoint(range::front(range), range::at(range, n - 1))
+            && detail::disjoint::disjoint_point_point(range::front(range),
+                                                      range::at(range, n - 1))
             )
         {
             return n;
@@ -83,54 +65,6 @@ struct range_count
         return static_cast<std::size_t>(n - 1);
     }
 };
-
-
-struct polygon_count
-    : private range_count
-{
-    template <typename Polygon>
-    static inline std::size_t apply(Polygon const& poly, bool add_for_open)
-    {
-        std::size_t n = range_count::apply(exterior_ring(poly), add_for_open);
-
-        typename interior_return_type<Polygon const>::type
-            rings = interior_rings(poly);
-        for (typename detail::interior_iterator<Polygon const>::type
-                 it = boost::begin(rings); it != boost::end(rings); ++it)
-        {
-            n += range_count::apply(*it, add_for_open);
-        }
-
-        return n;
-    }
-};
-
-
-struct multi_count
-{
-    template <typename MultiGeometry>
-    static inline
-    std::size_t apply(MultiGeometry const& geometry, bool add_for_open)
-    {
-        typedef typename boost::range_value<MultiGeometry>::type geometry_type;
-        typedef typename boost::range_iterator
-            <
-                MultiGeometry const
-            >::type iterator_type;
-
-        std::size_t n = 0;
-        for (iterator_type it = boost::begin(geometry);
-            it != boost::end(geometry); ++it)
-        {
-            n += dispatch::num_segments
-                <
-                    geometry_type
-                >::apply(*it, add_for_open);
-        }
-        return n;
-    }
-};
-
 
 }} // namespace detail::num_segments
 #endif // DOXYGEN_NO_DETAIL
@@ -141,20 +75,39 @@ struct multi_count
 namespace dispatch
 {
 
-
-template <typename Geometry>
-struct num_segments<Geometry, point_tag>
-    : detail::num_points::other_count<0>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+struct num_segments
+    : not_implemented<Tag>
 {};
 
 template <typename Geometry>
+struct num_segments<Geometry, point_tag>
+    : detail::counting::other_count<0>
+{};
+
+// the number of segments (1-dimensional faces) of the hypercube is
+// given by the formula: d * 2^(d-1), where d is the dimension of the
+// hypercube; see also:
+//            http://en.wikipedia.org/wiki/Hypercube
+template <typename Geometry>
 struct num_segments<Geometry, box_tag>
-    : detail::num_points::other_count<4>
+    : detail::counting::other_count
+        <
+            boost::mpl::times
+                <
+                    geometry::dimension<Geometry>,
+                    util::ipower
+                        <
+                            boost::mpl::size_t<2>,
+                            geometry::dimension<Geometry>::value - 1
+                        >
+                >::value
+        >
 {};
 
 template <typename Geometry>
 struct num_segments<Geometry, segment_tag>
-    : detail::num_points::other_count<1>
+    : detail::counting::other_count<1>
 {};
 
 template <typename Geometry>
@@ -169,22 +122,28 @@ struct num_segments<Geometry, ring_tag>
 
 template <typename Geometry>
 struct num_segments<Geometry, polygon_tag>
-    : detail::num_segments::polygon_count
+    : detail::counting::polygon_count<detail::num_segments::range_count>
 {};
 
 template <typename Geometry>
 struct num_segments<Geometry, multi_point_tag>
-    : detail::num_points::other_count<0>
+    : detail::counting::other_count<0>
 {};
 
 template <typename Geometry>
 struct num_segments<Geometry, multi_linestring_tag>
-    : detail::num_segments::multi_count
+    : detail::counting::multi_count
+<
+          num_segments< typename boost::range_value<Geometry>::type>
+         >
 {};
 
 template <typename Geometry>
 struct num_segments<Geometry, multi_polygon_tag>
-    : detail::num_segments::multi_count
+    : detail::counting::multi_count
+        <
+            num_segments< typename boost::range_value<Geometry>::type>
+        >
 {};
 
 
