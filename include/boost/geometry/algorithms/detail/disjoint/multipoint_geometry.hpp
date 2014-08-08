@@ -60,27 +60,31 @@ private:
 };
 
 
-template<typename MultiPoint, typename Geometry>
-struct multipoint_geometry
+template<typename MultiPoint, typename ConstantSizeGeometry>
+struct multipoint_constant_size_geometry
 {
     static inline bool apply(MultiPoint const& multipoint,
-                             Geometry const& geometry)
+                             ConstantSizeGeometry const& constant_size_geometry)
     {
         detail::disjoint::unary_disjoint_geometry_to_point
             <
-                Geometry
-            > predicate(geometry);
+                ConstantSizeGeometry
+            > predicate(constant_size_geometry);
 
         return detail::check_iterator_range
             <
-                detail::disjoint::unary_disjoint_geometry_to_point<Geometry>
+                detail::disjoint::unary_disjoint_geometry_to_point
+                    <
+                        ConstantSizeGeometry
+                    >
             >::apply(boost::begin(multipoint), boost::end(multipoint),
                      predicate);
     }
 
-    static inline bool apply(Geometry const& geometry, MultiPoint const& multipoint)                             
+    static inline bool apply(ConstantSizeGeometry const& constant_size_geometry,
+                             MultiPoint const& multipoint)
     {
-        return apply(multipoint, geometry);
+        return apply(multipoint, constant_size_geometry);
     }
 };
 
@@ -201,7 +205,7 @@ template<typename Point, typename MultiPoint, std::size_t DimensionCount>
 struct disjoint
     <
         Point, MultiPoint, DimensionCount, point_tag, multi_point_tag, false
-    > : detail::disjoint::multipoint_geometry<MultiPoint, Point>
+    > : detail::disjoint::multipoint_constant_size_geometry<MultiPoint, Point>
 {};
 
 
@@ -209,7 +213,7 @@ template<typename MultiPoint, typename Segment, std::size_t DimensionCount>
 struct disjoint
     <
         MultiPoint, Segment, DimensionCount, multi_point_tag, segment_tag, false
-    > : detail::disjoint::multipoint_geometry<MultiPoint, Segment>
+    > : detail::disjoint::multipoint_constant_size_geometry<MultiPoint, Segment>
 {};
 
 
@@ -217,7 +221,7 @@ template<typename MultiPoint, typename Box, std::size_t DimensionCount>
 struct disjoint
     <
         MultiPoint, Box, DimensionCount, multi_point_tag, box_tag, false
-    > : detail::disjoint::multipoint_geometry<MultiPoint, Box>
+    > : detail::disjoint::multipoint_constant_size_geometry<MultiPoint, Box>
 {};
 
 
