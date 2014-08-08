@@ -98,7 +98,7 @@ struct num_interior_rings<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     struct visitor: boost::static_visitor<std::size_t>
     {
         template <typename Geometry>
-        typename std::size_t operator()(Geometry const& geometry) const
+        inline std::size_t operator()(Geometry const& geometry) const
         {
             return num_interior_rings<Geometry>::apply(geometry);
         }

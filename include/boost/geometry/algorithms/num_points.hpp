@@ -161,7 +161,7 @@ struct num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         visitor(bool add_for_open): m_add_for_open(add_for_open) {}
 
         template <typename Geometry>
-        typename std::size_t operator()(Geometry const& geometry) const
+        inline std::size_t operator()(Geometry const& geometry) const
         {
             return num_points<Geometry>::apply(geometry, m_add_for_open);
         }
