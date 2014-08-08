@@ -66,6 +66,7 @@ exe make_inverse : make_inverse.cpp ;
 exe num_geometries : num_geometries.cpp ;
 exe num_interior_rings : num_interior_rings.cpp ;
 exe num_points : num_points.cpp ;
+exe num_segments : num_segments.cpp ;
 
 exe return_envelope : return_envelope.cpp ;
 

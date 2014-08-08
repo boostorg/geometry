@@ -50,6 +50,7 @@
 [import src/examples/algorithms/num_geometries.cpp]
 [import src/examples/algorithms/num_interior_rings.cpp]
 [import src/examples/algorithms/num_points.cpp]
+[import src/examples/algorithms/num_segments.cpp]
 [import src/examples/algorithms/reverse.cpp]
 [import src/examples/algorithms/return_envelope.cpp]
 [import src/examples/algorithms/simplify.cpp]

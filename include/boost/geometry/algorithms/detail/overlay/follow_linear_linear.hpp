@@ -263,8 +263,10 @@ protected:
             detail::copy_segments::copy_segments_linestring
                 <
                     false, false // do not reverse; do not remove spikes
-                >::apply(linestring, current_segment_id,
-                         boost::size(linestring) - 1, robust_policy,
+                >::apply(linestring,
+                         current_segment_id,
+                         static_cast<int>(boost::size(linestring) - 1),
+                         robust_policy,
                          current_piece);
         }
 
