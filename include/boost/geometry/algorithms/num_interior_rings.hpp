@@ -80,7 +80,8 @@ struct num_interior_rings<MultiPolygon, multi_polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry>
 struct num_interior_rings

@@ -78,7 +78,8 @@ struct num_geometries<MultiGeometry, multi_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry>
 struct num_geometries

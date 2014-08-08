@@ -138,7 +138,8 @@ struct num_points<Geometry, multi_tag>
 #endif
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry>
 struct num_points
