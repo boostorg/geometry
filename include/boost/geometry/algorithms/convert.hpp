@@ -160,13 +160,17 @@ struct range_to_range
         // point for open output.
         view_type view(rview);
 
-        typename boost::range_size<Range1>::type n = boost::size(view);
+        typedef typename boost::range_size<Range1>::type size_type;
+        size_type n = boost::size(view);
         if (geometry::closure<Range2>::value == geometry::open)
         {
             n--;
         }
 
-        int i = 0;
+        // If size == 0 && geometry::open <=> n = numeric_limits<size_type>::max()
+        // but ok, sice below it == end()
+
+        size_type i = 0;
         for (typename boost::range_iterator<view_type const>::type it
             = boost::begin(view);
             it != boost::end(view) && i < n;
