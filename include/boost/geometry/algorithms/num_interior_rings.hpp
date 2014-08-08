@@ -88,6 +88,8 @@ struct num_interior_rings
 {
     static inline std::size_t apply(Geometry const& geometry)
     {
+        concept::check<Geometry const>();
+
         return dispatch::num_interior_rings<Geometry>::apply(geometry);
     }
 };
@@ -130,8 +132,6 @@ struct num_interior_rings<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 template <typename Geometry>
 inline std::size_t num_interior_rings(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-
     return resolve_variant::num_interior_rings<Geometry>::apply(geometry);
 }
 

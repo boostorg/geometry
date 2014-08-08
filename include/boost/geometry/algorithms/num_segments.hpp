@@ -133,9 +133,9 @@ struct num_segments<Geometry, multi_point_tag>
 template <typename Geometry>
 struct num_segments<Geometry, multi_linestring_tag>
     : detail::counting::multi_count
-<
-          num_segments< typename boost::range_value<Geometry>::type>
-         >
+        <
+            num_segments< typename boost::range_value<Geometry>::type>
+        >
 {};
 
 template <typename Geometry>
@@ -158,8 +158,14 @@ namespace resolve_variant
 
 template <typename Geometry>
 struct num_segments
-    : dispatch::num_segments<Geometry>
-{};
+{
+    static inline std::size_t apply(Geometry const& geometry, bool add_for_open)
+    {
+        concept::check<Geometry const>();
+
+        return dispatch::num_segments<Geometry>::apply(geometry, add_for_open);
+    }
+};
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
@@ -206,8 +212,6 @@ template <typename Geometry>
 inline std::size_t num_segments(Geometry const& geometry,
                                 bool add_for_open = false)
 {
-    concept::check<Geometry const>();
-
     return resolve_variant::num_segments
         <
             Geometry

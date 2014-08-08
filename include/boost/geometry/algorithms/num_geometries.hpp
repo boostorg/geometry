@@ -86,6 +86,8 @@ struct num_geometries
 {
     static inline std::size_t apply(Geometry const& geometry)
     {
+        concept::check<Geometry const>();
+
         return dispatch::num_geometries<Geometry>::apply(geometry);
     }
 };
@@ -125,8 +127,6 @@ struct num_geometries<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 template <typename Geometry>
 inline std::size_t num_geometries(Geometry const& geometry)
 {
-    concept::check<Geometry const>();
-
     return resolve_variant::num_geometries<Geometry>::apply(geometry);
 }
 

@@ -147,6 +147,8 @@ struct num_points
     static inline std::size_t apply(Geometry const& geometry,
                                     bool add_for_open)
     {
+        concept::check<Geometry const>();
+
         return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
     }
 };
@@ -192,8 +194,6 @@ struct num_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 template <typename Geometry>
 inline std::size_t num_points(Geometry const& geometry, bool add_for_open = false)
 {
-    concept::check<Geometry const>();
-
     return resolve_variant::num_points<Geometry>::apply(geometry, add_for_open);
 }
 
