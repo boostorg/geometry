@@ -41,6 +41,8 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -111,7 +113,7 @@ struct box_to_range
         assign_box_corners_oriented<Reverse>(box, range);
         if (Close)
         {
-            range[4] = range[0];
+            range::at(range, 4) = range::at(range, 0);
         }
     }
 };
