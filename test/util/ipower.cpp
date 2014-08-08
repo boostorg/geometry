@@ -32,7 +32,7 @@ namespace bg = boost::geometry;
 
 // this is the function implemented with MPL (in non-recursive form)
 template <typename T>
-T ipower(const T& x, std::size_t n)
+inline T ipower(const T& x, std::size_t n)
 {
     T z(1);
     if ( n == 0 ) { return z; }
