@@ -135,7 +135,7 @@ private:
                                                                 size_t const children_count,
                                                                 ChildrenContents const& children_contents)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(overlap_cost_threshold <= children_count, "unexpected value");
+        BOOST_GEOMETRY_INDEX_ASSERT(first_n_children_count <= children_count, "unexpected value");
         BOOST_GEOMETRY_INDEX_ASSERT(children_contents.size() == children_count, "unexpected number of elements");
 
         // choose index with smallest overlap change value, or content change or smallest content
