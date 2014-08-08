@@ -333,18 +333,19 @@ template <size_t Corner, size_t Dimension, size_t I = 0>
 struct nth_element
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
+    BOOST_STATIC_ASSERT(I < Dimension);
 
     template <typename Elements, typename Translator>
     static inline void apply(Elements & elements, const size_t axis, const size_t index, Translator const& tr)
     {
-        if ( axis > I )
+        //BOOST_GEOMETRY_INDEX_ASSERT(axis < Dimension, "unexpected axis value");
+
+        if ( axis != I )
         {
             nth_element<Corner, Dimension, I + 1>::apply(elements, axis, index, tr);                          // MAY THROW, BASIC (copy)
         }
         else
         {
-            BOOST_GEOMETRY_INDEX_ASSERT(axis == I, "unexpected axis value");
-
             typedef typename Elements::value_type element_type;
             typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
             typedef typename tag<indexable_type>::type indexable_tag;
