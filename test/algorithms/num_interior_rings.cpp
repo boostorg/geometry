@@ -118,46 +118,43 @@ BOOST_AUTO_TEST_CASE( test_multilinestring )
     tester::apply("MULTILINESTRING((0 0,1 0,0 1),(0 0,1 0,0 1,0 0))", 0);
 }
 
-template <typename OpenRing>
-void test_open_ring()
+template <typename Ring>
+inline void test_ring()
 {
-    typedef test_num_interior_rings<OpenRing> tester;
-
-    tester::apply("POLYGON(())", 0);
-    tester::apply("POLYGON((0 0))", 0);
-    tester::apply("POLYGON((0 0,1 0))", 0);
-    tester::apply("POLYGON((0 0,1 0,0 1))", 0);
-    tester::apply("POLYGON((0 0,0 0,1 0,0 1))", 0);
-}
-
-template <typename ClosedRing>
-void test_closed_ring()
-{
-    typedef test_num_interior_rings<ClosedRing> tester;
+    typedef test_num_interior_rings<Ring> tester;
 
     tester::apply("POLYGON(())", 0);
     tester::apply("POLYGON((0 0))", 0);
     tester::apply("POLYGON((0 0,0 0))", 0);
+
+    // open
+    tester::apply("POLYGON((0 0,1 0))", 0);
+    tester::apply("POLYGON((0 0,1 0,0 1))", 0);
+    tester::apply("POLYGON((0 0,0 0,1 0,0 1))", 0);
+
+    // closed
     tester::apply("POLYGON((0 0,1 0,0 0))", 0);
     tester::apply("POLYGON((0 0,1 0,0 1,0 0))", 0);
     tester::apply("POLYGON((0 0,1 0,1 0,0 1,0 0))", 0);
 }
 
-BOOST_AUTO_TEST_CASE( test_ring )
+BOOST_AUTO_TEST_CASE( test_ring_all )
 {
-    test_open_ring<ring_ccw_open>();
-    test_open_ring<ring_cw_open>();
-    test_closed_ring<ring_ccw_closed>();
-    test_closed_ring<ring_cw_closed>();
+    test_ring<ring_cw_closed>();
+    test_ring<ring_cw_open>();
+    test_ring<ring_ccw_closed>();
+    test_ring<ring_ccw_open>();
 }
 
-template <typename OpenPolygon>
-void test_open_polygon()
+template <typename Polygon>
+inline void test_polygon()
 {
-    typedef test_num_interior_rings<OpenPolygon> tester;
+    typedef test_num_interior_rings<Polygon> tester;
 
     tester::apply("POLYGON(())", 0);
     tester::apply("POLYGON((0 0))", 0);
+
+    // open
     tester::apply("POLYGON((0 0,10 0),(0 0))", 1);
     tester::apply("POLYGON((0 0,10 0),(1 1,2 1))", 1);
     tester::apply("POLYGON((0 0,10 0,0 10))", 0);
@@ -168,15 +165,8 @@ void test_open_polygon()
     tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 2))", 1);
     tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2))", 1);
     tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6))", 2);
-}
 
-template <typename ClosedPolygon>
-void test_closed_polygon()
-{
-    typedef test_num_interior_rings<ClosedPolygon> tester;
-
-    tester::apply("POLYGON(())", 0);
-    tester::apply("POLYGON((0 0))", 0);
+    // closed
     tester::apply("POLYGON((0 0,10 0,0 0),(0 0))", 1);
     tester::apply("POLYGON((0 0,10 0,0 0),(1 1,2 1,1 1))", 1);
     tester::apply("POLYGON((0 0,10 0,0 10,0 0))", 0);
@@ -189,42 +179,38 @@ void test_closed_polygon()
     tester::apply("POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5))", 2);
 }
 
-BOOST_AUTO_TEST_CASE( test_polygon )
+BOOST_AUTO_TEST_CASE( test_polygon_all )
 {
-    test_open_polygon<polygon_ccw_open>();
-    test_open_polygon<polygon_cw_open>();
-    test_closed_polygon<polygon_ccw_closed>();
-    test_closed_polygon<polygon_cw_closed>();
+    test_polygon<polygon_cw_closed>();
+    test_polygon<polygon_cw_open>();
+    test_polygon<polygon_ccw_closed>();
+    test_polygon<polygon_ccw_open>();
 }
 
-template <typename OpenMultiPolygon>
-void test_open_multipolygon()
+template <typename MultiPolygon>
+inline void test_multipolygon()
 {
-    typedef test_num_interior_rings<OpenMultiPolygon> tester;
+    typedef test_num_interior_rings<MultiPolygon> tester;
 
+    // open
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)))", 1);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)))", 2);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)),((100 100,110 100,110 110),(101 101,102 101,102 102)))", 2);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)),((100 100,110 100,110 110),(101 101,102 101,102 102),(105 105,106 105,106 106,105 106)))", 4);
-}
 
-template <typename ClosedMultiPolygon>
-void test_closed_multipolygon()
-{
-    typedef test_num_interior_rings<ClosedMultiPolygon> tester;
-
+    // closed
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)))", 1);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5)))", 2);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)),((100 100,110 100,110 110,100 100),(101 101,102 101,102 102,101 101)))", 2);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5)),((100 100,110 100,110 110,100 100),(101 101,102 101,102 102,101 101),(105 105,106 105,106 106,105 106,105 105)))", 4);
 }
 
-BOOST_AUTO_TEST_CASE( test_multipolygon )
+BOOST_AUTO_TEST_CASE( test_multipolygon_all )
 {
-    test_open_multipolygon<multi_polygon_ccw_open>();
-    test_open_multipolygon<multi_polygon_cw_open>();
-    test_closed_multipolygon<multi_polygon_ccw_closed>();
-    test_closed_multipolygon<multi_polygon_cw_closed>();
+    test_multipolygon<multi_polygon_ccw_open>();
+    test_multipolygon<multi_polygon_cw_open>();
+    test_multipolygon<multi_polygon_ccw_closed>();
+    test_multipolygon<multi_polygon_cw_closed>();
 }
 
 BOOST_AUTO_TEST_CASE( test_variant )
