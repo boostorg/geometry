@@ -18,15 +18,19 @@
 
 #include <boost/variant/variant.hpp>
 
+#include <boost/geometry/algorithms/num_segments.hpp>
+
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/algorithms/num_segments.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 namespace bg = boost::geometry;
 
 
-typedef bg::model::point<double,2,bg::cs::cartesian> point;
+typedef bg::model::point<double, 2, bg::cs::cartesian> point;
 typedef bg::model::linestring<point> linestring;
 typedef bg::model::segment<point> segment;
 typedef bg::model::box<point> box;
@@ -45,8 +49,16 @@ typedef bg::model::multi_polygon<polygon_cw_open> multi_polygon_cw_open;
 typedef bg::model::multi_polygon<polygon_ccw_closed> multi_polygon_ccw_closed;
 typedef bg::model::multi_polygon<polygon_ccw_open> multi_polygon_ccw_open;
 
+template <std::size_t D, typename T = double>
+struct box_dD
+{
+    typedef boost::geometry::model::box
+        <
+            boost::geometry::model::point<T, D, boost::geometry::cs::cartesian>
+        > type;
+};
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
 struct test_num_segments
 {
     static inline void apply(Geometry const& geometry,
@@ -89,6 +101,32 @@ struct test_num_segments
     }
 };
 
+template <typename Box>
+struct test_num_segments<Box, bg::box_tag>
+{
+    static inline void apply(Box const& box, std::size_t expected)
+    {
+        std::size_t detected = bg::num_segments(box);
+        BOOST_CHECK_MESSAGE( detected == expected,
+                             "Expected: " << expected
+                             << " detected: " << detected
+                             << " dsv: " << bg::dsv(box) );
+
+        detected = bg::num_segments(box, true);
+        BOOST_CHECK_MESSAGE( detected == expected,
+                             "Expected (add for open): " << expected
+                             << " detected (add for open): " << detected
+                             << " dsv: " << bg::dsv(box) );
+    }
+
+    static inline void apply(std::string const& wkt, std::size_t expected)
+    {
+        Box box;
+        bg::read_wkt(wkt, box);
+        apply(box, expected);
+    }
+};
+
 BOOST_AUTO_TEST_CASE( test_point )
 {
     test_num_segments<point>::apply("POINT(0 0)", 0);
@@ -102,6 +140,11 @@ BOOST_AUTO_TEST_CASE( test_segment )
 BOOST_AUTO_TEST_CASE( test_box )
 {
     test_num_segments<box>::apply("BOX(0 0,1 1)", 4);
+
+    // test higher-dimensional boxes
+    test_num_segments<box_dD<3>::type>::apply("BOX(0 0 0,1 1 1)", 12);
+    test_num_segments<box_dD<4>::type>::apply("BOX(0 0 0 0,1 1 1 1)", 32);
+    test_num_segments<box_dD<5>::type>::apply("BOX(0 0 0 0 0,1 1 1 1 1)", 80);
 }
 
 BOOST_AUTO_TEST_CASE( test_linestring )
