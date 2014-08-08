@@ -494,8 +494,10 @@ public :
             detail::copy_segments::copy_segments_linestring
                 <
                     false, RemoveSpikes
-                >::apply(linestring, current_segment_id,
-                         boost::size(linestring) - 1, robust_policy,
+                >::apply(linestring,
+                         current_segment_id,
+                         static_cast<int>(boost::size(linestring) - 1),
+                         robust_policy,
                          current_piece);
         }
 
