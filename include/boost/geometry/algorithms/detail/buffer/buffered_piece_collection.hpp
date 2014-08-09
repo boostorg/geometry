@@ -826,7 +826,7 @@ struct buffered_piece_collection
             selected[id] = properties(*it, true);
         }
 
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, false);
+        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, true);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 
