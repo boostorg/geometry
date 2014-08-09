@@ -167,9 +167,13 @@ public:
         {
             return;
         }
+        if (geometry_code == 0 && neighbour)
+        {
+            return;
+        }
 
         Turn& mutable_turn = m_turns[turn.turn_index];
-        if (geometry_code == 0 && ! neighbour)
+        if (geometry_code)
         {
             // If it is on the border and they are neighbours, it should be
             // on the offsetted ring
