@@ -147,7 +147,6 @@ struct buffered_piece_collection
     int m_first_piece_index;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
-    std::vector< std::vector < robust_point_type > > robust_offsetted_rings;
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
