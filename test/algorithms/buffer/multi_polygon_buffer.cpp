@@ -338,7 +338,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_t", rt_t, join_miter, end_flat, 15.6569, 1.0);
 }
 
-int point_buffer_count;
 
 int test_main(int, char* [])
 {
