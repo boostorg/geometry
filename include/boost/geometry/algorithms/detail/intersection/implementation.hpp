@@ -11,12 +11,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_IMPLEMENTATION_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_IMPLEMENTATION_HPP
 
 
-#include <boost/geometry/algorithms/detail/intersection/interface.hpp>
-#include <boost/geometry/algorithms/detail/intersection/implementation.hpp>
+#include <boost/geometry/algorithms/detail/intersection/box_box.hpp>
+#include <boost/geometry/algorithms/detail/intersection/multi.hpp>
 
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_INTERSECTION_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_IMPLEMENTATION_HPP
