@@ -249,9 +249,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_round, end_flat, 174.46, 5.0);
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_miter, end_flat, 298.797, 5.0);
 
-    // This one does not work:
-    // test_one<multi_polygon_type, buf::join_round_by_divide, polygon_type>("multi_simplex_50", simplex, 'd', 174.46, 5.0);
-    
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_round, end_flat, 67.4627, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_miter, end_flat, 68.0000, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_10", zonethru, join_round, end_flat, 93.8508, 1.0);
@@ -265,9 +262,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_round, end_flat, 167.066, 1.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_miter, end_flat, 169.000, 1.5);
 
-    // TODO: there is still an undetected hole inside rt_a
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
-
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_round, end_flat, 31.4186, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_miter, end_flat, 34, 1.0);
@@ -277,7 +272,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_d", rt_d, join_miter, end_flat, 19.8823, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_round, end_flat, 14.1866, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_miter, end_flat, 15.1198, 0.3);
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_f", rt_f, join_round, end_flat, 4.28937, 0.3);
 
     test_one<multi_polygon_type, polygon_type>("rt_f", rt_f, join_miter, end_flat, 4.60853, 0.3);
 
@@ -294,13 +288,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_j", rt_j, join_miter, end_flat, 35.1421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_round, end_flat, 42.0092, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_miter, end_flat, 48.0563, 1.0);
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_l", rt_l, join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_l", rt_l, join_miter, end_flat, 19.3995, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_miter, end_flat, 19.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m2", rt_m2, join_miter, end_flat, 21.4853, 1.0);
 
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_miter, end_flat, 18.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_round, end_flat, 17.536, 1.0);
