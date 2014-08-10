@@ -24,7 +24,7 @@ static std::string const wrapped
 static std::string const triangles
     = "MULTIPOLYGON(((0 4,3 0,-2.5 -1,0 4)),((3 8,5.5 13,8 8,3 8)),((11 4,13.5 -1,8 0,11 4)))";
 
-// From robustness tests
+// From robustness tests (rt)
 
 // Case with duplicate points (due to chained boxes) (round)
 static std::string const rt_a
@@ -88,7 +88,6 @@ static std::string const rt_m1
 // Same, with 2
 static std::string const rt_m2
     = "MULTIPOLYGON(((0 3,1 4,1 3,0 3)),((3 6,4 7,4 6,4 5,3 5,3 6)))";
-
 
 // Segment-intersection problem (disjoint nearly collinear segments were reported as intersecting), fixed.
 static std::string const rt_n
@@ -188,10 +187,8 @@ static std::string const rt_p20
 static std::string const rt_p21
     = "MULTIPOLYGON(((4 2,4 3,5 3,4 2)),((4 1,5 2,5 1,4 1)),((5 2,6 3,6 2,5 2)))";
 
-
 static std::string const rt_p22
     = "MULTIPOLYGON(((4 8,5 9,5 8,4 8)),((5 9,6 10,6 9,5 9)),((1 7,1 8,2 8,2 7,1 7)),((2 6,3 7,3 6,2 6)))";
-
 
 // Occupation map with a uu-turn
 static std::string const rt_q1
