@@ -56,6 +56,8 @@ class turn_in_piece_visitor
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
 
+    typedef boost::long_long_type calculation_type;
+
     template <typename Point>
     static inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
     {
@@ -83,9 +85,17 @@ class turn_in_piece_visitor
         return true;
     }
 
+    template <typename Point>
+    static inline calculation_type taxicab_distance(Point const& p, Point const& q)
+    {
+        return math::abs(geometry::get<0>(p) - geometry::get<0>(q))
+             + math::abs(geometry::get<1>(p) - geometry::get<1>(q));
+    }
+
+
     // TODO: see comment below, this adaption of distance_projected_point can be removed
     template <typename Point>
-    static inline boost::long_long_type distance_from_segment(Point const& subject, Point const& p, Point const& q)
+    static inline calculation_type taxicab_distance_from_segment(Point const& subject, Point const& p, Point const& q)
     {
         typedef Point vector_type;
         typedef typename geometry::coordinate_type<Point>::type coordinate_type;
@@ -98,15 +108,14 @@ class turn_in_piece_visitor
         coordinate_type const zero = coordinate_type();
         coordinate_type const c1 = dot_product(w, v);
 
-        if (c1 < zero)
+        if (c1 <= zero)
         {
-            // Any value above 2 is fine in this case
-            return 99999;
+            return taxicab_distance(subject, p);
         }
         coordinate_type const c2 = dot_product(v, v);
-        if (c2 < c1 || c2 <= zero)
+        if (c2 <= c1)
         {
-            return 99999;
+            return taxicab_distance(subject, q);
         }
 
         multiply_value(v, c1);
@@ -118,7 +127,9 @@ class turn_in_piece_visitor
 
         add_point(projected, v);
 
-        return dot_product(subject, projected);
+        // The dot-product still overflows for boost::long_long_type with
+        // these values (should not occur, TODO: fix this)
+        return taxicab_distance(subject, projected);
     }
 
 
@@ -148,17 +159,18 @@ class turn_in_piece_visitor
     }
 
     template <typename Point, typename Piece>
-    inline boost::long_long_type
-        comparable_distance_from_offsetted(Point const& point, Piece const& piece) const
+    inline calculation_type
+        taxicab_distance_from_offsetted(Point const& point, Piece const& piece) const
     {
         // TODO: replace this by the code below if that is fixed for boost::long_long_type
         // with these contents of values
-        boost::long_long_type result = 0;
+        calculation_type result = 0;
         for (int i = 1; i < piece.offsetted_count; i++)
         {
             Point const& previous = piece.robust_ring[i - 1];
             Point const& current = piece.robust_ring[i];
-            boost::long_long_type dist = distance_from_segment(point, previous, current);
+            calculation_type const dist
+                    = taxicab_distance_from_segment(point, previous, current);
             if (i == 1 || dist < result)
             {
                 result = dist;
@@ -258,9 +270,11 @@ public:
 
         if (geometry_code == 1)
         {
-            if (comparable_distance_from_offsetted(turn.robust_point, piece) >= 2)
+            calculation_type const distance
+                = taxicab_distance_from_offsetted(turn.robust_point, piece);
+            if (distance >= 2)
             {
-                // This is too far from the border, it counts as really inside
+                // This is too far from the border, it counts as "really within"
                 mutable_turn.count_within++;
             }
             else
