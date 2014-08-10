@@ -25,7 +25,6 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/ipower.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -93,15 +92,8 @@ template <typename Geometry>
 struct num_segments<Geometry, box_tag>
     : detail::counting::other_count
         <
-            boost::mpl::times
-                <
-                    geometry::dimension<Geometry>,
-                    util::ipower
-                        <
-                            boost::mpl::size_t<2>,
-                            geometry::dimension<Geometry>::value - 1
-                        >
-                >::value
+            geometry::dimension<Geometry>::value
+            * (1 << geometry::dimension<Geometry>::value - 1)
         >
 {};
 
