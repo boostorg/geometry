@@ -173,9 +173,9 @@ public:
         }
 
         Turn& mutable_turn = m_turns[turn.turn_index];
-        if (geometry_code)
+        if (geometry_code == 0)
         {
-            // If it is on the border and they are neighbours, it should be
+            // If it is on the border and they are not neighbours, it should be
             // on the offsetted ring
 
             if (! on_offsetted(turn.robust_point, piece))
