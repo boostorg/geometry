@@ -111,8 +111,9 @@ struct svg_visitor
 
         std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
 
+        int index = 0;
         for (typename boost::range_iterator<Turns const>::type it =
-            boost::begin(turns); it != boost::end(turns); ++it)
+            boost::begin(turns); it != boost::end(turns); ++it, index++)
         {
             char color = 'g';
             std::string fill = "fill:rgb(0,255,0);";
@@ -132,8 +133,22 @@ struct svg_visitor
 
             fill += "fill-opacity:0.7;";
             std::ostringstream out;
-            out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
+            out << index
+                << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
                 << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
+
+//              If you want to see travel information
+                << std::endl
+                << " nxt " << it->operations[0].enriched.travels_to_ip_index
+                << "/" << it->operations[1].enriched.travels_to_ip_index
+                << " or " << it->operations[0].enriched.next_ip_index
+                << "/" << it->operations[1].enriched.next_ip_index
+                //<< " frac " << it->operations[0].fraction
+
+//                If you want to see robust-point coordinates (e.g. to find duplicates)
+//                << std::endl
+//                << " " << bg::get<0>(it->robust_point) << " , " << bg::get<1>(it->robust_point)
+
                 << std::endl;
             out << " " << bg::method_char(it->method)
                 << ":" << bg::operation_char(it->operations[0].operation)
@@ -143,6 +158,7 @@ struct svg_visitor
                 << (it->count_within_near_offsetted > 0 ? "n" : "")
                 << (it->count_within > 0 ? "w" : "")
                 << (it->count_on_helper > 0 ? "h" : "")
+                << (it->count_on_multi > 0 ? "m" : "")
                 ;
 
             offsets[it->get_robust_point()] += 10;
