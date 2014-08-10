@@ -338,6 +338,10 @@ struct buffered_piece_collection
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
+            if (it->count_on_helper > 0)
+            {
+                it->location = inside_buffer;
+            }
             if (it->count_within > 0)
             {
                 // Within can have in rare cases a rounding issue. We don't discard this
@@ -345,6 +349,7 @@ struct buffered_piece_collection
                 // will never start a new ring from this type of points.
                 it->selectable_start = false;
             }
+
         }
     }
 
