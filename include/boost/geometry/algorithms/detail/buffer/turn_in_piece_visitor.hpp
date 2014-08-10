@@ -83,6 +83,44 @@ class turn_in_piece_visitor
         return true;
     }
 
+    // TODO: see comment below, this adaption of distance_projected_point can be removed
+    template <typename Point>
+    static inline boost::long_long_type distance_from_segment(Point const& subject, Point const& p, Point const& q)
+    {
+        typedef Point vector_type;
+        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+
+        vector_type v = q;
+        vector_type w = subject;
+        subtract_point(v, p);
+        subtract_point(w, p);
+
+        coordinate_type const zero = coordinate_type();
+        coordinate_type const c1 = dot_product(w, v);
+
+        if (c1 < zero)
+        {
+            // Any value above 2 is fine in this case
+            return 99999;
+        }
+        coordinate_type const c2 = dot_product(v, v);
+        if (c2 < c1 || c2 <= zero)
+        {
+            return 99999;
+        }
+
+        multiply_value(v, c1);
+        divide_value(v, c2);
+
+        Point projected = p;
+        subtract_point(v, projected);
+        subtract_point(w, projected);
+
+        add_point(projected, v);
+
+        return dot_product(subject, projected);
+    }
+
 
     template <typename Point, typename Piece>
     inline bool on_offsetted(Point const& point, Piece const& piece) const
@@ -105,11 +143,37 @@ class turn_in_piece_visitor
                     return true;
                 }
             }
-
         }
         return false;
     }
 
+    template <typename Point, typename Piece>
+    inline boost::long_long_type
+        comparable_distance_from_offsetted(Point const& point, Piece const& piece) const
+    {
+        // TODO: replace this by the code below if that is fixed for boost::long_long_type
+        // with these contents of values
+        boost::long_long_type result = 0;
+        for (int i = 1; i < piece.offsetted_count; i++)
+        {
+            Point const& previous = piece.robust_ring[i - 1];
+            Point const& current = piece.robust_ring[i];
+            boost::long_long_type dist = distance_from_segment(point, previous, current);
+            if (i == 1 || dist < result)
+            {
+                result = dist;
+            }
+        }
+        return result;
+
+        /*
+        geometry::model::linestring<Point> ls;
+        std::copy(piece.robust_ring.begin(), piece.robust_ring.begin() + piece.offsetted_count, std::back_inserter(ls));
+        typename default_comparable_distance_result<Point, Point>::type
+            const result = geometry::comparable_distance(point, ls);
+        return result;
+        */
+    }
 
 public:
 
@@ -184,14 +248,27 @@ public:
                 // Then it is somewhere on the helper-segments
                 // Classify it as inside
                 geometry_code = 1;
-                mutable_turn.count_on_helper++;
+                mutable_turn.count_on_helper++; // can still become "near_offsetted"
+            }
+            else
+            {
+                mutable_turn.count_on_offsetted++; // value is not used anymore
             }
         }
 
-        switch (geometry_code)
+        if (geometry_code == 1)
         {
-            case 1 : mutable_turn.count_within++; break;
-            case 0 : mutable_turn.count_on_offsetted++; break;
+            if (comparable_distance_from_offsetted(turn.robust_point, piece) >= 2)
+            {
+                // This is too far from the border, it counts as really inside
+                mutable_turn.count_within++;
+            }
+            else
+            {
+                // Other points count as still "on border" because they might be
+                // travelled through, but not used as starting point
+                mutable_turn.count_within_near_offsetted++;
+            }
         }
     }
 };

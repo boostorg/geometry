@@ -138,10 +138,10 @@ struct svg_visitor
             out << " " << bg::method_char(it->method)
                 << ":" << bg::operation_char(it->operations[0].operation)
                 << "/" << bg::operation_char(it->operations[1].operation);
-            out << " " << (!it->selectable_start ? "w" : "")
-                << (it->count_on_multi > 0 ? "m" : "")
-                << (it->count_on_occupied > 0 ? "o" : "")
+            out << " "
                 << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
+                << (it->count_within_near_offsetted > 0 ? "n" : "")
+                << (it->count_within > 0 ? "w" : "")
                 << (it->count_on_helper > 0 ? "h" : "")
                 ;
 
