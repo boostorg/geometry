@@ -34,8 +34,6 @@
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/ipower.hpp>
-
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/num_segments.hpp>
@@ -96,14 +94,7 @@ struct num_points<Geometry, point_tag>
 
 template <typename Geometry>
 struct num_points<Geometry, box_tag>
-    : detail::counting::other_count
-        <
-            util::ipower
-                <
-                    boost::mpl::size_t<2>,
-                    geometry::dimension<Geometry>::value
-                >::value
-        >
+    : detail::counting::other_count<(1 << geometry::dimension<Geometry>::value)>
 {};
 
 template <typename Geometry>
