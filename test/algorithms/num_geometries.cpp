@@ -32,20 +32,11 @@ typedef bg::model::point<double, 2, bg::cs::cartesian> point;
 typedef bg::model::linestring<point> linestring;
 typedef bg::model::segment<point> segment;
 typedef bg::model::box<point> box;
-typedef bg::model::ring<point, true, true> ring_cw_closed;
-typedef bg::model::ring<point, true, false> ring_cw_open;
-typedef bg::model::ring<point, false, true> ring_ccw_closed;
-typedef bg::model::ring<point, false, false> ring_ccw_open;
-typedef bg::model::polygon<point, true, true> polygon_cw_closed;
-typedef bg::model::polygon<point, true, false> polygon_cw_open;
-typedef bg::model::polygon<point, false, true> polygon_ccw_closed;
-typedef bg::model::polygon<point, false, false> polygon_ccw_open;
+typedef bg::model::ring<point> ring;
+typedef bg::model::polygon<point> polygon;
 typedef bg::model::multi_point<point> multi_point;
 typedef bg::model::multi_linestring<linestring> multi_linestring;
-typedef bg::model::multi_polygon<polygon_cw_closed> multi_polygon_cw_closed;
-typedef bg::model::multi_polygon<polygon_cw_open> multi_polygon_cw_open;
-typedef bg::model::multi_polygon<polygon_ccw_closed> multi_polygon_ccw_closed;
-typedef bg::model::multi_polygon<polygon_ccw_open> multi_polygon_ccw_open;
+typedef bg::model::multi_polygon<polygon> multi_polygon;
 
 
 template <typename Geometry>
@@ -87,13 +78,7 @@ BOOST_AUTO_TEST_CASE( test_box )
 
 BOOST_AUTO_TEST_CASE( test_linestring )
 {
-    typedef test_num_geometries<linestring> tester;
-
-    tester::apply("LINESTRING()", 1);
-    tester::apply("LINESTRING(0 0)", 1);
-    tester::apply("LINESTRING(0 0,0 0)", 1);
-    tester::apply("LINESTRING(0 0,0 0,1 1)", 1);
-    tester::apply("LINESTRING(0 0,0 0,0 0,1 1)", 1);
+    test_num_geometries<linestring>::apply("LINESTRING(0 0,1 1,2 2)", 1);
 }
 
 BOOST_AUTO_TEST_CASE( test_multipoint )
@@ -111,106 +96,33 @@ BOOST_AUTO_TEST_CASE( test_multilinestring )
     typedef test_num_geometries<multi_linestring> tester;
 
     tester::apply("MULTILINESTRING()", 0);
-    tester::apply("MULTILINESTRING((),(0 0))", 2);
-    tester::apply("MULTILINESTRING((0 0))", 1);
     tester::apply("MULTILINESTRING((0 0,1 0))", 1);
-    tester::apply("MULTILINESTRING((),(),(0 0,1 0))", 3);
     tester::apply("MULTILINESTRING((0 0,1 0,0 1),(0 0,1 0,0 1,0 0))", 2);
+    tester::apply("MULTILINESTRING((),(),(0 0,1 0))", 3);
 }
 
-template <typename Ring>
-inline void test_ring()
+BOOST_AUTO_TEST_CASE( test_ring )
 {
-    typedef test_num_geometries<Ring> tester;
-
-    tester::apply("POLYGON(())", 1);
-    tester::apply("POLYGON((0 0))", 1);
-    tester::apply("POLYGON((0 0,0 0))", 1);
-
-    // open
-    tester::apply("POLYGON((0 0,1 0))", 1);
-    tester::apply("POLYGON((0 0,1 0,0 1))", 1);
-    tester::apply("POLYGON((0 0,0 0,1 0,0 1))", 1);
-
-    // closed
-    tester::apply("POLYGON((0 0,1 0,0 0))", 1);
-    tester::apply("POLYGON((0 0,1 0,0 1,0 0))", 1);
-    tester::apply("POLYGON((0 0,1 0,1 0,0 1,0 0))", 1);
+    test_num_geometries<ring>::apply("POLYGON((0 0,1 0,0 1,0 0))", 1);
 }
 
-BOOST_AUTO_TEST_CASE( test_ring_all )
+BOOST_AUTO_TEST_CASE( test_polygon )
 {
-    test_ring<ring_ccw_open>();
-    test_ring<ring_cw_open>();
-    test_ring<ring_ccw_closed>();
-    test_ring<ring_cw_closed>();
-}
+    typedef test_num_geometries<polygon> tester;
 
-template <typename Polygon>
-inline void test_polygon()
-{
-    typedef test_num_geometries<Polygon> tester;
-
-    tester::apply("POLYGON(())", 1);
-    tester::apply("POLYGON((0 0))", 1);
-
-    // open
-    tester::apply("POLYGON((0 0,10 0),(0 0))", 1);
-    tester::apply("POLYGON((0 0,10 0),(1 1,2 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10),())", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1,1 2))", 1);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 2))", 1);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2))", 1);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6))", 1);
-
-    // closed
-    tester::apply("POLYGON((0 0,10 0,0 0),(0 0))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 0),(1 1,2 1,1 1))", 1);
     tester::apply("POLYGON((0 0,10 0,0 10,0 0))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10,0 0),())", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10,0 0),(1 1))", 1);
     tester::apply("POLYGON((0 0,10 0,0 10,0 0),(1 1,2 1,1 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,0 10,0 0),(1 1,2 1,1 2,1 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1))", 1);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1))", 1);
     tester::apply("POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5))", 1);
 }
 
-BOOST_AUTO_TEST_CASE( test_polygon_all )
+BOOST_AUTO_TEST_CASE( test_multipolygon )
 {
-    test_polygon<polygon_ccw_open>();
-    test_polygon<polygon_cw_open>();
-    test_polygon<polygon_ccw_closed>();
-    test_polygon<polygon_cw_closed>();
-}
+    typedef test_num_geometries<multi_polygon> tester;
 
-template <typename MultiPolygon>
-inline void test_multipolygon()
-{
-    typedef test_num_geometries<MultiPolygon> tester;
-
-    // open
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)))", 1);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)))", 1);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)),((100 100,110 100,110 110),(101 101,102 101,102 102)))", 2);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)),((100 100,110 100,110 110),(101 101,102 101,102 102),(105 105,106 105,106 106,105 106)))", 2);
-
-    // closed
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)))", 1);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5)))", 1);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)),((100 100,110 100,110 110,100 100),(101 101,102 101,102 102,101 101)))", 2);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5)),((100 100,110 100,110 110,100 100),(101 101,102 101,102 102,101 101),(105 105,106 105,106 106,105 106,105 105)))", 2);
-}
-
-BOOST_AUTO_TEST_CASE( test_multipolygon_all )
-{
-    test_multipolygon<multi_polygon_ccw_open>();
-    test_multipolygon<multi_polygon_cw_open>();
-    test_multipolygon<multi_polygon_ccw_closed>();
-    test_multipolygon<multi_polygon_cw_closed>();
 }
 
 BOOST_AUTO_TEST_CASE( test_variant )
