@@ -208,10 +208,11 @@ struct svg_visitor
                 std::ostringstream out;
                 out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
                 point_type label_point = corner.front();
-                if (corner.size() >= 2)
+                int const mid_offset = piece.offsetted_count / 2 - 1;
+                if (mid_offset >= 0 && mid_offset + 1 < corner.size())
                 {
-                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
-                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
+                    bg::set<0>(label_point, (bg::get<0>(corner[mid_offset]) + bg::get<0>(corner[mid_offset + 1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[mid_offset]) + bg::get<1>(corner[mid_offset + 1])) / 2.0);
                 }
                 m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
