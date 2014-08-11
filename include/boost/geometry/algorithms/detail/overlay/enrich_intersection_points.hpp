@@ -51,17 +51,19 @@ struct indexed_turn_operation
     int index;
     int operation_index;
     bool discarded;
-    segment_identifier other_seg_id; // segment id of other segment of intersection of two segments
-    TurnOperation subject;
+    // use pointers to avoid copies, const& is not possible because of usage in vector
+    segment_identifier const* other_seg_id; // segment id of other segment of intersection of two segments
+    TurnOperation const* subject;
 
     inline indexed_turn_operation(int i, int oi, TurnOperation const& s,
                 segment_identifier const& oid)
         : index(i)
         , operation_index(oi)
         , discarded(false)
-        , other_seg_id(oid)
-        , subject(s)
+        , other_seg_id(&oid)
+        , subject(&s)
     {}
+
 };
 
 template <typename IndexedTurnOperation>
@@ -127,13 +129,13 @@ private :
         point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.seg_id,
+            left.subject->seg_id,
             pi, pj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.other_seg_id,
+            *left.other_seg_id,
             ri, rj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            right.other_seg_id,
+            *right.other_seg_id,
             si, sj);
 
         geometry::recalculate(pi_rob, pi, m_robust_policy);
@@ -163,13 +165,13 @@ public :
     // but to the "indexed_turn_operation"
     inline bool operator()(Indexed const& left, Indexed const& right) const
     {
-        segment_identifier const& sl = left.subject.seg_id;
-        segment_identifier const& sr = right.subject.seg_id;
+        segment_identifier const& sl = left.subject->seg_id;
+        segment_identifier const& sr = right.subject->seg_id;
 
         if (sl == sr)
         {
             // Both left and right are located on the SAME segment.
-            if (left.subject.fraction == right.subject.fraction)
+            if (left.subject->fraction == right.subject->fraction)
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
@@ -188,7 +190,7 @@ public :
             }
         }
         return sl == sr
-            ? left.subject.fraction < right.subject.fraction
+            ? left.subject->fraction < right.subject->fraction
             : sl < sr;
     }
 };
@@ -356,7 +358,7 @@ inline void enrich_assign(Container& operations,
             prev_op.enriched.travels_to_ip_index
                     = it->index;
             prev_op.enriched.travels_to_vertex_index
-                    = it->subject.seg_id.segment_index;
+                    = it->subject->seg_id.segment_index;
 
             if (! first
                 && prev_op.seg_id.segment_index == op.seg_id.segment_index)

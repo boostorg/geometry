@@ -87,13 +87,13 @@ private :
         point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.seg_id,
+            left.subject->seg_id,
             pi, pj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.other_seg_id,
+            *left.other_seg_id,
             ri, rj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            right.other_seg_id,
+            *right.other_seg_id,
             si, sj);
 
         geometry::recalculate(pi_rob, pi, m_rescale_policy);
@@ -196,8 +196,8 @@ private :
 
         std::cout << header
                 //<< " order: " << order
-                << " ops: " << operation_char(left.subject.operation)
-                    << "/" << operation_char(right.subject.operation)
+                << " ops: " << operation_char(left.subject->operation)
+                    << "/" << operation_char(right.subject->operation)
                 << " ri//p: " << side_ri_p
                 << " si//p: " << side_si_p
                 << " si//r: " << side_si_r
@@ -233,13 +233,13 @@ private :
 
         // In combination of u/x, x/u: take first union, then blocked.
         // Solves #88, #61, #56, #80
-        if (left.subject.operation == operation_union
-            && right.subject.operation == operation_blocked)
+        if (left.subject->operation == operation_union
+            && right.subject->operation == operation_blocked)
         {
             ret = true;
         }
-        else if (left.subject.operation == operation_blocked
-            && right.subject.operation == operation_union)
+        else if (left.subject->operation == operation_blocked
+            && right.subject->operation == operation_union)
         {
             ret = false;
         }
@@ -263,26 +263,26 @@ private :
     {
         bool ret = false;
 
-        if (left.subject.operation == operation_union
-            && right.subject.operation == operation_union)
+        if (left.subject->operation == operation_union
+            && right.subject->operation == operation_union)
         {
             ret = order == 1;
         }
-        else if (left.subject.operation == operation_union
-            && right.subject.operation == operation_blocked)
+        else if (left.subject->operation == operation_union
+            && right.subject->operation == operation_blocked)
         {
             ret = true;
         }
-        else if (right.subject.operation == operation_union
-            && left.subject.operation == operation_blocked)
+        else if (right.subject->operation == operation_union
+            && left.subject->operation == operation_blocked)
         {
             ret = false;
         }
-        else if (left.subject.operation == operation_union)
+        else if (left.subject->operation == operation_union)
         {
             ret = true;
         }
-        else if (right.subject.operation == operation_union)
+        else if (right.subject->operation == operation_union)
         {
             ret = false;
         }
@@ -307,10 +307,10 @@ private :
     {
         //debug_consider(order, left, right, header, false, "iu/ix");
 
-        return left.subject.operation == operation_intersection
-                && right.subject.operation == operation_intersection ? order == 1
-            : left.subject.operation == operation_intersection ? false
-            : right.subject.operation == operation_intersection ? true
+        return left.subject->operation == operation_intersection
+                && right.subject->operation == operation_intersection ? order == 1
+            : left.subject->operation == operation_intersection ? false
+            : right.subject->operation == operation_intersection ? true
             : order == 1;
     }
 
@@ -319,13 +319,13 @@ private :
             ) const
     {
         // Take first intersection, then blocked.
-        if (left.subject.operation == operation_intersection
-            && right.subject.operation == operation_blocked)
+        if (left.subject->operation == operation_intersection
+            && right.subject->operation == operation_blocked)
         {
             return true;
         }
-        else if (left.subject.operation == operation_blocked
-            && right.subject.operation == operation_intersection)
+        else if (left.subject->operation == operation_blocked
+            && right.subject->operation == operation_intersection)
         {
             return false;
         }
@@ -347,14 +347,14 @@ private :
         //debug_consider(0, left, right, header);
 
         // In general, order it like "union, intersection".
-        if (left.subject.operation == operation_intersection
-            && right.subject.operation == operation_union)
+        if (left.subject->operation == operation_intersection
+            && right.subject->operation == operation_union)
         {
             //debug_consider(0, left, right, header, false, "i,u", false);
             return false;
         }
-        else if (left.subject.operation == operation_union
-            && right.subject.operation == operation_intersection)
+        else if (left.subject->operation == operation_union
+            && right.subject->operation == operation_intersection)
         {
             //debug_consider(0, left, right, header, false, "u,i", true);
             return true;
@@ -371,8 +371,8 @@ private :
         if (side_ri_p * side_si_p == 1 && side_si_r != 0)
         {
             // Take the most left one
-            if (left.subject.operation == operation_union
-                && right.subject.operation == operation_union)
+            if (left.subject->operation == operation_union
+                && right.subject->operation == operation_union)
             {
                 bool ret = side_si_r == 1;
                 //debug_consider(0, left, right, header, false, "same side", ret);
