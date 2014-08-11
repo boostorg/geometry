@@ -127,8 +127,6 @@ class turn_in_piece_visitor
 
         add_point(projected, v);
 
-        // The dot-product still overflows for boost::long_long_type with
-        // these values (should not occur, TODO: fix this)
         return taxicab_distance(subject, projected);
     }
 
@@ -162,8 +160,6 @@ class turn_in_piece_visitor
     inline calculation_type
         taxicab_distance_from_offsetted(Point const& point, Piece const& piece) const
     {
-        // TODO: replace this by the code below if that is fixed for boost::long_long_type
-        // with these contents of values
         calculation_type result = 0;
         for (int i = 1; i < piece.offsetted_count; i++)
         {
