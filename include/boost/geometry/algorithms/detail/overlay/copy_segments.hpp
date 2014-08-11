@@ -6,6 +6,7 @@
 // Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -38,6 +39,8 @@
 
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/append_no_dups_or_spikes.hpp>
+
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -193,8 +196,8 @@ struct copy_segments_polygon
         copy_segments_ring<Reverse>::apply
             (
                 seg_id.ring_index < 0
-                ? geometry::exterior_ring(polygon)
-                : geometry::interior_rings(polygon)[seg_id.ring_index],
+                    ? geometry::exterior_ring(polygon)
+                    : range::at(geometry::interior_rings(polygon), seg_id.ring_index),
                 seg_id, to_index,
                 robust_policy,
                 current_output
@@ -265,10 +268,10 @@ struct copy_segments_multi
             );
 
         // Call the single-version
-        Policy::apply(multi_geometry[seg_id.multi_index],
-                    seg_id, to_index,
-                    robust_policy,
-                    current_output);
+        Policy::apply(range::at(multi_geometry, seg_id.multi_index),
+                      seg_id, to_index,
+                      robust_policy,
+                      current_output);
     }
 };
 

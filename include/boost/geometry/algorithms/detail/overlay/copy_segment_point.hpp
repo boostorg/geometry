@@ -20,6 +20,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
@@ -95,8 +96,8 @@ struct copy_segment_point_polygon
             >::apply
                 (
                     seg_id.ring_index < 0
-                    ? geometry::exterior_ring(polygon)
-                    : geometry::interior_rings(polygon)[seg_id.ring_index],
+                        ? geometry::exterior_ring(polygon)
+                        : range::at(geometry::interior_rings(polygon), seg_id.ring_index),
                     seg_id, second,
                     point
                 );
@@ -146,7 +147,7 @@ struct copy_segment_point_multi
             );
 
         // Call the single-version
-        return Policy::apply(multi[seg_id.multi_index], seg_id, second, point);
+        return Policy::apply(range::at(multi, seg_id.multi_index), seg_id, second, point);
     }
 };
 

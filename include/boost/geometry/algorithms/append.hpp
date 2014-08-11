@@ -33,6 +33,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/variant.hpp>
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -100,7 +101,7 @@ struct point_to_polygon
         else if (ring_index < int(num_interior_rings(polygon)))
         {
             append_point<ring_type, Point>::apply(
-                        interior_rings(polygon)[ring_index], point);
+                        range::at(interior_rings(polygon), ring_index), point);
         }
     }
 };
@@ -122,7 +123,7 @@ struct range_to_polygon
         else if (ring_index < int(num_interior_rings(polygon)))
         {
             append_range<ring_type, Range>::apply(
-                        interior_rings(polygon)[ring_index], range);
+                        range::at(interior_rings(polygon), ring_index), range);
         }
     }
 };
@@ -220,7 +221,7 @@ struct append_to_multigeometry
             <
                 typename boost::range_value<MultiGeometry>::type,
                 RangeOrPoint
-            >::apply(multigeometry[multi_index], range_or_point, ring_index);
+            >::apply(range::at(multigeometry, multi_index), range_or_point, ring_index);
     }
 };
 
