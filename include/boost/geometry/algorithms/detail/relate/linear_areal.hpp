@@ -844,15 +844,16 @@ struct linear_areal
             typedef typename boost::range_iterator<range2_type>::type range2_iterator;
             range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
-            std::size_t const s1 = boost::size(range1);
+            BOOST_ASSERT(boost::size(range1));
             std::size_t const s2 = boost::size(range2);
-            BOOST_ASSERT(s1 > 1 && s2 > 2);
+            BOOST_ASSERT(s2 > 2);
             std::size_t const seg_count2 = s2 - 1;
 
             std::size_t const p_seg_ij = turn.operations[op_id].seg_id.segment_index;
             std::size_t const q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
 
-            BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
+            BOOST_ASSERT(p_seg_ij + 1 < boost::size(range1));
+            BOOST_ASSERT(q_seg_ij + 1 < s2);
 
             point1_type const& pi = range::at(range1, p_seg_ij);
             point2_type const& qi = range::at(range2, q_seg_ij);
