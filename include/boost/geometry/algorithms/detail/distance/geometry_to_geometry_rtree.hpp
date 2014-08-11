@@ -94,6 +94,12 @@ private:
                 m_r_tree.query(index::nearest(query_geometry, 1), &t_v);
 
             BOOST_ASSERT( n > 0 );
+            // n above is unused outside BOOST_ASSERT, hence the call
+            // to boost::ignore_unused below
+            //
+            // however, t_v (initialized by the call to m_r_tree.query(...))
+            // is used below, which is why we cannot put the call to
+            // m_r_tree.query(...) inside BOOST_ASSERT
             boost::ignore_unused(n);
 
             comparable_return_type cd = dispatch::distance
