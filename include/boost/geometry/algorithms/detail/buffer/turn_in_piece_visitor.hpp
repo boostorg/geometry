@@ -19,6 +19,9 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -85,52 +88,6 @@ class turn_in_piece_visitor
         return true;
     }
 
-    template <typename Point>
-    static inline calculation_type taxicab_distance(Point const& p, Point const& q)
-    {
-        return math::abs(geometry::get<0>(p) - geometry::get<0>(q))
-             + math::abs(geometry::get<1>(p) - geometry::get<1>(q));
-    }
-
-
-    // TODO: see comment below, this adaption of distance_projected_point can be removed
-    template <typename Point>
-    static inline calculation_type taxicab_distance_from_segment(Point const& subject, Point const& p, Point const& q)
-    {
-        typedef Point vector_type;
-        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-        vector_type v = q;
-        vector_type w = subject;
-        subtract_point(v, p);
-        subtract_point(w, p);
-
-        coordinate_type const zero = coordinate_type();
-        coordinate_type const c1 = dot_product(w, v);
-
-        if (c1 <= zero)
-        {
-            return taxicab_distance(subject, p);
-        }
-        coordinate_type const c2 = dot_product(v, v);
-        if (c2 <= c1)
-        {
-            return taxicab_distance(subject, q);
-        }
-
-        multiply_value(v, c1);
-        divide_value(v, c2);
-
-        Point projected = p;
-        subtract_point(v, projected);
-        subtract_point(w, projected);
-
-        add_point(projected, v);
-
-        return taxicab_distance(subject, projected);
-    }
-
-
     template <typename Point, typename Piece>
     inline bool on_offsetted(Point const& point, Piece const& piece) const
     {
@@ -157,30 +114,19 @@ class turn_in_piece_visitor
     }
 
     template <typename Point, typename Piece>
-    inline calculation_type
-        taxicab_distance_from_offsetted(Point const& point, Piece const& piece) const
+    static inline
+    calculation_type comparable_distance_from_offsetted(Point const& point,
+                        Piece const& piece)
     {
-        calculation_type result = 0;
-        for (int i = 1; i < piece.offsetted_count; i++)
-        {
-            Point const& previous = piece.robust_ring[i - 1];
-            Point const& current = piece.robust_ring[i];
-            calculation_type const dist
-                    = taxicab_distance_from_segment(point, previous, current);
-            if (i == 1 || dist < result)
-            {
-                result = dist;
-            }
-        }
-        return result;
-
-        /*
+        // TODO: pass subrange to dispatch to avoid making copy
         geometry::model::linestring<Point> ls;
-        std::copy(piece.robust_ring.begin(), piece.robust_ring.begin() + piece.offsetted_count, std::back_inserter(ls));
+        std::copy(piece.robust_ring.begin(),
+            piece.robust_ring.begin() + piece.offsetted_count,
+            std::back_inserter(ls));
         typename default_comparable_distance_result<Point, Point>::type
-            const result = geometry::comparable_distance(point, ls);
-        return result;
-        */
+            const comp = geometry::comparable_distance(point, ls);
+
+        return static_cast<calculation_type>(comp);
     }
 
 public:
@@ -267,8 +213,8 @@ public:
         if (geometry_code == 1)
         {
             calculation_type const distance
-                = taxicab_distance_from_offsetted(turn.robust_point, piece);
-            if (distance >= 2)
+                = comparable_distance_from_offsetted(turn.robust_point, piece);
+            if (distance >= 4)
             {
                 // This is too far from the border, it counts as "really within"
                 mutable_turn.count_within++;
