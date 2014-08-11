@@ -90,10 +90,10 @@ private :
             left.subject.seg_id,
             pi, pj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.other_id,
+            left.other_seg_id,
             ri, rj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            right.subject.other_id,
+            right.other_seg_id,
             si, sj);
 
         geometry::recalculate(pi_rob, pi, m_rescale_policy);

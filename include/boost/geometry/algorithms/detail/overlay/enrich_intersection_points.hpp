@@ -51,12 +51,15 @@ struct indexed_turn_operation
     int index;
     int operation_index;
     bool discarded;
+    segment_identifier other_seg_id; // segment id of other segment of intersection of two segments
     TurnOperation subject;
 
-    inline indexed_turn_operation(int i, int oi, TurnOperation const& s)
+    inline indexed_turn_operation(int i, int oi, TurnOperation const& s,
+                segment_identifier const& oid)
         : index(i)
         , operation_index(oi)
         , discarded(false)
+        , other_seg_id(oid)
         , subject(s)
     {}
 };
@@ -127,10 +130,10 @@ private :
             left.subject.seg_id,
             pi, pj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.other_id,
+            left.other_seg_id,
             ri, rj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            right.subject.other_id,
+            right.other_seg_id,
             si, sj);
 
         geometry::recalculate(pi_rob, pi, m_robust_policy);
@@ -428,7 +431,8 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
                     );
                 mapped_vector[ring_id].push_back
                     (
-                        IndexedType(index, op_index, *op_it)
+                        IndexedType(index, op_index, *op_it,
+                            it->operations[1 - op_index].seg_id)
                     );
             }
         }
