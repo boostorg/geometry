@@ -48,16 +48,17 @@ struct indexed_turn_operation
 {
     typedef TurnOperation type;
 
-    int index;
-    int operation_index;
+    std::size_t turn_index;
+    std::size_t operation_index;
     bool discarded;
     // use pointers to avoid copies, const& is not possible because of usage in vector
     segment_identifier const* other_seg_id; // segment id of other segment of intersection of two segments
     TurnOperation const* subject;
 
-    inline indexed_turn_operation(int i, int oi, TurnOperation const& s,
+    inline indexed_turn_operation(std::size_t ti, std::size_t oi,
+                TurnOperation const& s,
                 segment_identifier const& oid)
-        : index(i)
+        : turn_index(ti)
         , operation_index(oi)
         , discarded(false)
         , other_seg_id(&oid)
@@ -178,8 +179,8 @@ public :
                 // TODO: reconsider this. Using integer maths, this will
                 // ALWAYS return 0 because either fractions are different, or
                 // the (currently calculated) relative-order is identical
-                if (m_turn_points[left.index].method == method_crosses
-                    && m_turn_points[right.index].method == method_crosses)
+                if (m_turn_points[left.turn_index].method == method_crosses
+                    && m_turn_points[right.turn_index].method == method_crosses)
                 {
                     return consider_relative_order(left, right);
                 }
@@ -205,13 +206,13 @@ inline void update_discarded(Turns& turn_points, Operations& operations)
          it != boost::end(operations);
          ++it)
     {
-        if (turn_points[it->index].discarded)
+        if (turn_points[it->turn_index].discarded)
         {
             it->discarded = true;
         }
         else if (it->discarded)
         {
-            turn_points[it->index].discarded = true;
+            turn_points[it->turn_index].discarded = true;
         }
     }
 }
@@ -267,14 +268,14 @@ inline void enrich_sort(Container& operations,
             it != boost::end(operations);
             prev = it++)
         {
-            operations_type& prev_op = turn_points[prev->index]
+            operations_type& prev_op = turn_points[prev->turn_index]
                 .operations[prev->operation_index];
-            operations_type& op = turn_points[it->index]
+            operations_type& op = turn_points[it->turn_index]
                 .operations[it->operation_index];
 
             if (prev_op.seg_id == op.seg_id
-                && (turn_points[prev->index].method != method_crosses
-                    || turn_points[it->index].method != method_crosses)
+                && (turn_points[prev->turn_index].method != method_crosses
+                    || turn_points[it->turn_index].method != method_crosses)
                 && prev_op.fraction == op.fraction)
             {
                 if (begin_cluster == boost::end(operations))
@@ -351,19 +352,19 @@ inline void enrich_assign(Container& operations,
              prev = it++)
         {
             operations_type& prev_op
-                    = turn_points[prev->index].operations[prev->operation_index];
+                    = turn_points[prev->turn_index].operations[prev->operation_index];
             operations_type& op
-                    = turn_points[it->index].operations[it->operation_index];
+                    = turn_points[it->turn_index].operations[it->operation_index];
 
             prev_op.enriched.travels_to_ip_index
-                    = it->index;
+                    = static_cast<int>(it->turn_index);
             prev_op.enriched.travels_to_vertex_index
                     = it->subject->seg_id.segment_index;
 
             if (! first
                 && prev_op.seg_id.segment_index == op.seg_id.segment_index)
             {
-                prev_op.enriched.next_ip_index = it->index;
+                prev_op.enriched.next_ip_index = static_cast<int>(it->turn_index);
             }
             first = false;
         }
@@ -376,16 +377,16 @@ inline void enrich_assign(Container& operations,
              it != boost::end(operations);
              ++it)
         {
-            operations_type& op = turn_points[it->index]
+            operations_type& op = turn_points[it->turn_index]
                 .operations[it->operation_index];
 
-            std::cout << it->index
-                << " meth: " << method_char(turn_points[it->index].method)
+            std::cout << it->turn_index
+                << " meth: " << method_char(turn_points[it->turn_index].method)
                 << " seg: " << op.seg_id
                 << " dst: " << op.fraction // needs define
-                << " op: " << operation_char(turn_points[it->index].operations[0].operation)
-                << operation_char(turn_points[it->index].operations[1].operation)
-                << " dsc: " << (turn_points[it->index].discarded ? "T" : "F")
+                << " op: " << operation_char(turn_points[it->turn_index].operations[0].operation)
+                << operation_char(turn_points[it->turn_index].operations[1].operation)
+                << " dsc: " << (turn_points[it->turn_index].discarded ? "T" : "F")
                 << " ->vtx " << op.enriched.travels_to_vertex_index
                 << " ->ip " << op.enriched.travels_to_ip_index
                 << " ->nxt ip " << op.enriched.next_ip_index
@@ -406,7 +407,7 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
     typedef typename boost::range_value<TurnPoints>::type turn_point_type;
     typedef typename turn_point_type::container_type container_type;
 
-    int index = 0;
+    std::size_t index = 0;
     for (typename boost::range_iterator<TurnPoints const>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
@@ -415,7 +416,7 @@ inline void create_map(TurnPoints const& turn_points, MappedVector& mapped_vecto
         // Add operations on this ring, but skip discarded ones
         if (! it->discarded)
         {
-            int op_index = 0;
+            std::size_t op_index = 0;
             for (typename boost::range_iterator<container_type const>::type
                     op_it = boost::begin(it->operations);
                 op_it != boost::end(it->operations);
