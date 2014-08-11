@@ -29,7 +29,6 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/counting.hpp>
@@ -46,22 +45,20 @@ namespace detail { namespace num_segments
 struct range_count
 {
     template <typename Range>
-    static inline std::size_t apply(Range const& range, bool add_for_open)
+    static inline std::size_t apply(Range const& range)
     {
         std::size_t n = boost::size(range);
         if ( n <= 1 )
         {
             return 0;
         }
-        if (add_for_open
-            && geometry::closure<Range>::value == open
-            && detail::disjoint::disjoint_point_point(range::front(range),
-                                                      range::at(range, n - 1))
-            )
-        {
-            return n;
-        }
-        return static_cast<std::size_t>(n - 1);
+
+        return
+            geometry::closure<Range>::value == open
+            ?
+            n
+            :
+            static_cast<std::size_t>(n - 1);
     }
 };
 
@@ -151,11 +148,11 @@ namespace resolve_variant
 template <typename Geometry>
 struct num_segments
 {
-    static inline std::size_t apply(Geometry const& geometry, bool add_for_open)
+    static inline std::size_t apply(Geometry const& geometry)
     {
         concept::check<Geometry const>();
 
-        return dispatch::num_segments<Geometry>::apply(geometry, add_for_open);
+        return dispatch::num_segments<Geometry>::apply(geometry);
     }
 };
 
@@ -165,22 +162,17 @@ struct num_segments<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     struct visitor: boost::static_visitor<std::size_t>
     {
-        bool m_add_for_open;
-
-        visitor(bool add_for_open): m_add_for_open(add_for_open) {}
-
         template <typename Geometry>
         inline std::size_t operator()(Geometry const& geometry) const
         {
-            return num_segments<Geometry>::apply(geometry, m_add_for_open);
+            return num_segments<Geometry>::apply(geometry);
         }
     };
 
     static inline std::size_t
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          bool add_for_open)
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
     {
-        return boost::apply_visitor(visitor(add_for_open), geometry);
+        return boost::apply_visitor(visitor(), geometry);
     }
 };
 
@@ -201,13 +193,9 @@ struct num_segments<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \qbk{[include reference/algorithms/num_segments.qbk]}
 */
 template <typename Geometry>
-inline std::size_t num_segments(Geometry const& geometry,
-                                bool add_for_open = false)
+inline std::size_t num_segments(Geometry const& geometry)
 {
-    return resolve_variant::num_segments
-        <
-            Geometry
-        >::apply(geometry, add_for_open);
+    return resolve_variant::num_segments<Geometry>::apply(geometry);
 }
 
 
