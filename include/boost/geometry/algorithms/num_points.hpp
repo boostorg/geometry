@@ -64,11 +64,8 @@ struct range_count
     static inline std::size_t apply(Range const& range)
     {
         std::size_t n = boost::size(range);
-        if ( n == 0 )
-        {
-            return 0;
-        }
         if (AddForOpen
+            && n > 0
             && geometry::closure<Range>::value == open
             && detail::disjoint::disjoint_point_point(range::front(range),
                                                       range::at(range, n - 1))
