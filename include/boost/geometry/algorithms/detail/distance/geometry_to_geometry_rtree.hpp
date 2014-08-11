@@ -17,6 +17,8 @@
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -92,6 +94,7 @@ private:
                 m_r_tree.query(index::nearest(query_geometry, 1), &t_v);
 
             BOOST_ASSERT( n > 0 );
+            boost::ignore_unused(n);
 
             comparable_return_type cd = dispatch::distance
                 <
