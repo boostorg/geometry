@@ -62,16 +62,16 @@ template <typename RangeCount>
 struct polygon_count
 {
     template <typename Polygon>
-    static inline std::size_t apply(Polygon const& poly, bool add_for_open)
+    static inline std::size_t apply(Polygon const& poly)
     {
-        std::size_t n = RangeCount::apply(exterior_ring(poly), add_for_open);
+        std::size_t n = RangeCount::apply(exterior_ring(poly));
 
         typename interior_return_type<Polygon const>::type
             rings = interior_rings(poly);
         for (typename detail::interior_iterator<Polygon const>::type
                 it = boost::begin(rings); it != boost::end(rings); ++it)
         {
-            n += RangeCount::apply(*it, add_for_open);
+            n += RangeCount::apply(*it);
         }
 
         return n;
@@ -92,21 +92,6 @@ struct multi_count
              ++it)
         {
             n += SingleCount::apply(*it);
-        }
-        return n;
-    }
-
-    template <typename MultiGeometry>
-    static inline
-    std::size_t apply(MultiGeometry const& geometry, bool add_for_open)
-    {
-        std::size_t n = 0;
-        for (typename boost::range_iterator<MultiGeometry const>::type
-                 it = boost::begin(geometry);
-             it != boost::end(geometry);
-             ++it)
-        {
-            n += SingleCount::apply(*it, add_for_open);
         }
         return n;
     }

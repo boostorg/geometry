@@ -36,8 +36,8 @@
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/algorithms/num_segments.hpp>
 #include <boost/geometry/algorithms/detail/counting.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -57,14 +57,26 @@ namespace detail { namespace num_points
 {
 
 
+template <bool AddForOpen>
 struct range_count
 {
     template <typename Range>
-    static inline std::size_t apply(Range const& range, bool add_for_open)
+    static inline std::size_t apply(Range const& range)
     {
-        return (boost::size(range) > 0)
-            ? (num_segments::range_count::apply(range, add_for_open) + 1)
-            : 0;
+        std::size_t n = boost::size(range);
+        if ( n == 0 )
+        {
+            return 0;
+        }
+        if (AddForOpen
+            && geometry::closure<Range>::value == open
+            && detail::disjoint::disjoint_point_point(range::front(range),
+                                                      range::at(range, n - 1))
+            )
+        {
+            return n + 1;
+        }
+        return n;
     }
 };
 
@@ -79,6 +91,7 @@ namespace dispatch
 template
 <
     typename Geometry,
+    bool AddForOpen,
     typename Tag = typename tag_cast
         <
             typename tag<Geometry>::type, multi_tag
@@ -87,41 +100,44 @@ template
 struct num_points: not_implemented<Tag>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, point_tag>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, point_tag>
     : detail::counting::other_count<1>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, box_tag>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, box_tag>
     : detail::counting::other_count<(1 << geometry::dimension<Geometry>::value)>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, segment_tag>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, segment_tag>
     : detail::counting::other_count<2>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, linestring_tag>
-    : detail::num_points::range_count
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, linestring_tag>
+    : detail::num_points::range_count<AddForOpen>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, ring_tag>
-    : detail::num_points::range_count
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, ring_tag>
+    : detail::num_points::range_count<AddForOpen>
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, polygon_tag>
-    : detail::counting::polygon_count<detail::num_points::range_count>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, polygon_tag>
+    : detail::counting::polygon_count
+        <
+            detail::num_points::range_count<AddForOpen>
+        >
 {};
 
-template <typename Geometry>
-struct num_points<Geometry, multi_tag>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, multi_tag>
     : detail::counting::multi_count
         <
-            num_points<typename boost::range_value<Geometry>::type>
+            num_points<typename boost::range_value<Geometry>::type, AddForOpen>
         >
 {};
 
@@ -140,7 +156,9 @@ struct num_points
     {
         concept::check<Geometry const>();
 
-        return dispatch::num_points<Geometry>::apply(geometry, add_for_open);
+        return add_for_open
+            ? dispatch::num_points<Geometry, true>::apply(geometry)
+            : dispatch::num_points<Geometry, false>::apply(geometry);
     }
 };
 
