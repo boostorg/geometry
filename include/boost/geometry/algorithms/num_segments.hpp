@@ -187,7 +187,6 @@ struct num_segments<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \details \details_calc{num_segments, number of segments}.
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\param add_for_open add one for open geometries (i.e. polygon types which are not closed)
 \return \return_calc{number of segments}
 
 \qbk{[include reference/algorithms/num_segments.qbk]}
