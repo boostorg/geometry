@@ -28,7 +28,6 @@ int main()
         > mp;
     boost::geometry::read_wkt("MULTIPOLYGON(((0 0,0 10,10 0),(1 1,8 1,1 8)),((10 10,10 20,20 10)))", mp);
     std::cout << "Number of segments: " << boost::geometry::num_segments(mp) << std::endl;
-    std::cout << "Number of segments (add_to_open <- true): " << boost::geometry::num_segments(mp, true) << std::endl;
     return 0;
 }
 
@@ -39,8 +38,7 @@ int main()
 /*`
 Output:
 [pre
- Number of segments: 6
-Number of segments (add_to_open <- true): 9
+ Number of segments: 9
 ]
 */
 //]
