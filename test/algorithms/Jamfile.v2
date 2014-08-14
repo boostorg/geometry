@@ -50,6 +50,8 @@ test-suite boost-geometry-algorithms
     [ run is_valid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run length.cpp ]
     [ run make.cpp ]
+    [ run num_geometries.cpp ]
+    [ run num_interior_rings.cpp ]
     [ run num_points.cpp ]
     [ run num_segments.cpp ]
     [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]

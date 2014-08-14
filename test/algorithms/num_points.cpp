@@ -22,6 +22,15 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/multi/io/wkt/read.hpp>
 
+template <std::size_t D, typename T = double>
+struct box_dD
+{
+    typedef boost::geometry::model::box
+        <
+            boost::geometry::model::point<T, D, boost::geometry::cs::cartesian>
+        > type;
+};
+
 template <typename Geometry>
 inline void test_num_points(std::string const& wkt, std::size_t expected)
 {
@@ -51,6 +60,9 @@ int test_main(int, char* [])
     test_num_points<linestring>("LINESTRING(0 0,1 1)", 2u);
     test_num_points<segment>("LINESTRING(0 0,1 1)", 2u);
     test_num_points<box>("POLYGON((0 0,10 10))", 4u);
+    test_num_points<box_dD<3>::type>("BOX(0 0 0,1 1 1)", 8u);
+    test_num_points<box_dD<4>::type>("BOX(0 0 0 0,1 1 1 1)", 16u);
+    test_num_points<box_dD<5>::type>("BOX(0 0 0 0 0,1 1 1 1 1)", 32u);
     test_num_points<ring>("POLYGON((0 0,1 1,0 1,0 0))", 4u);
     test_num_points<polygon>("POLYGON((0 0,10 10,0 10,0 0))", 4u);
     test_num_points<polygon>("POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))", 10u);

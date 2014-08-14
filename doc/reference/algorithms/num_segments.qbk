@@ -16,13 +16,11 @@
 [heading Behavior]
 [table
 [[Case] [Behavior] ]
-[[__point__][[qbk_ret 0]]]
+[[__0dim__][[qbk_ret 0]]]
 [[__segment__][[qbk_ret 1]]]
-[[__box__][[qbk_ret 4]]]
+[[__box__][[qbk_ret d * 2^(d-1), where d is the dimension of the box]]]
 [[__range__][[qbk_ret boost::size(geometry) - 1]]]
 [[__other__][[qbk_ret the sum of the number of segments of its elements]]]
-[[Open geometries][[qbk_ret the sum of the number of segments of its elements, it adds one for open (per ring) if specified]]]
-[[Closed geometries][[qbk_ret the sum of the number of segments of its elements]]]
 ]
 
 
@@ -32,4 +30,3 @@ Constant or Linear
 [heading Examples]
 [num_segments]
 [num_segments_output]
-
