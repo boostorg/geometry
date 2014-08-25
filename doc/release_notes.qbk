@@ -48,6 +48,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/9828 9828] boost::geometry::union_(...) creates redundant closing point
 * [@https://svn.boost.org/trac/boost/ticket/9871 9871] Remove spike in polygon with only a spike
 * [@https://svn.boost.org/trac/boost/ticket/9947 9947] Missing info about WKT in documentation
+* [@https://svn.boost.org/trac/boost/ticket/9759 9759] Invalid results of R-tree knn queries for non-cartesian coordinate systems
 * [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection
 * [@https://svn.boost.org/trac/boost/ticket/10077 10077] Wrong types in concept checks in boost/geometry/arithmetic/arithmetic.hpp
 * [@https://svn.boost.org/trac/boost/ticket/10234 10234] Wrong results of covered_by() for nearly-horizontal segments
