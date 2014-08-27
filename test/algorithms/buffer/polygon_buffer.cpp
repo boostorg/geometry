@@ -80,6 +80,20 @@ static std::string const parcel3
 static std::string const parcel3_bend // of parcel_3 - clipped
     = "POLYGON((120399.40000152588 461986.43000030518, 120399.47999954224 461986.43000030518, 120403 461986.76769953477, 120403 461987.777217312, 120399.90000152588 461987.47999954224, 120399.72722010587 461990, 120398.71791817161 461990, 120398.93000030518 461986.90000152588, 120398.95000076294 461986.81999969482, 120398.9700012207 461986.74000167847, 120399.00999832153 461986.66999816895, 120399.04999923706 461986.61000061035, 120399.11000061035 461986.54999923706, 120399.16999816895 461986.5, 120399.25 461986.4700012207, 120399.31999969482 461986.43999862671, 120399.40000152588 461986.43000030518))";
 
+// Ticket 10398, fails at next distances ( /10.0 ):
+// #1: 5,25,84
+// #2: 5,13,45,49,60,62,66,73
+// #3: 4,8,12,35,45,54
+// #4: 6,19,21,23,30,43,45,66,78,91
+
+static std::string const ticket_10398_1
+    = "POLYGON((897866.5 6272518.7,897882.5 6272519.2,897882.6 6272519,897883.3 6272508.7,897883.5 6272505.5,897855 6272503.5,897852.4 6272505.6,897850.1 6272517.6,897860.8 6272518.5,897866.5 6272518.7))";
+static std::string const ticket_10398_2
+    = "POLYGON((898882.3 6271337.3,898895.7 6271339.9,898898 6271328.3,898881.6 6271325.1,898879.3 6271336.7,898882.3 6271337.3))";
+static std::string const ticket_10398_3
+    = "POLYGON((897558.7 6272055,897552.5 6272054.2,897552.5 6272053.7,897546.1 6272052.7,897545.6 6272057.7,897560.7 6272059.6,897560.9 6272055.3,897558.7 6272055))";
+static std::string const ticket_10398_4
+    = "POLYGON((898563.3 6272366.9,898554.7 6272379.2,898559.7 6272382.3,898561.6 6272379.4,898568.7 6272369.1,898563.8 6272366.2,898563.3 6272366.9))";
 
 
 template <typename P>
@@ -309,6 +323,25 @@ void test_all()
     test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_round, end_flat, 19.8861, -0.3);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // Areas yet to be changed
+    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 99, 0.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 99, 2.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 99, 8.4);
+
+    test_one<polygon_type, polygon_type>("ticket_10398_2_45", ticket_10398_2, join_miter, end_flat, 99, 4.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_2_62", ticket_10398_2, join_miter, end_flat, 99, 6.2);
+    test_one<polygon_type, polygon_type>("ticket_10398_2_73", ticket_10398_2, join_miter, end_flat, 99, 7.3);
+
+    test_one<polygon_type, polygon_type>("ticket_10398_3_12", ticket_10398_3, join_miter, end_flat, 99, 1.2);
+    test_one<polygon_type, polygon_type>("ticket_10398_3_35", ticket_10398_3, join_miter, end_flat, 99, 3.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_3_54", ticket_10398_3, join_miter, end_flat, 99, 5.4);
+
+    test_one<polygon_type, polygon_type>("ticket_10398_4_30", ticket_10398_4, join_miter, end_flat, 99, 3.0);
+    test_one<polygon_type, polygon_type>("ticket_10398_4_66", ticket_10398_4, join_miter, end_flat, 99, 6.6);
+    test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 99, 9.1);
+#endif
 }
 
 
