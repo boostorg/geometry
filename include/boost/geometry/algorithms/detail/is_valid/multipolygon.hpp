@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 
 #include <deque>
+#include <vector>
 
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/range.hpp>
@@ -22,9 +23,12 @@
 
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/is_acceptable_turn.hpp>
@@ -71,6 +75,7 @@ private:
                                         TurnIterator turns_first,
                                         TurnIterator turns_beyond)
     {
+        // collect all polygons that have turns
         std::set<int> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
@@ -78,28 +83,28 @@ private:
             multi_indices.insert(tit->operations[0].other_id.multi_index);
         }
 
+        // put polygon iterators without turns in a vector
+        std::vector<PolygonIterator> polygon_iterators;
         int multi_index = 0;
-        for (PolygonIterator it1 = polygons_first; it1 != polygons_beyond;
-             ++it1, ++multi_index)
+        for (PolygonIterator it = polygons_first; it != polygons_beyond;
+             ++it, ++multi_index)
         {
-            if ( multi_indices.find(multi_index) != multi_indices.end() )
+            if ( multi_indices.find(multi_index) == multi_indices.end() )
             {
-                continue;
-            }
-
-            for (PolygonIterator it2 = polygons_first;
-                 it2 != polygons_beyond; ++it2)
-            {
-                if ( it1 != it2
-                     &&
-                     geometry::within(range::front(exterior_ring(*it1)), *it2)
-                     )
-                {
-                    return false;
-                }
+                polygon_iterators.push_back(it);
             }
         }
-        return true;
+
+        typename base::item_visitor visitor;
+
+        geometry::partition
+            <
+                geometry::model::box<typename point_type<MultiPolygon>::type>,
+                typename base::expand_box,
+                typename base::overlaps_box
+            >::apply(polygon_iterators, visitor);
+
+        return !visitor.items_overlap;
     }
 
 

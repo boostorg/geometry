@@ -45,7 +45,7 @@ struct p_q_settings
         : svg(false)
         , also_difference(false)
         , wkt(false)
-        , tolerance(1.0e-6)
+        , tolerance(1.0e-3) // since rescaling to integer the tolerance should be less. Was originally 1.0e-6
     {}
 };
 

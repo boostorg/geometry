@@ -303,7 +303,8 @@ public:
         typedef typename rtree::elements_type<internal_node>::type elements_type;
         elements_type const& elements = rtree::elements(n);
 
-        // change to elements_type::size_type or size_type?
+        // CONSIDER: change to elements_type::size_type or size_type
+        // or use fixed-size type like uint32 or even uint16?
         size_t s = elements.size();
         m_archive << boost::serialization::make_nvp("s", s);
 
@@ -318,10 +319,11 @@ public:
     inline void operator()(leaf const& l)
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
-        typedef typename elements_type::size_type elements_size;
+        //typedef typename elements_type::size_type elements_size;
         elements_type const& elements = rtree::elements(l);
 
-        // change to elements_type::size_type or size_type?
+        // CONSIDER: change to elements_type::size_type or size_type
+        // or use fixed-size type like uint32 or even uint16?
         size_t s = elements.size();
         m_archive << boost::serialization::make_nvp("s", s);
 
@@ -368,7 +370,12 @@ private:
     {
         //BOOST_GEOMETRY_INDEX_ASSERT(current_level <= leafs_level, "invalid parameter");
 
-        // change to elements_type::size_type or size_type?
+        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        typedef typename elements_type::value_type element_type;
+        //typedef typename elements_type::size_type elements_size;
+
+        // CONSIDER: change to elements_type::size_type or size_type
+        // or use fixed-size type like uint32 or even uint16?
         size_t elements_count;
         ar >> boost::serialization::make_nvp("s", elements_count);
 
@@ -381,9 +388,6 @@ private:
             node_auto_ptr auto_remover(n, allocators);    
             internal_node & in = rtree::get<internal_node>(*n);
 
-            typedef typename rtree::elements_type<internal_node>::type elements_type;
-            typedef typename elements_type::value_type element_type;
-            typedef typename elements_type::size_type elements_size;
             elements_type & elements = rtree::elements(in);
 
             elements.reserve(elements_count);                                                               // MAY THROW (A)

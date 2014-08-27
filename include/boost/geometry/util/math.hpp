@@ -8,6 +8,7 @@
 // Modifications copyright (c) 2014, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -22,10 +23,10 @@
 #include <cmath>
 #include <limits>
 
-#include <boost/type_traits/is_fundamental.hpp>
-
 #include <boost/math/constants/constants.hpp>
+#include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -200,9 +201,10 @@ struct round<Result, Source, true, false>
 {
     static inline Result apply(Source const& v)
     {
-        return v < 0
-             ? boost::numeric_cast<Result>(ceil(v - 0.5f))
-             : boost::numeric_cast<Result>(floor(v + 0.5f));        
+        namespace bmp = boost::math::policies;
+        // ignore rounding errors for backward compatibility
+        typedef bmp::policy< bmp::rounding_error<bmp::ignore_error> > policy;
+        return boost::numeric_cast<Result>(boost::math::round(v, policy()));
     }
 };
 

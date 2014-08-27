@@ -170,12 +170,10 @@ void test_all(std::string const& type, int seed, int count, p_q_settings setting
 {
     if (type == "float")
     {
-        settings.tolerance = 1.0e-3;
         test_type<float, Clockwise, Closed>(seed, count, settings);
     }
     else if (type == "double")
     {
-        settings.tolerance = 1.0e-4;
         test_type<double, Clockwise, Closed>(seed, count, settings);
     }
 #if defined(HAVE_TTMATH)
