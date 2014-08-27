@@ -529,7 +529,7 @@ struct buffered_piece_collection
                     buffered_ring_collection<buffered_ring<Ring> >,
                     turn_vector_type,
                     RobustPolicy
-                > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
+                > visitor(offsetted_rings, m_turns, m_robust_policy);
 
             geometry::partition
                 <

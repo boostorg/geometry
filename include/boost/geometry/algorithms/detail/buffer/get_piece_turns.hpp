@@ -164,12 +164,10 @@ public:
 
     piece_turn_visitor(Rings const& ring_collection,
             Turns& turns,
-            RobustPolicy const& robust_policy,
-            int last_piece_index)
+            RobustPolicy const& robust_policy)
         : m_rings(ring_collection)
         , m_turns(turns)
         , m_robust_policy(robust_policy)
-        , m_last_piece_index(last_piece_index)
     {}
 
     template <typename Piece>
