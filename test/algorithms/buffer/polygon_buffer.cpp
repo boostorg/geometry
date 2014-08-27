@@ -324,24 +324,21 @@ void test_all()
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // Areas yet to be changed
-    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 99, 0.5);
-    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 99, 2.5);
-    test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 99, 8.4);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 697.7798, 2.5, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 1470.8096, 8.4, -999, false);
 
-    test_one<polygon_type, polygon_type>("ticket_10398_2_45", ticket_10398_2, join_miter, end_flat, 99, 4.5);
-    test_one<polygon_type, polygon_type>("ticket_10398_2_62", ticket_10398_2, join_miter, end_flat, 99, 6.2);
-    test_one<polygon_type, polygon_type>("ticket_10398_2_73", ticket_10398_2, join_miter, end_flat, 99, 7.3);
+    test_one<polygon_type, polygon_type>("ticket_10398_2_45", ticket_10398_2, join_miter, end_flat, 535.4780, 4.5, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_2_62", ticket_10398_2, join_miter, end_flat, 705.2046, 6.2, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_2_73", ticket_10398_2, join_miter, end_flat, 827.3394, 7.3, -999, false);
 
-    test_one<polygon_type, polygon_type>("ticket_10398_3_12", ticket_10398_3, join_miter, end_flat, 99, 1.2);
-    test_one<polygon_type, polygon_type>("ticket_10398_3_35", ticket_10398_3, join_miter, end_flat, 99, 3.5);
-    test_one<polygon_type, polygon_type>("ticket_10398_3_54", ticket_10398_3, join_miter, end_flat, 99, 5.4);
+    test_one<polygon_type, polygon_type>("ticket_10398_3_12", ticket_10398_3, join_miter, end_flat, 122.9443, 1.2, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_3_35", ticket_10398_3, join_miter, end_flat, 258.2729, 3.5, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_3_54", ticket_10398_3, join_miter, end_flat, 402.0571, 5.4, -999, false);
 
-    test_one<polygon_type, polygon_type>("ticket_10398_4_30", ticket_10398_4, join_miter, end_flat, 99, 3.0);
-    test_one<polygon_type, polygon_type>("ticket_10398_4_66", ticket_10398_4, join_miter, end_flat, 99, 6.6);
-    test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 99, 9.1);
-#endif
+    test_one<polygon_type, polygon_type>("ticket_10398_4_30", ticket_10398_4, join_miter, end_flat, 257.9482, 3.0, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_4_66", ticket_10398_4, join_miter, end_flat, 553.0112, 6.6, -999, false);
+    test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 819.1406, 9.1, -999, false);
 }
 
 
