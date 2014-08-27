@@ -90,7 +90,7 @@ struct num_segments<Geometry, box_tag>
     : detail::counting::other_count
         <
             geometry::dimension<Geometry>::value
-            * (1 << geometry::dimension<Geometry>::value - 1)
+            * (1 << (geometry::dimension<Geometry>::value - 1))
         >
 {};
 
