@@ -192,7 +192,7 @@ struct get_comparable<cross_track_point_box<CalculationType, Strategy> >
 public :
     static inline comparable_type apply(cross_track_point_box<CalculationType, Strategy> const& strategy)
     {
-        return cross_track_point_box(strategy.radius());
+        return cross_track_point_box<CalculationType, Strategy>(strategy.radius());
     }
 };
 
