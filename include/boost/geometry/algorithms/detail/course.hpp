@@ -34,6 +34,13 @@ inline ReturnType course(Point1 const& p1, Point2 const& p2)
     ReturnType dlon = get_as_radian<0>(p2) - get_as_radian<0>(p1);
     ReturnType cos_p2lat = cos(get_as_radian<1>(p2));
 
+    // An optimization which should kick in often for Boxes
+    //if ( math::equals(dlon, ReturnType(0)) )
+    //if ( get<0>(p1) == get<0>(p2) )
+    //{
+    //    return - sin(get_as_radian<1>(p1)) * cos_p2lat);
+    //}
+
     // "An alternative formula, not requiring the pre-computation of d"
     return atan2(sin(dlon) * cos_p2lat,
         cos(get_as_radian<1>(p1)) * sin(get_as_radian<1>(p2))

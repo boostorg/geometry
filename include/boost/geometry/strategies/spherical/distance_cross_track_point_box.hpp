@@ -9,9 +9,6 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
-
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -23,8 +20,6 @@
 #include <boost/geometry/core/access.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
-#include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/calculation_type.hpp>
@@ -86,42 +81,62 @@ public:
 #endif
 
         typedef typename return_type<Point, Box>::type return_type;
+        typedef typename point_type<Box>::type box_point_t;
         
         // Create (counterclockwise) array of points, the fifth one closes it
         // If every point is on the LEFT side (=1) or ON the border (=0)
         // the distance should be equal to 0.
 
-        // TODO: This isn't fully correct!
-        // Since if 0 is returned the Point may be in the vicinity of the boundary.
-        // So for this we need side strategy not taking EPS into account.
+        // TODO: This strategy as well as other cross-track strategies
+        // and therefore e.g. spherical within(Point, Box) may not work
+        // properly for a Box degenerated to a Segment or Point
 
-        boost::array<typename point_type<Box>::type, 5> bp;
+        boost::array<box_point_t, 5> bp;
         geometry::detail::assign_box_corners_oriented<true>(box, bp);
         bp[4] = bp[0];
 
-        typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Box>::type
-            >::type side_strategy;
-        boost::ignore_unused_variable_warning(side_strategy);
-
-        strategy::distance::cross_track
-            <
-                CalculationType,
-                Strategy
-            > ps_strategy(m_pp_strategy);
-
         for (int i = 1; i < 5; i++)
         {
-            // TODO: Here basically the same thing is calculated twice
-            // side and the distance to segment are both calculated using cross-track formula
+            box_point_t const& p1 = bp[i - 1];
+            box_point_t const& p2 = bp[i];
 
-            int const side = side_strategy.apply(point, bp[i - 1], bp[i]);
-            
+            return_type const crs_AD = geometry::detail::course<return_type>(p1, point);
+            return_type const crs_AB = geometry::detail::course<return_type>(p1, p2);
+            return_type const d_crs1 = crs_AD - crs_AB;
+            return_type const sin_d_crs1 = sin(d_crs1);
+
+            // this constant sin() is here to be consistent with the side strategy
+            return_type const sigXTD = asin(sin(0.001) * sin_d_crs1);
+
             // If the point is on the right side of the edge
-            if ( side == -1 )
+            if ( sigXTD > 0 )
             {
-                return ps_strategy.apply(point, bp[i - 1], bp[i]);
+                return_type const crs_BA = crs_AB - geometry::math::pi<return_type>();
+                return_type const crs_BD = geometry::detail::course<return_type>(p2, point);
+                return_type const d_crs2 = crs_BD - crs_BA;
+
+                return_type const projection1 = cos( d_crs1 );
+                return_type const projection2 = cos( d_crs2 );
+
+                if(projection1 > 0.0 && projection2 > 0.0)
+                {
+                    return_type const d1 = m_pp_strategy.apply(p1, point);
+                    return_type const XTD = radius() * geometry::math::abs( asin( sin( d1 / radius() ) * sin_d_crs1 ));
+
+                    return return_type(XTD);
+                }
+                else
+                {
+                    // OPTIMIZATION
+                    // Return d1 if projection1 <= 0 and d2 if projection2 <= 0
+                    // if both == 0 then return d1 or d2
+                    // both shouldn't be < 0
+
+                    return_type const d1 = m_pp_strategy.apply(p1, point);
+                    return_type const d2 = m_pp_strategy.apply(p2, point);
+
+                    return return_type((std::min)( d1 , d2 ));
+                }
             }
         }
 
