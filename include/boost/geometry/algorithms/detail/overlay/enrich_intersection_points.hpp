@@ -113,19 +113,9 @@ private :
     mutable bool* m_clustered;
 
     typedef typename geometry::point_type<Geometry1>::type point_type;
-    typedef typename geometry::robust_point_type
-    <
-        point_type,
-        RobustPolicy
-    >::type robust_point_type;
 
-    // TODO: this function is shared with handle_tangencies
-    // The one in handle_tangencies will go as soon as we have
-    // reliable "cluster_info" (using occupation_map, get_left_turns)
-    inline void get_situation_map(Indexed const& left, Indexed const& right,
-                              robust_point_type& pi_rob, robust_point_type& pj_rob,
-                              robust_point_type& ri_rob, robust_point_type& rj_rob,
-                              robust_point_type& si_rob, robust_point_type& sj_rob) const
+    inline bool consider_relative_order(Indexed const& left,
+                    Indexed const& right) const
     {
         point_type pi, pj, ri, rj, si, sj;
 
@@ -139,24 +129,11 @@ private :
             *right.other_seg_id,
             si, sj);
 
-        geometry::recalculate(pi_rob, pi, m_robust_policy);
-        geometry::recalculate(pj_rob, pj, m_robust_policy);
-        geometry::recalculate(ri_rob, ri, m_robust_policy);
-        geometry::recalculate(rj_rob, rj, m_robust_policy);
-        geometry::recalculate(si_rob, si, m_robust_policy);
-        geometry::recalculate(sj_rob, sj, m_robust_policy);
-    }
-
-    inline bool consider_relative_order(Indexed const& left,
-                    Indexed const& right) const
-    {
-        robust_point_type pi, pj, ri, rj, si, sj;
-        get_situation_map(left, right, pi, pj, ri, rj, si, sj);
-
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<point_type>::type
             >::type strategy;
+
         int const side_rj_p = strategy::apply(pi, pj, rj);
         int const side_sj_p = strategy::apply(pi, pj, sj);
 
