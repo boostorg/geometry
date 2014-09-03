@@ -27,9 +27,9 @@
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_relative_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_tangencies.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
+#include <boost/geometry/strategies/side.hpp>
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
 #  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #endif
@@ -152,12 +152,26 @@ private :
     {
         robust_point_type pi, pj, ri, rj, si, sj;
         get_situation_map(left, right, pi, pj, ri, rj, si, sj);
-        int const order = get_relative_order
+
+        typedef typename strategy::side::services::default_strategy
             <
-                robust_point_type
-            >::apply(pi, pj, ri, rj, si, sj);
-        //debug("r/o", order == -1);
-        return order == -1;
+                typename cs_tag<point_type>::type
+            >::type strategy;
+        int const side_rj_p = strategy::apply(pi, pj, rj);
+        int const side_sj_p = strategy::apply(pi, pj, sj);
+
+        // Put the one turning left (1; right == -1) as last
+        if (side_rj_p != side_sj_p)
+        {
+            return side_rj_p < side_sj_p;
+        }
+
+        int const side_sj_r = strategy::apply(ri, rj, sj);
+        int const side_rj_s = strategy::apply(si, sj, rj);
+
+        // If they both turn left: the most left as last
+        // If they both turn right: this is not relevant, but take also here most left
+        return side_rj_s < side_sj_r;
     }
 
 public :
@@ -176,9 +190,6 @@ public :
             {
                 // First check "real" intersection (crosses)
                 // -> distance zero due to precision, solve it by sorting
-                // TODO: reconsider this. Using integer maths, this will
-                // ALWAYS return 0 because either fractions are different, or
-                // the (currently calculated) relative-order is identical
                 if (m_turn_points[left.turn_index].method == method_crosses
                     && m_turn_points[right.turn_index].method == method_crosses)
                 {

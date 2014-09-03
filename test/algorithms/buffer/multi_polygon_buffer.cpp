@@ -236,7 +236,6 @@ static std::string const rt_u6
 // For this case (and more), get_left_turns or using a more specific sort order is essential
 static std::string const rt_u7
     = "MULTIPOLYGON(((4 5,4 6,5 5,4 5)),((9 2,9 3,10 3,10 2,9 2)),((7 3,7 4,8 4,8 3,7 3)),((5 5,6 6,6 5,5 5)),((3 6,4 7,4 6,3 6)),((0 5,0 6,1 5,0 5)))";
-  //  = "MULTIPOLYGON(((4 5,4 6,5 5,4 5)),((9 2,9 3,10 3,10 2,9 2)),((7 3,7 4,8 4,8 3,7 3)),((5 5,6 6,6 5,5 5)),((3 6,4 7,4 6,3 6)))"; //removing the leftmost uninvolved polygon solves somehow the problem...
 
 template <typename P>
 void test_all()
@@ -246,6 +245,7 @@ void test_all()
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
+    bg::strategy::buffer::join_round join_round_rough(12);
     bg::strategy::buffer::end_flat end_flat;
 
     test_one<multi_polygon_type, polygon_type>("triangles424", triangles, join_miter, end_flat, 417.910, 4.24);
@@ -353,12 +353,10 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    {
-        bg::strategy::buffer::join_round join_round_rough(12); // temporary
-        test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round_rough, end_flat, 999, 1.0);
-    }
-#endif
+
+    test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round, end_flat, 35.6233, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, 35.0483, 1.0);
 }
 
 int test_main(int, char* [])
