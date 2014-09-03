@@ -23,6 +23,8 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
+
 [*Bugfixes]
 
 [/=================]

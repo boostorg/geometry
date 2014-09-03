@@ -24,7 +24,7 @@ static std::string const wrapped
 static std::string const triangles
     = "MULTIPOLYGON(((0 4,3 0,-2.5 -1,0 4)),((3 8,5.5 13,8 8,3 8)),((11 4,13.5 -1,8 0,11 4)))";
 
-// From robustness tests
+// From robustness tests (rt)
 
 // Case with duplicate points (due to chained boxes) (round)
 static std::string const rt_a
@@ -88,7 +88,6 @@ static std::string const rt_m1
 // Same, with 2
 static std::string const rt_m2
     = "MULTIPOLYGON(((0 3,1 4,1 3,0 3)),((3 6,4 7,4 6,4 5,3 5,3 6)))";
-
 
 // Segment-intersection problem (disjoint nearly collinear segments were reported as intersecting), fixed.
 static std::string const rt_n
@@ -188,10 +187,8 @@ static std::string const rt_p20
 static std::string const rt_p21
     = "MULTIPOLYGON(((4 2,4 3,5 3,4 2)),((4 1,5 2,5 1,4 1)),((5 2,6 3,6 2,5 2)))";
 
-
 static std::string const rt_p22
     = "MULTIPOLYGON(((4 8,5 9,5 8,4 8)),((5 9,6 10,6 9,5 9)),((1 7,1 8,2 8,2 7,1 7)),((2 6,3 7,3 6,2 6)))";
-
 
 // Occupation map with a uu-turn
 static std::string const rt_q1
@@ -217,8 +214,29 @@ static std::string const rt_s2
 static std::string const rt_t
     = "MULTIPOLYGON(((1 3,1 4,2 3,1 3)),((1 4,0 3,0 4,0 5,1 4)))";
 
+// Creates traversed ring
+static std::string const rt_u1
+    = "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((8 9,9 10,9 9,8 9)),((2 8,3 9,3 8,2 8)),((6 5,6 6,7 6,6 5)),((6 7,7 7,6 6,5 6,6 7)),((7 7,7 8,8 7,7 7)),((6 7,6 8,7 8,6 7)),((8 7,8 8,9 8,9 7,8 7)))";
 
+static std::string const rt_u2
+    = "MULTIPOLYGON(((4 2,5 3,5 2,4 2)),((6 4,6 5,7 5,6 4)),((7 4,7 5,8 5,7 4)),((7 3,7 4,8 3,7 3)),((7 10,8 10,7 9,6 9,7 10)),((0 7,0 8,1 7,0 7)),((6 1,6 2,7 2,7 1,6 1)),((5 7,5 8,6 9,6 8,7 9,7 8,7 7,6 6,6 7,5 7)),((5 4,6 4,6 3,5 3,4 3,4 4,5 4)),((5 2,6 2,5 1,4 0,3 0,4 1,3 1,3 2,3 3,4 3,4 2,4.5 1.5,5 2)),((5 6,5 5,4 5,4 6,4 7,5 7,5 6)),((5 0,5 1,5.5 0.5,6 1,6 0,5 0)),((5 9,5 8,4 8,3 8,2 8,1 8,0 8,1 9,1 10,2 9,2 10,3 10,4 10,5 10,5 9)),((4 5,4 4,3 4,3 3,2 3,1 3,0 3,0 4,0 5,0 6,1 6,2 5,1 5,1 4,2 4,3 5,2 5,2 6,2.5 5.5,3 6,4 5)),((3 2,2 2,2 3,3 2)),((2 0,1 0,2 1,3 0,2 0)),((1 1,0 1,0 2,0 3,1 2,1.5 1.5,2 2,3 1,2 1,1 1)),((2 6,1 6,1 7,2 7,3 7,2 6)),((4 8,4 7,3 7,4 8)),((9 6,8 6,7 6,7 7,8 7,8.5 6.5,9 7,8 7,8 8,8.5 7.5,9 8,8 8,8 9,9 9,9 10,10 10,10 9,10 8,10 7,10 6,10 5,9 4,9 5,8 5,9 6)),((7 0,6 0,7 1,8 1,7 0)),((8 3,9 2,8 2,7 2,8 3)),((10 2,10 1,10 0,9 0,9 1,8 1,8 2,8.5 1.5,9 2,9 3,10 4,10 3,10 2)),((9 4,9 3,8 3,8 4,9 4)))";
 
+static std::string const rt_u3
+    = "MULTIPOLYGON(((3 0,4 1,4 0,3 0)),((2 0,2 1,3 1,2 0)),((6 7,7 8,7 7,6 7)),((1 2,2 3,2 2,1 2)),((9 1,10 2,10 1,9 1)),((0 2,0 3,1 3,1 2,0 2)),((5 0,5 1,6 1,6 0,5 0)),((1 1,2 2,2 1,1 1)),((0 7,0 8,1 7,0 7)),((9 0,10 1,10 0,9 0)),((0 5,0 6,1 6,1 5,0 5)),((1 6,2 7,2 6,1 6)),((7 0,8 1,8 0,7 0)),((8 6,9 7,9 6,8 6)),((9 6,10 7,10 6,9 6)),((1 4,1 5,2 5,1 4)),((5 6,4 5,4 6,5 7,5 6)),((5 4,4.5 3.5,5 3,4 3,4 2,3 1,3 2,3 3,2 3,2 4,3 4,4 4,5 5,5 4)),((4 7,3 7,3 8,4 9,5 10,6 10,6 9,5 9,4 8,5 8,4 7)),((6 3,5 3,5 4,5.5 3.5,6 4,7 4,7 3,8 3,8 2,8 1,7 1,6 1,6 2,6 3)),((3 5,2 4,2 5,2 6,3 5)),((1 1,1 0,0 0,0 1,1 2,1 1)),((2 9,2 8,1 8,0 8,1 9,1 10,1.5 9.5,2 10,2.5 9.5,3 10,3 9,2 9)),((6 5,6 6,7 7,8 7,8 6,7 6,7 5,6 4,6 5)),((7 8,6 8,6 9,7 9,8 8,7 8)),((9 10,10 10,10 9,10 8,9 7,9 8,8 8,9 9,8 9,8 10,9 10)))";
+
+static std::string const rt_u4
+    = "MULTIPOLYGON(((5 0,6 1,6 0,5 0)),((6 1,6 2,7 2,7 1,6 1)),((6 6,7 7,7 6,6 6)),((4 7,4 8,5 8,4 7)),((1 6,1 7,2 7,1 6)),((3 4,3 5,4 5,3 4)),((2 0,2 1,3 0,2 0)),((7 2,7 3,8 3,7 2)),((3 3,4 4,4 3,3 3)),((5 9,5 10,6 10,7 10,6 9,5 8,5 9)),((5 4,5 5,6 4,5 4)),((3 1,4 2,4 1,3 1)),((3 0,3 1,4 0,3 0)),((2 7,2 8,3 8,3 7,2 7)),((9 2,9 3,10 2,9 2)),((6 2,6 3,7 3,6 2)),((8 8,9 9,9 8,8 8)),((2 1,2 2,3 2,3 1,2 1)),((4 3,5 4,5 3,4 3)),((4 6,5 7,5 6,4 6)),((1 8,1 9,2 8,1 7,1 8)),((8 8,9 7,8 7,7 7,7 8,8 8)),((8 1,8 2,9 2,9 1,10 1,9 0,8 0,8 1)),((5 2,4 2,4 3,5 2)),((2 5,1 5,1 6,2 6,3 5,2 5)),((1 3,2 4,2 3,2 2,1 1,0 1,1 2,1 3)),((1 0,0 0,1 1,2 1,1.5 0.5,2 0,1 0)),((2 10,3 10,4 10,4 9,3 9,2 8,2 9,1 9,0 9,1 10,2 10)),((9 5,9 6,10 6,10 5,10 4,9 4,8.5 3.5,9 3,8 3,8 4,7 4,7 5,8 5,9 5)),((7 0,6 0,7 1,8 1,7 0)),((7 9,7 8,6 8,6 9,7 9)))";
+
+static std::string const rt_u5
+    = "MULTIPOLYGON(((4 3,4 4,5 4,5 3,4 3)),((6 5,6 6,7 6,6 5)),((5 4,6 5,6 4,5 4)),((4 0,4 1,5 1,5 0,4 0)),((7 8,8 9,8 8,7 8)),((8 2,8 3,9 3,8 2)),((2 1,2 2,3 1,2 1)),((5 7,5 8,6 8,5 7)),((4 5,4 6,5 5,4 5)),((7 0,8 1,8 0,7 0)),((7 2,8 1,7 1,6 1,7 2)),((3 3,4 3,4 2,3 2,3 3)),((3 9,3 10,4 9,3 9)),((1 2,2 3,2 2,1 2)),((2 4,2 5,3 4,2 3,2 4)),((3 7,4 7,3 6,2 6,3 7)))";
+
+static std::string const rt_u6
+    = "MULTIPOLYGON(((2 2,3 3,3 2,2 2)),((9 8,9 9,10 9,10 8,9 8)),((5 3,6 4,6 3,5 3)),((5 5,5 6,6 6,5 5)),((5 1,6 2,6 1,5 1)),((6 5,7 6,7 5,6 5)),((3 0,4 1,4 0,3 0)),((6 6,6 7,7 6,6 6)),((9 2,10 2,10 1,9 1,9 2)),((6 8,6 9,7 9,7 8,6 8)),((7 0,7 1,8 0,7 0)),((4 4,4 5,5 5,4 4)),((0 7,0 8,1 8,0 7)),((5 9,6 10,6 9,5 9)),((4 9,4 10,5 10,5 9,4 9)),((3 7,4 7,3 6,2 6,3 7)),((9 7,10 6,9 6,8 6,9 7)),((5 3,5 2,4 2,4 3,4 4,5 4,5 3)),((1 1,2 0,1 0,0 0,1 1)),((2 10,3 10,3 9,2 9,1 9,1 10,2 10)),((8.5 4.5,9 4,8 4,7 4,8 5,9 5,8.5 4.5)),((8 3,9 3,9 2,8 2,8 3)))";
+
+// For this case (and more), get_left_turns or using a more specific sort order is essential
+static std::string const rt_u7
+    = "MULTIPOLYGON(((4 5,4 6,5 5,4 5)),((9 2,9 3,10 3,10 2,9 2)),((7 3,7 4,8 4,8 3,7 3)),((5 5,6 6,6 5,5 5)),((3 6,4 7,4 6,3 6)),((0 5,0 6,1 5,0 5)))";
+  //  = "MULTIPOLYGON(((4 5,4 6,5 5,4 5)),((9 2,9 3,10 3,10 2,9 2)),((7 3,7 4,8 4,8 3,7 3)),((5 5,6 6,6 5,5 5)),((3 6,4 7,4 6,3 6)))"; //removing the leftmost uninvolved polygon solves somehow the problem...
 
 template <typename P>
 void test_all()
@@ -244,9 +262,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_round, end_flat, 174.46, 5.0);
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_miter, end_flat, 298.797, 5.0);
 
-    // This one does not work:
-    // test_one<multi_polygon_type, buf::join_round_by_divide, polygon_type>("multi_simplex_50", simplex, 'd', 174.46, 5.0);
-    
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_round, end_flat, 67.4627, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_miter, end_flat, 68.0000, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_10", zonethru, join_round, end_flat, 93.8508, 1.0);
@@ -260,9 +275,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_round, end_flat, 167.066, 1.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_miter, end_flat, 169.000, 1.5);
 
-    // TODO: there is still an undetected hole inside rt_a
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
-
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_round, end_flat, 31.4186, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_miter, end_flat, 34, 1.0);
@@ -272,7 +285,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_d", rt_d, join_miter, end_flat, 19.8823, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_round, end_flat, 14.1866, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_miter, end_flat, 15.1198, 0.3);
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_f", rt_f, join_round, end_flat, 4.28937, 0.3);
 
     test_one<multi_polygon_type, polygon_type>("rt_f", rt_f, join_miter, end_flat, 4.60853, 0.3);
 
@@ -289,13 +301,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_j", rt_j, join_miter, end_flat, 35.1421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_round, end_flat, 42.0092, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_miter, end_flat, 48.0563, 1.0);
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_l", rt_l, join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_l", rt_l, join_miter, end_flat, 19.3995, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_miter, end_flat, 19.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m2", rt_m2, join_miter, end_flat, 21.4853, 1.0);
 
-    // This does not add anything: test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_miter, end_flat, 18.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_round, end_flat, 17.536, 1.0);
@@ -336,9 +346,20 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_s1", rt_s1, join_miter, end_flat, 20.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_s2", rt_s2, join_miter, end_flat, 24.6495, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_t", rt_t, join_miter, end_flat, 15.6569, 1.0);
-}
 
-int point_buffer_count;
+    test_one<multi_polygon_type, polygon_type>("rt_u1", rt_u1, join_round, end_flat, 33.2032, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u2", rt_u2, join_round, end_flat, 138.8001, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u3", rt_u3, join_round, end_flat, 133.4526, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    {
+        bg::strategy::buffer::join_round join_round_rough(12); // temporary
+        test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round_rough, end_flat, 999, 1.0);
+    }
+#endif
+}
 
 int test_main(int, char* [])
 {
@@ -348,3 +369,5 @@ int test_main(int, char* [])
     return 0;
 }
 
+// intersecting:
+//= "MULTIPOLYGON(((8 6,9 7,9 6,8 6)),((0 6,0 7,1 6,0 6)),((1 6,1 7,2 7,2 6,1 6)),((2 0,2 1,3 0,2 0)),((9 2,10 3,10 2,9 2)),((7 0,7 1,8 1,7 0)),((4 6,5 7,5 6,4 6)),((7 1,7 2,8 2,7 1)),((0 8,0 9,1 8,0 8)),((0 1,0 2,1 2,0 1)),((7 2,7 3,8 3,7 2)),((9 8,9 9,10 8,9 8)),((5 2,5 3,6 3,6 2,5 2)),((1 1,1 2,2 2,2 1,1 1)),((5 3,4 2,4 3,5 4,6 5,6 6,6 7,7 7,7 6,8 6,7 5,8 4,7 4,6 4,5 3)),((3 4,2 4,2 5,2 6,3 6,3 5,4 5,3 4)),((3 7,2 7,2 8,3 8,4 8,5 8,4 7,3 7)))";

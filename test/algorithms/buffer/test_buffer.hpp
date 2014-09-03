@@ -111,8 +111,9 @@ struct svg_visitor
 
         std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
 
+        int index = 0;
         for (typename boost::range_iterator<Turns const>::type it =
-            boost::begin(turns); it != boost::end(turns); ++it)
+            boost::begin(turns); it != boost::end(turns); ++it, index++)
         {
             char color = 'g';
             std::string fill = "fill:rgb(0,255,0);";
@@ -132,17 +133,32 @@ struct svg_visitor
 
             fill += "fill-opacity:0.7;";
             std::ostringstream out;
-            out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
+            out << index
+                << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
                 << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
+
+//              If you want to see travel information
+                << std::endl
+                << " nxt " << it->operations[0].enriched.travels_to_ip_index
+                << "/" << it->operations[1].enriched.travels_to_ip_index
+                << " or " << it->operations[0].enriched.next_ip_index
+                << "/" << it->operations[1].enriched.next_ip_index
+                //<< " frac " << it->operations[0].fraction
+
+//                If you want to see robust-point coordinates (e.g. to find duplicates)
+//                << std::endl
+//                << " " << bg::get<0>(it->robust_point) << " , " << bg::get<1>(it->robust_point)
+
                 << std::endl;
             out << " " << bg::method_char(it->method)
                 << ":" << bg::operation_char(it->operations[0].operation)
                 << "/" << bg::operation_char(it->operations[1].operation);
-            out << " " << (!it->selectable_start ? "w" : "")
-                << (it->count_on_multi > 0 ? "m" : "")
-                << (it->count_on_occupied > 0 ? "o" : "")
+            out << " "
                 << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
+                << (it->count_within_near_offsetted > 0 ? "n" : "")
+                << (it->count_within > 0 ? "w" : "")
                 << (it->count_on_helper > 0 ? "h" : "")
+                << (it->count_on_multi > 0 ? "m" : "")
                 ;
 
             offsets[it->get_robust_point()] += 10;
@@ -208,10 +224,11 @@ struct svg_visitor
                 std::ostringstream out;
                 out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
                 point_type label_point = corner.front();
-                if (corner.size() >= 2)
+                int const mid_offset = piece.offsetted_count / 2 - 1;
+                if (mid_offset >= 0 && mid_offset + 1 < corner.size())
                 {
-                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
-                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
+                    bg::set<0>(label_point, (bg::get<0>(corner[mid_offset]) + bg::get<0>(corner[mid_offset + 1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[mid_offset]) + bg::get<1>(corner[mid_offset + 1])) / 2.0);
                 }
                 m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }

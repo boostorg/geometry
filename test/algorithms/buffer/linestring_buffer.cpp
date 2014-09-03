@@ -64,9 +64,9 @@ void test_all()
     //    test_one<linestring, polygon>("simplex_asym_neg", simplex, join_miter, end_round, 3.202, +1.5, -1.0);
     //    test_one<linestring, polygon>("simplex_asym_pos", simplex, join_miter, end_round, 3.202, -1.0, +1.5);
 
-    // Generates a reverse polygon, with a negative area, which will be made empty TODO decide about this
-    test_one<linestring, polygon>("simplex_asym_neg_rev", simplex, join_miter, end_flat, 0, +1.0, -1.5);
-    test_one<linestring, polygon>("simplex_asym_pos_rev", simplex, join_miter, end_flat, 0, -1.5, +1.0);
+    // Generates (initially) a reversed polygon, with a negative area, which is reversed afterwards in assign_parents
+    test_one<linestring, polygon>("simplex_asym_neg_rev", simplex, join_miter, end_flat, 3.202, +1.0, -1.5);
+    test_one<linestring, polygon>("simplex_asym_pos_rev", simplex, join_miter, end_flat, 3.202, -1.5, +1.0);
 
     test_one<linestring, polygon>("straight", straight, join_round, end_flat, 38.4187, 1.5, 1.5);
     test_one<linestring, polygon>("straight", straight, join_miter, end_flat, 38.4187, 1.5, 1.5);

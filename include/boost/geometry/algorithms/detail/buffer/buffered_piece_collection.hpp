@@ -147,7 +147,6 @@ struct buffered_piece_collection
     int m_first_piece_index;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
-    std::vector< std::vector < robust_point_type > > robust_offsetted_rings;
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
@@ -341,11 +340,16 @@ struct buffered_piece_collection
         {
             if (it->count_within > 0)
             {
+                it->location = inside_buffer;
+            }
+            if (it->count_within_near_offsetted > 0)
+            {
                 // Within can have in rare cases a rounding issue. We don't discard this
                 // point, so it can be used to continue started rings in traversal. But
                 // will never start a new ring from this type of points.
                 it->selectable_start = false;
             }
+
         }
     }
 
@@ -525,7 +529,7 @@ struct buffered_piece_collection
                     buffered_ring_collection<buffered_ring<Ring> >,
                     turn_vector_type,
                     RobustPolicy
-                > visitor(offsetted_rings, m_turns, m_robust_policy, m_pieces.size());
+                > visitor(offsetted_rings, m_turns, m_robust_policy);
 
             geometry::partition
                 <
@@ -827,7 +831,7 @@ struct buffered_piece_collection
             selected[id] = properties(*it, true);
         }
 
-        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, false);
+        detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, true);
         return detail::overlay::add_rings<GeometryOutput>(selected, offsetted_rings, traversed_rings, out);
     }
 
