@@ -22,6 +22,7 @@
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategies/spherical/ssf.hpp>
 
 
 #include <boost/geometry/geometries/point.hpp>
@@ -39,13 +40,15 @@ template <typename Point, typename Polygon, typename Strategy>
 void test_point_in_polygon(std::string const& case_id,
             Point const& point, Polygon const& polygon,
             Strategy const& strategy, std::string const& strategy_id,
-            bool expected)
+            bool expected, bool use_within = true)
 {
     BOOST_CONCEPT_ASSERT( (bg::concept::WithinStrategyPolygonal<Strategy>) );
-    bool detected = bg::within(point, polygon, strategy);
+    bool detected = use_within ?
+                    bg::within(point, polygon, strategy) :
+                    bg::covered_by(point, polygon, strategy);
 
     BOOST_CHECK_MESSAGE(detected == expected,
-            "within: " << case_id
+            (use_within ? "within: " : "covered_by: ") << case_id
             << " strategy: " << strategy_id // typeid(strategy).name() is too long
             << " output expected: " << int(expected)
             << " detected: " << int(detected)
@@ -57,7 +60,7 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
             , std::string const& wkt_polygon
             , bool expected
             , std::string const& deviations = ""
-            )
+            , bool use_within = true)
 {
     Point point;
     Polygon polygon;
@@ -66,11 +69,11 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
 
     namespace sw = bg::strategy::within;
     test_point_in_polygon(case_id, point, polygon, sw::winding<Point>(),
-        "winding", expected);
+        "winding", expected, use_within);
     test_point_in_polygon(case_id, point, polygon, sw::franklin<Point>(),
-        "franklin", boost::contains(deviations, "f") ? !expected : expected);
+        "franklin", boost::contains(deviations, "f") ? !expected : expected, use_within);
     test_point_in_polygon(case_id, point, polygon, sw::crossings_multiply<Point>(),
-        "cross.mult", boost::contains(deviations, "c") ? !expected : expected);
+        "cross.mult", boost::contains(deviations, "c") ? !expected : expected, use_within);
 }
 
 template <typename Point>
@@ -181,10 +184,51 @@ void test_all()
 }
 
 
+void test_spherical()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    typedef bg::model::polygon<point> polygon;
+
+    // Ticket #9354
+    test_geometry<point, polygon>("#9354",
+                                  "POINT(-78.1239 25.9556)",
+                                  "POLYGON((-97.08466667 25.95683333, -97.13683333 25.954, -97.1 26, -97.08466667 25.95683333))",
+                                  false);
+
+    test_geometry<point, polygon>("sph1N",
+                                  "POINT(0 10.001)",
+                                  "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+                                  bg::strategy::side::spherical_side_formula<>::apply(
+                                          point(-10, 10),
+                                          point(10, 10),
+                                          point(0, 10.001)) == -1 // right side
+                                  /*true*/);
+    test_geometry<point, polygon>("sph1S",
+                                  "POINT(0 -10.001)",
+                                  "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+                                  bg::strategy::side::spherical_side_formula<>::apply(
+                                          point(10, -10),
+                                          point(-10, -10),
+                                          point(0, -10.001)) == -1 // right side
+                                  /*true*/);
+
+    test_geometry<point, polygon>("sph2S",
+                                  "POINT(0 10.001)",
+                                  "POLYGON((-10 20, 10 20, 10 10, -10 10, -10 20))",
+                                  bg::strategy::side::spherical_side_formula<>::apply(
+                                          point(10, 10),
+                                          point(-10, 10),
+                                          point(0, 10.001)) == -1 // right side
+                                  /*false*/);
+
+}
+
 int test_main(int, char* [])
 {
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+
+    test_spherical();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
