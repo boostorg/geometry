@@ -76,9 +76,8 @@ private :
         RobustPolicy
     >::type robust_point_type;
 
-    // TODO: this function is shared with enrich_intersection_points
-    // Still called by #case_102_multi, #case_107_multi
-    // #case_recursive_boxes_3
+    // Still necessary in some situations,
+    // for example #case_102_multi, #case_107_multi, #case_recursive_boxes_3
     inline void get_situation_map(Indexed const& left, Indexed const& right,
                               robust_point_type& pi_rob, robust_point_type& pj_rob,
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
