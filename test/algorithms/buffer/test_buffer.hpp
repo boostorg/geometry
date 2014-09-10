@@ -14,6 +14,10 @@
 #include <fstream>
 #include <iomanip>
 
+#if defined(TEST_WITH_SVG)
+#define BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS
+#endif
+
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
 
@@ -198,8 +202,8 @@ struct svg_visitor
             std::copy(boost::begin(ring) + seg_id.segment_index,
                     boost::begin(ring) + piece.last_segment_index,
                     std::back_inserter(corner));
-            std::copy(boost::begin(piece.helper_segments),
-                    boost::end(piece.helper_segments),
+            std::copy(boost::begin(piece.helper_points),
+                    boost::end(piece.helper_points),
                     std::back_inserter(corner));
 
             if (corner.empty())

@@ -123,21 +123,27 @@ struct buffered_piece_collection
         int left_index; // points to previous piece
         int right_index; // points to next piece
 
-        // The next two members form together a complete clockwise ring
+        // The next two members (1, 2) form together a complete clockwise ring
         // for each piece (with one dupped point)
+        // The complete clockwise ring is also included as a robust ring (3)
 
         // 1: half, part of offsetted_rings
         segment_identifier first_seg_id;
         int last_segment_index; // no segment-identifier - it is the same as first_seg_id
         int offsetted_count;
 
-        // 2: half, not part (future: might be indexed in one vector too)
-        std::vector<point_type> helper_segments; // 3 points for segment, 2 points for join - 0 points for flat-end
+#if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
+        // 2: half, not part of offsetted rings - part of robust ring
+        std::vector<point_type> helper_points; // 4 points for segment, 3 points for join - 0 points for flat-end
+#endif
 
         // Robust representations
-        std::vector<robust_turn> robust_turns; // Used only in rescale_pieces - we might use a map instead
+        // 3: complete ring
         geometry::model::ring<robust_point_type> robust_ring;
+
         geometry::model::box<robust_point_type> robust_envelope;
+
+        std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
     };
 
     typedef std::vector<piece> piece_vector_type;
@@ -398,53 +404,6 @@ struct buffered_piece_collection
         return true;
     }
 
-    inline void rescale_piece_rings()
-    {
-        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
-            it != boost::end(m_pieces);
-            ++it)
-        {
-            piece& pc = *it;
-
-            pc.offsetted_count = pc.last_segment_index - pc.first_seg_id.segment_index;
-            BOOST_ASSERT(pc.offsetted_count >= 0);
-
-            pc.robust_ring.reserve(pc.offsetted_count + pc.helper_segments.size());
-
-            // Add rescaled offsetted segments
-            {
-                buffered_ring<Ring> const& ring = offsetted_rings[pc.first_seg_id.multi_index];
-
-                typedef typename boost::range_iterator<const buffered_ring<Ring> >::type it_type;
-                for (it_type it = boost::begin(ring) + pc.first_seg_id.segment_index;
-                    it != boost::begin(ring) + pc.last_segment_index;
-                    ++it)
-                {
-                    robust_point_type point;
-                    geometry::recalculate(point, *it, m_robust_policy);
-                    pc.robust_ring.push_back(point);
-                }
-            }
-
-            // Add rescaled helper-segments
-            {
-                typedef typename std::vector<point_type>::const_iterator it_type;
-                for (it_type it = boost::begin(pc.helper_segments);
-                    it != boost::end(pc.helper_segments);
-                    ++it)
-                {
-                    robust_point_type point;
-                    geometry::recalculate(point, *it, m_robust_policy);
-                    pc.robust_ring.push_back(point);
-                }
-            }
-
-            // Calculate the envelope
-            geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
-                    pc.robust_envelope);
-        }
-    }
-
     inline void insert_rescaled_piece_turns()
     {
         // Add rescaled turn points to corresponding pieces
@@ -520,8 +479,6 @@ struct buffered_piece_collection
     template <typename Geometry, typename DistanceStrategy>
     inline void get_turns(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
     {
-        rescale_piece_rings();
-
         {
             // Calculate the turns
             piece_turn_visitor
@@ -604,7 +561,7 @@ struct buffered_piece_collection
 
     //-------------------------------------------------------------------------
 
-    inline piece& add_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
+    inline piece& create_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
     {
         piece pc;
         pc.type = type;
@@ -622,15 +579,85 @@ struct buffered_piece_collection
         return m_pieces.back();
     }
 
+    inline void init_rescale_piece(piece& pc, std::size_t helper_points_size)
+    {
+        pc.offsetted_count = pc.last_segment_index - pc.first_seg_id.segment_index;
+        BOOST_ASSERT(pc.offsetted_count >= 0);
+
+        pc.robust_ring.reserve(pc.offsetted_count + helper_points_size);
+
+        // Add rescaled offsetted segments
+        {
+            buffered_ring<Ring> const& ring = offsetted_rings[pc.first_seg_id.multi_index];
+
+            typedef typename boost::range_iterator<const buffered_ring<Ring> >::type it_type;
+            for (it_type it = boost::begin(ring) + pc.first_seg_id.segment_index;
+                it != boost::begin(ring) + pc.last_segment_index;
+                ++it)
+            {
+                robust_point_type point;
+                geometry::recalculate(point, *it, m_robust_policy);
+                pc.robust_ring.push_back(point);
+            }
+        }
+    }
+
+    inline void add_helper_point(piece& pc, const point_type& point)
+    {
+#if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
+        pc.helper_points.push_back(point);
+#endif
+
+        robust_point_type rob_point;
+        geometry::recalculate(rob_point, point, m_robust_policy);
+        pc.robust_ring.push_back(rob_point);
+    }
+
+    inline void calculate_robust_envelope(piece& pc)
+    {
+        geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
+                pc.robust_envelope);
+    }
+
+    inline void finish_piece(piece& pc)
+    {
+        init_rescale_piece(pc, 0u);
+        calculate_robust_envelope(pc);
+    }
+
+    inline void finish_piece(piece& pc,
+                    const point_type& point1,
+                    const point_type& point2,
+                    const point_type& point3)
+    {
+        init_rescale_piece(pc, 3u);
+        add_helper_point(pc, point1);
+        add_helper_point(pc, point2);
+        add_helper_point(pc, point3);
+        calculate_robust_envelope(pc);
+    }
+
+    inline void finish_piece(piece& pc,
+                    const point_type& point1,
+                    const point_type& point2,
+                    const point_type& point3,
+                    const point_type& point4)
+    {
+        init_rescale_piece(pc, 4u);
+        add_helper_point(pc, point1);
+        add_helper_point(pc, point2);
+        add_helper_point(pc, point3);
+        add_helper_point(pc, point4);
+        calculate_robust_envelope(pc);
+    }
+
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
             point_type const& b1, point_type const& b2)
     {
-        piece& pc = add_piece(type, false);
+        piece& pc = create_piece(type, false);
         add_point(b1);
         pc.last_segment_index = add_point(b2);
-        pc.helper_segments.push_back(b2);
-        pc.helper_segments.push_back(p);
-        pc.helper_segments.push_back(b1);
+        finish_piece(pc, b2, p, b1);
     }
 
     template <typename Range>
@@ -661,8 +688,9 @@ struct buffered_piece_collection
     template <typename Range>
     inline void add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
-        piece& pc = add_piece(type, decrease_segment_index_by_one);
+        piece& pc = create_piece(type, decrease_segment_index_by_one);
         add_range_to_piece(pc, range, offsetted_rings.back().empty());
+        finish_piece(pc);
     }
 
     template <typename Range>
@@ -671,26 +699,24 @@ struct buffered_piece_collection
     {
         BOOST_ASSERT(boost::size(range) >= 2u);
 
-        piece& pc = add_piece(strategy::buffer::buffered_segment, ! first);
+        piece& pc = create_piece(strategy::buffer::buffered_segment, ! first);
         add_range_to_piece(pc, range, first);
-
-        pc.helper_segments.push_back(range.back());
-        pc.helper_segments.push_back(p2);
-        pc.helper_segments.push_back(p1);
-        pc.helper_segments.push_back(range.front());
+        finish_piece(pc, range.back(), p2, p1, range.front());
     }
 
     template <typename Range>
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p, Range const& range)
     {
-        piece& pc = add_piece(type, true);
+        piece& pc = create_piece(type, true);
 
+        add_range_to_piece(pc, range, offsetted_rings.back().empty());
         if (boost::size(range) > 0)
         {
-            add_range_to_piece(pc, range, offsetted_rings.back().empty());
-            pc.helper_segments.push_back(range.back());
-            pc.helper_segments.push_back(p);
-            pc.helper_segments.push_back(range.front());
+            finish_piece(pc, range.back(), p, range.front());
+        }
+        else
+        {
+            finish_piece(pc);
         }
     }
 
