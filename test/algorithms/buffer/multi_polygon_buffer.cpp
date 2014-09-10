@@ -214,7 +214,7 @@ static std::string const rt_s2
 static std::string const rt_t
     = "MULTIPOLYGON(((1 3,1 4,2 3,1 3)),((1 4,0 3,0 4,0 5,1 4)))";
 
-// Creates traversed ring
+// Created traversed ring
 static std::string const rt_u1
     = "MULTIPOLYGON(((7 6,8 7,8 6,7 6)),((8 9,9 10,9 9,8 9)),((2 8,3 9,3 8,2 8)),((6 5,6 6,7 6,6 5)),((6 7,7 7,6 6,5 6,6 7)),((7 7,7 8,8 7,7 7)),((6 7,6 8,7 8,6 7)),((8 7,8 8,9 8,9 7,8 7)))";
 
