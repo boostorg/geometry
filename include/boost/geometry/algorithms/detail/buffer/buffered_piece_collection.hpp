@@ -622,27 +622,6 @@ struct buffered_piece_collection
         return m_pieces.back();
     }
 
-    template <typename Range>
-    inline void add_piece(strategy::buffer::piece_type type, point_type const& p1, point_type const& p2,
-            Range const& range, bool first)
-    {
-        piece& pc = add_piece(type, ! first);
-
-        // If it follows a non-join (so basically the same piece-type) point b1 should be added.
-        // There should be two intersections later and it should be discarded.
-        // But for now we need it to calculate intersections
-        if (first)
-        {
-            add_point(range.front());
-        }
-        pc.last_segment_index = add_point(range.back());
-
-        pc.helper_segments.push_back(range.back());
-        pc.helper_segments.push_back(p2);
-        pc.helper_segments.push_back(p1);
-        pc.helper_segments.push_back(range.front());
-    }
-
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
             point_type const& b1, point_type const& b2)
     {
@@ -654,44 +633,61 @@ struct buffered_piece_collection
         pc.helper_segments.push_back(b1);
     }
 
-
     template <typename Range>
-    inline piece& add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
+    inline void add_range_to_piece(piece& pc, Range const& range, bool add_front)
     {
-        piece& pc = add_piece(type, decrease_segment_index_by_one);
-
-        bool first = true;
-        int last = offsetted_rings.back().size() + 1;
-        for (typename Range::const_iterator it = boost::begin(range);
-            it != boost::end(range);
-            ++it)
+        if (boost::size(range) == 0u)
         {
-            bool add = true;
-            if (first)
-            {
-                // Only for very first one, add first. In all other cases it is shared with previous.
-                add = offsetted_rings.back().empty();
-                first = false;
-            }
-            if (add)
-            {
-                last = add_point(*it);
-            }
-
+            return;
         }
 
-        pc.last_segment_index = last;
+        typename Range::const_iterator it = boost::begin(range);
 
-        return pc;
+        // If it follows a non-join (so basically the same piece-type) point b1 should be added.
+        // There should be two intersections later and it should be discarded.
+        // But for now we need it to calculate intersections
+        if (add_front)
+        {
+            add_point(*it);
+        }
+
+        for (++it; it != boost::end(range); ++it)
+        {
+            pc.last_segment_index = add_point(*it);
+        }
+    }
+
+
+    template <typename Range>
+    inline void add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
+    {
+        piece& pc = add_piece(type, decrease_segment_index_by_one);
+        add_range_to_piece(pc, range, offsetted_rings.back().empty());
+    }
+
+    template <typename Range>
+    inline void add_side_piece(point_type const& p1, point_type const& p2,
+            Range const& range, bool first)
+    {
+        BOOST_ASSERT(boost::size(range) >= 2u);
+
+        piece& pc = add_piece(strategy::buffer::buffered_segment, ! first);
+        add_range_to_piece(pc, range, first);
+
+        pc.helper_segments.push_back(range.back());
+        pc.helper_segments.push_back(p2);
+        pc.helper_segments.push_back(p1);
+        pc.helper_segments.push_back(range.front());
     }
 
     template <typename Range>
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p, Range const& range)
     {
-        piece& pc = add_piece(type, range, true);
+        piece& pc = add_piece(type, true);
 
         if (boost::size(range) > 0)
         {
+            add_range_to_piece(pc, range, offsetted_rings.back().empty());
             pc.helper_segments.push_back(range.back());
             pc.helper_segments.push_back(p);
             pc.helper_segments.push_back(range.front());

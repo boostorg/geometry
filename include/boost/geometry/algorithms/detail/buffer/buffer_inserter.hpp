@@ -278,8 +278,7 @@ struct buffer_range
                             robust_policy);
                 }
 
-                collection.add_piece(strategy::buffer::buffered_segment,
-                    *prev, *it, generated_side, first);
+                collection.add_side_piece(*prev, *it, generated_side, first);
 
                 penultimate_point = *prev;
                 ultimate_point = *it;
