@@ -61,6 +61,49 @@ enum segment_relation_code
     segment_relation_disjoint
 };
 
+/*
+ *  Terminology
+ *
+ *  Suppose we make a buffer (using blocked corners) of this rectangle:
+ *
+ *         +-------+
+ *         |       |
+ *         |  rect |
+ *         |       |
+ *         +-------+
+ *
+ * For the sides we get these four buffered side-pieces (marked with s)
+ * and four buffered corner pieces (marked with c)
+ *
+ *     c---+---s---+---c
+ *     |   | piece |   |     <- see below for details of the middle top-side-piece
+ *     +---+-------+---+
+ *     |   |       |   |
+ *     s   |  rect |   s     <- two side pieces left/right of rect
+ *     |   |       |   |
+ *     +---+-------+---+
+ *     |   | piece |   |     <- one side-piece below, and two corner pieces
+ *     c---+---s---+---c
+ *
+ *  The outer part of the picture above, using all pieces,
+ *    form together the offsetted ring (marked with o below)
+ *  The 8 pieces are part of the piece collection and use for inside-checks
+ *  The inner parts form (using 1 or 2 points per piece, often co-located)
+ *    form together the robust_ring (marked with r below)
+ *  The remaining piece-segments are helper-segments (marked with h)
+ *
+ *     ooooooooooooooooo
+ *     o   h       h   o
+ *     ohhhrrrrrrrrrhhho
+ *     o   r       r   o
+ *     o   r       r   o
+ *     o   r       r   o
+ *     ohhhrrrrrrrrrhhho
+ *     o   h       h   o
+ *     ooooooooooooooooo
+ *
+ */
+
 
 template <typename Ring, typename RobustPolicy>
 struct buffered_piece_collection
@@ -122,8 +165,8 @@ struct buffered_piece_collection
         strategy::buffer::piece_type type;
         int index;
 
-        int left_index; // points to previous piece
-        int right_index; // points to next piece
+        int left_index; // points to previous piece of same ring
+        int right_index; // points to next piece of same ring
 
         // The next two members (1, 2) form together a complete clockwise ring
         // for each piece (with one dupped point)
