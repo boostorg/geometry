@@ -37,7 +37,6 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/counting.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -67,8 +66,6 @@ struct range_count
         if (AddForOpen
             && n > 0
             && geometry::closure<Range>::value == open
-            && detail::disjoint::disjoint_point_point(range::front(range),
-                                                      range::at(range, n - 1))
             )
         {
             return n + 1;
