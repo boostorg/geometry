@@ -639,7 +639,8 @@ private:
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
             PointStrategy const& point_strategy,
-            RobustPolicy const& robust_policy)
+            RobustPolicy const& robust_policy,
+            bool is_interior)
     {
         for (Iterator it = begin; it != end; ++it)
         {
@@ -647,7 +648,7 @@ private:
             policy::apply(*it, collection, distance, side_strategy,
                     join_strategy, end_strategy, point_strategy,
                     robust_policy);
-            collection.finish_ring();
+            collection.finish_ring(is_interior);
         }
     }
 
@@ -675,7 +676,7 @@ private:
         iterate(boost::begin(interior_rings), boost::end(interior_rings),
             collection, distance, side_strategy,
             join_strategy, end_strategy, point_strategy,
-            robust_policy);
+            robust_policy, true);
     }
 
 public:
@@ -776,6 +777,12 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection_type collection(robust_policy);
     collection_type const& const_collection = collection;
 
+    bool const areal = boost::is_same
+        <
+            typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
+            areal_tag
+        >::type::value;
+
     dispatch::buffer_inserter
         <
             typename tag_cast
@@ -790,7 +797,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             end_strategy, point_strategy,
             robust_policy);
 
-    collection.get_turns(geometry_input, distance_strategy);
+    collection.get_turns();
+    if (areal)
+    {
+        collection.check_remaining_points(distance_strategy.factor());
+    }
 
     // Visit the piece collection. This does nothing (by default), but
     // optionally a debugging tool can be attached (e.g. console or svg),
@@ -803,12 +814,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection.enrich();
     collection.traverse();
 
-    if (distance_strategy.negative()
-        && boost::is_same
-            <
-                typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
-                areal_tag
-            >::type::value)
+    if (distance_strategy.negative() && areal)
     {
         collection.reverse();
     }

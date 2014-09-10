@@ -242,6 +242,9 @@ static std::string const rt_u7
 static std::string const rt_u8
     = "MULTIPOLYGON(((4 3,4 4,5 4,5 3,4 3)),((6 3,6 4,7 4,7 3,6 3)),((9 0,9 1,10 0,9 0)),((9 3,9 4,10 4,10 3,9 3)),((8 2,9 2,9 1,8 1,8 2)),((8 4,8 5,9 4,8 4)),((9 1,10 2,10 1,9 1)),((6 7,7 8,7 7,6 7)),((4 6,4 7,5 7,4 6)),((8 8,8 9,9 9,8 8)),((3 2,3 3,4 3,4 2,3 2)),((7 1,8 1,8 0,7 0,6 0,6 1,7 1)))";
 
+static std::string const rt_u9
+    = "MULTIPOLYGON(((2 3,2 4,3 4,2 3)),((9 8,9 9,10 9,10 8,9 8)),((6 3,6 4,7 4,6 3)),((5 8,5 9,6 9,5 8)),((9 5,9 6,10 6,9 5)),((4 4,4 5,5 5,5 4,4 4)),((7 7,7 8,8 8,7 7)),((8 6,8 7,9 6,8 6)),((6 7,7 7,6 6,5 6,5 7,6 7)))";
+
 template <typename P>
 void test_all()
 {
@@ -364,6 +367,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, 35.0483, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
 }
 
 int test_main(int, char* [])

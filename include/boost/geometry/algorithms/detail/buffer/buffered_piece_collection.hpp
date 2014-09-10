@@ -24,12 +24,12 @@
 #include <boost/geometry/strategies/buffer.hpp>
 
 #include <boost/geometry/geometries/ring.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
-#include <boost/geometry/algorithms/detail/buffer/turn_in_input.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -74,6 +74,8 @@ struct buffered_piece_collection
         point_type,
         RobustPolicy
     >::type robust_point_type;
+    typedef geometry::model::ring<robust_point_type> robust_ring_type;
+    typedef geometry::model::polygon<robust_point_type> robust_polygon_type;
 
     typedef typename strategy::side::services::default_strategy
         <
@@ -139,7 +141,7 @@ struct buffered_piece_collection
 
         // Robust representations
         // 3: complete ring
-        geometry::model::ring<robust_point_type> robust_ring;
+        robust_ring_type robust_ring;
 
         geometry::model::box<robust_point_type> robust_envelope;
 
@@ -153,6 +155,8 @@ struct buffered_piece_collection
     int m_first_piece_index;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
+    buffered_ring_collection<robust_polygon_type> robust_polygons; // robust representation of the original(s)
+    robust_ring_type current_robust_ring;
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
@@ -359,22 +363,24 @@ struct buffered_piece_collection
         }
     }
 
-    template <typename Geometry, typename DistanceStrategy>
-    inline void check_remaining_points(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
+    inline void check_remaining_points(int factor)
     {
-        int const factor = distance_strategy.factor();
-
-        // This might use partition too (for multi-polygons)
+        // TODO: use partition
 
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
             if (it->location == location_ok)
             {
-                int code = turn_in_input
-                        <
-                            typename geometry::tag<Geometry>::type
-                        >::apply(it->point, input_geometry);
+                int code = -1;
+                for (std::size_t i = 0; i < robust_polygons.size(); i++)
+                {
+                    if (geometry::covered_by(it->robust_point, robust_polygons[i]))
+                    {
+                        code = 1;
+                        break;
+                    }
+                }
                 if (code * factor == 1)
                 {
                     it->location = inside_original;
@@ -476,8 +482,7 @@ struct buffered_piece_collection
         BOOST_ASSERT(assert_indices_in_robust_rings());
     }
 
-    template <typename Geometry, typename DistanceStrategy>
-    inline void get_turns(Geometry const& input_geometry, DistanceStrategy const& distance_strategy)
+    inline void get_turns()
     {
         {
             // Calculate the turns
@@ -512,12 +517,7 @@ struct buffered_piece_collection
 
         }
 
-
-        //get_occupation();
-
         classify_turns();
-
-        check_remaining_points(input_geometry, distance_strategy);
     }
 
     inline void start_new_ring()
@@ -529,11 +529,12 @@ struct buffered_piece_collection
         current_segment_id.segment_index = 0;
 
         offsetted_rings.resize(n + 1);
+        current_robust_ring.clear();
 
         m_first_piece_index = boost::size(m_pieces);
     }
 
-    inline void finish_ring()
+    inline void finish_ring(bool is_interior = false)
     {
         BOOST_ASSERT(m_first_piece_index != -1);
         if (m_first_piece_index < static_cast<int>(boost::size(m_pieces)))
@@ -545,6 +546,24 @@ struct buffered_piece_collection
             geometry::range::back(m_pieces).right_index = m_first_piece_index;
         }
         m_first_piece_index = -1;
+
+        if (!current_robust_ring.empty())
+        {
+            BOOST_ASSERT(geometry::equals(current_robust_ring.front(), current_robust_ring.back()));
+
+            if (is_interior)
+            {
+                if (!robust_polygons.empty())
+                {
+                    robust_polygons.back().inners().push_back(current_robust_ring);
+                }
+            }
+            else
+            {
+                robust_polygons.resize(robust_polygons.size() + 1);
+                robust_polygons.back().outer() = current_robust_ring;
+            }
+        }
     }
 
     inline int add_point(point_type const& p)
@@ -602,7 +621,7 @@ struct buffered_piece_collection
         }
     }
 
-    inline void add_helper_point(piece& pc, const point_type& point)
+    inline robust_point_type add_helper_point(piece& pc, const point_type& point)
     {
 #if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
         pc.helper_points.push_back(point);
@@ -611,6 +630,7 @@ struct buffered_piece_collection
         robust_point_type rob_point;
         geometry::recalculate(rob_point, point, m_robust_policy);
         pc.robust_ring.push_back(rob_point);
+        return rob_point;
     }
 
     inline void calculate_robust_envelope(piece& pc)
@@ -632,9 +652,11 @@ struct buffered_piece_collection
     {
         init_rescale_piece(pc, 3u);
         add_helper_point(pc, point1);
-        add_helper_point(pc, point2);
+        robust_point_type mid_point = add_helper_point(pc, point2);
         add_helper_point(pc, point3);
         calculate_robust_envelope(pc);
+
+        current_robust_ring.push_back(mid_point);
     }
 
     inline void finish_piece(piece& pc,
@@ -645,10 +667,14 @@ struct buffered_piece_collection
     {
         init_rescale_piece(pc, 4u);
         add_helper_point(pc, point1);
-        add_helper_point(pc, point2);
-        add_helper_point(pc, point3);
+        robust_point_type mid_point2 = add_helper_point(pc, point2);
+        robust_point_type mid_point1 = add_helper_point(pc, point3);
         add_helper_point(pc, point4);
         calculate_robust_envelope(pc);
+
+        // Add mid-points in other order to current helper_ring
+        current_robust_ring.push_back(mid_point1);
+        current_robust_ring.push_back(mid_point2);
     }
 
     inline void add_piece(strategy::buffer::piece_type type, point_type const& p,
