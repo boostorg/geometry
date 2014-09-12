@@ -76,6 +76,22 @@ void test_geometry(std::string const& case_id, std::string const& wkt_point
         "cross.mult", boost::contains(deviations, "c") ? !expected : expected, use_within);
 }
 
+template <typename Point, typename Polygon>
+void test_geometry_default(std::string const& case_id, std::string const& wkt_point
+            , std::string const& wkt_polygon
+            , bool expected
+            , bool use_within = true)
+{
+    Point point;
+    Polygon polygon;
+    bg::read_wkt(wkt_point, point);
+    bg::read_wkt(wkt_polygon, polygon);
+
+    namespace sw = bg::strategy::within;
+    test_point_in_polygon(case_id, point, polygon, sw::winding<Point>(),
+        "winding", expected, use_within);
+}
+
 template <typename Point>
 void test_box_of(std::string const& wkt_point, std::string const& wkt_box,
               bool expected_within, bool expected_covered_by)
@@ -186,41 +202,113 @@ void test_all()
 
 void test_spherical()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > point;
     typedef bg::model::polygon<point> polygon;
 
     // Ticket #9354
-    test_geometry<point, polygon>("#9354",
-                                  "POINT(-78.1239 25.9556)",
-                                  "POLYGON((-97.08466667 25.95683333, -97.13683333 25.954, -97.1 26, -97.08466667 25.95683333))",
-                                  false);
+    test_geometry_default<point, polygon>(
+        "#9354",
+        "POINT(-78.1239 25.9556)",
+        "POLYGON((-97.08466667 25.95683333, -97.13683333 25.954, -97.1 26, -97.08466667 25.95683333))",
+        false);
 
-    test_geometry<point, polygon>("sph1N",
-                                  "POINT(0 10.001)",
-                                  "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
-                                  bg::strategy::side::spherical_side_formula<>::apply(
-                                          point(-10, 10),
-                                          point(10, 10),
-                                          point(0, 10.001)) == -1 // right side
-                                  /*true*/);
-    test_geometry<point, polygon>("sph1S",
-                                  "POINT(0 -10.001)",
-                                  "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
-                                  bg::strategy::side::spherical_side_formula<>::apply(
-                                          point(10, -10),
-                                          point(-10, -10),
-                                          point(0, -10.001)) == -1 // right side
-                                  /*true*/);
+    test_geometry_default<point, polygon>(
+        "sph1N",
+        "POINT(0 10.001)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+            point(-10, 10),
+            point(10, 10),
+            point(0, 10.001)) == -1 // right side
+        /*true*/);
+    test_geometry_default<point, polygon>(
+        "sph1S",
+        "POINT(0 -10.001)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+              point(10, -10),
+              point(-10, -10),
+              point(0, -10.001)) == -1 // right side
+      /*true*/);
 
-    test_geometry<point, polygon>("sph2S",
-                                  "POINT(0 10.001)",
-                                  "POLYGON((-10 20, 10 20, 10 10, -10 10, -10 20))",
-                                  bg::strategy::side::spherical_side_formula<>::apply(
-                                          point(10, 10),
-                                          point(-10, 10),
-                                          point(0, 10.001)) == -1 // right side
-                                  /*false*/);
+    test_geometry_default<point, polygon>(
+        "sph2S",
+        "POINT(0 10.001)",
+        "POLYGON((-10 20, 10 20, 10 10, -10 10, -10 20))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+              point(10, 10),
+              point(-10, 10),
+              point(0, 10.001)) == -1 // right side
+        /*false*/);
 
+    test_geometry_default<point, polygon>(
+        "sph3N",
+        "POINT(0 10)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+            point(-10, 10),
+            point(10, 10),
+            point(0, 10.001)) == -1 // right side
+        /*true*/);
+    test_geometry_default<point, polygon>(
+        "sph3S",
+        "POINT(0 -10)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+              point(10, -10),
+              point(-10, -10),
+              point(0, -10.001)) == -1 // right side
+      /*true*/);
+
+    test_geometry_default<point, polygon>(
+        "sphEq1",
+        "POINT(179 10)",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq2",
+        "POINT(179 10)",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq3",
+        "POINT(-179 10)",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq4",
+        "POINT(-179 10)",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
+        true,
+        false);
+
+    test_geometry_default<point, polygon>(
+        "sphEq5",
+        "POINT(169 10)",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq6",
+        "POINT(-169 10)",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq7",
+        "POINT(169 10)",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq8",
+        "POINT(-169 10)",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
+        false,
+        false);
 }
 
 int test_main(int, char* [])
