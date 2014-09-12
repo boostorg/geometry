@@ -26,5 +26,5 @@ test-suite boost-geometry-strategies
     [ run segment_intersection_collinear.cpp ]
     [ run transform_cs.cpp ]
     [ run transformer.cpp ]
-    [ run within.cpp ]
+    [ run winding_franklin_crossmult.cpp ]
     ;

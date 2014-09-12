@@ -263,50 +263,50 @@ void test_spherical()
     test_geometry_default<point, polygon>(
         "sphEq1",
         "POINT(179 10)",
-        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
         true,
         false);
     test_geometry_default<point, polygon>(
         "sphEq2",
         "POINT(179 10)",
-        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         true,
         false);
     test_geometry_default<point, polygon>(
         "sphEq3",
         "POINT(-179 10)",
-        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
         true,
         false);
     test_geometry_default<point, polygon>(
         "sphEq4",
         "POINT(-179 10)",
-        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         true,
         false);
 
     test_geometry_default<point, polygon>(
         "sphEq5",
         "POINT(169 10)",
-        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         false,
         false);
     test_geometry_default<point, polygon>(
         "sphEq6",
         "POINT(-169 10)",
-        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         false,
         false);
     test_geometry_default<point, polygon>(
         "sphEq7",
         "POINT(169 10)",
-        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
         false,
         false);
     test_geometry_default<point, polygon>(
         "sphEq8",
         "POINT(-169 10)",
-        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        "POLYGON((170 10, -170 10, -170 0, 170 0, 170 10))",
         false,
         false);
 }
