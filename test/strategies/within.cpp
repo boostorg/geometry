@@ -202,7 +202,7 @@ void test_all()
 
 void test_spherical()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > point;
     typedef bg::model::polygon<point> polygon;
 
     // Ticket #9354
@@ -241,6 +241,74 @@ void test_spherical()
               point(0, 10.001)) == -1 // right side
         /*false*/);
 
+    test_geometry_default<point, polygon>(
+        "sph3N",
+        "POINT(0 10)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+            point(-10, 10),
+            point(10, 10),
+            point(0, 10.001)) == -1 // right side
+        /*true*/);
+    test_geometry_default<point, polygon>(
+        "sph3S",
+        "POINT(0 -10)",
+        "POLYGON((-10 10, 10 10, 10 -10, -10 -10, -10 10))",
+        bg::strategy::side::spherical_side_formula<>::apply(
+              point(10, -10),
+              point(-10, -10),
+              point(0, -10.001)) == -1 // right side
+      /*true*/);
+
+    test_geometry_default<point, polygon>(
+        "sphEq1",
+        "POINT(179 10)",
+        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq2",
+        "POINT(179 10)",
+        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq3",
+        "POINT(-179 10)",
+        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        true,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq4",
+        "POINT(-179 10)",
+        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        true,
+        false);
+
+    test_geometry_default<point, polygon>(
+        "sphEq5",
+        "POINT(169 10)",
+        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq6",
+        "POINT(-169 10)",
+        "POLYGON((170 10, -170 10, -170 20, 170 20, 170 10))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq7",
+        "POINT(169 10)",
+        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        false,
+        false);
+    test_geometry_default<point, polygon>(
+        "sphEq8",
+        "POINT(-169 10)",
+        "POLYGON((170 0, -170 0, -170 10, 170 10, 170 0))",
+        false,
+        false);
 }
 
 int test_main(int, char* [])
