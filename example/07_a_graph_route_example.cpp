@@ -110,8 +110,8 @@ template <typename Linestring>
 struct bg_edge_property
 {
     bg_edge_property(Linestring const& line)
-        : m_line(line)
-        , m_length(boost::geometry::length(line, haversine))
+        : m_length(boost::geometry::length(line, haversine))
+        , m_line(line)
     {
     }
 
