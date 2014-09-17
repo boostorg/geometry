@@ -17,6 +17,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
 #include <boost/geometry/geometries/linestring.hpp>
@@ -95,18 +96,24 @@ class turn_in_piece_visitor
             <
                 typename cs_tag<Point>::type
             >::type side_strategy;
+        geometry::equal_to<Point> comparator;
 
         for (int i = 1; i < piece.offsetted_count; i++)
         {
             Point const& previous = piece.robust_ring[i - 1];
             Point const& current = piece.robust_ring[i];
-            int const side = side_strategy::apply(point, previous, current);
-            if (side == 0)
+
+            // The robust ring contains duplicates, avoid applying side on them (will be 0)
+            if (! comparator(previous, current))
             {
-                // Collinear, check if projection falls on it
-                if (projection_on_segment(point, previous, current))
+                int const side = side_strategy::apply(previous, current, point);
+                if (side == 0)
                 {
-                    return true;
+                    // Collinear, check if projection falls on it
+                    if (projection_on_segment(point, previous, current))
+                    {
+                        return true;
+                    }
                 }
             }
         }
