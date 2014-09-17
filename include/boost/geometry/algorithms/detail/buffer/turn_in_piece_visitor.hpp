@@ -207,7 +207,7 @@ public:
             {
                 // It is on the border but not on the offsetted ring.
                 // Then it is somewhere on the helper-segments
-                // Classify it as inside
+                // Classify it as "within"
                 geometry_code = 1;
                 mutable_turn.count_on_helper++; // can still become "near_offsetted"
             }

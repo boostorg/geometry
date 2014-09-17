@@ -168,7 +168,7 @@ struct svg_visitor
             offsets[it->get_robust_point()] += 10;
             int offset = offsets[it->get_robust_point()];
 
-            m_mapper.map(it->point, fill, 6);
+            m_mapper.map(it->point, fill, 4);
             m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
             offsets[it->get_robust_point()] += 25;
@@ -500,8 +500,20 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 
 #if defined(TEST_WITH_SVG)
+    bool const areal = boost::is_same
+        <
+            typename bg::tag_cast<tag, bg::areal_tag>::type, bg::areal_tag
+        >::type::value;
+
     // Map input geometry in green
-    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
+    if (areal)
+    {
+        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:2");
+    }
+    else
+    {
+        mapper.map(geometry, "opacity:0.5;stroke:rgb(0,128,0);stroke-width:10");
+    }
 
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {

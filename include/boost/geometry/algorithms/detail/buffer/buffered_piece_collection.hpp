@@ -175,7 +175,7 @@ struct buffered_piece_collection
         // 1: half, part of offsetted_rings
         segment_identifier first_seg_id;
         int last_segment_index; // no segment-identifier - it is the same as first_seg_id
-        int offsetted_count;
+        int offsetted_count; // part in robust_ring which is part of offsetted ring
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
         // 2: half, not part of offsetted rings - part of robust ring
