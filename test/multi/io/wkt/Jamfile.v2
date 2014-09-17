@@ -10,6 +10,6 @@
 
 test-suite boost-geometry-multi-io-wkt
     :
-    [ run wkt.cpp ]
+    [ run multi_wkt.cpp ]
     ;
 

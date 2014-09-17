@@ -167,7 +167,7 @@ struct winding_side_between
 template <>
 struct winding_side_between<cartesian_tag>
 {
-    typedef typename strategy::side::services::default_strategy
+    typedef strategy::side::services::default_strategy
         <
             cartesian_tag
         >::type strategy_side_type;

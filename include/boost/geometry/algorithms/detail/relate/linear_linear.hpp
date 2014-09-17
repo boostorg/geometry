@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
@@ -561,6 +563,7 @@ struct linear_linear
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& /*other_boundary_checker*/)
         {
+            boost::ignore_unused(first, last);
             //BOOST_ASSERT( first != last );
 
             // here, the possible exit is the real one
