@@ -89,7 +89,7 @@ inline void assert_dimension()
     BOOST_STATIC_ASSERT((
         boost::mpl::equal_to
         <
-            geometry::dimension<Geometry>,
+            boost::mpl::int_<geometry::dimension<Geometry>::value>,
             boost::mpl::int_<Dimensions>
         >::type::value
         ));
@@ -102,13 +102,13 @@ inline void assert_dimension()
 template <typename Geometry, int Dimensions>
 inline void assert_dimension_less_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value <= Dimensions ));
+    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) <= Dimensions ));
 }
 
 template <typename Geometry, int Dimensions>
 inline void assert_dimension_greater_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value >= Dimensions ));
+    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) >= Dimensions ));
 }
 
 /*!
@@ -118,7 +118,7 @@ inline void assert_dimension_greater_equal()
 template <typename G1, typename G2>
 inline void assert_dimension_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<G1>::type::value == dimension<G2>::type::value ));
+    BOOST_STATIC_ASSERT(( static_cast<size_t>(dimension<G1>::type::value) == static_cast<size_t>(dimension<G2>::type::value) ));
 }
 
 }} // namespace boost::geometry
