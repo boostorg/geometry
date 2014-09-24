@@ -205,17 +205,6 @@ struct buffered_piece_collection
 
     RobustPolicy const& m_robust_policy;
 
-    struct redundant_turn
-    {
-        inline bool operator()(buffer_turn_info_type const& turn) const
-        {
-            // Erase discarded turns (location not OK) and the turns
-            // only used to detect oppositeness.
-            return turn.location != location_ok
-                || turn.opposite();
-        }
-    };
-
     buffered_piece_collection(RobustPolicy const& robust_policy)
         : m_first_piece_index(-1)
         , m_robust_policy(robust_policy)
@@ -844,15 +833,24 @@ struct buffered_piece_collection
         }
     }
 
-    inline void discard_turns()
+    inline void block_turns()
     {
-        m_turns.erase
-            (
-                std::remove_if(boost::begin(m_turns), boost::end(m_turns),
-                                redundant_turn()),
-                boost::end(m_turns)
-            );
-
+        for (typename boost::range_iterator<turn_vector_type>::type it =
+            boost::begin(m_turns); it != boost::end(m_turns); ++it)
+        {
+            if (it->location != location_ok)
+            {
+                // Set it to blocked. They should not be discarded, to avoid
+                // generating rings over these turns
+                // Performance goes down a tiny bit from 161 s to 173 because there
+                // are sometimes much more turns.
+                // We might speed it up a bit by keeping only one blocked
+                // intersection per segment, but that is complex to program
+                // because each turn involves two segments
+                it->operations[0].operation = detail::overlay::operation_blocked;
+                it->operations[1].operation = detail::overlay::operation_blocked;
+            }
+        }
     }
 
     inline void traverse()
