@@ -17,6 +17,7 @@
 #include <boost/type_traits/is_const.hpp>
 #include <boost/mpl/if.hpp>
 
+#include <boost/geometry/core/interior_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
