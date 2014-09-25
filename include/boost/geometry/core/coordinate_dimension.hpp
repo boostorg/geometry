@@ -24,7 +24,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal_to.hpp>
-#include <boost/mpl/integral_c.hpp>
+#include <boost/mpl/size_t.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
