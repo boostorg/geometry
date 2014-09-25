@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2013, 2014.
+// Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,6 +24,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal_to.hpp>
+#include <boost/mpl/integral_c.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -58,7 +64,22 @@ template <typename T, typename G>
 struct dimension : dimension<point_tag, typename point_type<T, G>::type> {};
 
 template <typename P>
-struct dimension<point_tag, P> : traits::dimension<typename geometry::util::bare_type<P>::type> {};
+struct dimension<point_tag, P>
+    : boost::mpl::size_t
+        <
+            traits::dimension
+                <
+                    typename geometry::util::bare_type<P>::type
+                >::value
+        >
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            (traits::dimension<typename geometry::util::bare_type<P>::type>::value > 0),
+            INVALID_DIMENSION,
+            (types< traits::dimension<typename geometry::util::bare_type<P>::type> >)
+        );
+};
 
 } // namespace core_dispatch
 #endif
@@ -83,14 +104,14 @@ struct dimension
 \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
 \ingroup utility
 */
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 inline void assert_dimension()
 {
     BOOST_STATIC_ASSERT((
         boost::mpl::equal_to
         <
-            boost::mpl::int_<geometry::dimension<Geometry>::value>,
-            boost::mpl::int_<Dimensions>
+            geometry::dimension<Geometry>,
+            boost::mpl::size_t<Dimensions>
         >::type::value
         ));
 }
@@ -99,16 +120,16 @@ inline void assert_dimension()
 \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
 \ingroup utility
 */
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 inline void assert_dimension_less_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) <= Dimensions ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value <= Dimensions ));
 }
 
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 inline void assert_dimension_greater_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) >= Dimensions ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::type::value >= Dimensions ));
 }
 
 /*!
@@ -118,7 +139,7 @@ inline void assert_dimension_greater_equal()
 template <typename G1, typename G2>
 inline void assert_dimension_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<size_t>(dimension<G1>::type::value) == static_cast<size_t>(dimension<G2>::type::value) ));
+    BOOST_STATIC_ASSERT(( dimension<G1>::type::value == dimension<G2>::type::value ));
 }
 
 }} // namespace boost::geometry
