@@ -13,6 +13,7 @@
 #define BOOST_TEST_MODULE test_segment_iterator
 #endif
 
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -21,6 +22,8 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
+
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -176,9 +179,8 @@ struct test_segment_iterator_of_geometry
                   << bg::dsv(geometry) << std::endl;
         std::cout << "geometry's closure: " << closure << std::endl;
         print_geometry_range(std::cout, begin, end, "segment range: ");
-        std::cout << std::endl;
 
-        typedef bg::segment_iterator<SegmentRange> segment_range_iterator;
+        std::cout << std::endl;
 
         print_geometry_range(std::cout,
                              bg::segments_begin(segment_range),
@@ -186,20 +188,16 @@ struct test_segment_iterator_of_geometry
                              "expected segment range: ");
         std::cout << std::endl;
 #endif
-    }
-
-    static inline void apply(Geometry geometry,
-                             SegmentRange const& segment_range)
-    {
-        base_test<Geometry>(geometry, segment_range, "const");
 
         // testing dereferencing
         typedef typename std::iterator_traits
             <
-                bg::segment_iterator<Geometry>
+                segment_iterator
             >::value_type value_type;
 
         value_type first_segment = *bg::segments_begin(geometry);
+
+        boost::ignore_unused(first_segment);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "first segment in geometry: "
@@ -208,6 +206,23 @@ struct test_segment_iterator_of_geometry
 
         std::cout << std::endl << std::endl;
 #endif
+
+        // test copying all segments to a vector
+        std::vector<value_type> segments;
+        std::copy(bg::segments_begin(geometry),
+                  bg::segments_end(geometry),
+                  std::back_inserter(segments));
+
+        BOOST_CHECK( std::distance(bg::segments_begin(geometry),
+                                   bg::segments_end(geometry))
+                     ==
+                     segments.size() );
+    }
+
+    static inline void apply(Geometry geometry,
+                             SegmentRange const& segment_range)
+    {
+        base_test<Geometry>(geometry, segment_range, "const");
     }
 };
 
