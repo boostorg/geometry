@@ -22,7 +22,7 @@
 #include <boost/geometry/iterators/point_iterator_type.hpp>
 #include <boost/geometry/iterators/range_segment_iterator.hpp>
 
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/geometries/pointing_segment.hpp>
 
 #include <boost/geometry/iterators/dispatch/segment_iterator_type.hpp>
 #include <boost/geometry/iterators/dispatch/segment_iterator.hpp>
@@ -40,7 +40,7 @@ struct segment_iterator_value_type
             Geometry
         >::type point_iterator_value_type;
 
-    typedef geometry::model::referring_segment
+    typedef geometry::model::pointing_segment
         <
             point_iterator_value_type
         > type;
