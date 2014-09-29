@@ -33,7 +33,7 @@ namespace dispatch
 {
 
 
-// specializations for points_begin
+// specializations for segments_begin
 
 
 template <typename Linestring>
@@ -79,7 +79,10 @@ struct segments_begin<Polygon, polygon_tag>
                  <
                      inner_range
                  >::apply(geometry::exterior_ring(polygon)),
-             segments_end<inner_range>::apply(geometry::exterior_ring(polygon)),
+             segments_end
+                 <
+                     inner_range
+                 >::apply(geometry::exterior_ring(polygon)),
              flatten_iterator(boost::begin(geometry::interior_rings(polygon)),
                               boost::end(geometry::interior_rings(polygon))
                               ),
@@ -129,7 +132,7 @@ namespace dispatch
 {
 
 
-// specializations for points_end
+// specializations for segments_end
 
 
 template <typename Linestring>
@@ -171,7 +174,10 @@ struct segments_end<Polygon, polygon_tag>
         typedef typename return_type::second_iterator_type flatten_iterator;
 
         return return_type
-            (segments_end<inner_range>::apply(geometry::exterior_ring(polygon)),
+            (segments_end
+                 <
+                     inner_range
+                 >::apply(geometry::exterior_ring(polygon)),
              flatten_iterator(boost::begin(geometry::interior_rings(polygon)),
                               boost::end(geometry::interior_rings(polygon))
                               ),
@@ -214,7 +220,10 @@ class segment_iterator
     : public dispatch::segment_iterator_type<Geometry const>::type
 {
 private:
-    typedef typename dispatch::segment_iterator_type<Geometry const>::type base;
+    typedef typename dispatch::segment_iterator_type
+        <
+            Geometry const
+        >::type base;
 
     base const* base_ptr() const
     {
