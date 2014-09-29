@@ -20,7 +20,8 @@
 #include <boost/geometry/iterators/concatenate_iterator.hpp>
 #include <boost/geometry/iterators/flatten_iterator.hpp>
 #include <boost/geometry/iterators/point_iterator_type.hpp>
-#include <boost/geometry/iterators/range_segment_iterator.hpp>
+#include <boost/geometry/iterators/detail/segment_iterator/range_segment_iterator.hpp>
+#include <boost/geometry/iterators/detail/segment_iterator/value_type.hpp>
 
 #include <boost/geometry/geometries/pointing_segment.hpp>
 
@@ -31,23 +32,6 @@
 namespace boost { namespace geometry
 {
 
-
-template <typename Geometry>
-struct segment_iterator_value_type
-{
-    typedef typename detail_dispatch::point_iterator_value_type
-        <
-            Geometry
-        >::type point_iterator_value_type;
-
-    typedef geometry::model::pointing_segment
-        <
-            point_iterator_value_type
-        > type;
-};
-
-
-
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
@@ -56,10 +40,10 @@ namespace dispatch
 template <typename Linestring>
 struct segment_iterator_type<Linestring, linestring_tag>
 {
-    typedef range_segment_iterator
+    typedef detail::segment_iterator::range_segment_iterator
         <
             Linestring,
-            typename segment_iterator_value_type<Linestring>::type
+            typename detail::segment_iterator::value_type<Linestring>::type
         > type;
 };
 
@@ -67,10 +51,10 @@ struct segment_iterator_type<Linestring, linestring_tag>
 template <typename Ring>
 struct segment_iterator_type<Ring, ring_tag>
 {
-    typedef range_segment_iterator
+    typedef detail::segment_iterator::range_segment_iterator
         <
             Ring,
-            typename segment_iterator_value_type<Ring>::type
+            typename detail::segment_iterator::value_type<Ring>::type
         > type;
 };
 
@@ -84,13 +68,17 @@ private:
             Polygon
         >::type inner_range;
 
+    typedef typename detail::segment_iterator::value_type
+        <
+            Polygon
+        >::type value_type;
+
 public:
     typedef concatenate_iterator
         <
-            range_segment_iterator
+            detail::segment_iterator::range_segment_iterator
                 <
-                    inner_range,
-                    typename segment_iterator_value_type<Polygon>::type
+                    inner_range, value_type
                 >,
             flatten_iterator
                 <
@@ -99,13 +87,13 @@ public:
                             typename geometry::interior_type<Polygon>::type
                         >::type,
                     typename dispatch::segment_iterator_type<inner_range>::type,
-                    typename segment_iterator_value_type<Polygon>::type,
+                    value_type,
                     dispatch::segments_begin<inner_range>,
                     dispatch::segments_end<inner_range>,
-                    typename segment_iterator_value_type<Polygon>::type
+                    value_type
                 >,
-            typename segment_iterator_value_type<Polygon>::type,
-            typename segment_iterator_value_type<Polygon>::type
+            value_type,
+            value_type
         > type;
 };
 
@@ -119,15 +107,20 @@ private:
             MultiLinestring
         >::type inner_range;
 
+    typedef typename detail::segment_iterator::value_type
+        <
+            MultiLinestring
+        >::type value_type;
+
 public:
     typedef flatten_iterator
         <
             typename boost::range_iterator<MultiLinestring>::type,
             typename dispatch::segment_iterator_type<inner_range>::type,
-            typename segment_iterator_value_type<MultiLinestring>::type,
+            value_type,
             dispatch::segments_begin<inner_range>,
             dispatch::segments_end<inner_range>,
-            typename segment_iterator_value_type<MultiLinestring>::type
+            value_type
         > type;
 };
 
@@ -141,15 +134,20 @@ private:
             MultiPolygon
         >::type inner_range;
 
+    typedef typename detail::segment_iterator::value_type
+        <
+            MultiPolygon
+        >::type value_type;
+
 public:
     typedef flatten_iterator
         <
             typename boost::range_iterator<MultiPolygon>::type,
             typename dispatch::segment_iterator_type<inner_range>::type,
-            typename segment_iterator_value_type<MultiPolygon>::type,
+            value_type,
             dispatch::segments_begin<inner_range>,
             dispatch::segments_end<inner_range>,
-            typename segment_iterator_value_type<MultiPolygon>::type
+            value_type
         > type;
 };
 

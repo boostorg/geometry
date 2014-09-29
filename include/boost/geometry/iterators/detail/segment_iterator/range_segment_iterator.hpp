@@ -24,6 +24,10 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace segment_iterator
+{
+
 
 template <typename Range, closure_selector Closure = closure<Range>::value>
 struct range_iterator_type
@@ -114,7 +118,12 @@ public:
         : m_it(--range_iterator_end<Range>::apply(r))
     {}
 
-    template <typename OtherRange, typename OtherValue, typename OtherReference>
+    template
+    <
+        typename OtherRange,
+        typename OtherValue,
+        typename OtherReference
+    >
     range_segment_iterator(range_segment_iterator
                            <
                                OtherRange,
@@ -134,7 +143,12 @@ public:
         BOOST_MPL_ASSERT_MSG((are_conv), NOT_CONVERTIBLE, (types<OtherRange>));
     }
 
-    template <typename OtherRange, typename OtherValue, typename OtherReference>
+    template
+    <
+        typename OtherRange,
+        typename OtherValue,
+        typename OtherReference
+    >
     range_segment_iterator operator=(range_segment_iterator
                                      <
                                          OtherRange,
@@ -169,7 +183,12 @@ private:
         return Reference(*m_it, *next);
     }
 
-    template <typename OtherRange, typename OtherValue, typename OtherReference>
+    template
+    <
+        typename OtherRange,
+        typename OtherValue,
+        typename OtherReference
+    >
     inline bool equal(range_segment_iterator
                       <
                           OtherRange,
@@ -194,6 +213,9 @@ private:
     iterator_type m_it;
 };
 
+
+}} // namespace detail::segment_iterator
+#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 
