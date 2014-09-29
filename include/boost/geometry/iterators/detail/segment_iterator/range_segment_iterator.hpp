@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ITERATORS_RANGE_SEGMENT_ITERATOR_HPP
-#define BOOST_GEOMETRY_ITERATORS_RANGE_SEGMENT_ITERATOR_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_RANGE_SEGMENT_ITERATOR_HPP
+#define BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_RANGE_SEGMENT_ITERATOR_HPP
 
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/is_convertible.hpp>
@@ -220,4 +220,4 @@ private:
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ITERATORS_RANGE_SEGMENT_ITERATOR_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_RANGE_SEGMENT_ITERATOR_HPP
