@@ -220,10 +220,13 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        point_iterator<Geometry1 const> first1 = points_begin(geometry1);
-        point_iterator<Geometry1 const> beyond1 = points_end(geometry1);
-        point_iterator<Geometry2 const> first2 = points_begin(geometry2);
-        point_iterator<Geometry2 const> beyond2 = points_end(geometry2);
+        typedef geometry::point_iterator<Geometry1 const> const_point_iterator1;
+        typedef geometry::point_iterator<Geometry2 const> const_point_iterator2;
+
+        const_point_iterator1 first1 = points_begin(geometry1);
+        const_point_iterator1 beyond1 = points_end(geometry1);
+        const_point_iterator2 first2 = points_begin(geometry2);
+        const_point_iterator2 beyond2 = points_end(geometry2);
         
         if ( geometry::has_one_element(first1, beyond1) )
         {
