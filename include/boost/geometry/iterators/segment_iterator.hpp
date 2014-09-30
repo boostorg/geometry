@@ -19,7 +19,7 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/iterators/point_iterator_type.hpp>
-#include <boost/geometry/iterators/segment_iterator_type.hpp>
+#include <boost/geometry/iterators/detail/segment_iterator/iterator_type.hpp>
 
 #include <boost/geometry/iterators/dispatch/segment_iterator.hpp>
 
@@ -39,11 +39,14 @@ namespace dispatch
 template <typename Linestring>
 struct segments_begin<Linestring, linestring_tag>
 {
-    typedef typename segment_iterator_type<Linestring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Linestring
+        >::type return_type;
 
-    static inline result_type apply(Linestring& linestring)
+    static inline return_type apply(Linestring& linestring)
     {
-        return result_type(linestring);
+        return return_type(linestring);
     }
 };
 
@@ -51,11 +54,14 @@ struct segments_begin<Linestring, linestring_tag>
 template <typename Ring>
 struct segments_begin<Ring, ring_tag>
 {
-    typedef typename segment_iterator_type<Ring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Ring
+        >::type return_type;
 
-    static inline result_type apply(Ring& ring)
+    static inline return_type apply(Ring& ring)
     {
-        return result_type(ring);
+        return return_type(ring);
     }
 };
 
@@ -68,7 +74,10 @@ struct segments_begin<Polygon, polygon_tag>
             Polygon
         >::type inner_range;
 
-    typedef typename segment_iterator_type<Polygon>::type return_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Polygon
+        >::type return_type;
 
     static inline return_type apply(Polygon& polygon)
     {
@@ -97,11 +106,14 @@ struct segments_begin<Polygon, polygon_tag>
 template <typename MultiLinestring>
 struct segments_begin<MultiLinestring, multi_linestring_tag>
 {
-    typedef typename segment_iterator_type<MultiLinestring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            MultiLinestring
+        >::type return_type;
 
-    static inline result_type apply(MultiLinestring& multilinestring)
+    static inline return_type apply(MultiLinestring& multilinestring)
     {
-        return result_type(boost::begin(multilinestring),
+        return return_type(boost::begin(multilinestring),
                            boost::end(multilinestring));
     }
 };
@@ -110,11 +122,14 @@ struct segments_begin<MultiLinestring, multi_linestring_tag>
 template <typename MultiPolygon>
 struct segments_begin<MultiPolygon, multi_polygon_tag>
 {
-    typedef typename segment_iterator_type<MultiPolygon>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            MultiPolygon
+        >::type return_type;
 
-    static inline result_type apply(MultiPolygon& multipolygon)
+    static inline return_type apply(MultiPolygon& multipolygon)
     {
-        return result_type(boost::begin(multipolygon),
+        return return_type(boost::begin(multipolygon),
                            boost::end(multipolygon));
     }
 };
@@ -138,11 +153,14 @@ namespace dispatch
 template <typename Linestring>
 struct segments_end<Linestring, linestring_tag>
 {
-    typedef typename segment_iterator_type<Linestring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Linestring
+        >::type return_type;
 
-    static inline result_type apply(Linestring& linestring)
+    static inline return_type apply(Linestring& linestring)
     {
-        return result_type(linestring, true);
+        return return_type(linestring, true);
     }
 };
 
@@ -150,11 +168,14 @@ struct segments_end<Linestring, linestring_tag>
 template <typename Ring>
 struct segments_end<Ring, ring_tag>
 {
-    typedef typename segment_iterator_type<Ring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Ring
+        >::type return_type;
 
-    static inline result_type apply(Ring& ring)
+    static inline return_type apply(Ring& ring)
     {
-        return result_type(ring, true);
+        return return_type(ring, true);
     }
 };
 
@@ -167,7 +188,10 @@ struct segments_end<Polygon, polygon_tag>
             Polygon
         >::type inner_range;
 
-    typedef typename segment_iterator_type<Polygon>::type return_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            Polygon
+        >::type return_type;
 
     static inline return_type apply(Polygon& polygon)
     {
@@ -190,11 +214,14 @@ struct segments_end<Polygon, polygon_tag>
 template <typename MultiLinestring>
 struct segments_end<MultiLinestring, multi_linestring_tag>
 {
-    typedef typename segment_iterator_type<MultiLinestring>::type result_type;
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            MultiLinestring
+        >::type return_type;
 
-    static inline result_type apply(MultiLinestring& multilinestring)
+    static inline return_type apply(MultiLinestring& multilinestring)
     {
-        return result_type(boost::end(multilinestring));
+        return return_type(boost::end(multilinestring));
     }
 };
 
@@ -202,10 +229,14 @@ struct segments_end<MultiLinestring, multi_linestring_tag>
 template <typename MultiPolygon>
 struct segments_end<MultiPolygon, multi_polygon_tag>
 {
-    typedef typename segment_iterator_type<MultiPolygon>::type result_type;
-    static inline result_type apply(MultiPolygon& multipolygon)
+    typedef typename detail::segment_iterator::iterator_type
+        <
+            MultiPolygon
+        >::type return_type;
+
+    static inline return_type apply(MultiPolygon& multipolygon)
     {
-        return result_type(boost::end(multipolygon));
+        return return_type(boost::end(multipolygon));
     }
 };
 
@@ -217,15 +248,15 @@ struct segments_end<MultiPolygon, multi_polygon_tag>
 // MK:: need to add doc here
 template <typename Geometry>
 class segment_iterator
-    : public dispatch::segment_iterator_type<Geometry const>::type
+    : public detail::segment_iterator::iterator_type<Geometry>::type
 {
 private:
-    typedef typename dispatch::segment_iterator_type
+    typedef typename detail::segment_iterator::iterator_type
         <
-            Geometry const
+            Geometry
         >::type base;
 
-    base const* base_ptr() const
+    inline base const* base_ptr() const
     {
         return this;
     }
@@ -233,39 +264,39 @@ private:
     template <typename OtherGeometry> friend class segment_iterator;
 
     template <typename G>
-    friend inline segment_iterator<G> segments_begin(G const&);
+    friend inline segment_iterator<G const> segments_begin(G const&);
 
     template <typename G>
-    friend inline segment_iterator<G> segments_end(G const&);
+    friend inline segment_iterator<G const> segments_end(G const&);
 
-    segment_iterator(base const& base_it) : base(base_it) {}
+    inline segment_iterator(base const& base_it) : base(base_it) {}
 
 public:
-    segment_iterator() {}
+    inline segment_iterator() {}
 
     template <typename OtherGeometry>
-    segment_iterator(segment_iterator<OtherGeometry> const& other)
+    inline segment_iterator(segment_iterator<OtherGeometry> const& other)
         : base(*other.base_ptr())
     {
         static const bool is_conv
             = boost::is_convertible<
-                typename dispatch::segment_iterator_type
+                typename detail::segment_iterator::iterator_type
                     <
-                        OtherGeometry const
+                        OtherGeometry
                     >::type,
-                typename dispatch::segment_iterator_type<Geometry const>::type
+                typename detail::segment_iterator::iterator_type<Geometry>::type
             >::value;
 
         BOOST_MPL_ASSERT_MSG((is_conv),
                              NOT_CONVERTIBLE,
-                             (segment_iterator<OtherGeometry const>));
+                             (segment_iterator<OtherGeometry>));
     }
 };
 
 
 // MK:: need to add doc here
 template <typename Geometry>
-inline segment_iterator<Geometry>
+inline segment_iterator<Geometry const>
 segments_begin(Geometry const& geometry)
 {
     return dispatch::segments_begin<Geometry const>::apply(geometry);
@@ -274,7 +305,7 @@ segments_begin(Geometry const& geometry)
 
 // MK:: need to add doc here
 template <typename Geometry>
-inline segment_iterator<Geometry>
+inline segment_iterator<Geometry const>
 segments_end(Geometry const& geometry)
 {
     return dispatch::segments_end<Geometry const>::apply(geometry);
