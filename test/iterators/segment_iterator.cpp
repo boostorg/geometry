@@ -153,7 +153,7 @@ struct test_segment_iterator_of_geometry
                                  SegmentRange const& segment_range,
                                  std::string const& header)
     {
-        typedef bg::segment_iterator<G> segment_iterator;
+        typedef bg::segment_iterator<G const> segment_iterator;
 
         segment_iterator begin = bg::segments_begin(geometry);
         segment_iterator end = bg::segments_end(geometry);
