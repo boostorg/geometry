@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_VALUE_TYPE_HPP
 #define BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_VALUE_TYPE_HPP
 
-#include <boost/geometry/iterators/point_iterator_type.hpp>
+#include <boost/geometry/iterators/detail/point_iterator/value_type.hpp>
 #include <boost/geometry/geometries/pointing_segment.hpp>
 
 
@@ -24,7 +24,7 @@ namespace detail { namespace segment_iterator
 template <typename Geometry>
 struct value_type
 {
-    typedef typename detail_dispatch::point_iterator_value_type
+    typedef typename detail::point_iterator::value_type
         <
             Geometry
         >::type point_iterator_value_type;

@@ -18,7 +18,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/iterators/point_iterator_type.hpp>
+#include <boost/geometry/iterators/detail/point_iterator/inner_range_type.hpp>
 #include <boost/geometry/iterators/detail/segment_iterator/iterator_type.hpp>
 
 #include <boost/geometry/iterators/dispatch/segment_iterator.hpp>
@@ -69,7 +69,7 @@ struct segments_begin<Ring, ring_tag>
 template <typename Polygon>
 struct segments_begin<Polygon, polygon_tag>
 {
-    typedef typename detail_dispatch::point_iterator_inner_range_type
+    typedef typename detail::point_iterator::inner_range_type
         <
             Polygon
         >::type inner_range;
@@ -183,7 +183,7 @@ struct segments_end<Ring, ring_tag>
 template <typename Polygon>
 struct segments_end<Polygon, polygon_tag>
 {
-    typedef typename detail_dispatch::point_iterator_inner_range_type
+    typedef typename detail::point_iterator::inner_range_type
         <
             Polygon
         >::type inner_range;

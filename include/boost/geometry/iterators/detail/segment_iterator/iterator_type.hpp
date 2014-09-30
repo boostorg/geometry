@@ -22,7 +22,7 @@
 
 #include <boost/geometry/iterators/concatenate_iterator.hpp>
 #include <boost/geometry/iterators/flatten_iterator.hpp>
-#include <boost/geometry/iterators/point_iterator_type.hpp>
+#include <boost/geometry/iterators/detail/point_iterator/inner_range_type.hpp>
 
 #include <boost/geometry/iterators/detail/segment_iterator/range_segment_iterator.hpp>
 #include <boost/geometry/iterators/detail/segment_iterator/value_type.hpp>
@@ -68,7 +68,7 @@ template <typename Polygon>
 class iterator_type<Polygon, polygon_tag>
 {
 private:
-    typedef typename detail_dispatch::point_iterator_inner_range_type
+    typedef typename detail::point_iterator::inner_range_type
         <
             Polygon
         >::type inner_range;
@@ -103,7 +103,7 @@ template <typename MultiLinestring>
 class iterator_type<MultiLinestring, multi_linestring_tag>
 {
 private:
-    typedef typename detail_dispatch::point_iterator_inner_range_type
+    typedef typename detail::point_iterator::inner_range_type
         <
             MultiLinestring
         >::type inner_range;
@@ -125,7 +125,7 @@ template <typename MultiPolygon>
 class iterator_type<MultiPolygon, multi_polygon_tag>
 {
 private:
-    typedef typename detail_dispatch::point_iterator_inner_range_type
+    typedef typename detail::point_iterator::inner_range_type
         <
             MultiPolygon
         >::type inner_range;
