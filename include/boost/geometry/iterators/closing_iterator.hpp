@@ -19,6 +19,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
+#include <boost/geometry/util/add_const_if_c.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,7 +38,11 @@ struct closing_iterator
     : public boost::iterator_facade
     <
         closing_iterator<Range>,
-        typename boost::range_value<Range>::type const,
+        typename add_const_if_c
+            <
+                is_const<Range>::value,
+                typename boost::range_value<Range>::type
+            >::type,
         boost::random_access_traversal_tag
     >
 {
@@ -81,7 +86,13 @@ struct closing_iterator
 private:
     friend class boost::iterator_core_access;
 
-    inline typename boost::range_value<Range>::type const& dereference() const
+    inline
+    typename add_const_if_c
+        <
+            is_const<Range>::value,
+            typename boost::range_value<Range>::type
+        >::type &
+    dereference() const
     {
         return *m_iterator;
     }
