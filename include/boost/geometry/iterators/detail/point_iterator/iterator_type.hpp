@@ -7,34 +7,31 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_ITERATOR_TYPE_HPP
-#define BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_ITERATOR_TYPE_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_DETAIL_POINT_ITERATOR_ITERATOR_TYPE_HPP
+#define BOOST_GEOMETRY_ITERATORS_DETAIL_POINT_ITERATOR_ITERATOR_TYPE_HPP
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/interior_type.hpp>
-#include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/iterators/concatenate_iterator.hpp>
 #include <boost/geometry/iterators/flatten_iterator.hpp>
+#include <boost/geometry/iterators/concatenate_iterator.hpp>
+
 #include <boost/geometry/iterators/detail/point_iterator/inner_range_type.hpp>
+#include <boost/geometry/iterators/detail/point_iterator/value_type.hpp>
 
-#include <boost/geometry/iterators/detail/segment_iterator/range_segment_iterator.hpp>
-#include <boost/geometry/iterators/detail/segment_iterator/value_type.hpp>
-
-#include <boost/geometry/iterators/dispatch/segment_iterator.hpp>
+#include <boost/geometry/iterators/dispatch/point_iterator.hpp>
 
 
 namespace boost { namespace geometry
 {
 
+
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace segment_iterator
+namespace detail { namespace point_iterator
 {
 
 
@@ -44,23 +41,19 @@ struct iterator_type
 {};
 
 
+
+
 template <typename Linestring>
 struct iterator_type<Linestring, linestring_tag>
 {
-    typedef range_segment_iterator
-        <
-            Linestring, typename value_type<Linestring>::type
-        > type;
+    typedef typename boost::range_iterator<Linestring>::type type;
 };
 
 
 template <typename Ring>
 struct iterator_type<Ring, ring_tag>
 {
-    typedef range_segment_iterator
-        <
-            Ring, typename value_type<Ring>::type
-        > type;
+    typedef typename boost::range_iterator<Ring>::type type;
 };
 
 
@@ -68,19 +61,12 @@ template <typename Polygon>
 class iterator_type<Polygon, polygon_tag>
 {
 private:
-    typedef typename detail::point_iterator::inner_range_type
-        <
-            Polygon
-        >::type inner_range;
+    typedef typename inner_range_type<Polygon>::type inner_range;
 
 public:
     typedef concatenate_iterator
         <
-            range_segment_iterator
-                <
-                    inner_range,
-                    typename value_type<Polygon>::type
-                >,
+            typename boost::range_iterator<inner_range>::type,
             flatten_iterator
                 <
                     typename boost::range_iterator
@@ -89,13 +75,18 @@ public:
                         >::type,
                     typename iterator_type<inner_range>::type,
                     typename value_type<Polygon>::type,
-                    dispatch::segments_begin<inner_range>,
-                    dispatch::segments_end<inner_range>,
-                    typename value_type<Polygon>::type
+                    dispatch::points_begin<inner_range>,
+                    dispatch::points_end<inner_range>
                 >,
-            typename value_type<Polygon>::type,
             typename value_type<Polygon>::type
         > type;
+};
+
+
+template <typename MultiPoint>
+struct iterator_type<MultiPoint, multi_point_tag>
+{
+    typedef typename boost::range_iterator<MultiPoint>::type type;
 };
 
 
@@ -103,10 +94,7 @@ template <typename MultiLinestring>
 class iterator_type<MultiLinestring, multi_linestring_tag>
 {
 private:
-    typedef typename detail::point_iterator::inner_range_type
-        <
-            MultiLinestring
-        >::type inner_range;
+    typedef typename inner_range_type<MultiLinestring>::type inner_range;
 
 public:
     typedef flatten_iterator
@@ -114,9 +102,8 @@ public:
             typename boost::range_iterator<MultiLinestring>::type,
             typename iterator_type<inner_range>::type,
             typename value_type<MultiLinestring>::type,
-            dispatch::segments_begin<inner_range>,
-            dispatch::segments_end<inner_range>,
-            typename value_type<MultiLinestring>::type
+            dispatch::points_begin<inner_range>,
+            dispatch::points_end<inner_range>
         > type;
 };
 
@@ -125,29 +112,25 @@ template <typename MultiPolygon>
 class iterator_type<MultiPolygon, multi_polygon_tag>
 {
 private:
-    typedef typename detail::point_iterator::inner_range_type
-        <
-            MultiPolygon
-        >::type inner_range;
+    typedef typename inner_range_type<MultiPolygon>::type inner_range;
+
 public:
     typedef flatten_iterator
         <
             typename boost::range_iterator<MultiPolygon>::type,
             typename iterator_type<inner_range>::type,
             typename value_type<MultiPolygon>::type,
-            dispatch::segments_begin<inner_range>,
-            dispatch::segments_end<inner_range>,
-            typename value_type<MultiPolygon>::type
+            dispatch::points_begin<inner_range>,
+            dispatch::points_end<inner_range>
         > type;
 };
 
 
-
-}} // namespace detail::segment_iterator
+}} // namespace detail::point_iterator
 #endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_ITERATOR_TYPE_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_DETAIL_POINT_ITERATOR_ITERATOR_TYPE_HPP
