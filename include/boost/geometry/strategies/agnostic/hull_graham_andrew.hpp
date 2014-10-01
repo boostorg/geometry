@@ -358,6 +358,17 @@ private:
         std::copy(++boost::rbegin(second), // skip the first Point
                   closed ? boost::rend(second) : --boost::rend(second), // skip the last Point if open
                   out);
+
+        typedef typename boost::range_size<container_type>::type size_type;
+        size_type const count = boost::size(first) + boost::size(second) - 1;
+        // count describes a closed case but comparison with min size of closed
+        // gives the result compatible also with open
+        // here core_detail::closure::minimum_ring_size<closed> could be used
+        if ( count < 4 )
+        {
+            // there should be only one missing
+            *out++ = *boost::begin(first);
+        }
     }
 };
 
