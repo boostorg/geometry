@@ -158,7 +158,9 @@ struct test_segment_iterator_of_geometry
         segment_iterator begin = bg::segments_begin(geometry);
         segment_iterator end = bg::segments_end(geometry);
 
-        BOOST_CHECK( std::distance(begin, end) == bg::num_segments(geometry) );
+        BOOST_CHECK( std::size_t(std::distance(begin, end))
+                     ==
+                     bg::num_segments(geometry) );
 
         BOOST_CHECK( equals::apply(begin, end,
                                    bg::segments_begin(segment_range),
@@ -213,8 +215,8 @@ struct test_segment_iterator_of_geometry
                   bg::segments_end(geometry),
                   std::back_inserter(segments));
 
-        BOOST_CHECK( std::distance(bg::segments_begin(geometry),
-                                   bg::segments_end(geometry))
+        BOOST_CHECK( std::size_t( std::distance(bg::segments_begin(geometry),
+                                                bg::segments_end(geometry)) )
                      ==
                      segments.size() );
     }
