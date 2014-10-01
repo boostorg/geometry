@@ -1,9 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -24,6 +29,7 @@
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -35,6 +41,9 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/util/add_const_if_c.hpp>
+
+#include <boost/geometry/views/closeable_view.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -91,17 +100,25 @@ struct fe_range_per_segment
     template <typename Range, typename Functor>
     static inline void apply(Range& range, Functor& f)
     {
+        typedef typename closeable_view
+            <
+                Range, closure<Range>::value
+            >::type view_type;
+
         typedef typename add_const_if_c
             <
                 is_const<Range>::value,
                 typename point_type<Range>::type
             >::type point_type;
-        typedef typename boost::range_iterator<Range>::type
+
+        typedef typename boost::range_iterator<view_type>::type
             iterator_type;
 
-        iterator_type it = boost::begin(range);
+        view_type view(range);
+
+        iterator_type it = boost::begin(view);
         iterator_type previous = it++;
-        while(it != boost::end(range))
+        while(it != boost::end(view))
         {
             model::referring_segment<point_type> s(*previous, *it);
             f(s);

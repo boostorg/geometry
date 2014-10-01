@@ -19,7 +19,9 @@ template <typename Box, size_t Dimension>
 struct is_valid_box
 {
     BOOST_MPL_ASSERT_MSG(
-        (0 < Dimension && Dimension <= dimension<Box>::value),
+        (0 < dimension<Box>::value &&
+         0 < Dimension &&
+         Dimension <= static_cast<size_t>(dimension<Box>::value)),
         INVALID_DIMENSION_PARAMETER,
         (is_valid_box));
 
