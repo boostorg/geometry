@@ -293,13 +293,11 @@ public:
     {
         if (clockwise)
         {
-            output_range<iterate_forward>(state.m_upper_hull, out, !closed);
-            output_range<iterate_reverse>(state.m_lower_hull, out, true);
+            output_ranges(state.m_upper_hull, state.m_lower_hull, out, closed);
         }
         else
         {
-            output_range<iterate_forward>(state.m_lower_hull, out, !closed);
-            output_range<iterate_reverse>(state.m_upper_hull, out, true);
+            output_ranges(state.m_lower_hull, state.m_upper_hull, out, closed);
         }
     }
 
@@ -350,28 +348,17 @@ private:
     }
 
 
-    template <iterate_direction Direction, typename OutputIterator>
-    static inline void output_range(container_type const& range,
-        OutputIterator out, bool skip_first)
+    template <typename OutputIterator>
+    static inline void output_ranges(container_type const& first, container_type const& second,
+                                     OutputIterator out, bool closed)
     {
-        typedef typename reversible_view<container_type const, Direction>::type view_type;
-        view_type view(range);
-        bool first = true;
-        for (typename boost::range_iterator<view_type const>::type it = boost::begin(view);
-            it != boost::end(view); ++it)
-        {
-            if (first && skip_first)
-            {
-                first = false;
-            }
-            else
-            {
-                *out = *it;
-                ++out;
-            }
-        }
-    }
+        std::copy(boost::begin(first), boost::end(first), out);
 
+        BOOST_ASSERT(closed ? !boost::empty(second) : boost::size(second) > 1);
+        std::copy(++boost::rbegin(second), // skip the first Point
+                  closed ? boost::rend(second) : --boost::rend(second), // skip the last Point if open
+                  out);
+    }
 };
 
 }} // namespace strategy::convex_hull
