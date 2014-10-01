@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -282,16 +287,18 @@ public:
 
     template <typename OutputIterator>
     inline void result(partitions const& state,
-                    OutputIterator out, bool clockwise)  const
+                       OutputIterator out,
+                       bool clockwise,
+                       bool closed) const
     {
         if (clockwise)
         {
-            output_range<iterate_forward>(state.m_upper_hull, out, false);
+            output_range<iterate_forward>(state.m_upper_hull, out, !closed);
             output_range<iterate_reverse>(state.m_lower_hull, out, true);
         }
         else
         {
-            output_range<iterate_forward>(state.m_lower_hull, out, false);
+            output_range<iterate_forward>(state.m_lower_hull, out, !closed);
             output_range<iterate_reverse>(state.m_upper_hull, out, true);
         }
     }
