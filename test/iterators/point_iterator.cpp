@@ -208,7 +208,9 @@ struct test_point_iterator_of_geometry
         point_iterator begin = bg::points_begin(geometry);
         point_iterator end = bg::points_end(geometry);
 
-        BOOST_CHECK( std::distance(begin, end) == bg::num_points(geometry) );
+        BOOST_CHECK( std::size_t(std::distance(begin, end))
+                     ==
+                     bg::num_points(geometry) );
 
         BOOST_CHECK( equals::apply(begin, end,
                                    bg::points_begin(point_range),
