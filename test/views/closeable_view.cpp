@@ -81,10 +81,16 @@ void test_non_geometry()
 
 
 template <bg::closure_selector Closure, typename Range>
-void test_optionally_closing(Range const& range, std::string const& expected)
+void test_optionally_closing(Range & range, std::string const& expected)
 {
-    typedef typename bg::closeable_view<Range const, Closure>::type view_type;
-    typedef typename boost::range_iterator<view_type const>::type iterator;
+    typedef typename bg::closeable_view<Range, Closure>::type view_type;
+    typedef typename boost::range_iterator<
+        typename bg::add_const_if_c
+            <
+                boost::is_const<Range>::value,
+                view_type
+            >::type
+    >::type iterator;
 
     view_type view(range);
 
@@ -93,7 +99,13 @@ void test_optionally_closing(Range const& range, std::string const& expected)
     iterator end = boost::end(view);
     for (iterator it = boost::begin(view); it != end; ++it, first = false)
     {
-        out << (first ? "" : " ") << bg::dsv(*it);
+        typename bg::add_const_if_c
+            <
+                boost::is_const<Range>::value,
+                typename boost::range_value<Range>::type
+            >::type & value_ref = *it;
+
+        out << (first ? "" : " ") << bg::dsv(value_ref);
     }
     BOOST_CHECK_EQUAL(out.str(), expected);
 }
@@ -107,8 +119,10 @@ void test_geometry(std::string const& wkt,
     Geometry geo;
     bg::read_wkt(wkt, geo);
 
-    test_optionally_closing<bg::closed>(geo, expected_false);
-    test_optionally_closing<bg::open>(geo, expected_true);
+    test_optionally_closing<bg::closed, Geometry const>(geo, expected_false);
+    test_optionally_closing<bg::open, Geometry const>(geo, expected_true);
+    test_optionally_closing<bg::closed, Geometry>(geo, expected_false);
+    test_optionally_closing<bg::open, Geometry>(geo, expected_true);
 }
 
 
