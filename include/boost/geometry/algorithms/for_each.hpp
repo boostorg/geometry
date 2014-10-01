@@ -41,8 +41,7 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/util/add_const_if_c.hpp>
-
-#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -95,35 +94,63 @@ struct fe_range_per_point
 };
 
 
-struct fe_range_per_segment
+template <closure_selector Closure>
+struct fe_range_per_segment_with_closure
 {
     template <typename Range, typename Functor>
     static inline void apply(Range& range, Functor& f)
     {
-        typedef typename closeable_view
-            <
-                Range, closure<Range>::value
-            >::type view_type;
-
         typedef typename add_const_if_c
             <
                 is_const<Range>::value,
                 typename point_type<Range>::type
             >::type point_type;
 
-        typedef typename boost::range_iterator<view_type>::type
-            iterator_type;
+        typedef typename boost::range_iterator<Range>::type iterator_type;
 
-        view_type view(range);
-
-        iterator_type it = boost::begin(view);
+        iterator_type it = boost::begin(range);
         iterator_type previous = it++;
-        while(it != boost::end(view))
+        while(it != boost::end(range))
         {
             model::referring_segment<point_type> s(*previous, *it);
             f(s);
             previous = it++;
         }
+    }
+};
+
+
+template <>
+struct fe_range_per_segment_with_closure<open>
+{
+    template <typename Range, typename Functor>
+    static inline void apply(Range& range, Functor& f)
+    {    
+        fe_range_per_segment_with_closure<closed>::apply(range, f);
+
+        model::referring_segment
+            <
+                typename add_const_if_c
+                    <
+                        is_const<Range>::value,
+                        typename point_type<Range>::type
+                    >::type
+            > s(range::back(range), range::front(range));
+
+        f(s);
+    }
+};
+
+
+struct fe_range_per_segment
+{
+    template <typename Range, typename Functor>
+    static inline void apply(Range& range, Functor& f)
+    {
+        fe_range_per_segment_with_closure
+            <
+                closure<Range>::value
+            >::apply(range, f);
     }
 };
 
