@@ -43,6 +43,11 @@ void test_pair()
     rt.insert(std::make_pair(box, (unsigned short)0));
     BOOST_CHECK( rt.size() == 3 );
 
+    BOOST_CHECK( rt.count(val) == 3 );
+    BOOST_CHECK( rt.count(std::make_pair(box, 0)) == 3 );
+    BOOST_CHECK( rt.count(std::make_pair(box, (unsigned short)0)) == 3 );
+    BOOST_CHECK( rt.count(box) == 3 );
+
     BOOST_CHECK( rt.remove(val) == 1 );
     BOOST_CHECK( rt.remove(std::make_pair(box, 0)) == 1 );
     BOOST_CHECK( rt.remove(std::make_pair(box, (unsigned short)0)) == 1 );
