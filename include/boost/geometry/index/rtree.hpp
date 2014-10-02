@@ -1088,10 +1088,35 @@ public:
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
     {
+        enum { as_val = 0, as_ind, dont_know };
+        typedef boost::mpl::int_
+            <
+                boost::is_same<ValueOrIndexable, value_type>::value ?
+                    as_val :
+                    boost::is_same<ValueOrIndexable, indexable_type>::value ?
+                        as_ind :
+                        boost::is_convertible<ValueOrIndexable, indexable_type>::value ?
+                            as_ind :
+                            boost::is_convertible<ValueOrIndexable, value_type>::value ?
+                                as_val :
+                                dont_know
+            > variant;
+
+        BOOST_MPL_ASSERT_MSG((variant::value != dont_know),
+                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
+                             (ValueOrIndexable));
+
+        typedef typename boost::mpl::if_c
+            <
+                variant::value == as_val,
+                value_type,
+                indexable_type
+            >::type value_or_indexable;
+
         if ( !m_members.root )
             return 0;
 
-        detail::rtree::visitors::count<ValueOrIndexable, value_type, options_type, translator_type, box_type, allocators_type>
+        detail::rtree::visitors::count<value_or_indexable, value_type, options_type, translator_type, box_type, allocators_type>
             count_v(vori, m_members.translator());
 
         detail::rtree::apply_visitor(count_v, *m_members.root);
