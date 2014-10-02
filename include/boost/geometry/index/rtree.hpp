@@ -590,9 +590,9 @@ public:
     }
 
     /*!
-    \brief Insert an object of type convertible to value_type or a range of values to the index.
+    \brief Insert a value created using convertible object or a range of values to the index.
 
-    \param val_conv_or_rng      An object of type convertible to value_type or a range of values.
+    \param conv_or_rng      An object of type convertible to value_type or a range of values.
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
@@ -604,15 +604,15 @@ public:
     elements must not be inserted or removed. Other operations are allowed however
     some of them may return invalid data.
     */
-    template <typename ValueConvertibleOrRange>
-    inline void insert(ValueConvertibleOrRange const& val_conv_or_rng)
+    template <typename ConvertibleOrRange>
+    inline void insert(ConvertibleOrRange const& conv_or_rng)
     {
         typedef boost::mpl::bool_
             <
-                boost::is_convertible<ValueConvertibleOrRange, value_type>::value
+                boost::is_convertible<ConvertibleOrRange, value_type>::value
             > is_conv_t;
 
-        this->insert_dispatch(val_conv_or_rng, is_conv_t());
+        this->insert_dispatch(conv_or_rng, is_conv_t());
     }
 
     /*!
@@ -673,13 +673,13 @@ public:
     }
 
     /*!
-    \brief Remove an object of type convertible to value_type or a range of values from the container.
+    \brief Remove value corresponding to an object convertible to it or a range of values from the container.
 
     In contrast to the \c std::set or <tt>std::map erase()</tt> method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
-    \param val_conv_or_rng      The object of type convertible to value_type or a range of values.
+    \param conv_or_rng      The object of type convertible to value_type or a range of values.
 
     \return         The number of removed values.
 
@@ -693,15 +693,15 @@ public:
     elements must not be inserted or removed. Other operations are allowed however
     some of them may return invalid data.
     */
-    template <typename ValueConvertibleOrRange>
-    inline size_type remove(ValueConvertibleOrRange const& val_conv_or_rng)
+    template <typename ConvertibleOrRange>
+    inline size_type remove(ConvertibleOrRange const& conv_or_rng)
     {
         typedef boost::mpl::bool_
             <
-                boost::is_convertible<ValueConvertibleOrRange, value_type>::value
+                boost::is_convertible<ConvertibleOrRange, value_type>::value
             > is_conv_t;
 
-        return this->remove_dispatch(val_conv_or_rng, is_conv_t());
+        return this->remove_dispatch(conv_or_rng, is_conv_t());
     }
 
     /*!
@@ -1346,7 +1346,7 @@ private:
     }
 
     /*!
-    \brief Insert a value-convertible object into the index.
+    \brief Insert a value corresponding to convertible object into the index.
 
     \param val_conv    The object convertible to value.
 
@@ -1388,9 +1388,9 @@ private:
     }
 
     /*!
-    \brief Remove a value-convertible object from the index.
+    \brief Remove a value corresponding to convertible object from the index.
 
-    \param val_conv    The value which will be removed from the container.
+    \param val_conv    The object convertible to value.
 
     \par Exception-safety
     basic
@@ -1533,7 +1533,8 @@ It calls <tt>rtree::insert(value_type const&)</tt>.
 \param v    The value which will be stored in the index.
 */
 template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
-inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Value const& v)
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+                   Value const& v)
 {
     tree.insert(v);
 }
@@ -1549,26 +1550,30 @@ It calls <tt>rtree::insert(Iterator, Iterator)</tt>.
 \param first    The beginning of the range of values.
 \param last     The end of the range of values.
 */
-template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Iterator>
-inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Iterator first, Iterator last)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+         typename Iterator>
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+                   Iterator first, Iterator last)
 {
     tree.insert(first, last);
 }
 
 /*!
-\brief Insert a range of values to the index.
+\brief Insert a value created using convertible object or a range of values to the index.
 
-It calls <tt>rtree::insert(Range const&)</tt>.
+It calls <tt>rtree::insert(ConvertibleOrRange const&)</tt>.
 
 \ingroup rtree_functions
 
-\param tree     The spatial index.
-\param rng      The range of values.
+\param tree             The spatial index.
+\param conv_or_rng      The object of type convertible to value_type or a range of values.
 */
-template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Range>
-inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Range const& rng)
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+         typename ConvertibleOrRange>
+inline void insert(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+                   ConvertibleOrRange const& conv_or_rng)
 {
-    tree.insert(rng);
+    tree.insert(conv_or_rng);
 }
 
 /*!
@@ -1588,7 +1593,8 @@ It calls <tt>rtree::remove(value_type const&)</tt>.
 */
 template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
 inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
-remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Value const& v)
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+       Value const& v)
 {
     return tree.remove(v);
 }
@@ -1611,34 +1617,39 @@ It calls <tt>rtree::remove(Iterator, Iterator)</tt>.
 
 \return         The number of removed values.
 */
-template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Iterator>
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+         typename Iterator>
 inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
-remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Iterator first, Iterator last)
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+       Iterator first, Iterator last)
 {
     return tree.remove(first, last);
 }
 
 /*!
-\brief Remove a range of values from the container.
+\brief Remove a value corresponding to an object convertible to it or a range of values from the container.
 
-Remove a range of values from the container. In contrast to the \c std::set or <tt>std::map erase()</tt> method
+Remove a value corresponding to an object convertible to it or a range of values from the container.
+In contrast to the \c std::set or <tt>std::map erase()</tt> method
 it removes values equal to these passed as a range. Furthermore this method removes only
 one value for each one passed in the range, not all equal values.
 
-It calls <tt>rtree::remove(Range const&)</tt>.
+It calls <tt>rtree::remove(ConvertibleOrRange const&)</tt>.
 
 \ingroup rtree_functions
 
-\param tree     The spatial index.
-\param rng      The range of values.
+\param tree                 The spatial index.
+\param conv_or_rng      The object of type convertible to value_type or the range of values.
 
 \return         The number of removed values.
 */
-template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator, typename Range>
+template<typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator,
+         typename ConvertibleOrRange>
 inline typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::size_type
-remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree, Range const& rng)
+remove(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> & tree,
+       ConvertibleOrRange const& conv_or_rng)
 {
-    return tree.remove(rng);
+    return tree.remove(conv_or_rng);
 }
 
 /*!
