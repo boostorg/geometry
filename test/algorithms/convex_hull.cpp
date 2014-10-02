@@ -5,11 +5,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -54,12 +49,6 @@ void test_all()
     test_empty_input<bg::model::linestring<P> >();
     test_empty_input<bg::model::ring<P> >();
     test_empty_input<bg::model::polygon<P> >();
-
-    test_geometry<bg::model::multi_point<P> >(
-        "multipoint(0 0, 1 1)", 2, 4, 0.0);
-
-    test_geometry<bg::model::multi_point<P> >(
-        "multipoint(0 0)", 1, 4, 0.0);
 }
 
 
