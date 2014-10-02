@@ -590,9 +590,9 @@ public:
     }
 
     /*!
-    \brief Insert a range of values to the index.
+    \brief Insert an object of type convertible to value_type or a range of values to the index.
 
-    \param rng      The range of values.
+    \param val_conv_or_rng      An object of type convertible to value_type or a range of values.
 
     \par Throws
     \li If Value copy constructor or copy assignment throws.
@@ -604,17 +604,15 @@ public:
     elements must not be inserted or removed. Other operations are allowed however
     some of them may return invalid data.
     */
-    template <typename Range>
-    inline void insert(Range const& rng)
+    template <typename ValueConvertibleOrRange>
+    inline void insert(ValueConvertibleOrRange const& val_conv_or_rng)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value), PASSED_OBJECT_IS_NOT_A_RANGE, (Range));
+        typedef boost::mpl::bool_
+            <
+                boost::is_convertible<ValueConvertibleOrRange, value_type>::value
+            > is_conv_t;
 
-        if ( !m_members.root )
-            this->raw_create();
-
-        typedef typename boost::range_const_iterator<Range>::type It;
-        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
-            this->raw_insert(*it);
+        this->insert_dispatch(val_conv_or_rng, is_conv_t());
     }
 
     /*!
@@ -675,13 +673,13 @@ public:
     }
 
     /*!
-    \brief Remove a range of values from the container.
+    \brief Remove an object of type convertible to value_type or a range of values from the container.
 
     In contrast to the \c std::set or <tt>std::map erase()</tt> method
     it removes values equal to these passed as a range. Furthermore, this method removes only
     one value for each one passed in the range, not all equal values.
 
-    \param rng      The range of values.
+    \param val_conv_or_rng      The object of type convertible to value_type or a range of values.
 
     \return         The number of removed values.
 
@@ -695,16 +693,15 @@ public:
     elements must not be inserted or removed. Other operations are allowed however
     some of them may return invalid data.
     */
-    template <typename Range>
-    inline size_type remove(Range const& rng)
+    template <typename ValueConvertibleOrRange>
+    inline size_type remove(ValueConvertibleOrRange const& val_conv_or_rng)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value), PASSED_OBJECT_IS_NOT_A_RANGE, (Range));
+        typedef boost::mpl::bool_
+            <
+                boost::is_convertible<ValueConvertibleOrRange, value_type>::value
+            > is_conv_t;
 
-        size_type result = 0;
-        typedef typename boost::range_const_iterator<Range>::type It;
-        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
-            result += this->raw_remove(*it);
-        return result;
+        return this->remove_dispatch(val_conv_or_rng, is_conv_t());
     }
 
     /*!
@@ -1346,6 +1343,86 @@ private:
         dst.m_members.root = copy_v.result;
         dst.m_members.values_count = src.m_members.values_count;
         dst.m_members.leafs_level = src.m_members.leafs_level;
+    }
+
+    /*!
+    \brief Insert a value-convertible object into the index.
+
+    \param val_conv    The object convertible to value.
+
+    \par Exception-safety
+    basic
+    */
+    template <typename ValueConvertible>
+    inline void insert_dispatch(ValueConvertible const& val_conv,
+                                boost::mpl::bool_<true> const& /*is_convertible*/)
+    {
+        if ( !m_members.root )
+            this->raw_create();
+
+        this->raw_insert(val_conv);
+    }
+
+    /*!
+    \brief Insert a range of values into the index.
+
+    \param rng    The range of values.
+
+    \par Exception-safety
+    basic
+    */
+    template <typename Range>
+    inline void insert_dispatch(Range const& rng,
+                                boost::mpl::bool_<false> const& /*is_convertible*/)
+    {
+        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
+                             (Range));
+
+        if ( !m_members.root )
+            this->raw_create();
+
+        typedef typename boost::range_const_iterator<Range>::type It;
+        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+            this->raw_insert(*it);
+    }
+
+    /*!
+    \brief Remove a value-convertible object from the index.
+
+    \param val_conv    The value which will be removed from the container.
+
+    \par Exception-safety
+    basic
+    */
+    template <typename ValueConvertible>
+    inline size_type remove_dispatch(ValueConvertible const& val_conv,
+                                     boost::mpl::bool_<true> const& /*is_convertible*/)
+    {
+        return this->raw_remove(val_conv);
+    }
+
+    /*!
+    \brief Remove a range of values from the index.
+
+    \param rng    The range of values which will be removed from the container.
+
+    \par Exception-safety
+    basic
+    */
+    template <typename Range>
+    inline size_type remove_dispatch(Range const& rng,
+                                     boost::mpl::bool_<false> const& /*is_convertible*/)
+    {
+        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
+                             (Range));
+
+        size_type result = 0;
+        typedef typename boost::range_const_iterator<Range>::type It;
+        for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
+            result += this->raw_remove(*it);
+        return result;
     }
 
     /*!
