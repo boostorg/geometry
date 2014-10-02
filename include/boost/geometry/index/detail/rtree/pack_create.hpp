@@ -125,11 +125,11 @@ class pack
     typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
     typedef typename Allocators::size_type size_type;
 
-    typedef typename traits::point_type<Box>::type point_type;
-    typedef typename traits::coordinate_type<point_type>::type coordinate_type;
+    typedef typename geometry::point_type<Box>::type point_type;
+    typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
     typedef typename detail::default_content_result<Box>::type content_type;
     typedef typename Options::parameters_type parameters_type;
-    static const std::size_t dimension = traits::dimension<point_type>::value;
+    static const std::size_t dimension = geometry::dimension<point_type>::value;
 
     typedef typename rtree::container_from_elements_type<
         typename rtree::elements_type<leaf>::type,

@@ -225,7 +225,7 @@ template<class Archive> void serialize(Archive &, boost::geometry::index::dynami
 // TODO - move to index/detail/serialization.hpp or maybe geometry/serialization.hpp
 namespace boost { namespace geometry { namespace index { namespace detail {
 
-template <typename P, size_t I = 0, size_t D = traits::dimension<P>::value>
+template <typename P, size_t I = 0, size_t D = geometry::dimension<P>::value>
 struct serialize_point
 {
     template <typename Archive>
@@ -239,7 +239,7 @@ struct serialize_point
     template <typename Archive>
     static inline void load(Archive & ar, P & p, unsigned int version)
     {
-        typename traits::coordinate_type<P>::type c;
+        typename geometry::coordinate_type<P>::type c;
         ar >> boost::serialization::make_nvp("c", c);
         set<I>(p, c);
         serialize_point<P, I+1, D>::load(ar, p, version);
