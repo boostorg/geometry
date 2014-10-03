@@ -20,10 +20,6 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef typename Allocators::node_allocator_type::template rebind<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>
-    >::other elements_allocator_type;
-
     typedef detail::varray<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1
@@ -38,10 +34,6 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_s_mem_stati
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct static_leaf<Value, Parameters, Box, Allocators, node_s_mem_static_tag>
 {
-    typedef typename Allocators::node_allocator_type::template rebind<
-        Value
-    >::other elements_allocator_type;
-
     typedef detail::varray<
         Value,
         Parameters::max_elements + 1

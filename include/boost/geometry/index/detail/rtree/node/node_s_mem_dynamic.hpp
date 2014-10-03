@@ -20,14 +20,14 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct static_internal_node
 {
-    typedef typename Allocators::node_allocator_type::template rebind<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>
-    >::other elements_allocator_type;
-
-    typedef boost::container::vector<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-        elements_allocator_type
-    > elements_type;
+    typedef boost::container::vector
+        <
+            rtree::ptr_pair<Box, typename Allocators::node_pointer>,
+            typename Allocators::node_allocator_type::template rebind
+                <
+                    rtree::ptr_pair<Box, typename Allocators::node_pointer>
+                >::other
+        > elements_type;
 
     template <typename Al>
     inline static_internal_node(Al const& al)
@@ -40,14 +40,14 @@ struct static_internal_node
 template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 struct static_leaf
 {
-    typedef typename Allocators::node_allocator_type::template rebind<
-        Value
-    >::other elements_allocator_type;
-
-    typedef boost::container::vector<
-        Value,
-        elements_allocator_type
-    > elements_type;
+    typedef boost::container::vector
+        <
+            Value,
+            typename Allocators::node_allocator_type::template rebind
+                <
+                    Value
+                >::other
+        > elements_type;
 
      template <typename Al>
     inline static_leaf(Al const& al)

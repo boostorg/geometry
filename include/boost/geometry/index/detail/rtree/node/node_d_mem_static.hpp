@@ -19,10 +19,6 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef typename Allocators::leaf_allocator_type::template rebind<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>
-    >::other elements_allocator_type;
-
     typedef detail::varray<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1
@@ -41,10 +37,6 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_static_tag>
 {
-    typedef typename Allocators::leaf_allocator_type::template rebind<
-        Value
-    >::other elements_allocator_type;
-
     typedef detail::varray<
         Value,
         Parameters::max_elements + 1

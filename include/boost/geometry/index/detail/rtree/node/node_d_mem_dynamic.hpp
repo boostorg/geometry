@@ -19,14 +19,14 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
-    typedef typename Allocators::leaf_allocator_type::template rebind<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>
-    >::other elements_allocator_type;
-
-    typedef boost::container::vector<
-        rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-        elements_allocator_type
-    > elements_type;
+    typedef boost::container::vector
+        <
+            rtree::ptr_pair<Box, typename Allocators::node_pointer>,
+            typename Allocators::leaf_allocator_type::template rebind
+                <
+                    rtree::ptr_pair<Box, typename Allocators::node_pointer>
+                >::other
+        > elements_type;
 
     template <typename Al>
     inline dynamic_internal_node(Al const& al)
@@ -43,14 +43,14 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
     : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 {
-    typedef typename Allocators::leaf_allocator_type::template rebind<
-        Value
-    >::other elements_allocator_type;
-
-    typedef boost::container::vector<
-        Value,
-        elements_allocator_type
-    > elements_type;
+    typedef boost::container::vector
+        <
+            Value,
+            typename Allocators::leaf_allocator_type::template rebind
+                <
+                    Value
+                >::other
+        > elements_type;
 
     template <typename Al>
     inline dynamic_leaf(Al const& al)

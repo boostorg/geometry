@@ -65,7 +65,7 @@ struct dynamic_visitor<Value, Parameters, Box, Allocators, Tag, false>
 
 // nodes conversion
 
-template <typename Derived, typename Parameters, typename Value, typename Box, typename Allocators, typename Tag>
+template <typename Derived, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 inline Derived & get(dynamic_node<Value, Parameters, Box, Allocators, Tag> & n)
 {
     BOOST_GEOMETRY_INDEX_ASSERT(dynamic_cast<Derived*>(&n), "can't cast to a Derived type");
