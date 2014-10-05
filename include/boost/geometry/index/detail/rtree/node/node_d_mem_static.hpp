@@ -77,13 +77,6 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, IsVisi
     typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_static_tag, IsVisitableConst> type;
 };
 
-// elements derived type
-template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<detail::varray<OldValue, N>, NewValue>
-{
-    typedef detail::varray<NewValue, N> type;
-};
-
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>

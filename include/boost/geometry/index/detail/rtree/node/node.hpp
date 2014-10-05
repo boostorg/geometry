@@ -17,6 +17,7 @@
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
 #include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_d_mem_dynamic.hpp>

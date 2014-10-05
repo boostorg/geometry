@@ -91,68 +91,6 @@ struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVis
     typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst> type;
 };
 
-// element's indexable type
-
-template <typename Element, typename Translator>
-struct element_indexable_type
-{
-    typedef typename indexable_type<Translator>::type type;
-};
-
-template <typename First, typename Pointer, typename Translator>
-struct element_indexable_type<
-    rtree::ptr_pair<First, Pointer>,
-    Translator
->
-{
-    typedef First type;
-};
-
-// element's indexable getter
-
-template <typename Element, typename Translator>
-typename result_type<Translator>::type
-element_indexable(Element const& el, Translator const& tr)
-{
-    return tr(el);
-}
-
-template <typename First, typename Pointer, typename Translator>
-First const&
-element_indexable(rtree::ptr_pair<First, Pointer> const& el, Translator const& /*tr*/)
-{
-    return el.first;
-}
-
-// nodes elements
-
-template <typename Node>
-struct elements_type
-{
-    typedef typename Node::elements_type type;
-};
-
-template <typename Node>
-inline typename elements_type<Node>::type &
-elements(Node & n)
-{
-    return n.elements;
-}
-
-template <typename Node>
-inline typename elements_type<Node>::type const&
-elements(Node const& n)
-{
-    return n.elements;
-}
-
-// elements derived type
-template <typename Elements, typename NewValue>
-struct container_from_elements_type
-{
-    typedef boost::container::vector<NewValue> type;
-};
-
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
