@@ -19,9 +19,9 @@
 #include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_d_mem_dynamic.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_d_mem_static.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_visitor.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_dynamic.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_static.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_s_mem_dynamic.hpp>

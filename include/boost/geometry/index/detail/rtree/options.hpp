@@ -2,7 +2,7 @@
 //
 // R-tree options, algorithms, parameters
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -35,8 +35,8 @@ struct quadratic_tag {};
 struct rstar_tag {};
 
 // NodeTag
-struct node_d_mem_dynamic_tag {};
-struct node_d_mem_static_tag {};
+struct node_weak_dynamic_tag {};
+struct node_weak_static_tag {};
 struct node_s_mem_dynamic_tag {};
 struct node_s_mem_static_tag {};
 

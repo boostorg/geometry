@@ -1,47 +1,44 @@
 // Boost.Geometry Index
 //
-// R-tree nodes based on run-time polymorphism, storing std::vectors
+// R-tree nodes based on static conversion, storing dynamic-size containers
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
-#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
+#define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
 
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
 
-template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
-    : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct weak_internal_node
+    : public weak_node<Value, Parameters, Box, Allocators, Tag>
 {
     typedef boost::container::vector
         <
             rtree::ptr_pair<Box, typename Allocators::node_pointer>,
-            typename Allocators::leaf_allocator_type::template rebind
+            typename Allocators::internal_node_allocator_type::template rebind
                 <
                     rtree::ptr_pair<Box, typename Allocators::node_pointer>
                 >::other
         > elements_type;
 
     template <typename Al>
-    inline dynamic_internal_node(Al const& al)
+    inline weak_internal_node(Al const& al)
         : elements(al)
     {}
-
-    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, false> & v) { v(*this); }
-    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
 
-template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
-    : public dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
+template <typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
+struct weak_leaf
+    : public weak_node<Value, Parameters, Box, Allocators, Tag>
 {
     typedef boost::container::vector
         <
@@ -53,12 +50,9 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
         > elements_type;
 
     template <typename Al>
-    inline dynamic_leaf(Al const& al)
+    inline weak_leaf(Al const& al)
         : elements(al)
     {}
-
-    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, false> & v) { v(*this); }
-    void apply_visitor(dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, true> & v) const { v(*this); }
 
     elements_type elements;
 };
@@ -66,40 +60,48 @@ struct dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
 // nodes traits
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
+struct node<Value, Parameters, Box, Allocators, node_weak_dynamic_tag>
 {
-    typedef dynamic_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> type;
+    typedef weak_node<Value, Parameters, Box, Allocators, node_weak_dynamic_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct internal_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
+struct internal_node<Value, Parameters, Box, Allocators, node_weak_dynamic_tag>
 {
-    typedef dynamic_internal_node<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> type;
+    typedef weak_internal_node<Value, Parameters, Box, Allocators, node_weak_dynamic_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag>
+struct leaf<Value, Parameters, Box, Allocators, node_weak_dynamic_tag>
 {
-    typedef dynamic_leaf<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag> type;
+    typedef weak_leaf<Value, Parameters, Box, Allocators, node_weak_dynamic_tag> type;
 };
 
 // visitor traits
 
 template <typename Value, typename Parameters, typename Box, typename Allocators, bool IsVisitableConst>
-struct visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst>
+struct visitor<Value, Parameters, Box, Allocators, node_weak_dynamic_tag, IsVisitableConst>
 {
-    typedef dynamic_visitor<Value, Parameters, Box, Allocators, node_d_mem_dynamic_tag, IsVisitableConst> type;
+    typedef weak_visitor<Value, Parameters, Box, Allocators, node_weak_dynamic_tag, IsVisitableConst> type;
 };
 
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
-class allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>
+class allocators<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>
     : public Allocator::template rebind<
-        typename internal_node<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>, node_d_mem_dynamic_tag>::type
+        typename internal_node<
+            Value, Parameters, Box,
+            allocators<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>,
+            node_weak_dynamic_tag
+        >::type
     >::other
     , public Allocator::template rebind<
-        typename leaf<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_d_mem_dynamic_tag>, node_d_mem_dynamic_tag>::type
+        typename leaf<
+            Value, Parameters, Box,
+            allocators<Allocator, Value, Parameters, Box, node_weak_dynamic_tag>,
+            node_weak_dynamic_tag
+        >::type
     >::other
 {
     typedef typename Allocator::template rebind<
@@ -118,19 +120,15 @@ public:
     typedef typename value_allocator_type::const_pointer const_pointer;
 
     typedef typename Allocator::template rebind<
-        typename node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
+        typename node<Value, Parameters, Box, allocators, node_weak_dynamic_tag>::type
     >::other::pointer node_pointer;
 
-//    typedef typename Allocator::template rebind<
-//        typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
-//    >::other::pointer internal_node_pointer;
-
     typedef typename Allocator::template rebind<
-        typename internal_node<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
+        typename internal_node<Value, Parameters, Box, allocators, node_weak_dynamic_tag>::type
     >::other internal_node_allocator_type;
 
     typedef typename Allocator::template rebind<
-        typename leaf<Value, Parameters, Box, allocators, node_d_mem_dynamic_tag>::type
+        typename leaf<Value, Parameters, Box, allocators, node_weak_dynamic_tag>::type
     >::other leaf_allocator_type;
 
     inline allocators()
@@ -186,7 +184,7 @@ public:
 // create_node_impl
 
 template <typename BaseNodePtr, typename Node>
-struct create_dynamic_node
+struct create_weak_node
 {
     template <typename AllocNode>
     static inline BaseNodePtr apply(AllocNode & alloc_node)
@@ -211,7 +209,7 @@ struct create_dynamic_node
 // destroy_node_impl
 
 template <typename Node>
-struct destroy_dynamic_node
+struct destroy_weak_node
 {
     template <typename AllocNode, typename BaseNodePtr>
     static inline void apply(AllocNode & alloc_node, BaseNodePtr n)
@@ -230,15 +228,15 @@ struct destroy_dynamic_node
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+    weak_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
-        return create_dynamic_node<
+        return create_weak_node<
             typename Allocators::node_pointer,
-            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+            weak_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.internal_node_allocator());
     }
 };
@@ -246,15 +244,15 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct create_node<
     Allocators,
-    dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
+    weak_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline typename Allocators::node_pointer
     apply(Allocators & allocators)
     {
-        return create_dynamic_node<
+        return create_weak_node<
             typename Allocators::node_pointer,
-            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
+            weak_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.leaf_allocator());
     }
 };
@@ -264,13 +262,13 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+    weak_internal_node<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node<
-            dynamic_internal_node<Value, Parameters, Box, Allocators, Tag>
+        destroy_weak_node<
+            weak_internal_node<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.internal_node_allocator(), n);
     }
 };
@@ -278,13 +276,13 @@ struct destroy_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box, typename Tag>
 struct destroy_node<
     Allocators,
-    dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
+    weak_leaf<Value, Parameters, Box, Allocators, Tag>
 >
 {
     static inline void apply(Allocators & allocators, typename Allocators::node_pointer n)
     {
-        destroy_dynamic_node<
-            dynamic_leaf<Value, Parameters, Box, Allocators, Tag>
+        destroy_weak_node<
+            weak_leaf<Value, Parameters, Box, Allocators, Tag>
         >::apply(allocators.leaf_allocator(), n);
     }
 };
@@ -293,4 +291,4 @@ struct destroy_node<
 
 }}} // namespace boost::geometry::index
 
-#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_DEFAULT_HPP
+#endif // BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
