@@ -23,9 +23,9 @@
 //#include <boost/geometry/index/detail/rtree/node/weak_dynamic.hpp>
 //#include <boost/geometry/index/detail/rtree/node/weak_static.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_s_mem_dynamic.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_s_mem_static.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_visitor.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_dynamic.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_static.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/node_auto_ptr.hpp>
 
