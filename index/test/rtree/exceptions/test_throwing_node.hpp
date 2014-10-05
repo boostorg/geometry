@@ -12,8 +12,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
 #define BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
 
-#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-
 #include <rtree/exceptions/test_throwing.hpp>
 
 struct throwing_nodes_stats
@@ -80,7 +78,7 @@ struct options_type< rstar_throwing<MaxElements, MinElements, OverlapCostThresho
 namespace detail { namespace rtree {
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct static_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+struct variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
     typedef throwing_varray<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
@@ -88,18 +86,18 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_throwing_st
     > elements_type;
 
     template <typename Alloc>
-    inline static_internal_node(Alloc const&) { throwing_nodes_stats::get_internal_nodes_counter_ref()++; }
-    inline ~static_internal_node() { throwing_nodes_stats::get_internal_nodes_counter_ref()--; }
+    inline variant_internal_node(Alloc const&) { throwing_nodes_stats::get_internal_nodes_counter_ref()++; }
+    inline ~variant_internal_node() { throwing_nodes_stats::get_internal_nodes_counter_ref()--; }
 
     // required because variants are initialized using node object
     // temporary must be taken into account
-    inline static_internal_node(static_internal_node const& n)
+    inline variant_internal_node(variant_internal_node const& n)
         : elements(n.elements)
     {
         throwing_nodes_stats::get_internal_nodes_counter_ref()++;
     }
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    inline static_internal_node(static_internal_node && n)
+    inline variant_internal_node(variant_internal_node && n)
         : elements(boost::move(n.elements))
     {
         throwing_nodes_stats::get_internal_nodes_counter_ref()++;
@@ -109,27 +107,27 @@ struct static_internal_node<Value, Parameters, Box, Allocators, node_throwing_st
     elements_type elements;
 
 private:
-    static_internal_node & operator=(static_internal_node const& n);
+    variant_internal_node & operator=(variant_internal_node const& n);
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
-struct static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+struct variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
     typedef throwing_varray<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Alloc>
-    inline static_leaf(Alloc const&) { throwing_nodes_stats::get_leafs_counter_ref()++; }
-    inline ~static_leaf() { throwing_nodes_stats::get_leafs_counter_ref()--; }
+    inline variant_leaf(Alloc const&) { throwing_nodes_stats::get_leafs_counter_ref()++; }
+    inline ~variant_leaf() { throwing_nodes_stats::get_leafs_counter_ref()--; }
 
     // required because variants are initialized using node object
     // temporary must be taken into account
-    inline static_leaf(static_leaf const& n)
+    inline variant_leaf(variant_leaf const& n)
         : elements(n.elements)
     {
         throwing_nodes_stats::get_leafs_counter_ref()++;
     }
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    inline static_leaf(static_leaf && n)
+    inline variant_leaf(variant_leaf && n)
         : elements(boost::move(n.elements))
     {
         throwing_nodes_stats::get_leafs_counter_ref()++;
@@ -139,7 +137,7 @@ struct static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
     elements_type elements;
 
 private:
-    static_leaf & operator=(static_leaf const& n);
+    variant_leaf & operator=(variant_leaf const& n);
 };
 
 // nodes traits
@@ -148,21 +146,21 @@ template <typename Value, typename Parameters, typename Box, typename Allocators
 struct node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
     typedef boost::variant<
-        static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>,
-        static_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+        variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>,
+        variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
     > type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
-    typedef static_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag> type;
+    typedef variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag> type;
 };
 
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
-    typedef static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag> type;
+    typedef variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag> type;
 };
 
 // visitor traits
@@ -278,7 +276,7 @@ struct throwing_node_settings
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    static_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+    variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 >
 {
     static inline typename Allocators::node_pointer
@@ -287,9 +285,9 @@ struct create_node<
         // throw if counter meets max count
         throwing_node_settings::throw_if_required();
 
-        return create_static_node<
+        return create_variant_node<
             typename Allocators::node_pointer,
-            static_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+            variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
         >::apply(allocators.node_allocator());
     }
 };
@@ -297,7 +295,7 @@ struct create_node<
 template <typename Allocators, typename Value, typename Parameters, typename Box>
 struct create_node<
     Allocators,
-    static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+    variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 >
 {
     static inline typename Allocators::node_pointer
@@ -306,9 +304,9 @@ struct create_node<
         // throw if counter meets max count
         throwing_node_settings::throw_if_required();
 
-        return create_static_node<
+        return create_variant_node<
             typename Allocators::node_pointer,
-            static_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
+            variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
         >::apply(allocators.node_allocator());
     }
 };
