@@ -391,14 +391,17 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         Allocators & allocators)
     {
         typedef typename rtree::elements_type<Node>::type elements_type;
+        typedef typename elements_type::value_type element_type;
         
         elements_type & elements1 = rtree::elements(n);
         elements_type & elements2 = rtree::elements(second_node);
 
-        // copy original elements
-        // TODO: use container_from_elements_type for std::allocator
-        elements_type elements_copy(elements1);                                                         // MAY THROW, STRONG
-        elements_type elements_backup(elements1);                                                       // MAY THROW, STRONG
+        // copy original elements - use in-memory storage (std::allocator)
+        // TODO: move if noexcept
+        typedef typename rtree::container_from_elements_type<elements_type, element_type>::type
+            container_type;
+        container_type elements_copy(elements1.begin(), elements1.end());                               // MAY THROW, STRONG
+        container_type elements_backup(elements1.begin(), elements1.end());                             // MAY THROW, STRONG
 
         size_t split_axis = 0;
         size_t split_corner = 0;

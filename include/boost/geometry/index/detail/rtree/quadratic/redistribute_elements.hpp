@@ -114,16 +114,18 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
         
         BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == parameters.get_max_elements() + 1, "unexpected elements number");
 
-        // copy original elements
-        // TODO: use container_from_elements_type for std::allocator
-        elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
-        elements_type elements_backup(elements1);                                                           // MAY THROW, STRONG (alloc, copy)
+        // copy original elements - use in-memory storage (std::allocator)
+        // TODO: move if noexcept
+        typedef typename rtree::container_from_elements_type<elements_type, element_type>::type
+            container_type;
+        container_type elements_copy(elements1.begin(), elements1.end());                                   // MAY THROW, STRONG (alloc, copy)
+        container_type elements_backup(elements1.begin(), elements1.end());                                 // MAY THROW, STRONG (alloc, copy)
         
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
         quadratic::pick_seeds<
-            elements_type,
+            container_type,
             parameters_type,
             Translator,
             Box
@@ -170,7 +172,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
             // redistribute the rest of the elements
             while ( !elements_copy.empty() )
             {
-                typename elements_type::reverse_iterator el_it = elements_copy.rbegin();
+                typename container_type::reverse_iterator el_it = elements_copy.rbegin();
                 bool insert_into_group1 = false;
 
                 size_t elements1_count = elements1.size();
@@ -227,7 +229,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 }
 
                 BOOST_GEOMETRY_INDEX_ASSERT(!elements_copy.empty(), "expected more elements");
-                typename elements_type::iterator el_it_base = el_it.base();
+                typename container_type::iterator el_it_base = el_it.base();
                 rtree::move_from_back(elements_copy, --el_it_base);                                         // MAY THROW, STRONG (copy)
                 elements_copy.pop_back();
 

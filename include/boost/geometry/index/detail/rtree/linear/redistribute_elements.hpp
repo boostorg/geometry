@@ -337,15 +337,17 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, linear
 
         BOOST_GEOMETRY_INDEX_ASSERT(elements1.size() == elements1_count, "unexpected number of elements");
 
-        // copy original elements
-        // TODO: use container_from_elements_type for std::allocator
-        elements_type elements_copy(elements1);                                                             // MAY THROW, STRONG (alloc, copy)
+        // copy original elements - use in-memory storage (std::allocator)
+        // TODO: move if noexcept
+        typedef typename rtree::container_from_elements_type<elements_type, element_type>::type
+            container_type;
+        container_type elements_copy(elements1.begin(), elements1.end());                                   // MAY THROW, STRONG (alloc, copy)
 
         // calculate initial seeds
         size_t seed1 = 0;
         size_t seed2 = 0;
         linear::pick_seeds<
-            elements_type,
+            container_type,
             parameters_type,
             Translator
         >::apply(elements_copy, parameters, translator, seed1, seed2);
