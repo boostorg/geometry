@@ -116,6 +116,13 @@ public:
     typedef typename container::reference reference;
     typedef typename container::const_reference const_reference;
 
+    inline throwing_varray() {}
+
+    template <typename It>
+    inline throwing_varray(It first, It last)
+        : container(first, last)
+    {}
+
     inline void resize(size_type s)
     {
         throwing_varray_settings::throw_if_required();
