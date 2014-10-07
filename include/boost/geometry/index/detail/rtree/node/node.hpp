@@ -118,7 +118,7 @@ private:
     }
 
     template <typename It>
-    inline static void apply_dispatch(It first, It last, Allocators & allocators,
+    inline static void apply_dispatch(It /*first*/, It /*last*/, Allocators & /*allocators*/,
                                       boost::mpl::bool_<true> const& /*is_range_of_values*/)
     {}
 };
