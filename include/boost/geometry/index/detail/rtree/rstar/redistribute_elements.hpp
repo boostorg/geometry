@@ -89,13 +89,13 @@ private:
     Translator const& m_tr;
 };
 
-template <typename Parameters, typename Box, size_t Corner, size_t AxisIndex>
+template <typename Box, size_t Corner, size_t AxisIndex>
 struct choose_split_axis_and_index_for_corner
 {
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
 
-    template <typename Elements, typename Translator>
+    template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements const& elements,
                              size_t & choosen_index,
                              margin_type & sum_of_margins,
@@ -160,19 +160,19 @@ struct choose_split_axis_and_index_for_corner
     }
 };
 
-//template <typename Parameters, typename Box, size_t AxisIndex, typename ElementIndexableTag>
+//template <typename Box, size_t AxisIndex, typename ElementIndexableTag>
 //struct choose_split_axis_and_index_for_axis
 //{
 //    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (ElementIndexableTag));
 //};
 
-template <typename Parameters, typename Box, size_t AxisIndex, typename ElementIndexableTag>
+template <typename Box, size_t AxisIndex, typename ElementIndexableTag>
 struct choose_split_axis_and_index_for_axis
 {
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
 
-    template <typename Elements, typename Translator>
+    template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements const& elements,
                              size_t & choosen_corner,
                              size_t & choosen_index,
@@ -187,20 +187,20 @@ struct choose_split_axis_and_index_for_axis
         content_type ovl1 = (std::numeric_limits<content_type>::max)();
         content_type con1 = (std::numeric_limits<content_type>::max)();
 
-        choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
-            apply(elements, index1,
-                  som1, ovl1, con1,
-                  parameters, translator);                                                                  // MAY THROW, STRONG
+        choose_split_axis_and_index_for_corner<Box, min_corner, AxisIndex>
+            ::apply(elements, index1,
+                    som1, ovl1, con1,
+                    parameters, translator);                                                                // MAY THROW, STRONG
 
         size_t index2 = 0;
         margin_type som2 = 0;
         content_type ovl2 = (std::numeric_limits<content_type>::max)();
         content_type con2 = (std::numeric_limits<content_type>::max)();
 
-        choose_split_axis_and_index_for_corner<Parameters, Box, max_corner, AxisIndex>::
-            apply(elements, index2,
-                  som2, ovl2, con2,
-                  parameters, translator);                                                                  // MAY THROW, STRONG
+        choose_split_axis_and_index_for_corner<Box, max_corner, AxisIndex>
+            ::apply(elements, index2,
+                    som2, ovl2, con2,
+                    parameters, translator);                                                                // MAY THROW, STRONG
 
         sum_of_margins = som1 + som2;
 
@@ -221,13 +221,13 @@ struct choose_split_axis_and_index_for_axis
     }
 };
 
-template <typename Parameters, typename Box, size_t AxisIndex>
-struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, point_tag>
+template <typename Box, size_t AxisIndex>
+struct choose_split_axis_and_index_for_axis<Box, AxisIndex, point_tag>
 {
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
 
-    template <typename Elements, typename Translator>
+    template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements const& elements,
                              size_t & choosen_corner,
                              size_t & choosen_index,
@@ -237,16 +237,16 @@ struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, point_ta
                              Parameters const& parameters,
                              Translator const& translator)
     {
-        choose_split_axis_and_index_for_corner<Parameters, Box, min_corner, AxisIndex>::
-            apply(elements, choosen_index,
-                  sum_of_margins, smallest_overlap, smallest_content,
-                  parameters, translator);                                                                  // MAY THROW, STRONG
+        choose_split_axis_and_index_for_corner<Box, min_corner, AxisIndex>
+            ::apply(elements, choosen_index,
+                    sum_of_margins, smallest_overlap, smallest_content,
+                    parameters, translator);                                                                // MAY THROW, STRONG
 
         choosen_corner = min_corner;
     }
 };
 
-template <typename Parameters, typename Box, size_t Dimension>
+template <typename Box, size_t Dimension>
 struct choose_split_axis_and_index
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
@@ -254,7 +254,7 @@ struct choose_split_axis_and_index
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
 
-    template <typename Elements, typename Translator>
+    template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements const& elements,
                              size_t & choosen_axis,
                              size_t & choosen_corner,
@@ -267,10 +267,10 @@ struct choose_split_axis_and_index
     {
         typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
 
-        choose_split_axis_and_index<Parameters, Box, Dimension - 1>::
-            apply(elements, choosen_axis, choosen_corner, choosen_index,
-                  smallest_sum_of_margins, smallest_overlap, smallest_content,
-                  parameters, translator);                                                                  // MAY THROW, STRONG
+        choose_split_axis_and_index<Box, Dimension - 1>
+            ::apply(elements, choosen_axis, choosen_corner, choosen_index,
+                    smallest_sum_of_margins, smallest_overlap, smallest_content,
+                    parameters, translator);                                                                // MAY THROW, STRONG
 
         margin_type sum_of_margins = 0;
 
@@ -281,7 +281,6 @@ struct choose_split_axis_and_index
         content_type content_val = (std::numeric_limits<content_type>::max)();
 
         choose_split_axis_and_index_for_axis<
-            Parameters,
             Box,
             Dimension - 1,
             typename tag<element_indexable_type>::type
@@ -299,13 +298,13 @@ struct choose_split_axis_and_index
     }
 };
 
-template <typename Parameters, typename Box>
-struct choose_split_axis_and_index<Parameters, Box, 1>
+template <typename Box>
+struct choose_split_axis_and_index<Box, 1>
 {
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
 
-    template <typename Elements, typename Translator>
+    template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements const& elements,
                              size_t & choosen_axis,
                              size_t & choosen_corner,
@@ -321,7 +320,6 @@ struct choose_split_axis_and_index<Parameters, Box, 1>
         choosen_axis = 0;
 
         choose_split_axis_and_index_for_axis<
-            Parameters,
             Box,
             0,
             typename tag<element_indexable_type>::type
@@ -415,14 +413,11 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
         //       and again, the same below calling partial_sort/nth_element
         //       It would be even possible to not re-sort/find nth_element if the axis/corner
         //       was found for the last sorting - last combination of axis/corner
-        rstar::choose_split_axis_and_index<
-            typename Options::parameters_type,
-            Box,
-            dimension
-        >::apply(elements_copy,
-                 split_axis, split_corner, split_index,
-                 smallest_sum_of_margins, smallest_overlap, smallest_content,
-                 parameters, translator);                                                               // MAY THROW, STRONG
+        rstar::choose_split_axis_and_index<Box, dimension>
+            ::apply(elements_copy,
+                    split_axis, split_corner, split_index,
+                    smallest_sum_of_margins, smallest_overlap, smallest_content,
+                    parameters, translator);                                                            // MAY THROW, STRONG
 
         // TODO: awulkiew - get rid of following static_casts?
         BOOST_GEOMETRY_INDEX_ASSERT(split_axis < dimension, "unexpected value");
