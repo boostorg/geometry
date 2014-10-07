@@ -21,13 +21,14 @@
 
 [*Improvements]
 
-* The rtree insert(), remove() and count() functions support parameters convertible to value_type
+* The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
 
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/9354 9354] Bug in winding strategy affecting within() and covered_by() for non-cartesian coordinate systems
 * [@https://svn.boost.org/trac/boost/ticket/10177 10177] Missing include
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
+* [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
 
 [*Bugfixes]
 
