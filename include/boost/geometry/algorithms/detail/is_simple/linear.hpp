@@ -128,7 +128,7 @@ private:
 
             linestring const& ls2 =
                 range::at(m_multilinestring,
-                          turn.operations[0].other_id.multi_index);
+                          turn.operations[1].seg_id.multi_index);
 
             return
                 is_boundary_point_of(turn.point, ls1)

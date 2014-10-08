@@ -135,10 +135,6 @@ class piece_turn_visitor
                     it2 != it2_last;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                // Revert (this is used more often - should be common function TODO)
-                the_model.operations[0].other_id = the_model.operations[1].seg_id;
-                the_model.operations[1].other_id = the_model.operations[0].seg_id;
-
                 iterator next2 = next_point(ring2, it2);
 
                 // TODO: internally get_turn_info calculates robust points.

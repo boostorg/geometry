@@ -80,7 +80,7 @@ private:
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             multi_indices.insert(tit->operations[0].seg_id.multi_index);
-            multi_indices.insert(tit->operations[0].other_id.multi_index);
+            multi_indices.insert(tit->operations[1].seg_id.multi_index);
         }
 
         // put polygon iterators without turns in a vector
@@ -120,7 +120,7 @@ private:
         inline bool operator()(Turn const& turn) const
         {
             return turn.operations[0].seg_id.multi_index == m_multi_index
-                && turn.operations[0].other_id.multi_index == m_multi_index;
+                && turn.operations[1].seg_id.multi_index == m_multi_index;
         }
 
     private:

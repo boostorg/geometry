@@ -180,10 +180,10 @@ protected:
         {
             if ( tit->operations[0].seg_id.ring_index == -1 )
             {
-                BOOST_ASSERT( tit->operations[0].other_id.ring_index != -1 );
-                ring_indices.insert(tit->operations[0].other_id.ring_index);
+                BOOST_ASSERT( tit->operations[1].seg_id.ring_index != -1 );
+                ring_indices.insert(tit->operations[1].seg_id.ring_index);
             }
-            else if ( tit->operations[0].other_id.ring_index == -1 )
+            else if ( tit->operations[1].seg_id.ring_index == -1 )
             {
                 BOOST_ASSERT( tit->operations[0].seg_id.ring_index != -1 );
                 ring_indices.insert(tit->operations[0].seg_id.ring_index);
@@ -207,7 +207,7 @@ protected:
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             ring_indices.insert(tit->operations[0].seg_id.ring_index);
-            ring_indices.insert(tit->operations[0].other_id.ring_index);
+            ring_indices.insert(tit->operations[1].seg_id.ring_index);
         }
 
         // put iterators for interior rings without turns in a vector
@@ -290,7 +290,7 @@ protected:
                 typename graph::vertex_handle v1 = g.add_vertex
                     ( tit->operations[0].seg_id.ring_index + 1 );
                 typename graph::vertex_handle v2 = g.add_vertex
-                    ( tit->operations[0].other_id.ring_index + 1 );
+                    ( tit->operations[1].seg_id.ring_index + 1 );
                 typename graph::vertex_handle vip = g.add_vertex(tit->point);
 
                 g.add_edge(v1, vip);
