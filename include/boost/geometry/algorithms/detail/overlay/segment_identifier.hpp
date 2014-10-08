@@ -14,9 +14,13 @@
 #  define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
 #endif
 
+#if defined(BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER)
+#include <iostream>
+#endif
 
-#include <vector>
 
+#include <cstddef>
+#include <boost/type_traits/make_signed.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -25,6 +29,10 @@
 
 namespace boost { namespace geometry
 {
+
+
+typedef boost::make_signed<std::size_t>::type signed_index_type;
+//typedef std::ptrdiff_t signed_index_type;
 
 
 // Internal struct to uniquely identify a segment
@@ -40,7 +48,10 @@ struct segment_identifier
         , segment_index(-1)
     {}
 
-    inline segment_identifier(int src, int mul, int rin, int seg)
+    inline segment_identifier(signed_index_type src,
+                              signed_index_type mul,
+                              signed_index_type rin,
+                              signed_index_type seg)
         : source_index(src)
         , multi_index(mul)
         , ring_index(rin)
@@ -78,10 +89,10 @@ struct segment_identifier
     }
 #endif
 
-    int source_index;
-    int multi_index;
-    int ring_index;
-    int segment_index;
+    signed_index_type source_index;
+    signed_index_type multi_index;
+    signed_index_type ring_index;
+    signed_index_type segment_index;
 };
 
 

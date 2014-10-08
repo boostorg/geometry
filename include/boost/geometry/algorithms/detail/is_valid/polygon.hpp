@@ -175,7 +175,7 @@ protected:
     {
         // collect the interior ring indices that have turns with the
         // exterior ring
-        std::set<int> ring_indices;
+        std::set<signed_index_type> ring_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             if ( tit->operations[0].seg_id.ring_index == -1 )
@@ -190,7 +190,7 @@ protected:
             }
         }
 
-        int ring_index = 0;
+        signed_index_type ring_index = 0;
         for (RingIterator it = rings_first; it != rings_beyond;
              ++it, ++ring_index)
         {

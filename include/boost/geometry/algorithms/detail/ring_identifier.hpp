@@ -24,7 +24,9 @@ struct ring_identifier
         , ring_index(-1)
     {}
 
-    inline ring_identifier(int src, int mul, int rin)
+    inline ring_identifier(signed_index_type src,
+                           signed_index_type mul,
+                           signed_index_type rin)
         : source_index(src)
         , multi_index(mul)
         , ring_index(rin)
@@ -58,9 +60,9 @@ struct ring_identifier
 #endif
 
 
-    int source_index;
-    int multi_index;
-    int ring_index;
+    signed_index_type source_index;
+    signed_index_type multi_index;
+    signed_index_type ring_index;
 };
 
 

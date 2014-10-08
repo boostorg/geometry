@@ -74,19 +74,17 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
     typedef typename boost::range_value<TurnPoints>::type turn_point_type;
     typedef typename turn_point_type::container_type container_type;
 
-    int index = 0;
     for (typename boost::range_iterator<TurnPoints const>::type
             it = boost::begin(turn_points);
          it != boost::end(turn_points);
-         ++it, ++index)
+         ++it)
     {
         if (! skip(*it))
         {
-            int op_index = 0;
             for (typename boost::range_iterator<container_type const>::type
                     op_it = boost::begin(it->operations);
                 op_it != boost::end(it->operations);
-                ++op_it, ++op_index)
+                ++op_it)
             {
                 ring_identifier ring_id
                     (
