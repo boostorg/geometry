@@ -19,20 +19,12 @@
 #endif
 
 
-#include <cstddef>
-#include <boost/type_traits/make_signed.hpp>
-
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
-
+#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-
-typedef boost::make_signed<std::size_t>::type signed_index_type;
-//typedef std::ptrdiff_t signed_index_type;
 
 
 // Internal struct to uniquely identify a segment

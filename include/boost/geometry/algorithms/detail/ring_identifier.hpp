@@ -10,6 +10,14 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RING_IDENTIFIER_HPP
 
 
+#if defined(BOOST_GEOMETRY_DEBUG_IDENTIFIER)
+#include <iostream>
+#endif
+
+
+#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
+
+
 namespace boost { namespace geometry
 {
 
