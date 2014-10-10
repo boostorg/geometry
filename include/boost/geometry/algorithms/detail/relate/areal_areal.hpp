@@ -230,7 +230,7 @@ struct areal_areal
           || may_update<exterior, interior, '2'>(result) )
         {
             // sort turns
-            typedef turns::less<0, turns::less_op_areal_areal> less;
+            typedef turns::less<0, turns::less_op_areal_areal<0> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             /*if ( may_update<interior, exterior, '2'>(result)
@@ -269,7 +269,7 @@ struct areal_areal
           || may_update<exterior, interior, '2', true>(result) )
         {
             // sort turns
-            typedef turns::less<1, turns::less_op_areal_areal> less;
+            typedef turns::less<1, turns::less_op_areal_areal<1> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             /*if ( may_update<interior, exterior, '2', true>(result)

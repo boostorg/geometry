@@ -53,7 +53,7 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, bool second,
             PointOut& point)
     {
-        int index = seg_id.segment_index;
+        signed_index_type index = seg_id.segment_index;
         if (second)
         {
             index++;
@@ -112,7 +112,7 @@ struct copy_segment_point_box
             SegmentIdentifier const& seg_id, bool second,
             PointOut& point)
     {
-        int index = seg_id.segment_index;
+        signed_index_type index = seg_id.segment_index;
         if (second)
         {
             index++;

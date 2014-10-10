@@ -244,7 +244,7 @@ struct linear_areal
         {
             // for different multi or same ring id: x, u, i, c
             // for same multi and different ring id: c, i, u, x
-            typedef turns::less<0, turns::less_op_linear_areal> less;
+            typedef turns::less<0, turns::less_op_linear_areal<0> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type> analyser;
@@ -341,7 +341,7 @@ struct linear_areal
                 else
                 {
                     // u, c
-                    typedef turns::less<1, turns::less_op_areal_linear> less;
+                    typedef turns::less<1, turns::less_op_areal_linear<1> > less;
                     std::sort(it, next, less());
 
                     // analyse

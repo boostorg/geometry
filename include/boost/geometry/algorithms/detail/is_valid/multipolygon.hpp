@@ -76,16 +76,16 @@ private:
                                         TurnIterator turns_beyond)
     {
         // collect all polygons that have turns
-        std::set<int> multi_indices;
+        std::set<signed_index_type> multi_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
             multi_indices.insert(tit->operations[0].seg_id.multi_index);
-            multi_indices.insert(tit->operations[0].other_id.multi_index);
+            multi_indices.insert(tit->operations[1].seg_id.multi_index);
         }
 
         // put polygon iterators without turns in a vector
         std::vector<PolygonIterator> polygon_iterators;
-        int multi_index = 0;
+        signed_index_type multi_index = 0;
         for (PolygonIterator it = polygons_first; it != polygons_beyond;
              ++it, ++multi_index)
         {
@@ -112,7 +112,7 @@ private:
     class has_multi_index
     {
     public:
-        has_multi_index(int multi_index)
+        has_multi_index(signed_index_type multi_index)
             : m_multi_index(multi_index)
         {}
 
@@ -120,11 +120,11 @@ private:
         inline bool operator()(Turn const& turn) const
         {
             return turn.operations[0].seg_id.multi_index == m_multi_index
-                && turn.operations[0].other_id.multi_index == m_multi_index;
+                && turn.operations[1].seg_id.multi_index == m_multi_index;
         }
 
     private:
-        int const m_multi_index;
+        signed_index_type const m_multi_index;
     };
 
 
@@ -138,7 +138,7 @@ private:
                                  TurnIterator turns_first,
                                  TurnIterator turns_beyond)
         {
-            int multi_index = 0;
+            signed_index_type multi_index = 0;
             for (PolygonIterator it = polygons_first; it != polygons_beyond;
                  ++it, ++multi_index)
             {
