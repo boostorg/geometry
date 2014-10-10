@@ -25,6 +25,7 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/8402 8402] Implicit casts warnings
 * [@https://svn.boost.org/trac/boost/ticket/9354 9354] Bug in winding strategy affecting within() and covered_by() for non-cartesian coordinate systems
 * [@https://svn.boost.org/trac/boost/ticket/10177 10177] Missing include
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
