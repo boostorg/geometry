@@ -29,6 +29,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/10177 10177] Missing include
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
 * [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
+* [@https://svn.boost.org/trac/boost/ticket/10643 10643] Invalid point_on_surface() result for big coordinates
 
 [*Bugfixes]
 
