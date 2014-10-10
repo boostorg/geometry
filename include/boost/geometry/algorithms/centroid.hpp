@@ -5,6 +5,11 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -18,6 +23,7 @@
 
 #include <cstddef>
 
+#include <boost/core/ref.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -36,9 +42,11 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -190,8 +198,28 @@ inline bool range_ok(Range const& range, Point& centroid)
     return true;
 }
 
-template <typename Pt>
+// NOTE: There is no need to translate in other coordinate systems than
+// cartesian. But if it was needed then one should translate using
+// CS-specific technique, e.g. in spherical/geographic a translation
+// vector should contain coordinates being multiplies of 2PI or 360 deg.
+template <typename Pt, typename CSTag = typename cs_tag<Pt>::type>
 struct translating_transformer
+{
+    typedef boost::reference_wrapper<Pt const> result_type;
+
+    translating_transformer(Pt const&) {}
+
+    result_type apply(Pt const& pt) const
+    {
+        return result_type(pt);
+    }
+
+    template <typename ResPt>
+    void apply_reverse(ResPt & res_pt) const {}
+};
+
+template <typename Pt>
+struct translating_transformer<Pt, cartesian_tag>
 {
     typedef Pt result_type;
     
@@ -227,6 +255,7 @@ struct centroid_range_state
                              Strategy const& strategy,
                              typename Strategy::state_type& state)
     {
+        typedef typename geometry::point_type<Ring const>::type point_type;
         typedef typename closeable_view<Ring const, Closure>::type view_type;
 
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
@@ -243,7 +272,9 @@ struct centroid_range_state
             typename PointTransformer::result_type
                 pt = transformer.apply(*it);
 
-            strategy.apply(previous_pt, pt, state);
+            strategy.apply(static_cast<point_type const&>(previous_pt),
+                           static_cast<point_type const&>(pt),
+                           state);
             
             previous_pt = pt;
         }
@@ -316,7 +347,7 @@ struct centroid_polygon
             // prepare translation transformer
             typedef typename geometry::point_type<Polygon>::type point_type;
             translating_transformer<point_type>
-                transformer(*boost::begin(bg::exterior_ring(poly)));
+                transformer(*boost::begin(exterior_ring(poly)));
             
             typename Strategy::state_type state;
             centroid_polygon_state::apply(poly, transformer, strategy, state);
@@ -341,7 +372,8 @@ struct centroid_multi_point_state
                              Strategy const& strategy,
                              typename Strategy::state_type& state)
     {
-        strategy.apply(transformer.apply(point), state);
+        strategy.apply(static_cast<Point const&>(transformer.apply(point)),
+                       state);
     }
 };
 
