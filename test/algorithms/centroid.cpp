@@ -129,6 +129,19 @@ void test_large_integers()
     BOOST_CHECK_EQUAL(bg::get<1>(int_centroid), bg::get<1>(double_centroid_as_int));
 }
 
+void test_large_doubles()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    point pt;
+    bg::model::polygon<point> poly;
+
+    // related to ticket #10643
+    bg::read_wkt("POLYGON((1074699.93 703064.65, 1074703.90 703064.58, 1074704.53 703061.40, 1074702.10 703054.62, 1074699.93 703064.65))", poly);
+
+    bg::centroid(poly, pt);
+
+    BOOST_CHECK(bg::within(pt, poly) == true);
+}
 
 int test_main(int, char* [])
 {
@@ -149,6 +162,9 @@ int test_main(int, char* [])
     // The test currently fails in release mode. TODO: fix this
     test_large_integers();
 #endif
+
+    test_large_doubles();
+
     test_exceptions<bg::model::d2::point_xy<double> >();
 
     return 0;
