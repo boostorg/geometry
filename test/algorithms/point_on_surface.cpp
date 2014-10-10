@@ -51,7 +51,7 @@
 #endif
 
 template <typename Geometry>
-void test_geometry(std::string const& case_id, std::string const& wkt, double expected_x, double expected_y)
+void test_geometry(std::string const& case_id, std::string const& wkt, double /*expected_x*/ = 0, double /*expected_y*/ = 0)
 {
 //std::cout << case_id << std::endl;
     typedef typename bg::point_type<Geometry>::type point_type;
@@ -151,6 +151,10 @@ void test_all()
     test_geometry<polygon>("self_tangent_int3", "polygon((5 0,2 3,4 8,1.5 3.5,0 5,1 6,2 5,4 8,6 5,7 6,8 5,9 6,10 5,5 0),(3 4,4 3,5 4,4 8,3 4))", 0, 0);
     test_geometry<polygon>("disjoint_simplex0", disjoint_simplex[0], 0, 0);
     test_geometry<polygon>("disjoint_simplex1", disjoint_simplex[1], 0, 0);
+
+    test_geometry<polygon>("ticket_10643", "POLYGON((1074699.93 703064.65, 1074703.90 703064.58, 1074704.53 703061.40, 1074702.10 703054.62, 1074699.93 703064.65))");
+    test_geometry<polygon>("ticket_10643_2", "POLYGON((699.93 64.65, 703.90 64.58, 704.53 61.40, 702.10 54.62, 699.93 64.65))");
+
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
     {
