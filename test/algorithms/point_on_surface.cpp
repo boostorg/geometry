@@ -6,6 +6,11 @@
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -316,11 +321,15 @@ void test_dense(std::string const& case_id, double size)
 {
     typedef bg::model::polygon<Point> polygon;
     polygon poly;
+    
+    bg::append(poly, Point(-size, 0));
+    
     double thres = 3.14158 / 8;
     for ( double a = thres ; a > -thres ; a -= 0.01 )
     {
         bg::append(poly, Point(size * ::cos(a), size * ::sin(a)));
     }
+
     bg::append(poly, Point(-size, 0));
 
     test_geometry(case_id, poly);
