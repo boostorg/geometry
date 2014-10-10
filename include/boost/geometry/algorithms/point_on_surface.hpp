@@ -142,6 +142,30 @@ struct min_of_intruder
     }
 };
 
+
+template <typename Point, typename P>
+inline void calculate_average(Point& point, std::vector<P> const& points)
+{
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    typedef typename std::vector<P>::const_iterator iterator_type;
+    typedef typename std::vector<P>::size_type size_type;
+
+    coordinate_type x = 0;
+    coordinate_type y = 0;
+
+    iterator_type end = points.end();
+    for ( iterator_type it = points.begin() ; it != end ; ++it)
+    {
+        x += geometry::get<0>(*it);
+        y += geometry::get<1>(*it);
+    }
+
+    size_type const count = points.size();
+    geometry::set<0>(point, x / count);
+    geometry::set<1>(point, y / count);
+}
+
+
 template <typename Point, typename Segments>
 inline void calculate_centroid(Point& point, Segments const& segments)
 {
@@ -305,7 +329,8 @@ inline bool calculate_point_on_surface(Geometry const& geometry, Point& point)
     }
 
     // Now calculate the centroid of the (possibly adapted) extremes
-    calculate_centroid(point, extremes);
+    calculate_average(point, extremes);
+    //calculate_centroid(point, extremes);
 
     return true;
 }
