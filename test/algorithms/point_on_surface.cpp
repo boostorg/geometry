@@ -51,14 +51,10 @@
 #endif
 
 template <typename Geometry>
-void test_geometry(std::string const& case_id, std::string const& wkt, double /*expected_x*/ = 0, double /*expected_y*/ = 0)
+void test_geometry(std::string const& case_id, Geometry const& geometry, double /*expected_x*/ = 0, double /*expected_y*/ = 0)
 {
 //std::cout << case_id << std::endl;
     typedef typename bg::point_type<Geometry>::type point_type;
-
-    Geometry geometry;
-    bg::read_wkt(wkt, geometry);
-    bg::correct(geometry);
 
     point_type point;
     bg::point_on_surface(geometry, point);
@@ -125,6 +121,15 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double /*
 
 }
 
+template <typename Geometry>
+void test_geometry(std::string const& case_id, std::string const& wkt, double expected_x = 0, double expected_y = 0)
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+    bg::correct(geometry);
+    test_geometry(case_id, geometry, expected_x, expected_y);
+}
+
 template <typename Point>
 void test_all()
 {
@@ -154,7 +159,6 @@ void test_all()
 
     test_geometry<polygon>("ticket_10643", "POLYGON((1074699.93 703064.65, 1074703.90 703064.58, 1074704.53 703061.40, 1074702.10 703054.62, 1074699.93 703064.65))");
     test_geometry<polygon>("ticket_10643_2", "POLYGON((699.93 64.65, 703.90 64.58, 704.53 61.40, 702.10 54.62, 699.93 64.65))");
-
 
 #if defined(BOOST_GEOMETRY_UNIT_TEST_MULTI)
     {
@@ -307,11 +311,28 @@ void test_all()
     test_geometry<polygon>("ticket_8254", ticket_8254[0],  0, 0);
 }
 
+template <typename Point>
+void test_dense(std::string const& case_id, double size)
+{
+    typedef bg::model::polygon<Point> polygon;
+    polygon poly;
+    double thres = 3.14158 / 8;
+    for ( double a = thres ; a > -thres ; a -= 0.01 )
+    {
+        bg::append(poly, Point(size * ::cos(a), size * ::sin(a)));
+    }
+    bg::append(poly, Point(-size, 0));
+
+    test_geometry(case_id, poly);
+}
 
 
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
+
+    test_dense<bg::model::d2::point_xy<double> >("dense1", 100);
+    test_dense<bg::model::d2::point_xy<double> >("dense2", 1000000);
 
     return 0;
 }
