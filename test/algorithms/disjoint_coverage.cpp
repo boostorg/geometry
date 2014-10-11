@@ -1181,6 +1181,14 @@ inline void test_polygon_polygon()
     tester::apply(from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
+
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9))"),
+                  from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+                  false);
+
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(2 2,2 7,7 7,7 2))"),
+                  from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+                  true);
 }
 
 template <typename P>
