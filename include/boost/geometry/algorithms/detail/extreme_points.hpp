@@ -237,8 +237,9 @@ struct extreme_points_on_ring
             coordinate_type const other_coordinate = geometry::get<1 - Dimension>(*right);
             if (coordinate > min_value && other_coordinate > other_min && other_coordinate < other_max)
             {
-                int const first_side = side_strategy::apply(*right, extremes.front(), *(extremes.begin() + 1));
-                int const last_side = side_strategy::apply(*right, *(extremes.rbegin() + 1), extremes.back());
+                int const kludge = geometry::point_order<Ring>::value == geometry::clockwise ? 1 : -1;
+                int const first_side = side_strategy::apply(*right, extremes.front(), *(extremes.begin() + 1)) * kludge;
+                int const last_side = side_strategy::apply(*right, *(extremes.rbegin() + 1), extremes.back()) * kludge;
 
                 // If not lying left from any of the extemes side
                 if (first_side != 1 && last_side != 1)
@@ -292,8 +293,9 @@ struct extreme_points_on_ring
             return false;
         }
 
-        int const first_side = side_strategy::apply(*(right - 1), *right, *left);
-        int const last_side = side_strategy::apply(*left, *(left + 1), *right);
+        int const kludge = geometry::point_order<Ring>::value == geometry::clockwise ? 1 : -1;
+        int const first_side = side_strategy::apply(*(right - 1), *right, *left) * kludge;
+        int const last_side = side_strategy::apply(*left, *(left + 1), *right) * kludge;
 
 //std::cout << "Candidate at " << geometry::wkt(*it) << " first=" << first_side << " last=" << last_side << std::endl;
 
