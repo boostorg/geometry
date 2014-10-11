@@ -202,34 +202,42 @@ inline bool range_ok(Range const& range, Point& centroid)
 // cartesian. But if it was needed then one should translate using
 // CS-specific technique, e.g. in spherical/geographic a translation
 // vector should contain coordinates being multiplies of 2PI or 360 deg.
-template <typename Pt, typename CSTag = typename cs_tag<Pt>::type>
+template <typename Geometry,
+          typename CastedTag = typename tag_cast
+                                <
+                                    typename tag<Geometry>::type,
+                                    areal_tag
+                                >::type,
+    typename CSTag = typename cs_tag<Geometry>::type>
 struct translating_transformer
 {
-    typedef boost::reference_wrapper<Pt const> result_type;
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef boost::reference_wrapper<point_type const> result_type;
 
-    translating_transformer(Pt const&) {}
+    translating_transformer(point_type const&) {}
 
-    result_type apply(Pt const& pt) const
+    result_type apply(point_type const& pt) const
     {
         return result_type(pt);
     }
 
     template <typename ResPt>
-    void apply_reverse(ResPt & res_pt) const {}
+    void apply_reverse(ResPt &) const {}
 };
 
-template <typename Pt>
-struct translating_transformer<Pt, cartesian_tag>
+template <typename Geometry>
+struct translating_transformer<Geometry, areal_tag, cartesian_tag>
 {
-    typedef Pt result_type;
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef point_type result_type;
     
-    translating_transformer(Pt const& origin)
+    translating_transformer(point_type const& origin)
         : m_origin(origin)
     {}
 
-    result_type apply(Pt const& pt) const
+    result_type apply(point_type const& pt) const
     {
-        Pt res = pt;
+        point_type res = pt;
         geometry::subtract_point(res, m_origin);
         return res;
     }
@@ -240,11 +248,36 @@ struct translating_transformer<Pt, cartesian_tag>
         geometry::add_point(res_pt, m_origin);
     }
 
-    Pt const& m_origin;
+    point_type const& m_origin;
 };
 
+template <typename Geometry>
+inline void assign_origin(Geometry const& geom,
+                          typename geometry::point_type<Geometry>::type & origin)
+{
+    static const bool is_areal
+        = boost::is_same
+            <
+                typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
+                areal_tag
+            >::value;
+
+    if ( is_areal )
+    {
+        geometry::point_iterator<Geometry const>
+            pt_it = geometry::points_begin(geom);
+        if ( pt_it != geometry::points_end(geom) )
+        {
+            origin = *pt_it;
+            return;
+        }
+    }
+
+    geometry::assign_zero(origin);
+}
+
 /*!
-    \brief Calculate the centroid of a ring.
+    \brief Calculate the centroid of a Ring or a Linestring.
 */
 template <closure_selector Closure>
 struct centroid_range_state
@@ -291,9 +324,7 @@ struct centroid_range
         if (range_ok(range, centroid))
         {
             // prepare translation transformer
-            typedef typename geometry::point_type<Range>::type point_type;
-            translating_transformer<point_type>
-                transformer(*boost::begin(range));
+            translating_transformer<Range> transformer(*boost::begin(range));
             
             typename Strategy::state_type state;
             centroid_range_state<Closure>::apply(range, transformer,
@@ -345,8 +376,7 @@ struct centroid_polygon
         if (range_ok(exterior_ring(poly), centroid))
         {
             // prepare translation transformer
-            typedef typename geometry::point_type<Polygon>::type point_type;
-            translating_transformer<point_type>
+            translating_transformer<Polygon>
                 transformer(*boost::begin(exterior_ring(poly)));
             
             typename Strategy::state_type state;
@@ -406,19 +436,8 @@ struct centroid_multi
         // prepare translation transformer
         typedef typename geometry::point_type<Multi>::type point_type;
         point_type origin;
-        {
-            geometry::point_iterator<Multi const>
-                pt_it = geometry::points_begin(multi);
-            if ( pt_it != geometry::points_end(multi) )
-            {
-                origin = *pt_it;
-            }
-            else
-            {
-                geometry::assign_zero(origin);
-            }
-        }
-        translating_transformer<point_type> transformer(origin);
+        assign_origin(multi, origin);
+        translating_transformer<Multi> transformer(origin);
 
         typename Strategy::state_type state;
 
