@@ -66,11 +66,8 @@ template <typename FirstGeometry, typename SecondGeometry>
 inline bool rings_containing(FirstGeometry const& geometry1,
                                  SecondGeometry const& geometry2)
 {
-    check_each_ring_for_within<FirstGeometry> checker(geometry1);
-    geometry::detail::for_each_range(geometry2, checker);
-    return checker.has_within;
+    return geometry::within(geometry::return_point_on_surface(geometry2), geometry1);
 }
-
 
 
 template <typename Geometry1, typename Geometry2>
