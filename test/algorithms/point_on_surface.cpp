@@ -136,6 +136,17 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
 }
 
 template <typename Point>
+void test_point_type()
+{
+    typedef bg::model::polygon<Point> polygon;
+    typedef bg::model::polygon<Point,  true, false> cw_open_polygon;
+    typedef bg::model::polygon<Point,  true,  true> cw_closed_polygon;
+
+    test_geometry<cw_open_polygon>("with_hole_cw_open", "POLYGON((0 0,0 9,9 9,9 0),(2 2,7 2,7 7,2 7))", 0, 0);
+    test_geometry<cw_closed_polygon>("with_hole_cw_closed", "POLYGON((0 0,0 9,9 9,9 0,0 0),(2 2,7 2,7 7,2 7,2 2))", 0, 0);
+}
+
+template <typename Point>
 void test_all()
 {
     typedef bg::model::polygon<Point> polygon;
@@ -339,6 +350,8 @@ void test_dense(std::string const& case_id, double size)
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
+    test_point_type<bg::model::d2::point_xy<double> >();
+    test_point_type<bg::model::d2::point_xy<int> >();
 
     test_dense<bg::model::d2::point_xy<double> >("dense1", 100);
     test_dense<bg::model::d2::point_xy<double> >("dense2", 1000000);
