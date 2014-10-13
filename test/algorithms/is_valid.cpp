@@ -280,7 +280,7 @@ void test_open_rings()
     test::apply(from_wkt<OG>("POLYGON((0 0,0 0,0 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
-    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"),
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0,0 0))"),
                 AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"),
                 AllowDuplicates);
@@ -426,7 +426,7 @@ void test_open_polygons()
     test::apply(from_wkt<OG>("POLYGON((0 0,0 0,0 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0))"), false);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,0 0))"), false);
-    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0))"), AllowDuplicates);
+    test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 1,0 0,0 0))"), AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1))"), AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,1 0,1 0,1 1,0 0))"),
                 AllowDuplicates);
@@ -438,7 +438,7 @@ void test_open_polygons()
                 false);
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 1))"),
                 false);
-    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,1 1))"),
+    test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,1 1,1 1))"),
                 AllowDuplicates);
     test::apply(from_wkt<OG>("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 2,2 1))"),
                 AllowDuplicates);

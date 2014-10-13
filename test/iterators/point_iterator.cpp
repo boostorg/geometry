@@ -217,6 +217,16 @@ struct test_point_iterator_of_geometry
                                    bg::points_end(point_range))
                      );
 
+        if ( !equals::apply(begin, end,
+                                   bg::points_begin(point_range),
+                                   bg::points_end(point_range) ) )
+        {
+            equals::apply(begin, end,
+                bg::points_begin(point_range),
+                bg::points_end(point_range) );
+            int a = 10;
+        }
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << header << " geometry: " << bg::wkt(geometry) << std::endl;
         print_point_range(std::cout, begin, end, "point range: ");
