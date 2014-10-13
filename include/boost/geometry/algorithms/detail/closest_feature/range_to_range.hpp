@@ -1,0 +1,138 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
+
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_FEATURE_RANGE_TO_RANGE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_FEATURE_RANGE_TO_RANGE_HPP
+
+#include <cstddef>
+
+#include <iterator>
+#include <utility>
+
+#include <boost/assert.hpp>
+
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/index/rtree.hpp>
+
+
+namespace boost { namespace geometry
+{
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace closest_feature
+{
+
+
+// returns a pair of a objects where the first is an object of the
+// r-tree range and the second an object of the query range that
+// realizes the closest feature of the two ranges
+template <typename RTreeRangeIterator, typename QueryRangeIterator>
+class range_to_range_rtree
+{
+protected:
+    typedef typename std::iterator_traits
+        <
+            RTreeRangeIterator
+        >::value_type rtree_value_type;
+
+    typedef typename std::iterator_traits
+        <
+            QueryRangeIterator
+        >::value_type query_value_type;
+
+
+    template <typename Strategy, typename DistanceReturnType>
+    static inline void apply(RTreeRangeIterator rtree_first,
+                             RTreeRangeIterator rtree_beyond,
+                             QueryRangeIterator queries_first,
+                             QueryRangeIterator queries_beyond,
+                             Strategy const& strategy,
+                             rtree_value_type& rtree_min,
+                             QueryRangeIterator& qit_min,
+                             DistanceReturnType& dist_min)
+    {
+        typedef index::rtree<rtree_value_type, index::linear<8> > rtree_type;
+
+        BOOST_ASSERT( rtree_first != rtree_beyond );
+        BOOST_ASSERT( queries_first != queries_beyond );
+        //        BOOST_ASSERT( !geometry::has_one_element(rtree_first, rtree_beyond) );
+
+        // create -- packing algorithm
+        rtree_type rt(rtree_first, rtree_beyond);
+
+        rtree_value_type t_v;
+        bool first = true;
+
+        for (QueryRangeIterator qit = queries_first;
+             qit != queries_beyond; ++qit, first = false)
+        {
+            std::size_t n = rt.query(index::nearest(*qit, 1), &t_v);
+
+            BOOST_ASSERT( n > 0 );
+            // n above is unused outside BOOST_ASSERT, hence the call
+            // to boost::ignore_unused below
+            //
+            // however, t_v (initialized by the call to rt.query(...))
+            // is used below, which is why we cannot put the call to
+            // rt.query(...) inside BOOST_ASSERT
+            boost::ignore_unused(n);
+
+            DistanceReturnType dist = dispatch::distance
+                <
+                    rtree_value_type, query_value_type, Strategy
+                >::apply(t_v, *qit, strategy);
+
+            if ( first || dist < dist_min )
+            {
+                dist_min = dist;
+                rtree_min = t_v;
+                qit_min = qit;
+            }
+        }
+    }
+
+public:
+    typedef typename std::pair
+        <
+            rtree_value_type, QueryRangeIterator
+        > return_type;
+
+    template <typename Strategy>
+    static inline return_type apply(RTreeRangeIterator rtree_first,
+                                    RTreeRangeIterator rtree_beyond,
+                                    QueryRangeIterator queries_first,
+                                    QueryRangeIterator queries_beyond,
+                                    Strategy const& strategy)
+    {
+        typename strategy::distance::services::return_type
+            <
+                Strategy,
+                typename point_type<rtree_value_type>::type,
+                typename point_type<query_value_type>::type
+            >::type dist_min;
+
+        rtree_value_type rtree_min; 
+        QueryRangeIterator qit_min;
+        apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
+              strategy, rtree_min, qit_min, dist_min);
+
+        return std::make_pair(rtree_min, qit_min);
+    }
+};
+
+
+}} // namespace detail::closest_feature
+#endif // DOXYGEN_NO_DETAIL
+
+}} // namespace boost::geometry
+
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_FEATURE_RANGE_TO_RANGE_HPP
