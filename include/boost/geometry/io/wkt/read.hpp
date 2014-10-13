@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -29,6 +34,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -231,18 +237,18 @@ struct container_inserter
 template <typename Geometry>
 struct container_appender
 {
-    typedef typename geometry::point_type
-        <
-            typename boost::remove_reference<Geometry>::type
-        >::type point_type;
+    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
+    typedef typename geometry::point_type<bare_geometry>::type point_type;
 
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
-        std::string const& wkt, Geometry out)
+                             std::string const& wkt, Geometry out)
     {
         handle_open_parenthesis(it, end, wkt);
 
         point_type point;
-
+        point_type first_point;
+        typename boost::range_size<bare_geometry>::type pt_index = 0;
+        
         // Parse points until closing parenthesis
 
         while (it != end && *it != ")")
@@ -254,8 +260,43 @@ struct container_appender
                     dimension<point_type>::value
                 >::apply(it, end, point, wkt);
 
-            geometry::append(out, point);
-            if (it != end && *it == ",")
+            bool should_append = true;
+            bool const is_next_expected = it != end && *it == ",";
+            
+            if ( closure<bare_geometry>::value == open )
+            {
+                // sanity check - only Rings, Polygons and MultiPolygons may be open
+                // this is important for the minimum_ring_size condition
+                BOOST_STATIC_ASSERT(( closure<bare_geometry>::value != open
+                                   || boost::is_same<typename tag_cast
+                                        <
+                                            typename tag<bare_geometry>::type,
+                                            areal_tag
+                                        >::type, areal_tag>::value
+                                   ));
+
+                if ( pt_index == 0 )
+                {
+                    first_point = point;
+                    should_append = true;
+                }
+                else
+                {
+                    // NOTE: if there is not enough Points, they're always appended
+                    should_append
+                        = is_next_expected
+                       || pt_index < core_detail::closure::minimum_ring_size<open>::value
+                       || !detail::equals::equals_point_point(point, first_point);
+                }
+                ++pt_index;
+            }            
+
+            if ( should_append )
+            {
+                geometry::append(out, point);
+            }
+
+            if ( is_next_expected )
             {
                 ++it;
             }
