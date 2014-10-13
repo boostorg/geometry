@@ -19,22 +19,18 @@
 
 #include <boost/core/ignore_unused.hpp>
 
-#include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/tags.hpp>
-
 #include <boost/geometry/iterators/point_iterator.hpp>
+#include <boost/geometry/iterators/segment_iterator.hpp>
 #include <boost/geometry/iterators/has_one_element.hpp>
 
-#include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/distance_comparable_to_regular.hpp>
-#include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
-#include <boost/geometry/index/rtree.hpp>
+#include <boost/geometry/algorithms/detail/closest_feature/range_to_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/iterator_selector.hpp>
 
 
 namespace boost { namespace geometry
@@ -49,11 +45,10 @@ namespace detail { namespace distance
 
 template
 <
-    typename RTreePoint,
     typename Geometry,
     typename Strategy
 >
-class point_range_to_geometry_rtree
+class point_or_segment_range_to_geometry_rtree
 {
 private:
     typedef typename strategy::distance::services::comparable_type
@@ -61,119 +56,72 @@ private:
             Strategy
         >::type comparable_strategy;
 
-    typedef typename strategy::distance::services::return_type
-        <
-            comparable_strategy,
-            RTreePoint,
-            typename point_type<Geometry>::type
-        >::type comparable_return_type;
-
-    typedef index::rtree<RTreePoint, index::linear<8> > r_tree;
-
-    // functor to evaluate minimum comparable distance
-    struct minimum_comparable_distance_evaluator
-    {
-        r_tree const& m_r_tree;
-        comparable_strategy const& m_cstrategy;
-        bool m_first;
-        comparable_return_type m_min_cd;
-
-        minimum_comparable_distance_evaluator
-        (r_tree const& r_tree, comparable_strategy const& cstrategy)
-            : m_r_tree(r_tree)
-            , m_cstrategy(cstrategy)
-            , m_first(true)
-            , m_min_cd()
-        {}
-
-        template <typename QueryGeometry>
-        inline void operator()(QueryGeometry const& query_geometry)
-        {
-            typename r_tree::value_type t_v;
-            std::size_t n =
-                m_r_tree.query(index::nearest(query_geometry, 1), &t_v);
-
-            BOOST_ASSERT( n > 0 );
-            // n above is unused outside BOOST_ASSERT, hence the call
-            // to boost::ignore_unused below
-            //
-            // however, t_v (initialized by the call to m_r_tree.query(...))
-            // is used below, which is why we cannot put the call to
-            // m_r_tree.query(...) inside BOOST_ASSERT
-            boost::ignore_unused(n);
-
-            comparable_return_type cd = dispatch::distance
-                <
-                    typename r_tree::value_type,
-                    QueryGeometry,
-                    comparable_strategy
-                >::apply(t_v, query_geometry, m_cstrategy);
-
-            if ( m_first || cd < m_min_cd )
-            {
-                m_first = false;
-                m_min_cd = cd;
-            }
-        }
-    };
-
-
-
-    // class to choose between for_each_point and for_each_segment
-    template <typename G, typename Tag = typename tag<G>::type>
-    struct for_each_selector
-    {
-        typedef dispatch::for_each_segment<G> type;
-    };
-
-    template <typename MultiPoint>
-    struct for_each_selector<MultiPoint, multi_point_tag>
-    {
-        typedef dispatch::for_each_point<MultiPoint> type;
-    };
-
 public:
-    typedef typename strategy::distance::services::return_type
+    template <typename PointOrSegmentIterator>
+    static inline
+    typename strategy::distance::services::return_type
         <
             Strategy,
-            RTreePoint,
+            typename point_type
+                <
+                    typename std::iterator_traits
+                        <
+                            PointOrSegmentIterator
+                        >::value_type
+                >::type,
             typename point_type<Geometry>::type
-        >::type return_type;
-
-    template <typename PointIterator>
-    static inline return_type apply(PointIterator points_first,
-                                    PointIterator points_beyond,
-                                    Geometry const& geometry,
-                                    Strategy const& strategy)
+        >::type
+    apply(PointOrSegmentIterator first,
+          PointOrSegmentIterator beyond,
+          Geometry const& geometry,
+          Strategy const& strategy)
     {
-        BOOST_ASSERT( points_first != points_beyond );
+        typedef iterator_selector<Geometry const> selector_type;
 
-        if ( geometry::has_one_element(points_first, points_beyond) )
+        typedef detail::closest_feature::range_to_range_rtree
+            <
+                PointOrSegmentIterator,
+                typename selector_type::iterator_type
+            > closest_features_type;
+
+        BOOST_ASSERT( first != beyond );
+
+        if ( geometry::has_one_element(first, beyond) )
         {
             return dispatch::distance
                 <
-                    typename std::iterator_traits<PointIterator>::value_type,
+                    typename std::iterator_traits
+                        <
+                            PointOrSegmentIterator
+                        >::value_type,
                     Geometry,
                     Strategy
-                >::apply(*points_first, geometry, strategy);
+                >::apply(*first, geometry, strategy);
         }
 
-        // create -- packing algorithm
-        r_tree rt(points_first, points_beyond);
+        comparable_strategy cstrategy
+            = strategy::distance::services::get_comparable
+                <
+                    Strategy
+                >::apply(strategy);
 
-        minimum_comparable_distance_evaluator
-            functor(rt,
-                    strategy::distance::services::get_comparable
-                        <
-                            Strategy
-                        >::apply(strategy));
+        typename closest_features_type::return_type cf
+            = closest_features_type::apply(first,
+                                           beyond,
+                                           selector_type::begin(geometry),
+                                           selector_type::end(geometry),
+                                           cstrategy);
 
-        for_each_selector<Geometry>::type::apply(geometry, functor);
-
-        return strategy::distance::services::comparable_to_regular
+        
+        return dispatch::distance
             <
-                comparable_strategy, Strategy, RTreePoint, Geometry
-            >::apply(functor.m_min_cd);
+                typename closest_features_type::return_type::first_type,
+                typename std::iterator_traits
+                    <
+                        typename closest_features_type::return_type::second_type
+                    >::value_type,
+                Strategy
+            >::apply(cf.first, *cf.second, strategy);
     }
 };
 
@@ -200,13 +148,6 @@ private:
             Strategy
         >::type comparable_strategy;
 
-    typedef typename strategy::distance::services::return_type
-        <
-            comparable_strategy,
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
-        >::type comparable_return_type;
-
 public:
     typedef typename strategy::distance::services::return_type
         <
@@ -222,6 +163,22 @@ public:
     {
         typedef geometry::point_iterator<Geometry1 const> const_point_iterator1;
         typedef geometry::point_iterator<Geometry2 const> const_point_iterator2;
+
+        typedef detail::closest_feature::range_to_range_rtree
+            <
+                const_point_iterator1,
+                geometry::segment_iterator<Geometry2 const>
+            > closest_features_type12;
+
+        typedef typename closest_features_type12::return_type return_type12;
+
+        typedef detail::closest_feature::range_to_range_rtree
+            <
+                const_point_iterator2,
+                geometry::segment_iterator<Geometry1 const>
+            > closest_features_type21;
+
+        typedef typename closest_features_type21::return_type return_type21;
 
         const_point_iterator1 first1 = points_begin(geometry1);
         const_point_iterator1 beyond1 = points_end(geometry1);
@@ -259,135 +216,48 @@ public:
                     Strategy
                 >::apply(strategy);
 
-        comparable_return_type cdist1 = point_range_to_geometry_rtree
+        return_type12 cf12
+            = closest_features_type12::apply(first1,
+                                             beyond1,
+                                             segments_begin(geometry2),
+                                             segments_end(geometry2),
+                                             cstrategy);
+
+        return_type21 cf21
+            = closest_features_type21::apply(first2,
+                                             beyond2,
+                                             segments_begin(geometry1),
+                                             segments_end(geometry1),
+                                             cstrategy);
+
+        return_type dist1 = dispatch::distance
             <
                 typename point_type<Geometry1>::type,
-                Geometry2,
-                comparable_strategy
-            >::apply(first1, beyond1, geometry2, cstrategy);
+                typename std::iterator_traits
+                    <
+                        typename return_type12::second_type
+                    >::value_type,
+                Strategy
+            >::apply(cf12.first, *cf12.second, strategy);
 
-        comparable_return_type cdist2 = point_range_to_geometry_rtree
+        return_type dist2 = dispatch::distance
             <
                 typename point_type<Geometry2>::type,
-                Geometry1,
-                comparable_strategy
-            >::apply(first2, beyond2, geometry1, cstrategy);
+                typename std::iterator_traits
+                    <
+                        typename return_type21::second_type
+                    >::value_type,                
+                Strategy
+            >::apply(cf21.first, *cf21.second, strategy);
 
-
-        return strategy::distance::services::comparable_to_regular
-            <
-                comparable_strategy, Strategy, Geometry1, Geometry2
-            >::apply( (std::min)(cdist1, cdist2) );
+        return (std::min)(dist1, dist2);
     }
 };
 
 
 
-
 }} // namespace detail::distance
 #endif // DOXYGEN_NO_DETAIL
-
-
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-template <typename Linestring1, typename Linestring2, typename Strategy>
-struct distance
-    <
-        Linestring1, Linestring2, Strategy,
-        linestring_tag, linestring_tag, 
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Linestring1, Linestring2, Strategy
-        >
-{};
-
-
-
-template <typename Linestring, typename Polygon, typename Strategy>
-struct distance
-    <
-        Linestring, Polygon, Strategy,
-        linestring_tag, polygon_tag, 
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Linestring, Polygon, Strategy
-        >
-{};
-
-
-
-template <typename Linestring, typename Ring, typename Strategy>
-struct distance
-    <
-        Linestring, Ring, Strategy,
-        linestring_tag, ring_tag, 
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Linestring, Ring, Strategy
-        >
-{};
-
-
-
-template <typename Polygon1, typename Polygon2, typename Strategy>
-struct distance
-    <
-        Polygon1, Polygon2, Strategy,
-        polygon_tag, polygon_tag,
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Polygon1, Polygon2, Strategy
-        >
-{};
-
-
-
-template <typename Polygon, typename Ring, typename Strategy>
-struct distance
-    <
-        Polygon, Ring, Strategy,
-        polygon_tag, ring_tag,
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Polygon, Ring, Strategy
-        >
-{};
-
-
-
-template <typename Ring1, typename Ring2, typename Strategy>
-struct distance
-    <
-        Ring1, Ring2, Strategy,
-        ring_tag, ring_tag,
-        strategy_tag_distance_point_segment, false
-    >
-    : detail::distance::geometry_to_geometry_rtree
-        <
-            Ring1, Ring2, Strategy
-        >
-{};
-
-
-
-} // namespace dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
 
 
 }} // namespace boost::geometry
