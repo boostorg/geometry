@@ -25,7 +25,7 @@
 
 #include <boost/geometry/algorithms/within.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/algorithms/point_on_surface.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 
@@ -39,36 +39,14 @@ namespace detail { namespace disjoint
 {
 
 
-template<typename Geometry>
-struct check_each_ring_for_within
-{
-    bool has_within;
-    Geometry const& m_geometry;
-
-    inline check_each_ring_for_within(Geometry const& g)
-        : has_within(false)
-        , m_geometry(g)
-    {}
-
-    template <typename Range>
-    inline void apply(Range const& range)
-    {
-        if ( geometry::within(geometry::return_point_on_surface(range), m_geometry) )
-        {
-            has_within = true;
-        }
-    }
-};
-
-
-
 template <typename FirstGeometry, typename SecondGeometry>
 inline bool rings_containing(FirstGeometry const& geometry1,
                                  SecondGeometry const& geometry2)
 {
-    check_each_ring_for_within<FirstGeometry> checker(geometry1);
-    geometry::detail::for_each_range(geometry2, checker);
-    return checker.has_within;
+    typedef typename point_type<SecondGeometry>::type point_type;
+    point_type point;
+    geometry::point_on_border<point_type, SecondGeometry>(point, geometry2);
+    return geometry::within(point, geometry1);
 }
 
 
