@@ -21,14 +21,6 @@
 #include <boost/geometry/algorithms/detail/disjoint/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
 
-#if defined(BOOST_GEOMETRY_DISJOINT_USE_PARTITION)
-#include <cstddef>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
-#endif
-
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 
@@ -41,71 +33,6 @@ namespace detail { namespace disjoint
 {
 
 
-#if defined(BOOST_GEOMETRY_DISJOINT_USE_PARTITION)
-template<typename MultiPoint1, typename MultiPoint2>
-class multipoint_multipoint
-{
-private:
-    struct point_expand
-    {
-        template <typename Box, typename Point>
-        static inline void apply(Box& total, Point const& point)
-        {
-            geometry::expand(total, point);
-        }
-    };
-
-    struct overlaps_point
-    {
-        template <typename Box, typename Point>
-        static inline bool apply(Box const& box, Point const& point)
-        {
-            return !dispatch::disjoint<Point, Box>::apply(point, box);
-        }
-    };
-
-    struct two_point_visitor
-    {
-        std::size_t count;
-
-        two_point_visitor()
-            : count(0)
-        {}
-
-        template <typename Point1, typename Point2>
-        inline void apply(Point1 const& item1, Point2 const& item2)
-        {
-            if ( count == 0 && geometry::equals(item1, item2) )
-            {
-                ++count;
-            }
-        }
-    };
-
-public:
-    static inline bool apply(MultiPoint1 const& multipoint1,
-                             MultiPoint2 const& multipoint2)
-    {
-        BOOST_ASSERT( boost::size(multipoint1) <= boost::size(multipoint2) );
-
-        typedef typename boost::range_value<MultiPoint1>::type point1_type;
-
-        two_point_visitor visitor;
-
-        geometry::partition
-            <
-                geometry::model::box
-                    <
-                        typename boost::range_value<MultiPoint1>::type
-                    >,
-                point_expand,
-                overlaps_point
-            >::apply(multipoint1, multipoint2, visitor);
-
-        return visitor.count == 0;
-    }
-};
-#else
 template<typename MultiPoint1, typename MultiPoint2>
 struct multipoint_multipoint
 {
@@ -139,7 +66,6 @@ struct multipoint_multipoint
         return true;
     }
 };
-#endif
 
 
 }} // namespace detail::disjoint
