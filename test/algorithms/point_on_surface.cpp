@@ -126,10 +126,8 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
 }
 
 template <typename Point>
-void test_point_order()
+void test_point_order_and_type()
 {
-    typedef bg::model::polygon<Point> polygon;
-
     typedef bg::model::polygon<Point> polygon;
     typedef bg::model::polygon<Point, false, false> ccw_open_polygon;
     typedef bg::model::polygon<Point,  true, false> cw_open_polygon;
@@ -325,7 +323,8 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<double> >();
-    test_point_order<bg::model::d2::point_xy<double> >();
+    test_point_order_and_type<bg::model::d2::point_xy<double> >();
+    test_point_order_and_type<bg::model::d2::point_xy<int> >();
 
     return 0;
 }

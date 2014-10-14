@@ -89,7 +89,8 @@ inline void move_along_vector(PointType& point, PointType const& extreme, Coordi
 
     CoordinateType const base_diff = base_value - geometry::get<Dimension>(extreme);
 
-    multiply_value(vector, base_diff / diff);
+    multiply_value(vector, base_diff);
+    divide_value(vector, diff);
 
     // The real move:
     point = extreme;
