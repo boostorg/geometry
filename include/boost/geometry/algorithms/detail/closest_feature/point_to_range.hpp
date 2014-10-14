@@ -51,6 +51,8 @@ protected:
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
+        BOOST_ASSERT( first != last );
+
         Distance const zero = Distance(0);
 
         iterator_type it = first;
