@@ -42,22 +42,23 @@ class point_to_point_range
 protected:
     typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-    template <typename DistanceReturnType>
+    template <typename Distance>
     static inline void apply(Point const& point,
                              iterator_type first,
                              iterator_type beyond,
                              Strategy const& strategy,
                              iterator_type& it_min1,
                              iterator_type& it_min2,
-                             DistanceReturnType& dist_min)
+                             Distance& dist_min)
     {
-        DistanceReturnType const zero = DistanceReturnType(0);
+        Distance const zero = Distance(0);
 
         iterator_type it = first;
         iterator_type prev = it++;
         if ( it == beyond )
         {
             it_min1 = it_min2 = first;
+            dist_min = strategy.apply(point, *first, *first);
             return;
         }
 
@@ -68,7 +69,7 @@ protected:
         // check if other segments are closer
         for (++prev, ++it; it != beyond; ++prev, ++it)
         {
-            DistanceReturnType dist = strategy.apply(point, *prev, *it);
+            Distance dist = strategy.apply(point, *prev, *it);
             if ( geometry::math::equals(dist, zero) )
             {
                 dist_min = zero;
@@ -90,6 +91,19 @@ protected:
 public:
     typedef typename std::pair<iterator_type, iterator_type> return_type;
 
+    template <typename Distance>
+    static inline return_type apply(Point const& point,
+                                    iterator_type first,
+                                    iterator_type beyond,
+                                    Strategy const& strategy,
+                                    Distance& dist_min)
+    {
+        iterator_type it_min1, it_min2;
+        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+
+        return std::make_pair(it_min1, it_min2);
+    }
+
     static inline return_type apply(Point const& point,
                                     iterator_type first,
                                     iterator_type beyond,
@@ -102,10 +116,20 @@ public:
                 typename boost::range_value<Range>::type
             >::type dist_min;
 
-        iterator_type it_min1, it_min2;
-        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+        return apply(point, first, beyond, strategy, dist_min);
+    }
 
-        return std::make_pair(it_min1, it_min2);
+    template <typename Distance>
+    static inline return_type apply(Point const& point,
+                                    Range const& range,
+                                    Strategy const& strategy,
+                                    Distance& dist_min)
+    {
+        return apply(point,
+                     boost::begin(range),
+                     boost::end(range),
+                     strategy,
+                     dist_min);
     }
 
     static inline return_type apply(Point const& point,
@@ -127,15 +151,14 @@ private:
     typedef point_to_point_range<Point, Range, closed, Strategy> base_type;
     typedef typename base_type::iterator_type iterator_type;
 
-protected:
-    template <typename DistanceReturnType>
+    template <typename Distance>
     static inline void apply(Point const& point,
                              iterator_type first,
                              iterator_type beyond,
                              Strategy const& strategy,
                              iterator_type& it_min1,
                              iterator_type& it_min2,
-                             DistanceReturnType& dist_min)
+                             Distance& dist_min)
     {
         BOOST_ASSERT( first != beyond );
 
@@ -143,15 +166,16 @@ protected:
                          it_min1, it_min2, dist_min);
 
         iterator_type it_back = --beyond;
-        DistanceReturnType const zero = DistanceReturnType(0);
-        DistanceReturnType dist = strategy.apply(point, *it_back, *first);
+        Distance const zero = Distance(0);
+        Distance dist = strategy.apply(point, *it_back, *first);
 
         if ( geometry::math::equals(dist, zero) )
         {
             dist_min = zero;
             it_min1 = it_back;
             it_min2 = first;
-        } else if ( dist < dist_min )
+        }
+        else if ( dist < dist_min )
         {
             dist_min = dist;
             it_min1 = it_back;
@@ -161,6 +185,20 @@ protected:
 
 public:
     typedef typename std::pair<iterator_type, iterator_type> return_type;
+
+    template <typename Distance>
+    static inline return_type apply(Point const& point,
+                                    iterator_type first,
+                                    iterator_type beyond,
+                                    Strategy const& strategy,
+                                    Distance& dist_min)
+    {
+        iterator_type it_min1, it_min2;
+
+        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+
+        return std::make_pair(it_min1, it_min2);
+    }
 
     static inline return_type apply(Point const& point,
                                     iterator_type first,
@@ -175,11 +213,21 @@ public:
             >::type distance_return_type;
 
         distance_return_type dist_min;
-        iterator_type it_min1, it_min2;
 
-        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+        return apply(point, first, beyond, strategy, dist_min);
+    }
 
-        return std::make_pair(it_min1, it_min2);
+    template <typename Distance>
+    static inline return_type apply(Point const& point,
+                                    Range const& range,
+                                    Strategy const& strategy,
+                                    Distance& dist_min)
+    {
+        return apply(point,
+                     boost::begin(range),
+                     boost::end(range),
+                     strategy,
+                     dist_min);
     }
 
     static inline return_type apply(Point const& point,

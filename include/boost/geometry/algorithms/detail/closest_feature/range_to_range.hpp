@@ -34,41 +34,35 @@ namespace detail { namespace closest_feature
 // returns a pair of a objects where the first is an object of the
 // r-tree range and the second an object of the query range that
 // realizes the closest feature of the two ranges
-template <typename RTreeRangeIterator, typename QueryRangeIterator>
 class range_to_range_rtree
 {
-protected:
-    typedef typename std::iterator_traits
-        <
-            RTreeRangeIterator
-        >::value_type rtree_value_type;
-
-    typedef typename std::iterator_traits
-        <
-            QueryRangeIterator
-        >::value_type query_value_type;
-
-
-    template <typename Strategy, typename DistanceReturnType>
+private:
+    template
+    <
+        typename RTreeRangeIterator,
+        typename QueryRangeIterator,
+        typename Strategy,
+        typename RTreeValueType,
+        typename Distance
+    >
     static inline void apply(RTreeRangeIterator rtree_first,
                              RTreeRangeIterator rtree_beyond,
                              QueryRangeIterator queries_first,
                              QueryRangeIterator queries_beyond,
                              Strategy const& strategy,
-                             rtree_value_type& rtree_min,
+                             RTreeValueType& rtree_min,
                              QueryRangeIterator& qit_min,
-                             DistanceReturnType& dist_min)
+                             Distance& dist_min)
     {
-        typedef index::rtree<rtree_value_type, index::linear<8> > rtree_type;
+        typedef index::rtree<RTreeValueType, index::linear<8> > rtree_type;
 
         BOOST_ASSERT( rtree_first != rtree_beyond );
         BOOST_ASSERT( queries_first != queries_beyond );
-        //        BOOST_ASSERT( !geometry::has_one_element(rtree_first, rtree_beyond) );
 
         // create -- packing algorithm
         rtree_type rt(rtree_first, rtree_beyond);
 
-        rtree_value_type t_v;
+        RTreeValueType t_v;
         bool first = true;
 
         for (QueryRangeIterator qit = queries_first;
@@ -85,9 +79,14 @@ protected:
             // rt.query(...) inside BOOST_ASSERT
             boost::ignore_unused(n);
 
-            DistanceReturnType dist = dispatch::distance
+            Distance dist = dispatch::distance
                 <
-                    rtree_value_type, query_value_type, Strategy
+                    RTreeValueType,
+                    typename std::iterator_traits
+                        <
+                            QueryRangeIterator
+                        >::value_type,
+                    Strategy
                 >::apply(t_v, *qit, strategy);
 
             if ( first || dist < dist_min )
@@ -100,31 +99,84 @@ protected:
     }
 
 public:
-    typedef typename std::pair
-        <
-            rtree_value_type, QueryRangeIterator
-        > return_type;
-
-    template <typename Strategy>
-    static inline return_type apply(RTreeRangeIterator rtree_first,
-                                    RTreeRangeIterator rtree_beyond,
-                                    QueryRangeIterator queries_first,
-                                    QueryRangeIterator queries_beyond,
-                                    Strategy const& strategy)
+    template <typename RTreeRangeIterator, typename QueryRangeIterator>
+    struct return_type
     {
+        typedef std::pair
+            <
+                typename std::iterator_traits<RTreeRangeIterator>::value_type,
+                QueryRangeIterator
+            > type;
+    };
+
+
+    template
+    <
+        typename RTreeRangeIterator,
+        typename QueryRangeIterator,
+        typename Strategy,
+        typename Distance
+    >
+    static inline typename return_type
+        <
+            RTreeRangeIterator, QueryRangeIterator
+        >::type apply(RTreeRangeIterator rtree_first,
+                      RTreeRangeIterator rtree_beyond,
+                      QueryRangeIterator queries_first,
+                      QueryRangeIterator queries_beyond,
+                      Strategy const& strategy,
+                      Distance& dist_min)
+    {
+        typedef typename std::iterator_traits
+            <
+                RTreeRangeIterator
+            >::value_type rtree_value_type;
+
+        rtree_value_type rtree_min;
+        QueryRangeIterator qit_min;
+
+        apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
+              strategy, rtree_min, qit_min, dist_min);
+
+        return std::make_pair(rtree_min, qit_min);        
+    }
+
+
+    template
+    <
+        typename RTreeRangeIterator,
+        typename QueryRangeIterator,
+        typename Strategy
+    >
+    static inline typename return_type
+        <
+            RTreeRangeIterator, QueryRangeIterator
+        >::type apply(RTreeRangeIterator rtree_first,
+                      RTreeRangeIterator rtree_beyond,
+                      QueryRangeIterator queries_first,
+                      QueryRangeIterator queries_beyond,
+                      Strategy const& strategy)
+    {
+        typedef typename std::iterator_traits
+            <
+                RTreeRangeIterator
+            >::value_type rtree_value_type;
+
         typename strategy::distance::services::return_type
             <
                 Strategy,
                 typename point_type<rtree_value_type>::type,
-                typename point_type<query_value_type>::type
+                typename point_type
+                    <
+                        typename std::iterator_traits
+                            <
+                                QueryRangeIterator
+                            >::value_type
+                    >::type
             >::type dist_min;
 
-        rtree_value_type rtree_min; 
-        QueryRangeIterator qit_min;
-        apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
-              strategy, rtree_min, qit_min, dist_min);
-
-        return std::make_pair(rtree_min, qit_min);
+        return apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
+                     strategy, dist_min);
     }
 };
 

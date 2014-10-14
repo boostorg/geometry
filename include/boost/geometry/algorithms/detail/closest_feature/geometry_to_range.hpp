@@ -34,24 +34,24 @@ namespace detail { namespace closest_feature
 // distance between the geometry and the element of the range
 class geometry_to_range
 {
-protected:
+private:
     template
     <
         typename Geometry,
         typename RangeIterator,
         typename Strategy,
-        typename DistanceReturnType
+        typename Distance
     >
     static inline void apply(Geometry const& geometry,
                              RangeIterator first,
                              RangeIterator beyond,
                              Strategy const& strategy,
                              RangeIterator& it_min,
-                             DistanceReturnType& dist_min)
+                             Distance& dist_min)
     {
         BOOST_ASSERT( first != beyond );
 
-        DistanceReturnType const zero = DistanceReturnType(0);
+        Distance const zero = Distance(0);
 
         // start with first distance
         it_min = first;
@@ -66,7 +66,7 @@ protected:
         RangeIterator it = first;
         for (++it; it != beyond; ++it)
         {
-            DistanceReturnType dist = dispatch::distance
+            Distance dist = dispatch::distance
                 <
                     Geometry,
                     typename std::iterator_traits<RangeIterator>::value_type,
@@ -92,6 +92,26 @@ public:
     <
         typename Geometry,
         typename RangeIterator,
+        typename Strategy,
+        typename Distance
+    >    
+    static inline RangeIterator apply(Geometry const& geometry,
+                                      RangeIterator first,
+                                      RangeIterator beyond,
+                                      Strategy const& strategy,
+                                      Distance& dist_min)
+    {
+        RangeIterator it_min;
+        apply(geometry, first, beyond, strategy, it_min, dist_min);
+
+        return it_min;
+    }
+
+
+    template
+    <
+        typename Geometry,
+        typename RangeIterator,
         typename Strategy
     >    
     static inline RangeIterator apply(Geometry const& geometry,
@@ -112,10 +132,7 @@ public:
                     >::type
             >::type dist_min;
 
-        RangeIterator it_min;
-        apply(geometry, first, beyond, strategy, it_min, dist_min);
-
-        return it_min;
+        return apply(geometry, first, beyond, strategy, dist_min);
     }
 };
 
