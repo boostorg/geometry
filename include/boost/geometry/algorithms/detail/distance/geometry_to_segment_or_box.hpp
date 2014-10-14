@@ -33,6 +33,8 @@
 #include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
 
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -74,17 +76,6 @@ template
     typename Tag = typename tag<Geometry>::type
 >
 class geometry_to_segment_or_box
-    : detail::closest_feature::point_to_point_range
-        <
-            typename point_type<Geometry>::type,
-            std::vector<typename point_type<SegmentOrBox>::type>,
-            segment_or_box_point_range_closure<SegmentOrBox>::value,
-            typename strategy::distance::services::comparable_type
-                <
-                    Strategy
-                >::type
-        >,
-      detail::closest_feature::geometry_to_range
 {
 private:
     typedef typename point_type<SegmentOrBox>::type segment_or_box_point;
@@ -100,9 +91,9 @@ private:
             std::vector<segment_or_box_point>,
             segment_or_box_point_range_closure<SegmentOrBox>::value,
             comparable_strategy
-        > base_type1;
+        > point_to_point_range;
 
-    typedef detail::closest_feature::geometry_to_range base_type2;
+    typedef detail::closest_feature::geometry_to_range geometry_to_range;
 
     typedef typename strategy::distance::services::return_type
         <
@@ -233,22 +224,23 @@ public:
         for (point_iterator_type pit = points_begin(geometry);
              pit != points_end(geometry); ++pit, first = false)
         {
-            seg_or_box_iterator_type it1, it2;
             comparable_return_type cd;
-            base_type1::apply(*pit,
-                              seg_or_box_points.begin(),
-                              seg_or_box_points.end(),
-                              cstrategy,
-                              it1,
-                              it2,
-                              cd);
+            std::pair
+                <
+                    seg_or_box_iterator_type, seg_or_box_iterator_type
+                > it_pair
+                = point_to_point_range::apply(*pit,
+                                              seg_or_box_points.begin(),
+                                              seg_or_box_points.end(),
+                                              cstrategy,
+                                              cd);
 
             if ( first || cd < cd_min1 )
             {
                 cd_min1 = cd;
                 pit_min = pit;
-                assign_new_value::apply(it_min1, it1);
-                assign_new_value::apply(it_min2, it2);
+                assign_new_value::apply(it_min1, it_pair.first);
+                assign_new_value::apply(it_min2, it_pair.second);
             }
         }
 
@@ -263,14 +255,13 @@ public:
                  = seg_or_box_points.begin();
              it != seg_or_box_points.end(); ++it, first = false)
         {
-            segment_iterator_type sit;
             comparable_return_type cd;
-            base_type2::apply(*it,
-                              segments_begin(geometry),
-                              segments_end(geometry),
-                              cstrategy,
-                              sit,
-                              cd);
+            segment_iterator_type sit
+                = geometry_to_range::apply(*it,
+                                           segments_begin(geometry),
+                                           segments_end(geometry),
+                                           cstrategy,
+                                           cd);
 
             if ( first || cd < cd_min2 )
             {
@@ -278,6 +269,11 @@ public:
                 it_min = it;
                 sit_min = sit;
             }
+        }
+
+        if ( is_comparable<Strategy>::value )
+        {
+            return (std::min)(cd_min1, cd_min2);
         }
 
         if ( cd_min1 < cd_min2 )
@@ -313,20 +309,17 @@ template <typename MultiPoint, typename SegmentOrBox, typename Strategy>
 class geometry_to_segment_or_box
     <
         MultiPoint, SegmentOrBox, Strategy, multi_point_tag
-    > : detail::closest_feature::geometry_to_range
+    >
 {
 private:
     typedef detail::closest_feature::geometry_to_range base_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            Strategy
-        >::type comparable_strategy;
 
     typedef typename boost::range_iterator
         <
             MultiPoint const
         >::type iterator_type;
+
+    typedef detail::closest_feature::geometry_to_range geometry_to_range;
 
 public:
     typedef typename strategy::distance::services::return_type
@@ -342,18 +335,34 @@ public:
     {
         namespace sds = strategy::distance::services;
 
-        iterator_type it_min
-            = base_type::apply(segment_or_box,
-                               boost::begin(multipoint),
-                               boost::end(multipoint),
-                               sds::get_comparable<Strategy>::apply(strategy));
-
-        return dispatch::distance
+        typename sds::return_type
             <
-                typename point_type<MultiPoint>::type,
-                SegmentOrBox,
-                Strategy
-            >::apply(*it_min, segment_or_box, strategy);
+                typename sds::comparable_type<Strategy>::type,
+                typename point_type<SegmentOrBox>::type,
+                typename point_type<MultiPoint>::type
+            >::type cd_min;
+
+        iterator_type it_min
+            = geometry_to_range::apply(segment_or_box,
+                                       boost::begin(multipoint),
+                                       boost::end(multipoint),
+                                       sds::get_comparable
+                                           <
+                                               Strategy
+                                           >::apply(strategy),
+                                       cd_min);
+
+        return
+            is_comparable<Strategy>::value
+            ?
+            cd_min
+            :
+            dispatch::distance
+                <
+                    typename point_type<MultiPoint>::type,
+                    SegmentOrBox,
+                    Strategy
+                >::apply(*it_min, segment_or_box, strategy);
     }
 };
 

@@ -24,6 +24,8 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 
@@ -93,6 +95,11 @@ public:
 
         std::size_t imin = std::distance(boost::addressof(d[0]),
                                          std::min_element(d, d + 4));
+
+        if ( is_comparable<Strategy>::value )
+        {
+            return d[imin];
+        }
 
         switch (imin)
         {

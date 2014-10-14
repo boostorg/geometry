@@ -83,7 +83,9 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
         {
             return point_or_segment_range_to_geometry_rtree
                 <
-                    Linear1, Strategy
+                    geometry::segment_iterator<Linear2 const>,
+                    Linear1,
+                    Strategy
                 >::apply(geometry::segments_begin(linear2),
                          geometry::segments_end(linear2),
                          linear1,
@@ -93,7 +95,9 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
 
         return point_or_segment_range_to_geometry_rtree
             <
-                Linear2, Strategy
+                geometry::segment_iterator<Linear1 const>,
+                Linear2,
+                Strategy
             >::apply(geometry::segments_begin(linear1),
                      geometry::segments_end(linear1),
                      linear2,

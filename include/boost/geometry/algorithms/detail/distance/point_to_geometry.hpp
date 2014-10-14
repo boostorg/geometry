@@ -42,6 +42,7 @@
 
 #include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 #include <boost/geometry/algorithms/detail/distance/iterator_selector.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
@@ -86,7 +87,7 @@ private:
     typedef detail::closest_feature::point_to_point_range
         <
             Point, Range, Closure, comparable_strategy
-        > closest_feature_type;
+        > point_to_point_range;
 
 public:
     typedef typename strategy::distance::services::return_type
@@ -108,15 +109,33 @@ public:
 
         namespace sds = strategy::distance::services;
 
-        typename closest_feature_type::return_type cf
-            = closest_feature_type::apply(point,
-                                          range,
+        typename sds::return_type
+            <
+                comparable_strategy,
+                Point,
+                typename point_type<Range>::type
+            >::type cd_min;
+
+        std::pair
+            <
+                typename boost::range_iterator<Range const>::type,
+                typename boost::range_iterator<Range const>::type
+            > it_pair
+            = point_to_point_range::apply(point,
+                                          boost::begin(range),
+                                          boost::end(range),
                                           sds::get_comparable
                                               <
                                                   Strategy
-                                              >::apply(strategy));
+                                              >::apply(strategy),
+                                          cd_min);
 
-        return strategy.apply(point, *cf.first, *cf.second);
+        return
+            is_comparable<Strategy>::value
+            ?
+            cd_min
+            :
+            strategy.apply(point, *it_pair.first, *it_pair.second);
     }
 };
 
@@ -144,7 +163,7 @@ struct point_to_ring
             return return_type(0);
         }
 
-        return detail::distance::point_to_range
+        return point_to_range
             <
                 Point, Ring, closure<Ring>::value, Strategy
             >::apply(point, ring, strategy);
@@ -237,10 +256,7 @@ template
 class point_to_multigeometry
 {
 private:
-    typedef typename strategy::distance::services::comparable_type
-        <
-            Strategy
-        >::type comparable_strategy;
+    typedef detail::closest_feature::geometry_to_range geometry_to_range;
 
 public:
     typedef typename strategy::distance::services::return_type
@@ -256,27 +272,39 @@ public:
     {
         typedef iterator_selector<MultiGeometry const> selector_type;
 
-        typedef detail::closest_feature::geometry_to_range point_to_range;
-
         namespace sds = strategy::distance::services;
 
-        typename selector_type::iterator_type it_min
-            =  point_to_range::apply(point,
-                                     selector_type::begin(multigeometry),
-                                     selector_type::end(multigeometry),
-                                     sds::get_comparable
-                                         <
-                                             Strategy
-                                         >::apply(strategy));
-        return dispatch::distance
+        typename sds::return_type
             <
+                typename sds::comparable_type<Strategy>::type,
                 Point,
-                typename std::iterator_traits
-                    <
-                        typename selector_type::iterator_type
-                    >::value_type,
-                Strategy
-            >::apply(point, *it_min, strategy);
+                typename point_type<MultiGeometry>::type
+            >::type cd;
+
+        typename selector_type::iterator_type it_min
+            = geometry_to_range::apply(point,
+                                       selector_type::begin(multigeometry),
+                                       selector_type::end(multigeometry),
+                                       sds::get_comparable
+                                           <
+                                               Strategy
+                                           >::apply(strategy),
+                                       cd);
+
+        return
+            is_comparable<Strategy>::value
+            ?
+            cd
+            :
+            dispatch::distance
+                <
+                    Point,
+                    typename std::iterator_traits
+                        <
+                            typename selector_type::iterator_type
+                        >::value_type,
+                    Strategy
+                >::apply(point, *it_min, strategy);
     }
 };
 

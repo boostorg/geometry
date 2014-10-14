@@ -53,7 +53,9 @@ struct multipoint_to_multipoint
         {
             return point_or_segment_range_to_geometry_rtree
                 <
-                    MultiPoint1, Strategy
+                    typename boost::range_iterator<MultiPoint2 const>::type,
+                    MultiPoint1,
+                    Strategy
                 >::apply(boost::begin(multipoint2),
                          boost::end(multipoint2),
                          multipoint1,
@@ -62,7 +64,9 @@ struct multipoint_to_multipoint
 
         return point_or_segment_range_to_geometry_rtree
             <
-                MultiPoint2, Strategy
+                typename boost::range_iterator<MultiPoint1 const>::type,
+                MultiPoint2,
+                Strategy
             >::apply(boost::begin(multipoint1),
                      boost::end(multipoint1),
                      multipoint2,
@@ -87,7 +91,9 @@ struct multipoint_to_linear
     {
         return detail::distance::point_or_segment_range_to_geometry_rtree
             <
-                Linear, Strategy
+                typename boost::range_iterator<MultiPoint const>::type,
+                Linear,
+                Strategy
             >::apply(boost::begin(multipoint),
                      boost::end(multipoint),
                      linear,
@@ -149,7 +155,9 @@ public:
 
         return detail::distance::point_or_segment_range_to_geometry_rtree
             <
-                Areal, Strategy
+                typename boost::range_iterator<MultiPoint const>::type,
+                Areal,
+                Strategy
             >::apply(boost::begin(multipoint),
                      boost::end(multipoint),
                      areal,
