@@ -45,7 +45,7 @@ protected:
     template <typename Distance>
     static inline void apply(Point const& point,
                              iterator_type first,
-                             iterator_type beyond,
+                             iterator_type last,
                              Strategy const& strategy,
                              iterator_type& it_min1,
                              iterator_type& it_min2,
@@ -55,7 +55,7 @@ protected:
 
         iterator_type it = first;
         iterator_type prev = it++;
-        if ( it == beyond )
+        if ( it == last )
         {
             it_min1 = it_min2 = first;
             dist_min = strategy.apply(point, *first, *first);
@@ -67,7 +67,7 @@ protected:
         iterator_type prev_min_dist = prev;
 
         // check if other segments are closer
-        for (++prev, ++it; it != beyond; ++prev, ++it)
+        for (++prev, ++it; it != last; ++prev, ++it)
         {
             Distance dist = strategy.apply(point, *prev, *it);
             if ( geometry::math::equals(dist, zero) )
@@ -94,19 +94,19 @@ public:
     template <typename Distance>
     static inline return_type apply(Point const& point,
                                     iterator_type first,
-                                    iterator_type beyond,
+                                    iterator_type last,
                                     Strategy const& strategy,
                                     Distance& dist_min)
     {
         iterator_type it_min1, it_min2;
-        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+        apply(point, first, last, strategy, it_min1, it_min2, dist_min);
 
         return std::make_pair(it_min1, it_min2);
     }
 
     static inline return_type apply(Point const& point,
                                     iterator_type first,
-                                    iterator_type beyond,
+                                    iterator_type last,
                                     Strategy const& strategy)
     {
         typename strategy::distance::services::return_type
@@ -116,7 +116,7 @@ public:
                 typename boost::range_value<Range>::type
             >::type dist_min;
 
-        return apply(point, first, beyond, strategy, dist_min);
+        return apply(point, first, last, strategy, dist_min);
     }
 
     template <typename Distance>
@@ -154,18 +154,18 @@ private:
     template <typename Distance>
     static inline void apply(Point const& point,
                              iterator_type first,
-                             iterator_type beyond,
+                             iterator_type last,
                              Strategy const& strategy,
                              iterator_type& it_min1,
                              iterator_type& it_min2,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != beyond );
+        BOOST_ASSERT( first != last );
 
-        base_type::apply(point, first, beyond, strategy,
+        base_type::apply(point, first, last, strategy,
                          it_min1, it_min2, dist_min);
 
-        iterator_type it_back = --beyond;
+        iterator_type it_back = --last;
         Distance const zero = Distance(0);
         Distance dist = strategy.apply(point, *it_back, *first);
 
@@ -189,20 +189,20 @@ public:
     template <typename Distance>
     static inline return_type apply(Point const& point,
                                     iterator_type first,
-                                    iterator_type beyond,
+                                    iterator_type last,
                                     Strategy const& strategy,
                                     Distance& dist_min)
     {
         iterator_type it_min1, it_min2;
 
-        apply(point, first, beyond, strategy, it_min1, it_min2, dist_min);
+        apply(point, first, last, strategy, it_min1, it_min2, dist_min);
 
         return std::make_pair(it_min1, it_min2);
     }
 
     static inline return_type apply(Point const& point,
                                     iterator_type first,
-                                    iterator_type beyond,
+                                    iterator_type last,
                                     Strategy const& strategy)
     {
         typedef typename strategy::distance::services::return_type
@@ -214,7 +214,7 @@ public:
 
         distance_return_type dist_min;
 
-        return apply(point, first, beyond, strategy, dist_min);
+        return apply(point, first, last, strategy, dist_min);
     }
 
     template <typename Distance>

@@ -46,9 +46,9 @@ private:
         typename Distance
     >
     static inline void apply(RTreeRangeIterator rtree_first,
-                             RTreeRangeIterator rtree_beyond,
+                             RTreeRangeIterator rtree_last,
                              QueryRangeIterator queries_first,
-                             QueryRangeIterator queries_beyond,
+                             QueryRangeIterator queries_last,
                              Strategy const& strategy,
                              RTreeValueType& rtree_min,
                              QueryRangeIterator& qit_min,
@@ -56,17 +56,17 @@ private:
     {
         typedef index::rtree<RTreeValueType, index::linear<8> > rtree_type;
 
-        BOOST_ASSERT( rtree_first != rtree_beyond );
-        BOOST_ASSERT( queries_first != queries_beyond );
+        BOOST_ASSERT( rtree_first != rtree_last );
+        BOOST_ASSERT( queries_first != queries_last );
 
         // create -- packing algorithm
-        rtree_type rt(rtree_first, rtree_beyond);
+        rtree_type rt(rtree_first, rtree_last);
 
         RTreeValueType t_v;
         bool first = true;
 
         for (QueryRangeIterator qit = queries_first;
-             qit != queries_beyond; ++qit, first = false)
+             qit != queries_last; ++qit, first = false)
         {
             std::size_t n = rt.query(index::nearest(*qit, 1), &t_v);
 
@@ -121,9 +121,9 @@ public:
         <
             RTreeRangeIterator, QueryRangeIterator
         >::type apply(RTreeRangeIterator rtree_first,
-                      RTreeRangeIterator rtree_beyond,
+                      RTreeRangeIterator rtree_last,
                       QueryRangeIterator queries_first,
-                      QueryRangeIterator queries_beyond,
+                      QueryRangeIterator queries_last,
                       Strategy const& strategy,
                       Distance& dist_min)
     {
@@ -135,7 +135,7 @@ public:
         rtree_value_type rtree_min;
         QueryRangeIterator qit_min;
 
-        apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
+        apply(rtree_first, rtree_last, queries_first, queries_last,
               strategy, rtree_min, qit_min, dist_min);
 
         return std::make_pair(rtree_min, qit_min);        
@@ -152,9 +152,9 @@ public:
         <
             RTreeRangeIterator, QueryRangeIterator
         >::type apply(RTreeRangeIterator rtree_first,
-                      RTreeRangeIterator rtree_beyond,
+                      RTreeRangeIterator rtree_last,
                       QueryRangeIterator queries_first,
-                      QueryRangeIterator queries_beyond,
+                      QueryRangeIterator queries_last,
                       Strategy const& strategy)
     {
         typedef typename std::iterator_traits
@@ -175,7 +175,7 @@ public:
                     >::type
             >::type dist_min;
 
-        return apply(rtree_first, rtree_beyond, queries_first, queries_beyond,
+        return apply(rtree_first, rtree_last, queries_first, queries_last,
                      strategy, dist_min);
     }
 };

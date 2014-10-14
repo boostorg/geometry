@@ -44,12 +44,12 @@ private:
     >
     static inline void apply(Geometry const& geometry,
                              RangeIterator first,
-                             RangeIterator beyond,
+                             RangeIterator last,
                              Strategy const& strategy,
                              RangeIterator& it_min,
                              Distance& dist_min)
     {
-        BOOST_ASSERT( first != beyond );
+        BOOST_ASSERT( first != last );
 
         Distance const zero = Distance(0);
 
@@ -64,7 +64,7 @@ private:
 
         // check if other elements in the range are closer
         RangeIterator it = first;
-        for (++it; it != beyond; ++it)
+        for (++it; it != last; ++it)
         {
             Distance dist = dispatch::distance
                 <
@@ -97,12 +97,12 @@ public:
     >    
     static inline RangeIterator apply(Geometry const& geometry,
                                       RangeIterator first,
-                                      RangeIterator beyond,
+                                      RangeIterator last,
                                       Strategy const& strategy,
                                       Distance& dist_min)
     {
         RangeIterator it_min;
-        apply(geometry, first, beyond, strategy, it_min, dist_min);
+        apply(geometry, first, last, strategy, it_min, dist_min);
 
         return it_min;
     }
@@ -116,7 +116,7 @@ public:
     >    
     static inline RangeIterator apply(Geometry const& geometry,
                                       RangeIterator first,
-                                      RangeIterator beyond,
+                                      RangeIterator last,
                                       Strategy const& strategy)
     {
         typename strategy::distance::services::return_type
@@ -132,7 +132,7 @@ public:
                     >::type
             >::type dist_min;
 
-        return apply(geometry, first, beyond, strategy, dist_min);
+        return apply(geometry, first, last, strategy, dist_min);
     }
 };
 
