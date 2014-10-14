@@ -44,6 +44,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -233,6 +234,70 @@ struct container_inserter
 };
 
 
+template <typename Geometry,
+          closure_selector Closure
+            = closure
+                <
+                    typename boost::remove_reference<Geometry>::type
+                >::value>
+struct stateful_range_appender
+{
+    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
+    typedef typename geometry::point_type<bare_geometry>::type point_type;
+
+    inline void append(Geometry & geom, point_type const& point, bool)
+    {
+        geometry::append(geom, point);
+    }
+};
+
+template <typename Geometry>
+struct stateful_range_appender<Geometry, open>
+{
+    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
+    typedef typename geometry::point_type<bare_geometry>::type point_type;
+    typedef typename boost::range_size<bare_geometry>::type size_type;
+
+    BOOST_STATIC_ASSERT(( boost::is_same
+                            <
+                                typename tag<bare_geometry>::type,
+                                ring_tag
+                            >::value ));
+
+    inline stateful_range_appender()
+        : pt_index(0)
+    {}
+
+    inline void append(Geometry & geom, point_type const& point, bool is_next_expected)
+    {
+        bool should_append = true;
+
+        if ( pt_index == 0 )
+        {
+            first_point = point;
+            //should_append = true;
+        }
+        else
+        {
+            // NOTE: if there is not enough Points, they're always appended
+            should_append
+                = is_next_expected
+                || pt_index < core_detail::closure::minimum_ring_size<open>::value
+                || !detail::equals::equals_point_point(point, first_point);
+        }
+        ++pt_index;
+
+        if ( should_append )
+        {
+            geometry::append(geom, point);
+        }
+    }
+
+private:
+    size_type pt_index;
+    point_type first_point;
+};
+
 // Geometry is a value-type or reference-type
 template <typename Geometry>
 struct container_appender
@@ -245,14 +310,13 @@ struct container_appender
     {
         handle_open_parenthesis(it, end, wkt);
 
-        point_type point;
-        point_type first_point;
-        typename boost::range_size<bare_geometry>::type pt_index = 0;
-        
-        // Parse points until closing parenthesis
+        stateful_range_appender<Geometry> appender;
 
+        // Parse points until closing parenthesis
         while (it != end && *it != ")")
         {
+            point_type point;
+
             parsing_assigner
                 <
                     point_type,
@@ -260,41 +324,9 @@ struct container_appender
                     dimension<point_type>::value
                 >::apply(it, end, point, wkt);
 
-            bool should_append = true;
             bool const is_next_expected = it != end && *it == ",";
-            
-            if ( closure<bare_geometry>::value == open )
-            {
-                // sanity check - only Rings, Polygons and MultiPolygons may be open
-                // this is important for the minimum_ring_size condition
-                BOOST_STATIC_ASSERT(( closure<bare_geometry>::value != open
-                                   || boost::is_same<typename tag_cast
-                                        <
-                                            typename tag<bare_geometry>::type,
-                                            areal_tag
-                                        >::type, areal_tag>::value
-                                   ));
 
-                if ( pt_index == 0 )
-                {
-                    first_point = point;
-                    should_append = true;
-                }
-                else
-                {
-                    // NOTE: if there is not enough Points, they're always appended
-                    should_append
-                        = is_next_expected
-                       || pt_index < core_detail::closure::minimum_ring_size<open>::value
-                       || !detail::equals::equals_point_point(point, first_point);
-                }
-                ++pt_index;
-            }            
-
-            if ( should_append )
-            {
-                geometry::append(out, point);
-            }
+            appender.append(out, point, is_next_expected);
 
             if ( is_next_expected )
             {
