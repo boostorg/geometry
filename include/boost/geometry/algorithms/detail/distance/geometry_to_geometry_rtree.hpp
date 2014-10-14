@@ -72,15 +72,15 @@ public:
         >::type return_type;
 
     static inline return_type apply(PointOrSegmentIterator first,
-                                    PointOrSegmentIterator beyond,
+                                    PointOrSegmentIterator last,
                                     Geometry const& geometry,
                                     Strategy const& strategy)
     {
         namespace sds = strategy::distance::services;
 
-        BOOST_ASSERT( first != beyond );
+        BOOST_ASSERT( first != last );
 
-        if ( geometry::has_one_element(first, beyond) )
+        if ( geometry::has_one_element(first, last) )
         {
             return dispatch::distance
                 <
@@ -102,7 +102,7 @@ public:
                 point_or_segment_type,
                 typename selector_type::iterator_type
             > cf = range_to_range::apply(first,
-                                         beyond,
+                                         last,
                                          selector_type::begin(geometry),
                                          selector_type::end(geometry),
                                          sds::get_comparable
@@ -177,11 +177,11 @@ public:
         typedef geometry::point_iterator<Geometry2 const> const_point_iterator2;
 
         const_point_iterator1 first1 = points_begin(geometry1);
-        const_point_iterator1 beyond1 = points_end(geometry1);
+        const_point_iterator1 last1 = points_end(geometry1);
         const_point_iterator2 first2 = points_begin(geometry2);
-        const_point_iterator2 beyond2 = points_end(geometry2);
+        const_point_iterator2 last2 = points_end(geometry2);
         
-        if ( geometry::has_one_element(first1, beyond1) )
+        if ( geometry::has_one_element(first1, last1) )
         {
             return dispatch::distance
                 <
@@ -191,7 +191,7 @@ public:
                 >::apply(*first1, geometry2, strategy);
         }
 
-        if ( geometry::has_one_element(first2, beyond2) )
+        if ( geometry::has_one_element(first2, last2) )
         {
             return dispatch::distance
                 <
@@ -218,7 +218,7 @@ public:
                 typename point_type<Geometry1>::type,
                 geometry::segment_iterator<Geometry2 const>
             > cf12 = range_to_range::apply(first1,
-                                           beyond1,
+                                           last1,
                                            segments_begin(geometry2),
                                            segments_end(geometry2),
                                            cstrategy,
@@ -230,7 +230,7 @@ public:
                 typename point_type<Geometry2>::type,
                 geometry::segment_iterator<Geometry1 const>
             > cf21 = range_to_range::apply(first2,
-                                           beyond2,
+                                           last2,
                                            segments_begin(geometry1),
                                            segments_end(geometry1),
                                            cstrategy,

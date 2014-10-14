@@ -197,10 +197,10 @@ private:
         template <typename InteriorRingIterator>
         static inline return_type apply(Point const& point,
                                         InteriorRingIterator first,
-                                        InteriorRingIterator beyond,
+                                        InteriorRingIterator last,
                                         Strategy const& strategy)
         {
-            for (InteriorRingIterator it = first; it != beyond; ++it)
+            for (InteriorRingIterator it = first; it != last; ++it)
             {
                 if ( geometry::within(point, *it) )
                 {
