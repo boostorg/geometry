@@ -105,7 +105,9 @@ namespace detail { namespace wkt
 
 typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
-template <typename Point, std::size_t Dimension, std::size_t DimensionCount>
+template <typename Point,
+          std::size_t Dimension = 0,
+          std::size_t DimensionCount = geometry::dimension<Point>::value>
 struct parsing_assigner
 {
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
@@ -215,12 +217,7 @@ struct container_inserter
 
         while (it != end && *it != ")")
         {
-            parsing_assigner
-                <
-                    Point,
-                    0,
-                    dimension<Point>::value
-                >::apply(it, end, point, wkt);
+            parsing_assigner<Point>::apply(it, end, point, wkt);
             out = point;
             ++out;
             if (it != end && *it == ",")
@@ -317,12 +314,7 @@ struct container_appender
         {
             point_type point;
 
-            parsing_assigner
-                <
-                    point_type,
-                    0,
-                    dimension<point_type>::value
-                >::apply(it, end, point, wkt);
+            parsing_assigner<point_type>::apply(it, end, point, wkt);
 
             bool const is_next_expected = it != end && *it == ",";
 
@@ -349,7 +341,7 @@ struct point_parser
         std::string const& wkt, P& point)
     {
         handle_open_parenthesis(it, end, wkt);
-        parsing_assigner<P, 0, dimension<P>::value>::apply(it, end, point, wkt);
+        parsing_assigner<P>::apply(it, end, point, wkt);
         handle_close_parenthesis(it, end, wkt);
     }
 };
@@ -585,7 +577,7 @@ struct noparenthesis_point_parser
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
         std::string const& wkt, P& point)
     {
-        parsing_assigner<P, 0, dimension<P>::value>::apply(it, end, point, wkt);
+        parsing_assigner<P>::apply(it, end, point, wkt);
     }
 };
 
