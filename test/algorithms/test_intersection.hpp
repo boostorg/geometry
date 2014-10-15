@@ -12,7 +12,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
 #include <boost/variant/variant.hpp>
 
@@ -46,10 +45,6 @@ check_result(
     bool debug = false)
 {
     bool const is_line = bg::geometry_id<OutputType>::type::value == 2;
-
-    typedef typename bg::coordinate_type<G1>::type coordinate_type;
-    typedef typename bg::point_type<G1>::type point_type;
-    boost::ignore_unused<coordinate_type, point_type>();
 
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
@@ -98,50 +93,6 @@ check_result(
 
     double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
     BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, percentage);
-#endif
-
-#if defined(TEST_WITH_SVG)
-    {
-        bool const ccw =
-            bg::point_order<G1>::value == bg::counterclockwise
-            || bg::point_order<G2>::value == bg::counterclockwise;
-        bool const open =
-            bg::closure<G1>::value == bg::open
-            || bg::closure<G2>::value == bg::open;
-
-        std::ostringstream filename;
-        filename << "intersection_"
-            << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << string_from_type<CalculationType>::name()
-            << (ccw ? "_ccw" : "")
-            << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
-#endif
-            << ".svg";
-
-        std::ofstream svg(filename.str().c_str());
-
-        bg::svg_mapper<point_type> mapper(svg, 500, 500);
-
-        mapper.add(g1);
-        mapper.add(g2);
-
-        mapper.map(g1, is_line
-            ? "opacity:0.6;stroke:rgb(0,255,0);stroke-width:5"
-            : "fill-opacity:0.5;fill:rgb(153,204,0);"
-                    "stroke:rgb(153,204,0);stroke-width:3");
-        mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
-                    "stroke:rgb(51,51,153);stroke-width:3");
-
-        for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
-                it != intersection_output.end(); ++it)
-        {
-            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                        "stroke:rgb(255,0,255);stroke-width:8");
-        }
-    }
 #endif
 
     return length_or_area;
@@ -206,6 +157,54 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 
     check_result<G1, G2>(intersection_output, caseid, expected_count, expected_point_count,
         expected_length_or_area, percentage, debug);
+
+#if defined(TEST_WITH_SVG)
+    {
+        bool const is_line = bg::geometry_id<OutputType>::type::value == 2;
+        typedef typename bg::coordinate_type<G1>::type coordinate_type;
+
+        bool const ccw =
+            bg::point_order<G1>::value == bg::counterclockwise
+            || bg::point_order<G2>::value == bg::counterclockwise;
+        bool const open =
+            bg::closure<G1>::value == bg::open
+            || bg::closure<G2>::value == bg::open;
+
+        std::ostringstream filename;
+        filename << "intersection_"
+            << caseid << "_"
+            << string_from_type<coordinate_type>::name()
+            << string_from_type<CalculationType>::name()
+            << (ccw ? "_ccw" : "")
+            << (open ? "_open" : "")
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            << "_no_rob"
+#endif
+            << ".svg";
+
+        std::ofstream svg(filename.str().c_str());
+
+        bg::svg_mapper<point_type> mapper(svg, 500, 500);
+
+        mapper.add(g1);
+        mapper.add(g2);
+
+        mapper.map(g1, is_line
+            ? "opacity:0.6;stroke:rgb(0,255,0);stroke-width:5"
+            : "fill-opacity:0.5;fill:rgb(153,204,0);"
+                    "stroke:rgb(153,204,0);stroke-width:3");
+        mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
+                    "stroke:rgb(51,51,153);stroke-width:3");
+
+        for (typename std::vector<OutputType>::const_iterator it = intersection_output.begin();
+                it != intersection_output.end(); ++it)
+        {
+            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
+                        "stroke:rgb(255,0,255);stroke-width:8");
+        }
+    }
+#endif
+
 
     if (debug)
     {
