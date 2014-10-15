@@ -88,8 +88,6 @@ public:
                 >::apply(*first, geometry, strategy);
         }
 
-        point_or_segment_type rtree_value_min;
-        typename selector_type::iterator_type qit_min;
         typename sds::return_type
             <
                 typename sds::comparable_type<Strategy>::type,
