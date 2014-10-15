@@ -38,6 +38,7 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 #include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
@@ -231,7 +232,7 @@ public:
                                     Polygon const& polygon,
                                     Strategy const& strategy)
     {
-        if (!geometry::within(point, exterior_ring(polygon)))
+        if (!geometry::covered_by(point, exterior_ring(polygon)))
         {
             // the point is outside the exterior ring, so its distance
             // to the polygon is its distance to the polygon's exterior ring
@@ -251,7 +252,7 @@ template
     typename Point,
     typename MultiGeometry,
     typename Strategy,
-    bool CheckWithin = false
+    bool CheckCoveredBy = false
 >
 class point_to_multigeometry
 {
@@ -309,30 +310,31 @@ public:
 };
 
 
-template <typename Point, typename MultiGeometry, typename Strategy>
-struct point_to_multigeometry<Point, MultiGeometry, Strategy, true>
+// this is called only for multipolygons, hence the change in the
+// template parameter name MultiGeometry to MultiPolygon
+template <typename Point, typename MultiPolygon, typename Strategy>
+struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
 {
-public:
     typedef typename strategy::distance::services::return_type
         <
             Strategy,
             Point,
-            typename point_type<MultiGeometry>::type
+            typename point_type<MultiPolygon>::type
         >::type return_type;
 
     static inline return_type apply(Point const& point,
-                                    MultiGeometry const& multigeometry,
+                                    MultiPolygon const& multipolygon,
                                     Strategy const& strategy)
     {
-        if (geometry::within(point, multigeometry))
+        if (geometry::covered_by(point, multipolygon))
         {
             return 0;
         }
 
         return point_to_multigeometry
             <
-                Point, MultiGeometry, Strategy, false
-            >::apply(point, multigeometry, strategy);
+                Point, MultiPolygon, Strategy, false
+            >::apply(point, multipolygon, strategy);
     }
 };
 
@@ -469,7 +471,7 @@ struct distance
         strategy_tag_distance_point_segment, false
     > : detail::distance::point_to_multigeometry
         <
-           Point, MultiPolygon, Strategy, true
+            Point, MultiPolygon, Strategy, true
         >
 {};
 
