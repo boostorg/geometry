@@ -128,6 +128,8 @@ struct buffer_turn_info
     int count_on_helper;
     int count_within_near_offsetted;
 
+    bool remove_on_multi;
+
     // Obsolete:
     int count_on_occupied;
     int count_on_multi;
@@ -139,6 +141,7 @@ struct buffer_turn_info
         , count_on_offsetted(0)
         , count_on_helper(0)
         , count_within_near_offsetted(0)
+        , remove_on_multi(false)
         , count_on_occupied(0)
         , count_on_multi(0)
     {}

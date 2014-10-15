@@ -205,6 +205,14 @@ struct buffered_piece_collection
 
     RobustPolicy const& m_robust_policy;
 
+    struct redundant_turn
+    {
+        inline bool operator()(buffer_turn_info_type const& turn) const
+        {
+            return turn.remove_on_multi;
+        }
+    };
+
     buffered_piece_collection(RobustPolicy const& robust_policy)
         : m_first_piece_index(-1)
         , m_robust_policy(robust_policy)
@@ -260,7 +268,7 @@ struct buffered_piece_collection
             it != boost::end(m_turns);
             ++it)
         {
-            if (it->count_on_offsetted >= 1)
+            if (it->location == location_ok)
             {
 #if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
                 if (distance > 0 && ! occupation_map.empty())
@@ -269,6 +277,28 @@ struct buffered_piece_collection
                 }
 #endif
                 occupation_map[it->get_robust_point()].count++;
+            }
+        }
+
+        // Remove all points with one or more u/u points from the map
+        // (Alternatively, we could NOT do this here and change all u/u
+        // behaviour in overlay. Currently nothing is done: each polygon is
+        // just followed there. We could also always switch polygons there. For
+        // buffer behaviour, where 3 pieces might meet of which 2 (or more) form
+        // a u/u turn, this last option would have been better, probably).
+        for (iterator_type it = boost::begin(m_turns);
+            it != boost::end(m_turns);
+            ++it)
+        {
+            if (it->both(detail::overlay::operation_union))
+            {
+                typename occupation_map_type::iterator mit =
+                            occupation_map.find(it->get_robust_point());
+
+                if (mit != occupation_map.end())
+                {
+                    occupation_map.erase(mit);
+                }
             }
         }
 
@@ -297,10 +327,9 @@ struct buffered_piece_collection
         //                 intersection-point -> outgoing)
         //    for all (co-located) points still present in the map
 
-        int index = 0;
         for (iterator_type it = boost::begin(m_turns);
             it != boost::end(m_turns);
-            ++it, ++index)
+            ++it)
         {
             typename occupation_map_type::iterator mit =
                         occupation_map.find(it->get_robust_point());
@@ -312,7 +341,7 @@ struct buffered_piece_collection
                 {
                     add_incoming_and_outgoing_angles(it->get_robust_point(), *it,
                                 m_pieces,
-                                index, i, it->operations[i].seg_id,
+                                i, it->operations[i].seg_id,
                                 info);
                 }
 
@@ -339,39 +368,11 @@ struct buffered_piece_collection
         }
 #endif
 
-        // If, in a cluster, one turn is blocked, block them all
-        for (typename occupation_map_type::const_iterator it = occupation_map.begin();
-            it != occupation_map.end(); ++it)
-        {
-            typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
-            bool blocked = false;
-            for (std::size_t i = 0; i < turns.size(); i++)
-            {
-                if (m_turns[turns[i].turn_index].blocked())
-                {
-                    blocked = true;
-                    break;
-                }
-            }
-            if (blocked)
-            {
-                for (std::size_t i = 0; i < turns.size(); i++)
-                {
-                    m_turns[turns[i].turn_index].count_on_occupied++;
-                }
-            }
-        }
-
-        // 4: Mark all turns as not selectable as a starting point for traversing
-        //    rings. They still can be used to continue already started rings.
+        // Get left turns from all clusters
         for (typename occupation_map_type::iterator it = occupation_map.begin();
             it != occupation_map.end(); ++it)
         {
-            typename buffer_occupation_info::turn_vector_type const& turns = it->second.turns;
-            for (std::size_t i = 0; i < turns.size(); i++)
-            {
-                m_turns[turns[i].turn_index].selectable_start = false;
-            }
+            it->second.get_left_turns(it->first, m_turns);
         }
     }
 
@@ -550,6 +551,8 @@ struct buffered_piece_collection
         }
 
         classify_turns();
+
+        //get_occupation();
     }
 
     inline void start_new_ring()
@@ -835,6 +838,15 @@ struct buffered_piece_collection
 
     inline void block_turns()
     {
+        // To fix left-turn issues like #rt_u13
+        // But currently it causes more other issues than it fixes
+//        m_turns.erase
+//            (
+//                std::remove_if(boost::begin(m_turns), boost::end(m_turns),
+//                                redundant_turn()),
+//                boost::end(m_turns)
+//            );
+
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
