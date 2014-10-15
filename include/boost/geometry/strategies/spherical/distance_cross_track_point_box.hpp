@@ -121,7 +121,11 @@ public:
                 if(projection1 > 0.0 && projection2 > 0.0)
                 {
                     return_type const d1 = m_pp_strategy.apply(p1, point);
-                    return_type const XTD = radius() * geometry::math::abs( asin( sin( d1 / radius() ) * sin_d_crs1 ));
+                    return_type const
+                        XTD = radius()
+                            * geometry::math::abs(
+                                asin( sin( d1 / radius() ) * sin_d_crs1 )
+                              );
 
                     return return_type(XTD);
                 }
@@ -190,7 +194,8 @@ struct get_comparable<cross_track_point_box<CalculationType, Strategy> >
             cross_track_point_box<CalculationType, Strategy>
         >::type comparable_type;
 public :
-    static inline comparable_type apply(cross_track_point_box<CalculationType, Strategy> const& strategy)
+    static inline comparable_type apply(
+        cross_track_point_box<CalculationType, Strategy> const& strategy)
     {
         return cross_track_point_box<CalculationType, Strategy>(strategy.radius());
     }
@@ -203,13 +208,23 @@ template
     typename Strategy,
     typename P, typename Box
 >
-struct result_from_distance<cross_track_point_box<CalculationType, Strategy>, P, Box>
+struct result_from_distance
+    <
+        cross_track_point_box<CalculationType, Strategy>,
+        P,
+        Box
+    >
 {
 private :
-    typedef typename cross_track_point_box<CalculationType, Strategy>::template return_type<P, Box> return_type;
+    typedef typename cross_track_point_box
+        <
+            CalculationType, Strategy
+        >::template return_type<P, Box> return_type;
 public :
     template <typename T>
-    static inline return_type apply(cross_track_point_box<CalculationType, Strategy> const& , T const& distance)
+    static inline return_type apply(
+        cross_track_point_box<CalculationType, Strategy> const& ,
+        T const& distance)
     {
         return distance;
     }

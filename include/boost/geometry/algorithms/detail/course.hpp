@@ -42,6 +42,7 @@ inline ReturnType course(Point1 const& p1, Point2 const& p2)
     //}
 
     // "An alternative formula, not requiring the pre-computation of d"
+    // In the formula below dlon is used as "d"
     return atan2(sin(dlon) * cos_p2lat,
         cos(get_as_radian<1>(p1)) * sin(get_as_radian<1>(p2))
         - sin(get_as_radian<1>(p1)) * cos_p2lat * cos(dlon));
