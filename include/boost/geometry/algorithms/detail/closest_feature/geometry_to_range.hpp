@@ -73,7 +73,7 @@ private:
                     Strategy
                 >::apply(geometry, *it, strategy);
 
-            if ( geometry::math::equals(dist, zero) )
+            if (geometry::math::equals(dist, zero))
             {
                 dist_min = dist;
                 it_min = it;

@@ -89,7 +89,7 @@ private:
                     Strategy
                 >::apply(t_v, *qit, strategy);
 
-            if ( first || dist < dist_min )
+            if (first || dist < dist_min)
             {
                 dist_min = dist;
                 rtree_min = t_v;

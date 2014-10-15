@@ -57,7 +57,7 @@ protected:
 
         iterator_type it = first;
         iterator_type prev = it++;
-        if ( it == last )
+        if (it == last)
         {
             it_min1 = it_min2 = first;
             dist_min = strategy.apply(point, *first, *first);
@@ -72,7 +72,7 @@ protected:
         for (++prev, ++it; it != last; ++prev, ++it)
         {
             Distance dist = strategy.apply(point, *prev, *it);
-            if ( geometry::math::equals(dist, zero) )
+            if (geometry::math::equals(dist, zero))
             {
                 dist_min = zero;
                 it_min1 = prev;
@@ -171,13 +171,13 @@ private:
         Distance const zero = Distance(0);
         Distance dist = strategy.apply(point, *it_back, *first);
 
-        if ( geometry::math::equals(dist, zero) )
+        if (geometry::math::equals(dist, zero))
         {
             dist_min = zero;
             it_min1 = it_back;
             it_min2 = first;
         }
-        else if ( dist < dist_min )
+        else if (dist < dist_min)
         {
             dist_min = dist;
             it_min1 = it_back;
