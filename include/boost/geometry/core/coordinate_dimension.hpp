@@ -58,7 +58,15 @@ template <typename T, typename G>
 struct dimension : dimension<point_tag, typename point_type<T, G>::type> {};
 
 template <typename P>
-struct dimension<point_tag, P> : traits::dimension<typename geometry::util::bare_type<P>::type> {};
+struct dimension<point_tag, P>
+    : traits::dimension<typename geometry::util::bare_type<P>::type>
+{
+    BOOST_MPL_ASSERT_MSG(
+        (traits::dimension<typename geometry::util::bare_type<P>::type>::value > 0),
+        INVALID_DIMENSION_VALUE,
+        (traits::dimension<typename geometry::util::bare_type<P>::type>)
+    );
+};
 
 } // namespace core_dispatch
 #endif

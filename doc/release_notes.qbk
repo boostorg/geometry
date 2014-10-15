@@ -21,9 +21,16 @@
 
 [*Improvements]
 
+* The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
+
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/8402 8402] Implicit casts warnings
+* [@https://svn.boost.org/trac/boost/ticket/9354 9354] Bug in winding strategy affecting within() and covered_by() for non-cartesian coordinate systems
+* [@https://svn.boost.org/trac/boost/ticket/10177 10177] Missing include
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
+* [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
+* [@https://svn.boost.org/trac/boost/ticket/10643 10643] Invalid point_on_surface() result for big coordinates
 
 [*Bugfixes]
 
@@ -61,6 +68,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/9628 9628] Wrong result of within() due to the winding strategy not working correctly for nearly-horizontal segments
 * [@https://svn.boost.org/trac/boost/ticket/9828 9828] boost::geometry::union_(...) creates redundant closing point
 * [@https://svn.boost.org/trac/boost/ticket/9871 9871] Remove spike in polygon with only a spike
+* [@https://svn.boost.org/trac/boost/ticket/9941 9941] Add support for touches(box, box)
 * [@https://svn.boost.org/trac/boost/ticket/9947 9947] Missing info about WKT in documentation
 * [@https://svn.boost.org/trac/boost/ticket/9759 9759] Invalid results of R-tree knn queries for non-cartesian coordinate systems
 * [@https://svn.boost.org/trac/boost/ticket/10019 10019] Difference of Linestring and Box returns their intersection

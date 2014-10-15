@@ -44,18 +44,18 @@ inline Derived & get(weak_node<Value, Parameters, Box, Allocators, Tag> & n)
 
 template <typename Visitor, typename Value, typename Parameters, typename Box, typename Allocators, typename Tag>
 inline void apply_visitor(Visitor & v,
-                          raw_node<Value, Parameters, Box, Allocators, Tag> & n,
+                          weak_node<Value, Parameters, Box, Allocators, Tag> & n,
                           bool is_internal_node)
 {
     BOOST_GEOMETRY_INDEX_ASSERT(&n, "null ptr");
     if ( is_internal_node )
     {
-        typedef raw_internal_node<Value, Parameters, Box, Allocators, Tag> internal_node;
+        typedef weak_internal_node<Value, Parameters, Box, Allocators, Tag> internal_node;
         v(get<internal_node>(n));
     }
     else
     {
-        typedef raw_leaf<Value, Parameters, Box, Allocators, Tag> leaf;
+        typedef weak_leaf<Value, Parameters, Box, Allocators, Tag> leaf;
         v(get<leaf>(n));
     }
 }

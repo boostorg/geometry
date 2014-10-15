@@ -278,13 +278,12 @@ public :
                     typedef typename boost::range_value<Turns>::type turn_info;
 
                     turn_info ti;
-                    ti.operations[0].seg_id = segment_identifier(source_id1,
-                                        sec1.ring_id.multi_index, sec1.ring_id.ring_index, index1),
-                    ti.operations[1].seg_id = segment_identifier(source_id2,
-                                        sec2.ring_id.multi_index, sec2.ring_id.ring_index, index2),
-
-                    ti.operations[0].other_id = ti.operations[1].seg_id;
-                    ti.operations[1].other_id = ti.operations[0].seg_id;
+                    ti.operations[0].seg_id
+                        = segment_identifier(source_id1, sec1.ring_id.multi_index,
+                                             sec1.ring_id.ring_index, index1);
+                    ti.operations[1].seg_id
+                        = segment_identifier(source_id2, sec2.ring_id.multi_index,
+                                             sec2.ring_id.ring_index, index2);
 
                     std::size_t const size_before = boost::size(turns);
 
@@ -678,8 +677,6 @@ private:
 
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
-        ti.operations[0].other_id = ti.operations[1].seg_id;
-        ti.operations[1].other_id = seg_id;
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
         TurnPolicy::apply(rp0, rp1, rp2, bp0, bp1, bp2,

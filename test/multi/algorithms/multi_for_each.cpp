@@ -70,6 +70,21 @@ void test_all()
             , 4 * 3.0
             , "MULTIPOLYGON(((10 1,10 4,4 4,4 1,1 1,10 1)))"
         );
+
+    // open multipolygon
+    typedef bg::model::multi_polygon<bg::model::polygon<P, true, false> > omp;
+    test_geometry<omp>
+        (
+            "MULTIPOLYGON(((1 1,1 4,4 4,4 1)))"
+
+            , 10
+            , "MULTIPOLYGON(((101 1,101 4,104 4,104 1,101 1)))"
+            , "MULTIPOLYGON(((101 100,101 400,104 400,104 100,101 100)))"
+
+            , "((1, 1), (1, 4)) ((1, 4), (4, 4)) ((4, 4), (4, 1)) ((4, 1), (1, 1))"
+            , 4 * 3.0
+            , "MULTIPOLYGON(((10 1,10 4,4 4,4 1,10 1)))"
+        );
 }
 
 int test_main( int , char* [] )
