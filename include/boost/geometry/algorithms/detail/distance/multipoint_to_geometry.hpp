@@ -48,7 +48,7 @@ struct multipoint_to_multipoint
                                     MultiPoint2 const& multipoint2,
                                     Strategy const& strategy)
     {
-        if ( boost::size(multipoint2) < boost::size(multipoint1) )
+        if (boost::size(multipoint2) < boost::size(multipoint1))
 
         {
             return point_or_segment_range_to_geometry_rtree
@@ -142,13 +142,12 @@ public:
     {
         within_areal predicate(areal);
 
-        if ( check_iterator_range
-                 <
-                     within_areal, false
-                 >::apply(boost::begin(multipoint),
-                          boost::end(multipoint),
-                          predicate)
-             )
+        if (check_iterator_range
+                <
+                    within_areal, false
+                >::apply(boost::begin(multipoint),
+                         boost::end(multipoint),
+                         predicate))
         {
             return 0;
         }

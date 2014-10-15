@@ -191,8 +191,8 @@ public:
         typedef assign_new_min_iterator<SegmentOrBox> assign_new_value;
 
 
-        if ( check_intersection
-             && geometry::intersects(geometry, segment_or_box) )
+        if (check_intersection
+            && geometry::intersects(geometry, segment_or_box))
         {
             return 0;
         }
@@ -235,7 +235,7 @@ public:
                                               cstrategy,
                                               cd);
 
-            if ( first || cd < cd_min1 )
+            if (first || cd < cd_min1)
             {
                 cd_min1 = cd;
                 pit_min = pit;
@@ -263,7 +263,7 @@ public:
                                            cstrategy,
                                            cd);
 
-            if ( first || cd < cd_min2 )
+            if (first || cd < cd_min2)
             {
                 cd_min2 = cd;
                 it_min = it;
@@ -271,12 +271,12 @@ public:
             }
         }
 
-        if ( is_comparable<Strategy>::value )
+        if (is_comparable<Strategy>::value)
         {
             return (std::min)(cd_min1, cd_min2);
         }
 
-        if ( cd_min1 < cd_min2 )
+        if (cd_min1 < cd_min2)
         {
             return strategy.apply(*pit_min, *it_min1, *it_min2);
         }

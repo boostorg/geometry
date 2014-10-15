@@ -68,7 +68,7 @@ public:
     apply(Segment1 const& segment1, Segment2 const& segment2,
           Strategy const& strategy)
     {
-        if ( geometry::intersects(segment1, segment2) )
+        if (geometry::intersects(segment1, segment2))
         {
             return 0;
         }
@@ -96,7 +96,7 @@ public:
         std::size_t imin = std::distance(boost::addressof(d[0]),
                                          std::min_element(d, d + 4));
 
-        if ( is_comparable<Strategy>::value )
+        if (is_comparable<Strategy>::value)
         {
             return d[imin];
         }

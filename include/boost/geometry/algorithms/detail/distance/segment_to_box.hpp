@@ -99,7 +99,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if ( check_intersection && geometry::intersects(segment, box) )
+        if (check_intersection && geometry::intersects(segment, box))
         {
             return 0;
         }
@@ -145,18 +145,18 @@ public:
         unsigned int imin = 0;
         for (unsigned int i = 1; i < 6; ++i)
         {
-            if ( cd[i] < cd[imin] )
+            if (cd[i] < cd[imin])
             {
                 imin = i;
             }
         }
 
-        if ( is_comparable<Strategy>::value )
+        if (is_comparable<Strategy>::value)
         {
             return cd[imin];
         }
 
-        if ( imin < 4 )
+        if (imin < 4)
         {
             return strategy.apply(box_points[imin], p[0], p[1]);
         }
@@ -214,7 +214,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if ( check_intersection && geometry::intersects(segment, box) )
+        if (check_intersection && geometry::intersects(segment, box))
         {
             return 0;
         }
@@ -249,18 +249,18 @@ public:
         unsigned int imin = 0;
         for (unsigned int i = 1; i < 6; ++i)
         {
-            if ( cd[i] < cd[imin] )
+            if (cd[i] < cd[imin])
             {
                 imin = i;
             }
         }
 
-        if ( is_comparable<Strategy>::value )
+        if (is_comparable<Strategy>::value)
         {
             return cd[imin];
         }
 
-        if ( imin < 4 )
+        if (imin < 4)
         {
             strategy.apply(box_points[imin], p[0], p[1]);
         }
@@ -354,13 +354,13 @@ private:
 
             LessEqual less_equal;
 
-            if ( less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)) )
+            if (less_equal(geometry::get<1>(top_right), geometry::get<1>(p0)))
             {
                 // closest box point is the top-right corner
                 return cast::apply(pp_strategy.apply(p0, top_right));
             }
-            else if ( less_equal(geometry::get<1>(bottom_right),
-                                 geometry::get<1>(p0)) )
+            else if (less_equal(geometry::get<1>(bottom_right),
+                                geometry::get<1>(p0)))
             {
                 // distance is realized between p0 and right-most
                 // segment of box
@@ -401,7 +401,7 @@ private:
 
             // p0 is above the upper segment of the box
             // (and inside its band)
-            if ( less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)) )
+            if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p0)))
             {
                 ReturnType diff = cast::apply(geometry::get<1>(p0))
                     - cast::apply(geometry::get<1>(top_left));
@@ -433,7 +433,7 @@ private:
                                  ReturnType& result)
         {
             // p0 lies to the right of the box
-            if ( geometry::get<0>(p0) >= geometry::get<0>(top_right) )
+            if (geometry::get<0>(p0) >= geometry::get<0>(top_right))
             {
                 result = right_of_box
                     <
@@ -444,7 +444,7 @@ private:
             }
 
             // p1 lies to the left of the box
-            if ( geometry::get<0>(p1) <= geometry::get<0>(bottom_left) )
+            if (geometry::get<0>(p1) <= geometry::get<0>(bottom_left))
             {
                 result = right_of_box
                     <
@@ -472,7 +472,7 @@ private:
                                  ReturnType& result)
         {
             // the segment lies below the box
-            if ( geometry::get<1>(p1) < geometry::get<1>(bottom_left) )
+            if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
                 result = above_of_box
                     <
@@ -482,7 +482,7 @@ private:
             }
 
             // the segment lies above the box
-            if ( geometry::get<1>(p0) > geometry::get<1>(top_right) )
+            if (geometry::get<1>(p0) > geometry::get<1>(top_right))
             {
                 result = above_of_box
                     <
@@ -523,7 +523,7 @@ private:
             ReturnType t_max1 = cast::apply(geometry::get<1>(top_right1))
                 - cast::apply(geometry::get<1>(p0));
 
-            if ( diff1 < 0 )
+            if (diff1 < 0)
             {
                 diff1 = -diff1;
                 t_min1 = -t_min1;
@@ -531,14 +531,14 @@ private:
             }
 
             //  t_min0 > t_max1
-            if ( t_min0 * diff1 > t_max1 * diff0 )
+            if (t_min0 * diff1 > t_max1 * diff0)
             {
                 result = cast::apply(ps_strategy.apply(corner1, p0, p1));
                 return true;
             }
 
             //  t_max0 < t_min1
-            if ( t_max0 * diff1 < t_min1 * diff0 )
+            if (t_max0 * diff1 < t_min1 * diff0)
             {
                 result = cast::apply(ps_strategy.apply(corner2, p0, p1));
                 return true;
@@ -569,31 +569,31 @@ private:
 
         ReturnType result(0);
 
-        if ( check_right_left_of_box
-                 <
-                     less_equal
-                 >::apply(p0, p1,
-                          top_left, top_right, bottom_left, bottom_right,
-                          pp_strategy, ps_strategy, result) )
+        if (check_right_left_of_box
+                <
+                    less_equal
+                >::apply(p0, p1,
+                         top_left, top_right, bottom_left, bottom_right,
+                         pp_strategy, ps_strategy, result))
         {
             return result;
         }
 
-        if ( check_above_below_of_box
-                 <
-                     less_equal
-                 >::apply(p0, p1,
-                          top_left, top_right, bottom_left, bottom_right,
-                          ps_strategy, result) )
+        if (check_above_below_of_box
+                <
+                    less_equal
+                >::apply(p0, p1,
+                         top_left, top_right, bottom_left, bottom_right,
+                         ps_strategy, result))
         {
             return result;
         }
 
-        if ( check_generic_position::apply(p0, p1,
-                                           bottom_left, top_right,
-                                           bottom_left, top_right,
-                                           top_left, bottom_right,
-                                           ps_strategy, result) )
+        if (check_generic_position::apply(p0, p1,
+                                          bottom_left, top_right,
+                                          bottom_left, top_right,
+                                          top_left, bottom_right,
+                                          ps_strategy, result))
         {
             return result;
         }
@@ -621,31 +621,31 @@ private:
 
         ReturnType result(0);
 
-        if ( check_right_left_of_box
-                 <
-                     greater_equal
-                 >::apply(p0, p1,
-                          bottom_left, bottom_right, top_left, top_right,
-                          pp_strategy, ps_strategy, result) )
+        if (check_right_left_of_box
+                <
+                    greater_equal
+                >::apply(p0, p1,
+                         bottom_left, bottom_right, top_left, top_right,
+                         pp_strategy, ps_strategy, result))
         {
             return result;
         }
 
-        if ( check_above_below_of_box
-                 <
-                     greater_equal
-                 >::apply(p1, p0,
-                          top_right, top_left, bottom_right, bottom_left,
-                          ps_strategy, result) )
+        if (check_above_below_of_box
+                <
+                    greater_equal
+                >::apply(p1, p0,
+                         top_right, top_left, bottom_right, bottom_left,
+                         ps_strategy, result))
         {
             return result;
         }
 
-        if ( check_generic_position::apply(p0, p1,
-                                           bottom_left, top_right,
-                                           top_right, bottom_left,
-                                           bottom_left, top_right,
-                                           ps_strategy, result) )
+        if (check_generic_position::apply(p0, p1,
+                                          bottom_left, top_right,
+                                          top_right, bottom_left,
+                                          bottom_left, top_right,
+                                          ps_strategy, result))
         {
             return result;
         }
@@ -666,8 +666,8 @@ public:
     {
         BOOST_ASSERT( geometry::less<SegmentPoint>()(p0, p1) );
 
-        if ( geometry::get<0>(p0) < geometry::get<0>(p1)
-             && geometry::get<1>(p0) > geometry::get<1>(p1) )
+        if (geometry::get<0>(p0) < geometry::get<0>(p1)
+            && geometry::get<1>(p0) > geometry::get<1>(p1))
         {
             return negative_slope_segment(p0, p1,
                                           top_left, top_right,
@@ -741,7 +741,7 @@ public:
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
 
-        if ( geometry::equals(p[0], p[1]) )
+        if (geometry::equals(p[0], p[1]))
         {
             typedef typename boost::mpl::if_
                 <
@@ -775,7 +775,7 @@ public:
         detail::assign_box_corners(box, bottom_left, bottom_right,
                                    top_left, top_right);
 
-        if ( geometry::less<segment_point>()(p[0], p[1]) )
+        if (geometry::less<segment_point>()(p[0], p[1]))
         {
             return segment_to_box_2D
                 <

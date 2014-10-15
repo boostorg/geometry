@@ -102,7 +102,7 @@ public:
     {
         return_type const zero = return_type(0);
 
-        if ( boost::size(range) == 0 )
+        if (boost::size(range) == 0)
         {
             return zero;
         }
@@ -158,7 +158,7 @@ struct point_to_ring
                                     Ring const& ring,
                                     Strategy const& strategy)
     {
-        if ( geometry::within(point, ring) )
+        if (geometry::within(point, ring))
         {
             return return_type(0);
         }
@@ -202,7 +202,7 @@ private:
         {
             for (InteriorRingIterator it = first; it != last; ++it)
             {
-                if ( geometry::within(point, *it) )
+                if (geometry::within(point, *it))
                 {
                     // the point is inside a polygon hole, so its distance
                     // to the polygon its distance to the polygon's
@@ -231,7 +231,7 @@ public:
                                     Polygon const& polygon,
                                     Strategy const& strategy)
     {
-        if ( !geometry::within(point, exterior_ring(polygon)) )
+        if (!geometry::within(point, exterior_ring(polygon)))
         {
             // the point is outside the exterior ring, so its distance
             // to the polygon is its distance to the polygon's exterior ring
@@ -324,7 +324,7 @@ public:
                                     MultiGeometry const& multigeometry,
                                     Strategy const& strategy)
     {
-        if ( geometry::within(point, multigeometry) )
+        if (geometry::within(point, multigeometry))
         {
             return 0;
         }

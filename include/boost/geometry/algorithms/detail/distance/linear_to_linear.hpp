@@ -59,7 +59,7 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
                                     Strategy const& strategy,
                                     bool = false)
     {
-        if ( geometry::num_points(linear1) == 1 )
+        if (geometry::num_points(linear1) == 1)
         {
             return dispatch::distance
                 <
@@ -69,7 +69,7 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
                 >::apply(*points_begin(linear1), linear2, strategy);
         }
 
-        if ( geometry::num_points(linear2) == 1 )
+        if (geometry::num_points(linear2) == 1)
         {
             return dispatch::distance
                 <
@@ -79,7 +79,7 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
                 >::apply(*points_begin(linear2), linear1, strategy);
         }
 
-        if ( geometry::num_segments(linear2) < geometry::num_segments(linear1) )
+        if (geometry::num_segments(linear2) < geometry::num_segments(linear1))
         {
             return point_or_segment_range_to_geometry_rtree
                 <
