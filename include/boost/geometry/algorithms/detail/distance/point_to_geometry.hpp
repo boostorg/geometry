@@ -24,6 +24,7 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -252,7 +253,10 @@ template
     typename Point,
     typename MultiGeometry,
     typename Strategy,
-    bool CheckCoveredBy = false
+    bool CheckCoveredBy = boost::is_same
+        <
+            typename tag<MultiGeometry>::type, multi_polygon_tag
+        >::value
 >
 class point_to_multigeometry
 {
@@ -471,7 +475,7 @@ struct distance
         strategy_tag_distance_point_segment, false
     > : detail::distance::point_to_multigeometry
         <
-            Point, MultiPolygon, Strategy, true
+            Point, MultiPolygon, Strategy
         >
 {};
 
