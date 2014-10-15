@@ -115,9 +115,8 @@ struct svg_visitor
 
         std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
 
-        int index = 0;
         for (typename boost::range_iterator<Turns const>::type it =
-            boost::begin(turns); it != boost::end(turns); ++it, index++)
+            boost::begin(turns); it != boost::end(turns); ++it)
         {
             bool is_good = true;
             char color = 'g';
@@ -154,7 +153,7 @@ struct svg_visitor
             if ((label_good_turns && is_good) || (label_wrong_turns && ! is_good))
             {
                 std::ostringstream out;
-                out << index
+                out << it->turn_index
                     << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
                     << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
 
