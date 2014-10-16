@@ -59,6 +59,8 @@ private:
         BOOST_ASSERT( rtree_first != rtree_last );
         BOOST_ASSERT( queries_first != queries_last );
 
+        Distance const zero = Distance(0);
+
         // create -- packing algorithm
         rtree_type rt(rtree_first, rtree_last);
 
@@ -94,6 +96,10 @@ private:
                 dist_min = dist;
                 rtree_min = t_v;
                 qit_min = qit;
+                if ( math::equals(dist_min, zero) )
+                {
+                    return;
+                }
             }
         }
     }
