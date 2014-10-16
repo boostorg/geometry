@@ -27,13 +27,7 @@ namespace detail { namespace distance
 {
 
 
-template
-<
-    typename Linear,
-    typename Areal,
-    typename Strategy,
-    bool UseRTreeOfSegments = true
->
+template <typename Linear, typename Areal, typename Strategy>
 struct linear_to_areal
 {
     typedef typename strategy::distance::services::return_type
@@ -54,7 +48,7 @@ struct linear_to_areal
 
         return linear_to_linear
             <
-                Linear, Areal, Strategy, UseRTreeOfSegments
+                Linear, Areal, Strategy
             >::apply(linear, areal, strategy, false);
     }
 
@@ -68,13 +62,7 @@ struct linear_to_areal
 };
 
 
-template
-<
-    typename Areal1,
-    typename Areal2,
-    typename Strategy,
-    bool UseRTreeOfSegments = true
->
+template <typename Areal1, typename Areal2, typename Strategy>
 struct areal_to_areal
 {
     typedef typename strategy::distance::services::return_type
@@ -95,7 +83,7 @@ struct areal_to_areal
 
         return linear_to_linear
             <
-                Areal1, Areal2, Strategy, UseRTreeOfSegments
+                Areal1, Areal2, Strategy
             >::apply(areal1, areal2, strategy, false);
     }
 };

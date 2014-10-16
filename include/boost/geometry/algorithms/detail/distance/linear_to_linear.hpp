@@ -33,19 +33,8 @@ namespace detail { namespace distance
 {
 
 
-template
-<
-    typename Linear1,
-    typename Linear2,
-    typename Strategy,
-    bool UseRTreeOfSegments = true
->
-struct linear_to_linear
-{};
-
-
 template <typename Linear1, typename Linear2, typename Strategy>
-struct linear_to_linear<Linear1, Linear2, Strategy, true>
+struct linear_to_linear
 {
     typedef typename strategy::distance::services::return_type
         <
@@ -102,29 +91,6 @@ struct linear_to_linear<Linear1, Linear2, Strategy, true>
                      geometry::segments_end(linear1),
                      linear2,
                      strategy);
-    }
-};
-
-
-template <typename Linear1, typename Linear2, typename Strategy>
-struct linear_to_linear<Linear1, Linear2, Strategy, false>
-{
-    typedef typename strategy::distance::services::return_type
-        <
-            Strategy,
-            typename point_type<Linear1>::type,
-            typename point_type<Linear2>::type
-        >::type return_type;
-
-    static inline return_type apply(Linear1 const& linear1,
-                                    Linear2 const& linear2,
-                                    Strategy const& strategy,
-                                    bool check_intersection = true)
-    {
-        return geometry_to_geometry_rtree
-            <
-                Linear1, Linear2, Strategy
-            >::apply(linear1, linear2, strategy, check_intersection);
     }
 };
 
