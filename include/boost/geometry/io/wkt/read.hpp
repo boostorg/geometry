@@ -232,15 +232,10 @@ struct container_inserter
 
 
 template <typename Geometry,
-          closure_selector Closure
-            = closure
-                <
-                    typename boost::remove_reference<Geometry>::type
-                >::value>
+          closure_selector Closure = closure<Geometry>::value>
 struct stateful_range_appender
 {
-    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
-    typedef typename geometry::point_type<bare_geometry>::type point_type;
+    typedef typename geometry::point_type<Geometry>::type point_type;
 
     inline void append(Geometry & geom, point_type const& point, bool)
     {
@@ -251,13 +246,15 @@ struct stateful_range_appender
 template <typename Geometry>
 struct stateful_range_appender<Geometry, open>
 {
-    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
-    typedef typename geometry::point_type<bare_geometry>::type point_type;
-    typedef typename boost::range_size<bare_geometry>::type size_type;
+    typedef typename geometry::point_type<Geometry>::type point_type;
+    typedef typename boost::range_size
+        <
+            typename util::bare_type<Geometry>::type
+        >::type size_type;
 
     BOOST_STATIC_ASSERT(( boost::is_same
                             <
-                                typename tag<bare_geometry>::type,
+                                typename tag<Geometry>::type,
                                 ring_tag
                             >::value ));
 
@@ -299,8 +296,7 @@ private:
 template <typename Geometry>
 struct container_appender
 {
-    typedef typename boost::remove_reference<Geometry>::type bare_geometry;
-    typedef typename geometry::point_type<bare_geometry>::type point_type;
+    typedef typename geometry::point_type<Geometry>::type point_type;
 
     static inline void apply(tokenizer::iterator& it, tokenizer::iterator end,
                              std::string const& wkt, Geometry out)
