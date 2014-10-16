@@ -810,7 +810,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     visit_pieces_policy.apply(const_collection, 0);
 
     collection.discard_rings();
-    collection.discard_turns();
+    collection.block_turns();
     collection.enrich();
     collection.traverse();
 
