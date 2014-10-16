@@ -23,7 +23,7 @@
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#include <boost/geometry/algorithms/detail/distance/geometry_to_geometry_rtree.hpp>
+#include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
 
 namespace boost { namespace geometry
