@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_MULTIPOINT_GEOMETRY_HPP
 
 #include <algorithm>
+#include <vector>
 
 #include <boost/assert.hpp>
 #include <boost/range.hpp>
@@ -32,10 +33,36 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
-
 template<typename MultiPoint1, typename MultiPoint2>
-struct multipoint_multipoint
+class multipoint_multipoint
 {
+private:
+    template <typename Iterator>
+    class unary_disjoint_predicate
+        : detail::relate::less
+    {
+    private:
+        typedef detail::relate::less base_type;
+
+    public:
+        unary_disjoint_predicate(Iterator first, Iterator last)
+            : base_type(), m_first(first), m_last(last)
+        {}
+
+        template <typename Point>
+        inline bool apply(Point const& point) const
+        {
+            return !std::binary_search(m_first,
+                                       m_last,
+                                       point,
+                                       static_cast<base_type const&>(*this));
+        }
+
+    private:
+        Iterator m_first, m_last;
+    };
+
+public:
     static inline bool apply(MultiPoint1 const& multipoint1,
                              MultiPoint2 const& multipoint2)
     {
@@ -45,25 +72,20 @@ struct multipoint_multipoint
 
         std::vector<point1_type> points1(boost::begin(multipoint1),
                                          boost::end(multipoint1));
+
         std::sort(points1.begin(), points1.end(), detail::relate::less());
 
-        
-        typedef typename boost::range_iterator
+        typedef unary_disjoint_predicate
             <
-                MultiPoint2 const
-            >::type iterator2;
+                typename std::vector<point1_type>::const_iterator
+            > predicate_type;
 
-        for (iterator2 it = boost::begin(multipoint2);
-             it != boost::end(multipoint2); ++it)
-        {
-            if ( std::binary_search(points1.begin(), points1.end(),
-                                    *it, detail::relate::less()) )
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return check_iterator_range
+            <
+                predicate_type
+            >::apply(boost::begin(multipoint2),
+                     boost::end(multipoint2),
+                     predicate_type(points1.begin(), points1.end()));
     }
 };
 
