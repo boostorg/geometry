@@ -228,7 +228,7 @@ struct less
     template <typename Turn>
     static inline bool use_fraction(Turn const& left, Turn const& right)
     {
-        static const LessOp less_op;
+        static LessOp less_op;
 
         return left.operations[OpId].fraction < right.operations[OpId].fraction
             || ( left.operations[OpId].fraction == right.operations[OpId].fraction
