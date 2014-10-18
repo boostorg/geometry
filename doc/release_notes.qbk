@@ -19,8 +19,6 @@
 
 [*Additional functionality]
 
-* New algorithm num_segments, returning the number of segments of a geometry
-
 [*Improvements]
 
 * The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
