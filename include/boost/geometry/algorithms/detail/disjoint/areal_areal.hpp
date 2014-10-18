@@ -23,9 +23,9 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/within.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
-#include <boost/geometry/algorithms/point_on_surface.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 
@@ -53,9 +53,13 @@ struct check_each_ring_for_within
     template <typename Range>
     inline void apply(Range const& range)
     {
-        if ( geometry::within(geometry::return_point_on_surface(range), m_geometry) )
+        typename point_type<Range>::type pt;
+        if ( geometry::point_on_border(pt, range) )
         {
-            has_within = true;
+            if ( geometry::covered_by(pt, m_geometry) )
+            {
+                has_within = true;
+            }
         }
     }
 };
