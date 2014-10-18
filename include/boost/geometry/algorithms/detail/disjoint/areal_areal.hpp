@@ -42,11 +42,11 @@ namespace detail { namespace disjoint
 template<typename Geometry>
 struct check_each_ring_for_within
 {
-    bool has_within;
+    bool not_disjoint;
     Geometry const& m_geometry;
 
     inline check_each_ring_for_within(Geometry const& g)
-        : has_within(false)
+        : not_disjoint(false)
         , m_geometry(g)
     {}
 
@@ -54,13 +54,9 @@ struct check_each_ring_for_within
     inline void apply(Range const& range)
     {
         typename point_type<Range>::type pt;
-        if ( geometry::point_on_border(pt, range) )
-        {
-            if ( geometry::covered_by(pt, m_geometry) )
-            {
-                has_within = true;
-            }
-        }
+        not_disjoint = not_disjoint
+                || ( geometry::point_on_border(pt, range)
+                  && geometry::covered_by(pt, m_geometry) );
     }
 };
 
@@ -72,7 +68,7 @@ inline bool rings_containing(FirstGeometry const& geometry1,
 {
     check_each_ring_for_within<FirstGeometry> checker(geometry1);
     geometry::detail::for_each_range(geometry2, checker);
-    return checker.has_within;
+    return checker.not_disjoint;
 }
 
 
