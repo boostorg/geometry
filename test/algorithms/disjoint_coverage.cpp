@@ -1181,6 +1181,28 @@ inline void test_polygon_polygon()
     tester::apply(from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
+
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9))"),
+        from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+        false);
+    // polygon with a hole which entirely contains the other polygon
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(2 2,2 7,7 7,7 2))"),
+        from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+        true);
+    // polygon with a hole, but the inner ring intersects the other polygon
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 2,3 7,7 7,7 2))"),
+        from_wkt<PL>("POLYGON((2 3,6 3,6 6,2 6))"),
+        false);
+    // polygon with a hole, but the other polygon is entirely contained
+    // between the inner and outer rings.
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(6 2,6 7,7 7,7 2))"),
+        from_wkt<PL>("POLYGON((3 3,5 3,5 6,3 6))"),
+        false);
+    // polygon with a hole and the outer ring of the other polygon lies
+    // between the inner and outer, but without touching either.
+    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 3,3 6,6 6,6 3))"),
+        from_wkt<PL>("POLYGON((2 2,7 2,7 7,2 7))"),
+        false);
 }
 
 template <typename P>
