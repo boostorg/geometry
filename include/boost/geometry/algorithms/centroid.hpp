@@ -23,9 +23,7 @@
 
 #include <cstddef>
 
-#include <boost/core/ref.hpp>
 #include <boost/range.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -46,7 +44,6 @@
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -58,7 +55,7 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 
-#include <boost/geometry/iterators/point_iterator.hpp>
+#include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
 
 
 namespace boost { namespace geometry
@@ -196,84 +193,6 @@ inline bool range_ok(Range const& range, Point& centroid)
         return false;
     }
     return true;
-}
-
-// NOTE: There is no need to translate in other coordinate systems than
-// cartesian. But if it was needed then one should translate using
-// CS-specific technique, e.g. in spherical/geographic a translation
-// vector should contain coordinates being multiplies of 2PI or 360 deg.
-template <typename Geometry,
-          typename CastedTag = typename tag_cast
-                                <
-                                    typename tag<Geometry>::type,
-                                    areal_tag
-                                >::type,
-    typename CSTag = typename cs_tag<Geometry>::type>
-struct translating_transformer
-{
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef boost::reference_wrapper<point_type const> result_type;
-
-    translating_transformer(point_type const&) {}
-
-    result_type apply(point_type const& pt) const
-    {
-        return result_type(pt);
-    }
-
-    template <typename ResPt>
-    void apply_reverse(ResPt &) const {}
-};
-
-template <typename Geometry>
-struct translating_transformer<Geometry, areal_tag, cartesian_tag>
-{
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef point_type result_type;
-    
-    translating_transformer(point_type const& origin)
-        : m_origin(origin)
-    {}
-
-    result_type apply(point_type const& pt) const
-    {
-        point_type res = pt;
-        geometry::subtract_point(res, m_origin);
-        return res;
-    }
-
-    template <typename ResPt>
-    void apply_reverse(ResPt & res_pt) const
-    {
-        geometry::add_point(res_pt, m_origin);
-    }
-
-    point_type const& m_origin;
-};
-
-template <typename Geometry>
-inline void assign_origin(Geometry const& geom,
-                          typename geometry::point_type<Geometry>::type & origin)
-{
-    static const bool is_areal
-        = boost::is_same
-            <
-                typename tag_cast<typename tag<Geometry>::type, areal_tag>::type,
-                areal_tag
-            >::value;
-
-    if ( is_areal )
-    {
-        geometry::point_iterator<Geometry const>
-            pt_it = geometry::points_begin(geom);
-        if ( pt_it != geometry::points_end(geom) )
-        {
-            origin = *pt_it;
-            return;
-        }
-    }
-
-    geometry::assign_zero(origin);
 }
 
 /*!
@@ -434,10 +353,7 @@ struct centroid_multi
 #endif
 
         // prepare translation transformer
-        typedef typename geometry::point_type<Multi>::type point_type;
-        point_type origin;
-        assign_origin(multi, origin);
-        translating_transformer<Multi> transformer(origin);
+        translating_transformer<Multi> transformer(multi);
 
         typename Strategy::state_type state;
 
