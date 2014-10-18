@@ -87,8 +87,8 @@ struct general_areal
         // If there is no intersection of segments, they might located
         // inside each other
 
-        // We check that using a point on the surface, and see if that is inside
-        // the other geometry. And vice versa.
+        // We check that using a point on the border (external boundary),
+        // and see if that is contained in the other geometry. And vice versa.
 
         if ( rings_containing(geometry1, geometry2)
           || rings_containing(geometry2, geometry1) )
