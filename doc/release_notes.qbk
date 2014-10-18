@@ -29,10 +29,16 @@
 * [@https://svn.boost.org/trac/boost/ticket/9354 9354] Bug in winding strategy affecting within() and covered_by() for non-cartesian coordinate systems
 * [@https://svn.boost.org/trac/boost/ticket/10177 10177] Missing include
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
+* [@https://svn.boost.org/trac/boost/ticket/10421 10421] Invalid Point-Box distance for spherical CS
 * [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
 * [@https://svn.boost.org/trac/boost/ticket/10643 10643] Invalid point_on_surface() result for big coordinates
 
 [*Bugfixes]
+
+* Bug in point_on_surface() for CCW Polygons (extreme_points()) and numerical issue (thanks to Matt Amos)
+* Bug in disjoint() for A/A fixed by replacement of point_on_surface() with point_on_border()(thanks to Matt Amos)
+* The number of resulting Points of convex_hull(), too small for 1- and 2-Point Geometries
+
 
 [/=================]
 [heading Boost 1.56]
