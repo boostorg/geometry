@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -52,11 +57,11 @@ void test_all()
     test_geometry<mp>("MULTIPOINT((0 0),(5 0),(1 1),(4 1))", -1, 5, 4.0);
     test_geometry<mp>("MULTIPOINT((0 1),(5 1),(1 0),(4 0))", -1, 5, 4.0);
 
-    // All points in vertical line (this delivers an empty polygon with 2 points and a closing point)
-    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", -1, 3, 0.0);
+    // All points in vertical line (this delivers an empty polygon with 3 points and closing point for closed)
+    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", -1, 4, 0.0);
 
     // One point only
-    test_geometry<mp>("MULTIPOINT((1 0))", -1, 3, 0.0);
+    test_geometry<mp>("MULTIPOINT((1 0))", -1, 4, 0.0);
 
     // Problem of 6019, reproduced by the convex hull robustness test:
     test_geometry<mp>("MULTIPOINT((2 9),(1 3),(9 4),(1 1),(1 0),(7 9),(2 5),(3 7),(3 6),(2 4))",
