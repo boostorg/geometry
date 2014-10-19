@@ -138,7 +138,6 @@ void test_geometry(std::string const& case_id, std::string const& wkt, double ex
 template <typename Point>
 void test_point_order_and_type()
 {
-    typedef bg::model::polygon<Point> polygon;
     typedef bg::model::polygon<Point, false, false> ccw_open_polygon;
     typedef bg::model::polygon<Point,  true, false> cw_open_polygon;
     typedef bg::model::polygon<Point, false,  true> ccw_closed_polygon;
