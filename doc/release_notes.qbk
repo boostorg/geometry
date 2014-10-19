@@ -39,8 +39,9 @@
 
 * Bug in point_on_surface() for CCW Polygons (extreme_points()) and numerical issue (thanks to Matt Amos)
 * Bug in disjoint() for A/A fixed by replacement of point_on_surface() with point_on_border()(thanks to Matt Amos)
-* The number of resulting Points of convex_hull(), too small for 1- and 2-Point Geometries
+* The result of convex_hull(), duplicated Point in open output, too small number of Points for 1- and 2-Point input
 * Imprecision for big coordinates in centroid(), fixed by Points translation (related with ticket 10643)
+* for_each_segment() not taking into account the last segment of open Geometry
 
 [/=================]
 [heading Boost 1.56]
