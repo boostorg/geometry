@@ -299,7 +299,7 @@ inline void pick_seeds(Elements const& elements,
 
     separation_type separation = 0;
     impl::apply(elements, parameters, tr, separation, seed1, seed2);
-};
+}
 
 } // namespace linear
 

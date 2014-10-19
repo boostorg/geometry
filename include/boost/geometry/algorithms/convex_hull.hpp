@@ -197,7 +197,7 @@ struct convex_hull_insert
     }
 };
 
-}; // namespace resolve_strategy
+} // namespace resolve_strategy
 
 
 namespace resolve_variant {
