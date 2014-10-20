@@ -56,7 +56,6 @@ class piece_turn_visitor
     Rings const& m_rings;
     Turns& m_turns;
     RobustPolicy const& m_robust_policy;
-    int m_last_piece_index;
 
     template <typename Piece>
     inline bool is_adjacent(Piece const& piece1, Piece const& piece2) const
@@ -66,14 +65,8 @@ class piece_turn_visitor
             return false;
         }
 
-        if (std::abs(piece1.index - piece2.index) == 1)
-        {
-            return true;
-        }
-
-        return (piece1.index == 0 && piece2.index == m_last_piece_index)
-            || (piece1.index == m_last_piece_index && piece2.index == 0)
-            ;
+        return piece1.index == piece2.left_index
+            || piece1.index == piece2.right_index;
     }
 
     template <typename Range, typename Iterator>
@@ -142,10 +135,6 @@ class piece_turn_visitor
                     it2 != it2_last;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                // Revert (this is used more often - should be common function TODO)
-                the_model.operations[0].other_id = the_model.operations[1].seg_id;
-                the_model.operations[1].other_id = the_model.operations[0].seg_id;
-
                 iterator next2 = next_point(ring2, it2);
 
                 // TODO: internally get_turn_info calculates robust points.
@@ -171,12 +160,10 @@ public:
 
     piece_turn_visitor(Rings const& ring_collection,
             Turns& turns,
-            RobustPolicy const& robust_policy,
-            int last_piece_index)
+            RobustPolicy const& robust_policy)
         : m_rings(ring_collection)
         , m_turns(turns)
         , m_robust_policy(robust_policy)
-        , m_last_piece_index(last_piece_index)
     {}
 
     template <typename Piece>

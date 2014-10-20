@@ -76,9 +76,8 @@ private :
         RobustPolicy
     >::type robust_point_type;
 
-    // TODO: this function is shared with enrich_intersection_points
-    // Still called by #case_102_multi, #case_107_multi
-    // #case_recursive_boxes_3
+    // Still necessary in some situations,
+    // for example #case_102_multi, #case_107_multi, #case_recursive_boxes_3
     inline void get_situation_map(Indexed const& left, Indexed const& right,
                               robust_point_type& pi_rob, robust_point_type& pj_rob,
                               robust_point_type& ri_rob, robust_point_type& rj_rob,
@@ -87,13 +86,13 @@ private :
         point_type pi, pj, ri, rj, si, sj;
 
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.seg_id,
+            left.subject->seg_id,
             pi, pj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            left.subject.other_id,
+            *left.other_seg_id,
             ri, rj);
         geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-            right.subject.other_id,
+            *right.other_seg_id,
             si, sj);
 
         geometry::recalculate(pi_rob, pi, m_rescale_policy);
@@ -167,7 +166,7 @@ private :
     {
         if (skip) return;
 
-        std::cout << "Case: " << header << " for " << left.index << " / " << right.index << std::endl;
+        std::cout << "Case: " << header << " for " << left.turn_index << " / " << right.turn_index << std::endl;
 
         robust_point_type pi, pj, ri, rj, si, sj;
         get_situation_map(left, right, pi, pj, ri, rj, si, sj);
@@ -196,15 +195,15 @@ private :
 
         std::cout << header
                 //<< " order: " << order
-                << " ops: " << operation_char(left.subject.operation)
-                    << "/" << operation_char(right.subject.operation)
+                << " ops: " << operation_char(left.subject->operation)
+                    << "/" << operation_char(right.subject->operation)
                 << " ri//p: " << side_ri_p
                 << " si//p: " << side_si_p
                 << " si//r: " << side_si_r
 #if BOOST_GEOMETRY_HANDLE_TANGENCIES_WITH_OVERLAP_INFO
                 << " cnts: " << int(prc) << ","  << int(psc) << "," << int(rsc)
 #endif
-                //<< " idx: " << left.index << "/" << right.index
+                //<< " idx: " << left.turn_index << "/" << right.turn_index
                 ;
 
         if (! extra.empty())
@@ -229,17 +228,17 @@ private :
             , std::string const& // header
         ) const
     {
-        bool ret = left.index < right.index;
+        bool ret = left.turn_index < right.turn_index;
 
         // In combination of u/x, x/u: take first union, then blocked.
         // Solves #88, #61, #56, #80
-        if (left.subject.operation == operation_union
-            && right.subject.operation == operation_blocked)
+        if (left.subject->operation == operation_union
+            && right.subject->operation == operation_blocked)
         {
             ret = true;
         }
-        else if (left.subject.operation == operation_blocked
-            && right.subject.operation == operation_union)
+        else if (left.subject->operation == operation_blocked
+            && right.subject->operation == operation_union)
         {
             ret = false;
         }
@@ -263,26 +262,26 @@ private :
     {
         bool ret = false;
 
-        if (left.subject.operation == operation_union
-            && right.subject.operation == operation_union)
+        if (left.subject->operation == operation_union
+            && right.subject->operation == operation_union)
         {
             ret = order == 1;
         }
-        else if (left.subject.operation == operation_union
-            && right.subject.operation == operation_blocked)
+        else if (left.subject->operation == operation_union
+            && right.subject->operation == operation_blocked)
         {
             ret = true;
         }
-        else if (right.subject.operation == operation_union
-            && left.subject.operation == operation_blocked)
+        else if (right.subject->operation == operation_union
+            && left.subject->operation == operation_blocked)
         {
             ret = false;
         }
-        else if (left.subject.operation == operation_union)
+        else if (left.subject->operation == operation_union)
         {
             ret = true;
         }
-        else if (right.subject.operation == operation_union)
+        else if (right.subject->operation == operation_union)
         {
             ret = false;
         }
@@ -307,10 +306,10 @@ private :
     {
         //debug_consider(order, left, right, header, false, "iu/ix");
 
-        return left.subject.operation == operation_intersection
-                && right.subject.operation == operation_intersection ? order == 1
-            : left.subject.operation == operation_intersection ? false
-            : right.subject.operation == operation_intersection ? true
+        return left.subject->operation == operation_intersection
+                && right.subject->operation == operation_intersection ? order == 1
+            : left.subject->operation == operation_intersection ? false
+            : right.subject->operation == operation_intersection ? true
             : order == 1;
     }
 
@@ -319,13 +318,13 @@ private :
             ) const
     {
         // Take first intersection, then blocked.
-        if (left.subject.operation == operation_intersection
-            && right.subject.operation == operation_blocked)
+        if (left.subject->operation == operation_intersection
+            && right.subject->operation == operation_blocked)
         {
             return true;
         }
-        else if (left.subject.operation == operation_blocked
-            && right.subject.operation == operation_intersection)
+        else if (left.subject->operation == operation_blocked
+            && right.subject->operation == operation_intersection)
         {
             return false;
         }
@@ -337,7 +336,7 @@ private :
 #endif
         //debug_consider(0, left, right, header, false, "-> return", ret);
 
-        return left.index < right.index;
+        return left.turn_index < right.turn_index;
     }
 
 
@@ -347,14 +346,14 @@ private :
         //debug_consider(0, left, right, header);
 
         // In general, order it like "union, intersection".
-        if (left.subject.operation == operation_intersection
-            && right.subject.operation == operation_union)
+        if (left.subject->operation == operation_intersection
+            && right.subject->operation == operation_union)
         {
             //debug_consider(0, left, right, header, false, "i,u", false);
             return false;
         }
-        else if (left.subject.operation == operation_union
-            && right.subject.operation == operation_intersection)
+        else if (left.subject->operation == operation_union
+            && right.subject->operation == operation_intersection)
         {
             //debug_consider(0, left, right, header, false, "u,i", true);
             return true;
@@ -371,8 +370,8 @@ private :
         if (side_ri_p * side_si_p == 1 && side_si_r != 0)
         {
             // Take the most left one
-            if (left.subject.operation == operation_union
-                && right.subject.operation == operation_union)
+            if (left.subject->operation == operation_union
+                && right.subject->operation == operation_union)
             {
                 bool ret = side_si_r == 1;
                 //debug_consider(0, left, right, header, false, "same side", ret);
@@ -456,7 +455,7 @@ private :
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
         std::cout << " iu/iu unhandled" << std::endl;
-        debug_consider(0, left, right, header, false, "unhandled", left.index < right.index);
+        debug_consider(0, left, right, header, false, "unhandled", left.turn_index < right.turn_index);
 #endif
         if (! redo)
         {
@@ -465,7 +464,7 @@ private :
             return ! consider_iu_iu(right, left, header, true);
         }
 
-        return left.index < right.index;
+        return left.turn_index < right.turn_index;
     }
 
     inline bool consider_ii(Indexed const& left, Indexed const& right,
@@ -489,89 +488,89 @@ private :
             bool const ret = side_si_r != 1;
             return ret;
         }
-        return left.index < right.index;
+        return left.turn_index < right.turn_index;
     }
 
 
 public :
     inline bool operator()(Indexed const& left, Indexed const& right) const
     {
-        bool const default_order = left.index < right.index;
+        bool const default_order = left.turn_index < right.turn_index;
 
-        if ((m_turn_points[left.index].discarded || left.discarded)
-            && (m_turn_points[right.index].discarded || right.discarded))
+        if ((m_turn_points[left.turn_index].discarded || left.discarded)
+            && (m_turn_points[right.turn_index].discarded || right.discarded))
         {
             return default_order;
         }
-        else if (m_turn_points[left.index].discarded || left.discarded)
+        else if (m_turn_points[left.turn_index].discarded || left.discarded)
         {
             // Be careful to sort discarded first, then all others
             return true;
         }
-        else if (m_turn_points[right.index].discarded || right.discarded)
+        else if (m_turn_points[right.turn_index].discarded || right.discarded)
         {
             // See above so return false here such that right (discarded)
             // is sorted before left (not discarded)
             return false;
         }
-        else if (m_turn_points[left.index].combination(operation_blocked, operation_union)
-                && m_turn_points[right.index].combination(operation_blocked, operation_union))
+        else if (m_turn_points[left.turn_index].combination(operation_blocked, operation_union)
+                && m_turn_points[right.turn_index].combination(operation_blocked, operation_union))
         {
             // ux/ux
             return consider_ux_ux(left, right, "ux/ux");
         }
-        else if (m_turn_points[left.index].both(operation_union)
-            && m_turn_points[right.index].both(operation_union))
+        else if (m_turn_points[left.turn_index].both(operation_union)
+            && m_turn_points[right.turn_index].both(operation_union))
         {
             // uu/uu, Order is arbitrary
             // Note: uu/uu is discarded now before so this point will
             //       not be reached.
             return default_order;
         }
-        else if (m_turn_points[left.index].combination(operation_intersection, operation_union)
-                && m_turn_points[right.index].combination(operation_intersection, operation_union))
+        else if (m_turn_points[left.turn_index].combination(operation_intersection, operation_union)
+                && m_turn_points[right.turn_index].combination(operation_intersection, operation_union))
         {
             return consider_iu_iu(left, right, "iu/iu");
         }
-        else if (m_turn_points[left.index].combination(operation_intersection, operation_blocked)
-                && m_turn_points[right.index].combination(operation_intersection, operation_blocked))
+        else if (m_turn_points[left.turn_index].combination(operation_intersection, operation_blocked)
+                && m_turn_points[right.turn_index].combination(operation_intersection, operation_blocked))
         {
             return consider_ix_ix(left, right, "ix/ix");
         }
-        else if (m_turn_points[left.index].both(operation_intersection)
-                && m_turn_points[right.index].both(operation_intersection))
+        else if (m_turn_points[left.turn_index].both(operation_intersection)
+                && m_turn_points[right.turn_index].both(operation_intersection))
         {
             return consider_ii(left, right, "ii/ii");
         }
-        else  if (m_turn_points[left.index].combination(operation_union, operation_blocked)
-                && m_turn_points[right.index].combination(operation_intersection, operation_union))
+        else  if (m_turn_points[left.turn_index].combination(operation_union, operation_blocked)
+                && m_turn_points[right.turn_index].combination(operation_intersection, operation_union))
         {
             return consider_iu_ux(left, right, -1, "ux/iu");
         }
-        else if (m_turn_points[left.index].combination(operation_intersection, operation_union)
-                && m_turn_points[right.index].combination(operation_union, operation_blocked))
+        else if (m_turn_points[left.turn_index].combination(operation_intersection, operation_union)
+                && m_turn_points[right.turn_index].combination(operation_union, operation_blocked))
         {
             return consider_iu_ux(left, right, 1, "iu/ux");
         }
-        else  if (m_turn_points[left.index].combination(operation_intersection, operation_blocked)
-                && m_turn_points[right.index].combination(operation_intersection, operation_union))
+        else  if (m_turn_points[left.turn_index].combination(operation_intersection, operation_blocked)
+                && m_turn_points[right.turn_index].combination(operation_intersection, operation_union))
         {
             return consider_iu_ix(left, right, 1, "ix/iu");
         }
-        else if (m_turn_points[left.index].combination(operation_intersection, operation_union)
-                && m_turn_points[right.index].combination(operation_intersection, operation_blocked))
+        else if (m_turn_points[left.turn_index].combination(operation_intersection, operation_union)
+                && m_turn_points[right.turn_index].combination(operation_intersection, operation_blocked))
         {
             return consider_iu_ix(left, right, -1, "iu/ix");
         }
-        else if (m_turn_points[left.index].method != method_equal
-            && m_turn_points[right.index].method == method_equal
+        else if (m_turn_points[left.turn_index].method != method_equal
+            && m_turn_points[right.turn_index].method == method_equal
             )
         {
             // If one of them was EQUAL or CONTINUES, it should always come first
             return false;
         }
-        else if (m_turn_points[left.index].method == method_equal
-            && m_turn_points[right.index].method != method_equal
+        else if (m_turn_points[left.turn_index].method == method_equal
+            && m_turn_points[right.turn_index].method != method_equal
             )
         {
             return true;
@@ -580,11 +579,11 @@ public :
         // Now we have no clue how to sort.
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
-        std::cout << " Consider: " << operation_char(m_turn_points[left.index].operations[0].operation)
-                << operation_char(m_turn_points[left.index].operations[1].operation)
-                << "/" << operation_char(m_turn_points[right.index].operations[0].operation)
-                << operation_char(m_turn_points[right.index].operations[1].operation)
-                << " " << " Take " << left.index << " < " << right.index
+        std::cout << " Consider: " << operation_char(m_turn_points[left.turn_index].operations[0].operation)
+                << operation_char(m_turn_points[left.turn_index].operations[1].operation)
+                << "/" << operation_char(m_turn_points[right.turn_index].operations[0].operation)
+                << operation_char(m_turn_points[right.turn_index].operations[1].operation)
+                << " " << " Take " << left.turn_index << " < " << right.turn_index
                 << std::endl;
 #endif
 
@@ -615,8 +614,8 @@ inline void inspect_cluster(Iterator begin_cluster, Iterator end_cluster,
     std::map<std::pair<operation_type, operation_type>, int> inspection;
     for (Iterator it = begin_cluster; it != end_cluster; ++it)
     {
-        operation_type first = turn_points[it->index].operations[0].operation;
-        operation_type second = turn_points[it->index].operations[1].operation;
+        operation_type first = turn_points[it->turn_index].operations[0].operation;
+        operation_type second = turn_points[it->turn_index].operations[1].operation;
         if (first > second)
         {
             std::swap(first, second);
@@ -645,7 +644,7 @@ inline void inspect_cluster(Iterator begin_cluster, Iterator end_cluster,
         // Because (in case of not discarding iu) correctly ordering of ii/iu appears impossible
         for (Iterator it = begin_cluster; it != end_cluster; ++it)
         {
-            if (turn_points[it->index].combination(operation_intersection, operation_union))
+            if (turn_points[it->turn_index].combination(operation_intersection, operation_union))
             {
                 it->discarded = true;
             }
@@ -661,7 +660,7 @@ inline void inspect_cluster(Iterator begin_cluster, Iterator end_cluster,
         if (! it->discarded)
         {
             nd_count++;
-            if (turn_points[it->index].both(operation_continue))
+            if (turn_points[it->turn_index].both(operation_continue))
             {
                 cc_count++;
             }
@@ -677,7 +676,7 @@ inline void inspect_cluster(Iterator begin_cluster, Iterator end_cluster,
     {
         for (Iterator it = begin_cluster; it != end_cluster; ++it)
         {
-            if (turn_points[it->index].both(operation_continue))
+            if (turn_points[it->turn_index].both(operation_continue))
             {
                 it->discarded = true;
             }
@@ -723,24 +722,24 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_TANGENCIES)
     typedef typename IndexType::type operations_type;
-    operations_type const& op = turn_points[begin_cluster->index].operations[begin_cluster->operation_index];
+    operations_type const& op = turn_points[begin_cluster->turn_index].operations[begin_cluster->operation_index];
     std::cout << std::endl << "Clustered points on equal distance " << op.fraction << std::endl;
 
     std::cout << "->Indexes ";
     for (Iterator it = begin_cluster; it != end_cluster; ++it)
     {
-        std::cout << " " << it->index;
+        std::cout << " " << it->turn_index;
     }
     std::cout << std::endl << "->Methods: ";
     for (Iterator it = begin_cluster; it != end_cluster; ++it)
     {
-        std::cout << " " << method_char(turn_points[it->index].method);
+        std::cout << " " << method_char(turn_points[it->turn_index].method);
     }
     std::cout << std::endl << "->Operations: ";
     for (Iterator it = begin_cluster; it != end_cluster; ++it)
     {
-        std::cout << " " << operation_char(turn_points[it->index].operations[0].operation)
-            << operation_char(turn_points[it->index].operations[1].operation);
+        std::cout << " " << operation_char(turn_points[it->turn_index].operations[0].operation)
+            << operation_char(turn_points[it->turn_index].operations[1].operation);
     }
     std::cout << std::endl << "->Discarded: ";
     for (Iterator it = begin_cluster; it != end_cluster; ++it)
@@ -750,7 +749,7 @@ inline void handle_cluster(Iterator begin_cluster, Iterator end_cluster,
     std::cout << std::endl;
         //<< "\tOn segments: "    << prev_op.seg_id  << " / "  << prev_op.other_id
         //<< " and "  << op.seg_id << " / " << op.other_id
-        //<< geometry::distance(turn_points[prev->index].point, turn_points[it->index].point)
+        //<< geometry::distance(turn_points[prev->turn_index].point, turn_points[it->turn_index].point)
 #endif
 
 }

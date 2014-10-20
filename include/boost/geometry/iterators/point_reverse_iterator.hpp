@@ -29,12 +29,12 @@ class point_reverse_iterator
 private:
     typedef std::reverse_iterator<point_iterator<Geometry> > base;
 
-    base* base_ptr()
+    inline base* base_ptr()
     {
         return this;
     }
 
-    base const* base_ptr() const
+    inline base const* base_ptr() const
     {
         return this;
     }
@@ -46,12 +46,13 @@ private:
     template <typename G>
     friend inline point_reverse_iterator<G> points_rend(G&);
 
-    point_reverse_iterator(base const& base_it) : base(base_it) {}
+    inline point_reverse_iterator(base const& base_it) : base(base_it) {}
 
 public:
-    point_reverse_iterator() {}
+    inline point_reverse_iterator() {}
 
     template <typename OtherGeometry>
+    inline
     point_reverse_iterator(point_reverse_iterator<OtherGeometry> const& other)
         : base(*other.base_ptr())
     {

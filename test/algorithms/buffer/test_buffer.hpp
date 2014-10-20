@@ -14,6 +14,10 @@
 #include <fstream>
 #include <iomanip>
 
+#if defined(TEST_WITH_SVG)
+#define BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS
+#endif
+
 #include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
 
@@ -102,7 +106,7 @@ struct svg_visitor
     {}
 
     template <typename Turns>
-    inline void map_turns(Turns const& turns)
+    inline void map_turns(Turns const& turns, bool label_good_turns, bool label_wrong_turns)
     {
         namespace bgdb = boost::geometry::detail::buffer;
         typedef typename boost::range_value<Turns const>::type turn_type;
@@ -114,40 +118,76 @@ struct svg_visitor
         for (typename boost::range_iterator<Turns const>::type it =
             boost::begin(turns); it != boost::end(turns); ++it)
         {
+            bool is_good = true;
             char color = 'g';
             std::string fill = "fill:rgb(0,255,0);";
             switch(it->location)
             {
-                case bgdb::inside_buffer : fill = "fill:rgb(255,0,0);"; color = 'r'; break;
-                case bgdb::inside_original : fill = "fill:rgb(0,0,255);"; color = 'b'; break;
+                case bgdb::inside_buffer :
+                    fill = "fill:rgb(255,0,0);";
+                    color = 'r';
+                    is_good = false;
+                    break;
+                case bgdb::inside_original :
+                    fill = "fill:rgb(0,0,255);";
+                    color = 'b';
+                    is_good = false;
+                    break;
+            }
+            if (!it->selectable_start)
+            {
+                fill = "fill:rgb(255,192,0);";
+                color = 'o'; // orange
             }
             if (it->blocked())
             {
-                fill = "fill:rgb(128,128,128);"; color = '-';
+                fill = "fill:rgb(128,128,128);";
+                color = '-';
+                is_good = false;
             }
 
             fill += "fill-opacity:0.7;";
-            std::ostringstream out;
-            out << it->operations[0].piece_index << "/" << it->operations[1].piece_index
-                << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
-                << std::endl;
-            out << " " << bg::method_char(it->method)
-                << ":" << bg::operation_char(it->operations[0].operation)
-                << "/" << bg::operation_char(it->operations[1].operation);
-            out << " " << (it->count_within > 0 ? "w" : "")
-                << (it->count_on_multi > 0 ? "m" : "")
-                << (it->count_on_occupied > 0 ? "o" : "")
-                << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
-                << (it->count_on_helper > 0 ? "h" : "")
-                ;
 
-            offsets[it->get_robust_point()] += 10;
-            int offset = offsets[it->get_robust_point()];
+            m_mapper.map(it->point, fill, 4);
 
-            m_mapper.map(it->point, fill, 6);
-            m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
+            if ((label_good_turns && is_good) || (label_wrong_turns && ! is_good))
+            {
+                std::ostringstream out;
+                out << it->turn_index
+                    << " " << it->operations[0].piece_index << "/" << it->operations[1].piece_index
+                    << " " << si(it->operations[0].seg_id) << "/" << si(it->operations[1].seg_id)
 
-            offsets[it->get_robust_point()] += 25;
+    //              If you want to see travel information
+                    << std::endl
+                    << " nxt " << it->operations[0].enriched.travels_to_ip_index
+                    << "/" << it->operations[1].enriched.travels_to_ip_index
+                    << " or " << it->operations[0].enriched.next_ip_index
+                    << "/" << it->operations[1].enriched.next_ip_index
+                    //<< " frac " << it->operations[0].fraction
+
+    //                If you want to see robust-point coordinates (e.g. to find duplicates)
+    //                << std::endl
+    //                << " " << bg::get<0>(it->robust_point) << " , " << bg::get<1>(it->robust_point)
+
+                    << std::endl;
+                out << " " << bg::method_char(it->method)
+                    << ":" << bg::operation_char(it->operations[0].operation)
+                    << "/" << bg::operation_char(it->operations[1].operation);
+                out << " "
+                    << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
+                    << (it->count_within_near_offsetted > 0 ? "n" : "")
+                    << (it->count_within > 0 ? "w" : "")
+                    << (it->count_on_helper > 0 ? "h" : "")
+                    << (it->count_on_multi > 0 ? "m" : "")
+                    ;
+
+                offsets[it->get_robust_point()] += 10;
+                int offset = offsets[it->get_robust_point()];
+
+                m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
+
+                offsets[it->get_robust_point()] += 25;
+            }
         }
     }
 
@@ -178,8 +218,8 @@ struct svg_visitor
             std::copy(boost::begin(ring) + seg_id.segment_index,
                     boost::begin(ring) + piece.last_segment_index,
                     std::back_inserter(corner));
-            std::copy(boost::begin(piece.helper_segments),
-                    boost::end(piece.helper_segments),
+            std::copy(boost::begin(piece.helper_points),
+                    boost::end(piece.helper_points),
                     std::back_inserter(corner));
 
             if (corner.empty())
@@ -204,10 +244,11 @@ struct svg_visitor
                 std::ostringstream out;
                 out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
                 point_type label_point = corner.front();
-                if (corner.size() >= 2)
+                int const mid_offset = piece.offsetted_count / 2 - 1;
+                if (mid_offset >= 0 && mid_offset + 1 < corner.size())
                 {
-                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
-                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
+                    bg::set<0>(label_point, (bg::get<0>(corner[mid_offset]) + bg::get<0>(corner[mid_offset + 1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[mid_offset]) + bg::get<1>(corner[mid_offset + 1])) / 2.0);
                 }
                 m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
@@ -247,7 +288,7 @@ struct svg_visitor
         if(phase == 0)
         {
             map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
-            map_turns(collection.m_turns);
+            map_turns(collection.m_turns, true, false);
         }
         if (phase == 1)
         {
@@ -475,8 +516,20 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 
 #if defined(TEST_WITH_SVG)
+    bool const areal = boost::is_same
+        <
+            typename bg::tag_cast<tag, bg::areal_tag>::type, bg::areal_tag
+        >::type::value;
+
     // Map input geometry in green
-    mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
+    if (areal)
+    {
+        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:2");
+    }
+    else
+    {
+        mapper.map(geometry, "opacity:0.5;stroke:rgb(0,128,0);stroke-width:10");
+    }
 
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {

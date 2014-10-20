@@ -1,6 +1,6 @@
 // Boost.Container varray
 //
-// Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2012-2014 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2011-2013 Andrew Hundt.
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -1406,7 +1406,7 @@ public:
     //!
     //! @par Complexity
     //!   Constant O(1).
-    const_reverse_iterator rbegin() const { return reverse_iterator(this->end()); }
+    const_reverse_iterator rbegin() const { return const_reverse_iterator(this->end()); }
 
     //! @brief Returns const reverse iterator to the first element of the reversed container.
     //!
@@ -1418,7 +1418,7 @@ public:
     //!
     //! @par Complexity
     //!   Constant O(1).
-    const_reverse_iterator crbegin() const { return reverse_iterator(this->end()); }
+    const_reverse_iterator crbegin() const { return const_reverse_iterator(this->end()); }
 
     //! @brief Returns reverse iterator to the one after the last element of the reversed container.
     //!
@@ -1442,7 +1442,7 @@ public:
     //!
     //! @par Complexity
     //!   Constant O(1).
-    const_reverse_iterator rend() const { return reverse_iterator(this->begin()); }
+    const_reverse_iterator rend() const { return const_reverse_iterator(this->begin()); }
 
     //! @brief Returns const reverse iterator to the one after the last element of the reversed container.
     //!
@@ -1454,7 +1454,7 @@ public:
     //!
     //! @par Complexity
     //!   Constant O(1).
-    const_reverse_iterator crend() const { return reverse_iterator(this->begin()); }
+    const_reverse_iterator crend() const { return const_reverse_iterator(this->begin()); }
 
     //! @brief Returns container's capacity.
     //!

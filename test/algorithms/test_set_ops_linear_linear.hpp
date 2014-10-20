@@ -16,6 +16,7 @@
 #include <sstream>
 #include <algorithm>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
@@ -266,6 +267,8 @@ void set_operation_output(std::string const& set_op_id,
                           G1 const& g1, G2 const& g2,
                           Output const& output)
 {
+    boost::ignore_unused(set_op_id, caseid, g1, g2, output);
+
 #if defined(TEST_WITH_SVG)
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     typedef typename bg::point_type<G1>::type point_type;

@@ -26,7 +26,9 @@ typedef bg::model::segment<int_point_type>            int_segment_type;
 typedef bg::model::linestring<point_type>             linestring_type;
 typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
 typedef bg::model::polygon<point_type, false>         polygon_type;
+typedef bg::model::polygon<point_type, false, false>  open_polygon_type;
 typedef bg::model::multi_polygon<polygon_type>        multi_polygon_type;
+typedef bg::model::multi_polygon<open_polygon_type>   open_multipolygon_type;
 typedef bg::model::ring<point_type, false>            ring_type;
 typedef bg::model::box<point_type>                    box_type;
 typedef bg::model::box<int_point_type>                int_box_type;
@@ -80,6 +82,10 @@ void test_distance_linestring_polygon(Strategy const& strategy)
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   10, 100, strategy, true);
   
+    tester::apply("linestring(-5 1,-2 1)",
+                  "polygon((0 0,10 0,10 10,0 10,0 0))",
+                  2, 4, strategy, true);
+
     tester::apply("linestring(-1 20,1 20,1 5)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy, true);
@@ -87,6 +93,25 @@ void test_distance_linestring_polygon(Strategy const& strategy)
     tester::apply("linestring(-1 20,1 20,1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy, true);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_linestring_open_polygon(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/open polygon distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            linestring_type, open_polygon_type
+        > tester;
+
+    tester::apply("linestring(-5 1,-2 1)",
+                  "polygon((0 0,10 0,10 10,0 10))",
+                  2, 4, strategy, true);
 }
 
 //===========================================================================
@@ -184,6 +209,29 @@ void test_distance_linestring_multipolygon(Strategy const& strategy)
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   0, 0, strategy, true);
+}
+
+//===========================================================================
+
+template <typename Strategy>
+void test_distance_linestring_open_multipolygon(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/open multipolygon distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries
+        <
+            linestring_type, open_multipolygon_type
+        > tester;
+
+    tester::apply("linestring(-5 1,-2 1)",
+                  "multipolygon(((0 0,10 0,10 10,0 10)))",
+                  2, 4, strategy, true);
+
+    tester::apply("linestring(-5 1,-3 1)",
+                  "multipolygon(((20 20,21 20,21 21,20 21)),((0 0,10 0,10 10,0 10)))",
+                  3, 9, strategy, true);
 }
 
 //===========================================================================
@@ -843,6 +891,7 @@ BOOST_AUTO_TEST_CASE( test_all_segment_polygon )
 BOOST_AUTO_TEST_CASE( test_all_linestring_polygon )
 {
     test_distance_linestring_polygon(point_segment_strategy());
+    test_distance_linestring_open_polygon(point_segment_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_multilinestring_polygon )
@@ -858,6 +907,7 @@ BOOST_AUTO_TEST_CASE( test_all_segment_multipolygon )
 BOOST_AUTO_TEST_CASE( test_all_linestring_multipolygon )
 {
     test_distance_linestring_multipolygon(point_segment_strategy());
+    test_distance_linestring_open_multipolygon(point_segment_strategy());
 }
 
 BOOST_AUTO_TEST_CASE( test_all_multilinestring_multipolygon )

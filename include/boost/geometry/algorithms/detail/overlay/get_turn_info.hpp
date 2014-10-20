@@ -654,12 +654,13 @@ private :
     template
     <
         int Index,
-        typename Point,
+        typename Point1,
+        typename Point2,
         typename IntersectionInfo
     >
-    static inline bool set_tp(Point const& , Point const& , Point const& , int side_rk_r,
+    static inline bool set_tp(Point1 const& , Point1 const& , Point1 const& , int side_rk_r,
                 bool const handle_robustness,
-                Point const& , Point const& , int side_rk_s,
+                Point2 const& , Point2 const& , int side_rk_s,
                 TurnInfo& tp, IntersectionInfo const& intersection_info)
     {
         boost::ignore_unused_variable_warning(handle_robustness);

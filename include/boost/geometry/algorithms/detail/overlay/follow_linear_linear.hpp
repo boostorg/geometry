@@ -263,8 +263,10 @@ protected:
             detail::copy_segments::copy_segments_linestring
                 <
                     false, false // do not reverse; do not remove spikes
-                >::apply(linestring, current_segment_id,
-                         boost::size(linestring) - 1, robust_policy,
+                >::apply(linestring,
+                         current_segment_id,
+                         static_cast<signed_index_type>(boost::size(linestring) - 1),
+                         robust_policy,
                          current_piece);
         }
 
@@ -378,7 +380,7 @@ protected:
     };
 
     template <typename TurnIterator>
-    static inline int get_multi_index(TurnIterator it)
+    static inline signed_index_type get_multi_index(TurnIterator it)
     {
         return boost::begin(it->operations)->seg_id.multi_index;
     }
@@ -386,10 +388,10 @@ protected:
     class has_other_multi_id
     {
     private:
-        int m_multi_id;
+        signed_index_type m_multi_id;
 
     public:
-        has_other_multi_id(int multi_id)
+        has_other_multi_id(signed_index_type multi_id)
             : m_multi_id(multi_id) {}
 
         template <typename Turn>
@@ -420,7 +422,7 @@ public:
         // Iterate through all intersection points (they are
         // ordered along the each linestring)
 
-        int current_multi_id = get_multi_index(first);
+        signed_index_type current_multi_id = get_multi_index(first);
 
         oit = copy_linestrings::apply(ls_first,
                                       ls_first + current_multi_id,
@@ -437,7 +439,7 @@ public:
             oit = Base::apply(*(ls_first + current_multi_id),
                               linear, per_ls_current, per_ls_next, oit);
 
-            int next_multi_id(-1);
+            signed_index_type next_multi_id(-1);
             linestring_iterator ls_next = ls_beyond;
             if ( per_ls_next != beyond )
             {

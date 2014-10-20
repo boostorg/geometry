@@ -219,6 +219,18 @@ void test_tickets()
         bool within = boost::geometry::within(p, r);
         BOOST_CHECK_EQUAL(within, false);
     }
+
+    // https://svn.boost.org/trac/boost/ticket/10234
+    {
+        pt p;
+        ring r;
+        bg::read_wkt("POINT(0.1377 5.00)", p);
+        bg::read_wkt("POLYGON((0.1277 4.97,  0.1277 5.00, 0.1278 4.9999999999999982, 0.1278 4.97, 0.1277 4.97))", r);
+        bool within = boost::geometry::within(p, r);
+        BOOST_CHECK_EQUAL(within, false);
+        bool covered_by = boost::geometry::covered_by(p, r);
+        BOOST_CHECK_EQUAL(covered_by, false);
+    }
 }
 
 int test_main( int , char* [] )

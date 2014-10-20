@@ -41,6 +41,8 @@
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -111,7 +113,7 @@ struct box_to_range
         assign_box_corners_oriented<Reverse>(box, range);
         if (Close)
         {
-            range[4] = range[0];
+            range::at(range, 4) = range::at(range, 0);
         }
     }
 };
@@ -160,13 +162,17 @@ struct range_to_range
         // point for open output.
         view_type view(rview);
 
-        int n = boost::size(view);
+        typedef typename boost::range_size<Range1>::type size_type;
+        size_type n = boost::size(view);
         if (geometry::closure<Range2>::value == geometry::open)
         {
             n--;
         }
 
-        int i = 0;
+        // If size == 0 && geometry::open <=> n = numeric_limits<size_type>::max()
+        // but ok, sice below it == end()
+
+        size_type i = 0;
         for (typename boost::range_iterator<view_type const>::type it
             = boost::begin(view);
             it != boost::end(view) && i < n;
