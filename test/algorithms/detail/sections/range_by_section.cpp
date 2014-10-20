@@ -24,7 +24,7 @@
 
 
 template <int DimensionCount, bool Reverse, typename Geometry>
-void test_sectionalize(std::string const caseid, Geometry const& geometry, std::size_t section_count)
+void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, std::size_t section_count)
 {
     typedef typename bg::point_type<Geometry>::type point;
     typedef bg::model::box<point> box;
