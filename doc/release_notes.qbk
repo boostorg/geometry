@@ -37,6 +37,7 @@
 
 [*Bugfixes]
 
+* Several fixes of bugs in algorithm buffer
 * Bug in point_on_surface() for CCW Polygons (extreme_points()) and numerical issue (thanks to Matt Amos)
 * Bug in disjoint() for A/A fixed by replacement of point_on_surface() with point_on_border() (thanks to Matt Amos)
 * The result of convex_hull(), duplicated Point in open output, too small number of Points for 1- and 2-Point input
