@@ -2,7 +2,7 @@
 //
 // R-tree nodes
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,14 +17,15 @@
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
 #include <boost/geometry/index/detail/rtree/node/auto_deallocator.hpp>
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/dynamic_visitor.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_d_mem_dynamic.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_d_mem_static.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_visitor.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_dynamic.hpp>
+//#include <boost/geometry/index/detail/rtree/node/weak_static.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/static_visitor.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_s_mem_dynamic.hpp>
-#include <boost/geometry/index/detail/rtree/node/node_s_mem_static.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_visitor.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_dynamic.hpp>
+#include <boost/geometry/index/detail/rtree/node/variant_static.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/node_auto_ptr.hpp>
 
@@ -84,29 +85,31 @@ struct destroy_element
 template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
 struct destroy_elements
 {
-    typedef typename Options::parameters_type parameters_type;
-
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-
-    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
-
-    inline static void apply(typename internal_node::elements_type & elements, Allocators & allocators)
+    template <typename Range>
+    inline static void apply(Range & elements, Allocators & allocators)
     {
-        for ( size_t i = 0 ; i < elements.size() ; ++i )
-        {
-            node_auto_ptr dummy(elements[i].second, allocators);
-            elements[i].second = 0;
-        }
+        apply(boost::begin(elements), boost::end(elements), allocators);
     }
 
-    inline static void apply(typename leaf::elements_type &, Allocators &)
-    {}
-
-    inline static void apply(typename internal_node::elements_type::iterator first,
-                             typename internal_node::elements_type::iterator last,
-                             Allocators & allocators)
+    template <typename It>
+    inline static void apply(It first, It last, Allocators & allocators)
     {
+        typedef boost::mpl::bool_<
+            boost::is_same<
+                Value, typename std::iterator_traits<It>::value_type
+            >::value
+        > is_range_of_values;
+
+        apply_dispatch(first, last, allocators, is_range_of_values());
+    }
+
+private:
+    template <typename It>
+    inline static void apply_dispatch(It first, It last, Allocators & allocators,
+                                      boost::mpl::bool_<false> const& /*is_range_of_values*/)
+    {
+        typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+
         for ( ; first != last ; ++first )
         {
             node_auto_ptr dummy(first->second, allocators);
@@ -114,9 +117,9 @@ struct destroy_elements
         }
     }
 
-    inline static void apply(typename leaf::elements_type::iterator /*first*/,
-                             typename leaf::elements_type::iterator /*last*/,
-                             Allocators & /*allocators*/)
+    template <typename It>
+    inline static void apply_dispatch(It /*first*/, It /*last*/, Allocators & /*allocators*/,
+                                      boost::mpl::bool_<true> const& /*is_range_of_values*/)
     {}
 };
 

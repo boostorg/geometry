@@ -40,11 +40,11 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
                   << " {"
                   << tit->operations[0].seg_id.multi_index
                   << ", "
-                  << tit->operations[0].other_id.multi_index
+                  << tit->operations[1].seg_id.multi_index
                   << "} {"
                   << tit->operations[0].seg_id.ring_index
                   << ", "
-                  << tit->operations[0].other_id.ring_index
+                  << tit->operations[1].seg_id.ring_index
                   << "} "
                   << geometry::dsv(tit->point)
                   << "]";

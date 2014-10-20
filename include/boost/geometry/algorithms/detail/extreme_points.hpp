@@ -282,7 +282,8 @@ struct extreme_points_on_ring
     template <typename Iterator>
     static inline bool right_turn(Ring const& ring, Iterator it)
     {
-        int const index = std::distance(boost::begin(ring), it);
+        typename std::iterator_traits<Iterator>::difference_type const index
+            = std::distance(boost::begin(ring), it);
         geometry::ever_circling_range_iterator<Ring const> left(ring);
         geometry::ever_circling_range_iterator<Ring const> right(ring);
         left += index;
@@ -331,7 +332,8 @@ struct extreme_points_on_ring
             return false;
         }
 
-        int const index = std::distance(boost::begin(ring), max_it);
+        typename std::iterator_traits<range_iterator>::difference_type const
+            index = std::distance(boost::begin(ring), max_it);
 //std::cout << "Extreme point lies at " << index << " having " << geometry::wkt(*max_it) << std::endl;
 
         geometry::ever_circling_range_iterator<Ring const> left(ring);

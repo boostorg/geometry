@@ -14,10 +14,14 @@
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 
 namespace boost { namespace geometry
 {
@@ -42,7 +46,11 @@ struct turn_ovelaps_box
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)
     {
-        return ! geometry::disjoint(box, turn.robust_point);
+        return ! dispatch::disjoint
+            <
+                typename Turn::robust_point_type,
+                Box
+            >::apply(turn.robust_point, box);
     }
 };
 
@@ -51,6 +59,8 @@ class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
+
+    typedef boost::long_long_type calculation_type;
 
     template <typename Point>
     static inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
@@ -79,7 +89,6 @@ class turn_in_piece_visitor
         return true;
     }
 
-
     template <typename Point, typename Piece>
     inline bool on_offsetted(Point const& point, Piece const& piece) const
     {
@@ -87,25 +96,45 @@ class turn_in_piece_visitor
             <
                 typename cs_tag<Point>::type
             >::type side_strategy;
+        geometry::equal_to<Point> comparator;
 
         for (int i = 1; i < piece.offsetted_count; i++)
         {
             Point const& previous = piece.robust_ring[i - 1];
             Point const& current = piece.robust_ring[i];
-            int const side = side_strategy::apply(point, previous, current);
-            if (side == 0)
+
+            // The robust ring contains duplicates, avoid applying side on them (will be 0)
+            if (! comparator(previous, current))
             {
-                // Collinear, check if projection falls on it
-                if (projection_on_segment(point, previous, current))
+                int const side = side_strategy::apply(previous, current, point);
+                if (side == 0)
                 {
-                    return true;
+                    // Collinear, check if projection falls on it
+                    if (projection_on_segment(point, previous, current))
+                    {
+                        return true;
+                    }
                 }
             }
-
         }
         return false;
     }
 
+    template <typename Point, typename Piece>
+    static inline
+    calculation_type comparable_distance_from_offsetted(Point const& point,
+                        Piece const& piece)
+    {
+        // TODO: pass subrange to dispatch to avoid making copy
+        geometry::model::linestring<Point> ls;
+        std::copy(piece.robust_ring.begin(),
+            piece.robust_ring.begin() + piece.offsetted_count,
+            std::back_inserter(ls));
+        typename default_comparable_distance_result<Point, Point>::type
+            const comp = geometry::comparable_distance(point, ls);
+
+        return static_cast<calculation_type>(comp);
+    }
 
 public:
 
@@ -163,27 +192,46 @@ public:
         {
             return;
         }
+        if (geometry_code == 0 && neighbour)
+        {
+            return;
+        }
 
         Turn& mutable_turn = m_turns[turn.turn_index];
-        if (geometry_code == 0 && ! neighbour)
+        if (geometry_code == 0)
         {
-            // If it is on the border and they are neighbours, it should be
+            // If it is on the border and they are not neighbours, it should be
             // on the offsetted ring
 
             if (! on_offsetted(turn.robust_point, piece))
             {
                 // It is on the border but not on the offsetted ring.
                 // Then it is somewhere on the helper-segments
-                // Classify it as inside
+                // Classify it as "within"
                 geometry_code = 1;
-                mutable_turn.count_on_helper++;
+                mutable_turn.count_on_helper++; // can still become "near_offsetted"
+            }
+            else
+            {
+                mutable_turn.count_on_offsetted++; // value is not used anymore
             }
         }
 
-        switch (geometry_code)
+        if (geometry_code == 1)
         {
-            case 1 : mutable_turn.count_within++; break;
-            case 0 : mutable_turn.count_on_offsetted++; break;
+            calculation_type const distance
+                = comparable_distance_from_offsetted(turn.robust_point, piece);
+            if (distance >= 4)
+            {
+                // This is too far from the border, it counts as "really within"
+                mutable_turn.count_within++;
+            }
+            else
+            {
+                // Other points count as still "on border" because they might be
+                // travelled through, but not used as starting point
+                mutable_turn.count_within_near_offsetted++;
+            }
         }
     }
 };

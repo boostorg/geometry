@@ -103,7 +103,7 @@ typename sub_range_return_type<Geometry>::type
 sub_range(Geometry & geometry, Id const& id)
 {
     return detail_dispatch::sub_range<Geometry>::apply(geometry, id);
-};
+}
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

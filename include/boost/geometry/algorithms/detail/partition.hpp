@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_HPP
 
 #include <vector>
+#include <boost/assert.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -79,7 +80,7 @@ inline void divide_into_subsets(Box const& lower_box,
         else
         {
             // Is nowhere! Should not occur!
-            BOOST_ASSERT(true);
+            BOOST_ASSERT(false);
         }
     }
 }

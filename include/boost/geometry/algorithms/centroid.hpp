@@ -5,6 +5,11 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,7 +24,6 @@
 #include <cstddef>
 
 #include <boost/range.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -36,6 +40,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -49,6 +54,8 @@
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
+
+#include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
 
 
 namespace boost { namespace geometry
@@ -188,17 +195,19 @@ inline bool range_ok(Range const& range, Point& centroid)
     return true;
 }
 
-
 /*!
-    \brief Calculate the centroid of a ring.
+    \brief Calculate the centroid of a Ring or a Linestring.
 */
 template <closure_selector Closure>
 struct centroid_range_state
 {
-    template<typename Ring, typename Strategy>
+    template<typename Ring, typename PointTransformer, typename Strategy>
     static inline void apply(Ring const& ring,
-            Strategy const& strategy, typename Strategy::state_type& state)
+                             PointTransformer const& transformer,
+                             Strategy const& strategy,
+                             typename Strategy::state_type& state)
     {
+        typedef typename geometry::point_type<Ring const>::type point_type;
         typedef typename closeable_view<Ring const, Closure>::type view_type;
 
         typedef typename boost::range_iterator<view_type const>::type iterator_type;
@@ -207,11 +216,19 @@ struct centroid_range_state
         iterator_type it = boost::begin(view);
         iterator_type end = boost::end(view);
 
-        for (iterator_type previous = it++;
-            it != end;
-            ++previous, ++it)
+        typename PointTransformer::result_type
+            previous_pt = transformer.apply(*it);
+
+        for ( ++it ; it != end ; ++it)
         {
-            strategy.apply(*previous, *it, state);
+            typename PointTransformer::result_type
+                pt = transformer.apply(*it);
+
+            strategy.apply(static_cast<point_type const&>(previous_pt),
+                           static_cast<point_type const&>(pt),
+                           state);
+            
+            previous_pt = pt;
         }
     }
 };
@@ -221,13 +238,20 @@ struct centroid_range
 {
     template<typename Range, typename Point, typename Strategy>
     static inline void apply(Range const& range, Point& centroid,
-            Strategy const& strategy)
+                             Strategy const& strategy)
     {
         if (range_ok(range, centroid))
         {
+            // prepare translation transformer
+            translating_transformer<Range> transformer(*boost::begin(range));
+            
             typename Strategy::state_type state;
-            centroid_range_state<Closure>::apply(range, strategy, state);
+            centroid_range_state<Closure>::apply(range, transformer,
+                                                 strategy, state);
             strategy.result(state, centroid);
+
+            // translate the result back
+            transformer.apply_reverse(centroid);
         }
     }
 };
@@ -240,14 +264,16 @@ struct centroid_range
 */
 struct centroid_polygon_state
 {
-    template<typename Polygon, typename Strategy>
+    template<typename Polygon, typename PointTransformer, typename Strategy>
     static inline void apply(Polygon const& poly,
-            Strategy const& strategy, typename Strategy::state_type& state)
+                             PointTransformer const& transformer,
+                             Strategy const& strategy,
+                             typename Strategy::state_type& state)
     {
         typedef typename ring_type<Polygon>::type ring_type;
         typedef centroid_range_state<geometry::closure<ring_type>::value> per_ring;
 
-        per_ring::apply(exterior_ring(poly), strategy, state);
+        per_ring::apply(exterior_ring(poly), transformer, strategy, state);
 
         typename interior_return_type<Polygon const>::type
             rings = interior_rings(poly);
@@ -255,7 +281,7 @@ struct centroid_polygon_state
         for (typename detail::interior_iterator<Polygon const>::type
                 it = boost::begin(rings); it != boost::end(rings); ++it)
         {
-            per_ring::apply(*it, strategy, state);
+            per_ring::apply(*it, transformer, strategy, state);
         }
     }
 };
@@ -268,9 +294,16 @@ struct centroid_polygon
     {
         if (range_ok(exterior_ring(poly), centroid))
         {
+            // prepare translation transformer
+            translating_transformer<Polygon>
+                transformer(*boost::begin(exterior_ring(poly)));
+            
             typename Strategy::state_type state;
-            centroid_polygon_state::apply(poly, strategy, state);
+            centroid_polygon_state::apply(poly, transformer, strategy, state);
             strategy.result(state, centroid);
+
+            // translate the result back
+            transformer.apply_reverse(centroid);
         }
     }
 };
@@ -282,11 +315,14 @@ struct centroid_polygon
 */
 struct centroid_multi_point_state
 {
-    template <typename Point, typename Strategy>
+    template <typename Point, typename PointTransformer, typename Strategy>
     static inline void apply(Point const& point,
-            Strategy const& strategy, typename Strategy::state_type& state)
+                             PointTransformer const& transformer,
+                             Strategy const& strategy,
+                             typename Strategy::state_type& state)
     {
-        strategy.apply(point, state);
+        strategy.apply(static_cast<Point const&>(transformer.apply(point)),
+                       state);
     }
 };
 
@@ -303,8 +339,9 @@ template <typename Policy>
 struct centroid_multi
 {
     template <typename Multi, typename Point, typename Strategy>
-    static inline void apply(Multi const& multi, Point& centroid,
-            Strategy const& strategy)
+    static inline void apply(Multi const& multi,
+                             Point& centroid,
+                             Strategy const& strategy)
     {
 #if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
         // If there is nothing in any of the ranges, it is not possible
@@ -315,6 +352,9 @@ struct centroid_multi
         }
 #endif
 
+        // prepare translation transformer
+        translating_transformer<Multi> transformer(multi);
+
         typename Strategy::state_type state;
 
         for (typename boost::range_iterator<Multi const>::type
@@ -322,9 +362,12 @@ struct centroid_multi
             it != boost::end(multi);
             ++it)
         {
-            Policy::apply(*it, strategy, state);
+            Policy::apply(*it, transformer, strategy, state);
         }
         Strategy::result(state, centroid);
+
+        // translate the result back
+        transformer.apply_reverse(centroid);
     }
 };
 

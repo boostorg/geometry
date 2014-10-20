@@ -128,10 +128,10 @@ public:
                   bg_turns::less_seg_fraction_other_op<>());
 
         std::sort(boost::begin(rturns_all), boost::end(rturns_all),
-                  bg_turns::less_seg_fraction_other_op<std::greater<int> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_index_type> >());
 
         std::sort(boost::begin(rturns_wo_cont), boost::end(rturns_wo_cont),
-                  bg_turns::less_seg_fraction_other_op<std::greater<int> >());
+                  bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_index_type> >());
 
         remove_duplicate_turns::apply(turns_all);
         remove_duplicate_turns::apply(turns_wo_cont);

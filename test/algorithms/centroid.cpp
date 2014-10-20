@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -129,6 +134,34 @@ void test_large_integers()
     BOOST_CHECK_EQUAL(bg::get<1>(int_centroid), bg::get<1>(double_centroid_as_int));
 }
 
+//#include <to_svg.hpp>
+
+void test_large_doubles()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    point pt_far, pt_near;
+    bg::model::polygon<point> poly_far, poly_near;
+
+    // related to ticket #10643
+    bg::read_wkt("POLYGON((1074699.93 703064.65, 1074703.90 703064.58, 1074704.53 703061.40, 1074702.10 703054.62, 1074699.93 703064.65))", poly_far);
+    bg::read_wkt("POLYGON((699.93 64.65, 703.90 64.58, 704.53 61.40, 702.10 54.62, 699.93 64.65))", poly_near);
+
+    bg::centroid(poly_far, pt_far);
+    bg::centroid(poly_near, pt_near);
+
+    BOOST_CHECK(bg::within(pt_far, poly_far));
+    BOOST_CHECK(bg::within(pt_near, poly_near));
+
+    point pt_near_moved;
+    bg::set<0>(pt_near_moved, bg::get<0>(pt_near) + 1074000.0);
+    bg::set<1>(pt_near_moved, bg::get<1>(pt_near) + 703000.0);
+
+    //geom_to_svg(poly_far, pt_far, "far.svg");
+    //geom_to_svg(poly_near, pt_near, "near.svg");
+
+    double d = bg::distance(pt_far, pt_near_moved);
+    BOOST_CHECK(d < 0.1);
+}
 
 int test_main(int, char* [])
 {
@@ -149,6 +182,9 @@ int test_main(int, char* [])
     // The test currently fails in release mode. TODO: fix this
     test_large_integers();
 #endif
+
+    test_large_doubles();
+
     test_exceptions<bg::model::d2::point_xy<double> >();
 
     return 0;

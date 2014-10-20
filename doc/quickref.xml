@@ -732,10 +732,10 @@
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.swap_rtree___">swap(rtree &amp;)</link></member>	 
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_value_type_const___">insert(value_type const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_iterator__iterator_">insert(Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_range_const___">insert(Range const &amp;)</link></member>
+         <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_convertibleorrange_const___">insert(ConvertibleOrRange const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_value_type_const___">remove(value_type const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_iterator__iterator_">remove(Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_range_const___">remove(Range const &amp;)</link></member>
+         <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.remove_convertibleorrange_const___">remove(ConvertibleOrRange const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.query_predicates_const____outiter_">query(Predicates const &amp;, OutIter)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.qbegin_predicates_const___">qbegin(Predicates const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.qend__">qend()</link></member>
@@ -755,10 +755,10 @@
     <simplelist type="vert" columns="1">
 	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________value_const___">insert(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________iterator__iterator_">insert(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________range_const___">insert(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member> 
+     <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.insert_rtree_________convertibleorrange_const___">insert(rtree&lt;...&gt; &amp;, ConvertibleOrRange const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________value_const___">remove(rtree&lt;...&gt; &amp;, Value const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________iterator__iterator_">remove(rtree&lt;...&gt; &amp;, Iterator, Iterator)</link></member>
-	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________range_const___">remove(rtree&lt;...&gt; &amp;, Range const &amp;)</link></member>
+         <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.remove_rtree_________convertibleorrange_const___">remove(rtree&lt;...&gt; &amp;, ConvertibleOrRange const &amp;)</link></member>
 	 <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.query_rtree______const____predicates_const____outiter_">query(rtree&lt;...&gt; const &amp;, Predicates const &amp;, OutIter)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.qbegin_rtree______const____predicates_const___">qbegin(rtree&lt;...&gt; const &amp;, Predicates const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.group__rtree__functions.qend_rtree______const___">qend(rtree&lt;...&gt; const &amp;)</link></member>
