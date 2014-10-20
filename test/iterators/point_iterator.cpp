@@ -22,7 +22,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -216,6 +216,8 @@ struct test_point_iterator_of_geometry
                                    bg::points_begin(point_range),
                                    bg::points_end(point_range))
                      );
+
+        boost::ignore_unused(header);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << header << " geometry: " << bg::wkt(geometry) << std::endl;
