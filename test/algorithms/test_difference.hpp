@@ -50,6 +50,11 @@
 template <typename Output, typename G1, typename G2>
 void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Output const& output)
 {
+    boost::ignore_unused(caseid);
+    boost::ignore_unused(g1);
+    boost::ignore_unused(g2);
+    boost::ignore_unused(output);
+
 #if defined(TEST_WITH_SVG)
     {
         typedef typename bg::coordinate_type<G1>::type coordinate_type;
