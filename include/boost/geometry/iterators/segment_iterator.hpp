@@ -291,6 +291,32 @@ public:
                              NOT_CONVERTIBLE,
                              (segment_iterator<OtherGeometry>));
     }
+
+    inline segment_iterator& operator++() // prefix
+    {
+        base::operator++();
+        return *this;
+    }
+
+    inline segment_iterator& operator--() // prefix
+    {
+        base::operator--();
+        return *this;
+    }
+
+    inline segment_iterator operator++(int) // postfix
+    {
+        segment_iterator copy(*this);
+        base::operator++();
+        return copy;
+    }
+
+    inline segment_iterator operator--(int) // postfix
+    {
+        segment_iterator copy(*this);
+        base::operator--();
+        return copy;
+    }
 };
 
 
