@@ -289,6 +289,32 @@ public:
                              NOT_CONVERTIBLE,
                              (point_iterator<OtherGeometry>));
     }
+
+    inline point_iterator& operator++() // prefix
+    {
+        base::operator++();
+        return *this;
+    }
+
+    inline point_iterator& operator--() // prefix
+    {
+        base::operator--();
+        return *this;
+    }
+
+    inline point_iterator operator++(int) // postfix
+    {
+        point_iterator copy(*this);
+        base::operator++();
+        return copy;
+    }
+
+    inline point_iterator operator--(int) // postfix
+    {
+        point_iterator copy(*this);
+        base::operator--();
+        return copy;
+    }
 };
 
 
