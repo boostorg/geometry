@@ -90,6 +90,8 @@ void test_spherical()
         s,
         false);
 
+#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_geometry<point, polygon>(
         "sph1N",
         "POINT(0 10.001)",
@@ -143,6 +145,8 @@ void test_spherical()
               point(0, (T)-10.001)) == -1 // right side
       /*true*/);
 
+#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_geometry<point, polygon>(
         "sphEq1",
         "POINT(179 10)",
@@ -172,6 +176,8 @@ void test_spherical()
         true,
         false);
 
+#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_geometry<point, polygon>(
         "sphEq5",
         "POINT(169 10)",
@@ -200,6 +206,8 @@ void test_spherical()
         s,
         false,
         false);
+
+#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 }
 
 int test_main(int, char* [])
@@ -207,19 +215,12 @@ int test_main(int, char* [])
     test_cartesian<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_cartesian<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-#if defined(HAVE_TTMATH)
-    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-#endif
-
-#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
-
     test_spherical<float>();
     test_spherical<double>();
 
 #if defined(HAVE_TTMATH)
+    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
     test_spherical<ttmath_big>();
-#endif
-
 #endif
 
     return 0;
