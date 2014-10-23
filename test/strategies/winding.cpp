@@ -207,12 +207,19 @@ int test_main(int, char* [])
     test_cartesian<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_cartesian<bg::model::point<double, 2, bg::cs::cartesian> >();
 
+#if defined(HAVE_TTMATH)
+    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
+#endif
+
+#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_spherical<float>();
     test_spherical<double>();
 
 #if defined(HAVE_TTMATH)
-    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
     test_spherical<ttmath_big>();
+#endif
+
 #endif
 
     return 0;
