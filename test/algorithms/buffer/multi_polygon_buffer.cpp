@@ -24,6 +24,13 @@ static std::string const wrapped
 static std::string const triangles
     = "MULTIPOLYGON(((0 4,3 0,-2.5 -1,0 4)),((3 8,5.5 13,8 8,3 8)),((11 4,13.5 -1,8 0,11 4)))";
 
+static std::string const degenerate0
+    = "MULTIPOLYGON()";
+static std::string const degenerate1
+    = "MULTIPOLYGON(((5 5,5 5,5 5,5 5)),((6 6,6 6,6 6,6 6)))";
+static std::string const degenerate2
+    = "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5)),((11 5,11 5,11 5,11 5)))";
+
 // From robustness tests (rt)
 
 // Case with duplicate points (due to chained boxes) (round)
@@ -260,10 +267,10 @@ static std::string const rt_u12
 static std::string const rt_u13
     = "MULTIPOLYGON(((6 4,6 5,7 5,6 4)),((3 2,3 3,4 3,3 2)),((7 8,7 9,8 9,8 8,7 8)),((4 9,4 10,5 10,4 9)),((7 7,7 8,8 7,7 7)),((2 6,2 7,3 7,2 6)),((0 1,1 2,1 1,0 1)),((3 1,4 2,4 1,3 1)),((2 5,2 6,3 6,2 5)),((3 5,4 4,3 4,2 4,3 5)),((4 1,5 2,5 1,4 1)),((2 0,2 1,3 1,2 0)),((5 7,5 8,6 7,5 7)),((0 2,0 3,1 3,0 2)),((9 8,9 9,10 9,10 8,9 8)),((7 5,7 6,8 5,7 5)),((5 6,5 7,6 6,5 6)),((0 6,0 7,1 7,1 6,0 6)),((5 0,5 1,6 1,5 0)),((8 7,8 8,9 8,8 7)),((4.5 4.5,5 4,4 4,4 5,5 5,4.5 4.5)),((6 2,5 2,5 3,6 3,7 3,8 2,7 2,6 2)),((8 6,8 7,9 7,9 6,9 5,8 5,8 6)),((8 1,9 0,8 0,7 0,8 1)))";
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon_type;
+    typedef bg::model::polygon<P, Clockwise> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
 
     bg::strategy::buffer::join_miter join_miter;
@@ -297,6 +304,10 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("wrapped_10", wrapped, join_miter, end_flat, 144.000, 1.0);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_round, end_flat, 167.066, 1.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_miter, end_flat, 169.000, 1.5);
+
+    test_one<multi_polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_flat, 0.0, 1.0);
+    test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
+    test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
@@ -394,7 +405,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
     
     return 0;
