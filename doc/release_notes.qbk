@@ -22,6 +22,8 @@
 [*Improvements]
 
 * The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
+* Support for counterclockwise input/output in algorithm buffer
+* Support for degenerate input in algorithm buffer
 
 [*Solved tickets]
 
