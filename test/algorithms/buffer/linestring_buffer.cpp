@@ -48,11 +48,11 @@ static std::string const aimes171 = "LINESTRING(-2.393161 52.265087,-2.393002 52
 static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.435016,-2.320697 52.434978,-2.3207 52.434977,-2.320741 52.434964,-2.320807 52.434964,-2.320847 52.434986,-2.320903 52.435022)";
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
     typedef bg::model::linestring<P> linestring;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::polygon<P, Clockwise> polygon;
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
@@ -178,7 +178,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
     return 0;
 }

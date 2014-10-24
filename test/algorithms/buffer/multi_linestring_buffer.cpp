@@ -22,12 +22,12 @@ static std::string const degenerate3 = "MULTILINESTRING((5 5),(9 9),(4 10))";
 static std::string const degenerate4 = "MULTILINESTRING((5 5,5 5),(9 9,9 9,10 10,9 9,9 9,9 9),(4 10,4 10,3 11,4 12,3 11,4 10,4 10))";
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_linestring<linestring> multi_linestring_type;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::polygon<P, Clockwise> polygon;
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
@@ -67,7 +67,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
 
     return 0;
 }
