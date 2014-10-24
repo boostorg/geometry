@@ -388,9 +388,12 @@ void test_mixed()
     bg::strategy::buffer::end_flat end_flat;
 
     std::ostringstream name;
-    name << "mixed_" << std::boolalpha << InputClockwise << "_" << OutputClockwise << "_" << InputClosed << "_" << OutputClosed;
+    name << "mixed_" << std::boolalpha
+        << InputClockwise << "_" << OutputClockwise
+        << "_" << InputClosed << "_" << OutputClosed;
 
-    test_one<input_polygon_type, output_polygon_type>(name.str(), simplex, join_round, end_flat, 47.4831, 1.5);
+    test_one<input_polygon_type, output_polygon_type>(name.str(),
+            simplex, join_round, end_flat, 47.4831, 1.5);
 }
 
 #ifdef HAVE_TTMATH
@@ -402,13 +405,25 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
 
     test_all<true, dpoint>();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<false, dpoint>();
-    //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
 
     test_mixed<dpoint, dpoint, false, false, true, true>();
     test_mixed<dpoint, dpoint, false, true, true, true>();
     test_mixed<dpoint, dpoint, true, false, true, true>();
     test_mixed<dpoint, dpoint, true, true, true, true>();
+
+    test_mixed<dpoint, dpoint, false, false, false, true>();
+    test_mixed<dpoint, dpoint, false, true, false, true>();
+    test_mixed<dpoint, dpoint, true, false, false, true>();
+    test_mixed<dpoint, dpoint, true, true, false, true>();
+
+#ifdef HAVE_TTMATH
+    test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
+#endif
+
+#endif
 
     return 0;
 }
