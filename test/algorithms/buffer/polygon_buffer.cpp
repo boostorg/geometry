@@ -329,11 +329,10 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_miter, end_flat, 45567.3875694274902, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
     test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.4187, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 917.9747, 15.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 1534.4795, 20.0);
-
+    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, 917.9747, 15.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, 1534.4795, 20.0);
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
