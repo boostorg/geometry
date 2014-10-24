@@ -117,6 +117,8 @@ struct buffered_piece_collection
         point_type,
         RobustPolicy
     >::type robust_point_type;
+
+    // Robust ring/polygon type, always clockwise
     typedef geometry::model::ring<robust_point_type> robust_ring_type;
     typedef geometry::model::polygon<robust_point_type> robust_polygon_type;
 

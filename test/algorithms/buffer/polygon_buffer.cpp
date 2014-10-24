@@ -113,10 +113,10 @@ static std::string const mysql_report_2014_10_24
 
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon_type;
+    typedef bg::model::polygon<P, Clockwise, true> polygon_type;
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
@@ -331,8 +331,10 @@ void test_all()
 
     test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
     test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.4187, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, 917.9747, 15.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, 1534.4795, 20.0);
+
+    // These cases differ a bit based on point order (TODO: find out / describe why)
+    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, Clockwise ? 917.9747 : 917.996, 15.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, Clockwise ? 1534.4795 : 1534.508, 20.0);
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
@@ -375,7 +377,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
     
     return 0;

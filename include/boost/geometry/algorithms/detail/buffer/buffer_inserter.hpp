@@ -29,6 +29,8 @@
 
 #include <boost/geometry/algorithms/simplify.hpp>
 
+#include <boost/geometry/views/detail/normalized_view.hpp>
+
 #if defined(BOOST_GEOMETRY_BUFFER_SIMPLIFY_WITH_AX)
 #include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
 #endif
@@ -513,18 +515,19 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
         std::size_t n = boost::size(simplified);
         if (n > 3)
         {
+            detail::normalized_view<RingOutput const> view(simplified);
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)
                 // It might be that this will be changed later.
                 // TODO: decide this.
-                has_output = iterate(collection, boost::rbegin(simplified), boost::rend(simplified),
+                has_output = iterate(collection, boost::rbegin(view), boost::rend(view),
                         strategy::buffer::buffer_side_right,
                         distance, side_strategy, join_strategy, end_strategy, robust_policy);
             }
             else
             {
-                has_output = iterate(collection, boost::begin(simplified), boost::end(simplified),
+                has_output = iterate(collection, boost::begin(view), boost::end(view),
                         strategy::buffer::buffer_side_left,
                         distance, side_strategy, join_strategy, end_strategy, robust_policy);
             }
@@ -875,7 +878,16 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection.enrich();
     collection.traverse();
 
-    if (distance_strategy.negative() && areal)
+    // Reverse all offsetted rings / traversed rings if:
+    // - they were generated on the negative side (deflate) of polygons
+    // - the output is counter clockwise
+    // and avoid reversing twice
+    bool reverse = distance_strategy.negative() && areal;
+    if (geometry::point_order<GeometryOutput>::value == counterclockwise)
+    {
+        reverse = ! reverse;
+    }
+    if (reverse)
     {
         collection.reverse();
     }
