@@ -63,6 +63,16 @@ static std::string const bowl
 static std::string const triangle
     = "POLYGON((4 5,5 4,4 4,3 4,3 5,3 6,4 5))";
 
+static std::string const degenerate0
+    = "POLYGON(())";
+static std::string const degenerate1
+    = "POLYGON((5 5))";
+static std::string const degenerate2
+    = "POLYGON((5 5,5 5,5 5,5 5))";
+static std::string const degenerate3
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5))";
+
+
 // Real-life examples
 static std::string const county1
     = "POLYGON((-111.700 41.200 ,-111.681388 41.181739 ,-111.682453 41.181506 ,-111.684052 41.180804 ,-111.685295 41.180538 ,-111.686318 41.180776 ,-111.687517 41.181416 ,-111.688982 41.181520 ,-111.690670 41.181523 ,-111.692135 41.181460 ,-111.693646 41.182034 ,-111.695156 41.182204 ,-111.696489 41.182274 ,-111.697775 41.182075 ,-111.698974 41.181539 ,-111.700485 41.182348 ,-111.701374 41.182955 ,-111.700 41.200))";
@@ -209,6 +219,11 @@ void test_all()
     test_one<polygon_type, polygon_type>("fork_b1", fork_b, join_miter, end_flat, 154, 1);
     test_one<polygon_type, polygon_type>("fork_c1", fork_c, join_miter, end_flat, 152, 1);
     test_one<polygon_type, polygon_type>("triangle", triangle, join_miter, end_flat, 14.6569, 1.0);
+
+    test_one<polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_round, 0.0, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate3", degenerate3, join_round, end_round, 143.1395, 1.0);
 
     test_one<polygon_type, polygon_type>("gammagate2", gammagate, join_miter, end_flat, 130, 2);
 

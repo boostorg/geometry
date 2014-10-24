@@ -209,7 +209,7 @@ struct buffer_range
         typename EndStrategy,
         typename RobustPolicy
     >
-    static inline void iterate(Collection& collection,
+    static inline bool iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance_strategy,
@@ -253,6 +253,7 @@ struct buffer_range
          * pup: penultimate_point
          */
 
+        bool result = false;
         bool first = true;
 
         Iterator it = begin;
@@ -266,13 +267,20 @@ struct buffer_range
         {
             robust_point_type robust_input;
             geometry::recalculate(robust_input, *it, robust_policy);
-            // Check on equality - however, if input is simplified, this is highly
-            // unlikely (though possible by rescaling)
+            // Check on equality - however, if input is simplified, this is
+            // unlikely (though possible by rescaling or for degenerated pointlike polygons)
             if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
             {
                 generated_side.clear();
                 side_strategy.apply(*prev, *it, side,
                                     distance_strategy, generated_side);
+
+                if (generated_side.empty())
+                {
+                    break;
+                }
+
+                result = true;
 
                 if (! first)
                 {
@@ -302,6 +310,7 @@ struct buffer_range
             }
             previous_robust_input = robust_input;
         }
+        return result;
     }
 };
 
@@ -443,7 +452,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
         typename EndStrategy,
         typename RobustPolicy
     >
-    static inline void iterate(Collection& collection,
+    static inline bool iterate(Collection& collection,
                 Iterator begin, Iterator end,
                 strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance_strategy,
@@ -456,21 +465,25 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
 
         typedef detail::buffer::buffer_range<RingOutput> buffer_range;
 
-        buffer_range::iterate(collection, begin, end,
+        bool result = buffer_range::iterate(collection, begin, end,
                 side,
                 distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
                 first_p1, first_p2, last_p1, last_p2);
 
         // Generate closing join
-        buffer_range::add_join(collection,
-            *(end - 2),
-            *(end - 1), last_p1, last_p2,
-            *(begin + 1), first_p1, first_p2,
-            side,
-            distance_strategy, join_strategy, end_strategy,
-            robust_policy);
+        if (result)
+        {
+            buffer_range::add_join(collection,
+                *(end - 2),
+                *(end - 1), last_p1, last_p2,
+                *(begin + 1), first_p1, first_p2,
+                side,
+                distance_strategy, join_strategy, end_strategy,
+                robust_policy);
+        }
 
         // Buffer is closed automatically by last closing corner
+        return result;
     }
 
     template
@@ -489,29 +502,42 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             SideStrategy const& side_strategy,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
-            PointStrategy const& ,
+            PointStrategy const& point_strategy,
             RobustPolicy const& robust_policy)
     {
-        if (boost::size(ring) > 3)
-        {
-            RingOutput simplified;
-            detail::buffer::simplify_input(ring, distance, simplified);
+        RingOutput simplified;
+        detail::buffer::simplify_input(ring, distance, simplified);
 
+        bool has_output = false;
+
+        std::size_t n = boost::size(simplified);
+        if (n > 3)
+        {
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)
                 // It might be that this will be changed later.
                 // TODO: decide this.
-                iterate(collection, boost::rbegin(simplified), boost::rend(simplified),
+                has_output = iterate(collection, boost::rbegin(simplified), boost::rend(simplified),
                         strategy::buffer::buffer_side_right,
                         distance, side_strategy, join_strategy, end_strategy, robust_policy);
             }
             else
             {
-                iterate(collection, boost::begin(simplified), boost::end(simplified),
+                has_output = iterate(collection, boost::begin(simplified), boost::end(simplified),
                         strategy::buffer::buffer_side_left,
                         distance, side_strategy, join_strategy, end_strategy, robust_policy);
             }
+        }
+
+        if (! has_output && n >= 1)
+        {
+            // Use point_strategy to buffer degenerated ring
+            detail::buffer::buffer_point<output_point_type>
+                (
+                    geometry::range::front(simplified),
+                    collection, distance, point_strategy
+                );
         }
     }
 };

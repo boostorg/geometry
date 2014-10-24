@@ -571,7 +571,11 @@ struct buffered_piece_collection
 
     inline void finish_ring(bool is_interior = false)
     {
-        BOOST_ASSERT(m_first_piece_index != -1);
+        if (m_first_piece_index == -1)
+        {
+            return;
+        }
+
         if (m_first_piece_index < static_cast<int>(boost::size(m_pieces)))
         {
             // If piece was added

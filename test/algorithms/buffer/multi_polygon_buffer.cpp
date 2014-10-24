@@ -24,6 +24,13 @@ static std::string const wrapped
 static std::string const triangles
     = "MULTIPOLYGON(((0 4,3 0,-2.5 -1,0 4)),((3 8,5.5 13,8 8,3 8)),((11 4,13.5 -1,8 0,11 4)))";
 
+static std::string const degenerate0
+    = "MULTIPOLYGON()";
+static std::string const degenerate1
+    = "MULTIPOLYGON(((5 5,5 5,5 5,5 5)),((6 6,6 6,6 6,6 6)))";
+static std::string const degenerate2
+    = "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5)),((11 5,11 5,11 5,11 5)))";
+
 // From robustness tests (rt)
 
 // Case with duplicate points (due to chained boxes) (round)
@@ -297,6 +304,10 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("wrapped_10", wrapped, join_miter, end_flat, 144.000, 1.0);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_round, end_flat, 167.066, 1.5);
     test_one<multi_polygon_type, polygon_type>("wrapped_15", wrapped, join_miter, end_flat, 169.000, 1.5);
+
+    test_one<multi_polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_flat, 0.0, 1.0);
+    test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
+    test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36, 1.0);
