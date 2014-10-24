@@ -19,6 +19,7 @@ static std::string const degenerate0 = "MULTILINESTRING()";
 static std::string const degenerate1 = "MULTILINESTRING((5 5))";
 static std::string const degenerate2 = "MULTILINESTRING((5 5),(9 9))";
 static std::string const degenerate3 = "MULTILINESTRING((5 5),(9 9),(4 10))";
+static std::string const degenerate4 = "MULTILINESTRING((5 5,5 5),(9 9,9 9,10 10,9 9,9 9,9 9),(4 10,4 10,3 11,4 12,3 11,4 10,4 10))";
 
 
 template <typename P>
@@ -59,6 +60,7 @@ void test_all()
     test_one<multi_linestring_type, polygon>("degenerate1", degenerate1, join_round, end_round, 28.2503, 3.0, 3.0);
     test_one<multi_linestring_type, polygon>("degenerate2", degenerate2, join_round, end_round, 56.0457, 3.0, 3.0);
     test_one<multi_linestring_type, polygon>("degenerate3", degenerate3, join_round, end_round, 80.4531, 3.0, 3.0);
+    test_one<multi_linestring_type, polygon>("degenerate4", degenerate4, join_round, end_round, 104.3142, 3.0, 3.0);
 }
 
 
