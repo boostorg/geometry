@@ -63,6 +63,16 @@ static std::string const bowl
 static std::string const triangle
     = "POLYGON((4 5,5 4,4 4,3 4,3 5,3 6,4 5))";
 
+static std::string const degenerate0
+    = "POLYGON(())";
+static std::string const degenerate1
+    = "POLYGON((5 5))";
+static std::string const degenerate2
+    = "POLYGON((5 5,5 5,5 5,5 5))";
+static std::string const degenerate3
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5))";
+
+
 // Real-life examples
 static std::string const county1
     = "POLYGON((-111.700 41.200 ,-111.681388 41.181739 ,-111.682453 41.181506 ,-111.684052 41.180804 ,-111.685295 41.180538 ,-111.686318 41.180776 ,-111.687517 41.181416 ,-111.688982 41.181520 ,-111.690670 41.181523 ,-111.692135 41.181460 ,-111.693646 41.182034 ,-111.695156 41.182204 ,-111.696489 41.182274 ,-111.697775 41.182075 ,-111.698974 41.181539 ,-111.700485 41.182348 ,-111.701374 41.182955 ,-111.700 41.200))";
@@ -98,11 +108,15 @@ static std::string const ticket_10398_4
 static std::string const ticket_10412
     = "POLYGON((897747.8 6270564.3,897764.3 6270569.7,897776.5 6270529.5,897768.1 6270527.1,897767.6 6270529.4,897756.3 6270525.8,897745.8 6270522.3,897752 6270502.9,897749.7 6270502,897750.7 6270499.1,897751.8 6270498.6,897752.3 6270499.3,897754.6 6270497.9,897755.8 6270500.2,897766.8 6270494.1,897765.6 6270491.5,897768.3 6270490.5,897770.9 6270491.5,897770.2 6270494.6,897780.1 6270497.5,897781 6270494.6,897786.8 6270496.6,897790.8 6270482.5,897785.3 6270480.7,897785.9 6270478.2,897768.9 6270473.2,897768.1 6270475.8,897766.1 6270475.2,897758.7 6270479.2,897753.2 6270481.8,897751.9 6270479,897746.5 6270481.9,897748 6270484.6,897745.2 6270486.1,897743.9 6270483.3,897741.4 6270484.7,897742.6 6270487.3,897739.4 6270488.9,897738.3 6270486.3,897735.6 6270487.8,897733.1 6270496.8,897731.2 6270502.7,897732.4 6270503.2,897731.5 6270506.1,897730.3 6270505.7,897725.8 6270520.2,897726.8 6270520.7,897726 6270523,897728 6270523.7,897726.3 6270529.6,897742.8 6270534.5,897741.2 6270539.9,897751.4 6270543.4,897750.7 6270546.4,897753.2 6270547.2,897747.8 6270564.3))";
 
+static std::string const mysql_report_2014_10_24
+    = "POLYGON((0 0, 0 8, 8 8, 8 10, -10 10, -10 0, 0 0))";
 
-template <typename P>
+
+
+template <bool Clockwise, typename P>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon_type;
+    typedef bg::model::polygon<P, Clockwise, true> polygon_type;
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
@@ -210,6 +224,11 @@ void test_all()
     test_one<polygon_type, polygon_type>("fork_c1", fork_c, join_miter, end_flat, 152, 1);
     test_one<polygon_type, polygon_type>("triangle", triangle, join_miter, end_flat, 14.6569, 1.0);
 
+    test_one<polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_round, 0.0, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate3", degenerate3, join_round, end_round, 143.1395, 1.0);
+
     test_one<polygon_type, polygon_type>("gammagate2", gammagate, join_miter, end_flat, 130, 2);
 
     test_one<polygon_type, polygon_type>("flower1", flower, join_miter, end_flat, 67.614, 0.1);
@@ -310,11 +329,12 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_miter, end_flat, 45567.3875694274902, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
     test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.4187, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 917.9747, 15.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 1534.4795, 20.0);
 
+    // These cases differ a bit based on point order (TODO: find out / describe why)
+    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, Clockwise ? 917.9747 : 917.996, 15.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, Clockwise ? 1534.4795 : 1534.508, 20.0);
 
     // Negative buffers making polygons smaller
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
@@ -344,8 +364,34 @@ void test_all()
     test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 819.1406, 9.1, -999, false);
 
     test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, -999, false);
+
+    bg::strategy::buffer::join_round join_round32(32);
+    bg::strategy::buffer::end_round end_round32(32);
+    test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24, join_round32, end_round32, 174.902, 1.0, -999, false);
 }
 
+template
+<
+    typename InputPoint,
+    typename OutputPoint,
+    bool InputClockwise,
+    bool OutputClockwise,
+    bool InputClosed,
+    bool OutputClosed
+>
+void test_mixed()
+{
+    typedef bg::model::polygon<InputPoint, InputClockwise, InputClosed> input_polygon_type;
+    typedef bg::model::polygon<OutputPoint, OutputClockwise, OutputClosed> output_polygon_type;
+
+    bg::strategy::buffer::join_round join_round(12);
+    bg::strategy::buffer::end_flat end_flat;
+
+    std::ostringstream name;
+    name << "mixed_" << std::boolalpha << InputClockwise << "_" << OutputClockwise << "_" << InputClosed << "_" << OutputClosed;
+
+    test_one<input_polygon_type, output_polygon_type>(name.str(), simplex, join_round, end_flat, 47.4831, 1.5);
+}
 
 #ifdef HAVE_TTMATH
 #include <ttmath_stub.hpp>
@@ -353,8 +399,16 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
+
+    test_all<true, dpoint>();
+    test_all<false, dpoint>();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-    
+
+    test_mixed<dpoint, dpoint, false, false, true, true>();
+    test_mixed<dpoint, dpoint, false, true, true, true>();
+    test_mixed<dpoint, dpoint, true, false, true, true>();
+    test_mixed<dpoint, dpoint, true, true, true, true>();
+
     return 0;
 }

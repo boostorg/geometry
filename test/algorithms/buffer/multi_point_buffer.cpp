@@ -21,12 +21,10 @@ static std::string const multipoint_a = "MULTIPOINT((39 44),(38 37),(41 29),(15 
 static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60),(10 4),(75 68),(61 68),(75 62),(92 26),(74 6),(67 54),(20 43),(63 30),(45 7))";
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
-    //std::cout << typeid(bg::coordinate_type<P>::type).name() << std::endl;
-
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_point<P> multi_point_type;
 
     bg::strategy::buffer::join_miter join_miter;
@@ -185,9 +183,8 @@ void test_growth(int n, int distance_count)
 
 int test_main(int, char* [])
 {
-    //std::cout << std::setprecision(6);
-    //test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
 #ifdef BOOST_GEOMETRY_BUFFER_TEST_GROWTH
