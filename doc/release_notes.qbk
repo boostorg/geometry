@@ -22,6 +22,9 @@
 [*Improvements]
 
 * The support of parameters convertible to value_type in rtree insert(), remove() and count() functions
+* Support for counterclockwise input/output in algorithm buffer
+* Support for open-geometry input in algorithm buffer (open output not yet supported)
+* Support for degenerate input (point-like linestrings, polygons) in algorithm buffer
 
 [*Solved tickets]
 
