@@ -345,6 +345,26 @@ struct visit_pieces_default_policy
     {}
 };
 
+template
+<
+    typename OutputPointType,
+    typename Point,
+    typename Collection,
+    typename DistanceStrategy,
+    typename PointStrategy
+>
+inline void buffer_point(Point const& point, Collection& collection,
+        DistanceStrategy const& distance_strategy,
+        PointStrategy const& point_strategy)
+{
+    collection.start_new_ring();
+    std::vector<OutputPointType> range_out;
+    point_strategy.apply(point, distance_strategy, range_out);
+    collection.add_piece(strategy::buffer::buffered_point, range_out, false);
+    collection.finish_ring();
+}
+
+
 }} // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
@@ -389,13 +409,10 @@ struct buffer_inserter<point_tag, Point, RingOutput>
             PointStrategy const& point_strategy,
             RobustPolicy const& )
     {
-        typedef typename point_type<RingOutput>::type output_point_type;
-
-        collection.start_new_ring();
-        std::vector<output_point_type> range_out;
-        point_strategy.apply(point, distance_strategy, range_out);
-        collection.add_piece(strategy::buffer::buffered_point, range_out, false);
-        collection.finish_ring();
+        detail::buffer::buffer_point
+        <
+            typename point_type<RingOutput>::type
+        >(point, collection, distance_strategy, point_strategy);
     }
 };
 
@@ -577,10 +594,11 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             SideStrategy const& side_strategy,
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
-            PointStrategy const& ,
+            PointStrategy const& point_strategy,
             RobustPolicy const& robust_policy)
     {
-        if (boost::size(linestring) > 1)
+        std::size_t n = boost::size(linestring);
+        if (n > 1)
         {
             Linestring simplified;
             detail::buffer::simplify_input(linestring, distance, simplified);
@@ -598,9 +616,14 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                     first_p1);
             collection.finish_ring();
         }
-        else
+        else if (n == 1)
         {
             // Use point_strategy to buffer degenerated linestring
+            detail::buffer::buffer_point<output_point_type>
+                (
+                    geometry::range::front(linestring),
+                    collection, distance, point_strategy
+                );
         }
     }
 };

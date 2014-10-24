@@ -27,6 +27,10 @@ static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
 static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
 static std::string const tripod = "LINESTRING(5 0,5 5,1 8,5 5,9 8)"; // with spike
 
+static std::string const degenerate1 = "LINESTRING(5 5)";
+static std::string const degenerate2 = "LINESTRING(5 5,5 5)";
+static std::string const degenerate3 = "LINESTRING(5 5,5 5,5 5)";
+
 static std::string const for_collinear = "LINESTRING(2 0,0 0,0 4,6 4,6 0,4 0)";
 static std::string const for_collinear2 = "LINESTRING(2 1,2 0,0 0,0 4,6 4,6 0,4 0,4 1)";
 
@@ -132,6 +136,16 @@ void test_all()
 #endif
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_round, 718.761877, 16.5, 6.5);
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_miter, end_round, 718.939628, 16.5, 6.5);
+
+    test_one<linestring, polygon>("degenerate1", degenerate1, join_round, end_round, 28.25, 3.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<linestring, polygon>("degenerate2", degenerate2, join_miter, end_flat, 99.99, 3.0);
+    test_one<linestring, polygon>("degenerate2", degenerate2, join_round, end_round, 99.99, 3.0);
+    test_one<linestring, polygon>("degenerate3", degenerate3, join_miter, end_flat, 99.99, 3.0);
+    test_one<linestring, polygon>("degenerate3", degenerate3, join_round, end_round, 99.99, 3.0);
+#endif
+
+
 
     double tolerance = 1.0e-10;
 
