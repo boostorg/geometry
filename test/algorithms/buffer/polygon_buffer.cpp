@@ -370,6 +370,28 @@ void test_all()
     test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24, join_round32, end_round32, 174.902, 1.0, -999, false);
 }
 
+template
+<
+    typename InputPoint,
+    typename OutputPoint,
+    bool InputClockwise,
+    bool OutputClockwise,
+    bool InputClosed,
+    bool OutputClosed
+>
+void test_mixed()
+{
+    typedef bg::model::polygon<InputPoint, InputClockwise, InputClosed> input_polygon_type;
+    typedef bg::model::polygon<OutputPoint, OutputClockwise, OutputClosed> output_polygon_type;
+
+    bg::strategy::buffer::join_round join_round(12);
+    bg::strategy::buffer::end_flat end_flat;
+
+    std::ostringstream name;
+    name << "mixed_" << std::boolalpha << InputClockwise << "_" << OutputClockwise << "_" << InputClosed << "_" << OutputClosed;
+
+    test_one<input_polygon_type, output_polygon_type>(name.str(), simplex, join_round, end_flat, 47.4831, 1.5);
+}
 
 #ifdef HAVE_TTMATH
 #include <ttmath_stub.hpp>
@@ -377,9 +399,16 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
-    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
+    typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
+
+    test_all<true, dpoint>();
+    test_all<false, dpoint>();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-    
+
+    test_mixed<dpoint, dpoint, false, false, true, true>();
+    test_mixed<dpoint, dpoint, false, true, true, true>();
+    test_mixed<dpoint, dpoint, true, false, true, true>();
+    test_mixed<dpoint, dpoint, true, true, true, true>();
+
     return 0;
 }

@@ -507,7 +507,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
             PointStrategy const& point_strategy,
             RobustPolicy const& robust_policy)
     {
-        RingOutput simplified;
+        RingInput simplified;
         detail::buffer::simplify_input(ring, distance, simplified);
 
         bool has_output = false;
@@ -515,7 +515,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
         std::size_t n = boost::size(simplified);
         if (n > 3)
         {
-            detail::normalized_view<RingOutput const> view(simplified);
+            detail::normalized_view<RingInput const> view(simplified);
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)
