@@ -412,7 +412,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << "_" << join_name
         << (end_name.empty() ? "" : "_") << end_name
         << (distance_left < 0 && distance_right < 0 ? "_deflate" : "")
-        << (bg::point_order<Geometry>::value == bg::counterclockwise ? "_ccw" : "")
+        << (bg::point_order<GeometryOut>::value == bg::counterclockwise ? "_ccw" : "")
          // << "_" << point_buffer_count
         ;
 
