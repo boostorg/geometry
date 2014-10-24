@@ -16,6 +16,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
@@ -513,7 +514,12 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
         bool has_output = false;
 
         std::size_t n = boost::size(simplified);
-        if (n > 3)
+        std::size_t const min_points = core_detail::closure::minimum_ring_size
+            <
+                geometry::closure<RingInput>::value
+            >::value;
+
+        if (n >= min_points)
         {
             detail::normalized_view<RingInput const> view(simplified);
             if (distance.negative())
