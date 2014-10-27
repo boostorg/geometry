@@ -75,18 +75,21 @@ private :
         PromotedType const dy2 = get<1>(perp2) - get<1>(vertex);
 
         PromotedType const two = 2.0;
+        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
         PromotedType const angle1 = atan2(dy1, dx1);
         PromotedType angle2 = atan2(dy2, dx2);
         while (angle2 > angle1)
         {
-            angle2 -= 2 * M_PI;
+            angle2 -= two_pi;
         }
 
         // Divide the angle into an integer amount of steps to make it
         // visually correct also for a low number of points / circle
-        int const n = static_cast<int>((m_points_per_circle * (angle1 - angle2)
-                            / (two * geometry::math::pi<PromotedType>())));
+        int const n = static_cast<int>
+            (
+                m_points_per_circle * (angle1 - angle2) / (two_pi)
+            );
 
         PromotedType const diff = (angle1 - angle2) / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
