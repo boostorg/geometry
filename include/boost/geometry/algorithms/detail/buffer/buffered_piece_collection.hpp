@@ -634,6 +634,7 @@ struct buffered_piece_collection
 
         std::size_t const n = boost::size(offsetted_rings.back());
         pc.first_seg_id.segment_index = decrease_segment_index_by_one ? n - 1 : n;
+        pc.last_segment_index = pc.first_seg_id.segment_index;
 
         m_pieces.push_back(pc);
         return m_pieces.back();
@@ -730,10 +731,7 @@ struct buffered_piece_collection
     template <typename Range>
     inline void add_range_to_piece(piece& pc, Range const& range, bool add_front)
     {
-        if (boost::size(range) == 0u)
-        {
-            return;
-        }
+        BOOST_ASSERT(boost::size(range) != 0u);
 
         typename Range::const_iterator it = boost::begin(range);
 
@@ -756,7 +754,11 @@ struct buffered_piece_collection
     inline void add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
         piece& pc = create_piece(type, decrease_segment_index_by_one);
-        add_range_to_piece(pc, range, offsetted_rings.back().empty());
+
+        if (boost::size(range) > 0u)
+        {
+            add_range_to_piece(pc, range, offsetted_rings.back().empty());
+        }
         finish_piece(pc);
     }
 
@@ -776,9 +778,9 @@ struct buffered_piece_collection
     {
         piece& pc = create_piece(type, true);
 
-        add_range_to_piece(pc, range, offsetted_rings.back().empty());
-        if (boost::size(range) > 0)
+        if (boost::size(range) > 0u)
         {
+            add_range_to_piece(pc, range, offsetted_rings.back().empty());
             finish_piece(pc, range.back(), p, range.front());
         }
         else
