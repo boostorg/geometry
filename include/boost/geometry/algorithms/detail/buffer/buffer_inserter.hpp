@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <iterator>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/range.hpp>
@@ -225,6 +226,8 @@ struct buffer_range
                 output_point_type& last_p1,
                 output_point_type& last_p2)
     {
+        boost::ignore_unused(side_strategy);
+
         typedef typename std::iterator_traits
         <
             Iterator
@@ -839,6 +842,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         VisitPiecesPolicy& visit_pieces_policy
     )
 {
+    boost::ignore_unused(visit_pieces_policy);
+
     typedef detail::buffer::buffered_piece_collection
     <
         typename geometry::ring_type<GeometryOutput>::type,

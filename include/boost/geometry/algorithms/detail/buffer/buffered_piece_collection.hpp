@@ -12,8 +12,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <set>
-#include <boost/range.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -792,6 +793,8 @@ struct buffered_piece_collection
     template <typename EndcapStrategy, typename Range>
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
     {
+        boost::ignore_unused(strategy);
+
         if (range.empty())
         {
             return;
