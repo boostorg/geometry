@@ -372,7 +372,14 @@ void test_all()
 
     bg::strategy::buffer::join_round join_round32(32);
     bg::strategy::buffer::end_round end_round32(32);
-    test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24, join_round32, end_round32, 174.902, 1.0, -999, false);
+    test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24,
+        join_round32, end_round32, 174.902, 1.0, -999, false);
+    test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_1", mysql_report_2014_10_28_1,
+        join_round32, end_round32, 75.46, 1.0, -999, false);
+    test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_2", mysql_report_2014_10_28_2,
+        join_round32, end_round32, 69.117, 1.0, -999, false);
+    test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
+        join_round32, end_round32, 63.121, 1.0, -999, false);
 }
 
 template
