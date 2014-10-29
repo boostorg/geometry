@@ -15,8 +15,8 @@
 
 namespace bg = ::boost::geometry;
 
-#include "from_wkt.hpp"
-#include "to_svg.hpp"
+#include <from_wkt.hpp>
+#include <to_svg.hpp>
 
 #include <algorithm>
 #include <fstream>

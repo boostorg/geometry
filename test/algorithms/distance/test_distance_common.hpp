@@ -39,8 +39,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
-#include "../from_wkt.hpp"
-
+#include <from_wkt.hpp>
 #include <string_from_type.hpp>
 
 

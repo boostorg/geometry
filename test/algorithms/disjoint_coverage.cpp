@@ -41,7 +41,7 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 
-#include "from_wkt.hpp"
+#include <from_wkt.hpp>
 
 
 #ifdef HAVE_TTMATH
