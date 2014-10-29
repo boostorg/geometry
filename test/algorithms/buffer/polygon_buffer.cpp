@@ -14,6 +14,8 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const square_simplex
+    = "POLYGON ((0 0,0 1,1 1,1 0,0 0))";
 static std::string const spike_simplex
     = "POLYGON ((0 0,1 5,3 3,5 5,3 3,5 1,0 0))";
 static std::string const chained_box
@@ -183,6 +185,16 @@ void test_all()
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
     test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 7.04043, -0.5);
 
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_round, end_flat, 14.0639, 1.5);
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_miter, end_flat, 16.0000, 1.5);
+
+    test_one<polygon_type, polygon_type>("square_simplex01", square_simplex, join_miter, end_flat, 0.6400, -0.1);
+    test_one<polygon_type, polygon_type>("square_simplex04", square_simplex, join_miter, end_flat, 0.0400, -0.4);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<polygon_type, polygon_type>("square_simplex05", square_simplex, join_miter, end_flat, 0.0, -0.5);
+#endif
+    test_one<polygon_type, polygon_type>("square_simplex06", square_simplex, join_miter, end_flat, 0.0, -0.6);
+
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 14.5616, 0.5);
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 16.3861, 0.5);
 
@@ -258,6 +270,10 @@ void test_all()
     test_one<polygon_type, polygon_type>("donut_diamond4", donut_diamond, join_miter, end_flat, 529.0, 4.0);
     test_one<polygon_type, polygon_type>("donut_diamond5", donut_diamond, join_miter, end_flat, 625.0, 5.0);
     test_one<polygon_type, polygon_type>("donut_diamond6", donut_diamond, join_miter, end_flat, 729.0, 6.0);
+
+    test_one<polygon_type, polygon_type>("donut_diamond1", donut_diamond, join_miter, end_flat, 122.0417, -1.0);
+    test_one<polygon_type, polygon_type>("donut_diamond2", donut_diamond, join_miter, end_flat, 56.3750, -2.0);
+    test_one<polygon_type, polygon_type>("donut_diamond3", donut_diamond, join_miter, end_flat, 17.7084, -3.0);
 
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_miter, end_flat, 28.265, 0.4);
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_round, end_flat, 27.039, 0.4);
