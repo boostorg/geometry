@@ -128,7 +128,7 @@ struct svg_visitor
                     color = 'r';
                     is_good = false;
                     break;
-                case bgdb::inside_original :
+                case bgdb::location_discard :
                     fill = "fill:rgb(0,0,255);";
                     color = 'b';
                     is_good = false;

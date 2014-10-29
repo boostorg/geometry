@@ -875,7 +875,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection.get_turns();
     if (areal)
     {
-        collection.check_remaining_points(distance_strategy.factor());
+        collection.check_remaining_points(distance_strategy);
     }
 
     // Visit the piece collection. This does nothing (by default), but

@@ -395,32 +395,60 @@ struct buffered_piece_collection
                 // will never start a new ring from this type of points.
                 it->selectable_start = false;
             }
-
         }
     }
 
-    inline void check_remaining_points(int factor)
+    template <typename DistanceStrategy>
+    inline void check_point_in_original(buffer_turn_info_type& turn,
+            DistanceStrategy const& distance_strategy)
     {
-        // TODO: use partition
+        strategy::within::winding<robust_point_type> winding;
+
+        for (std::size_t i = 0; i < robust_polygons.size(); i++)
+        {
+            int const code = detail::within::point_in_geometry(turn.robust_point,
+                        robust_polygons[i], winding);
+
+            switch (code)
+            {
+                case 0 :
+                    // On border of original: always discard
+                    turn.location = location_discard;
+                    return;
+                case 1 :
+                    // Inside original
+                    if (distance_strategy.negative())
+                    {
+                        // For deflate: it is inside the (multi)polygon
+                        // OK, no action, we can return
+                    }
+                    else
+                    {
+                        // For inflate: it is inside, discard
+                        turn.location = location_discard;
+                    }
+                    return;
+            }
+        }
+
+        if (distance_strategy.negative())
+        {
+            // For deflate: it was not found in one of the polygons, discard
+            turn.location = location_discard;
+        }
+    }
+
+    template <typename DistanceStrategy>
+    inline void check_remaining_points(DistanceStrategy const& distance_strategy)
+    {
+        // TODO: partition: this one is, together with the overlay, quadratic
 
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
             if (it->location == location_ok)
             {
-                int code = -1;
-                for (std::size_t i = 0; i < robust_polygons.size(); i++)
-                {
-                    if (geometry::covered_by(it->robust_point, robust_polygons[i]))
-                    {
-                        code = 1;
-                        break;
-                    }
-                }
-                if (code * factor == 1)
-                {
-                    it->location = inside_original;
-                }
+                check_point_in_original(*it, distance_strategy);
             }
         }
     }

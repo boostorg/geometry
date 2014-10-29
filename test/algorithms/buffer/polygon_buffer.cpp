@@ -190,9 +190,7 @@ void test_all()
 
     test_one<polygon_type, polygon_type>("square_simplex01", square_simplex, join_miter, end_flat, 0.6400, -0.1);
     test_one<polygon_type, polygon_type>("square_simplex04", square_simplex, join_miter, end_flat, 0.0400, -0.4);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, polygon_type>("square_simplex05", square_simplex, join_miter, end_flat, 0.0, -0.5);
-#endif
     test_one<polygon_type, polygon_type>("square_simplex06", square_simplex, join_miter, end_flat, 0.0, -0.6);
 
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 14.5616, 0.5);
