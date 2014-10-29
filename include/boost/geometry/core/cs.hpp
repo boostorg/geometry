@@ -47,8 +47,8 @@ struct degree {};
 struct radian {};
 
 
-#ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+#ifndef DOXYGEN_NO_DETAIL
+namespace core_detail
 {
 
 template <typename DegreeOrRadian>
@@ -74,8 +74,8 @@ struct coordinate_system_units<geometry::radian>
     typedef geometry::radian units;
 };
 
-} // namespace core_dispatch
-#endif // DOXYGEN_NO_DISPATCH
+} // namespace core_detail
+#endif // DOXYGEN_NO_DETAIL
 
 
 namespace cs
@@ -105,10 +105,12 @@ known as lat,long or lo,la or phi,lambda
 */
 template<typename DegreeOrRadian>
 struct geographic
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-    : core_dispatch::coordinate_system_units<DegreeOrRadian>
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-{};
+{
+    typedef typename core_detail::coordinate_system_units
+        <
+            DegreeOrRadian
+        >::units units;
+};
 
 
 
@@ -132,10 +134,12 @@ struct geographic
 */
 template<typename DegreeOrRadian>
 struct spherical
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-    : core_dispatch::coordinate_system_units<DegreeOrRadian>
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-{};
+{
+    typedef typename core_detail::coordinate_system_units
+        <
+            DegreeOrRadian
+        >::units units;
+};
 
 
 /*!
@@ -150,10 +154,12 @@ struct spherical
 */
 template<typename DegreeOrRadian>
 struct spherical_equatorial
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-    : core_dispatch::coordinate_system_units<DegreeOrRadian>
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-{};
+{
+    typedef typename core_detail::coordinate_system_units
+        <
+            DegreeOrRadian
+        >::units units;
+};
 
 
 
@@ -166,10 +172,12 @@ struct spherical_equatorial
 */
 template<typename DegreeOrRadian>
 struct polar
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-    : core_dispatch::coordinate_system_units<DegreeOrRadian>
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-{};
+{
+    typedef typename core_detail::coordinate_system_units
+        <
+            DegreeOrRadian
+        >::units units;
+};
 
 
 } // namespace cs
