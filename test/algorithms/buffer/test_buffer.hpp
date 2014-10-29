@@ -600,20 +600,39 @@ void test_one(std::string const& caseid, std::string const& wkt,
         << std::endl;
 #endif
 
+
+    bg::strategy::buffer::side_straight side_strategy;
+    bg::strategy::buffer::point_circle circle_strategy(88);
+
     bg::strategy::buffer::distance_asymmetric
     <
         typename bg::coordinate_type<Geometry>::type
     > distance_strategy(distance_left,
                         distance_right > -998 ? distance_right : distance_left);
 
-    bg::strategy::buffer::side_straight side_strategy;
-    bg::strategy::buffer::point_circle circle_strategy(88);
     test_buffer<GeometryOut>
             (caseid, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
             check_self_intersections, expected_area,
             tolerance, NULL);
+
+    // Also test symmetric distance strategy if right-distance is not specified
+    if (bg::math::equals(distance_right, -999))
+    {
+        bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<Geometry>::type
+        > sym_distance_strategy(distance_left);
+
+        test_buffer<GeometryOut>
+                (caseid + "_sym", g,
+                join_strategy, end_strategy,
+                sym_distance_strategy, side_strategy, circle_strategy,
+                check_self_intersections, expected_area,
+                tolerance, NULL);
+
+    }
 }
 
 // Version (currently for the Aimes test) counting self-ip's instead of checking
