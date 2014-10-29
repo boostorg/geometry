@@ -16,7 +16,7 @@
 #include <string>
 #include <sstream>
 
-#include <algorithms/test_distance.hpp>
+#include "test_distance.hpp"
 
 #include <boost/mpl/if.hpp>
 #include <boost/array.hpp>

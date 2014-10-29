@@ -8,6 +8,7 @@
 # Modifications copyright (c) 2014, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+# Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -31,14 +32,6 @@ test-suite boost-geometry-algorithms
     [ run difference_pl_pl.cpp ]
     [ run disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run disjoint_coverage.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run distance.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run distance_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run distance_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run distance_linear_linear.cpp ]
-    [ run distance_pointlike_areal.cpp ]
-    [ run distance_pointlike_linear.cpp ]
-    [ run distance_pointlike_pointlike.cpp ]
-    [ run distance_se_pl_pl.cpp ]
     [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run expand.cpp ]
@@ -79,12 +72,14 @@ test-suite boost-geometry-algorithms
     [ run within_pointlike_xxx.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]    
     ;
 
-build-project overlay 
-    ;
-
 build-project buffer
     ;
     
-build-project detail 
+build-project detail
     ;
     
+build-project distance
+    ;
+
+build-project overlay
+    ;

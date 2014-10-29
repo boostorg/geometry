@@ -8,8 +8,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_TEST_DISTANCE_COMMON_HPP
-#define BOOST_GEOMETRY_TEST_DISTANCE_COMMON_HPP
+#ifndef BOOST_GEOMETRY_TEST_DISTANCE_SE_COMMON_HPP
+#define BOOST_GEOMETRY_TEST_DISTANCE_SE_COMMON_HPP
 
 #include <iostream>
 #include <string>
@@ -39,7 +39,7 @@
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
-#include "from_wkt.hpp"
+#include "../from_wkt.hpp"
 
 #include <string_from_type.hpp>
 
@@ -47,6 +47,9 @@
 #ifndef BOOST_GEOMETRY_TEST_DISTANCE_HPP
 
 namespace bg = ::boost::geometry;
+
+static const double earth_radius_km = 6371.0;
+static const double earth_radius_miles = 3959.0;
 
 // function copied from BG's test_distance.hpp
 
@@ -64,6 +67,137 @@ void test_empty_input(Geometry1 const& geometry1, Geometry2 const& geometry2)
     BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
 }
 #endif // BOOST_GEOMETRY_TEST_DISTANCE_HPP
+
+
+
+//========================================================================
+
+
+
+template
+<
+    typename PointLike1,
+    typename PointLike2,
+    typename Strategy,
+    typename Tag1 = typename bg::tag<PointLike1>::type,
+    typename Tag2 = typename bg::tag<PointLike2>::type
+>
+struct distance_brute_force
+{};
+
+template 
+<
+    typename PointLike1,
+    typename PointLike2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    PointLike1, PointLike2, Strategy,
+    bg::point_tag, bg::point_tag
+>
+{
+    typedef typename bg::distance_result
+        <
+            PointLike1, PointLike2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(PointLike1 const& p1,
+                                      PointLike2 const& p2,
+                                      Strategy const& strategy)
+    {
+        return bg::distance(p1, p2, strategy);
+    }
+};
+
+template 
+<
+    typename PointLike1,
+    typename PointLike2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    PointLike1, PointLike2, Strategy,
+    bg::point_tag, bg::multi_point_tag
+>
+{
+    typedef typename bg::distance_result
+        <
+            PointLike1, PointLike2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(PointLike1 const& p,
+                                      PointLike2 const& mp,
+                                      Strategy const& strategy)
+    {
+        typedef typename boost::range_iterator<PointLike2 const>::type iterator;
+
+        bool first = true;
+        distance_type d_min;
+        for (iterator it = boost::begin(mp); it != boost::end(mp);
+             ++it, first = false)
+        {
+            distance_type d = bg::distance(p, *it, strategy);
+
+            if ( first || d < d_min )
+            {
+                d_min = d;
+            }
+        }
+        return d_min;
+    }
+};
+
+template 
+<
+    typename PointLike1,
+    typename PointLike2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    PointLike1, PointLike2, Strategy,
+    bg::multi_point_tag, bg::multi_point_tag
+>
+{
+    typedef typename bg::distance_result
+        <
+            PointLike1, PointLike2, Strategy
+        >::type distance_type;
+
+    static inline distance_type apply(PointLike1 const& mp1,
+                                      PointLike2 const& mp2,
+                                      Strategy const& strategy)
+    {
+        typedef typename boost::range_iterator
+            <
+                PointLike1 const
+            >::type iterator1;
+
+        typedef typename boost::range_iterator
+            <
+                PointLike2 const
+            >::type iterator2;
+
+        bool first = true;
+        distance_type d_min;
+        for (iterator1 it1 = boost::begin(mp1); it1 != boost::end(mp1); ++it1)
+        {
+            for (iterator2 it2 = boost::begin(mp2); it2 != boost::end(mp2);
+                 ++it2, first = false)
+            {
+                distance_type d = bg::distance(*it1, *it2, strategy);
+
+                if ( first || d < d_min )
+                {
+                    d_min = d;
+                }
+            }
+        }
+        return d_min;
+    }
+};
 
 
 
@@ -265,7 +399,19 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         check_equal
             <
                 default_distance_result
-            >::apply(dist, expected_distance);
+            >::apply(dist, expected_distance * strategy.radius());
+
+        // check against the comparable distance computed in a
+        // brute-force manner
+        default_distance_result dist_brute_force = distance_brute_force
+            <
+                Geometry1, Geometry2, Strategy
+            >::apply(geometry1, geometry2, strategy);
+
+        check_equal
+            <
+                default_distance_result
+            >::apply(dist_brute_force, expected_distance * strategy.radius());
 
 
         // check comparable distance with default strategy
@@ -287,12 +433,42 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 default_comparable_distance_result
             >::apply(cdist, expected_comparable_distance);
 
+        // check against the comparable distance computed in a
+        // brute-force manner
+        default_comparable_distance_result cdist_brute_force
+            = distance_brute_force
+            <
+                Geometry1,
+                Geometry2,
+                typename bg::strategy::distance::services::comparable_type
+                    <
+                        Strategy
+                    >::type
+            >::apply(geometry1,
+                     geometry2,
+                     bg::strategy::distance::services::get_comparable
+                         <
+                             Strategy
+                         >::apply(strategy));
+
+        check_equal
+            <
+                default_comparable_distance_result
+            >::apply(cdist_brute_force, expected_comparable_distance);
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << string_from_type<typename bg::coordinate_type<Geometry1>::type>::name()
                   << string_from_type<typename bg::coordinate_type<Geometry2>::type>::name()
                   << " -> "
                   << string_from_type<default_distance_result>::name()
                   << string_from_type<default_comparable_distance_result>::name()
+                  << std::endl;
+        std::cout << "expected distance (default strategy) = "
+                  << expected_distance << " ; "
+                  << "expected distance (passed strategy) = "
+                  << (expected_distance * strategy.radius()) << " ; "
+                  << "expected comp. distance = "
+                  << expected_comparable_distance
                   << std::endl;
         std::cout << "distance (default strategy) = " << dist_def << " ; " 
                   << "distance (passed strategy) = " << dist << " ; " 
@@ -324,7 +500,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
             check_equal
                 <
                     default_distance_result
-                >::apply(dist, expected_distance);
+                >::apply(dist, expected_distance * strategy.radius());
 
 
             // check comparable distance with default strategy
@@ -344,6 +520,13 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 >::apply(cdist, expected_comparable_distance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
+            std::cout << "expected distance (default strategy) = "
+                      << expected_distance << " ; "
+                      << "expected distance (passed strategy) = "
+                      << (expected_distance * strategy.radius()) << " ; "
+                      << "expected comp. distance = "
+                      << expected_comparable_distance
+                      << std::endl;
             std::cout << "distance[reversed args] (def. startegy) = "
                       << dist_def << " ; "
                       << "distance[reversed args] (passed startegy) = "
@@ -358,215 +541,6 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
     }
 };
 
-
-//========================================================================
-
-template <typename Segment, typename Polygon>
-struct test_distance_of_geometries
-<
-    Segment, Polygon,
-    92 /* segment */, 3 /* polygon */
->
-    : public test_distance_of_geometries<Segment, Polygon, 0, 0>
-{
-    typedef test_distance_of_geometries<Segment, Polygon, 0, 0> base;
-
-    typedef typename bg::ring_type<Polygon>::type ring_type;
-
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(std::string const& wkt_segment,
-               std::string const& wkt_polygon,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy)
-    {
-        Segment segment = from_wkt<Segment>(wkt_segment);
-        Polygon polygon = from_wkt<Polygon>(wkt_polygon);
-        apply(segment,
-              polygon,
-              expected_distance,
-              expected_comparable_distance,
-              strategy);
-    }
-
-
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(Segment const& segment,
-               Polygon const& polygon,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy)
-    {
-        base::apply(segment, polygon, expected_distance,
-                    expected_comparable_distance, strategy);
-        if ( bg::num_interior_rings(polygon) == 0 ) {
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "... testing also exterior ring ..." << std::endl;
-#endif
-            test_distance_of_geometries
-                <
-                    Segment, ring_type
-                >::apply(segment,
-                         bg::exterior_ring(polygon),
-                         expected_distance,
-                         expected_comparable_distance,
-                         strategy);
-        }
-    }
-};
-
-//========================================================================
-
-template <typename Box, typename Segment>
-struct test_distance_of_geometries
-<
-    Box, Segment,
-    94 /* box */, 92 /* segment */
->
-{
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(std::string const& wkt_box,
-               std::string const& wkt_segment,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy)
-    {
-        test_distance_of_geometries
-            <
-                Segment, Box, 92, 94
-            >::apply(wkt_segment,
-                     wkt_box,
-                     expected_distance,
-                     expected_comparable_distance,
-                     strategy);
-    }
-};
-
-
-template <typename Segment, typename Box>
-struct test_distance_of_geometries
-<
-    Segment, Box,
-    92 /* segment */, 94 /* box */
->
-    : public test_distance_of_geometries<Segment, Box, 0, 0>
-{
-    typedef test_distance_of_geometries<Segment, Box, 0, 0> base;
-
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(std::string const& wkt_segment,
-               std::string const& wkt_box,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy)
-    {
-        Segment segment = from_wkt<Segment>(wkt_segment);
-        Box box = from_wkt<Box>(wkt_box);
-        apply(segment,
-              box,
-              expected_distance,
-              expected_comparable_distance,
-              strategy);
-    }
-
-
-    template
-    <
-        typename DistanceType,
-        typename ComparableDistanceType,
-        typename Strategy
-    >
-    static inline
-    void apply(Segment const& segment,
-               Box const& box,
-               DistanceType const& expected_distance,
-               ComparableDistanceType const& expected_comparable_distance,
-               Strategy const& strategy)
-    {
-        typedef typename bg::strategy::distance::services::return_type
-            <
-                Strategy, Segment, Box
-            >::type distance_result_type;
-
-        typedef typename bg::strategy::distance::services::comparable_type
-            <
-                Strategy
-            >::type comparable_strategy;
-
-        typedef typename bg::strategy::distance::services::return_type
-            <
-                comparable_strategy, Segment, Box
-            >::type comparable_distance_result_type;
-
-
-        base::apply(segment, box, expected_distance,
-                    expected_comparable_distance, strategy);
-
-        comparable_strategy cstrategy =
-            bg::strategy::distance::services::get_comparable
-                <
-                    Strategy
-                >::apply(strategy);
-
-        distance_result_type distance_generic =
-            bg::detail::distance::segment_to_box_2D_generic
-                <
-                    Segment, Box, Strategy
-                >::apply(segment, box, strategy);
-
-        comparable_distance_result_type comparable_distance_generic =
-            bg::detail::distance::segment_to_box_2D_generic
-                <
-                    Segment, Box, comparable_strategy
-                >::apply(segment, box, cstrategy);
-
-
-        check_equal
-            <
-                distance_result_type
-            >::apply(distance_generic, expected_distance);
-
-        check_equal
-            <
-                comparable_distance_result_type
-            >::apply(comparable_distance_generic, expected_comparable_distance);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "... testing with naive seg-box distance algorithm..."
-                  << std::endl;
-        std::cout << "distance (generic algorithm) = "
-                  << distance_generic << " ; "
-                  << "comp. distance (generic algorithm) = "            
-                  << comparable_distance_generic
-                  << std::endl;
-        std::cout << std::endl << std::endl;
-#endif
-    }
-};
 
 //========================================================================
 
@@ -597,4 +571,4 @@ void test_empty_input(Geometry1 const& geometry1,
     BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
 }
 
-#endif // BOOST_GEOMETRY_TEST_DISTANCE_COMMON_HPP
+#endif // BOOST_GEOMETRY_TEST_DISTANCE_SE_COMMON_HPP
