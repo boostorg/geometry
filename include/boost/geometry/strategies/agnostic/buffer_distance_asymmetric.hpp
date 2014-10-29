@@ -62,10 +62,10 @@ public :
         return negative() ? math::abs(result) : result;
     }
 
-    //! Returns 1 (used internally)
+    //! Used internally, returns -1 for deflate, 1 for inflate
     inline int factor() const
     {
-        return m_left < 0 ? -1 : 1;
+        return negative() ? -1 : 1;
     }
 
     //! Returns true if both distances are negative
