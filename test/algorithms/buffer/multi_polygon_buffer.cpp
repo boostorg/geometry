@@ -292,6 +292,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_round, end_flat, 174.46, 5.0);
     test_one<multi_polygon_type, polygon_type>("multi_simplex_50", simplex, join_miter, end_flat, 298.797, 5.0);
 
+    test_one<multi_polygon_type, polygon_type>("multi_simplex_01", simplex, join_round, end_flat, 9.7514, -0.1);
+    test_one<multi_polygon_type, polygon_type>("multi_simplex_05", simplex, join_round, end_flat, 3.2019, -0.5);
+    test_one<multi_polygon_type, polygon_type>("multi_simplex_10", simplex, join_round, end_flat, 0.2012, -1.0);
+    test_one<multi_polygon_type, polygon_type>("multi_simplex_12", simplex, join_round, end_flat, 0.0, -1.2);
+
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_round, end_flat, 67.4627, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_miter, end_flat, 68.0000, 0.5);
     test_one<multi_polygon_type, polygon_type>("zonethru_10", zonethru, join_round, end_flat, 93.8508, 1.0);
@@ -375,11 +380,13 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_q1", rt_q1, join_miter, end_flat, 27, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 26.4853, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 0.9697, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_r", rt_r, join_miter, end_flat, 21.0761, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_s1", rt_s1, join_miter, end_flat, 20.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_s2", rt_s2, join_miter, end_flat, 24.6495, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_t", rt_t, join_miter, end_flat, 15.6569, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_t", rt_t, join_miter, end_flat, 0.1679, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u1", rt_u1, join_round, end_flat, 33.2032, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u2", rt_u2, join_round, end_flat, 138.8001, 1.0);
@@ -395,8 +402,17 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 999, -0.50);
+#endif
+    test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u11", rt_u11, join_miter, end_flat, 131.3995, 1.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    test_one<multi_polygon_type, polygon_type>("rt_u11_50", rt_u11, join_miter, end_flat, 999, -0.50);
+#endif
+    test_one<multi_polygon_type, polygon_type>("rt_u11_25", rt_u11, join_miter, end_flat, 10.1449, -0.25);
+
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 999, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
