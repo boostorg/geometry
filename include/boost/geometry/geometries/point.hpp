@@ -63,6 +63,9 @@ template
     typename CoordinateSystem
 >
 class point
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    : private CoordinateSystem
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 {
 public:
 
