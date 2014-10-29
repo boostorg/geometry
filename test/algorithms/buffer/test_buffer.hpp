@@ -438,7 +438,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         }
         else
         {
-            bg::buffer(box, box, 1.5 * distance_strategy.max_distance(join_strategy, end_strategy));
+            bg::buffer(box, box, 1.1 * distance_strategy.max_distance(join_strategy, end_strategy));
         }
         mapper.add(box);
     }
@@ -533,7 +533,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     {
         if (distance_strategy.negative())
         {
-            mapper.map(polygon, "opacity:0.8;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
+            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
         }
         else
         {
