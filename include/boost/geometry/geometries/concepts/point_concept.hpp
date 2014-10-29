@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2008-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -17,11 +22,12 @@
 #include <cstddef>
 
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
-
+#include <boost/geometry/geometries/concepts/coordinate_system_units_helper.hpp>
 
 
 
@@ -46,6 +52,9 @@ The point concept is defined as following:
   with two functions:
   - \b get to get a coordinate value
   - \b set to set a coordinate value (this one is not checked for ConstPoint)
+- for non-Cartesian coordinate systems, the coordinate system's units
+  must either be boost::geometry::degree or boost::geometry::radian
+
 
 \par Example:
 
@@ -89,6 +98,10 @@ class Point
 
     typedef typename coordinate_type<Geometry>::type ctype;
     typedef typename coordinate_system<Geometry>::type csystem;
+    typedef typename detail::coordinate_system_units_helper
+        <
+            csystem
+        >::type cunits;
 
     enum { ccount = dimension<Geometry>::value };
 
@@ -138,6 +151,10 @@ class ConstPoint
 
     typedef typename coordinate_type<Geometry>::type ctype;
     typedef typename coordinate_system<Geometry>::type csystem;
+    typedef typename detail::coordinate_system_units_helper
+        <
+            csystem
+        >::type cunits;
 
     enum { ccount = dimension<Geometry>::value };
 
@@ -149,7 +166,7 @@ class ConstPoint
         {
             const P* p = 0;
             ctype coord(geometry::get<Dimension>(*p));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<P, Dimension+1, DimensionCount>::apply();
         }
     };
