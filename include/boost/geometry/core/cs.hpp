@@ -16,7 +16,9 @@
 
 #include <cstddef>
 
-#include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -43,6 +45,37 @@ struct degree {};
 \qbk{[include reference/core/degree_radian.qbk]}
 */
 struct radian {};
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace core_dispatch
+{
+
+template <typename DegreeOrRadian>
+class coordinate_system_units
+{
+public:
+    BOOST_MPL_ASSERT_MSG
+        ((boost::is_same<DegreeOrRadian, geometry::degree>::value
+          || boost::is_same<DegreeOrRadian, geometry::radian>::value),
+         COORDINATE_SYSTEM_UNITS_MUST_BE_DEGREES_OR_RADIANS,
+         (types<DegreeOrRadian>));
+};
+
+template <>
+struct coordinate_system_units<geometry::degree>
+{
+    typedef geometry::degree units;
+};
+
+template <>
+struct coordinate_system_units<geometry::radian>
+{
+    typedef geometry::radian units;
+};
+
+} // namespace core_dispatch
+#endif // DOXYGEN_NO_DISPATCH
 
 
 namespace cs
@@ -72,9 +105,10 @@ known as lat,long or lo,la or phi,lambda
 */
 template<typename DegreeOrRadian>
 struct geographic
-{
-    typedef DegreeOrRadian units;
-};
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    : core_dispatch::coordinate_system_units<DegreeOrRadian>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+{};
 
 
 
@@ -98,9 +132,10 @@ struct geographic
 */
 template<typename DegreeOrRadian>
 struct spherical
-{
-    typedef DegreeOrRadian units;
-};
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    : core_dispatch::coordinate_system_units<DegreeOrRadian>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+{};
 
 
 /*!
@@ -115,9 +150,10 @@ struct spherical
 */
 template<typename DegreeOrRadian>
 struct spherical_equatorial
-{
-    typedef DegreeOrRadian units;
-};
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    : core_dispatch::coordinate_system_units<DegreeOrRadian>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+{};
 
 
 
@@ -130,9 +166,10 @@ struct spherical_equatorial
 */
 template<typename DegreeOrRadian>
 struct polar
-{
-    typedef DegreeOrRadian units;
-};
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    : core_dispatch::coordinate_system_units<DegreeOrRadian>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+{};
 
 
 } // namespace cs
