@@ -222,13 +222,13 @@ void test_all()
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 46.3541, 1.2);
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 45.0537, 1.2);
 
-    // TODO: fix, the buffered pieces are currently counterclockwise, that should be reversed
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_round, end_flat, 7.25523322189147, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_round, end_flat, 1.37375487490664, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_miter, end_flat, 0, -1.2);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_round, end_flat, 0, -1.2);
+    // Indentation - deflated
+    test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
+    test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_round, end_flat, 7.25523322189147, -0.4);
+    test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
+    test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_round, end_flat, 1.37375487490664, -0.8);
+    test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_miter, end_flat, 0, -1.2);
+    test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_round, end_flat, 0, -1.2);
 
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 53.648, 0.6);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 52.820, 0.6);
