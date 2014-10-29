@@ -56,13 +56,13 @@ public :
     inline NumericType apply(Point const& , Point const& ,
                 buffer_side_selector )  const
     {
-        return m_distance;
+        return negative() ? geometry::math::abs(m_distance) : m_distance;
     }
 
-    //! Returns 1 (used internally)
+    //! Used internally, returns -1 for deflate, 1 for inflate
     inline int factor() const
     {
-        return 1;
+        return negative() ? -1 : 1;
     }
 
     //! Returns true if distance is negative
