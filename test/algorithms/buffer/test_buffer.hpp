@@ -285,6 +285,9 @@ struct svg_visitor
     template <typename PieceCollection>
     inline void apply(PieceCollection const& collection, int phase)
     {
+        // Comment next return if you want to see pieces, turns, etc.
+        return;
+
         if(phase == 0)
         {
             map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
@@ -429,7 +432,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     {
         bg::model::box<point_type> box = envelope;
-        bg::buffer(box, box, 1.5 * distance_strategy.max_distance(join_strategy, end_strategy));
+        if (distance_strategy.negative())
+        {
+            bg::buffer(box, box, 1.0);
+        }
+        else
+        {
+            bg::buffer(box, box, 1.5 * distance_strategy.max_distance(join_strategy, end_strategy));
+        }
         mapper.add(box);
     }
 
@@ -511,16 +521,24 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     // Map input geometry in green
     if (areal)
     {
-        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:2");
+        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,64,0);stroke-width:2");
     }
     else
     {
         mapper.map(geometry, "opacity:0.5;stroke:rgb(0,128,0);stroke-width:10");
     }
 
+    // Map buffer in yellow (inflate) and with orange-dots (deflate)
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
-        mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        if (distance_strategy.negative())
+        {
+            mapper.map(polygon, "opacity:0.8;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
+        }
+        else
+        {
+            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        }
         post_map(polygon, mapper, rescale_policy);
     }
 #endif
