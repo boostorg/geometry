@@ -63,6 +63,11 @@ static std::string const bowl
 static std::string const triangle
     = "POLYGON((4 5,5 4,4 4,3 4,3 5,3 6,4 5))";
 
+// Triangle which caused acos in join_round to fail with larger side strategy
+static std::string const sharp_triangle
+    = "POLYGON((2 0,3 8,4 0,2 0))";
+
+
 static std::string const degenerate0
     = "POLYGON(())";
 static std::string const degenerate1
@@ -117,6 +122,50 @@ static std::string const mysql_report_2014_10_28_2
     = "POLYGON((1 1,10 10,0 8,1 1))";
 static std::string const mysql_report_2014_10_28_3
     = "POLYGON((2 2,8 2,8 8,2 8,2 2))";
+
+
+class buffer_custom_side_strategy
+{
+public :
+    template
+    <
+        typename Point,
+        typename OutputRange,
+        typename DistanceStrategy
+    >
+    static inline void apply(
+                Point const& input_p1, Point const& input_p2,
+                bg::strategy::buffer::buffer_side_selector side,
+                DistanceStrategy const& distance,
+                OutputRange& output_range)
+    {
+        // Generate a block along (left or right of) the segment
+
+        double const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
+        double const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
+
+        // For normalization [0,1] (=dot product d.d, sqrt)
+        double const length = bg::math::sqrt(dx * dx + dy * dy);
+
+        if (bg::math::equals(length, 0))
+        {
+            return;
+        }
+
+        // Generate the perpendicular p, to the left (ccw), and use an adapted distance
+        double const d = 1.1 * distance.apply(input_p1, input_p2, side);
+        double const px = d * -dy / length;
+        double const py = d * dx / length;
+
+        output_range.resize(2);
+
+        bg::set<0>(output_range.front(), bg::get<0>(input_p1) + px);
+        bg::set<1>(output_range.front(), bg::get<1>(input_p1) + py);
+        bg::set<0>(output_range.back(), bg::get<0>(input_p2) + px);
+        bg::set<1>(output_range.back(), bg::get<1>(input_p2) + py);
+    }
+};
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -380,6 +429,22 @@ void test_all()
         join_round32, end_round32, 69.117, 1.0, -999, false);
     test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
         join_round32, end_round32, 63.121, 1.0, -999, false);
+
+    {
+        bg::strategy::buffer::join_round join_round12(12);
+        buffer_custom_side_strategy side_strategy;
+        bg::strategy::buffer::point_circle point_strategy;
+        bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<P>::type
+        > distance_strategy(1.0);
+
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle",
+                sharp_triangle,
+                join_round12, end_flat, distance_strategy, side_strategy, point_strategy,
+                31.0721);
+    }
+
 }
 
 template
