@@ -88,7 +88,7 @@ private :
         // visually correct also for a low number of points / circle
         int const n = static_cast<int>
             (
-                m_points_per_circle * (angle1 - angle2) / (two_pi)
+                m_points_per_circle * (angle1 - angle2) / two_pi
             );
 
         PromotedType const diff = (angle1 - angle2) / static_cast<PromotedType>(n);
