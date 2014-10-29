@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -19,6 +24,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/static_assert.hpp>
 
+#include <boost/geometry/geometries/concepts/coordinate_system_units_helper.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
@@ -63,10 +69,13 @@ template
     typename CoordinateSystem
 >
 class point
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-    : private CoordinateSystem
-#endif // DOXYGEN_SHOULD_SKIP_THIS
 {
+private:
+    typedef typename concept::detail::coordinate_system_units_helper
+        <
+            CoordinateSystem
+        >::type units;
+
 public:
 
     /// @brief Default constructor, no initialization
