@@ -501,9 +501,9 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
 
     test_all<true, dpoint>();
+    test_all<false, dpoint>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    test_all<false, dpoint>();
 
     test_mixed<dpoint, dpoint, false, false, true, true>();
     test_mixed<dpoint, dpoint, false, true, true, true>();
