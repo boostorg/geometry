@@ -16,7 +16,7 @@
 
 #include "test_union.hpp"
 #include <algorithms/test_overlay.hpp>
-#include <multi/algorithms/overlay/multi_overlay_cases.hpp>
+#include <algorithms/overlay/multi_overlay_cases.hpp>
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
 #include <boost/geometry/multi/algorithms/intersection.hpp>
