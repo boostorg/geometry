@@ -19,7 +19,7 @@
 // Test which would fail then are disabled automatically
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
-#include <algorithms/test_union.hpp>
+#include "test_union.hpp"
 #include <algorithms/test_overlay.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>

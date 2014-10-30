@@ -10,7 +10,7 @@
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_difference_pointlike_pointlike
+#define BOOST_TEST_MODULE test_intersection_pointlike_pointlike
 #endif
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -20,7 +20,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "test_set_ops_pl_pl.hpp"
+#include "../set_ops/test_set_ops_pl_pl.hpp"
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 
@@ -34,11 +34,11 @@ typedef bg::model::multi_point<point_type>  multi_point_type;
 //===========================================================================
 
 
-BOOST_AUTO_TEST_CASE( test_difference_point_point )
+BOOST_AUTO_TEST_CASE( test_intersection_point_point )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** POINT / POINT DIFFERENCE ***" << std::endl;
+    std::cout << "*** POINT / POINT INTERSECTION ***" << std::endl;
     std::cout << std::endl;
 #endif
 
@@ -47,29 +47,28 @@ BOOST_AUTO_TEST_CASE( test_difference_point_point )
 
     typedef test_set_op_of_pointlike_geometries
         <
-            P, P, MP, bg::overlay_difference
+            P, P, MP, bg::overlay_intersection
         > tester;
 
     tester::apply
         (from_wkt<P>("POINT(0 0)"),
          from_wkt<P>("POINT(1 1)"),
-         from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)"),
-         "ppdf01");
+         from_wkt<MP>("MULTIPOINT()"),
+         "ppi01");
 
     tester::apply
         (from_wkt<P>("POINT(0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "ppdf02");
+         from_wkt<MP>("MULTIPOINT(0 0)"),
+         "ppi02");
 }
 
 
-BOOST_AUTO_TEST_CASE( test_difference_multipoint_point )
+BOOST_AUTO_TEST_CASE( test_intersection_multipoint_point )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTIPOINT / POINT DIFFERENCE ***" << std::endl;
+    std::cout << "*** MULTIPOINT / POINT INTERSECTION ***" << std::endl;
     std::cout << std::endl;
 #endif
 
@@ -78,109 +77,64 @@ BOOST_AUTO_TEST_CASE( test_difference_multipoint_point )
 
     typedef test_set_op_of_pointlike_geometries
         <
-            MP, P, MP, bg::overlay_difference
+            MP, P, MP, bg::overlay_intersection
         > tester;
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0)"),
          from_wkt<P>("POINT(1 1)"),
-         from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)"),
-         "mppdf01");
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppi01");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "mppdf02");
+         from_wkt<MP>("MULTIPOINT(0 0)"),
+         "mppi02");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
          from_wkt<P>("POINT(1 1)"),
-         from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)"),
-         "mppdf03");
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppi03");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "mppdf04");
+         from_wkt<MP>("MULTIPOINT(0 0)"),
+         "mppi04");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(1 1)"),
-         from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)"),
-         "mppdf05");
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppi05");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(1 0)"),
-         from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "mppdf06");
+         from_wkt<MP>("MULTIPOINT(1 0)"),
+         "mppi06");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "mppdf07");
+         from_wkt<MP>("MULTIPOINT(0 0)"),
+         "mppi07");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT()"),
          from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(0 0)"),
-         "mppdf08");
+         "mppi08");
 }
 
 
-BOOST_AUTO_TEST_CASE( test_difference_point_multipoint )
+BOOST_AUTO_TEST_CASE( test_intersection_multipoint_multipoint )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** POINT / MULTIPOINT DIFFERENCE ***" << std::endl;
-    std::cout << std::endl;
-#endif
-
-    typedef point_type P;
-    typedef multi_point_type MP;
-
-    typedef test_set_op_of_pointlike_geometries
-        <
-            P, MP, MP, bg::overlay_difference
-        > tester;
-
-    tester::apply
-        (from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1)"),
-         from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1)"),
-         "pmpdf01");
-
-    tester::apply
-        (from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
-         "pmpdf02");
-
-    tester::apply
-        (from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "pmpdf03");
-}
-
-
-BOOST_AUTO_TEST_CASE( test_difference_multipoint_multipoint )
-{
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTIPOINT / MULTIPOINT DIFFERENCE ***" << std::endl;
+    std::cout << "*** MULTIPOINT / MULTIPOINT INTERSECTION ***" << std::endl;
     std::cout << std::endl;
 #endif
 
@@ -188,39 +142,44 @@ BOOST_AUTO_TEST_CASE( test_difference_multipoint_multipoint )
 
     typedef test_set_op_of_pointlike_geometries
         <
-            MP, MP, MP, bg::overlay_difference
+            MP, MP, MP, bg::overlay_intersection
         > tester;
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(2 2,3 3,0 0,0 0,2 2,1 1,1 1,1 0,1 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1,4 4)"),
-         from_wkt<MP>("MULTIPOINT(2 2,3 3,0 0,0 0,2 2)"),
-         from_wkt<MP>("MULTIPOINT(4 4)"),
-         "mpmpdf01");
+         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1,1 1)"),
+         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1,1 1)"),
+         "mpmpi01");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
          from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         "mpmpdf02");
-
-    tester::apply
-        (from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
-         from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
-         "mpmpdf03");
-
-    tester::apply
-        (from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
-         from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
+         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
+         "mpmpi02");
+
+    tester::apply
+        (from_wkt<MP>("MULTIPOINT()"),
+         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         "mpmpdf04");
+         "mpmpi03");
+
+    tester::apply
+        (from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
+         from_wkt<MP>("MULTIPOINT()"),
+         from_wkt<MP>("MULTIPOINT()"),
+         "mpmpi04");
 
     tester::apply
         (from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT()"),
-         "mpmpdf05");
+         "mpmpi05");
+
+    tester::apply
+        (from_wkt<MP>("MULTIPOINT(0 0,1 0,2 0,3 0,0 0,1 0,2 0)"),
+         from_wkt<MP>("MULTIPOINT(0 1,0 2,1 0,0 0,2 0)"),
+         from_wkt<MP>("MULTIPOINT(1 0,0 0,2 0)"),
+         "mpmpi06");
 }
+

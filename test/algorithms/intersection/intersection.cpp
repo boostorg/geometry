@@ -26,7 +26,7 @@
 
 #include <boost/geometry/util/rational.hpp>
 
-#include <algorithms/test_intersection.hpp>
+#include "test_intersection.hpp"
 #include <algorithms/test_overlay.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>

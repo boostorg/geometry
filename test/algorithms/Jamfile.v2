@@ -27,18 +27,12 @@ test-suite boost-geometry-algorithms
     [ run convert.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run covered_by.cpp ]
     [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run difference.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run difference_linear_linear.cpp ]
-    [ run difference_pl_pl.cpp ]
     [ run disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run disjoint_coverage.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run expand.cpp ]
     [ run for_each.cpp ]
-    [ run intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run intersection_linear_linear.cpp ]
-    [ run intersection_pl_pl.cpp ]
     [ run intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run is_simple.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run is_valid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
@@ -58,12 +52,8 @@ test-suite boost-geometry-algorithms
     [ run remove_spikes.cpp ]
     [ run reverse.cpp ]
     [ run simplify.cpp ]
-    [ run sym_difference_linear_linear.cpp ]
     [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run transform.cpp ]
-    [ run union.cpp                : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run union_linear_linear.cpp ]
-    [ run union_pl_pl.cpp ]
     [ run unique.cpp ]
     [ run within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run within_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
@@ -72,14 +62,11 @@ test-suite boost-geometry-algorithms
     [ run within_pointlike_xxx.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]    
     ;
 
-build-project buffer
-    ;
-    
-build-project detail
-    ;
-    
-build-project distance
-    ;
-
-build-project overlay
-    ;
+build-project buffer ;
+build-project detail ;
+build-project difference ;
+build-project distance ;
+build-project intersection ;
+build-project overlay ;
+build-project sym_difference ;
+build-project union ;

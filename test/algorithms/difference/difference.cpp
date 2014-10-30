@@ -25,7 +25,7 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <algorithms/test_difference.hpp>
+#include "test_difference.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
