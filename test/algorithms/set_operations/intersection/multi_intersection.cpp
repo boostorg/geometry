@@ -16,7 +16,7 @@
 
 // #define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 
-#include <algorithms/test_intersection.hpp>
+#include "test_intersection.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 

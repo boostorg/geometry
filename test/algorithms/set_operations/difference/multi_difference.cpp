@@ -23,7 +23,7 @@
 //#define BOOST_GEOMETRY_DEBUG_TRAVERSE
 
 
-#include <algorithms/test_difference.hpp>
+#include "test_difference.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 

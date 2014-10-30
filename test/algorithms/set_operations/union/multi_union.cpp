@@ -14,7 +14,7 @@
 // This multi_union currently contains no tests for double which then fail
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
-#include <algorithms/test_union.hpp>
+#include "test_union.hpp"
 #include <algorithms/test_overlay.hpp>
 #include <multi/algorithms/overlay/multi_overlay_cases.hpp>
 

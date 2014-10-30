@@ -13,7 +13,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/multi/geometries/multi_geometries.hpp>
 
-#include <algorithms/test_difference.hpp>
+#include "test_difference.hpp"
 
 
 template <typename P, bool ClockWise, bool Closed>
