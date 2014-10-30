@@ -27,8 +27,6 @@ test-suite boost-geometry-algorithms
     [ run convert.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run covered_by.cpp ]
     [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run disjoint_coverage.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run expand.cpp ]
@@ -45,28 +43,22 @@ test-suite boost-geometry-algorithms
     [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run perimeter.cpp ]
     [ run point_on_surface.cpp ]
-    [ run relate_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run relate_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run relate_linear_linear.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run relate_pointlike_xxx.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run remove_spikes.cpp ]
     [ run reverse.cpp ]
     [ run simplify.cpp ]
     [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run transform.cpp ]
     [ run unique.cpp ]
-    [ run within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run within_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run within_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run within_linear_linear.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run within_pointlike_xxx.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]    
     ;
 
 build-project buffer ;
 build-project detail ;
 build-project difference ;
+build-project disjoint ;
 build-project distance ;
 build-project intersection ;
 build-project overlay ;
+build-project relate ;
 build-project sym_difference ;
 build-project union ;
+build-project within ;

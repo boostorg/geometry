@@ -12,7 +12,7 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#include <algorithms/test_within.hpp>
+#include "test_within.hpp"
 
 
 #include <boost/geometry/geometries/geometries.hpp>

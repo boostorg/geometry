@@ -11,7 +11,7 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#include <algorithms/test_relate.hpp>
+#include "test_relate.hpp"
 
 //TEST
 //#include <to_svg.hpp>
