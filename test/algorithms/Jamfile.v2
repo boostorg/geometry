@@ -32,6 +32,22 @@ test-suite boost-geometry-algorithms
     [ run is_valid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run length.cpp ]
     [ run make.cpp ]
+    [ run multi_area.cpp ]
+    [ run multi_centroid.cpp ]
+    [ run multi_convert.cpp ]
+    [ run multi_convex_hull.cpp ]
+    [ run multi_correct.cpp ]
+    [ run multi_envelope.cpp ]
+    [ run multi_for_each.cpp ]
+    [ run multi_length.cpp ]
+    [ run multi_num_geometries.cpp ]
+    [ run multi_num_interior_rings.cpp ]
+    [ run multi_num_points.cpp ]
+    [ run multi_perimeter.cpp ]
+    [ run multi_reverse.cpp ]
+    [ run multi_simplify.cpp ]
+    [ run multi_transform.cpp ]
+    [ run multi_unique.cpp ]
     [ run num_geometries.cpp ]
     [ run num_interior_rings.cpp ]
     [ run num_points.cpp ]
@@ -48,5 +64,6 @@ test-suite boost-geometry-algorithms
 build-project buffer ;
 build-project detail ;
 build-project distance ;
+build-project overlay ;
 build-project relational_operations ;
 build-project set_operations ;
