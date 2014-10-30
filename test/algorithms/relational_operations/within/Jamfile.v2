@@ -16,6 +16,7 @@
 
 test-suite boost-geometry-algorithms-within
     :
+    [ run multi_within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run within.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run within_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run within_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]

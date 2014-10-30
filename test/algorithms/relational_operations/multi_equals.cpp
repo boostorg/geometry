@@ -6,7 +6,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <algorithms/test_equals.hpp>
+#include "test_equals.hpp"
 
 #include <boost/geometry/multi/algorithms/area.hpp>
 #include <boost/geometry/multi/algorithms/equals.hpp>

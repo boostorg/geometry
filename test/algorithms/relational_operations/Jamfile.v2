@@ -20,6 +20,10 @@ test-suite boost-geometry-algorithms-relational
     [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_covered_by.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     ;

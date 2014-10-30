@@ -13,7 +13,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <algorithms/test_intersects.hpp>
+#include "test_intersects.hpp"
 
 #include <boost/geometry.hpp>
 
