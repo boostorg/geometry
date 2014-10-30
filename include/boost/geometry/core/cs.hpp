@@ -23,7 +23,6 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -60,8 +59,7 @@ template <typename DegreeOrRadian>
 struct coordinate_system_units
 {
     BOOST_MPL_ASSERT_MSG
-        ((boost::is_same<DegreeOrRadian, geometry::degree>::value
-          || boost::is_same<DegreeOrRadian, geometry::radian>::value),
+        ((false),
          COORDINATE_SYSTEM_UNITS_MUST_BE_DEGREES_OR_RADIANS,
          (types<DegreeOrRadian>));
 };
