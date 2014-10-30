@@ -11,7 +11,7 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#include <algorithms/test_crosses.hpp>
+#include "test_crosses.hpp"
 
 template <typename P>
 void test_pl()

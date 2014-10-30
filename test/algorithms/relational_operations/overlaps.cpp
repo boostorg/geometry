@@ -11,7 +11,7 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#include <algorithms/test_overlaps.hpp>
+#include "test_overlaps.hpp"
 
 template <typename P>
 void test_box_box_2d()

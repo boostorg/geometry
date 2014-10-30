@@ -11,7 +11,7 @@
 #define BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
 
 #include <boost/geometry/geometry.hpp>
-#include "../set_ops/test_set_ops_linear_linear.hpp"
+#include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>
 #include <to_svg.hpp>
 

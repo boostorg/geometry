@@ -14,7 +14,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms
+test-suite boost-geometry-algorithms-relate
     :
     [ run relate_areal_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run relate_linear_areal.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]

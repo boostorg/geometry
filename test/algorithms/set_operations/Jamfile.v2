@@ -14,9 +14,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms
-    :
-    [ run difference.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
-    [ run difference_linear_linear.cpp ]
-    [ run difference_pl_pl.cpp ]
-    ;
+build-project difference ;
+build-project intersection ;
+build-project sym_difference ;
+build-project union ;

@@ -25,13 +25,9 @@ test-suite boost-geometry-algorithms
     [ run convex_hull.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run correct.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run convert.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run covered_by.cpp ]
-    [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run expand.cpp ]
     [ run for_each.cpp ]
-    [ run intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run is_simple.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run is_valid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run length.cpp ]
@@ -40,25 +36,17 @@ test-suite boost-geometry-algorithms
     [ run num_interior_rings.cpp ]
     [ run num_points.cpp ]
     [ run num_segments.cpp ]
-    [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run perimeter.cpp ]
     [ run point_on_surface.cpp ]
     [ run remove_spikes.cpp ]
     [ run reverse.cpp ]
     [ run simplify.cpp ]
-    [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
     [ run transform.cpp ]
     [ run unique.cpp ]
     ;
 
 build-project buffer ;
 build-project detail ;
-build-project difference ;
-build-project disjoint ;
 build-project distance ;
-build-project intersection ;
-build-project overlay ;
-build-project relate ;
-build-project sym_difference ;
-build-project union ;
-build-project within ;
+build-project relational_operations ;
+build-project set_operations ;

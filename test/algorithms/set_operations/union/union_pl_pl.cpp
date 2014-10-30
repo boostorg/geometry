@@ -20,7 +20,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "../set_ops/test_set_ops_pl_pl.hpp"
+#include "../test_set_ops_pl_pl.hpp"
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 

@@ -11,7 +11,7 @@
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-#include <algorithms/test_touches.hpp>
+#include "test_touches.hpp"
 
 template <typename P>
 void test_all()
