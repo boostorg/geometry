@@ -12,7 +12,6 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
 
 
 namespace bg = boost::geometry;
