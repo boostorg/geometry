@@ -150,13 +150,13 @@ class ConstPoint
 
     typedef typename coordinate_type<Geometry>::type ctype;
     typedef typename coordinate_system<Geometry>::type csystem;
-    typedef typename detail::coordinate_system_units_helper
-        <
-            csystem
-        >::type cunits;
+
+    // The following enum is used to fully instantiate the coordinate
+    // system class; this is needed in order to check the units passed
+    // to it for non-Cartesian coordinate systems.
+    enum { cs_check = sizeof(csystem) };
 
     enum { ccount = dimension<Geometry>::value };
-
 
     template <typename P, std::size_t Dimension, std::size_t DimensionCount>
     struct dimension_checker
