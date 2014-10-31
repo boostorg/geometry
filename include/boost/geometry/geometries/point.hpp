@@ -24,7 +24,6 @@
 #include <boost/mpl/int.hpp>
 #include <boost/static_assert.hpp>
 
-#include <boost/geometry/geometries/concepts/coordinate_system_units_helper.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
@@ -71,10 +70,10 @@ template
 class point
 {
 private:
-    typedef typename concept::detail::coordinate_system_units_helper
-        <
-            CoordinateSystem
-        >::type units;
+    // The following enum is used to fully instantiate the
+    // CoordinateSystem class and check the correctness of the units
+    // passed for non-Cartesian coordinate systems.
+    enum { cs_check = sizeof(CoordinateSystem) };
 
 public:
 
