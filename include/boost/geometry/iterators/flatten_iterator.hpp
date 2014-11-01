@@ -126,15 +126,15 @@ public:
         typename OtherAccessInnerEnd,
         typename OtherReference
     >
-    flatten_iterator operator=(flatten_iterator
-                               <
-                                   OtherOuterIterator,
-                                   OtherInnerIterator,
-                                   OtherValue,
-                                   OtherAccessInnerBegin,
-                                   OtherAccessInnerEnd,
-                                   OtherReference
-                               > const& other)
+    flatten_iterator & operator=(flatten_iterator
+                                 <
+                                     OtherOuterIterator,
+                                     OtherInnerIterator,
+                                     OtherValue,
+                                     OtherAccessInnerBegin,
+                                     OtherAccessInnerEnd,
+                                     OtherReference
+                                 > const& other)
     {
         static const bool are_conv
             = boost::is_convertible

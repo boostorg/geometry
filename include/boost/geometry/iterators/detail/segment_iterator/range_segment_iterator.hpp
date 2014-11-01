@@ -149,12 +149,12 @@ public:
         typename OtherValue,
         typename OtherReference
     >
-    range_segment_iterator operator=(range_segment_iterator
-                                     <
-                                         OtherRange,
-                                         OtherValue,
-                                         OtherReference
-                                     > const& other)
+    range_segment_iterator & operator=(range_segment_iterator
+                                       <
+                                           OtherRange,
+                                           OtherValue,
+                                           OtherReference
+                                       > const& other)
     {
         typedef typename range_segment_iterator
             <

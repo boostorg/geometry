@@ -96,13 +96,13 @@ public:
         typename OtherValue,
         typename OtherReference
     >
-    concatenate_iterator operator=(concatenate_iterator
-                                   <
-                                       OtherIt1,
-                                       OtherIt2,
-                                       OtherValue,
-                                       OtherReference
-                                   > const& other)
+    concatenate_iterator & operator=(concatenate_iterator
+                                     <
+                                         OtherIt1,
+                                         OtherIt2,
+                                         OtherValue,
+                                         OtherReference
+                                     > const& other)
     {
         static const bool are_conv
             = boost::is_convertible<OtherIt1, Iterator1>::value
