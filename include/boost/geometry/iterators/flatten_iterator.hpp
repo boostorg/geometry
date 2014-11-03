@@ -135,10 +135,8 @@ private:
 
     static inline bool empty(OuterIterator outer_it)
     {
-        return
-            AccessInnerBegin::apply(*outer_it)
-            ==
-            AccessInnerEnd::apply(*outer_it);
+        return AccessInnerBegin::apply(*outer_it)
+            == AccessInnerEnd::apply(*outer_it);
     }
 
     inline void advance_through_empty()
