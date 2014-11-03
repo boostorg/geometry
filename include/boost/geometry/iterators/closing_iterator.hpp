@@ -67,16 +67,6 @@ struct closing_iterator
         , m_index(0)
     {}
 
-    inline closing_iterator<Range>& operator=(closing_iterator<Range> const& source)
-    {
-        m_range = source.m_range;
-        m_iterator = source.m_iterator;
-        m_end = source.m_end;
-        m_size = source.m_size;
-        m_index = source.m_index;
-        return *this;
-    }
-
     typedef std::ptrdiff_t difference_type;
 
 private:
