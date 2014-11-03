@@ -16,7 +16,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "from_wkt.hpp"
+#include <from_wkt.hpp>
 #include "test_is_valid.hpp"
 
 

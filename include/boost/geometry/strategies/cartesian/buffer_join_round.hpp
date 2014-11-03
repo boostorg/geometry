@@ -69,34 +69,30 @@ private :
                 DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        PromotedType dx1 = get<0>(perp1) - get<0>(vertex);
-        PromotedType dy1 = get<1>(perp1) - get<1>(vertex);
-        PromotedType dx2 = get<0>(perp2) - get<0>(vertex);
-        PromotedType dy2 = get<1>(perp2) - get<1>(vertex);
+        PromotedType const dx1 = get<0>(perp1) - get<0>(vertex);
+        PromotedType const dy1 = get<1>(perp1) - get<1>(vertex);
+        PromotedType const dx2 = get<0>(perp2) - get<0>(vertex);
+        PromotedType const dy2 = get<1>(perp2) - get<1>(vertex);
 
-        BOOST_ASSERT(buffer_distance != 0);
-
-        dx1 /= buffer_distance;
-        dy1 /= buffer_distance;
-        dx2 /= buffer_distance;
-        dy2 /= buffer_distance;
-
-        PromotedType angle_diff = acos(dx1 * dx2 + dy1 * dy2);
-
-        PromotedType two = 2.0;
-        PromotedType steps = m_points_per_circle;
-        int n = boost::numeric_cast<int>(steps * angle_diff
-                    / (two * geometry::math::pi<PromotedType>()));
-
-        if (n <= 1)
-        {
-            return;
-        }
+        PromotedType const two = 2.0;
+        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
         PromotedType const angle1 = atan2(dy1, dx1);
-        PromotedType diff = angle_diff / PromotedType(n);
-        PromotedType a = angle1 - diff;
+        PromotedType angle2 = atan2(dy2, dx2);
+        while (angle2 > angle1)
+        {
+            angle2 -= two_pi;
+        }
 
+        // Divide the angle into an integer amount of steps to make it
+        // visually correct also for a low number of points / circle
+        int const n = static_cast<int>
+            (
+                m_points_per_circle * (angle1 - angle2) / two_pi
+            );
+
+        PromotedType const diff = (angle1 - angle2) / static_cast<PromotedType>(n);
+        PromotedType a = angle1 - diff;
         for (int i = 0; i < n - 1; i++, a -= diff)
         {
             Point p;

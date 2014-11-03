@@ -12,8 +12,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <set>
-#include <boost/range.hpp>
 
+#include <boost/core/ignore_unused.hpp>
+#include <boost/range.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -117,6 +118,8 @@ struct buffered_piece_collection
         point_type,
         RobustPolicy
     >::type robust_point_type;
+
+    // Robust ring/polygon type, always clockwise
     typedef geometry::model::ring<robust_point_type> robust_ring_type;
     typedef geometry::model::polygon<robust_point_type> robust_polygon_type;
 
@@ -392,32 +395,60 @@ struct buffered_piece_collection
                 // will never start a new ring from this type of points.
                 it->selectable_start = false;
             }
-
         }
     }
 
-    inline void check_remaining_points(int factor)
+    template <typename DistanceStrategy>
+    inline void check_point_in_original(buffer_turn_info_type& turn,
+            DistanceStrategy const& distance_strategy)
     {
-        // TODO: use partition
+        strategy::within::winding<robust_point_type> winding;
+
+        for (std::size_t i = 0; i < robust_polygons.size(); i++)
+        {
+            int const code = detail::within::point_in_geometry(turn.robust_point,
+                        robust_polygons[i], winding);
+
+            switch (code)
+            {
+                case 0 :
+                    // On border of original: always discard
+                    turn.location = location_discard;
+                    return;
+                case 1 :
+                    // Inside original
+                    if (distance_strategy.negative())
+                    {
+                        // For deflate: it is inside the (multi)polygon
+                        // OK, no action, we can return
+                    }
+                    else
+                    {
+                        // For inflate: it is inside, discard
+                        turn.location = location_discard;
+                    }
+                    return;
+            }
+        }
+
+        if (distance_strategy.negative())
+        {
+            // For deflate: it was not found in one of the polygons, discard
+            turn.location = location_discard;
+        }
+    }
+
+    template <typename DistanceStrategy>
+    inline void check_remaining_points(DistanceStrategy const& distance_strategy)
+    {
+        // TODO: partition: this one is, together with the overlay, quadratic
 
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
             if (it->location == location_ok)
             {
-                int code = -1;
-                for (std::size_t i = 0; i < robust_polygons.size(); i++)
-                {
-                    if (geometry::covered_by(it->robust_point, robust_polygons[i]))
-                    {
-                        code = 1;
-                        break;
-                    }
-                }
-                if (code * factor == 1)
-                {
-                    it->location = inside_original;
-                }
+                check_point_in_original(*it, distance_strategy);
             }
         }
     }
@@ -571,7 +602,11 @@ struct buffered_piece_collection
 
     inline void finish_ring(bool is_interior = false)
     {
-        BOOST_ASSERT(m_first_piece_index != -1);
+        if (m_first_piece_index == -1)
+        {
+            return;
+        }
+
         if (m_first_piece_index < static_cast<int>(boost::size(m_pieces)))
         {
             // If piece was added
@@ -628,6 +663,7 @@ struct buffered_piece_collection
 
         std::size_t const n = boost::size(offsetted_rings.back());
         pc.first_seg_id.segment_index = decrease_segment_index_by_one ? n - 1 : n;
+        pc.last_segment_index = pc.first_seg_id.segment_index;
 
         m_pieces.push_back(pc);
         return m_pieces.back();
@@ -724,10 +760,7 @@ struct buffered_piece_collection
     template <typename Range>
     inline void add_range_to_piece(piece& pc, Range const& range, bool add_front)
     {
-        if (boost::size(range) == 0u)
-        {
-            return;
-        }
+        BOOST_ASSERT(boost::size(range) != 0u);
 
         typename Range::const_iterator it = boost::begin(range);
 
@@ -750,7 +783,11 @@ struct buffered_piece_collection
     inline void add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
     {
         piece& pc = create_piece(type, decrease_segment_index_by_one);
-        add_range_to_piece(pc, range, offsetted_rings.back().empty());
+
+        if (boost::size(range) > 0u)
+        {
+            add_range_to_piece(pc, range, offsetted_rings.back().empty());
+        }
         finish_piece(pc);
     }
 
@@ -770,9 +807,9 @@ struct buffered_piece_collection
     {
         piece& pc = create_piece(type, true);
 
-        add_range_to_piece(pc, range, offsetted_rings.back().empty());
-        if (boost::size(range) > 0)
+        if (boost::size(range) > 0u)
         {
+            add_range_to_piece(pc, range, offsetted_rings.back().empty());
             finish_piece(pc, range.back(), p, range.front());
         }
         else
@@ -784,6 +821,8 @@ struct buffered_piece_collection
     template <typename EndcapStrategy, typename Range>
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
     {
+        boost::ignore_unused(strategy);
+
         if (range.empty())
         {
             return;

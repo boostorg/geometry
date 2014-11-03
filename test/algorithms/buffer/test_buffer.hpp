@@ -128,7 +128,7 @@ struct svg_visitor
                     color = 'r';
                     is_good = false;
                     break;
-                case bgdb::inside_original :
+                case bgdb::location_discard :
                     fill = "fill:rgb(0,0,255);";
                     color = 'b';
                     is_good = false;
@@ -285,6 +285,9 @@ struct svg_visitor
     template <typename PieceCollection>
     inline void apply(PieceCollection const& collection, int phase)
     {
+        // Comment next return if you want to see pieces, turns, etc.
+        return;
+
         if(phase == 0)
         {
             map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
@@ -362,12 +365,18 @@ template
     typename GeometryOut,
     typename JoinStrategy,
     typename EndStrategy,
+    typename DistanceStrategy,
+    typename SideStrategy,
+    typename PointStrategy,
     typename Geometry
 >
 void test_buffer(std::string const& caseid, Geometry const& geometry,
-            JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
+            JoinStrategy const& join_strategy,
+            EndStrategy const& end_strategy,
+            DistanceStrategy const& distance_strategy,
+            SideStrategy const& side_strategy,
+            PointStrategy const& point_strategy,
             bool check_self_intersections, double expected_area,
-            double distance_left, double distance_right,
             double tolerance,
             std::size_t* self_ip_count)
 {
@@ -386,11 +395,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         : boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
         : ""
         ;
-
-    if (distance_right < -998)
-    {
-        distance_right = distance_left;
-    }
 
     bg::model::box<point_type> envelope;
     bg::envelope(geometry, envelope);
@@ -411,7 +415,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         << string_from_type<coordinate_type>::name()
         << "_" << join_name
         << (end_name.empty() ? "" : "_") << end_name
-        << (distance_left < 0 && distance_right < 0 ? "_deflate" : "")
+        << (distance_strategy.negative() ? "_deflate" : "")
+        << (bg::point_order<GeometryOut>::value == bg::counterclockwise ? "_ccw" : "")
          // << "_" << point_buffer_count
         ;
 
@@ -426,10 +431,15 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     mapper_type mapper(svg, 1000, 1000);
 
     {
-        double d = std::abs(distance_left) + std::abs(distance_right);
-
         bg::model::box<point_type> box = envelope;
-        bg::buffer(box, box, d * (join_name == "miter" ? 2.0 : 1.1));
+        if (distance_strategy.negative())
+        {
+            bg::buffer(box, box, 1.0);
+        }
+        else
+        {
+            bg::buffer(box, box, 1.1 * distance_strategy.max_distance(join_strategy, end_strategy));
+        }
         mapper.add(box);
     }
 
@@ -437,19 +447,6 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 #else
     bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
-
-    bg::strategy::buffer::distance_asymmetric
-        <
-            coordinate_type
-        > 
-    distance_strategy(distance_left, distance_right);
-
-    bg::strategy::buffer::side_straight side_strategy;
-
-    // For (multi)points a buffer with 88 points is used for testing.
-    // More points will give a more precise result - expected area should be
-    // adapted then
-    bg::strategy::buffer::point_circle circle_strategy(88);
 
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
@@ -469,7 +466,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         side_strategy,
                         join_strategy,
                         end_strategy,
-                        circle_strategy,
+                        point_strategy,
                         rescale_policy,
                         visitor);
 
@@ -524,16 +521,24 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     // Map input geometry in green
     if (areal)
     {
-        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:2");
+        mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,64,0);stroke-width:2");
     }
     else
     {
         mapper.map(geometry, "opacity:0.5;stroke:rgb(0,128,0);stroke-width:10");
     }
 
+    // Map buffer in yellow (inflate) and with orange-dots (deflate)
     BOOST_FOREACH(GeometryOut const& polygon, buffered)
     {
-        mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        if (distance_strategy.negative())
+        {
+            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
+        }
+        else
+        {
+            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+        }
         post_map(polygon, mapper, rescale_policy);
     }
 #endif
@@ -595,10 +600,39 @@ void test_one(std::string const& caseid, std::string const& wkt,
         << std::endl;
 #endif
 
+
+    bg::strategy::buffer::side_straight side_strategy;
+    bg::strategy::buffer::point_circle circle_strategy(88);
+
+    bg::strategy::buffer::distance_asymmetric
+    <
+        typename bg::coordinate_type<Geometry>::type
+    > distance_strategy(distance_left,
+                        distance_right > -998 ? distance_right : distance_left);
+
     test_buffer<GeometryOut>
-            (caseid, g, join_strategy, end_strategy,
+            (caseid, g,
+            join_strategy, end_strategy,
+            distance_strategy, side_strategy, circle_strategy,
             check_self_intersections, expected_area,
-            distance_left, distance_right, tolerance, NULL);
+            tolerance, NULL);
+
+    // Also test symmetric distance strategy if right-distance is not specified
+    if (bg::math::equals(distance_right, -999))
+    {
+        bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<Geometry>::type
+        > sym_distance_strategy(distance_left);
+
+        test_buffer<GeometryOut>
+                (caseid + "_sym", g,
+                join_strategy, end_strategy,
+                sym_distance_strategy, side_strategy, circle_strategy,
+                check_self_intersections, expected_area,
+                tolerance, NULL);
+
+    }
 }
 
 // Version (currently for the Aimes test) counting self-ip's instead of checking
@@ -621,10 +655,52 @@ void test_one(std::string const& caseid, std::string const& wkt,
     bg::read_wkt(wkt, g);
     bg::correct(g);
 
-    test_buffer<GeometryOut>(caseid, g, join_strategy, end_strategy,
+    bg::strategy::buffer::distance_asymmetric
+    <
+        typename bg::coordinate_type<Geometry>::type
+    > distance_strategy(distance_left,
+                        distance_right > -998 ? distance_right : distance_left);
+
+    bg::strategy::buffer::point_circle circle_strategy(88);
+    bg::strategy::buffer::side_straight side_strategy;
+    test_buffer<GeometryOut>(caseid, g,
+            join_strategy, end_strategy,
+            distance_strategy, side_strategy, circle_strategy,
             false, expected_area,
-            distance_left, distance_right, tolerance, &self_ip_count);
+            tolerance, &self_ip_count);
 }
+
+template
+<
+    typename Geometry,
+    typename GeometryOut,
+    typename JoinStrategy,
+    typename EndStrategy,
+    typename DistanceStrategy,
+    typename SideStrategy,
+    typename PointStrategy
+>
+void test_with_custom_strategies(std::string const& caseid,
+        std::string const& wkt,
+        JoinStrategy const& join_strategy,
+        EndStrategy const& end_strategy,
+        DistanceStrategy const& distance_strategy,
+        SideStrategy const& side_strategy,
+        PointStrategy const& point_strategy,
+        double expected_area)
+{
+    namespace bg = boost::geometry;
+    Geometry g;
+    bg::read_wkt(wkt, g);
+    bg::correct(g);
+
+    test_buffer<GeometryOut>
+            (caseid, g,
+            join_strategy, end_strategy,
+            distance_strategy, side_strategy, point_strategy,
+            true, expected_area, 0.01, NULL);
+}
+
 
 
 #endif

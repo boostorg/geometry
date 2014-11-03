@@ -14,6 +14,8 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const square_simplex
+    = "POLYGON ((0 0,0 1,1 1,1 0,0 0))";
 static std::string const spike_simplex
     = "POLYGON ((0 0,1 5,3 3,5 5,3 3,5 1,0 0))";
 static std::string const chained_box
@@ -63,6 +65,21 @@ static std::string const bowl
 static std::string const triangle
     = "POLYGON((4 5,5 4,4 4,3 4,3 5,3 6,4 5))";
 
+// Triangle which caused acos in join_round to fail with larger side strategy
+static std::string const sharp_triangle
+    = "POLYGON((2 0,3 8,4 0,2 0))";
+
+
+static std::string const degenerate0
+    = "POLYGON(())";
+static std::string const degenerate1
+    = "POLYGON((5 5))";
+static std::string const degenerate2
+    = "POLYGON((5 5,5 5,5 5,5 5))";
+static std::string const degenerate3
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5))";
+
+
 // Real-life examples
 static std::string const county1
     = "POLYGON((-111.700 41.200 ,-111.681388 41.181739 ,-111.682453 41.181506 ,-111.684052 41.180804 ,-111.685295 41.180538 ,-111.686318 41.180776 ,-111.687517 41.181416 ,-111.688982 41.181520 ,-111.690670 41.181523 ,-111.692135 41.181460 ,-111.693646 41.182034 ,-111.695156 41.182204 ,-111.696489 41.182274 ,-111.697775 41.182075 ,-111.698974 41.181539 ,-111.700485 41.182348 ,-111.701374 41.182955 ,-111.700 41.200))";
@@ -98,11 +115,64 @@ static std::string const ticket_10398_4
 static std::string const ticket_10412
     = "POLYGON((897747.8 6270564.3,897764.3 6270569.7,897776.5 6270529.5,897768.1 6270527.1,897767.6 6270529.4,897756.3 6270525.8,897745.8 6270522.3,897752 6270502.9,897749.7 6270502,897750.7 6270499.1,897751.8 6270498.6,897752.3 6270499.3,897754.6 6270497.9,897755.8 6270500.2,897766.8 6270494.1,897765.6 6270491.5,897768.3 6270490.5,897770.9 6270491.5,897770.2 6270494.6,897780.1 6270497.5,897781 6270494.6,897786.8 6270496.6,897790.8 6270482.5,897785.3 6270480.7,897785.9 6270478.2,897768.9 6270473.2,897768.1 6270475.8,897766.1 6270475.2,897758.7 6270479.2,897753.2 6270481.8,897751.9 6270479,897746.5 6270481.9,897748 6270484.6,897745.2 6270486.1,897743.9 6270483.3,897741.4 6270484.7,897742.6 6270487.3,897739.4 6270488.9,897738.3 6270486.3,897735.6 6270487.8,897733.1 6270496.8,897731.2 6270502.7,897732.4 6270503.2,897731.5 6270506.1,897730.3 6270505.7,897725.8 6270520.2,897726.8 6270520.7,897726 6270523,897728 6270523.7,897726.3 6270529.6,897742.8 6270534.5,897741.2 6270539.9,897751.4 6270543.4,897750.7 6270546.4,897753.2 6270547.2,897747.8 6270564.3))";
 
+// CCW Polygons not working in 1.56
+static std::string const mysql_report_2014_10_24
+    = "POLYGON((0 0, 0 8, 8 8, 8 10, -10 10, -10 0, 0 0))";
+static std::string const mysql_report_2014_10_28_1
+    = "POLYGON((0 0,10 10,0 8,0 0))";
+static std::string const mysql_report_2014_10_28_2
+    = "POLYGON((1 1,10 10,0 8,1 1))";
+static std::string const mysql_report_2014_10_28_3
+    = "POLYGON((2 2,8 2,8 8,2 8,2 2))";
 
-template <typename P>
+
+class buffer_custom_side_strategy
+{
+public :
+    template
+    <
+        typename Point,
+        typename OutputRange,
+        typename DistanceStrategy
+    >
+    static inline void apply(
+                Point const& input_p1, Point const& input_p2,
+                bg::strategy::buffer::buffer_side_selector side,
+                DistanceStrategy const& distance,
+                OutputRange& output_range)
+    {
+        // Generate a block along (left or right of) the segment
+
+        double const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
+        double const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
+
+        // For normalization [0,1] (=dot product d.d, sqrt)
+        double const length = bg::math::sqrt(dx * dx + dy * dy);
+
+        if (bg::math::equals(length, 0))
+        {
+            return;
+        }
+
+        // Generate the perpendicular p, to the left (ccw), and use an adapted distance
+        double const d = 1.1 * distance.apply(input_p1, input_p2, side);
+        double const px = d * -dy / length;
+        double const py = d * dx / length;
+
+        output_range.resize(2);
+
+        bg::set<0>(output_range.front(), bg::get<0>(input_p1) + px);
+        bg::set<1>(output_range.front(), bg::get<1>(input_p1) + py);
+        bg::set<0>(output_range.back(), bg::get<0>(input_p2) + px);
+        bg::set<1>(output_range.back(), bg::get<1>(input_p2) + py);
+    }
+};
+
+
+template <bool Clockwise, typename P>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon_type;
+    typedef bg::model::polygon<P, Clockwise, true> polygon_type;
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
@@ -112,8 +182,22 @@ void test_all()
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 47.9408, 1.5);
     test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 52.8733, 1.5);
 
+    test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
+    test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 7.04043, -0.5);
+
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_round, end_flat, 14.0639, 1.5);
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_miter, end_flat, 16.0000, 1.5);
+
+    test_one<polygon_type, polygon_type>("square_simplex01", square_simplex, join_miter, end_flat, 0.6400, -0.1);
+    test_one<polygon_type, polygon_type>("square_simplex04", square_simplex, join_miter, end_flat, 0.0400, -0.4);
+    test_one<polygon_type, polygon_type>("square_simplex05", square_simplex, join_miter, end_flat, 0.0, -0.5);
+    test_one<polygon_type, polygon_type>("square_simplex06", square_simplex, join_miter, end_flat, 0.0, -0.6);
+
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 14.5616, 0.5);
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 16.3861, 0.5);
+
+    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 0.777987, -0.5);
+    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 0.724208, -0.5);
 
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_round, end_round, 50.3633, 1.5);
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_miter, end_flat, 51.5509, 1.5);
@@ -154,13 +238,13 @@ void test_all()
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 46.3541, 1.2);
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 45.0537, 1.2);
 
-    // TODO: fix, the buffered pieces are currently counterclockwise, that should be reversed
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_round, end_flat, 7.25523322189147, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_round, end_flat, 1.37375487490664, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_miter, end_flat, 0, -1.2);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_round, end_flat, 0, -1.2);
+    // Indentation - deflated
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_round, end_flat, 7.25523322189147, -0.4);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_round, end_flat, 1.37375487490664, -0.8);
+    test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 0, -1.2);
+    test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 0, -1.2);
 
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 53.648, 0.6);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 52.820, 0.6);
@@ -175,10 +259,19 @@ void test_all()
     test_one<polygon_type, polygon_type>("donut_simplex16", donut_simplex, join_miter, end_flat, 93.777, 1.6);
     test_one<polygon_type, polygon_type>("donut_simplex16", donut_simplex, join_round, end_flat, 87.933, 1.6);
 
+    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_miter, end_flat, 19.7636, -0.3);
+    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_round, end_flat, 19.8861, -0.3);
+    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
+    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
+
     test_one<polygon_type, polygon_type>("donut_diamond1", donut_diamond, join_miter, end_flat, 280.0, 1.0);
     test_one<polygon_type, polygon_type>("donut_diamond4", donut_diamond, join_miter, end_flat, 529.0, 4.0);
     test_one<polygon_type, polygon_type>("donut_diamond5", donut_diamond, join_miter, end_flat, 625.0, 5.0);
     test_one<polygon_type, polygon_type>("donut_diamond6", donut_diamond, join_miter, end_flat, 729.0, 6.0);
+
+    test_one<polygon_type, polygon_type>("donut_diamond1", donut_diamond, join_miter, end_flat, 122.0417, -1.0);
+    test_one<polygon_type, polygon_type>("donut_diamond2", donut_diamond, join_miter, end_flat, 56.3750, -2.0);
+    test_one<polygon_type, polygon_type>("donut_diamond3", donut_diamond, join_miter, end_flat, 17.7084, -3.0);
 
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_miter, end_flat, 28.265, 0.4);
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_round, end_flat, 27.039, 0.4);
@@ -210,6 +303,11 @@ void test_all()
     test_one<polygon_type, polygon_type>("fork_c1", fork_c, join_miter, end_flat, 152, 1);
     test_one<polygon_type, polygon_type>("triangle", triangle, join_miter, end_flat, 14.6569, 1.0);
 
+    test_one<polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_round, 0.0, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate3", degenerate3, join_round, end_round, 143.1395, 1.0);
+
     test_one<polygon_type, polygon_type>("gammagate2", gammagate, join_miter, end_flat, 130, 2);
 
     test_one<polygon_type, polygon_type>("flower1", flower, join_miter, end_flat, 67.614, 0.1);
@@ -233,6 +331,9 @@ void test_all()
     test_one<polygon_type, polygon_type>("flower50", flower, join_round, end_flat, 93.680, 0.50);
     test_one<polygon_type, polygon_type>("flower55", flower, join_round, end_flat, 96.580, 0.55);
     test_one<polygon_type, polygon_type>("flower60", flower, join_round, end_flat, 99.408, 0.60);
+
+    // Flower - deflated
+    test_one<polygon_type, polygon_type>("flower60", flower, join_round, end_flat, 19.3210, -0.60);
 
     // Saw
     {
@@ -288,6 +389,8 @@ void test_all()
     }
     test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, 0.01);
     test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, 0.01);
+    test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, -0.01);
+    test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, -0.01);
 
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.39121246337891, 10.0);
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.45314788818359, 10.0);
@@ -310,23 +413,20 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_miter, end_flat, 45567.3875694274902, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
     test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.4187, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 917.9747, 15.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 1534.4795, 20.0);
 
+    // These cases differ a bit based on point order (TODO: find out / describe why)
+    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, Clockwise ? 917.9747 : 917.996, 15.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, Clockwise ? 1534.4795 : 1534.508, 20.0);
 
-    // Negative buffers making polygons smaller
-    test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
-    test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 7.04043, -0.5);
-    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 0.777987, -0.5);
-    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 0.724208, -0.5);
+    // Parcel - deflated
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 1571.9024, -10.0);
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 1473.7325, -10.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_miter, end_flat, 19.7636, -0.3);
-    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_round, end_flat, 19.8861, -0.3);
-    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
-    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
-
+    // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 697.7798, 2.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 1470.8096, 8.4, -999, false);
@@ -344,8 +444,67 @@ void test_all()
     test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 819.1406, 9.1, -999, false);
 
     test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, -999, false);
+
+    // Tickets - deflated
+    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 404.3936, -0.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 246.7329, -2.5);
+
+    {
+        bg::strategy::buffer::join_round join_round32(32);
+        bg::strategy::buffer::end_round end_round32(32);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24,
+            join_round32, end_round32, 174.902, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_1", mysql_report_2014_10_28_1,
+            join_round32, end_round32, 75.46, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_2", mysql_report_2014_10_28_2,
+            join_round32, end_round32, 69.117, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
+            join_round32, end_round32, 63.121, 1.0);
+    }
+
+
+    {
+        bg::strategy::buffer::join_round join_round12(12);
+        buffer_custom_side_strategy side_strategy;
+        bg::strategy::buffer::point_circle point_strategy;
+        bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<P>::type
+        > distance_strategy(1.0);
+
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle",
+                sharp_triangle,
+                join_round12, end_flat, distance_strategy, side_strategy, point_strategy,
+                31.0721);
+    }
+
 }
 
+template
+<
+    typename InputPoint,
+    typename OutputPoint,
+    bool InputClockwise,
+    bool OutputClockwise,
+    bool InputClosed,
+    bool OutputClosed
+>
+void test_mixed()
+{
+    typedef bg::model::polygon<InputPoint, InputClockwise, InputClosed> input_polygon_type;
+    typedef bg::model::polygon<OutputPoint, OutputClockwise, OutputClosed> output_polygon_type;
+
+    bg::strategy::buffer::join_round join_round(12);
+    bg::strategy::buffer::end_flat end_flat;
+
+    std::ostringstream name;
+    name << "mixed_" << std::boolalpha
+        << InputClockwise << "_" << OutputClockwise
+        << "_" << InputClosed << "_" << OutputClosed;
+
+    test_one<input_polygon_type, output_polygon_type>(name.str(),
+            simplex, join_round, end_flat, 47.4831, 1.5);
+}
 
 #ifdef HAVE_TTMATH
 #include <ttmath_stub.hpp>
@@ -353,8 +512,28 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
-    //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-    
+    typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
+
+    test_all<true, dpoint>();
+    test_all<false, dpoint>();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+
+    test_mixed<dpoint, dpoint, false, false, true, true>();
+    test_mixed<dpoint, dpoint, false, true, true, true>();
+    test_mixed<dpoint, dpoint, true, false, true, true>();
+    test_mixed<dpoint, dpoint, true, true, true, true>();
+
+    test_mixed<dpoint, dpoint, false, false, false, true>();
+    test_mixed<dpoint, dpoint, false, true, false, true>();
+    test_mixed<dpoint, dpoint, true, false, false, true>();
+    test_mixed<dpoint, dpoint, true, true, false, true>();
+
+#ifdef HAVE_TTMATH
+    test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
+#endif
+
+#endif
+
     return 0;
 }

@@ -72,6 +72,16 @@ public:
         : m_outer_it(outer_end), m_outer_end(outer_end)
     {}
 
+    flatten_iterator & operator=(flatten_iterator const& other)
+    {
+        m_outer_it = other.m_outer_it;
+        m_outer_end = other.m_outer_end;
+        // avoid assigning an iterator having singular value
+        if ( other.m_outer_it != other.m_outer_end )
+            m_inner_it = other.m_inner_it;
+        return *this;
+    }
+
     template
     <
         typename OtherOuterIterator, typename OtherInnerIterator,
@@ -116,15 +126,15 @@ public:
         typename OtherAccessInnerEnd,
         typename OtherReference
     >
-    flatten_iterator operator=(flatten_iterator
-                               <
-                                   OtherOuterIterator,
-                                   OtherInnerIterator,
-                                   OtherValue,
-                                   OtherAccessInnerBegin,
-                                   OtherAccessInnerEnd,
-                                   OtherReference
-                               > const& other)
+    flatten_iterator & operator=(flatten_iterator
+                                 <
+                                     OtherOuterIterator,
+                                     OtherInnerIterator,
+                                     OtherValue,
+                                     OtherAccessInnerBegin,
+                                     OtherAccessInnerEnd,
+                                     OtherReference
+                                 > const& other)
     {
         static const bool are_conv
             = boost::is_convertible
@@ -142,7 +152,9 @@ public:
              
         m_outer_it = other.m_outer_it;
         m_outer_end = other.m_outer_end;
-        m_inner_it = other.m_inner_it;
+        // avoid assigning an iterator having singular value
+        if ( other.m_outer_it != other.m_outer_end )
+            m_inner_it = other.m_inner_it;
         return *this;
     }
 

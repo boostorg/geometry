@@ -35,7 +35,7 @@ namespace detail { namespace buffer
 
 enum intersection_location_type
 {
-    location_ok, inside_buffer, inside_original
+    location_ok, inside_buffer, location_discard
 };
 
 class backtrack_for_buffer
