@@ -22,12 +22,14 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
 namespace boost { namespace geometry
 {
@@ -99,11 +101,6 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
     }
 };
 
-// Many things to do. Point is easy, other geometries require self intersections
-// For point, note that it should output as a polygon (like the rest). Buffers
-// of a set of geometries are often lateron combined using a "dissolve" operation.
-// Two points close to each other get a combined kidney shaped buffer then.
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
@@ -174,7 +171,6 @@ struct buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \param geometry_out \param_geometry
 \param distance The distance to be used for the buffer
 \param chord_length (optional) The length of the chord's in the generated arcs around points or bends
-\note Currently only implemented for box, the trivial case, but still useful
 
 \qbk{[include reference/algorithms/buffer.qbk]}
  */
@@ -198,7 +194,7 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \param geometry \param_geometry
 \param distance The distance to be used for the buffer
 \param chord_length (optional) The length of the chord's in the generated arcs
-    around points or bends
+    around points or bends (RESERVED, NOT YET USED)
 \return \return_calc{buffer}
  */
 template <typename Output, typename Input, typename Distance>
@@ -213,6 +209,73 @@ Output return_buffer(Input const& geometry, Distance const& distance, Distance c
 
     return geometry_out;
 }
+
+/*!
+\brief \brief_calc{buffer}
+\ingroup buffer
+\details \details_calc{buffer, \det_buffer}.
+\tparam GeometryIn \tparam_geometry
+\tparam MultiPolygon \tparam_geometry{MultiPolygon}
+\tparam DistanceStrategy A strategy defining distance (or radius)
+\tparam SideStrategy A strategy defining creation along sides
+\tparam JoinStrategy A strategy defining creation around convex corners
+\tparam EndStrategy A strategy defining creation at linestring ends
+\tparam PointStrategy A strategy defining creation around points
+\param geometry_in \param_geometry
+\param geometry_out output multi polygon (or std:: collection of polygons),
+    will contain a buffered version of the input geometry
+\param distance_strategy The distance strategy to be used
+\param side_strategy The side strategy to be used
+\param join_strategy The join strategy to be used
+\param end_strategy The end strategy to be used
+\param point_strategy The point strategy to be used
+
+\qbk{distinguish,with strategies}
+\qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
+ */
+template
+<
+    typename GeometryIn,
+    typename MultiPolygon,
+    typename DistanceStrategy,
+    typename SideStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
+    typename PointStrategy
+>
+inline void buffer(GeometryIn const& geometry_in,
+                MultiPolygon& geometry_out,
+                DistanceStrategy const& distance_strategy,
+                SideStrategy const& side_strategy,
+                JoinStrategy const& join_strategy,
+                EndStrategy const& end_strategy,
+                PointStrategy const& point_strategy)
+{
+    typedef typename boost::range_value<MultiPolygon>::type polygon_type;
+    concept::check<GeometryIn const>();
+    concept::check<polygon_type>();
+
+    typedef typename point_type<GeometryIn>::type point_type;
+    typedef typename rescale_policy_type<point_type>::type rescale_policy_type;
+
+    geometry_out.clear();
+
+    model::box<point_type> box;
+    envelope(geometry_in, box);
+    buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
+
+    rescale_policy_type rescale_policy
+            = boost::geometry::get_rescale_policy<rescale_policy_type>(box);
+
+    detail::buffer::buffer_inserter<polygon_type>(geometry_in, std::back_inserter(geometry_out),
+                distance_strategy,
+                side_strategy,
+                join_strategy,
+                end_strategy,
+                point_strategy,
+                rescale_policy);
+}
+
 
 }} // namespace boost::geometry
 

@@ -27,6 +27,7 @@ exe assign_points : assign_points.cpp ;
 # exe assign_point_from_index : assign_point_from_index.cpp ;
 # exe assign_point_to_index : assign_point_to_index.cpp ;
 
+exe buffer_with_strategies : buffer_with_strategies.cpp ;
 exe centroid : centroid.cpp ;
 exe clear : clear.cpp ;
 exe comparable_distance : comparable_distance.cpp ;
@@ -50,6 +51,10 @@ exe intersection_segment : intersection_segment.cpp ;
 
 exe intersects_linestring : intersects_linestring.cpp ;
 
+exe is_simple : is_simple.cpp ;
+
+exe is_valid : is_valid.cpp ;
+
 exe length : length.cpp ;
 exe length_with_strategy : length_with_strategy.cpp ;
 
@@ -61,6 +66,7 @@ exe make_inverse : make_inverse.cpp ;
 exe num_geometries : num_geometries.cpp ;
 exe num_interior_rings : num_interior_rings.cpp ;
 exe num_points : num_points.cpp ;
+exe num_segments : num_segments.cpp ;
 
 exe return_envelope : return_envelope.cpp ;
 

@@ -41,7 +41,7 @@ void test_expand(Box& box,
 
     BOOST_CHECK_EQUAL(to_dsv(box), expected);
 
-#if !defined(GEOMETRY_TEST_DEBUG)
+#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
     bg::expand(box, boost::variant<Geometry>(geometry));
 
     BOOST_CHECK_EQUAL(to_dsv(box), expected);
@@ -60,7 +60,7 @@ void test_expand_other_strategy(Box& box,
 
     BOOST_CHECK_EQUAL(to_dsv(box), expected);
 
-#if !defined(GEOMETRY_TEST_DEBUG)
+#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
     bg::expand(box, boost::variant<Geometry>(geometry));
 
     BOOST_CHECK_EQUAL(to_dsv(box), expected);

@@ -17,9 +17,11 @@
 [include reference/status/distance_status.qbk]
 
 [heading Complexity]
-Linear
+For point to geometry: linear
 
-For multi-geometry to multi-geometry: currently quadratic
+For multi-point to ring/polygon/multi-polygon: currently quadratic
+
+For all other geometry combinations: linearithmic
 
 [heading Example]
 [distance]

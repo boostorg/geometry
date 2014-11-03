@@ -245,10 +245,6 @@ struct get_turn_info_for_endpoint
         if ( ip_count == 0 )
             return false;
 
-        int segment_index0 = tp_model.operations[0].seg_id.segment_index;
-        int segment_index1 = tp_model.operations[1].seg_id.segment_index;
-        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
-
         if ( !is_p_first && !is_p_last && !is_q_first && !is_q_last )
             return false;
 
@@ -612,7 +608,6 @@ struct get_turn_info_for_endpoint
         // If they turn to same side (not opposite sides)
         if ( ! base_turn_handler::opposite(side_pk_p, side_qk_p) )
         {
-            int const side_pk_q2 = side.pk_wrt_q2();
             // If pk is left of q2 or collinear: p: union, q: intersection
             if ( side_pk_q2 != -1 )
             {

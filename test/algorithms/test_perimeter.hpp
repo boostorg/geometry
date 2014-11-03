@@ -25,7 +25,7 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter)
 {
     BOOST_AUTO(perimeter, bg::perimeter(geometry));
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::ostringstream out;
     out << typeid(typename bg::coordinate_type<Geometry>::type).name()
         << std::endl
@@ -48,7 +48,7 @@ void test_geometry(std::string const& wkt, double expected_perimeter)
     boost::variant<Geometry> v(geometry);
 
     test_perimeter(geometry, expected_perimeter);
-#if !defined(GEOMETRY_TEST_DEBUG)
+#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
     test_perimeter(v, expected_perimeter);
 #endif
 }

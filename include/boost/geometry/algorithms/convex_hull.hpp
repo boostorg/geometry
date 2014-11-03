@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -21,6 +26,7 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -44,7 +50,7 @@ namespace boost { namespace geometry
 namespace detail { namespace convex_hull
 {
 
-template <order_selector Order>
+template <order_selector Order, closure_selector Closure>
 struct hull_insert
 {
 
@@ -57,7 +63,7 @@ struct hull_insert
         typename Strategy::state_type state;
 
         strategy.apply(geometry, state);
-        strategy.result(state, out, Order == clockwise);
+        strategy.result(state, out, Order == clockwise, Closure != open);
         return out;
     }
 };
@@ -70,7 +76,8 @@ struct hull_to_geometry
     {
         hull_insert
             <
-                geometry::point_order<OutputGeometry>::value
+                geometry::point_order<OutputGeometry>::value,
+                geometry::closure<OutputGeometry>::value
             >::apply(geometry,
                 std::back_inserter(
                     // Handle linestring, ring and polygon the same:
@@ -124,9 +131,9 @@ struct convex_hull<Box, box_tag>
 
 
 
-template <order_selector Order>
+template <order_selector Order, closure_selector Closure>
 struct convex_hull_insert
-    : detail::convex_hull::hull_insert<Order>
+    : detail::convex_hull::hull_insert<Order, Closure>
 {};
 
 
@@ -171,7 +178,8 @@ struct convex_hull_insert
         BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
 
         return dispatch::convex_hull_insert<
-                   geometry::point_order<Geometry>::value
+                   geometry::point_order<Geometry>::value,
+                   geometry::closure<Geometry>::value
                >::apply(geometry, out, strategy);
     }
 
@@ -189,7 +197,7 @@ struct convex_hull_insert
     }
 };
 
-}; // namespace resolve_strategy
+} // namespace resolve_strategy
 
 
 namespace resolve_variant {

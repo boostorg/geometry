@@ -21,31 +21,31 @@ static std::string const multipoint_a = "MULTIPOINT((39 44),(38 37),(41 29),(15 
 static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60),(10 4),(75 68),(61 68),(75 62),(92 26),(74 6),(67 54),(20 43),(63 30),(45 7))";
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
-    //std::cout << typeid(bg::coordinate_type<P>::type).name() << std::endl;
-
-    namespace buf = bg::strategy::buffer;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_point<P> multi_point_type;
 
-	double const pi = boost::geometry::math::pi<double>();
+    bg::strategy::buffer::join_miter join_miter;
+    bg::strategy::buffer::end_flat end_flat;
 
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("simplex1", simplex, 2.0 * pi, 1.0, 1.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("simplex2", simplex, 22.8372, 2.0, 2.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("simplex3", simplex, 44.5692, 3.0, 3.0);
+    double const pi = boost::geometry::math::pi<double>();
 
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("three1", three, 3.0 * pi, 1.0, 1.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("three2", three, 36.7592, 2.0, 2.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("three19", three, 33.6914, 1.9, 1.9);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("three21", three, 39.6394, 2.1, 2.1);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("three3", three, 65.533, 3.0, 3.0);
+    test_one<multi_point_type, polygon>("simplex1", simplex, join_miter, end_flat, 2.0 * pi, 1.0, 1.0);
+    test_one<multi_point_type, polygon>("simplex2", simplex, join_miter, end_flat, 22.8372, 2.0, 2.0);
+    test_one<multi_point_type, polygon>("simplex3", simplex, join_miter, end_flat, 44.5692, 3.0, 3.0);
 
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("multipoint_a", multipoint_a, 2049.98, 14.0, 14.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("multipoint_b", multipoint_b, 7109.88, 15.0, 15.0);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("multipoint_b1", multipoint_b, 6911.89, 14.7, 14.7);
-    test_one<multi_point_type, buf::join_miter, buf::end_round, polygon>("multipoint_b2", multipoint_b, 7174.79, 15.1, 15.1);
+    test_one<multi_point_type, polygon>("three1", three, join_miter, end_flat, 3.0 * pi, 1.0, 1.0);
+    test_one<multi_point_type, polygon>("three2", three, join_miter, end_flat, 36.7592, 2.0, 2.0);
+    test_one<multi_point_type, polygon>("three19", three, join_miter, end_flat, 33.6914, 1.9, 1.9);
+    test_one<multi_point_type, polygon>("three21", three, join_miter, end_flat, 39.6394, 2.1, 2.1);
+    test_one<multi_point_type, polygon>("three3", three, join_miter, end_flat, 65.533, 3.0, 3.0);
+
+    test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join_miter, end_flat, 2049.98, 14.0, 14.0);
+    test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join_miter, end_flat, 7109.88, 15.0, 15.0);
+    test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join_miter, end_flat, 6911.89, 14.7, 14.7);
+    test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join_miter, end_flat, 7174.79, 15.1, 15.1);
 }
 
 template 
@@ -61,10 +61,6 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
 
     typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
     typedef typename bg::point_type<Geometry>::type point_type;
-
-    typedef typename bg::ring_type<GeometryOut>::type ring_type;
-
-	typedef typename bg::tag<Geometry>::type tag;
 
     // extern int point_buffer_count;
     std::ostringstream complete;
@@ -118,7 +114,8 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(geometry);
 
-    bg::buffer_inserter<GeometryOut>(geometry, std::back_inserter(buffered),
+    bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
+                        std::back_inserter(buffered),
                         distance_strategy, 
                         join_strategy,
                         end_strategy,
@@ -186,9 +183,8 @@ void test_growth(int n, int distance_count)
 
 int test_main(int, char* [])
 {
-    //std::cout << std::setprecision(6);
-    //test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
 
 
 #ifdef BOOST_GEOMETRY_BUFFER_TEST_GROWTH

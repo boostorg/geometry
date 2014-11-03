@@ -24,6 +24,7 @@
 #include <vector>
 #include <list>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/assign/std/vector.hpp>
@@ -133,7 +134,7 @@ struct test_flatten_iterator
             
         BOOST_CHECK( *inner == new_value );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
         std::cout << "modified 1st element of 1st non-empty "
                   << "inner container:" << std::endl;
@@ -151,7 +152,9 @@ struct test_flatten_iterator
                              std::string const& case_id,
                              std::string const& container_id)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+        boost::ignore_unused(case_id, container_id);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::stringstream sstream;
         sstream << case_id << " [" << container_id << "]";
 
@@ -219,7 +222,7 @@ struct test_flatten_iterator
         test_size(begin, end, combined);
         test_size(const_begin, const_end, combined);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_nested_container(std::cout, c.begin(), c.end(), "nested    :")
             << std::endl;
         print_container(std::cout, begin, end, "flattened :")
@@ -244,7 +247,7 @@ struct test_flatten_iterator
 
         // test std::count_if / std::remove_if
         test_using_remove_if(begin, end, combined);
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "====================" << std::endl << std::endl;
 #endif
     }
@@ -339,7 +342,7 @@ inline void test_case_all_containers(std::string const& case_id)
     typedef typename std::list<std::vector<int> > LV;
     typedef typename std::list<std::list<int> > LL;
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
 #endif
     test_case_per_container<CaseNumber>::template apply<VV>(case_id, "VV");
@@ -347,7 +350,7 @@ inline void test_case_all_containers(std::string const& case_id)
     test_case_per_container<CaseNumber>::template apply<LV>(case_id, "LV");
     test_case_per_container<CaseNumber>::template apply<LL>(case_id, "LL");
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "********************************************************"
               << std::endl << std::endl;

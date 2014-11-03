@@ -15,6 +15,7 @@
 #include <iterator>
 #include <limits>
 
+#include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/is_integral.hpp>
@@ -199,7 +200,7 @@ struct point_container_parser
         }
 
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        assert(num_points <= boost::uint32_t( (std::numeric_limits<size_type>::max)() ) );
+        BOOST_ASSERT(num_points <= boost::uint32_t( (std::numeric_limits<size_type>::max)() ) );
 
         size_type const container_size = static_cast<size_type>(num_points);
         size_type const point_size = dimension<point_type>::value * sizeof(double);
@@ -248,7 +249,7 @@ struct linestring_parser
             return false;
         }
 
-        assert(it != end);
+        BOOST_ASSERT(it != end);
         return point_container_parser<L>::parse(it, end, linestring, order);
     }
 };

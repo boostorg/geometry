@@ -10,7 +10,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
 
+#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
 namespace boost { namespace geometry
 {
@@ -24,54 +27,53 @@ namespace detail { namespace buffer
 // TODO: once change this to proper strategy
 // It is different from current segment intersection because these are not segments but lines
 // If we have the Line concept, we can create a strategy
-template <typename Point, typename Line1, typename Line2 = Line1>
+// Assumes a convex corner
 struct line_line_intersection
 {
-    template <typename A, typename B, typename C, typename D>
-    static inline A det(A const& a, B const& b, C const& c, D const& d)
-    {
-        return a * d - b * c;
-    }
 
-    static inline bool apply(Line1 const& line1, Line2 const& line2, Point& p)
+    template <typename Point>
+    static inline strategy::buffer::join_selector apply(Point const& pi, Point const& pj,
+        Point const& qi, Point const& qj, Point& ip)
     {
         // See http://mathworld.wolfram.com/Line-LineIntersection.html
         typedef typename coordinate_type<Point>::type coordinate_type;
-        coordinate_type x1 = get<0,0>(line1), y1 = get<0,1>(line1);
-        coordinate_type x2 = get<1,0>(line1), y2 = get<1,1>(line1);
-        coordinate_type x3 = get<0,0>(line2), y3 = get<0,1>(line2);
-        coordinate_type x4 = get<1,0>(line2), y4 = get<1,1>(line2);
 
-        coordinate_type denominator = det(x1 - x2, y1 - y2, x3 - x4, y3 - y4);
+        coordinate_type const denominator
+            = determinant<coordinate_type>(get<0>(pi) - get<0>(pj),
+                get<1>(pi) - get<1>(pj),
+                get<0>(qi) - get<0>(qj),
+                get<1>(qi) - get<1>(qj));
 
-        // TODO: use something else then denominator (sides?) to determine this.
+        // Even if the corner was checked before (so it is convex now), that
+        // was done on the original geometry. This function runs on the buffered
+        // geometries, where sides are generated and might be slightly off. In
+        // Floating Point, that slightly might just exceed the limit and we have
+        // to check it again.
 
-        // If denominator is zero, segments are parallel.
-        // We have context information, so know that it should then
-        // be the case that line1.p2 == line2.p1, and that is the
-        // intersection point.
-        if (geometry::math::equals(denominator, 0.0))
+        // For round joins, it will not be used at all.
+        // For miter joints, there is a miter limit
+        // If segments are parallel/collinear we must be distinguish two cases:
+        // they continue each other, or they form a spike
+        if (math::equals(denominator, coordinate_type()))
         {
-            set<0>(p, x2);
-            set<1>(p, y2);
-            return false;
+            return parallel_continue(get<0>(qj) - get<0>(qi),
+                                get<1>(qj) - get<1>(qi),
+                                get<0>(pj) - get<0>(pi),
+                                get<1>(pj) - get<1>(pi))
+                ? strategy::buffer::join_continue
+                : strategy::buffer::join_spike
+                ;
         }
 
-        coordinate_type d1 = det(x1, y1, x2, y2);
-        coordinate_type d2 = det(x3, y3, x4, y4);
-        coordinate_type px = det(d1, x1 - x2, d2, x3 - x4) / denominator;
-        coordinate_type py = det(d1, y1 - y2, d2, y3 - y4) / denominator;
+        coordinate_type d1 = determinant<coordinate_type>(get<0>(pi), get<1>(pi), get<0>(pj), get<1>(pj));
+        coordinate_type d2 = determinant<coordinate_type>(get<0>(qi), get<1>(qi), get<0>(qj), get<1>(qj));
 
-        set<0>(p, px);
-        set<1>(p, py);
+        double const multiplier = 1.0 / denominator;
 
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
-        if (geometry::math::abs(denominator) < 1.0e-7)
-        {
-            std::cout << "small " << denominator << std::endl;
-        }
-#endif
-        return geometry::math::abs(denominator) > 1.0e-7;
+        set<0>(ip, determinant<coordinate_type>(d1, get<0>(pi) - get<0>(pj), d2, get<0>(qi) - get<0>(qj)) * multiplier);
+        set<1>(ip, determinant<coordinate_type>(d1, get<1>(pi) - get<1>(pj), d2, get<1>(qi) - get<1>(qj)) * multiplier);
+
+        return strategy::buffer::join_convex;
     }
 };
 

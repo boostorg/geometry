@@ -144,8 +144,10 @@ int main(int argc, char** argv)
         }
 
         // Set output style
-        if ( "alt" == output_style )
+        if ("alt" == output_style)
+        {
             config.output_style = configuration::alt;
+        }
 
         // Read files into strings
         std::string xml_string = file_to_string(filename);
@@ -221,8 +223,10 @@ int main(int argc, char** argv)
                 quickbook_output_alt(doc.cos, config, std::cout);
             }
 
-            if ( !doc.group_id.empty() )
+            if (! doc.group_id.empty())
+            {
                 quickbook_output_alt(doc, config, std::cout);
+            }
         }
     }
     catch(std::exception const& e)

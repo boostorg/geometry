@@ -11,13 +11,13 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 
 
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 namespace boost { namespace geometry
 {
@@ -27,46 +27,53 @@ namespace strategy { namespace buffer
 {
 
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
+/*!
+\brief Let the buffer create rounded ends
+\ingroup strategies
+\details This strategy can be used as EndStrategy for the buffer algorithm.
+    It creates a rounded end for each linestring-end. It can be applied
+    for (multi)linestrings. Also it is applicable for spikes in (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_end_round]
+[heading Output]
+[$img/strategies/buffer_end_round.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_end_flat end_flat]
+}
+ */
 class end_round
 {
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
-    typedef typename coordinate_type<PointOut>::type coordinate_type;
+private :
+    std::size_t m_points_per_circle;
 
-    typedef typename geometry::select_most_precise
-        <
-            typename geometry::select_most_precise
-                <
-                    typename geometry::coordinate_type<PointIn>::type,
-                    typename geometry::coordinate_type<PointOut>::type
-                >::type,
-            double
-        >::type promoted_type;
-
-    int m_steps_per_circle;
-
-    template <typename RangeOut>
-    inline void generate_points(PointIn const& point,
-                promoted_type alpha,
-                promoted_type const& buffer_distance,
+    template
+    <
+        typename Point,
+        typename PromotedType,
+        typename DistanceType,
+        typename RangeOut
+    >
+    inline void generate_points(Point const& point,
+                PromotedType alpha, // by value
+                DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        promoted_type const two = 2.0;
-        promoted_type const two_pi = two * geometry::math::pi<promoted_type>();
+        PromotedType const two = 2.0;
+        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
-        int point_buffer_count = m_steps_per_circle;
+        std::size_t point_buffer_count = m_points_per_circle;
 
-        promoted_type const diff = two_pi / promoted_type(point_buffer_count);
+        PromotedType const diff = two_pi / PromotedType(point_buffer_count);
 
         // For half circle:
         point_buffer_count /= 2;
         point_buffer_count++;
 
-        for (int i = 0; i < point_buffer_count; i++, alpha -= diff)
+        for (std::size_t i = 0; i < point_buffer_count; i++, alpha -= diff)
         {
             typename boost::range_value<RangeOut>::type p;
             set<0>(p, get<0>(point) + buffer_distance * cos(alpha));
@@ -85,20 +92,34 @@ class end_round
     }
 
 public :
-    inline end_round(int steps_per_circle = 100)
-        : m_steps_per_circle(steps_per_circle)
+
+    //! \brief Constructs the strategy
+    //! \param points_per_circle points which would be used for a full circle
+    explicit inline end_round(std::size_t points_per_circle = 90)
+        : m_points_per_circle(points_per_circle)
     {}
 
-    template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& penultimate_point,
-                PointIn const& perp_left_point,
-                PointIn const& ultimate_point,
-                PointIn const& ,
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+    //! Fills output_range with a flat end
+    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    inline void apply(Point const& penultimate_point,
+                Point const& perp_left_point,
+                Point const& ultimate_point,
+                Point const& ,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
-        promoted_type alpha = calculate_angle<promoted_type>(perp_left_point, ultimate_point);
+        typedef typename coordinate_type<Point>::type coordinate_type;
+
+        typedef typename geometry::select_most_precise
+        <
+            coordinate_type,
+            double
+        >::type promoted_type;
+
+        promoted_type const alpha = calculate_angle<promoted_type>(perp_left_point, ultimate_point);
 
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
@@ -116,17 +137,25 @@ public :
                 dist_half_diff = -dist_half_diff;
             }
 
-            PointIn shifted_point;
+            Point shifted_point;
             set<0>(shifted_point, get<0>(ultimate_point) + dist_half_diff * cos(alpha));
             set<1>(shifted_point, get<1>(ultimate_point) + dist_half_diff * sin(alpha));
             generate_points(shifted_point, alpha, (dist_left + dist_right) / two, range_out);
         }
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_round_end;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

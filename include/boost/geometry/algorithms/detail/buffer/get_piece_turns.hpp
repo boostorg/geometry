@@ -56,30 +56,17 @@ class piece_turn_visitor
     Rings const& m_rings;
     Turns& m_turns;
     RobustPolicy const& m_robust_policy;
-    int m_last_piece_index;
 
     template <typename Piece>
-    inline bool is_neighbor(Piece const& piece1, Piece const& piece2) const
+    inline bool is_adjacent(Piece const& piece1, Piece const& piece2) const
     {
         if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
         {
             return false;
         }
 
-        if (std::abs(piece1.index - piece2.index) == 1)
-        {
-            return true;
-        }
-
-        return (piece1.index == 0 && piece2.index == m_last_piece_index)
-            || (piece1.index == m_last_piece_index && piece2.index == 0)
-            ;
-    }
-
-    template <typename Piece>
-    inline bool skip_neighbor(Piece const& piece1, Piece const& piece2) const
-    {
-        return piece1.type != piece2.type && is_neighbor(piece1, piece2);
+        return piece1.index == piece2.left_index
+            || piece1.index == piece2.right_index;
     }
 
     template <typename Range, typename Iterator>
@@ -148,10 +135,6 @@ class piece_turn_visitor
                     it2 != it2_last;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                // Revert (this is used more often - should be common function TODO)
-                the_model.operations[0].other_id = the_model.operations[1].seg_id;
-                the_model.operations[1].other_id = the_model.operations[0].seg_id;
-
                 iterator next2 = next_point(ring2, it2);
 
                 // TODO: internally get_turn_info calculates robust points.
@@ -177,12 +160,10 @@ public:
 
     piece_turn_visitor(Rings const& ring_collection,
             Turns& turns,
-            RobustPolicy const& robust_policy,
-            int last_piece_index)
+            RobustPolicy const& robust_policy)
         : m_rings(ring_collection)
         , m_turns(turns)
         , m_robust_policy(robust_policy)
-        , m_last_piece_index(last_piece_index)
     {}
 
     template <typename Piece>
@@ -190,11 +171,13 @@ public:
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
-        if ( ! detail::disjoint::disjoint_box_box(piece1.robust_envelope, piece2.robust_envelope)
-          && ! skip_neighbor(piece1, piece2) )
+        if ( is_adjacent(piece1, piece2)
+          || detail::disjoint::disjoint_box_box(piece1.robust_envelope,
+                    piece2.robust_envelope))
         {
-            calculate_turns(piece1, piece2);
+            return;
         }
+        calculate_turns(piece1, piece2);
     }
 };
 

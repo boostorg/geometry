@@ -89,7 +89,7 @@ struct check_sqrt<Argument, Result, Result, IsFundamental>
 {
     static inline void apply(Argument const& arg, Result const& result)
     {
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "testing: " << typeid(Result).name()
                   << " sqrt(" << typeid(Argument).name()
                   << ")" << std::endl;

@@ -29,7 +29,8 @@ template
     typename InnerIterator,
     typename Value,
     typename AccessInnerBegin,
-    typename AccessInnerEnd
+    typename AccessInnerEnd,
+    typename Reference = Value&
 >
 class flatten_iterator
     : public boost::iterator_facade
@@ -40,9 +41,12 @@ class flatten_iterator
                     InnerIterator,
                     Value,
                     AccessInnerBegin,
-                    AccessInnerEnd>,
+                    AccessInnerEnd,
+                    Reference
+                >,
             Value,
-            boost::bidirectional_traversal_tag
+            boost::bidirectional_traversal_tag,
+            Reference
         >
 {
 private:
@@ -68,11 +72,22 @@ public:
         : m_outer_it(outer_end), m_outer_end(outer_end)
     {}
 
+    flatten_iterator & operator=(flatten_iterator const& other)
+    {
+        m_outer_it = other.m_outer_it;
+        m_outer_end = other.m_outer_end;
+        // avoid assigning an iterator having singular value
+        if ( other.m_outer_it != other.m_outer_end )
+            m_inner_it = other.m_inner_it;
+        return *this;
+    }
+
     template
     <
         typename OtherOuterIterator, typename OtherInnerIterator,
         typename OtherValue,
-        typename OtherAccessInnerBegin, typename OtherAccessInnerEnd
+        typename OtherAccessInnerBegin, typename OtherAccessInnerEnd,
+        typename OtherReference
     >
     flatten_iterator(flatten_iterator
                      <
@@ -80,7 +95,8 @@ public:
                          OtherInnerIterator,
                          OtherValue,
                          OtherAccessInnerBegin,
-                         OtherAccessInnerEnd
+                         OtherAccessInnerEnd,
+                         OtherReference
                      > const& other)
         : m_outer_it(other.m_outer_it),
           m_outer_end(other.m_outer_end),
@@ -107,16 +123,18 @@ public:
         typename OtherInnerIterator,
         typename OtherValue,
         typename OtherAccessInnerBegin,
-        typename OtherAccessInnerEnd
+        typename OtherAccessInnerEnd,
+        typename OtherReference
     >
-    flatten_iterator operator=(flatten_iterator
-                               <
-                                   OtherOuterIterator,
-                                   OtherInnerIterator,
-                                   OtherValue,
-                                   OtherAccessInnerBegin,
-                                   OtherAccessInnerEnd
-                               > const& other)
+    flatten_iterator & operator=(flatten_iterator
+                                 <
+                                     OtherOuterIterator,
+                                     OtherInnerIterator,
+                                     OtherValue,
+                                     OtherAccessInnerBegin,
+                                     OtherAccessInnerEnd,
+                                     OtherReference
+                                 > const& other)
     {
         static const bool are_conv
             = boost::is_convertible
@@ -134,7 +152,9 @@ public:
              
         m_outer_it = other.m_outer_it;
         m_outer_end = other.m_outer_end;
-        m_inner_it = other.m_inner_it;
+        // avoid assigning an iterator having singular value
+        if ( other.m_outer_it != other.m_outer_end )
+            m_inner_it = other.m_inner_it;
         return *this;
     }
 
@@ -147,7 +167,8 @@ private:
         typename Inner,
         typename V,
         typename InnerBegin,
-        typename InnerEnd
+        typename InnerEnd,
+        typename R
     >
     friend class flatten_iterator;
 
@@ -170,7 +191,7 @@ private:
         }
     }
 
-    inline Value& dereference() const
+    inline Reference dereference() const
     {
         BOOST_ASSERT( m_outer_it != m_outer_end );
         BOOST_ASSERT( m_inner_it != AccessInnerEnd::apply(*m_outer_it) );
@@ -184,7 +205,8 @@ private:
         typename OtherInnerIterator,
         typename OtherValue,
         typename OtherAccessInnerBegin,
-        typename OtherAccessInnerEnd
+        typename OtherAccessInnerEnd,
+        typename OtherReference
     >
     inline bool equal(flatten_iterator
                       <
@@ -192,7 +214,8 @@ private:
                           OtherInnerIterator,
                           OtherValue,
                           OtherAccessInnerBegin,
-                          OtherAccessInnerEnd
+                          OtherAccessInnerEnd,
+                          OtherReference
                       > const& other) const
     {
         if ( m_outer_it != other.m_outer_it )

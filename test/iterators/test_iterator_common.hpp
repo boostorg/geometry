@@ -88,8 +88,8 @@ template <typename CombinedIterator, typename CombinedContainer>
 inline void test_size(CombinedIterator first, CombinedIterator beyond,
                       CombinedContainer const& combined)
 {
-    std::size_t size = std::distance(first, beyond);
-    BOOST_CHECK( combined.size() == std::distance(first, beyond) );
+    std::size_t size = static_cast<std::size_t>(std::distance(first, beyond));
+    BOOST_CHECK( combined.size() == size );
 
     size = 0;
     for (CombinedIterator it = first; it != beyond; ++it)
@@ -150,7 +150,7 @@ inline void test_using_remove_if(CombinedIterator first,
             CombinedIterator
         >::value_type value_type;
     
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
     std::cout << "odd elements removed:" << std::endl;
     print_container(std::cout, first, beyond, "before:") << std::endl;
@@ -169,7 +169,7 @@ inline void test_using_remove_if(CombinedIterator first,
     }
     BOOST_CHECK( new_size == static_cast<std::size_t>(num_even) );
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     print_container(std::cout, first, new_beyond, "after :") << std::endl;
 #endif
 
@@ -189,7 +189,7 @@ inline void test_using_reverse(CombinedIterator first,
     std::reverse(combined.begin(), combined.end());
     test_equality(first, beyond, combined);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     print_container(std::cout, first, beyond, "reversed:") << std::endl;
 #endif
 
@@ -197,7 +197,7 @@ inline void test_using_reverse(CombinedIterator first,
     std::reverse(combined.begin(), combined.end());
     test_equality(first, beyond, combined);
 
-#ifdef GEOMETRY_TEST_DEBUG
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     print_container(std::cout, first, beyond, "re-reversed:") << std::endl;
 #endif
 }

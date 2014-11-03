@@ -23,7 +23,7 @@
 
 #include <test_geometries/all_custom_ring.hpp>
 #include <test_geometries/all_custom_polygon.hpp>
-//#define GEOMETRY_TEST_DEBUG
+//#define BOOST_GEOMETRY_TEST_DEBUG
 
 #include <boost/variant/variant.hpp>
 

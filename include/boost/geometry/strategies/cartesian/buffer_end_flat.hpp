@@ -27,38 +27,48 @@ namespace strategy { namespace buffer
 {
 
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
+/*!
+\brief Let the buffer create flat ends
+\ingroup strategies
+\details This strategy can be used as EndStrategy for the buffer algorithm.
+    It creates a flat end for each linestring-end. It can be applied
+    for (multi)linestrings. Also it is applicable for spikes in (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
+
+\qbk{
+[heading Example]
+[buffer_end_flat]
+[heading Output]
+[$img/strategies/buffer_end_flat.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_end_round end_round]
+}
+ */
 class end_flat
 {
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
-    typedef typename coordinate_type<PointOut>::type coordinate_type;
-
-    typedef typename geometry::select_most_precise
-        <
-            typename geometry::select_most_precise
-                <
-                    typename geometry::coordinate_type<PointIn>::type,
-                    typename geometry::coordinate_type<PointOut>::type
-                >::type,
-            double
-        >::type promoted_type;
-
 
 public :
 
-    template <typename RangeOut, typename DistanceStrategy>
-    inline void apply(PointIn const& penultimate_point,
-                PointIn const& perp_left_point,
-                PointIn const& ultimate_point,
-                PointIn const& perp_right_point,
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    //! Fills output_range with a flat end
+    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    inline void apply(Point const& penultimate_point,
+                Point const& perp_left_point,
+                Point const& ultimate_point,
+                Point const& perp_right_point,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
+        typedef typename coordinate_type<Point>::type coordinate_type;
+
+        typedef typename geometry::select_most_precise
+        <
+            coordinate_type,
+            double
+        >::type promoted_type;
+
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
 
@@ -80,10 +90,18 @@ public :
         // In other cases it does no harm but is further useless
     }
 
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
+    //! Returns the piece_type (flat end)
     static inline piece_type get_piece_type()
     {
         return buffered_flat_end;
     }
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 };
 
 

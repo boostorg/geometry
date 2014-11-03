@@ -16,6 +16,7 @@
 
 #include <cstddef>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -52,6 +53,8 @@ struct simplify_range_insert
     static inline void apply(Range const& range, OutputIterator out,
                              Distance const& max_distance, Strategy const& strategy)
     {
+        boost::ignore_unused(strategy);
+
         if (boost::size(range) <= 2 || max_distance < 0)
         {
             std::copy(boost::begin(range), boost::end(range), out);
@@ -185,9 +188,9 @@ public:
 template<typename Policy>
 struct simplify_multi
 {
-    template <typename MultiGeometry, typename Strategy>
+    template <typename MultiGeometry, typename Strategy, typename Distance>
     static inline void apply(MultiGeometry const& multi, MultiGeometry& out,
-                             double max_distance, Strategy const& strategy)
+                    Distance const& max_distance, Strategy const& strategy)
     {
         traits::resize<MultiGeometry>::apply(out, boost::size(multi));
 

@@ -57,7 +57,6 @@ static const double RV6 = .04243827160493827160; /* 55/1296 */
 /* initialize geographic shape parameters */
 inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
 {
-    int i = 0;
     double b = 0.0;
     double e = 0.0;
     std::string name;
@@ -127,18 +126,21 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
         } else if (pj_param(parameters, "bR_h").i) { /* sphere--harmonic mean */
             a = 2. * a * b / (a + b);
             es = 0.;
-        } else if ((i = pj_param(parameters, "tR_lat_a").i) || /* sphere--arith. */
-            pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
-            double tmp;
+        } else {
+            int i = pj_param(parameters, "tR_lat_a").i;
+            if (i || /* sphere--arith. */
+                pj_param(parameters, "tR_lat_g").i) { /* or geom. mean at latitude */
+                double tmp;
 
-            tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-            if (geometry::math::abs(tmp) > HALFPI) {
-                throw proj_exception(-11);
+                tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
+                if (geometry::math::abs(tmp) > HALFPI) {
+                    throw proj_exception(-11);
+                }
+                tmp = 1. - es * tmp * tmp;
+                a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
+                    sqrt(1. - es) / tmp;
+                es = 0.;
             }
-            tmp = 1. - es * tmp * tmp;
-            a *= i ? .5 * (1. - es + tmp) / ( tmp * sqrt(tmp)) :
-                sqrt(1. - es) / tmp;
-            es = 0.;
         }
     }
 

@@ -14,11 +14,11 @@ project boost-geometry-algorithms-buffer
 
 test-suite boost-geometry-algorithms-buffer
     :
-    [ run point_buffer.cpp ]
-    [ run linestring_buffer.cpp ]
-    [ run polygon_buffer.cpp ]
-    [ run multi_point_buffer.cpp ]
-    [ run multi_linestring_buffer.cpp ]
-    [ run multi_polygon_buffer.cpp ]
+    [ run point_buffer.cpp            : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run linestring_buffer.cpp       : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run polygon_buffer.cpp          : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_point_buffer.cpp      : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_linestring_buffer.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_polygon_buffer.cpp    : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
     ;
 

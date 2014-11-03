@@ -61,7 +61,25 @@ enum buffer_side_selector { buffer_side_left, buffer_side_right };
 */
 enum piece_type
 {
-    buffered_segment, buffered_join, buffered_round_end, buffered_flat_end, buffered_circle
+    buffered_segment,
+    buffered_join,
+    buffered_round_end,
+    buffered_flat_end,
+    buffered_point,
+    buffered_concave   // always on the inside
+};
+
+
+/*!
+\brief Enumerates types of joins
+\ingroup enum
+*/
+enum join_selector
+{
+    join_convex,
+    join_concave,
+    join_continue, // collinear, next segment touches previous segment
+    join_spike     // collinear, with overlap, next segment goes back
 };
 
 

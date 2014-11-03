@@ -9,13 +9,16 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
 
+#include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/strategies/tags.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+#include <boost/geometry/io/wkt/wkt.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -25,138 +28,145 @@ namespace boost { namespace geometry
 namespace strategy { namespace buffer
 {
 
+/*!
+\brief Let the buffer create rounded corners
+\ingroup strategies
+\details This strategy can be used as JoinStrategy for the buffer algorithm.
+    It creates a rounded corners around each convex vertex. It can be applied
+    for (multi)linestrings and (multi)polygons.
+    This strategy is only applicable for Cartesian coordinate systems.
 
-template
-<
-    typename PointIn,
-    typename PointOut
->
+\qbk{
+[heading Example]
+[buffer_join_round]
+[heading Output]
+[$img/strategies/buffer_join_round.png]
+[heading See also]
+\* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
+\* [link geometry.reference.strategies.strategy_buffer_join_miter join_miter]
+}
+ */
 class join_round
 {
-private :
-    geometry::equal_to<PointIn> equals;
-
 public :
 
-    inline join_round(int steps_per_circle = 100)
-        : m_steps_per_circle(steps_per_circle)
+    //! \brief Constructs the strategy
+    //! \param points_per_circle points which would be used for a full circle
+    explicit inline join_round(std::size_t points_per_circle = 90)
+        : m_points_per_circle(points_per_circle)
     {}
 
-    typedef typename strategy::side::services::default_strategy<typename cs_tag<PointIn>::type>::type side;
-    typedef typename coordinate_type<PointOut>::type coordinate_type;
-
-    typedef typename geometry::select_most_precise
-        <
-            typename geometry::select_most_precise
-                <
-                    typename geometry::coordinate_type<PointIn>::type,
-                    typename geometry::coordinate_type<PointOut>::type
-                >::type,
-            double
-        >::type promoted_type;
-
-    int m_steps_per_circle;
-
-    template <typename RangeOut>
-    inline void generate_points(PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2,
-                promoted_type const& buffer_distance,
+private :
+    template
+    <
+        typename PromotedType,
+        typename Point,
+        typename DistanceType,
+        typename RangeOut
+    >
+    inline void generate_points(Point const& vertex,
+                Point const& perp1, Point const& perp2,
+                DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        promoted_type dx1 = get<0>(perp1) - get<0>(vertex);
-        promoted_type dy1 = get<1>(perp1) - get<1>(vertex);
-        promoted_type dx2 = get<0>(perp2) - get<0>(vertex);
-        promoted_type dy2 = get<1>(perp2) - get<1>(vertex);
+        PromotedType const dx1 = get<0>(perp1) - get<0>(vertex);
+        PromotedType const dy1 = get<1>(perp1) - get<1>(vertex);
+        PromotedType const dx2 = get<0>(perp2) - get<0>(vertex);
+        PromotedType const dy2 = get<1>(perp2) - get<1>(vertex);
 
-        dx1 /= buffer_distance;
-        dy1 /= buffer_distance;
-        dx2 /= buffer_distance;
-        dy2 /= buffer_distance;
+        PromotedType const two = 2.0;
+        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
 
-        promoted_type angle_diff = acos(dx1 * dx2 + dy1 * dy2);
-
-        promoted_type two = 2.0;
-        promoted_type steps = m_steps_per_circle;
-        int n = boost::numeric_cast<int>(steps * angle_diff
-                    / (two * geometry::math::pi<promoted_type>()));
-
-        if (n > 1000)
+        PromotedType const angle1 = atan2(dy1, dx1);
+        PromotedType angle2 = atan2(dy2, dx2);
+        while (angle2 > angle1)
         {
-#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
-            // TODO change this / verify this
-            std::cout << dx1 << ", " << dy1 << " .. " << dx2 << ", " << dy2 << std::endl;
-            std::cout << angle_diff << " -> " << n << std::endl;
-            n = 1000;
-#endif
-        }
-        else if (n <= 1)
-        {
-            return;
+            angle2 -= two_pi;
         }
 
-        promoted_type const angle1 = atan2(dy1, dx1);
-        promoted_type diff = angle_diff / promoted_type(n);
-        promoted_type a = angle1 - diff;
+        // Divide the angle into an integer amount of steps to make it
+        // visually correct also for a low number of points / circle
+        int const n = static_cast<int>
+            (
+                m_points_per_circle * (angle1 - angle2) / two_pi
+            );
 
+        PromotedType const diff = (angle1 - angle2) / static_cast<PromotedType>(n);
+        PromotedType a = angle1 - diff;
         for (int i = 0; i < n - 1; i++, a -= diff)
         {
-            PointIn p;
+            Point p;
             set<0>(p, get<0>(vertex) + buffer_distance * cos(a));
             set<1>(p, get<1>(vertex) + buffer_distance * sin(a));
             range_out.push_back(p);
         }
     }
 
-    template <typename RangeOut>
-    inline void apply(PointIn const& ip, PointIn const& vertex,
-                PointIn const& perp1, PointIn const& perp2,
-                coordinate_type const& buffer_distance,
+public :
+
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    //! Fills output_range with a rounded shape around a vertex
+    template <typename Point, typename DistanceType, typename RangeOut>
+    inline bool apply(Point const& ip, Point const& vertex,
+                Point const& perp1, Point const& perp2,
+                DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
+        typedef typename coordinate_type<Point>::type coordinate_type;
+        typedef typename boost::range_value<RangeOut>::type output_point_type;
+
+        typedef typename geometry::select_most_precise
+            <
+                typename geometry::select_most_precise
+                    <
+                        coordinate_type,
+                        typename geometry::coordinate_type<output_point_type>::type
+                    >::type,
+                double
+            >::type promoted_type;
+
+        geometry::equal_to<Point> equals;
         if (equals(perp1, perp2))
         {
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
 #endif
-            return;
+            return false;
         }
 
-        coordinate_type zero = 0;
-        int signum = buffer_distance > zero ? 1
-                   : buffer_distance < zero ? -1
-                   : 0;
+        // Generate 'vectors'
+        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
+        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
 
-        if (side::apply(perp1, ip, perp2) == signum)
-        {
-        }
-        else
-        {
-            // Generate 'vectors'
-            coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-            coordinate_type viy = (get<1>(ip) - get<1>(vertex));
+        promoted_type length_i = geometry::math::sqrt(vix * vix + viy * viy);
+        DistanceType const bd = geometry::math::abs(buffer_distance);
+        promoted_type prop = bd / length_i;
 
-            coordinate_type length_i =
-                geometry::math::sqrt(vix * vix + viy * viy);
+        Point bp;
+        set<0>(bp, get<0>(vertex) + vix * prop);
+        set<1>(bp, get<1>(vertex) + viy * prop);
 
-            coordinate_type const bd = geometry::math::abs(buffer_distance);
-            coordinate_type prop = bd / length_i;
-
-            PointIn bp;
-            set<0>(bp, get<0>(vertex) + vix * prop);
-            set<1>(bp, get<1>(vertex) + viy * prop);
-
-            range_out.push_back(perp1);
-            generate_points(vertex, perp1, perp2, bd, range_out);
-            range_out.push_back(perp2);
-        }
+        range_out.push_back(perp1);
+        generate_points<promoted_type>(vertex, perp1, perp2, bd, range_out);
+        range_out.push_back(perp2);
+        return true;
     }
+
+    template <typename NumericType>
+    static inline NumericType max_distance(NumericType const& distance)
+    {
+        return distance;
+    }
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
+private :
+    std::size_t m_points_per_circle;
 };
 
 
-
-
 }} // namespace strategy::buffer
-
 
 }} // namespace boost::geometry
 
