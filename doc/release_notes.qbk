@@ -14,6 +14,20 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.58]
+[/=================]
+
+[*Additional functionality]
+
+[*Improvements]
+
+[*Solved tickets]
+
+[*Bugfixes]
+
+* Bug in multipoint/polygon multipoint/multipolygon distance computation (wrong detection of points inside the areal geometry)
+
+[/=================]
 [heading Boost 1.57]
 [/=================]
 
