@@ -99,6 +99,18 @@ void test_distance_point_multilinestring(Strategy const& strategy)
     tester::apply("point(2.5 0)",
                   "multilinestring((-5 0,-3 0),(2 0,3 0))",
                   0, 0, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((10 10,10 0),(0.0 -0.0,0.0 -0.0))",
+                  0, 0, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((10 10,10 0),(1 1,1 1))",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((10 10,10 0),(1 1,2 2))",
+                  sqrt(2.0), 2, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((10 10,10 0),(20 20,20 20))",
+                  10, 100, strategy);
 }
 
 //===========================================================================
@@ -180,6 +192,9 @@ void test_distance_multipoint_segment(Strategy const& strategy)
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
                   "segment(3 3,4 4)",
                   sqrt(8.0), 8, strategy);
+    tester::apply("multipoint(4 4,5 5,2 2,3 3)",
+                  "segment(0 0,1 1)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
