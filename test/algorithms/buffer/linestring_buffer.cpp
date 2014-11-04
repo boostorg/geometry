@@ -27,6 +27,12 @@ static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
 static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
 static std::string const tripod = "LINESTRING(5 0,5 5,1 8,5 5,9 8)"; // with spike
 
+static std::string const degenerate0 = "LINESTRING()";
+static std::string const degenerate1 = "LINESTRING(5 5)";
+static std::string const degenerate2 = "LINESTRING(5 5,5 5)";
+static std::string const degenerate3 = "LINESTRING(5 5,5 5,5 5)";
+static std::string const degenerate4 = "LINESTRING(5 5,5 5,4 4,5 5,5 5)";
+
 static std::string const for_collinear = "LINESTRING(2 0,0 0,0 4,6 4,6 0,4 0)";
 static std::string const for_collinear2 = "LINESTRING(2 1,2 0,0 0,0 4,6 4,6 0,4 0,4 1)";
 
@@ -42,11 +48,11 @@ static std::string const aimes171 = "LINESTRING(-2.393161 52.265087,-2.393002 52
 static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.435016,-2.320697 52.434978,-2.3207 52.434977,-2.320741 52.434964,-2.320807 52.434964,-2.320847 52.434986,-2.320903 52.435022)";
 
 
-template <typename P>
+template <bool Clockwise, typename P>
 void test_all()
 {
     typedef bg::model::linestring<P> linestring;
-    typedef bg::model::polygon<P> polygon;
+    typedef bg::model::polygon<P, Clockwise> polygon;
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
@@ -64,9 +70,9 @@ void test_all()
     //    test_one<linestring, polygon>("simplex_asym_neg", simplex, join_miter, end_round, 3.202, +1.5, -1.0);
     //    test_one<linestring, polygon>("simplex_asym_pos", simplex, join_miter, end_round, 3.202, -1.0, +1.5);
 
-    // Generates a reverse polygon, with a negative area, which will be made empty TODO decide about this
-    test_one<linestring, polygon>("simplex_asym_neg_rev", simplex, join_miter, end_flat, 0, +1.0, -1.5);
-    test_one<linestring, polygon>("simplex_asym_pos_rev", simplex, join_miter, end_flat, 0, -1.5, +1.0);
+    // Generates (initially) a reversed polygon, with a negative area, which is reversed afterwards in assign_parents
+    test_one<linestring, polygon>("simplex_asym_neg_rev", simplex, join_miter, end_flat, 3.202, +1.0, -1.5);
+    test_one<linestring, polygon>("simplex_asym_pos_rev", simplex, join_miter, end_flat, 3.202, -1.5, +1.0);
 
     test_one<linestring, polygon>("straight", straight, join_round, end_flat, 38.4187, 1.5, 1.5);
     test_one<linestring, polygon>("straight", straight, join_miter, end_flat, 38.4187, 1.5, 1.5);
@@ -133,6 +139,13 @@ void test_all()
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_round, 718.761877, 16.5, 6.5);
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_miter, end_round, 718.939628, 16.5, 6.5);
 
+    test_one<linestring, polygon>("degenerate0", degenerate0, join_round, end_round, 0.0, 3.0);
+    test_one<linestring, polygon>("degenerate1", degenerate1, join_round, end_round, 28.25, 3.0);
+    test_one<linestring, polygon>("degenerate2", degenerate2, join_round, end_round, 28.2503, 3.0);
+    test_one<linestring, polygon>("degenerate3", degenerate3, join_round, end_round, 28.2503, 3.0);
+    test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_round, 36.7410, 3.0);
+    test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_flat, 8.4853, 3.0);
+
     double tolerance = 1.0e-10;
 
     test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
@@ -165,7 +178,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
     return 0;
 }

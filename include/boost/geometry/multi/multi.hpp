@@ -44,6 +44,7 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 #include <boost/geometry/algorithms/remove_spikes.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
@@ -51,8 +52,6 @@
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
-
-#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 

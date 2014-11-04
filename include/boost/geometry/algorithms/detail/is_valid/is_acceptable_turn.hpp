@@ -94,7 +94,7 @@ public:
         using namespace detail::overlay;
 
         if ( turn.operations[0].seg_id.ring_index
-             == turn.operations[0].other_id.ring_index )
+             == turn.operations[1].seg_id.ring_index )
         {
             return false;
         }
@@ -122,7 +122,7 @@ public:
         using namespace detail::overlay;
 
         if ( turn.operations[0].seg_id.multi_index
-             == turn.operations[0].other_id.multi_index )
+             == turn.operations[1].seg_id.multi_index )
         {
             return base::apply(turn);
         }

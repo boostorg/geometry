@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
@@ -159,7 +161,7 @@ struct linear_linear
           || may_update<boundary, boundary, '0'>(result)
           || may_update<boundary, exterior, '0'>(result) )
         {
-            typedef turns::less<0, turns::less_op_linear_linear> less;
+            typedef turns::less<0, turns::less_op_linear_linear<0> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 0> analyser;
@@ -179,7 +181,7 @@ struct linear_linear
           || may_update<boundary, boundary, '0', true>(result)
           || may_update<boundary, exterior, '0', true>(result) )
         {
-            typedef turns::less<1, turns::less_op_linear_linear> less;
+            typedef turns::less<1, turns::less_op_linear_linear<1> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type, 1> analyser;
@@ -561,6 +563,7 @@ struct linear_linear
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& /*other_boundary_checker*/)
         {
+            boost::ignore_unused(first, last);
             //BOOST_ASSERT( first != last );
 
             // here, the possible exit is the real one
@@ -623,7 +626,7 @@ struct linear_linear
             typename detail::single_geometry_return_type<Geometry const>::type
                 ls1_ref = detail::single_geometry(geometry, turn.operations[op_id].seg_id);
             typename detail::single_geometry_return_type<OtherGeometry const>::type
-                ls2_ref = detail::single_geometry(other_geometry, turn.operations[op_id].other_id);
+                ls2_ref = detail::single_geometry(other_geometry, turn.operations[other_op_id].seg_id);
 
             // only one of those should be true:
 

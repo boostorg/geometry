@@ -64,12 +64,11 @@ struct spatial_predicate
 
 // ------------------------------------------------------------------ //
 
-// TODO
-// may be replaced by
-// nearest_predicate<Geometry>
-//   Geometry geometry
-//   unsigned count
-// + point_tag, path_tag
+// CONSIDER: separated nearest<> and path<> may be replaced by
+//           nearest_predicate<Geometry, Tag>
+//           where Tag = point_tag | path_tag
+// IMPROVEMENT: user-defined nearest predicate allowing to define
+//              all or only geometrical aspects of the search
 
 template <typename PointOrRelation>
 struct nearest

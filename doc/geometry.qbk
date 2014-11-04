@@ -113,6 +113,7 @@ Boost.Geometry contains contributions by:
 * Federico Fern\u00E1ndez (preliminary version of R-tree spatial index)
 * Karsten Ahnert (patch for cross-track distance)
 * Mats Taraldsvik (documentation: adapting a legacy model)
+* Matt Amos (fixes for point_on_surface)
 * Samuel Debionne (variant support for distance, assign, crosses, intersection, ...)
 
 [include imports.qbk]

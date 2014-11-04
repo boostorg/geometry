@@ -652,10 +652,6 @@ struct get_turn_info_linear_areal
         if ( ip_count == 0 )
             return false;
 
-        const int segment_index0 = tp_model.operations[0].seg_id.segment_index;
-        const int segment_index1 = tp_model.operations[1].seg_id.segment_index;
-        BOOST_ASSERT(segment_index0 >= 0 && segment_index1 >= 0);
-
         if ( !is_p_first && !is_p_last )
             return false;
 

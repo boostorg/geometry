@@ -200,6 +200,8 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::strategy::buffer::end_round end_strategy;
     bg::strategy::buffer::point_circle point_strategy;
     bg::strategy::buffer::side_straight side_strategy;
+    bg::strategy::buffer::join_round join_round_strategy(100); // Compatible with unit tests
+    bg::strategy::buffer::join_miter join_miter_strategy;
 
     try
     {
@@ -208,13 +210,13 @@ bool test_buffer(MultiPolygon& result, int& index,
             case 1 :
                 bg::buffer(mp, buffered,
                                 distance_strategy, side_strategy,
-                                bg::strategy::buffer::join_round(),
+                                join_round_strategy,
                                 end_strategy, point_strategy);
                 break;
             case 2 :
                 bg::buffer(mp, buffered,
                                 distance_strategy, side_strategy,
-                                bg::strategy::buffer::join_miter(),
+                                join_miter_strategy,
                                 end_strategy, point_strategy);
                 break;
             default :

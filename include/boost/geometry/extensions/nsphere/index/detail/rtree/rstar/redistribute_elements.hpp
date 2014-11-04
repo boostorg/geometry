@@ -61,9 +61,9 @@ private:
     Translator const& m_tr;
 };
 
-template <typename Parameters, typename Box, size_t AxisIndex>
-struct choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, nsphere_tag>
-    : choose_split_axis_and_index_for_axis<Parameters, Box, AxisIndex, box_tag>
+template <typename Box, size_t AxisIndex>
+struct choose_split_axis_and_index_for_axis<Box, AxisIndex, nsphere_tag>
+    : choose_split_axis_and_index_for_axis<Box, AxisIndex, box_tag>
 {};
 
 

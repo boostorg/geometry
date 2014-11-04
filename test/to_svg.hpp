@@ -187,6 +187,52 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool /*enrich*/ = 
     }
 }
 
+template <typename G1, typename P>
+inline void geom_to_svg(G1 const& g1, bg::svg_mapper<P> & mapper)
+{
+    mapper.add(g1);
+
+    mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
+        "stroke:rgb(153,204,0);stroke-width:3");
+}
+
+template <typename G1, typename G2, typename P>
+inline void geom_to_svg(G1 const& g1, G2 const& g2, bg::svg_mapper<P> & mapper)
+{
+    mapper.add(g1);
+    mapper.add(g2);
+
+    mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
+        "stroke:rgb(153,204,0);stroke-width:3");
+    mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
+        "stroke:rgb(51,51,153);stroke-width:3");
+}
+
+template <typename G1, typename G2>
+inline void geom_to_svg(G1 const& g1, std::string const& filename)
+{
+    namespace bg = boost::geometry;
+    typedef typename bg::point_type<G1>::type mapper_point_type;
+
+    std::ofstream svg(filename.c_str(), std::ios::trunc);
+    bg::svg_mapper<mapper_point_type> mapper(svg, 500, 500);
+
+    geom_to_svg(g1, mapper);
+}
+
+template <typename G1, typename G2>
+inline void geom_to_svg(G1 const& g1, G2 const& g2, std::string const& filename)
+{
+    namespace bg = boost::geometry;
+    typedef typename bg::point_type<G1>::type mapper_point_type;
+
+    std::ofstream svg(filename.c_str(), std::ios::trunc);
+    bg::svg_mapper<mapper_point_type> mapper(svg, 500, 500);
+
+    geom_to_svg(g1, g2, mapper);
+}
+
+
 struct to_svg_assign_policy
     : bg::detail::overlay::assign_null_policy
 {

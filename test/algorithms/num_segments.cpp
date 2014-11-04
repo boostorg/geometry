@@ -18,15 +18,19 @@
 
 #include <boost/variant/variant.hpp>
 
+#include <boost/geometry/algorithms/num_segments.hpp>
+
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/algorithms/num_segments.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 namespace bg = boost::geometry;
 
 
-typedef bg::model::point<double,2,bg::cs::cartesian> point;
+typedef bg::model::point<double, 2, bg::cs::cartesian> point;
 typedef bg::model::linestring<point> linestring;
 typedef bg::model::segment<point> segment;
 typedef bg::model::box<point> box;
@@ -45,47 +49,52 @@ typedef bg::model::multi_polygon<polygon_cw_open> multi_polygon_cw_open;
 typedef bg::model::multi_polygon<polygon_ccw_closed> multi_polygon_ccw_closed;
 typedef bg::model::multi_polygon<polygon_ccw_open> multi_polygon_ccw_open;
 
+template <std::size_t D, typename T = double>
+struct box_dD
+{
+    typedef boost::geometry::model::box
+        <
+            boost::geometry::model::point<T, D, boost::geometry::cs::cartesian>
+        > type;
+};
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
 struct test_num_segments
 {
-    static inline void apply(Geometry const& geometry,
-                             std::size_t expected_closed,
-                             std::size_t expected_open)
+    static inline void apply(Geometry const& geometry, std::size_t expected)
     {
         std::size_t detected = bg::num_segments(geometry);
-        BOOST_CHECK_MESSAGE( detected == expected_closed,
-                             "Expected: " << expected_closed
+        BOOST_CHECK_MESSAGE( detected == expected,
+                             "Expected: " << expected
                              << " detected: " << detected
                              << " wkt: " << bg::wkt(geometry) );
-
-        detected = bg::num_segments(geometry, true);
-        BOOST_CHECK_MESSAGE( detected == expected_open,
-                             "Expected (add for open): " << expected_open
-                             << " detected (add for open): " << detected
-                             << " wkt: " << bg::wkt(geometry) );
-
     }
 
-    static inline void apply(Geometry const& geometry,
-                             std::size_t expected_closed)
-    {
-        apply(geometry, expected_closed, expected_closed);
-    }
-
-    static inline void apply(std::string const& wkt,
-                             std::size_t expected_closed,
-                             std::size_t expected_open)
+    static inline void apply(std::string const& wkt, std::size_t expected)
     {
         Geometry geometry;
         bg::read_wkt(wkt, geometry);
-        apply(geometry, expected_closed, expected_open);
+        apply(geometry, expected);
+    }
+};
+
+template <typename Box>
+struct test_num_segments<Box, bg::box_tag>
+{
+    static inline void apply(Box const& box, std::size_t expected)
+    {
+        std::size_t detected = bg::num_segments(box);
+        BOOST_CHECK_MESSAGE( detected == expected,
+                             "Expected: " << expected
+                             << " detected: " << detected
+                             << " dsv: " << bg::dsv(box) );
     }
 
-    static inline void apply(std::string const& wkt,
-                             std::size_t expected_closed)
+    static inline void apply(std::string const& wkt, std::size_t expected)
     {
-        apply(wkt, expected_closed, expected_closed);
+        Box box;
+        bg::read_wkt(wkt, box);
+        apply(box, expected);
     }
 };
 
@@ -102,6 +111,11 @@ BOOST_AUTO_TEST_CASE( test_segment )
 BOOST_AUTO_TEST_CASE( test_box )
 {
     test_num_segments<box>::apply("BOX(0 0,1 1)", 4);
+
+    // test higher-dimensional boxes
+    test_num_segments<box_dD<3>::type>::apply("BOX(0 0 0,1 1 1)", 12);
+    test_num_segments<box_dD<4>::type>::apply("BOX(0 0 0 0,1 1 1 1)", 32);
+    test_num_segments<box_dD<5>::type>::apply("BOX(0 0 0 0 0,1 1 1 1 1)", 80);
 }
 
 BOOST_AUTO_TEST_CASE( test_linestring )
@@ -144,9 +158,9 @@ void test_open_ring()
 
     tester::apply("POLYGON(())", 0);
     tester::apply("POLYGON((0 0))", 0);
-    tester::apply("POLYGON((0 0,1 0))", 1, 2);
-    tester::apply("POLYGON((0 0,1 0,0 1))", 2, 3);
-    tester::apply("POLYGON((0 0,0 0,1 0,0 1))", 3, 4);
+    tester::apply("POLYGON((0 0,1 0))", 2);
+    tester::apply("POLYGON((0 0,1 0,0 1))", 3);
+    tester::apply("POLYGON((0 0,0 0,1 0,0 1))", 4);
 }
 
 template <typename ClosedRing>
@@ -177,16 +191,16 @@ void test_open_polygon()
 
     tester::apply("POLYGON(())", 0);
     tester::apply("POLYGON((0 0))", 0);
-    tester::apply("POLYGON((0 0,10 0),(0 0))", 1, 2);
-    tester::apply("POLYGON((0 0,10 0),(1 1,2 1))", 2, 4);
-    tester::apply("POLYGON((0 0,10 0,0 10))", 2, 3);
-    tester::apply("POLYGON((0 0,10 0,0 10),())", 2, 3);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1))", 2, 3);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1))", 3, 5);
-    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1,1 2))", 4, 6);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 2))", 5, 7);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2))", 6, 8);
-    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6))", 9, 12);
+    tester::apply("POLYGON((0 0,10 0),(0 0))", 2);
+    tester::apply("POLYGON((0 0,10 0),(1 1,2 1))", 4);
+    tester::apply("POLYGON((0 0,10 0,0 10))", 3);
+    tester::apply("POLYGON((0 0,10 0,0 10),())", 3);
+    tester::apply("POLYGON((0 0,10 0,0 10),(1 1))", 3);
+    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1))", 5);
+    tester::apply("POLYGON((0 0,10 0,0 10),(1 1,2 1,1 2))", 6);
+    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 2))", 7);
+    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2))", 8);
+    tester::apply("POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6))", 12);
 }
 
 template <typename ClosedPolygon>
@@ -221,10 +235,10 @@ void test_open_multipolygon()
 {
     typedef test_num_segments<OpenMultiPolygon> tester;
 
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)))", 5, 7);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)))", 9, 12);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)),((100 100,110 100,110 110),(101 101,102 101,102 102)))", 9, 13);
-    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)),((100 100,110 100,110 110),(101 101,102 101,102 102),(105 105,106 105,106 106,105 106)))", 16, 22);
+    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)))", 7);
+    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)))", 12);
+    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)),((100 100,110 100,110 110),(101 101,102 101,102 102)))", 13);
+    tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)),((100 100,110 100,110 110),(101 101,102 101,102 102),(105 105,106 105,106 106,105 106)))", 22);
 }
 
 template <typename ClosedMultiPolygon>
@@ -270,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_variant )
     tester::apply(variant_geometry, 2);
 
     variant_geometry = p_open;
-    tester::apply(variant_geometry, 2, 3);
+    tester::apply(variant_geometry, 3);
 
     variant_geometry = p_closed;
     tester::apply(variant_geometry, 4);

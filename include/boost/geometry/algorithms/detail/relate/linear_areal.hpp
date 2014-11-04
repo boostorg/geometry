@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/range.hpp>
 
@@ -242,7 +244,7 @@ struct linear_areal
         {
             // for different multi or same ring id: x, u, i, c
             // for same multi and different ring id: c, i, u, x
-            typedef turns::less<0, turns::less_op_linear_areal> less;
+            typedef turns::less<0, turns::less_op_linear_areal<0> > less;
             std::sort(turns.begin(), turns.end(), less());
 
             turns_analyser<turn_type> analyser;
@@ -339,7 +341,7 @@ struct linear_areal
                 else
                 {
                     // u, c
-                    typedef turns::less<1, turns::less_op_areal_linear> less;
+                    typedef turns::less<1, turns::less_op_areal_linear<1> > less;
                     std::sort(it, next, less());
 
                     // analyse
@@ -769,6 +771,7 @@ struct linear_areal
                    OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker)
         {
+            boost::ignore_unused(first, last);
             //BOOST_ASSERT( first != last );
 
             // here, the possible exit is the real one
@@ -844,15 +847,16 @@ struct linear_areal
             typedef typename boost::range_iterator<range2_type>::type range2_iterator;
             range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
-            std::size_t const s1 = boost::size(range1);
+            BOOST_ASSERT(boost::size(range1));
             std::size_t const s2 = boost::size(range2);
-            BOOST_ASSERT(s1 > 1 && s2 > 2);
+            BOOST_ASSERT(s2 > 2);
             std::size_t const seg_count2 = s2 - 1;
 
             std::size_t const p_seg_ij = turn.operations[op_id].seg_id.segment_index;
             std::size_t const q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
 
-            BOOST_ASSERT(p_seg_ij + 1 < s1 && q_seg_ij + 1 < s2);
+            BOOST_ASSERT(p_seg_ij + 1 < boost::size(range1));
+            BOOST_ASSERT(q_seg_ij + 1 < s2);
 
             point1_type const& pi = range::at(range1, p_seg_ij);
             point2_type const& qi = range::at(range2, q_seg_ij);

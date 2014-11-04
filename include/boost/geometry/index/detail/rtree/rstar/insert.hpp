@@ -178,14 +178,15 @@ struct level_insert_base
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::size_type size_type;
 
     inline level_insert_base(node_pointer & root,
-                             size_t & leafs_level,
+                             size_type & leafs_level,
                              Element const& element,
                              parameters_type const& parameters,
                              Translator const& translator,
                              Allocators & allocators,
-                             size_t relative_level)
+                             size_type relative_level)
         : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
         , result_relative_level(0)
     {}
@@ -240,7 +241,7 @@ struct level_insert_base
         }
     }
 
-    size_t result_relative_level;
+    size_type result_relative_level;
     result_elements_type result_elements;
 };
 
@@ -256,14 +257,15 @@ struct level_insert
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::size_type size_type;
 
     inline level_insert(node_pointer & root,
-                        size_t & leafs_level,
+                        size_type & leafs_level,
                         Element const& element,
                         parameters_type const& parameters,
                         Translator const& translator,
                         Allocators & allocators,
-                        size_t relative_level)
+                        size_type relative_level)
         : base(root, leafs_level, element, parameters, translator, allocators, relative_level)
     {}
 
@@ -341,14 +343,15 @@ struct level_insert<InsertIndex, Value, Value, Options, Translator, Box, Allocat
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::size_type size_type;
 
     inline level_insert(node_pointer & root,
-                        size_t & leafs_level,
+                        size_type & leafs_level,
                         Value const& v,
                         parameters_type const& parameters,
                         Translator const& translator,
                         Allocators & allocators,
-                        size_t relative_level)
+                        size_type relative_level)
         : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
     {}
 
@@ -396,14 +399,15 @@ struct level_insert<0, Value, Value, Options, Translator, Box, Allocators>
     typedef typename Options::parameters_type parameters_type;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::size_type size_type;
 
     inline level_insert(node_pointer & root,
-                        size_t & leafs_level,
+                        size_type & leafs_level,
                         Value const& v,
                         parameters_type const& parameters,
                         Translator const& translator,
                         Allocators & allocators,
-                        size_t relative_level)
+                        size_type relative_level)
         : base(root, leafs_level, v, parameters, translator, allocators, relative_level)
     {}
 
@@ -453,15 +457,16 @@ class insert<Element, Value, Options, Translator, Box, Allocators, insert_reinse
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Allocators::node_pointer node_pointer;
+    typedef typename Allocators::size_type size_type;
 
 public:
     inline insert(node_pointer & root,
-                  size_t & leafs_level,
+                  size_type & leafs_level,
                   Element const& element,
                   parameters_type const& parameters,
                   Translator const& translator,
                   Allocators & allocators,
-                  size_t relative_level = 0)
+                  size_type relative_level = 0)
         : m_root(root), m_leafs_level(leafs_level), m_element(element)
         , m_parameters(parameters), m_translator(translator)
         , m_relative_level(relative_level), m_allocators(allocators)
@@ -554,13 +559,13 @@ private:
     }
 
     node_pointer & m_root;
-    size_t & m_leafs_level;
+    size_type & m_leafs_level;
     Element const& m_element;
 
     parameters_type const& m_parameters;
     Translator const& m_translator;
 
-    size_t m_relative_level;
+    size_type m_relative_level;
 
     Allocators & m_allocators;
 };
