@@ -151,6 +151,10 @@ inline void test_point_multipoint()
     tester::apply(from_wkt<P>("POINT(0 0)"),
                   from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   true);
+
+    tester::apply(from_wkt<P>("POINT(0 0)"),
+                  from_wkt<MP>("MULTIPOINT()"),
+                  true);
 }
 
 template <typename P>
@@ -166,6 +170,14 @@ inline void test_multipoint_multipoint()
 
     tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT()"),
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+                  from_wkt<MP>("MULTIPOINT()"),
                   true);
 }
 
@@ -256,6 +268,10 @@ inline void test_multipoint_segment()
                   false);
 
     tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 }
@@ -394,6 +410,10 @@ inline void test_multipoint_box()
                   false);
 
     tester::apply(from_wkt<MP>("MULTIPOINT(3 3,4 4)"),
+                  from_wkt<B>("BOX(0 0,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 }
@@ -1255,10 +1275,9 @@ inline void test_pointlike_pointlike()
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
 
     test_point_point<point_type>();
-    // not implemented yet
-    //    test_point_multipoint<point_type>();
+    test_point_multipoint<point_type>();
 
-    //    test_multipoint_multipoint<point_type>();
+    test_multipoint_multipoint<point_type>();
 }
 
 template <typename CoordinateType>
@@ -1273,7 +1292,7 @@ inline void test_pointlike_linear()
     // not implemented yet
     //    test_multipoint_linestring<point_type>();
     //    test_multipoint_multilinestring<point_type>();
-    //    test_multipoint_segment<point_type>();
+    test_multipoint_segment<point_type>();
 }
 
 template <typename CoordinateType>
@@ -1290,7 +1309,7 @@ inline void test_pointlike_areal()
     //    test_multipoint_polygon<point_type>();
     //    test_multipoint_multipolygon<point_type>();
     //    test_multipoint_ring<point_type>();
-    //    test_multipoint_box<point_type>();
+    test_multipoint_box<point_type>();
 }
 
 template <typename CoordinateType>
