@@ -351,6 +351,12 @@ private:
         //              b1/b2      (4..4)
         // Ratio: (4-2)/(6-2)
         RatioType const ratio(d - s1, s2 - s1);
+
+        if (!ratio.on_segment())
+        {
+            return Policy::disjoint();
+        }
+
         return Policy::one_degenerate(degenerate_segment, ratio, a_degenerate);
     }
 };

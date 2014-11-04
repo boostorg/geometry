@@ -75,6 +75,10 @@ void test_distance_segment_linestring(Strategy const& strategy)
     tester::apply("segment(1 1,2 2)",
                   "linestring(2 1,1 2,4 0)",
                   0, 0, strategy);
+
+    tester::apply("segment(1 1,2 2)",
+                  "linestring(3 3,3 3)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -155,6 +159,10 @@ void test_distance_segment_multilinestring(Strategy const& strategy)
     tester::apply("segment(1 1,2 2)",
                   "multilinestring((2 1,1 2),(4 0,4 10))",
                   0, 0, strategy);
+
+    tester::apply("segment(1 1,2 2)",
+                  "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",
+                   sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -179,6 +187,14 @@ void test_distance_linestring_multilinestring(Strategy const& strategy)
     tester::apply("linestring(1 1,2 2,3 3)",
                   "multilinestring((1 -10,2 0,2.1 -10,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
                   sqrt(0.005), 0.005, strategy, true);
+
+    tester::apply("linestring(1 1,2 2)",
+                  "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",
+                   sqrt(2.0), 2, strategy);
+
+    tester::apply("linestring(1 1,2 2,3 3,4 4,5 5,6 6,7 7,8 8,9 9)",
+                  "multilinestring((2.5 0,4 0,5 0),(10 10,10 10))",
+                   sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
