@@ -68,8 +68,8 @@ inline bool skip(TurnInfo const& turn_info)
 }
 
 
-template <typename TurnPoints, typename Map>
-inline void map_turns(Map& map, TurnPoints const& turn_points)
+template <typename TurnPoints, typename CountMap>
+inline void count_turns(CountMap& count_map, TurnPoints const& turn_points)
 {
     typedef typename boost::range_value<TurnPoints>::type turn_point_type;
     typedef typename turn_point_type::container_type container_type;
@@ -92,7 +92,7 @@ inline void map_turns(Map& map, TurnPoints const& turn_points)
                         op_it->seg_id.multi_index,
                         op_it->seg_id.ring_index
                     );
-                map[ring_id]++;
+                count_map[ring_id]++;
             }
         }
     }
@@ -249,23 +249,26 @@ std::cout << "traverse" << std::endl;
         std::cout << "traverse: " << timer.elapsed() << std::endl;
 #endif
 
-
-        std::map<ring_identifier, int> map;
-        map_turns(map, turn_points);
+        std::map<ring_identifier, int> turn_count_per_ring;
+        count_turns(turn_count_per_ring, turn_points);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
-        std::cout << "map_turns: " << timer.elapsed() << std::endl;
+        std::cout << "count_turns: " << timer.elapsed() << std::endl;
 #endif
 
-        typedef ring_properties<typename geometry::point_type<GeometryOut>::type> properties;
+        typedef ring_properties
+        <
+            typename geometry::point_type<GeometryOut>::type
+        > properties;
 
-        std::map<ring_identifier, properties> selected;
-        select_rings<Direction>(geometry1, geometry2, map, selected, ! turn_points.empty());
+        // Select all rings which are NOT touched by any intersection point
+        std::map<ring_identifier, properties> selected_ring_properties;
+        select_rings<Direction>(geometry1, geometry2, turn_count_per_ring,
+                selected_ring_properties, ! turn_points.empty());
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "select_rings: " << timer.elapsed() << std::endl;
 #endif
-
 
         // Add rings created during traversal
         {
@@ -275,8 +278,8 @@ std::cout << "traverse" << std::endl;
                  it != boost::end(rings);
                  ++it)
             {
-                selected[id] = properties(*it, true);
-                selected[id].reversed = ReverseOut;
+                selected_ring_properties[id] = properties(*it, true);
+                selected_ring_properties[id].reversed = ReverseOut;
                 id.multi_index++;
             }
         }
@@ -285,14 +288,13 @@ std::cout << "traverse" << std::endl;
         std::cout << "add traversal rings: " << timer.elapsed() << std::endl;
 #endif
 
-
-        assign_parents(geometry1, geometry2, rings, selected);
+        assign_parents(geometry1, geometry2, rings, selected_ring_properties);
 
 #ifdef BOOST_GEOMETRY_TIME_OVERLAY
         std::cout << "assign_parents: " << timer.elapsed() << std::endl;
 #endif
 
-        return add_rings<GeometryOut>(selected, geometry1, geometry2, rings, out);
+        return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out);
     }
 };
 
