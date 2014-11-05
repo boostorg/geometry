@@ -14,6 +14,7 @@
 // unit test to test disjoint for all geometry combinations
 
 #include <iostream>
+#include <sstream>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -60,6 +61,13 @@ struct pretty_print_geometry
         std::cout << bg::wkt(geometry);
         return std::cout;
     }
+
+    static inline std::stringstream& apply(std::stringstream& sstr,
+                                           Geometry const& geometry)
+    {
+        sstr << bg::wkt(geometry);
+        return sstr;
+    }
 };
 
 template <typename Segment>
@@ -69,6 +77,13 @@ struct pretty_print_geometry<Segment, bg::segment_tag>
     {
         std::cout << "SEGMENT" << bg::dsv(segment);
         return std::cout;
+    }
+
+    static inline std::stringstream& apply(std::stringstream& sstr,
+                                           Segment const& segment)
+    {
+        sstr << "SEGMENT" << bg::dsv(segment);
+        return sstr;
     }
 };
 
@@ -80,6 +95,13 @@ struct pretty_print_geometry<Ring, bg::ring_tag>
         std::cout << "RING" << bg::dsv(ring);
         return std::cout;
     }
+
+    static inline std::stringstream& apply(std::stringstream& sstr,
+                                           Ring const& ring)
+    {
+        sstr << "RING" << bg::dsv(ring);
+        return sstr;
+    }
 };
 
 template <typename Box>
@@ -89,6 +111,13 @@ struct pretty_print_geometry<Box, bg::box_tag>
     {
         std::cout << "BOX" << bg::dsv(box);
         return std::cout;
+    }
+
+    static inline std::stringstream& apply(std::stringstream& sstr,
+                                           Box const& box)
+    {
+        sstr << "BOX" << bg::dsv(box);
+        return sstr;
     }
 };
 
@@ -102,10 +131,26 @@ struct test_disjoint
                              bool expected_result)
     {
         bool result = bg::disjoint(geometry1, geometry2);
-        BOOST_CHECK( result == expected_result );
+
+        std::stringstream msg;
+        msg << "G1: ";
+        pretty_print_geometry<Geometry1>::apply(msg, geometry1);
+        msg << ", G2: ";
+        pretty_print_geometry<Geometry2>::apply(msg, geometry2);
+        msg << " -> Expected: " << expected_result
+            << ", detected: " << result;
+        BOOST_CHECK_MESSAGE(result == expected_result, msg.str().c_str());
 
         result = bg::disjoint(geometry2, geometry1);
-        BOOST_CHECK( result == expected_result );
+
+        msg.str(std::string());
+        msg << "G1: ";
+        pretty_print_geometry<Geometry2>::apply(msg, geometry2);
+        msg << ", G2: ";
+        pretty_print_geometry<Geometry1>::apply(msg, geometry1);
+        msg << " -> Expected: " << expected_result
+            << ", detected: " << result;
+        BOOST_CHECK_MESSAGE(result == expected_result, msg.str().c_str());
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "G1 - G2: ";
@@ -201,6 +246,14 @@ inline void test_point_segment()
     tester::apply(from_wkt<P>("POINT(1 1)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
+
+    tester::apply(from_wkt<P>("POINT(3 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply(from_wkt<P>("POINT(-1 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
 }
 
 template <typename P>
@@ -224,6 +277,14 @@ inline void test_point_linestring()
 
     tester::apply(from_wkt<P>("POINT(1 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply(from_wkt<P>("POINT(5 5)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply(from_wkt<P>("POINT(5 5)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2)"),
                   true);
 }
 
@@ -250,6 +311,18 @@ inline void test_point_multilinestring()
     tester::apply(from_wkt<P>("POINT(1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
+
+    tester::apply(from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(3 0,4 0))"),
+                  true);
+
+    tester::apply(from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(0 0,4 0))"),
+                  false);
+
+    tester::apply(from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(-1 0,4 0))"),
+                  false);
 }
 
 template <typename P>
@@ -274,6 +347,23 @@ inline void test_multipoint_segment()
     tester::apply(from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(3 0,4 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,4 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  false);
+
+    // segments that degenerate to a point
+    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<S>("SEGMENT(0 0,0 0)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<S>("SEGMENT(1 1,1 1)"),
+                  false);
 }
 
 template <typename P>
@@ -299,6 +389,18 @@ inline void test_multipoint_linestring()
     tester::apply(from_wkt<MP>("MULTIPOINT(1 0,2 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,3 0)"),
+                  false);
+
+    tester::apply(from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,3 0)"),
+                  false);
 }
 
 template <typename P>
@@ -314,15 +416,15 @@ inline void test_multipoint_multilinestring()
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   true);
 
-    tester::apply(from_wkt<MP>("POINT(0 0,1 0)"),
+    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<MP>("POINT(0 1,1 1)"),
+    tester::apply(from_wkt<MP>("MULTIPOINT(0 1,1 1)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<MP>("POINT(0 1,1 0)"),
+    tester::apply(from_wkt<MP>("MULTIPOINT(0 1,1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 }
@@ -519,6 +621,18 @@ inline void test_segment_segment()
     tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(1 1,2 2)"),
                   true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(1 1,1 1)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(2 2,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
+                  true);
 }
 
 template <typename P>
@@ -547,6 +661,38 @@ inline void test_linestring_segment()
 
     tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 1,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 1,1 1,2 2)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0,1 1,2 2)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0,3 0)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(3 0,3 0,4 0)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(3 0,3 0)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(-1 0,-1 0)"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0)"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 1,1 1)"),
                   true);
 }
 
@@ -577,6 +723,18 @@ inline void test_multilinestring_segment()
 
     tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 1,2 2))"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(3 3,3 3))"),
+                  true);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(1 0,1 0))"),
+                  false);
+
+    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(3 0,3 0))"),
                   true);
 }
 
