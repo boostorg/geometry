@@ -52,6 +52,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/10345 10345] Distance fails to compile for some coordinate types
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
 * [@https://svn.boost.org/trac/boost/ticket/10421 10421] Invalid Point-Box distance for spherical CS
+* [@https://svn.boost.org/trac/boost/ticket/10562 10562] Invalid number of Points in the result of convex_hull() for open output
 * [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
 * [@https://svn.boost.org/trac/boost/ticket/10643 10643] Invalid point_on_surface() result for big coordinates
 * [@https://svn.boost.org/trac/boost/ticket/10668 10668] Implicit conversion warnings (duplicated 8402)
