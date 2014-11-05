@@ -41,6 +41,10 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
+    typedef typename bg::coordinate_type<Polygon>::type ct;
+    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
+    bool const open = bg::closure<Polygon>::value == bg::open;
+
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -153,12 +157,6 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("pie_2_3_23_0",
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, 0.1);
-
-
-    typedef typename bg::coordinate_type<Polygon>::type ct;
-    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
-    bool const open = bg::closure<Polygon>::value == bg::open;
-
 
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
