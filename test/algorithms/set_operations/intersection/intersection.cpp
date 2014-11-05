@@ -255,6 +255,22 @@ void test_areal()
                 ticket_9081_15[0], ticket_9081_15[1],
                 1, 4, 0.0068895780745301394);
 
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
+                ticket_10747_a[0], ticket_10747_a[1],
+                1, 4, 70368744177664);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_b",
+                ticket_10747_b[0], ticket_10747_b[1],
+                1, 4, 7036874417766400);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_c",
+                ticket_10747_c[0], ticket_10747_c[1],
+                1, 4, 17592186044416);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_d",
+                ticket_10747_d[0], ticket_10747_d[1],
+                1, 4, 703687777321);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
+                ticket_10747_e[0], ticket_10747_e[1],
+                1, 4, 7.0368748575710959e-15);
+
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 8, 129.90381);

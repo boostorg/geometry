@@ -23,6 +23,8 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
+
 [*Bugfixes]
 
 * Bug in multipoint/polygon multipoint/multipolygon distance computation (wrong detection of points inside the areal geometry)
