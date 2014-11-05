@@ -260,13 +260,21 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator
     concept::check<Geometry const>();
     concept::check<GeometryOut>();
 
+    typedef typename geometry::rescale_policy_type
+    <
+        typename geometry::point_type<Geometry>::type
+    >::type rescale_policy_type;
+
+    rescale_policy_type robust_policy
+        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+
     return dispatch::dissolve
     <
         typename tag<Geometry>::type,
         typename tag<GeometryOut>::type,
         Geometry,
         GeometryOut
-    >::apply(geometry, detail::no_rescale_policy(), out);
+    >::apply(geometry, robust_policy, out);
 }
 
 

@@ -281,6 +281,11 @@ void test_all()
         "POLYGON((2 8,2 4,4 4,4 6,0 6,0 0,8 0,8 8,2 8))",
         0, 12, 64); // TODO: should have the same, 7, 60. The polygon is dissolved (splitted) but the extra polygon is still on top of the other
 
+    test_one<polygon, polygon>("ticket_10713",
+        "POLYGON((-0.7189743518829346 4.1308121681213379, 0.0831791982054710 4.1034231185913086, 0.1004156470298767 4.1107301712036133, 0.1044322624802589 4.1026973724365234, 0.0831791982054710 4.1034231185913086, -0.7711903452873230 3.7412264347076416, -0.7189743518829346 4.1308121681213379))",
+        0, 8, 0.157052766);
+
+
     // Multi-geometries
     {
         typedef bg::model::multi_polygon<polygon> multi_polygon;
