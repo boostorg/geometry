@@ -52,65 +52,30 @@ namespace bg = ::boost::geometry;
 
 //============================================================================
 
-template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
-struct pretty_print_geometry
-{
-    static inline std::ostream& apply(Geometry const& geometry)
-    {
-        std::cout << bg::wkt(geometry);
-        return std::cout;
-    }
-};
-
-template <typename Segment>
-struct pretty_print_geometry<Segment, bg::segment_tag>
-{
-    static inline std::ostream& apply(Segment const& segment)
-    {
-        std::cout << "SEGMENT" << bg::dsv(segment);
-        return std::cout;
-    }
-};
-
-template <typename Ring>
-struct pretty_print_geometry<Ring, bg::ring_tag>
-{
-    static inline std::ostream& apply(Ring const& ring)
-    {
-        std::cout << "RING" << bg::dsv(ring);
-        return std::cout;
-    }
-};
-
-template <typename Box>
-struct pretty_print_geometry<Box, bg::box_tag>
-{
-    static inline std::ostream& apply(Box const& box)
-    {
-        std::cout << "BOX" << bg::dsv(box);
-        return std::cout;
-    }
-};
-
-//============================================================================
-
 struct test_disjoint
 {
     template <typename Geometry1, typename Geometry2>
-    static inline void apply(Geometry1 const& geometry1,
+    static inline void apply(std::string const& case_id,
+                             Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              bool expected_result)
     {
         bool result = bg::disjoint(geometry1, geometry2);
-        BOOST_CHECK( result == expected_result );
+        BOOST_CHECK_MESSAGE(result == expected_result,
+            "case ID: " << case_id << ", G1: " << bg::wkt(geometry1)
+            << ", G2: " << bg::wkt(geometry2) << " -> Expected: "
+            << expected_result << ", detected: " << result);
 
         result = bg::disjoint(geometry2, geometry1);
-        BOOST_CHECK( result == expected_result );
+        BOOST_CHECK_MESSAGE(result == expected_result,
+            "case ID: " << case_id << ", G1: " << bg::wkt(geometry2)
+            << ", G2: " << bg::wkt(geometry1) << " -> Expected: "
+            << expected_result << ", detected: " << result);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "G1 - G2: ";
-        pretty_print_geometry<Geometry1>::apply(geometry1) << " - ";
-        pretty_print_geometry<Geometry2>::apply(geometry2) << std::endl;
+        std::cout << "case ID: " << case_id << "; G1 - G2: ";
+        std::cout << bg::wkt(geometry1) << " - ";
+        std::cout << bg::wkt(geometry2) << std::endl;
         std::cout << std::boolalpha;
         std::cout << "expected/computed result: "
                   << expected_result << " / " << result << std::endl;
@@ -128,11 +93,13 @@ inline void test_point_point()
 {
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-p-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<P>("POINT(0 0)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-p-02",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<P>("POINT(1 1)"),
                   true);
 }
@@ -144,15 +111,18 @@ inline void test_point_multipoint()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-mp-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-mp-02",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   true);
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-mp-03",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<MP>("MULTIPOINT()"),
                   true);
 }
@@ -164,19 +134,23 @@ inline void test_multipoint_multipoint()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-mp-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-mp-02",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   true);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT()"),
+    tester::apply("mp-mp-03",
+                  from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   true);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-mp-04",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<MP>("MULTIPOINT()"),
                   true);
 }
@@ -190,15 +164,28 @@ inline void test_point_segment()
     typedef test_disjoint tester;
     typedef bg::model::segment<P> S;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-s-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 0)"),
+    tester::apply("p-s-02",
+                  from_wkt<P>("POINT(1 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-s-03",
+                  from_wkt<P>("POINT(1 1)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply("p-s-04",
+                  from_wkt<P>("POINT(3 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply("p-s-05",
+                  from_wkt<P>("POINT(-1 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 }
@@ -210,20 +197,34 @@ inline void test_point_linestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-l-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-l-02",
+                  from_wkt<P>("POINT(1 1)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(3 3)"),
+    tester::apply("p-l-03",
+                  from_wkt<P>("POINT(3 3)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 0)"),
+    tester::apply("p-l-04",
+                  from_wkt<P>("POINT(1 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply("p-l-05",
+                  from_wkt<P>("POINT(5 5)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply("p-l-06",
+                  from_wkt<P>("POINT(5 5)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2)"),
                   true);
 }
 
@@ -235,20 +236,39 @@ inline void test_point_multilinestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 1)"),
+    tester::apply("p-ml-01",
+                  from_wkt<P>("POINT(0 1)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   true);
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-ml-02",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-ml-03",
+                  from_wkt<P>("POINT(1 1)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 0)"),
+    tester::apply("p-ml-04",
+                  from_wkt<P>("POINT(1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
+                  false);
+
+    tester::apply("p-ml-05",
+                  from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(3 0,4 0))"),
+                  true);
+
+    tester::apply("p-ml-06",
+                  from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(0 0,4 0))"),
+                  false);
+
+    tester::apply("p-ml-07",
+                  from_wkt<P>("POINT(0 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2,4 4),(-1 0,4 0))"),
                   false);
 }
 
@@ -259,21 +279,46 @@ inline void test_multipoint_segment()
     typedef bg::model::multi_point<P> MP;
     typedef bg::model::segment<P> S;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
+    tester::apply("mp-s-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
+    tester::apply("mp-s-02",
+                  from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+    tester::apply("mp-s-03",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT()"),
+    tester::apply("mp-s-04",
+                  from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
+
+    tester::apply("mp-s-05",
+                  from_wkt<MP>("MULTIPOINT(3 0,4 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    tester::apply("mp-s-06",
+                  from_wkt<MP>("MULTIPOINT(1 0,4 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  false);
+
+    // segments that degenerate to a point
+    tester::apply("mp-s-07",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<S>("SEGMENT(0 0,0 0)"),
+                  true);
+
+    tester::apply("mp-s-08",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+                  from_wkt<S>("SEGMENT(1 1,1 1)"),
+                  false);
 }
 
 template <typename P>
@@ -284,21 +329,40 @@ inline void test_multipoint_linestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-l-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
+    tester::apply("mp-l-02",
+                  from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,3 3)"),
+    tester::apply("mp-l-03",
+                  from_wkt<MP>("MULTIPOINT(1 0,3 3)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,2 0)"),
+    tester::apply("mp-l-04",
+                  from_wkt<MP>("MULTIPOINT(1 0,2 0)"),
                   from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
                   true);
+
+    tester::apply("mp-l-05",
+                  from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(0 0,2 2,4 4)"),
+                  true);
+
+    tester::apply("mp-l-06",
+                  from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,3 0)"),
+                  false);
+
+    tester::apply("mp-l-07",
+                  from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,3 0)"),
+                  false);
 }
 
 template <typename P>
@@ -310,19 +374,23 @@ inline void test_multipoint_multilinestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 1,0 2)"),
+    tester::apply("mp-ml-01",
+                  from_wkt<MP>("MULTIPOINT(0 1,0 2)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   true);
 
-    tester::apply(from_wkt<MP>("POINT(0 0,1 0)"),
+    tester::apply("mp-ml-02",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<MP>("POINT(0 1,1 1)"),
+    tester::apply("mp-ml-03",
+                  from_wkt<MP>("MULTIPOINT(0 1,1 1)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 
-    tester::apply(from_wkt<MP>("POINT(0 1,1 0)"),
+    tester::apply("mp-ml-04",
+                  from_wkt<MP>("MULTIPOINT(0 1,1 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 }
@@ -336,11 +404,13 @@ inline void test_point_box()
     typedef test_disjoint tester;
     typedef bg::model::box<P> B;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-b-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(2 2)"),
+    tester::apply("p-b-02",
+                  from_wkt<P>("POINT(2 2)"),
                   from_wkt<B>("BOX(0 0,1 0)"),
                   true);
 }
@@ -352,11 +422,13 @@ inline void test_point_ring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-r-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<R>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-r-02",
+                  from_wkt<P>("POINT(1 1)"),
                   from_wkt<R>("POLYGON((0 0,1 0,0 1))"),
                   true);
 }
@@ -368,11 +440,13 @@ inline void test_point_polygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-pg-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-pg-02",
+                  from_wkt<P>("POINT(1 1)"),
                   from_wkt<PL>("POLYGON((0 0,1 0,0 1))"),
                   true);
 }
@@ -385,11 +459,13 @@ inline void test_point_multipolygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<P>("POINT(0 0)"),
+    tester::apply("p-mpg-01",
+                  from_wkt<P>("POINT(0 0)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   false);
 
-    tester::apply(from_wkt<P>("POINT(1 1)"),
+    tester::apply("p-mpg-02",
+                  from_wkt<P>("POINT(1 1)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,1 0,0 1)),((2 0,3 0,2 1)))"),
                   true);
 }
@@ -401,19 +477,23 @@ inline void test_multipoint_box()
     typedef bg::model::multi_point<P> MP;
     typedef bg::model::box<P> B;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
+    tester::apply("mp-b-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 1)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,3 3)"),
+    tester::apply("mp-b-02",
+                  from_wkt<MP>("MULTIPOINT(1 1,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(3 3,4 4)"),
+    tester::apply("mp-b-03",
+                  from_wkt<MP>("MULTIPOINT(3 3,4 4)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT()"),
+    tester::apply("mp-b-04",
+                  from_wkt<MP>("MULTIPOINT()"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 }
@@ -426,15 +506,18 @@ inline void test_multipoint_ring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-r-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<R>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
+    tester::apply("mp-r-02",
+                  from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
                   from_wkt<R>("POLYGON((0 0,1 0,0 1))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
+    tester::apply("mp-r-03",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 2)"),
                   from_wkt<R>("POLYGON((0 0,1 0,0 1))"),
                   true);
 }
@@ -447,19 +530,23 @@ inline void test_multipoint_polygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-pg-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
+    tester::apply("mp-pg-02",
+                  from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
                   from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
+    tester::apply("mp-pg-03",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
                   from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
                   true);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
+    tester::apply("mp-pg-04",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
                   from_wkt<PL>("POLYGON(((0 0,1 0,0 1)))"),
                   true);
 }
@@ -473,19 +560,23 @@ inline void test_multipoint_multipolygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
+    tester::apply("mp-mp-01",
+                  from_wkt<MP>("MULTIPOINT(0 0,2 0)"),
                   from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
+    tester::apply("mp-mp-02",
+                  from_wkt<MP>("MULTIPOINT(0 0,1 0)"),
                   from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
+    tester::apply("mp-mp-03",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 0)"),
                   from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
                   false);
 
-    tester::apply(from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
+    tester::apply("mp-mp-04",
+                  from_wkt<MP>("MULTIPOINT(1 1,2 3)"),
                   from_wkt<MPL>("MULTIPOLYGON((0 0,1 0,0 1)),(2 0,3 0,2 1))"),
                   true);
 }
@@ -500,24 +591,44 @@ inline void test_segment_segment()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-s-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(0 0,0 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-s-02",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(2 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-s-03",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(1 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-s-04",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(1 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-s-05",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<S>("SEGMENT(1 1,2 2)"),
+                  true);
+
+    tester::apply("s-s-06",
+                  from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(1 1,1 1)"),
+                  false);
+
+    tester::apply("s-s-07",
+                  from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(2 2,2 2)"),
+                  true);
+
+    tester::apply("s-s-08",
+                  from_wkt<S>("SEGMENT(0 0,1 1)"),
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
                   true);
 }
 
@@ -529,24 +640,69 @@ inline void test_linestring_segment()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("l-s-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(0 0,0 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("l-s-02",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(2 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("l-s-03",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("l-s-04",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("l-s-05",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 1,2 2)"),
+                  true);
+
+    tester::apply("l-s-06",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 1,1 1,2 2)"),
+                  true);
+
+    tester::apply("l-s-07",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0,1 1,2 2)"),
+                  false);
+
+    tester::apply("l-s-08",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0,3 0)"),
+                  false);
+
+    tester::apply("l-s-09",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(3 0,3 0,4 0)"),
+                  true);
+
+    tester::apply("l-s-10",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(3 0,3 0)"),
+                  true);
+
+    tester::apply("l-s-11",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(-1 0,-1 0)"),
+                  true);
+
+    tester::apply("l-s-12",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 0,1 0)"),
+                  false);
+
+    tester::apply("l-s-13",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<L>("LINESTRING(1 1,1 1)"),
                   true);
 }
 
@@ -559,24 +715,44 @@ inline void test_multilinestring_segment()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-ml-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-ml-02",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((2 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-ml-03",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-ml-04",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-ml-05",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 1,2 2))"),
+                  true);
+
+    tester::apply("s-ml-06",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(3 3,3 3))"),
+                  true);
+
+    tester::apply("s-ml-07",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(1 0,1 0))"),
+                  false);
+
+    tester::apply("s-ml-08",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  from_wkt<ML>("MULTILINESTRING((1 1,2 2),(3 0,3 0))"),
                   true);
 }
 
@@ -587,23 +763,28 @@ inline void test_linestring_linestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-l-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(0 0,0 2)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-l-02",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(2 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-l-03",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 0,3 0)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-l-04",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-l-05",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 1,2 2)"),
                   true);
 }
@@ -616,23 +797,28 @@ inline void test_linestring_multilinestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-ml-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-ml-02",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((2 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-ml-03",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-ml-04",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-ml-05",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 1,2 2))"),
                   true);
 }
@@ -645,23 +831,28 @@ inline void test_multilinestring_multilinestring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-ml-01",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<ML>("MULTILINESTRING((0 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-ml-02",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<ML>("MULTILINESTRING((2 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-ml-03",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<ML>("MULTILINESTRING((1 0,3 0))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-ml-04",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-ml-05",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<ML>("MULTILINESTRING((1 1,2 2))"),
                   true);
 }
@@ -677,76 +868,94 @@ inline void test_segment_box()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-b-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 1,3 3)"),
+    tester::apply("s-b-02",
+                  from_wkt<S>("SEGMENT(1 1,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,3 3)"),
+    tester::apply("s-b-03",
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(4 4,3 3)"),
+    tester::apply("s-b-04",
+                  from_wkt<S>("SEGMENT(4 4,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 4,4 4)"),
+    tester::apply("s-b-05",
+                  from_wkt<S>("SEGMENT(0 4,4 4)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(4 0,4 4)"),
+    tester::apply("s-b-06",
+                  from_wkt<S>("SEGMENT(4 0,4 4)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 -2,0 -1)"),
+    tester::apply("s-b-07",
+                  from_wkt<S>("SEGMENT(0 -2,0 -1)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(-2 -2,-2 -1)"),
+    tester::apply("s-b-08",
+                  from_wkt<S>("SEGMENT(-2 -2,-2 -1)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(-2 -2,-2 -2)"),
+    tester::apply("s-b-09",
+                  from_wkt<S>("SEGMENT(-2 -2,-2 -2)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(-2 0,-2 0)"),
+    tester::apply("s-b-10",
+                  from_wkt<S>("SEGMENT(-2 0,-2 0)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 -2,0 -2)"),
+    tester::apply("s-b-11",
+                  from_wkt<S>("SEGMENT(0 -2,0 -2)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
-    tester::apply(from_wkt<S>("SEGMENT(-2 0,-1 0)"),
+    tester::apply("s-b-12",
+                  from_wkt<S>("SEGMENT(-2 0,-1 0)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 
     // segment degenerates to a point
-    tester::apply(from_wkt<S>("SEGMENT(0 0,0 0)"),
+    tester::apply("s-b-13",
+                  from_wkt<S>("SEGMENT(0 0,0 0)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 1,1 1)"),
+    tester::apply("s-b-14",
+                  from_wkt<S>("SEGMENT(1 1,1 1)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,2 2)"),
+    tester::apply("s-b-15",
+                  from_wkt<S>("SEGMENT(2 2,2 2)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 0,2 0)"),
+    tester::apply("s-b-16",
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(0 2,0 2)"),
+    tester::apply("s-b-17",
+                  from_wkt<S>("SEGMENT(0 2,0 2)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,2 2)"),
+    tester::apply("s-b-18",
+                  from_wkt<S>("SEGMENT(2 2,2 2)"),
                   from_wkt<B>("BOX(0 0,1 1)"),
                   true);
 }
@@ -759,19 +968,23 @@ inline void test_segment_ring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-r-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 0,3 3)"),
+    tester::apply("s-r-02",
+                  from_wkt<S>("SEGMENT(1 0,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 1,3 3)"),
+    tester::apply("s-r-03",
+                  from_wkt<S>("SEGMENT(1 1,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,3 3)"),
+    tester::apply("s-r-04",
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -784,19 +997,23 @@ inline void test_segment_polygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-pg-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 0,3 3)"),
+    tester::apply("s-pg-02",
+                  from_wkt<S>("SEGMENT(1 0,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 1,3 3)"),
+    tester::apply("s-pg-03",
+                  from_wkt<S>("SEGMENT(1 1,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,3 3)"),
+    tester::apply("s-pg-04",
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -810,19 +1027,23 @@ inline void test_segment_multipolygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<S>("SEGMENT(0 0,2 0)"),
+    tester::apply("s-mpg-01",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 0,3 3)"),
+    tester::apply("s-mpg-02",
+                  from_wkt<S>("SEGMENT(1 0,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(1 1,3 3)"),
+    tester::apply("s-mpg-03",
+                  from_wkt<S>("SEGMENT(1 1,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<S>("SEGMENT(2 2,3 3)"),
+    tester::apply("s-mpg-04",
+                  from_wkt<S>("SEGMENT(2 2,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   true);
 }
@@ -835,19 +1056,23 @@ inline void test_linestring_box()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-b-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 1,3 3)"),
+    tester::apply("l-b-02",
+                  from_wkt<L>("LINESTRING(1 1,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(2 2,3 3)"),
+    tester::apply("l-b-03",
+                  from_wkt<L>("LINESTRING(2 2,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(4 4,3 3)"),
+    tester::apply("l-b-04",
+                  from_wkt<L>("LINESTRING(4 4,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 }
@@ -860,19 +1085,23 @@ inline void test_linestring_ring()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-r-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 0,3 3)"),
+    tester::apply("l-r-02",
+                  from_wkt<L>("LINESTRING(1 0,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 1,3 3)"),
+    tester::apply("l-r-03",
+                  from_wkt<L>("LINESTRING(1 1,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(2 2,3 3)"),
+    tester::apply("l-r-04",
+                  from_wkt<L>("LINESTRING(2 2,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -885,19 +1114,23 @@ inline void test_linestring_polygon()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-pg-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 0,3 3)"),
+    tester::apply("l-pg-02",
+                  from_wkt<L>("LINESTRING(1 0,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 1,3 3)"),
+    tester::apply("l-pg-03",
+                  from_wkt<L>("LINESTRING(1 1,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(2 2,3 3)"),
+    tester::apply("l-pg-04",
+                  from_wkt<L>("LINESTRING(2 2,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -911,19 +1144,23 @@ inline void test_linestring_multipolygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<L>("LINESTRING(0 0,2 0)"),
+    tester::apply("l-mpg-01",
+                  from_wkt<L>("LINESTRING(0 0,2 0)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 0,3 3)"),
+    tester::apply("l-mpg-02",
+                  from_wkt<L>("LINESTRING(1 0,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(1 1,3 3)"),
+    tester::apply("l-mpg-03",
+                  from_wkt<L>("LINESTRING(1 1,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<L>("LINESTRING(2 2,3 3)"),
+    tester::apply("l-mpg-04",
+                  from_wkt<L>("LINESTRING(2 2,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   true);
 }
@@ -937,19 +1174,23 @@ inline void test_multilinestring_box()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-b-01",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
+    tester::apply("ml-b-02",
+                  from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+    tester::apply("ml-b-03",
+                  from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((4 4,3 3))"),
+    tester::apply("ml-b-04",
+                  from_wkt<ML>("MULTILINESTRING((4 4,3 3))"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 }
@@ -963,19 +1204,23 @@ inline void test_multilinestring_ring()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-r-01",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
+    tester::apply("ml-r-02",
+                  from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
+    tester::apply("ml-r-03",
+                  from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+    tester::apply("ml-r-04",
+                  from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -989,19 +1234,23 @@ inline void test_multilinestring_polygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-pg-01",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
+    tester::apply("ml-pg-02",
+                  from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
+    tester::apply("ml-pg-03",
+                  from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+    tester::apply("ml-pg-04",
+                  from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -1016,19 +1265,23 @@ inline void test_multilinestring_multipolygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
+    tester::apply("ml-mpg-01",
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 0))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
+    tester::apply("ml-mpg-02",
+                  from_wkt<ML>("MULTILINESTRING((1 0,3 3))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
+    tester::apply("ml-mpg-03",
+                  from_wkt<ML>("MULTILINESTRING((1 1,3 3))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+    tester::apply("ml-mpg-04",
+                  from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   true);
 }
@@ -1043,15 +1296,18 @@ inline void test_box_box()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<B>("BOX(2 2,3 3)"),
+    tester::apply("b-b-01",
+                  from_wkt<B>("BOX(2 2,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(1 1,3 3)"),
+    tester::apply("b-b-02",
+                  from_wkt<B>("BOX(1 1,3 3)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(3 3,4 4)"),
+    tester::apply("b-b-03",
+                  from_wkt<B>("BOX(3 3,4 4)"),
                   from_wkt<B>("BOX(0 0,2 2)"),
                   true);
 }
@@ -1064,15 +1320,18 @@ inline void test_ring_box()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<B>("BOX(2 2,3 3)"),
+    tester::apply("r-b-01",
+                  from_wkt<B>("BOX(2 2,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(1 1,3 3)"),
+    tester::apply("r-b-02",
+                  from_wkt<B>("BOX(1 1,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(3 3,4 4)"),
+    tester::apply("r-b-03",
+                  from_wkt<B>("BOX(3 3,4 4)"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
 }
@@ -1085,15 +1344,18 @@ inline void test_polygon_box()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<B>("BOX(2 2,3 3)"),
+    tester::apply("pg-b-01",
+                  from_wkt<B>("BOX(2 2,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(1 1,3 3)"),
+    tester::apply("pg-b-02",
+                  from_wkt<B>("BOX(1 1,3 3)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(3 3,4 4)"),
+    tester::apply("pg-b-03",
+                  from_wkt<B>("BOX(3 3,4 4)"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
 }
@@ -1107,15 +1369,18 @@ inline void test_multipolygon_box()
     
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<B>("BOX(2 2,3 3)"),
+    tester::apply("mpg-b-01",
+                  from_wkt<B>("BOX(2 2,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(1 1,3 3)"),
+    tester::apply("mpg-b-02",
+                  from_wkt<B>("BOX(1 1,3 3)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<B>("BOX(3 3,4 4)"),
+    tester::apply("mpg-b-03",
+                  from_wkt<B>("BOX(3 3,4 4)"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   true);
 }
@@ -1127,15 +1392,18 @@ inline void test_ring_ring()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
+    tester::apply("r-r-01",
+                  from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
+    tester::apply("r-r-02",
+                  from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
+    tester::apply("r-r-03",
+                  from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<R>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
 }
@@ -1148,15 +1416,18 @@ inline void test_polygon_ring()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
+    tester::apply("pg-r-01",
+                  from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
+    tester::apply("pg-r-02",
+                  from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
+    tester::apply("pg-r-03",
+                  from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
 }
@@ -1170,15 +1441,18 @@ inline void test_multipolygon_ring()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
+    tester::apply("mpg-r-01",
+                  from_wkt<R>("POLYGON((2 2,2 3,3 3,3 2))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
+    tester::apply("mpg-r-02",
+                  from_wkt<R>("POLYGON((1 1,1 3,3 3,3 1))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
+    tester::apply("mpg-r-03",
+                  from_wkt<R>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   true);
 }
@@ -1190,39 +1464,47 @@ inline void test_polygon_polygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<PL>("POLYGON((2 2,2 3,3 3,3 2))"),
+    tester::apply("pg-pg-01",
+                  from_wkt<PL>("POLYGON((2 2,2 3,3 3,3 2))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<PL>("POLYGON((1 1,1 3,3 3,3 1))"),
+    tester::apply("pg-pg-02",
+                  from_wkt<PL>("POLYGON((1 1,1 3,3 3,3 1))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   false);
 
-    tester::apply(from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
+    tester::apply("pg-pg-03",
+                  from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<PL>("POLYGON((0 0,2 0,2 2,0 2))"),
                   true);
 
-    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9))"),
-        from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
-        false);
+    tester::apply("pg-pg-04",
+                  from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9))"),
+                  from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+                  false);
     // polygon with a hole which entirely contains the other polygon
-    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(2 2,2 7,7 7,7 2))"),
-        from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
-        true);
+    tester::apply("pg-pg-05",
+                  from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(2 2,2 7,7 7,7 2))"),
+                  from_wkt<PL>("POLYGON((3 3,6 3,6 6,3 6))"),
+                  true);
     // polygon with a hole, but the inner ring intersects the other polygon
-    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 2,3 7,7 7,7 2))"),
-        from_wkt<PL>("POLYGON((2 3,6 3,6 6,2 6))"),
-        false);
+    tester::apply("pg-pg-06",
+                  from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 2,3 7,7 7,7 2))"),
+                  from_wkt<PL>("POLYGON((2 3,6 3,6 6,2 6))"),
+                  false);
     // polygon with a hole, but the other polygon is entirely contained
     // between the inner and outer rings.
-    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(6 2,6 7,7 7,7 2))"),
-        from_wkt<PL>("POLYGON((3 3,5 3,5 6,3 6))"),
-        false);
+    tester::apply("pg-pg-07",
+                  from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(6 2,6 7,7 7,7 2))"),
+                  from_wkt<PL>("POLYGON((3 3,5 3,5 6,3 6))"),
+                  false);
     // polygon with a hole and the outer ring of the other polygon lies
     // between the inner and outer, but without touching either.
-    tester::apply(from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 3,3 6,6 6,6 3))"),
-        from_wkt<PL>("POLYGON((2 2,7 2,7 7,2 7))"),
-        false);
+    tester::apply("pg-pg-08",
+                  from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 3,3 6,6 6,6 3))"),
+                  from_wkt<PL>("POLYGON((2 2,7 2,7 7,2 7))"),
+                  false);
 }
 
 template <typename P>
@@ -1233,15 +1515,18 @@ inline void test_polygon_multipolygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<PL>("POLYGON((2 2,2 3,3 3,3 2))"),
+    tester::apply("pg-mpg-01",
+                  from_wkt<PL>("POLYGON((2 2,2 3,3 3,3 2))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<PL>("POLYGON((1 1,1 3,3 3,3 1))"),
+    tester::apply("pg-mpg-02",
+                  from_wkt<PL>("POLYGON((1 1,1 3,3 3,3 1))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
+    tester::apply("pg-mpg-03",
+                  from_wkt<PL>("POLYGON((3 3,3 4,4 4,4 3))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   true);
 }
@@ -1254,15 +1539,18 @@ inline void test_multipolygon_multipolygon()
 
     typedef test_disjoint tester;
 
-    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((2 2,2 3,3 3,3 2)))"),
+    tester::apply("mpg-mpg-01",
+                  from_wkt<MPL>("MULTIPOLYGON(((2 2,2 3,3 3,3 2)))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((1 1,1 3,3 3,3 1)))"),
+    tester::apply("mpg-mpg-02",
+                  from_wkt<MPL>("MULTIPOLYGON(((1 1,1 3,3 3,3 1)))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   false);
 
-    tester::apply(from_wkt<MPL>("MULTIPOLYGON(((3 3,3 4,4 4,4 3)))"),
+    tester::apply("mpg-mpg-03",
+                  from_wkt<MPL>("MULTIPOLYGON(((3 3,3 4,4 4,4 3)))"),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,2 2,0 2)))"),
                   true);
 }
