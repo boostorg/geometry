@@ -57,16 +57,6 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-// Skip for assemble process
-template <typename TurnInfo>
-inline bool skip(TurnInfo const& turn_info)
-{
-    return (turn_info.discarded || turn_info.both(operation_union))
-        && ! turn_info.any_blocked()
-        && ! turn_info.both(operation_intersection)
-        ;
-}
-
 
 template <typename TurnPoints, typename CountMap>
 inline void count_turns(CountMap& count_map, TurnPoints const& turn_points)
@@ -79,20 +69,29 @@ inline void count_turns(CountMap& count_map, TurnPoints const& turn_points)
          it != boost::end(turn_points);
          ++it)
     {
-        if (! skip(*it))
+        typename boost::range_value<TurnPoints>::type const& turn_info = *it;
+        bool both_uu = turn_info.both(operation_union);
+        bool skip = (turn_info.discarded || both_uu)
+            && ! turn_info.any_blocked()
+            && ! turn_info.both(operation_intersection)
+            ;
+
+        for (typename boost::range_iterator<container_type const>::type
+                op_it = boost::begin(turn_info.operations);
+            op_it != boost::end(turn_info.operations);
+            ++op_it)
         {
-            for (typename boost::range_iterator<container_type const>::type
-                    op_it = boost::begin(it->operations);
-                op_it != boost::end(it->operations);
-                ++op_it)
+            ring_identifier ring_id
+                (
+                    op_it->seg_id.source_index,
+                    op_it->seg_id.multi_index,
+                    op_it->seg_id.ring_index
+                );
+
+            if (! skip)
             {
-                ring_identifier ring_id
-                    (
-                        op_it->seg_id.source_index,
-                        op_it->seg_id.multi_index,
-                        op_it->seg_id.ring_index
-                    );
-                count_map[ring_id]++;
+                // We set it to 1, will be changed on next commit
+                count_map[ring_id] = 1;
             }
         }
     }

@@ -232,8 +232,8 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         it != boost::end(all_ring_properties);
         ++it)
     {
-        bool has_turns = turn_count_map.find(it->first) != turn_count_map.end();
-        if (! has_turns)
+        typename TurnCountMap::const_iterator tcit = turn_count_map.find(it->first);
+        if (tcit == turn_count_map.end())
         {
             ring_identifier const id = it->first;
             typename RingPropertyMap::mapped_type properties = it->second; // Copy by value
