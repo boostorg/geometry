@@ -253,6 +253,13 @@ void test_areal()
                 ticket_9081_15[0], ticket_9081_15[1],
                 1, 4, 0.0068895780745301394);
 
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
+                ticket_10108_a[0], ticket_10108_a[1],
+                0, 0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
+                ticket_10108_b[0], ticket_10108_b[1],
+                0, 0, 0.0);
+
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
                 1, 4, 70368744177664);

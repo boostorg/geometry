@@ -23,6 +23,7 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/10108 10108] Error in overlay operations in specific cases where geometries touch at one point
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
 
 [*Bugfixes]

@@ -956,7 +956,7 @@ struct buffered_piece_collection
             if (! it->has_intersections())
             {
                 ring_identifier id(0, index, -1);
-                selected[id] = properties(*it, true);
+                selected[id] = properties(*it);
             }
         }
 
@@ -968,7 +968,7 @@ struct buffered_piece_collection
                 ++it, ++index)
         {
             ring_identifier id(2, index, -1);
-            selected[id] = properties(*it, true);
+            selected[id] = properties(*it);
         }
 
         detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, true);

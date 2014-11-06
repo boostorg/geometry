@@ -374,6 +374,15 @@ void test_all()
             6, 24, 20.096189);
 #endif
 
+    test_one<polygon, polygon, polygon>("ticket_10108_a",
+            ticket_10108_a[0], ticket_10108_a[1],
+            1, 4,  0.0145037,
+            1, 4,  0.029019232);
+    test_one<polygon, polygon, polygon>("ticket_10108_b",
+            ticket_10108_b[0], ticket_10108_b[1],
+            1, 5, 1081.68697,
+            1, 5, 1342.65795);
+
     // Other combi's
     {
         test_one<polygon, polygon, ring>(

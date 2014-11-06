@@ -161,14 +161,14 @@ struct dissolve_ring_or_polygon
                             rescale_policy,
                             turns, rings);
 
-            std::map<ring_identifier, int> map;
-            map_turns(map, turns);
+            std::map<ring_identifier, detail::overlay::ring_turn_info> map;
+            get_ring_turn_info(map, turns);
 
             typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_union>(geometry, map, selected, true);
+            detail::overlay::select_rings<overlay_union>(geometry, map, selected);
 
             // Add intersected rings
             {
@@ -178,7 +178,7 @@ struct dissolve_ring_or_polygon
                         it != boost::end(rings);
                         ++it)
                 {
-                    selected[id] = properties(*it, true);
+                    selected[id] = properties(*it);
                     id.multi_index++;
                 }
             }
