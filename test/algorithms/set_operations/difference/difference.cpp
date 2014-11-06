@@ -383,6 +383,13 @@ void test_all()
             1, 5, 1081.68697,
             1, 5, 1342.65795);
 
+    // From assemble-test, with a u/u case
+    test_one<polygon, polygon, polygon>("assemble_0210",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0),(8.5 1,9.5 1,9.5 2,8.5 2,8.5 1))",
+            "POLYGON((2 0.5,0.5 2,0.5 8,2 9.5,6 9.5,8.5 8,8.5 2,7 0.5,2 0.5),(2 2,7 2,7 8,2 8,2 2))",
+            2, 23, 62.25,
+            0, 0, 0.0);
+
     // Other combi's
     {
         test_one<polygon, polygon, ring>(

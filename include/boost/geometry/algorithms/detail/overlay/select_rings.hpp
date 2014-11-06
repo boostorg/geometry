@@ -188,15 +188,29 @@ struct decide<overlay_difference>
 {
     static bool include(ring_identifier const& id, ring_turn_info const& info)
     {
-        // u/u turns for difference: one ring lies inside the other
-        bool const within_other = info.has_uu_turn || info.within_other;
-        bool const is_second = id.source_index == 1;
-        return is_second ? within_other : ! within_other;
+        // Difference: A - B
+
+        // If this is A (source_index=0) and there is only a u/u turn,
+        // then the ring is inside B
+        // If this is B (source_index=1) and there is only a u/u turn,
+        // then the ring is NOT inside A
+
+        // If this is A and the ring is within the other geometry,
+        // then we should NOT include it.
+        // If this is B then we SHOULD include it.
+
+        bool const is_first = id.source_index == 0;
+        bool const within_other = info.within_other
+            || (is_first && info.has_uu_turn);
+        return is_first ? ! within_other : within_other;
     }
 
     static bool reversed(ring_identifier const& id, ring_turn_info const& info)
     {
-        return include(id, info) && id.source_index == 1;
+        // Difference: A - B
+        // If this is B, and the ring is included, it should be reversed afterwards
+
+        return id.source_index == 1 && include(id, info);
     }
 };
 
@@ -254,8 +268,6 @@ inline void update_ring_selection(Geometry1 const& geometry1,
 
         if (! info.has_uu_turn)
         {
-            // There are no turns on this ring
-
             // Check if the ring is within the other geometry, by taking
             // a point lying on the ring
             switch(id.source_index)
