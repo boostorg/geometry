@@ -165,14 +165,14 @@ struct decide
 template<>
 struct decide<overlay_union>
 {
-    template <typename Code>
-    static bool include(ring_identifier const& , Code const& code)
+    template <typename Properties>
+    static bool include(ring_identifier const& , Properties const& properties)
     {
-        return code.within_code * -1 == 1;
+        return properties.within_code * -1 == 1;
     }
 
-    template <typename Code>
-    static bool reversed(ring_identifier const& , Code const& )
+    template <typename Properties>
+    static bool reversed(ring_identifier const& , Properties const& )
     {
         return false;
     }
@@ -181,31 +181,31 @@ struct decide<overlay_union>
 template<>
 struct decide<overlay_difference>
 {
-    template <typename Code>
-    static bool include(ring_identifier const& id, Code const& code)
+    template <typename Properties>
+    static bool include(ring_identifier const& id, Properties const& properties)
     {
         bool is_first = id.source_index == 0;
-        return code.within_code * -1 * (is_first ? 1 : -1) == 1;
+        return properties.within_code * -1 * (is_first ? 1 : -1) == 1;
     }
 
-    template <typename Code>
-    static bool reversed(ring_identifier const& id, Code const& code)
+    template <typename Properties>
+    static bool reversed(ring_identifier const& id, Properties const& properties)
     {
-        return include(id, code) && id.source_index == 1;
+        return include(id, properties) && id.source_index == 1;
     }
 };
 
 template<>
 struct decide<overlay_intersection>
 {
-    template <typename Code>
-    static bool include(ring_identifier const& , Code const& code)
+    template <typename Properties>
+    static bool include(ring_identifier const& , Properties const& properties)
     {
-        return code.within_code * 1 == 1;
+        return properties.within_code * 1 == 1;
     }
 
-    template <typename Code>
-    static bool reversed(ring_identifier const& , Code const& )
+    template <typename Properties>
+    static bool reversed(ring_identifier const& , Properties const& )
     {
         return false;
     }
