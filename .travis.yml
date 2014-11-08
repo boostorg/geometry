@@ -3,10 +3,6 @@ language: cpp
 compiler:
   - gcc
 
-env:
-  - CXXSTD=''
-  - CXXSTD='cxxflags="-std=c++0x"'
-
 before_install:
  - wget http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.bz2/download -O /tmp/boost.tar.bz2
  - tar jxf /tmp/boost.tar.bz2
@@ -16,5 +12,4 @@ before_install:
  - ./bootstrap.sh
  - cd $TRAVIS_BUILD_DIR
 
-script:
- - $BOOST_ROOT/b2 toolset=$CC$GCCVER $CXXSTD
+script: $BOOST_ROOT/b2 toolset=$CC$GCCVER
