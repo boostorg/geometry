@@ -546,6 +546,23 @@ struct buffered_piece_collection
         BOOST_ASSERT(assert_indices_in_robust_rings());
     }
 
+    inline void reverse_negative_robust_rings()
+    {
+        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
+            it != boost::end(m_pieces);
+            ++it)
+        {
+            piece& pc = *it;
+            if (geometry::area(pc.robust_ring) < 0)
+            {
+                // Rings can be ccw:
+                // - in a concave piece
+                // - in a line-buffer with a negative buffer-distance
+                std::reverse(pc.robust_ring.begin(), pc.robust_ring.end());
+            }
+        }
+    }
+
     inline void get_turns()
     {
         {
@@ -564,6 +581,8 @@ struct buffered_piece_collection
         }
 
         insert_rescaled_piece_turns();
+
+        reverse_negative_robust_rings();
 
         {
             // Check if it is inside any of the pieces
