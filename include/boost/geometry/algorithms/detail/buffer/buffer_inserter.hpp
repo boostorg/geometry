@@ -161,6 +161,7 @@ struct buffer_range
                     std::vector<output_point_type> range_out;
                     end_strategy.apply(penultimate_input, prev_perp2, previous_input, perp1, side, distance, range_out);
                     collection.add_endcap(end_strategy, range_out, previous_input);
+                    collection.set_current_ring_concave();
                 }
                 return;
             case strategy::buffer::join_convex :

@@ -69,6 +69,17 @@ class piece_turn_visitor
             || piece1.index == piece2.right_index;
     }
 
+    template <typename Piece>
+    inline bool is_on_same_convex_ring(Piece const& piece1, Piece const& piece2) const
+    {
+        if (piece1.first_seg_id.multi_index != piece2.first_seg_id.multi_index)
+        {
+            return false;
+        }
+
+        return ! m_rings[piece1.first_seg_id.multi_index].has_concave;
+    }
+
     template <typename Range, typename Iterator>
     inline void move_to_next_point(Range const& range, Iterator& next) const
     {
@@ -172,11 +183,13 @@ public:
     {
         boost::ignore_unused_variable_warning(first);
         if ( is_adjacent(piece1, piece2)
+          || is_on_same_convex_ring(piece1, piece2)
           || detail::disjoint::disjoint_box_box(piece1.robust_envelope,
                     piece2.robust_envelope))
         {
             return;
         }
+
         calculate_turns(piece1, piece2);
     }
 };

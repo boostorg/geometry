@@ -636,12 +636,15 @@ struct buffered_piece_collection
         }
     }
 
+    inline void set_current_ring_concave()
+    {
+        BOOST_ASSERT(boost::size(offsetted_rings) > 0);
+        offsetted_rings.back().has_concave = true;
+    }
+
     inline int add_point(point_type const& p)
     {
-        BOOST_ASSERT
-            (
-                boost::size(offsetted_rings) > 0
-            );
+        BOOST_ASSERT(boost::size(offsetted_rings) > 0);
 
         current_segment_id.segment_index++;
         offsetted_rings.back().push_back(p);
@@ -652,6 +655,11 @@ struct buffered_piece_collection
 
     inline piece& create_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
     {
+        if (type == strategy::buffer::buffered_concave)
+        {
+            offsetted_rings.back().has_concave = true;
+        }
+
         piece pc;
         pc.type = type;
         pc.index = boost::size(m_pieces);
