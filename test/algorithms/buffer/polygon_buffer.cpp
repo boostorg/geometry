@@ -14,6 +14,8 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const concave_b
+    = "POLYGON((0 10,5 15,6 13,8 11,0 10))";
 static std::string const square_simplex
     = "POLYGON ((0 0,0 1,1 1,1 0,0 0))";
 static std::string const spike_simplex
@@ -97,6 +99,10 @@ static std::string const parcel3
 static std::string const parcel3_bend // of parcel_3 - clipped
     = "POLYGON((120399.40000152588 461986.43000030518, 120399.47999954224 461986.43000030518, 120403 461986.76769953477, 120403 461987.777217312, 120399.90000152588 461987.47999954224, 120399.72722010587 461990, 120398.71791817161 461990, 120398.93000030518 461986.90000152588, 120398.95000076294 461986.81999969482, 120398.9700012207 461986.74000167847, 120399.00999832153 461986.66999816895, 120399.04999923706 461986.61000061035, 120399.11000061035 461986.54999923706, 120399.16999816895 461986.5, 120399.25 461986.4700012207, 120399.31999969482 461986.43999862671, 120399.40000152588 461986.43000030518))";
 
+// Has concavety
+static std::string const italy_part1
+    = "POLYGON ((1660000 5190000 , 1651702.9375 5167014.5, 1650311.34375 5167763.53125, 1643318.59375 5172188.15625, 1642488.03125 5172636.75, 1640818.25 5173802.75, 1640107.03125 5174511.21875, 1638931.9375 5176054.03125, 1638684.5625 5177095.75, 1660000 5190000))";
+
 // Ticket 10398, fails at next distances ( /10.0 ):
 // #1: 5,25,84
 // #2: 5,13,45,49,60,62,66,73
@@ -176,6 +182,7 @@ void test_all()
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
+    bg::strategy::buffer::join_round join_round_rough(12);
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
@@ -198,6 +205,27 @@ void test_all()
 
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 0.777987, -0.5);
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 0.724208, -0.5);
+
+    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_miter, end_flat, 836.9106, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_miter, end_flat, 4386.6479, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_miter, end_flat, 16487.2000, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1642, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5140, 100.0);
+
+    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2763, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.7577, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_round, end_flat, 8872.6784, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_round, end_flat, 19186.8841, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_round, end_flat, 33425.4379, 100.0);
+
+    test_one<polygon_type, polygon_type>("concave_b_rough_10", concave_b, join_round_rough, end_flat, 512.8457, 10.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // These cases need intersecting sides with offsetted-rings
+    test_one<polygon_type, polygon_type>("concave_b_rough_25", concave_b, join_round_rough, end_flat, 99.99, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_50", concave_b, join_round_rough, end_flat, 99.99, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_75", concave_b, join_round_rough, end_flat, 99.99, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_100", concave_b, join_round_rough, end_flat, 99.99, 100.0);
+#endif
 
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_round, end_round, 50.3633, 1.5);
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_miter, end_flat, 51.5509, 1.5);
@@ -425,6 +453,13 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 1473.7325, -10.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
+
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015307172.18164, 30.0 * 1000.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // These cases need intersecting sides with offsetted-rings
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11362304384.06250, 50.0 * 1000.0);
+#endif
+    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15478123348.53125, 60.0 * 1000.0);
 
     // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
