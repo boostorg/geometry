@@ -223,7 +223,10 @@ template
 struct result_from_distance<cross_track<CalculationType, Strategy>, P, PS>
 {
 private :
-    typedef typename cross_track<CalculationType, Strategy>::template return_type<P, PS> return_type;
+    typedef typename cross_track
+        <
+            CalculationType, Strategy
+        >::template return_type<P, PS>::type return_type;
 public :
     template <typename T>
     static inline return_type apply(cross_track<CalculationType, Strategy> const& , T const& distance)
