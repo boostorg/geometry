@@ -42,13 +42,6 @@ class ellipsoid
             , m_b(T(6356752.314245))
             , m_f((m_a - m_b) / m_a)
         {}
-        
-        // Unit ellipsoid
-        ellipsoid(T const& f)
-            : m_a(1.0)
-            , m_b(T(1) - f)
-            , m_f(f)
-        {}
 
         T a() const { return m_a; }
         T b() const { return m_b; }
