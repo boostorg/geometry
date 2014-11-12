@@ -162,6 +162,12 @@ public:
             return;
         }
 
+        // TEMPORARY solution to enable one-sided buffer.
+        // TODO: this will be invalid for other configurations. We should check,
+        // if a point lies on the border, if it is on the helper lines or on
+        // the internal. If it is on the internal, it is OK
+        bool has_concave = false;
+
         bool neighbour = false;
         for (int i = 0; i < 2; i++)
         {
@@ -172,6 +178,12 @@ public:
             }
 
             Piece const& pc = m_pieces[turn.operations[i].piece_index];
+
+            if (pc.type == strategy::buffer::buffered_concave)
+            {
+                has_concave = true;
+            }
+
             if (pc.left_index == piece.index
                 || pc.right_index == piece.index)
             {
@@ -179,6 +191,12 @@ public:
                 {
                     // If it is a flat end, don't compare against its neighbor:
                     // it will always be located on one of the helper segments
+                    return;
+                }
+                if (pc.type == strategy::buffer::buffered_concave)
+                {
+                    // If it is concave, the same applies: the IP will be
+                    // located on one of the helper segments
                     return;
                 }
                 neighbour = true;
@@ -193,6 +211,7 @@ public:
         }
         if (geometry_code == 0 && neighbour)
         {
+            // The IP falling on the border of its neighbour is a normal situation
             return;
         }
 
@@ -202,7 +221,7 @@ public:
             // If it is on the border and they are not neighbours, it should be
             // on the offsetted ring
 
-            if (! on_offsetted(turn.robust_point, piece))
+            if (! has_concave && ! on_offsetted(turn.robust_point, piece))
             {
                 // It is on the border but not on the offsetted ring.
                 // Then it is somewhere on the helper-segments
