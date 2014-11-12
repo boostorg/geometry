@@ -182,7 +182,7 @@ struct buffered_piece_collection
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
         // 2: half, not part of offsetted rings - part of robust ring
-        std::vector<point_type> helper_points; // 4 points for segment, 3 points for join - 0 points for flat-end
+        std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
 
         // Robust representations
