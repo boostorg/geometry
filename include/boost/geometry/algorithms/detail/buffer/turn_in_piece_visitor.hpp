@@ -171,8 +171,7 @@ public:
                 return;
             }
 
-            typename boost::range_value<Pieces>::type const& pc
-                                = m_pieces[turn.operations[i].piece_index];
+            Piece const& pc = m_pieces[turn.operations[i].piece_index];
             if (pc.left_index == piece.index
                 || pc.right_index == piece.index)
             {
