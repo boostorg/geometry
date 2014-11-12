@@ -23,5 +23,6 @@ test-suite boost-geometry-algorithms-distance
     [ run distance_pointlike_areal.cpp ]
     [ run distance_pointlike_linear.cpp ]
     [ run distance_pointlike_pointlike.cpp ]
+    [ run distance_se_pl_l.cpp ]
     [ run distance_se_pl_pl.cpp ]
     ;

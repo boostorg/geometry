@@ -69,10 +69,6 @@ public :
         : m_ellipsoid()
     {}
 
-    explicit inline andoyer(RadiusType f)
-        : m_ellipsoid(f)
-    {}
-
     explicit inline andoyer(geometry::detail::ellipsoid<RadiusType> const& e)
         : m_ellipsoid(e)
     {}
