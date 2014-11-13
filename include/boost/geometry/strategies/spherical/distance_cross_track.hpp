@@ -281,7 +281,7 @@ private :
     Strategy m_strategy;
 };
 
-}// namespace comparable
+} // namespace comparable
 
 /*!
 \brief Strategy functor for distance point to segment calculation
