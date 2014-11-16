@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -34,8 +39,11 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
+// Core models
+#include <boost/geometry/core/cs_model.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
