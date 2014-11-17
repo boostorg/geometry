@@ -20,6 +20,8 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
 
+#include <boost/geometry/algorithms/detail/flattening.hpp>
+
 #include <boost/geometry/strategies/distance.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -136,7 +138,7 @@ private :
         }
 
         CT const radius_a = CT(get_radius<0>(m_spheroid));
-        CT const flattening = CT(get_radius<0>(m_spheroid) - get_radius<2>(m_spheroid)) / CT(get_radius<0>(m_spheroid));
+        CT const flattening = geometry::detail::flattening<CT>(m_spheroid);
 
         CT const omega = atan(math::sqrt(S / C));
         CT const r3 = c3 * math::sqrt(S * C) / omega; // not sure if this is r or greek nu
