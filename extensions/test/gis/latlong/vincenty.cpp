@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -39,7 +44,9 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
             typename bg::coordinate_type<P1>::type
         >::type rtype;
 
-    typedef bg::strategy::distance::vincenty<rtype> vincenty_type;
+    typedef bg::cs::model::spheroid<rtype> stype;
+
+    typedef bg::strategy::distance::vincenty<stype> vincenty_type;
 
     BOOST_CONCEPT_ASSERT(
         (
