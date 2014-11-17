@@ -59,10 +59,7 @@ public:
     {
         BOOST_STATIC_ASSERT(I < 3);
 
-        if ( I < 2 )
-            return m_a;
-        else
-            return m_b;
+        return I < 2 ? m_a : m_b;
     }
 
     template <std::size_t I>
@@ -70,10 +67,7 @@ public:
     {
         BOOST_STATIC_ASSERT(I < 3);
 
-        if ( I < 2 )
-            m_a = radius;
-        else
-            m_b = radius;
+        (I < 2 ? m_a : m_b) = radius;
     }
 
 private:
