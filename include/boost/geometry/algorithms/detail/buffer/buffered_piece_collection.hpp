@@ -182,7 +182,7 @@ struct buffered_piece_collection
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS)
         // 2: half, not part of offsetted rings - part of robust ring
-        std::vector<point_type> helper_points; // 4 points for segment, 3 points for join - 0 points for flat-end
+        std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
 
         // Robust representations
@@ -546,6 +546,23 @@ struct buffered_piece_collection
         BOOST_ASSERT(assert_indices_in_robust_rings());
     }
 
+    inline void reverse_negative_robust_rings()
+    {
+        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
+            it != boost::end(m_pieces);
+            ++it)
+        {
+            piece& pc = *it;
+            if (geometry::area(pc.robust_ring) < 0)
+            {
+                // Rings can be ccw:
+                // - in a concave piece
+                // - in a line-buffer with a negative buffer-distance
+                std::reverse(pc.robust_ring.begin(), pc.robust_ring.end());
+            }
+        }
+    }
+
     inline void get_turns()
     {
         {
@@ -564,6 +581,8 @@ struct buffered_piece_collection
         }
 
         insert_rescaled_piece_turns();
+
+        reverse_negative_robust_rings();
 
         {
             // Check if it is inside any of the pieces
@@ -636,12 +655,15 @@ struct buffered_piece_collection
         }
     }
 
+    inline void set_current_ring_concave()
+    {
+        BOOST_ASSERT(boost::size(offsetted_rings) > 0);
+        offsetted_rings.back().has_concave = true;
+    }
+
     inline int add_point(point_type const& p)
     {
-        BOOST_ASSERT
-            (
-                boost::size(offsetted_rings) > 0
-            );
+        BOOST_ASSERT(boost::size(offsetted_rings) > 0);
 
         current_segment_id.segment_index++;
         offsetted_rings.back().push_back(p);
@@ -652,6 +674,11 @@ struct buffered_piece_collection
 
     inline piece& create_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
     {
+        if (type == strategy::buffer::buffered_concave)
+        {
+            offsetted_rings.back().has_concave = true;
+        }
+
         piece pc;
         pc.type = type;
         pc.index = boost::size(m_pieces);

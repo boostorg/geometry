@@ -21,10 +21,13 @@
 
 [*Improvements]
 
+* Buffer now supports flat-ends for linestrings with a bend close to the start (such that buffered segment crosses flat-end).
+
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/10108 10108] Error in overlay operations in specific cases where geometries touch at one point
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
+* [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joints, where concavities where not intersected properly
 
 [*Bugfixes]
 
