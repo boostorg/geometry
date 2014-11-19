@@ -162,6 +162,12 @@ public:
             return;
         }
 
+        if (! geometry::covered_by(turn.robust_point, piece.robust_envelope))
+        {
+            // Easy check: if the turn is not in the envelope, we can safely return
+            return;
+        }
+
         // TEMPORARY solution to enable one-sided buffer.
         // TODO: this will be invalid for other configurations. We should check,
         // if a point lies on the border, if it is on the helper lines or on
