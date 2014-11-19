@@ -2,6 +2,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,19 +14,20 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
 
+
 #include <boost/math/constants/constants.hpp>
 
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/radius.hpp>
+
+#include <boost/geometry/algorithms/detail/flattening.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
+
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/geometry/extensions/gis/geographic/detail/ellipsoid.hpp>
-
-
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -45,7 +51,7 @@ namespace strategy { namespace distance
 */
 template
 <
-    typename RadiusType,
+    typename Spheroid,
     typename CalculationType = void
 >
 class vincenty
@@ -64,13 +70,14 @@ public :
           >
     {};
 
-    typedef RadiusType radius_type;
+    typedef Spheroid model_type;
 
     inline vincenty()
+        : m_spheroid()
     {}
 
-    explicit inline vincenty(geometry::detail::ellipsoid<RadiusType> const& e)
-        : m_ellipsoid(e)
+    explicit inline vincenty(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
     {}
 
     template <typename Point1, typename Point2>
@@ -84,25 +91,17 @@ public :
             );
     }
 
-    inline geometry::detail::ellipsoid<RadiusType> ellipsoid() const
+    inline Spheroid const& model() const
     {
-        return m_ellipsoid;
-    }
-
-    inline RadiusType radius() const
-    {
-        // For now return the major axis. It is used in distance_cross_track, from point-to-line
-        return m_ellipsoid.a();
+        return m_spheroid;
     }
 
 private :
-    geometry::detail::ellipsoid<RadiusType> m_ellipsoid;
-
     template <typename CT, typename T>
     inline CT calculate(T const& lon1,
-                T const& lat1,
-                T const& lon2,
-                T const& lat2) const
+                        T const& lat1,
+                        T const& lon2,
+                        T const& lat2) const
     {
         CT const c2 = 2;
         CT const pi = geometry::math::pi<CT>();
@@ -120,9 +119,13 @@ private :
             return CT(0);
         }
 
+        CT const radius_a = CT(get_radius<0>(m_spheroid));
+        CT const radius_b = CT(get_radius<2>(m_spheroid));
+        CT const flattening = geometry::detail::flattening<CT>(m_spheroid);
+
         // U: reduced latitude, defined by tan U = (1-f) tan phi
         CT const c1 = 1;
-        CT const one_min_f = c1 - m_ellipsoid.f();
+        CT const one_min_f = c1 - flattening;
 
         CT const U1 = atan(one_min_f * tan(lat1)); // above (1)
         CT const U2 = atan(one_min_f * tan(lat2)); // above (1)
@@ -150,7 +153,7 @@ private :
         CT const c6 = 6;
         CT const c16 = 16;
 
-        CT const c_e_12 = 1e-12;
+        CT const c_e_12 = CT(1e-12);
 
         do
         {
@@ -163,15 +166,15 @@ private :
             cos2_alpha = c1 - math::sqr(sin_alpha);
             cos2_sigma_m = math::equals(cos2_alpha, 0) ? 0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
 
-            CT C = m_ellipsoid.f()/c16 * cos2_alpha * (c4 + m_ellipsoid.f() * (c4 - c3 * cos2_alpha)); // (10)
+            CT C = flattening/c16 * cos2_alpha * (c4 + flattening * (c4 - c3 * cos2_alpha)); // (10)
             sigma = atan2(sin_sigma, cos_sigma); // (16)
-            lambda = L + (c1 - C) * m_ellipsoid.f() * sin_alpha *
+            lambda = L + (c1 - C) * flattening * sin_alpha *
                 (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
 
         } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
                 && geometry::math::abs(lambda) < pi);
 
-        CT sqr_u = cos2_alpha * (math::sqr(m_ellipsoid.a()) - math::sqr(m_ellipsoid.b())) / math::sqr(m_ellipsoid.b()); // above (1)
+        CT sqr_u = cos2_alpha * (math::sqr(radius_a) - math::sqr(radius_b)) / math::sqr(radius_b); // above (1)
 
         // Oops getting hard here
         // (again, problem is that ttmath cannot divide by doubles, which is OK)
@@ -191,49 +194,51 @@ private :
         CT delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/c4) * (cos(sigma)* (-c1 + c2 * cos2_sigma_m)
                 - (B/c6) * cos2_sigma_m * (-c3 + c4 * math::sqr(sin_sigma)) * (-c3 + c4 * cos2_sigma_m))); // (6)
 
-        return m_ellipsoid.b() * A * (sigma - delta_sigma); // (19)
+        return radius_b * A * (sigma - delta_sigma); // (19)
     }
+
+    Spheroid m_spheroid;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 namespace services
 {
 
-template <typename RadiusType, typename CalculationType>
-struct tag<vincenty<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct tag<vincenty<Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
 };
 
 
-template <typename RadiusType, typename CalculationType, typename P1, typename P2>
-struct return_type<vincenty<RadiusType, CalculationType>, P1, P2>
-    : vincenty<RadiusType, CalculationType>::template calculation_type<P1, P2>
+template <typename Spheroid, typename CalculationType, typename P1, typename P2>
+struct return_type<vincenty<Spheroid, CalculationType>, P1, P2>
+    : vincenty<Spheroid, CalculationType>::template calculation_type<P1, P2>
 {};
 
 
-template <typename RadiusType, typename CalculationType>
-struct comparable_type<vincenty<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct comparable_type<vincenty<Spheroid, CalculationType> >
 {
-    typedef vincenty<RadiusType, CalculationType> type;
+    typedef vincenty<Spheroid, CalculationType> type;
 };
 
 
-template <typename RadiusType, typename CalculationType>
-struct get_comparable<vincenty<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct get_comparable<vincenty<Spheroid, CalculationType> >
 {
-    static inline vincenty<RadiusType, CalculationType> apply(vincenty<RadiusType, CalculationType> const& input)
+    static inline vincenty<Spheroid, CalculationType> apply(vincenty<Spheroid, CalculationType> const& input)
     {
         return input;
     }
 };
 
-template <typename RadiusType, typename CalculationType, typename P1, typename P2>
-struct result_from_distance<vincenty<RadiusType, CalculationType>, P1, P2 >
+template <typename Spheroid, typename CalculationType, typename P1, typename P2>
+struct result_from_distance<vincenty<Spheroid, CalculationType>, P1, P2 >
 {
     template <typename T>
-    static inline typename return_type<vincenty<RadiusType, CalculationType>, P1, P2>::type
-        apply(vincenty<RadiusType, CalculationType> const& , T const& value)
+    static inline typename return_type<vincenty<Spheroid, CalculationType>, P1, P2>::type
+        apply(vincenty<Spheroid, CalculationType> const& , T const& value)
     {
         return value;
     }

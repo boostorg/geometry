@@ -121,7 +121,7 @@ struct access<model::nsphere<Point, CoordinateType>,  Dimension>
 };
 
 template <typename Point, typename RadiusType>
-struct radius_access<model::nsphere<Point, RadiusType>, RadiusType, 0>
+struct radius_access<model::nsphere<Point, RadiusType>, 0>
 {
     typedef model::nsphere<Point, RadiusType> nsphere_type;
 
