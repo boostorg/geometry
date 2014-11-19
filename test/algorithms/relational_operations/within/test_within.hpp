@@ -88,10 +88,6 @@ void test_ordered_ring(std::string const& wkt_point,
     {
         std::reverse(boost::begin(ring), boost::end(ring));
     }
-    if (! Closed)
-    {
-        ring.resize(ring.size() - 1);
-    }
 
     bg::read_wkt(wkt_point, point);
 
