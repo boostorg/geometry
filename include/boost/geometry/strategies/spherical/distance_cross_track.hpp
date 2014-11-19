@@ -138,7 +138,7 @@ namespace comparable
   the distances d1, d2 and d3 in the above listing. Once we have done
   that we need also to make sure that instead of returning XTD (as
   computed above) that we return a distance CXTD that is compatible
-  with the comparable haversine distance. To achive this CXTD must satisfy
+  with the comparable haversine distance. To achieve this CXTD must satisfy
   the relation:
       XTD = 2 * R * asin( sqrt(XTD) )
   where R is the sphere's radius.
