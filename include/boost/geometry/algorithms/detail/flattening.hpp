@@ -30,7 +30,7 @@ struct flattening
 {};
 
 template <typename ResultType, typename Geometry>
-struct flattening<ResultType, Geometry, reference_sphere_tag>
+struct flattening<ResultType, Geometry, srs_sphere_tag>
 {
     static inline ResultType apply(Geometry const& geometry)
     {
@@ -39,7 +39,7 @@ struct flattening<ResultType, Geometry, reference_sphere_tag>
 };
 
 template <typename ResultType, typename Geometry>
-struct flattening<ResultType, Geometry, reference_spheroid_tag>
+struct flattening<ResultType, Geometry, srs_spheroid_tag>
 {
     static inline ResultType apply(Geometry const& geometry)
     {

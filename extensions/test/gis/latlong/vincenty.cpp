@@ -24,6 +24,7 @@
 
 #include <boost/geometry/extensions/gis/geographic/strategies/vincenty.hpp>
 
+#include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/geometries/point.hpp>
@@ -44,7 +45,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
             typename bg::coordinate_type<P1>::type
         >::type rtype;
 
-    typedef bg::cs::model::spheroid<rtype> stype;
+    typedef bg::srs::spheroid<rtype> stype;
 
     typedef bg::strategy::distance::vincenty<stype> vincenty_type;
 

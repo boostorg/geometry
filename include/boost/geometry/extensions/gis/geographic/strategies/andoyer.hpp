@@ -16,9 +16,9 @@
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/cs_model.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/algorithms/detail/flattening.hpp>
 
@@ -203,7 +203,7 @@ struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, ge
 {
     typedef strategy::distance::andoyer
                 <
-                    cs::model::spheroid
+                    srs::spheroid
                         <
                             typename select_coordinate_type<Point1, Point2>::type
                         >

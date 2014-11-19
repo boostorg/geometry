@@ -213,28 +213,28 @@ struct radius_access<Tag, Geometry, Dimension, boost::true_type>
 
 
 template <typename Geometry>
-struct radius_type<reference_sphere_tag, Geometry>
+struct radius_type<srs_sphere_tag, Geometry>
 {
     typedef typename traits::radius_type<Geometry>::type type;
 };
 
 template <typename Geometry, std::size_t Dimension>
-struct radius_access<reference_sphere_tag, Geometry, Dimension, boost::false_type>
-    : detail::radius_access<reference_sphere_tag, Geometry, Dimension>
+struct radius_access<srs_sphere_tag, Geometry, Dimension, boost::false_type>
+    : detail::radius_access<srs_sphere_tag, Geometry, Dimension>
 {
     BOOST_STATIC_ASSERT(Dimension == 0);
     //BOOST_STATIC_ASSERT(Dimension < 3);
 };
 
 template <typename Geometry>
-struct radius_type<reference_spheroid_tag, Geometry>
+struct radius_type<srs_spheroid_tag, Geometry>
 {
     typedef typename traits::radius_type<Geometry>::type type;
 };
 
 template <typename Geometry, std::size_t Dimension>
-struct radius_access<reference_spheroid_tag, Geometry, Dimension, boost::false_type>
-    : detail::radius_access<reference_spheroid_tag, Geometry, Dimension>
+struct radius_access<srs_spheroid_tag, Geometry, Dimension, boost::false_type>
+    : detail::radius_access<srs_spheroid_tag, Geometry, Dimension>
 {
     BOOST_STATIC_ASSERT(Dimension == 0 || Dimension == 2);
     //BOOST_STATIC_ASSERT(Dimension < 3);

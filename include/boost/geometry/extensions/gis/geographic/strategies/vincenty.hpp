@@ -18,7 +18,6 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/cs_model.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/radius.hpp>
 

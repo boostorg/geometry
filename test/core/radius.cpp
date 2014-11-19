@@ -22,10 +22,9 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/srs.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
-
-#include <boost/geometry/core/cs_model.hpp>
 
 
 template <std::size_t I, typename G>
@@ -44,11 +43,11 @@ void test_get_set()
 template <typename T>
 void test_all()
 {
-    typedef bg::cs::model::spheroid<T> Sd;
+    typedef bg::srs::spheroid<T> Sd;
     test_get_set<0, Sd>();
     test_get_set<2, Sd>();
 
-    typedef bg::cs::model::sphere<T> Se;
+    typedef bg::srs::sphere<T> Se;
     test_get_set<0, Se>();
 }
 

@@ -44,11 +44,11 @@ struct geographic_tag : spherical_tag {};
 
 // Tags defining coordinate systems reference models
 
-/// For reference sphere defining parameters of spherical coordinate system
-struct reference_sphere_tag {};
-
 /// For reference spheroid defining parameters of geographical coordinate system
-struct reference_spheroid_tag {};
+struct srs_spheroid_tag {};
+
+/// For reference sphere defining parameters of spherical coordinate system
+struct srs_sphere_tag : srs_spheroid_tag {};
 
 
 // Tags defining tag hierarchy

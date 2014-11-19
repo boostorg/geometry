@@ -16,8 +16,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_CORE_CS_MODEL_HPP
-#define BOOST_GEOMETRY_CORE_CS_MODEL_HPP
+#ifndef BOOST_GEOMETRY_CORE_SRS_HPP
+#define BOOST_GEOMETRY_CORE_SRS_HPP
 
 
 #include <cstddef>
@@ -25,20 +25,20 @@
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 
 namespace boost { namespace geometry
 {
     
-namespace cs { namespace model
+namespace srs
 {
 
 /*!
     \brief Defines spheroid radius values for use in geographical CS calculations
     \note See http://en.wikipedia.org/wiki/Figure_of_the_Earth
           and http://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS84
-    \note
 */
 template <typename RadiusType>
 class spheroid
@@ -74,8 +74,7 @@ private:
     RadiusType m_a, m_b; // equatorial radius, polar radius
 };
 
-
-}} // namespace cs::model
+} // namespace srs
 
 // Traits specializations for spheroid
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -83,21 +82,21 @@ namespace traits
 {
 
 template <typename RadiusType>
-struct tag< cs::model::spheroid<RadiusType> >
+struct tag< srs::spheroid<RadiusType> >
 {
-    typedef reference_spheroid_tag type;
+    typedef srs_spheroid_tag type;
 };
 
 template <typename RadiusType>
-struct radius_type< cs::model::spheroid<RadiusType> >
+struct radius_type< srs::spheroid<RadiusType> >
 {
     typedef RadiusType type;
 };
 
 template <typename RadiusType, std::size_t Dimension>
-struct radius_access<cs::model::spheroid<RadiusType>, Dimension>
+struct radius_access<srs::spheroid<RadiusType>, Dimension>
 {
-    typedef cs::model::spheroid<RadiusType> spheroid_type;
+    typedef srs::spheroid<RadiusType> spheroid_type;
 
     static inline RadiusType get(spheroid_type const& s)
     {
@@ -114,12 +113,11 @@ struct radius_access<cs::model::spheroid<RadiusType>, Dimension>
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
-namespace cs { namespace model
+namespace srs
 {
 
 /*!
     \brief Defines sphere radius value for use in spherical CS calculations
-    \note
 */
 template <typename RadiusType>
 class sphere
@@ -152,8 +150,7 @@ private:
     RadiusType m_r; // radius
 };
 
-
-}} // namespace cs::model
+} // namespace srs
 
 // Traits specializations for sphere
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -161,21 +158,21 @@ namespace traits
 {
 
 template <typename RadiusType>
-struct tag< cs::model::sphere<RadiusType> >
+struct tag< srs::sphere<RadiusType> >
 {
-    typedef reference_sphere_tag type;
+    typedef srs_sphere_tag type;
 };
 
 template <typename RadiusType>
-struct radius_type< cs::model::sphere<RadiusType> >
+struct radius_type< srs::sphere<RadiusType> >
 {
     typedef RadiusType type;
 };
 
 template <typename RadiusType, std::size_t Dimension>
-struct radius_access<cs::model::sphere<RadiusType>, Dimension>
+struct radius_access<srs::sphere<RadiusType>, Dimension>
 {
-    typedef cs::model::sphere<RadiusType> sphere_type;
+    typedef srs::sphere<RadiusType> sphere_type;
 
     static inline RadiusType get(sphere_type const& s)
     {
