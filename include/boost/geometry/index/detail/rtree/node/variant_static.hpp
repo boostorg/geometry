@@ -79,7 +79,7 @@ struct visitor<Value, Parameters, Box, Allocators, node_variant_static_tag, IsVi
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
-struct allocators<Allocator, Value, Parameters, Box, node_variant_static_tag>
+class allocators<Allocator, Value, Parameters, Box, node_variant_static_tag>
     : public Allocator::template rebind<
         typename node<
             Value, Parameters, Box,
