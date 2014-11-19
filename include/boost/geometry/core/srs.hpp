@@ -192,4 +192,4 @@ struct radius_access<srs::sphere<RadiusType>, Dimension>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_CORE_CS_MODEL_HPP
+#endif // BOOST_GEOMETRY_CORE_SRS_HPP

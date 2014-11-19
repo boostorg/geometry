@@ -49,11 +49,11 @@ namespace traits
         - n-sphere (circle,sphere)
         - upcoming ellipse
     \par Specializations should provide:
-        - inline static T get(G const& geometry)
-        - inline static void set(G& geometry, T const& radius)
+        - inline static T get(Geometry const& geometry)
+        - inline static void set(Geometry& geometry, T const& radius)
     \ingroup traits
 */
-template <typename G, std::size_t D>
+template <typename Geometry, std::size_t Dimension>
 struct radius_access {};
 
 
@@ -66,7 +66,7 @@ struct radius_access {};
         - typedef T type (double,float,int,etc)
     \ingroup traits
 */
-template <typename G>
+template <typename Geometry>
 struct radius_type {};
 
 } // namespace traits
