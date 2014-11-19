@@ -287,8 +287,8 @@ namespace comparable
       -> 6 function calls
       -> 2 arithmetic operations
 
-   Summary/Conlusion
-   -----------------
+   Summary/Conclusion
+   ------------------
    Following the mathematical and complexity analysis above, the
    comparable cross track strategy (as implemented below) satisfies
    all the goal mentioned in the beginning:
