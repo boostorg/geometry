@@ -193,7 +193,7 @@ private :
                     Strategy, ptype, sptype
                 >::apply(*str, rtype(1.0));
 
-            boost::ignore_unused(str, r);
+            boost::ignore_unused(str, r, cstrategy);
         }
     };
 
