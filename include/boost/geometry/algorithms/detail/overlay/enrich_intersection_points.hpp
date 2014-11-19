@@ -116,8 +116,8 @@ private :
 
     inline bool default_order(Indexed const& left, Indexed const& right) const
     {
-        // We've nothing to sort on. Take the addresses
-        return boost::addressof(left) < boost::addressof(right);
+        // We've nothing to sort on. Take the indexes
+        return left.turn_index < right.turn_index;
     }
 
     inline bool consider_relative_order(Indexed const& left,
