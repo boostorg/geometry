@@ -51,7 +51,7 @@ double azimuth(double deg, double min, double sec)
 
 template <typename P1, typename P2, typename Spheroid>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2,
-                   double expected_km,
+                   double expected_distance,
                    double expected_azimuth_12,
                    double expected_azimuth_21,
                    Spheroid const& spheroid)
@@ -82,7 +82,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         normalize_deg(expected_azimuth_12);
         normalize_deg(expected_azimuth_21);
         
-        BOOST_CHECK_CLOSE(dist, 1000.0 * expected_km, 0.001);
+        BOOST_CHECK_CLOSE(dist, expected_distance, 0.001);
         BOOST_CHECK_CLOSE(az12_deg, expected_azimuth_12, 0.001);
         //BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
     }
@@ -104,18 +104,18 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         bg::assign_values(p1, lon1, lat1);
         bg::assign_values(p2, lon2, lat2);
 
-        BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(1000.0) * return_type(expected_km), 0.001);
+        BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(expected_distance), 0.001);
     }
 }
 
 template <typename P1, typename P2>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2,
-                   double expected_km,
+                   double expected_distance,
                    double expected_azimuth_12,
                    double expected_azimuth_21)
 {
     test_vincenty<P1, P2>(lon1, lat1, lon2, lat2,
-                          expected_km, expected_azimuth_12, expected_azimuth_21,
+                          expected_distance, expected_azimuth_12, expected_azimuth_21,
                           bg::srs::spheroid<double>());
 }
 
@@ -128,7 +128,8 @@ void test_all()
     // Values in the comments below was calculated using the above pages
     // in some cases distances may be different, previously used values was left
 
-    double gda_a = 6378137.0;
+    // use km
+    double gda_a = 6378.1370;
     double gda_f = 1.0 / 298.25722210;
     double gda_b = gda_a * ( 1.0 - gda_f );
     bg::srs::spheroid<double> gda_spheroid(gda_a, gda_b);
@@ -139,20 +140,18 @@ void test_all()
                           54.972271, azimuth(306,52,5.37), azimuth(127,10,25.07),
                           gda_spheroid);
 
-    test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180); // N
-    test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0); // S
-    test_vincenty<P1, P2>(0, 0, 50, 0, 	5565.974540, 90, -90); // E
-    test_vincenty<P1, P2>(0, 0, -50, 0, 5565.974540, -90, 90); // W
+    test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180, gda_spheroid); // N
+    test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0, gda_spheroid); // S
+    test_vincenty<P1, P2>(0, 0, 50, 0, 	5565.974540, 90, -90, gda_spheroid); // E
+    test_vincenty<P1, P2>(0, 0, -50, 0, 5565.974540, -90, 90, gda_spheroid); // W
     
-    test_vincenty<P1, P2>(0, 0, 50, 50, 7284.879297, azimuth(32,51,55.87), azimuth(237,24,50.12)); // NE
-
-    // 1005.150875, 178deg 53' 23.85'', 359deg 53' 18.35''
-    test_vincenty<P1, P2>(0, 89, 1, 80, 1005.1535769, azimuth(178,53,23.85), azimuth(359,53,18.35)); // sub-polar
-
+    test_vincenty<P1, P2>(0, 0, 50, 50, 7284.879297, azimuth(32,51,55.87), azimuth(237,24,50.12), gda_spheroid); // NE
+    
+    // The original distance values, azimuths calculated using the web form mentioned above
+    // Using default spheroid units (meters)
+    test_vincenty<P1, P2>(0, 89, 1, 80, 1005153.5769, azimuth(178,53,23.85), azimuth(359,53,18.35)); // sub-polar
     test_vincenty<P1, P2>(4, 52, 4, 52, 0.0, 0, 0); // no point difference
-
-    // 1336.027219, 183deg 41' 29.08'', 2deg 58' 5.13''
-    test_vincenty<P1, P2>(4, 52, 3, 40, 1336.039890, azimuth(183,41,29.08), azimuth(2,58,5.13)); // normal case
+    test_vincenty<P1, P2>(4, 52, 3, 40, 1336039.890, azimuth(183,41,29.08), azimuth(2,58,5.13)); // normal case
 }
 
 template <typename P>
