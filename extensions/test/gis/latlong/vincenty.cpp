@@ -96,7 +96,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                 bg::concept::PointDistanceStrategy<vincenty_type, P1, P2>)
             );
 
-        vincenty_type vincenty;
+        vincenty_type vincenty(spheroid);
         typedef typename bg::strategy::distance::services::return_type<vincenty_type, P1, P2>::type return_type;
 
         P1 p1, p2;
