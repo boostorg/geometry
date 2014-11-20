@@ -34,7 +34,6 @@
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
 
-
 template <typename T>
 void normalize_deg(T & deg)
 {
@@ -134,11 +133,16 @@ void test_all()
     double gda_b = gda_a * ( 1.0 - gda_f );
     bg::srs::spheroid<double> gda_spheroid(gda_a, gda_b);
 
-    // FlindersPeak -> Buninyong
-    test_vincenty<P1, P2>(azimuth(144,25,29.52440), azimuth(-37,57,3.72030),
-                          azimuth(143,55,35.38390), azimuth(-37,39,10.15610),
-                          54.972271, azimuth(306,52,5.37), azimuth(127,10,25.07),
-                          gda_spheroid);
+    // Test fractional coordinates only for non-integral types
+    if ( ! boost::is_integral<typename bg::coordinate_type<P1>::type>::value
+      && ! boost::is_integral<typename bg::coordinate_type<P2>::type>::value )
+    {
+        // FlindersPeak -> Buninyong
+        test_vincenty<P1, P2>(azimuth(144,25,29.52440), azimuth(-37,57,3.72030),
+                              azimuth(143,55,35.38390), azimuth(-37,39,10.15610),
+                              54.972271, azimuth(306,52,5.37), azimuth(127,10,25.07),
+                              gda_spheroid);
+    }
 
     test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180, gda_spheroid); // N
     test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0, gda_spheroid); // S
