@@ -237,7 +237,8 @@ struct stateful_range_appender
 {
     typedef typename geometry::point_type<Geometry>::type point_type;
 
-    inline void append(Geometry & geom, point_type const& point, bool)
+    // NOTE: Geometry is a reference
+    inline void append(Geometry geom, point_type const& point, bool)
     {
         geometry::append(geom, point);
     }
@@ -262,7 +263,8 @@ struct stateful_range_appender<Geometry, open>
         : pt_index(0)
     {}
 
-    inline void append(Geometry & geom, point_type const& point, bool is_next_expected)
+    // NOTE: Geometry is a reference
+    inline void append(Geometry geom, point_type const& point, bool is_next_expected)
     {
         bool should_append = true;
 
