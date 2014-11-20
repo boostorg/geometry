@@ -47,23 +47,41 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
 
     typedef bg::srs::spheroid<rtype> stype;
 
-    typedef bg::strategy::distance::vincenty<stype> vincenty_type;
+    // formula
+    {
+        bg::detail::vincenty_inverse<double> vi(lon1 * bg::math::d2r,
+                                                lat1 * bg::math::d2r,
+                                                lon2 * bg::math::d2r,
+                                                lat2 * bg::math::d2r,
+                                                stype());
+        double dist = vi.distance();
+        double az12 = vi.azimuth12();
+        double az21 = vi.azimuth21();
 
-    BOOST_CONCEPT_ASSERT(
-        (
-            bg::concept::PointDistanceStrategy<vincenty_type, P1, P2>)
-        );
+        BOOST_CHECK_CLOSE(dist, 1000.0 * expected_km, 0.001);
+        // TODO - test azimuths
+        boost::ignore_unused(az12, az21);
+    }
 
-    vincenty_type vincenty;
-    typedef typename bg::strategy::distance::services::return_type<vincenty_type, P1, P2>::type return_type;
+    // strategy
+    {
+        typedef bg::strategy::distance::vincenty<stype> vincenty_type;
 
+        BOOST_CONCEPT_ASSERT(
+            (
+                bg::concept::PointDistanceStrategy<vincenty_type, P1, P2>)
+            );
 
-    P1 p1, p2;
+        vincenty_type vincenty;
+        typedef typename bg::strategy::distance::services::return_type<vincenty_type, P1, P2>::type return_type;
 
-    bg::assign_values(p1, lon1, lat1);
-    bg::assign_values(p2, lon2, lat2);
+        P1 p1, p2;
 
-    BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(1000.0) * return_type(expected_km), 0.001);
+        bg::assign_values(p1, lon1, lat1);
+        bg::assign_values(p2, lon2, lat2);
+
+        BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(1000.0) * return_type(expected_km), 0.001);
+    }
 }
 
 template <typename P1, typename P2>

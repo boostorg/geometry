@@ -39,45 +39,128 @@ namespace boost { namespace geometry { namespace detail
     - http://futureboy.homeip.net/fsp/colorize.fsp?fileName=navigation.frink
 
 */
-template <typename CT, typename T1, typename T2, typename Spheroid>
-inline CT vincenty_distance(T1 const& lon1,
-                            T1 const& lat1,
-                            T2 const& lon2,
-                            T2 const& lat2,
-                            Spheroid const& spheroid)
+template <typename CT>
+class vincenty_inverse
 {
-    CT const c2 = 2;
-    CT const pi = geometry::math::pi<CT>();
-    CT const two_pi = c2 * pi;
-
-    // lambda: difference in longitude on an auxiliary sphere
-    CT L = lon2 - lon1;
-    CT lambda = L;
-
-    if (L < -pi) L += two_pi;
-    if (L > pi) L -= two_pi;
-
-    if (math::equals(lat1, lat2) && math::equals(lon1, lon2))
+public:
+    template <typename T1, typename T2, typename Spheroid>
+    vincenty_inverse(T1 const& lon1,
+                     T1 const& lat1,
+                     T2 const& lon2,
+                     T2 const& lat2,
+                     Spheroid const& spheroid)
+        : is_result_zero(false)
     {
-        return CT(0);
+        if (math::equals(lat1, lat2) && math::equals(lon1, lon2))
+        {
+            is_result_zero = true;
+            return;
+        }
+
+        CT const c1 = 1;
+        CT const c2 = 2;
+        CT const c3 = 3;
+        CT const c4 = 4;
+        CT const c16 = 16;
+        CT const c_e_12 = CT(1e-12);
+
+        CT const pi = geometry::math::pi<CT>();
+        CT const two_pi = c2 * pi;
+
+        // lambda: difference in longitude on an auxiliary sphere
+        CT L = lon2 - lon1;
+        CT lambda = L;
+
+        if (L < -pi) L += two_pi;
+        if (L > pi) L -= two_pi;
+
+        radius_a = CT(get_radius<0>(spheroid));
+        radius_b = CT(get_radius<2>(spheroid));
+        CT const flattening = geometry::detail::flattening<CT>(spheroid);
+
+        // U: reduced latitude, defined by tan U = (1-f) tan phi
+        CT const one_min_f = c1 - flattening;
+
+        CT const U1 = atan(one_min_f * tan(lat1)); // above (1)
+        CT const U2 = atan(one_min_f * tan(lat2)); // above (1)
+
+        cos_U1 = cos(U1);
+        cos_U2 = cos(U2);
+        sin_U1 = sin(U1);
+        sin_U2 = sin(U2);
+
+        CT previous_lambda;
+
+        do
+        {
+            previous_lambda = lambda; // (13)
+            sin_lambda = sin(lambda);
+            cos_lambda = cos(lambda);
+            sin_sigma = math::sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
+            CT cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
+            sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
+            cos2_alpha = c1 - math::sqr(sin_alpha);
+            cos2_sigma_m = math::equals(cos2_alpha, 0) ? 0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
+
+            CT C = flattening/c16 * cos2_alpha * (c4 + flattening * (c4 - c3 * cos2_alpha)); // (10)
+            sigma = atan2(sin_sigma, cos_sigma); // (16)
+            lambda = L + (c1 - C) * flattening * sin_alpha *
+                (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
+
+        } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
+                && geometry::math::abs(lambda) < pi);
     }
 
-    CT const radius_a = CT(get_radius<0>(spheroid));
-    CT const radius_b = CT(get_radius<2>(spheroid));
-    CT const flattening = geometry::detail::flattening<CT>(spheroid);
+    inline CT distance() const
+    {
+        if ( is_result_zero )
+        {
+            return CT(0);
+        }
 
-    // U: reduced latitude, defined by tan U = (1-f) tan phi
-    CT const c1 = 1;
-    CT const one_min_f = c1 - flattening;
+        // Oops getting hard here
+        // (again, problem is that ttmath cannot divide by doubles, which is OK)
+        CT const c1 = 1;
+        CT const c2 = 2;
+        CT const c3 = 3;
+        CT const c4 = 4;
+        CT const c6 = 6;
+        CT const c47 = 47;
+        CT const c74 = 74;
+        CT const c128 = 128;
+        CT const c256 = 256;
+        CT const c175 = 175;
+        CT const c320 = 320;
+        CT const c768 = 768;
+        CT const c1024 = 1024;
+        CT const c4096 = 4096;
+        CT const c16384 = 16384;
 
-    CT const U1 = atan(one_min_f * tan(lat1)); // above (1)
-    CT const U2 = atan(one_min_f * tan(lat2)); // above (1)
+        CT sqr_u = cos2_alpha * (math::sqr(radius_a) - math::sqr(radius_b)) / math::sqr(radius_b); // above (1)
 
-    CT const cos_U1 = cos(U1);
-    CT const cos_U2 = cos(U2);
-    CT const sin_U1 = sin(U1);
-    CT const sin_U2 = sin(U2);
+        CT A = c1 + sqr_u/c16384 * (c4096 + sqr_u * (-c768 + sqr_u * (c320 - c175 * sqr_u))); // (3)
+        CT B = sqr_u/c1024 * (c256 + sqr_u * ( -c128 + sqr_u * (c74 - c47 * sqr_u))); // (4)
+        CT delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/c4) * (cos(sigma)* (-c1 + c2 * cos2_sigma_m)
+            - (B/c6) * cos2_sigma_m * (-c3 + c4 * math::sqr(sin_sigma)) * (-c3 + c4 * cos2_sigma_m))); // (6)
 
+        return radius_b * A * (sigma - delta_sigma); // (19)
+    }
+
+    inline CT azimuth12() const
+    {
+        return is_result_zero ?
+               CT(0) :
+               atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda);
+    }
+
+    inline CT azimuth21() const
+    {
+        return is_result_zero ?
+               CT(0) :
+               atan2(cos_U1 * sin_lambda, -sin_U1 * cos_U2 + cos_U1 * sin_U2 * cos_lambda);
+    }
+
+private:
     // alpha: azimuth of the geodesic at the equator
     CT cos2_alpha;
     CT sin_alpha;
@@ -89,56 +172,21 @@ inline CT vincenty_distance(T1 const& lon1,
     CT sin_sigma;
     CT cos2_sigma_m;
 
-    CT previous_lambda;
+    CT sin_lambda;
+    CT cos_lambda;
 
-    CT const c3 = 3;
-    CT const c4 = 4;
-    CT const c6 = 6;
-    CT const c16 = 16;
+    // set only once
+    CT cos_U1;
+    CT cos_U2;
+    CT sin_U1;
+    CT sin_U2;
 
-    CT const c_e_12 = CT(1e-12);
+    // set only once
+    CT radius_a;
+    CT radius_b;
 
-    do
-    {
-        previous_lambda = lambda; // (13)
-        CT sin_lambda = sin(lambda);
-        CT cos_lambda = cos(lambda);
-        sin_sigma = math::sqrt(math::sqr(cos_U2 * sin_lambda) + math::sqr(cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda)); // (14)
-        CT cos_sigma = sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda; // (15)
-        sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma; // (17)
-        cos2_alpha = c1 - math::sqr(sin_alpha);
-        cos2_sigma_m = math::equals(cos2_alpha, 0) ? 0 : cos_sigma - c2 * sin_U1 * sin_U2 / cos2_alpha; // (18)
-
-        CT C = flattening/c16 * cos2_alpha * (c4 + flattening * (c4 - c3 * cos2_alpha)); // (10)
-        sigma = atan2(sin_sigma, cos_sigma); // (16)
-        lambda = L + (c1 - C) * flattening * sin_alpha *
-            (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
-
-    } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
-            && geometry::math::abs(lambda) < pi);
-
-    CT sqr_u = cos2_alpha * (math::sqr(radius_a) - math::sqr(radius_b)) / math::sqr(radius_b); // above (1)
-
-    // Oops getting hard here
-    // (again, problem is that ttmath cannot divide by doubles, which is OK)
-    CT const c47 = 47;
-    CT const c74 = 74;
-    CT const c128 = 128;
-    CT const c256 = 256;
-    CT const c175 = 175;
-    CT const c320 = 320;
-    CT const c768 = 768;
-    CT const c1024 = 1024;
-    CT const c4096 = 4096;
-    CT const c16384 = 16384;
-
-    CT A = c1 + sqr_u/c16384 * (c4096 + sqr_u * (-c768 + sqr_u * (c320 - c175 * sqr_u))); // (3)
-    CT B = sqr_u/c1024 * (c256 + sqr_u * ( -c128 + sqr_u * (c74 - c47 * sqr_u))); // (4)
-    CT delta_sigma = B * sin_sigma * ( cos2_sigma_m + (B/c4) * (cos(sigma)* (-c1 + c2 * cos2_sigma_m)
-            - (B/c6) * cos2_sigma_m * (-c3 + c4 * math::sqr(sin_sigma)) * (-c3 + c4 * cos2_sigma_m))); // (6)
-
-    return radius_b * A * (sigma - delta_sigma); // (19)
-}
+    bool is_result_zero;
+};
 
 }}} // namespace boost::geometry::detail
 

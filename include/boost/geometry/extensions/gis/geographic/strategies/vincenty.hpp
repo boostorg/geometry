@@ -80,14 +80,14 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply(Point1 const& point1, Point2 const& point2) const
     {
-        return geometry::detail::vincenty_distance
+        return geometry::detail::vincenty_inverse
                 <
                     typename calculation_type<Point1, Point2>::type
                 >(get_as_radian<0>(point1),
                   get_as_radian<1>(point1),
                   get_as_radian<0>(point2),
                   get_as_radian<1>(point2),
-                  m_spheroid);
+                  m_spheroid).distance();
     }
 
     inline Spheroid const& model() const
