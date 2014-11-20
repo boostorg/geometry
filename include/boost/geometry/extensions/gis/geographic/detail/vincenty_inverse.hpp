@@ -80,14 +80,26 @@ public:
 
         // U: reduced latitude, defined by tan U = (1-f) tan phi
         CT const one_min_f = c1 - flattening;
+        CT const tan_U1 = one_min_f * tan(lat1); // above (1)
+        CT const tan_U2 = one_min_f * tan(lat2); // above (1)
 
-        CT const U1 = atan(one_min_f * tan(lat1)); // above (1)
-        CT const U2 = atan(one_min_f * tan(lat2)); // above (1)
+        // calculate sin U and cos U using trigonometric identities
+        CT const temp_den_U1 = math::sqrt(c1 + math::sqr(tan_U1));
+        CT const temp_den_U2 = math::sqrt(c1 + math::sqr(tan_U2));
+        // cos = 1 / sqrt(1 + tan^2)
+        cos_U1 = c1 / temp_den_U1;
+        cos_U2 = c1 / temp_den_U2;
+        // sin = tan / sqrt(1 + tan^2)
+        sin_U1 = tan_U1 / temp_den_U1;
+        sin_U2 = tan_U2 / temp_den_U2;
 
-        cos_U1 = cos(U1);
-        cos_U2 = cos(U2);
-        sin_U1 = sin(U1);
-        sin_U2 = sin(U2);
+        // calculate sin U and cos U directly
+        //CT const U1 = atan(tan_U1);
+        //CT const U2 = atan(tan_U2);
+        //cos_U1 = cos(U1);
+        //cos_U2 = cos(U2);
+        //sin_U1 = tan_U1 * cos_U1; // sin(U1);
+        //sin_U2 = tan_U2 * cos_U2; // sin(U2);
 
         CT previous_lambda;
 
@@ -150,14 +162,14 @@ public:
     {
         return is_result_zero ?
                CT(0) :
-               atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda);
+               atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda); // (20)
     }
 
     inline CT azimuth21() const
     {
         return is_result_zero ?
                CT(0) :
-               atan2(cos_U1 * sin_lambda, -sin_U1 * cos_U2 + cos_U1 * sin_U2 * cos_lambda);
+               atan2(cos_U1 * sin_lambda, -sin_U1 * cos_U2 + cos_U1 * sin_U2 * cos_lambda); // (21)
     }
 
 private:
