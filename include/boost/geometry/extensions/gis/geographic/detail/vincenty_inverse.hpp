@@ -107,8 +107,8 @@ public:
             lambda = L + (c1 - C) * flattening * sin_alpha *
                 (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
 
-        } while (geometry::math::abs(previous_lambda - lambda) > c_e_12
-                && geometry::math::abs(lambda) < pi);
+        } while ( geometry::math::abs(previous_lambda - lambda) > c_e_12
+               && geometry::math::abs(lambda) < pi );
     }
 
     inline CT distance() const

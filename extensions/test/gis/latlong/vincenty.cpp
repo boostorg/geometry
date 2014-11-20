@@ -37,7 +37,10 @@
 
 
 template <typename P1, typename P2>
-void test_vincenty(double lon1, double lat1, double lon2, double lat2, double expected_km)
+void test_vincenty(double lon1, double lat1, double lon2, double lat2,
+                   double expected_km,
+                   double expected_azimuth_12,
+                   double expected_azimuth_21)
 {
     // Set radius type, but for integer coordinates we want to have floating point radius type
     typedef typename bg::promote_floating_point
@@ -58,9 +61,12 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
         double az12 = vi.azimuth12();
         double az21 = vi.azimuth21();
 
+        double az12_deg = az12 * bg::math::r2d;
+        double az21_deg = az21 * bg::math::r2d;
+
         BOOST_CHECK_CLOSE(dist, 1000.0 * expected_km, 0.001);
-        // TODO - test azimuths
-        boost::ignore_unused(az12, az21);
+        BOOST_CHECK_CLOSE(az12_deg, expected_azimuth_12, 0.001);
+        //BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
     }
 
     // strategy
@@ -87,9 +93,26 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2, double ex
 template <typename P1, typename P2>
 void test_all()
 {
-    test_vincenty<P1, P2>(0, 89, 1, 80, 1005.1535769); // sub-polar
-    test_vincenty<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
-    test_vincenty<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
+    // See:
+    //  - http://www.ga.gov.au/geodesy/datums/vincenty_inverse.jsp
+    //  - http://www.ga.gov.au/geodesy/datums/vincenty_direct.jsp
+    // Values in the comments below was calculated using the above pages
+    // in some cases distances may be different, previously used values was left
+
+    test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180); // N
+    test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0); // S
+    test_vincenty<P1, P2>(0, 0, 50, 0, 	5565.974540, 90, -90); // E
+    test_vincenty<P1, P2>(0, 0, -50, 0, 5565.974540, -90, 90); // W
+    // 7284.879297, 32deg 51' 55.87'', 237deg 24' 50.12''
+    test_vincenty<P1, P2>(0, 0, 50, 50, 7284.879297, 32+51.0/60+55.87/3600, 237+24.060+50.12/3600-360); // NE
+
+    // 1005.150875, 178deg 53' 23.85'', 359deg 53' 18.35''
+    test_vincenty<P1, P2>(0, 89, 1, 80, 1005.1535769, 178+53.0/60+23.85/3600, 359+53.0/60+18.35/3600-360); // sub-polar
+
+    test_vincenty<P1, P2>(4, 52, 4, 52, 0.0, 0, 0); // no point difference
+
+    // 1336.027219, 183deg 41' 29.08'', 2deg 58' 5.13''
+    test_vincenty<P1, P2>(4, 52, 3, 40, 1336.039890, 183+41.0/60+29.08/3600-360, 2+58.0/60+5.13/3600); // normal case
 }
 
 template <typename P>
