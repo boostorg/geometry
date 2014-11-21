@@ -168,9 +168,10 @@ public:
 
     inline CT azimuth21() const
     {
+        // NOTE: signs of X and Y are different than in the original paper
         return is_result_zero ?
                CT(0) :
-               atan2(cos_U1 * sin_lambda, -sin_U1 * cos_U2 + cos_U1 * sin_U2 * cos_lambda); // (21)
+               atan2(-cos_U1 * sin_lambda, sin_U1 * cos_U2 - cos_U1 * sin_U2 * cos_lambda); // (21)
     }
 
 private:

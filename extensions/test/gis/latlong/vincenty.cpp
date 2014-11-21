@@ -45,7 +45,28 @@ void normalize_deg(T & deg)
 
 double azimuth(double deg, double min, double sec)
 {
+    min = fabs(min);
+    sec = fabs(sec);
+
+    if ( deg < 0 )
+    {
+        min = -min;
+        sec = -sec;
+    }
+
     return deg + min/60.0 + sec/3600.0;
+}
+
+double azimuth(double deg, double min)
+{
+    return azimuth(deg, min, 0.0);
+}
+
+template <typename P>
+bool non_precise_ct(P const&)
+{
+    typedef typename bg::coordinate_type<P>::type ct;
+    return boost::is_integral<ct>::value || boost::is_float<ct>::value;
 }
 
 template <typename P1, typename P2, typename Spheroid>
@@ -83,7 +104,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         
         BOOST_CHECK_CLOSE(dist, expected_distance, 0.001);
         BOOST_CHECK_CLOSE(az12_deg, expected_azimuth_12, 0.001);
-        //BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
+        BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
     }
 
     // strategy
@@ -98,12 +119,15 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         vincenty_type vincenty(spheroid);
         typedef typename bg::strategy::distance::services::return_type<vincenty_type, P1, P2>::type return_type;
 
-        P1 p1, p2;
+        P1 p1;
+        P2 p2;
 
         bg::assign_values(p1, lon1, lat1);
         bg::assign_values(p2, lon2, lat2);
 
-        BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(expected_distance), 0.001);
+        double tolerance = non_precise_ct(p1) || non_precise_ct(p2) ? 5 : 0.001;
+        
+        BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(expected_distance), tolerance);
     }
 }
 
@@ -137,12 +161,29 @@ void test_all()
     if ( ! boost::is_integral<typename bg::coordinate_type<P1>::type>::value
       && ! boost::is_integral<typename bg::coordinate_type<P2>::type>::value )
     {
-        // FlindersPeak -> Buninyong
+        // Flinders Peak -> Buninyong
         test_vincenty<P1, P2>(azimuth(144,25,29.52440), azimuth(-37,57,3.72030),
                               azimuth(143,55,35.38390), azimuth(-37,39,10.15610),
                               54.972271, azimuth(306,52,5.37), azimuth(127,10,25.07),
                               gda_spheroid);
     }
+
+    // Lodz -> Trondheim
+    test_vincenty<P1, P2>(azimuth(19,28), azimuth(51,47),
+                          azimuth(10,21), azimuth(63,23),
+                          1399.032724, azimuth(340,54,25.14), azimuth(153,10,0.19),
+                          gda_spheroid);
+    // London -> New York
+    test_vincenty<P1, P2>(azimuth(0,7,39), azimuth(51,30,26),
+                          azimuth(-74,0,21), azimuth(40,42,46),
+                          5602.044851, azimuth(288,31,36.82), azimuth(51,10,33.43),
+                          gda_spheroid);
+
+    // Shanghai -> San Francisco
+    test_vincenty<P1, P2>(azimuth(121,30), azimuth(31,12),
+                          azimuth(-122,25), azimuth(37,47),
+                          9899.698550, azimuth(45,12,44.76), azimuth(309,50,20.88),
+                          gda_spheroid);
 
     test_vincenty<P1, P2>(0, 0, 0, 50, 5540.847042, 0, 180, gda_spheroid); // N
     test_vincenty<P1, P2>(0, 0, 0, -50, 5540.847042, 180, 0, gda_spheroid); // S
@@ -166,12 +207,11 @@ void test_all()
 
 int test_main(int, char* [])
 {
-
     //test_all<float[2]>();
     //test_all<double[2]>();
-    test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
+    test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
     test_all<bg::model::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
