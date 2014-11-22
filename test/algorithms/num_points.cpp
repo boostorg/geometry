@@ -86,11 +86,11 @@ int test_main(int, char* [])
 
     // test open geometries
     test_num_points<open_ring>("POLYGON((0 0,1 1,0 1))", 3u, 4u);
-    test_num_points<open_ring>("POLYGON((0 0,1 1,0 1,0 0))", 4u, 5u);
+    test_num_points<open_ring>("POLYGON((0 0,1 1,0 1,0 0))", 3u, 4u);
     test_num_points<open_polygon>("POLYGON((0 0,10 10,0 10))", 3u, 4u);
-    test_num_points<open_polygon>("POLYGON((0 0,10 10,0 10,0 0))", 4u, 5u);
+    test_num_points<open_polygon>("POLYGON((0 0,10 10,0 10,0 0))", 3u, 4u);
     test_num_points<open_multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0)),((0 10,1 10,1 9)))", 7u, 9u);
-    test_num_points<open_multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 10,1 10,1 9,0 10)))", 9u, 11u);
+    test_num_points<open_multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 10,1 10,1 9,0 10)))", 7u, 9u);
 
     return 0;
 }

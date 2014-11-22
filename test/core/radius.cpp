@@ -1,4 +1,5 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
+// Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
@@ -17,44 +18,45 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_CORE_RADIUS_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_CORE_RADIUS_HPP
+#include <geometry_test_common.hpp>
 
-
-#include <cstddef>
-
-
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/srs.hpp>
 
-#include <boost/geometry/extensions/nsphere/core/tags.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 
 
-namespace boost { namespace geometry
+template <std::size_t I, typename G>
+void test_get_set()
 {
+    typedef typename bg::radius_type<G>::type radius_type;
 
+    G g;
+    bg::set_radius<I>(g, radius_type(5));
 
-#ifndef DOXYGEN_NO_DISPATCH
-namespace core_dispatch
+    radius_type x = bg::get_radius<I>(g);
+
+    BOOST_CHECK_CLOSE(double(x), 5.0, 0.0001);
+}
+
+template <typename T>
+void test_all()
 {
+    typedef bg::srs::spheroid<T> Sd;
+    test_get_set<0, Sd>();
+    test_get_set<2, Sd>();
 
-template <typename S>
-struct radius_type<nsphere_tag, S>
+    typedef bg::srs::sphere<T> Se;
+    test_get_set<0, Se>();
+}
+
+
+int test_main(int, char* [])
 {
-    typedef typename traits::radius_type<S>::type type;
-};
+    test_all<int>();
+    test_all<float>();
+    test_all<double>();
 
-template <typename S, std::size_t D>
-struct radius_access<nsphere_tag, S, D, boost::false_type>
-    : detail::radius_access<nsphere_tag, S, D>
-{
-    BOOST_STATIC_ASSERT((D == 0));
-};
-
-} // namespace core_dispatch
-#endif // DOXYGEN_NO_DISPATCH
-
-
-}} // namespace boost::geometry
-
-
-#endif // BOOST_GEOMETRY_RADIUS_HPP
+    return 0;
+}

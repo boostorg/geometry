@@ -5,6 +5,11 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -46,6 +51,33 @@ void test_all();
 #include "io/wkt/wkt.cpp"
 
 template <typename T>
+void test_order_closure()
+{
+    using namespace boost::geometry;
+    typedef bg::model::point<T, 2, bg::cs::cartesian> Pt;
+    typedef bg::model::polygon<Pt, true, true> PCWC;
+    typedef bg::model::polygon<Pt, true, false> PCWO;
+    typedef bg::model::polygon<Pt, false, true> PCCWC;
+    typedef bg::model::polygon<Pt, false, false> PCCWO;
+    typedef bg::model::multi_polygon<PCWC> MPCWC;
+    typedef bg::model::multi_polygon<PCWO> MPCWO;
+    typedef bg::model::multi_polygon<PCCWC> MPCCWC;
+    typedef bg::model::multi_polygon<PCCWO> MPCCWO;
+
+    std::string wkt_cwc = "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((0 0,0 -3,-3 -3,-3 0,0 0),(-1 -1,-2 -1,-2 -2,-1 -2,-1 -1)))";
+    std::string wkt_cwo = "MULTIPOLYGON(((0 0,0 2,2 2,2 0)),((0 0,0 -3,-3 -3,-3 0),(-1 -1,-2 -1,-2 -2,-1 -2)))";
+    std::string wkt_ccwc = "MULTIPOLYGON(((0 0,2 0,2 2,0 2,0 0)),((0 0,-3 0,-3 -3,0 -3,0 0),(-1 -1,-1 -2,-2 -2,-2 -1,-1 -1)))";
+    std::string wkt_ccwo = "MULTIPOLYGON(((0 0,2 0,2 2,0 2)),((0 0,-3 0,-3 -3,0 -3),(-1 -1,-1 -2,-2 -2,-2 -1)))";
+
+    test_wkt<MPCWC>(wkt_cwc, wkt_cwc, 15, 0, 12, 24);
+    test_wkt<MPCWO>(wkt_cwc, wkt_cwc, 12, 0, 12, 24);
+    test_wkt<MPCWO>(wkt_cwo, wkt_cwc, 12, 0, 12, 24);
+    test_wkt<MPCCWC>(wkt_ccwc, wkt_ccwc, 15, 0, 12, 24);
+    test_wkt<MPCCWO>(wkt_ccwc, wkt_ccwc, 12, 0, 12, 24);
+    test_wkt<MPCCWO>(wkt_ccwo, wkt_ccwc, 12, 0, 12, 24);
+}
+
+template <typename T>
 void test_all()
 {
     using namespace boost::geometry;
@@ -79,6 +111,8 @@ void test_all()
     test_wrong_wkt<bg::model::multi_point<P> >(
         "MULTIPOINT(16 17), (18 19)",
         "too much tokens at ',' in 'multipoint(16 17), (18 19)'");
+
+    test_order_closure<T>();
 }
 
 /*
