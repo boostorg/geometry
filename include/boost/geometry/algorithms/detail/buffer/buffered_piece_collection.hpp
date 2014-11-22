@@ -379,12 +379,16 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_turns()
+    inline void classify_turns(bool linear)
     {
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
             if (it->count_within > 0)
+            {
+                it->location = inside_buffer;
+            }
+            if (it->count_on_original_boundary > 0 && ! linear)
             {
                 it->location = inside_buffer;
             }
@@ -599,10 +603,6 @@ struct buffered_piece_collection
                 >::apply(m_turns, m_pieces, visitor);
 
         }
-
-        classify_turns();
-
-        //get_occupation();
     }
 
     inline void start_new_ring()
