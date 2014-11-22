@@ -120,13 +120,6 @@ public :
     template <typename Point, typename Piece>
     static inline analyse_result apply(Point const& point, Piece const& piece)
     {
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Point>::type
-            >::type side_strategy;
-        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-        typedef geometry::model::box<Point> box_type;
-
         // TODO: we will check first helper-segments here, if it is left of
         // any helper segment we're done (assuming joins stay within the area
         // of the helper-segments, even if they have concavities there
@@ -260,13 +253,17 @@ public:
                 mutable_turn.count_on_offsetted++; // value is not used anymore
                 break;
             case analyse_near_offsetted :
-                mutable_turn.count_within_near_offsetted++;
+                if (geometry_code == 1)
+                {
+                    mutable_turn.count_within_near_offsetted++;
+                }
                 break;
             default :
-                if (! has_concave && geometry_code == 1)
+                if (geometry_code == 1 || (geometry_code == 0 && ! has_concave))
                 {
                     mutable_turn.count_within++;
                 }
+
                 break;
         }
     }
