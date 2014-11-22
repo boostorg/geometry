@@ -54,48 +54,83 @@ struct turn_ovelaps_box
     }
 };
 
-template <typename Turns, typename Pieces>
-class turn_in_piece_visitor
+
+enum analyse_result
 {
-    Turns& m_turns; // because partition is currently operating on const input only
-    Pieces const& m_pieces; // to check for piece-type
+    analyse_unknown,
+    analyse_continue,
+    analyse_on_offsetted,
+    analyse_near_offsetted
+};
 
-    typedef boost::long_long_type calculation_type;
-
+class analyse_turn_wrt_piece
+{
     template <typename Point>
-    static inline bool projection_on_segment(Point const& subject, Point const& p, Point const& q)
-    {
-        typedef Point vector_type;
-        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-        vector_type v = q;
-        vector_type w = subject;
-        subtract_point(v, p);
-        subtract_point(w, p);
-
-        coordinate_type const zero = coordinate_type();
-        coordinate_type const c1 = dot_product(w, v);
-
-        if (c1 < zero)
-        {
-            return false;
-        }
-        coordinate_type const c2 = dot_product(v, v);
-        if (c2 < c1)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    template <typename Point, typename Piece>
-    inline bool on_offsetted(Point const& point, Piece const& piece) const
+    static inline analyse_result check_segment(Point const& previous, Point const& current, Point const& point)
     {
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Point>::type
             >::type side_strategy;
+        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+        typedef geometry::model::box<Point> box_type;
+
+
+        // Get its box (TODO: this can be prepared-on-demand later)
+        box_type box;
+        bg::assign_inverse(box);
+        bg::expand(box, previous);
+        bg::expand(box, current);
+
+        coordinate_type const twice_area
+            = side_strategy::template side_value
+                <
+                    coordinate_type,
+                    coordinate_type
+                >(previous, current, point);
+
+        if (twice_area == 0)
+        {
+            // Collinear, only on segment if it is covered by its bbox
+            if (geometry::covered_by(point, box))
+            {
+                return analyse_on_offsetted;
+            }
+        }
+
+        if (twice_area < 0 && geometry::covered_by(point, box))
+        {
+            // It is in the triangle right-of the segment where the
+            // segment is the hypothenusa. Check if it is close
+            // (within rounding-area)
+            if (twice_area * twice_area < bg::comparable_distance(previous, current))
+            {
+                return analyse_near_offsetted;
+            }
+        }
+//        if (twice_area > 0)
+//        {
+//            // Left of segment
+//            // TODO: use within state here
+//        }
+        return analyse_continue;
+    }
+
+public :
+    template <typename Point, typename Piece>
+    static inline analyse_result apply(Point const& point, Piece const& piece)
+    {
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<Point>::type
+            >::type side_strategy;
+        typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+        typedef geometry::model::box<Point> box_type;
+
+        // TODO: we will check first helper-segments here, if it is left of
+        // any helper segment we're done (assuming joins stay within the area
+        // of the helper-segments, even if they have concavities there
+
         geometry::equal_to<Point> comparator;
 
         for (int i = 1; i < piece.offsetted_count; i++)
@@ -103,38 +138,28 @@ class turn_in_piece_visitor
             Point const& previous = piece.robust_ring[i - 1];
             Point const& current = piece.robust_ring[i];
 
-            // The robust ring contains duplicates, avoid applying side on them (will be 0)
+            // The robust ring can contain duplicates
+            // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                int const side = side_strategy::apply(previous, current, point);
-                if (side == 0)
+                analyse_result code = check_segment(previous, current, point);
+                if (code != analyse_continue)
                 {
-                    // Collinear, check if projection falls on it
-                    if (projection_on_segment(point, previous, current))
-                    {
-                        return true;
-                    }
+                    return code;
                 }
             }
         }
-        return false;
+        return analyse_unknown; // Not collinear or very close
     }
 
-    template <typename Point, typename Piece>
-    static inline
-    calculation_type comparable_distance_from_offsetted(Point const& point,
-                        Piece const& piece)
-    {
-        // TODO: pass subrange to dispatch to avoid making copy
-        geometry::model::linestring<Point> ls;
-        std::copy(piece.robust_ring.begin(),
-            piece.robust_ring.begin() + piece.offsetted_count,
-            std::back_inserter(ls));
-        typename default_comparable_distance_result<Point, Point>::type
-            const comp = geometry::comparable_distance(point, ls);
+};
 
-        return static_cast<calculation_type>(comp);
-    }
+
+template <typename Turns, typename Pieces>
+class turn_in_piece_visitor
+{
+    Turns& m_turns; // because partition is currently operating on const input only
+    Pieces const& m_pieces; // to check for piece-type
 
 public:
 
@@ -169,9 +194,7 @@ public:
         }
 
         // TEMPORARY solution to enable one-sided buffer.
-        // TODO: this will be invalid for other configurations. We should check,
-        // if a point lies on the border, if it is on the helper lines or on
-        // the internal. If it is on the internal, it is OK
+        // TODO: this will replaced by analyse_piece
         bool has_concave = false;
 
         bool neighbour = false;
@@ -209,53 +232,42 @@ public:
             }
         }
 
+        // TODO: this point_in_geometry is a performance-bottleneck here and
+        // will be replaced completely by extending analyse_piece functionality
         int geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
 
         if (geometry_code == -1)
         {
+            // Outside, always return
             return;
         }
+
         if (geometry_code == 0 && neighbour)
         {
             // The IP falling on the border of its neighbour is a normal situation
             return;
         }
 
+        // TODO: mutable_piece to make some on-demand preparations in analyse
+        analyse_result analyse_code
+            = analyse_turn_wrt_piece::apply(turn.robust_point, piece);
+
         Turn& mutable_turn = m_turns[turn.turn_index];
-        if (geometry_code == 0)
-        {
-            // If it is on the border and they are not neighbours, it should be
-            // on the offsetted ring
 
-            if (! has_concave && ! on_offsetted(turn.robust_point, piece))
-            {
-                // It is on the border but not on the offsetted ring.
-                // Then it is somewhere on the helper-segments
-                // Classify it as "within"
-                geometry_code = 1;
-                mutable_turn.count_on_helper++; // can still become "near_offsetted"
-            }
-            else
-            {
+        switch(analyse_code)
+        {
+            case analyse_on_offsetted :
                 mutable_turn.count_on_offsetted++; // value is not used anymore
-            }
-        }
-
-        if (geometry_code == 1)
-        {
-            calculation_type const distance
-                = comparable_distance_from_offsetted(turn.robust_point, piece);
-            if (distance >= 4)
-            {
-                // This is too far from the border, it counts as "really within"
-                mutable_turn.count_within++;
-            }
-            else
-            {
-                // Other points count as still "on border" because they might be
-                // travelled through, but not used as starting point
+                break;
+            case analyse_near_offsetted :
                 mutable_turn.count_within_near_offsetted++;
-            }
+                break;
+            default :
+                if (! has_concave && geometry_code == 1)
+                {
+                    mutable_turn.count_within++;
+                }
+                break;
         }
     }
 };
