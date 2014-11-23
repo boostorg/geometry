@@ -12,6 +12,8 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/arithmetic/dot_product.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
@@ -20,8 +22,6 @@
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/algorithms/comparable_distance.hpp>
 
 namespace boost { namespace geometry
 {
@@ -81,9 +81,9 @@ class analyse_turn_wrt_piece
 
         // Get its box (TODO: this can be prepared-on-demand later)
         box_type box;
-        bg::assign_inverse(box);
-        bg::expand(box, previous);
-        bg::expand(box, current);
+        geometry::assign_inverse(box);
+        geometry::expand(box, previous);
+        geometry::expand(box, current);
 
         coordinate_type const twice_area
             = side_strategy::template side_value
@@ -106,7 +106,7 @@ class analyse_turn_wrt_piece
             // It is in the triangle right-of the segment where the
             // segment is the hypothenusa. Check if it is close
             // (within rounding-area)
-            if (twice_area * twice_area < bg::comparable_distance(previous, current))
+            if (twice_area * twice_area < geometry::comparable_distance(previous, current))
             {
                 return analyse_near_offsetted;
             }
@@ -140,15 +140,15 @@ class analyse_turn_wrt_piece
                     typedef geometry::model::box<Point> box_type;
 
                     box_type box;
-                    bg::assign_inverse(box);
-                    bg::expand(box, s1);
-                    bg::expand(box, s2);
+                    geometry::assign_inverse(box);
+                    geometry::expand(box, s1);
+                    geometry::expand(box, s2);
 
                     if (geometry::covered_by(point, box))
                     {
                         // It is on the segment
                         if (return_if_collinear == analyse_within
-                            && bg::comparable_distance(point, offsetted) <= 1)
+                            && geometry::comparable_distance(point, offsetted) <= 1)
                         {
                             // It is close to the offsetted-boundary, take
                             // any rounding-issues into account
