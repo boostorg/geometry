@@ -139,7 +139,7 @@ class analyse_turn_wrt_piece
     template <typename Point>
     static inline analyse_result check_helper_segment(Point const& s1,
                 Point const& s2, Point const& point,
-                analyse_result return_if_collinear,
+                bool is_original,
                 Point const& offsetted)
     {
         typedef typename strategy::side::services::default_strategy
@@ -164,7 +164,7 @@ class analyse_turn_wrt_piece
                     if (geometry::covered_by(point, box))
                     {
                         // It is on the segment
-                        if (return_if_collinear == analyse_within
+                        if (! is_original
                             && geometry::comparable_distance(point, offsetted) <= 1)
                         {
                             // It is close to the offsetted-boundary, take
@@ -172,11 +172,18 @@ class analyse_turn_wrt_piece
                             return analyse_near_offsetted;
                         }
 
-                        return return_if_collinear;
+                        // Points on helper-segments are considered as within
+                        // Points on original boundary are processed differently
+                        return is_original
+                            ? analyse_on_original_boundary
+                            : analyse_within;
                     }
 
-                    // It is not on the segment
-                    return analyse_continue;
+                    // It is collinear but not on the segment. Because these
+                    // segments are convex, it is outside
+                    // Unless the offsetted ring is collinear or concave w.r.t.
+                    // helper-segment but that scenario is not yet supported
+                    return analyse_disjoint;
                 }
                 break;
         }
@@ -226,18 +233,18 @@ class analyse_turn_wrt_piece
             return analyse_on_original_boundary;
         }
 
-        // Right side
+        // Right side of the piece
         analyse_result result
             = check_helper_segment(points[0], points[1], point,
-                    analyse_within, points[0]);
+                    false, points[0]);
         if (result != analyse_continue)
         {
             return result;
         }
 
-        // Left side
+        // Left side of the piece
         result = check_helper_segment(points[2], points[3], point,
-                    analyse_within, points[3]);
+                    false, points[3]);
         if (result != analyse_continue)
         {
             return result;
@@ -245,12 +252,30 @@ class analyse_turn_wrt_piece
 
         if (! comparator(points[1], points[2]))
         {
-            // Side at original
+            // Side of the piece at side of original geometry
             result = check_helper_segment(points[1], points[2], point,
-                        analyse_on_original_boundary, point);
+                        true, point);
             if (result != analyse_continue)
             {
                 return result;
+            }
+        }
+
+        // We are within the \/ or |_| shaped piece, where the top is the
+        // offsetted ring.
+        if (! geometry::covered_by(point, piece.robust_offsetted_envelope))
+        {
+            // Not in offsetted-area. This makes a cheap check possible
+            typedef typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<Point>::type
+                >::type side_strategy;
+
+            switch(side_strategy::apply(points[3], points[0], point))
+            {
+                case 1 : return analyse_disjoint;
+                case -1 : return analyse_within;
+                case 0 : return analyse_disjoint;
             }
         }
 
