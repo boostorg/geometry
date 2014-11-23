@@ -168,7 +168,7 @@ void test_all()
 
     test_one<mpt, pt>("it1", it,     551474452673, -1);
     test_one<mpt, pt>("it2", it,     542617896207, -2);
-    test_one<mpt, pt>("it5", it,     517403394911, -5);
+    test_one<mpt, pt>("it5", it,     517403395015, -5);
     test_one<mpt, pt>("it10", it,    477948804826, -10);
     test_one<mpt, pt>("it20", it,    404704185411, -20);
     test_one<mpt, pt>("it50", it,    238775955402, -50);
@@ -201,7 +201,7 @@ void test_all()
 
     test_one<mpt, pt>("no1", no,    1725145481020, -1);
     test_one<mpt, pt>("no2", no,    1678942941890, -2);
-    test_one<mpt, pt>("no5", no,    1547331903747, -5);
+    test_one<mpt, pt>("no5", no,    1547331904374, -5);
     test_one<mpt, pt>("no10", no,   1361206959153, -10);
     test_one<mpt, pt>("no20", no,   1089865725529, -20);
     test_one<mpt, pt>("no50", no,    649657900609, -50);

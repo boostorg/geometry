@@ -31,6 +31,23 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
+struct piece_get_box
+{
+    template <typename Box, typename Piece>
+    static inline void apply(Box& total, Piece const& piece)
+    {
+        geometry::expand(total, piece.robust_envelope);
+    }
+};
+
+struct piece_ovelaps_box
+{
+    template <typename Box, typename Piece>
+    static inline bool apply(Box const& box, Piece const& piece)
+    {
+        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_envelope);
+    }
+};
 
 struct turn_get_box
 {

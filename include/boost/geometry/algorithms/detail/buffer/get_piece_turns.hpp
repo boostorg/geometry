@@ -27,21 +27,21 @@ namespace detail { namespace buffer
 {
 
 
-struct piece_get_box
+struct piece_get_offsetted_box
 {
     template <typename Box, typename Piece>
     static inline void apply(Box& total, Piece const& piece)
     {
-        geometry::expand(total, piece.robust_envelope);
+        geometry::expand(total, piece.robust_offsetted_envelope);
     }
 };
 
-struct piece_ovelaps_box
+struct piece_ovelaps_offsetted_box
 {
     template <typename Box, typename Piece>
     static inline bool apply(Box const& box, Piece const& piece)
     {
-        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_envelope);
+        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_offsetted_envelope);
     }
 };
 
@@ -184,8 +184,8 @@ public:
         boost::ignore_unused_variable_warning(first);
         if ( is_adjacent(piece1, piece2)
           || is_on_same_convex_ring(piece1, piece2)
-          || detail::disjoint::disjoint_box_box(piece1.robust_envelope,
-                    piece2.robust_envelope))
+          || detail::disjoint::disjoint_box_box(piece1.robust_offsetted_envelope,
+                    piece2.robust_offsetted_envelope))
         {
             return;
         }

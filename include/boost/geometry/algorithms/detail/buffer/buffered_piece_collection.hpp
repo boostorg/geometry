@@ -190,6 +190,7 @@ struct buffered_piece_collection
         robust_ring_type robust_ring;
 
         geometry::model::box<robust_point_type> robust_envelope;
+        geometry::model::box<robust_point_type> robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
     };
@@ -507,6 +508,7 @@ struct buffered_piece_collection
                 // Take into account for the box (intersection points should fall inside,
                 // but in theory they can be one off because of rounding
                 geometry::expand(pc.robust_envelope, it->robust_point);
+                geometry::expand(pc.robust_offsetted_envelope, it->robust_point);
             }
         }
 
@@ -580,7 +582,8 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
+                    model::box<robust_point_type>,
+                    piece_get_offsetted_box, piece_ovelaps_offsetted_box
                 >::apply(m_pieces, visitor);
         }
 
@@ -731,10 +734,30 @@ struct buffered_piece_collection
         return rob_point;
     }
 
+    // TODO: this is shared with sectionalize, move to somewhere else (assign?)
+    template <typename Box, typename Value>
+    inline void enlarge_box(Box& box, Value value)
+    {
+        geometry::set<0, 0>(box, geometry::get<0, 0>(box) - value);
+        geometry::set<0, 1>(box, geometry::get<0, 1>(box) - value);
+        geometry::set<1, 0>(box, geometry::get<1, 0>(box) + value);
+        geometry::set<1, 1>(box, geometry::get<1, 1>(box) + value);
+    }
+
     inline void calculate_robust_envelope(piece& pc)
     {
         geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
                 pc.robust_envelope);
+
+        geometry::assign_inverse(pc.robust_offsetted_envelope);
+        for (int i = 0; i < pc.offsetted_count; i++)
+        {
+            geometry::expand(pc.robust_offsetted_envelope, pc.robust_ring[i]);
+        }
+
+        // Take roundings into account, enlarge boxes with 1 integer
+        enlarge_box(pc.robust_envelope, 1);
+        enlarge_box(pc.robust_offsetted_envelope, 1);
     }
 
     inline void finish_piece(piece& pc)
