@@ -22,7 +22,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
+#include <boost/geometry/strategies/geographic/andoyer.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -65,6 +65,7 @@ void test_andoyer(double lon1, double lat1, double lon2, double lat2, double exp
     bg::assign_values(p2, lon2, lat2);
 
     BOOST_CHECK_CLOSE(andoyer.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
+    BOOST_CHECK_CLOSE(bg::distance(p1, p2, andoyer), return_type(1000.0 * expected_km), 0.001);
 }
 
 template <typename P1, typename P2>

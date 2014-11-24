@@ -22,7 +22,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/extensions/gis/geographic/strategies/vincenty.hpp>
+#include <boost/geometry/strategies/geographic/vincenty.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -76,12 +76,6 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                    double expected_azimuth_21,
                    Spheroid const& spheroid)
 {
-    // Set radius type, but for integer coordinates we want to have floating point radius type
-    typedef typename bg::promote_floating_point
-        <
-            typename bg::coordinate_type<P1>::type
-        >::type rtype;
-
     // formula
     {
         bg::detail::vincenty_inverse<double> vi(lon1 * bg::math::d2r,
@@ -128,6 +122,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         double tolerance = non_precise_ct(p1) || non_precise_ct(p2) ? 5 : 0.001;
         
         BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(expected_distance), tolerance);
+        BOOST_CHECK_CLOSE(bg::distance(p1, p2, vincenty), return_type(expected_distance), tolerance);
     }
 }
 

@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_VINCENTY_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_VINCENTY_HPP
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -23,7 +23,7 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
-#include <boost/geometry/extensions/gis/geographic/detail/vincenty_inverse.hpp>
+#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
 
 namespace boost { namespace geometry
 {
@@ -158,4 +158,4 @@ struct result_from_distance<vincenty<Spheroid, CalculationType>, P1, P2 >
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_VINCENTY_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_VINCENTY_HPP
