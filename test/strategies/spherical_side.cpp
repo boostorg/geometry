@@ -18,6 +18,7 @@
 //#include <boost/geometry/strategies/spherical/side_via_plane.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategies/agnostic/side_by_azimuth.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 
@@ -55,6 +56,10 @@ void test_side1(std::string const& case_id, Point const& p1, Point const& p2, Po
     int side_ssf = bg::strategy::side::spherical_side_formula<>::apply(p1, p2, p3);
     //int side2 = bg::strategy::side::side_via_plane<>::apply(p1, p2, p3);
     int side_ct = bg::strategy::side::side_by_cross_track<>::apply(p1, p2, p3);
+    int side_azi = bg::strategy::side::side_by_azimuth
+                        <
+                            bg::srs::spheroid<double>
+                        >(bg::srs::spheroid<double>(1.0, 1.0)).apply(p1, p2, p3);
 
     typedef bg::strategy::side::services::default_strategy<bg::cartesian_tag>::type cartesian_strategy;
     int side_cart = cartesian_strategy::apply(p1, p2, p3);
@@ -62,6 +67,7 @@ void test_side1(std::string const& case_id, Point const& p1, Point const& p2, Po
 
     BOOST_CHECK_EQUAL(side_ssf, expected);
     BOOST_CHECK_EQUAL(side_ct, expected);
+    BOOST_CHECK_EQUAL(side_azi, expected);
     BOOST_CHECK_EQUAL(side_cart, expected_cartesian);
     /*
     std::cout
