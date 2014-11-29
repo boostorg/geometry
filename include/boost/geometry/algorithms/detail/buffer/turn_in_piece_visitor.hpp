@@ -357,7 +357,6 @@ public:
             return;
         }
 
-        bool neighbour = false;
         for (int i = 0; i < 2; i++)
         {
             // Don't compare against one of the two source-pieces
@@ -383,7 +382,6 @@ public:
                     // located on one of the helper segments
                     return;
                 }
-                neighbour = true;
             }
         }
 
@@ -405,6 +403,9 @@ public:
             case analyse_within :
                 mutable_turn.count_within++;
                 return;
+        case analyse_near_offsetted :
+                mutable_turn.count_within_near_offsetted++;
+                return;
             default :
                 break;
         }
@@ -413,32 +414,9 @@ public:
         // will be replaced completely by extending analyse_piece functionality
         int geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
 
-        if (geometry_code == -1)
+        if (geometry_code == 1)
         {
-            // Outside, always return
-            return;
-        }
-
-        if (geometry_code == 0 && neighbour)
-        {
-            // The IP falling on the border of its neighbour is a normal situation
-            return;
-        }
-
-        switch(analyse_code)
-        {
-            case analyse_on_offsetted :
-                mutable_turn.count_on_offsetted++; // value is not used anymore
-                break;
-            case analyse_near_offsetted :
-                if (geometry_code == 1)
-                {
-                    mutable_turn.count_within_near_offsetted++;
-                }
-                break;
-            default :
-                mutable_turn.count_within++;
-                break;
+            mutable_turn.count_within++;
         }
     }
 };
