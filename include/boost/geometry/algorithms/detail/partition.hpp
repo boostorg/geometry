@@ -339,14 +339,16 @@ class partition
     static inline void expand_to_collection(InputCollection const& collection,
                 Box& total, index_vector_type& index_vector)
     {
+        index_vector.resize(boost::size(collection));
+        index_vector_type::iterator index_it = index_vector.begin();
         std::size_t index = 0;
         for(typename boost::range_iterator<InputCollection const>::type it
             = boost::begin(collection);
             it != boost::end(collection);
-            ++it, ++index)
+            ++it, ++index_it, ++index)
         {
             ExpandPolicy::apply(total, *it);
-            index_vector.push_back(index);
+            *index_it = index;
         }
     }
 
