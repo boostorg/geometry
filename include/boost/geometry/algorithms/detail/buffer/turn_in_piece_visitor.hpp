@@ -333,6 +333,34 @@ class turn_in_piece_visitor
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
 
+    template <typename Operation, typename Piece>
+    inline bool skip(Operation const& op, Piece const& piece) const
+    {
+        if (op.piece_index == piece.index)
+        {
+            return true;
+        }
+        Piece const& pc = m_pieces[op.piece_index];
+        if (pc.left_index == piece.index || pc.right_index == piece.index)
+        {
+            if (pc.type == strategy::buffer::buffered_flat_end)
+            {
+                // If it is a flat end, don't compare against its neighbor:
+                // it will always be located on one of the helper segments
+                return true;
+            }
+            if (pc.type == strategy::buffer::buffered_concave)
+            {
+                // If it is concave, the same applies: the IP will be
+                // located on one of the helper segments
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 public:
 
     inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces)
@@ -357,32 +385,9 @@ public:
             return;
         }
 
-        for (int i = 0; i < 2; i++)
+        if (skip(turn.operations[0], piece) || skip(turn.operations[1], piece))
         {
-            // Don't compare against one of the two source-pieces
-            if (turn.operations[i].piece_index == piece.index)
-            {
-                return;
-            }
-
-            Piece const& pc = m_pieces[turn.operations[i].piece_index];
-
-            if (pc.left_index == piece.index
-                || pc.right_index == piece.index)
-            {
-                if (pc.type == strategy::buffer::buffered_flat_end)
-                {
-                    // If it is a flat end, don't compare against its neighbor:
-                    // it will always be located on one of the helper segments
-                    return;
-                }
-                if (pc.type == strategy::buffer::buffered_concave)
-                {
-                    // If it is concave, the same applies: the IP will be
-                    // located on one of the helper segments
-                    return;
-                }
-            }
+            return;
         }
 
         // TODO: mutable_piece to make some on-demand preparations in analyse
