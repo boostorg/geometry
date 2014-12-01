@@ -185,6 +185,9 @@ struct buffered_piece_collection
         std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
 
+        bool is_monotonic_increasing[2]; // 0=x, 1=y
+        bool is_monotonic_decreasing[2]; // 0=x, 1=y
+
         // Robust representations
         // 3: complete ring
         robust_ring_type robust_ring;
@@ -552,6 +555,56 @@ struct buffered_piece_collection
         BOOST_ASSERT(assert_indices_in_robust_rings());
     }
 
+    template <std::size_t Dimension>
+    void determine_monotonicity(piece& pc,
+            robust_point_type const& current,
+            robust_point_type const& next) const
+    {
+        if (geometry::get<Dimension>(current) >= geometry::get<Dimension>(next))
+        {
+            pc.is_monotonic_increasing[Dimension] = false;
+        }
+        if (geometry::get<Dimension>(current) <= geometry::get<Dimension>(next))
+        {
+            pc.is_monotonic_decreasing[Dimension] = false;
+        }
+    }
+
+    void determine_properties(piece& pc)
+    {
+        pc.is_monotonic_increasing[0] = true;
+        pc.is_monotonic_increasing[1] = true;
+        pc.is_monotonic_decreasing[0] = true;
+        pc.is_monotonic_decreasing[1] = true;
+
+        if (pc.offsetted_count < 2)
+        {
+            return;
+        }
+
+        typename robust_ring_type::const_iterator current = pc.robust_ring.begin();
+        typename robust_ring_type::const_iterator next = current + 1;
+
+        for (int i = 1; i < pc.offsetted_count; i++)
+        {
+            determine_monotonicity<0>(pc, *current, *next);
+            determine_monotonicity<1>(pc, *current, *next);
+            current = next;
+            ++next;
+        }
+
+    }
+
+    void determine_properties()
+    {
+        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
+            it != boost::end(m_pieces);
+            ++it)
+        {
+            determine_properties(*it);
+        }
+    }
+
     inline void reverse_negative_robust_rings()
     {
         for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
@@ -590,6 +643,8 @@ struct buffered_piece_collection
         insert_rescaled_piece_turns();
 
         reverse_negative_robust_rings();
+
+        determine_properties();
 
         {
             // Check if it is inside any of the pieces
