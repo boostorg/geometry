@@ -96,6 +96,20 @@ enum analyse_result
 class analyse_turn_wrt_piece
 {
     template <typename Point>
+    static inline bool in_box(Point const& previous,
+            Point const& current, Point const& point)
+    {
+        // Get its box (TODO: this can be prepared-on-demand later)
+        typedef geometry::model::box<Point> box_type;
+        box_type box;
+        geometry::assign_inverse(box);
+        geometry::expand(box, previous);
+        geometry::expand(box, current);
+
+        return geometry::covered_by(point, box);
+    }
+
+    template <typename Point>
     static inline analyse_result check_segment(Point const& previous,
             Point const& current, Point const& point,
             bool from_monotonic)
@@ -105,14 +119,6 @@ class analyse_turn_wrt_piece
                 typename cs_tag<Point>::type
             >::type side_strategy;
         typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-        typedef geometry::model::box<Point> box_type;
-
-
-        // Get its box (TODO: this can be prepared-on-demand later)
-        box_type box;
-        geometry::assign_inverse(box);
-        geometry::expand(box, previous);
-        geometry::expand(box, current);
 
         coordinate_type const twice_area
             = side_strategy::template side_value
@@ -124,7 +130,7 @@ class analyse_turn_wrt_piece
         if (twice_area == 0)
         {
             // Collinear, only on segment if it is covered by its bbox
-            if (geometry::covered_by(point, box))
+            if (in_box(previous, current, point))
             {
                 return analyse_on_offsetted;
             }
@@ -134,8 +140,8 @@ class analyse_turn_wrt_piece
             // It is in the triangle right-of the segment where the
             // segment is the hypothenusa. Check if it is close
             // (within rounding-area)
-            if (geometry::covered_by(point, box)
-                && twice_area * twice_area < geometry::comparable_distance(previous, current))
+            if (twice_area * twice_area < geometry::comparable_distance(previous, current)
+                && in_box(previous, current, point))
             {
                 return analyse_near_offsetted;
             }
