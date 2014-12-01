@@ -196,6 +196,8 @@ struct buffered_piece_collection
         geometry::model::box<robust_point_type> robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
+
+        typedef robust_ring_type piece_robust_ring_type;
     };
 
     typedef std::vector<piece> piece_vector_type;

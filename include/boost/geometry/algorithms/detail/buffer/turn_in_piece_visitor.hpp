@@ -96,7 +96,9 @@ enum analyse_result
 class analyse_turn_wrt_piece
 {
     template <typename Point>
-    static inline analyse_result check_segment(Point const& previous, Point const& current, Point const& point)
+    static inline analyse_result check_segment(Point const& previous,
+            Point const& current, Point const& point,
+            bool from_monotonic)
     {
         typedef typename strategy::side::services::default_strategy
             <
@@ -127,24 +129,31 @@ class analyse_turn_wrt_piece
                 return analyse_on_offsetted;
             }
         }
-
-        if (twice_area < 0 && geometry::covered_by(point, box))
+        else if (twice_area < 0)
         {
             // It is in the triangle right-of the segment where the
             // segment is the hypothenusa. Check if it is close
             // (within rounding-area)
-            if (twice_area * twice_area < geometry::comparable_distance(previous, current))
+            if (geometry::covered_by(point, box)
+                && twice_area * twice_area < geometry::comparable_distance(previous, current))
             {
                 return analyse_near_offsetted;
             }
+            else if (from_monotonic)
+            {
+                return analyse_within;
+            }
         }
-//        if (twice_area > 0)
-//        {
-//            // Left of segment
-//            // TODO: use within state here
-//        }
+        else if (twice_area > 0 && from_monotonic)
+        {
+            // Left of segment
+            return analyse_disjoint;
+        }
+
+        // Not monotonic, on left or right side: continue analysing
         return analyse_continue;
     }
+
 
     template <typename Point>
     static inline analyse_result check_helper_segment(Point const& s1,
@@ -292,6 +301,29 @@ class analyse_turn_wrt_piece
         return analyse_continue;
     }
 
+    template <typename Point, typename Piece, typename Compare>
+    static inline analyse_result check_monotonic(Point const& point, Piece const& piece, Compare const& compare)
+    {
+        typedef typename Piece::piece_robust_ring_type ring_type;
+        typedef typename ring_type::const_iterator it_type;
+        it_type end = piece.robust_ring.begin() + piece.offsetted_count;
+        it_type it = std::lower_bound(piece.robust_ring.begin(),
+                    end,
+                    point,
+                    compare);
+
+        if (it != end
+            && it != piece.robust_ring.begin())
+        {
+            // iterator points to point larger than point
+            // w.r.t. specified direction, and prev points to a point smaller
+            // We now know if it is inside/outside
+            it_type prev = it - 1;
+            return check_segment(*prev, *it, point, true);
+        }
+        return analyse_continue;
+    }
+
 public :
     template <typename Point, typename Piece>
     static inline analyse_result apply(Point const& point, Piece const& piece)
@@ -304,6 +336,36 @@ public :
 
         geometry::equal_to<Point> comparator;
 
+        if (piece.offsetted_count > 8)
+        {
+            // If the offset contains some points and is monotonic, we try
+            // to avoid walking all points linearly.
+            // We try it only once.
+            if (piece.is_monotonic_increasing[0])
+            {
+                code = check_monotonic(point, piece, geometry::less<Point, 0>());
+                if (code != analyse_continue) return code;
+            }
+            else if (piece.is_monotonic_increasing[1])
+            {
+                code = check_monotonic(point, piece, geometry::less<Point, 1>());
+                if (code != analyse_continue) return code;
+            }
+            else if (piece.is_monotonic_decreasing[0])
+            {
+                code = check_monotonic(point, piece, geometry::greater<Point, 0>());
+                if (code != analyse_continue) return code;
+            }
+            else if (piece.is_monotonic_decreasing[1])
+            {
+                code = check_monotonic(point, piece, geometry::greater<Point, 1>());
+                if (code != analyse_continue) return code;
+            }
+        }
+
+        // It is small or not monotonic, walk linearly through offset
+        // TODO: this will be combined with winding strategy
+
         for (int i = 1; i < piece.offsetted_count; i++)
         {
             Point const& previous = piece.robust_ring[i - 1];
@@ -313,7 +375,7 @@ public :
             // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                code = check_segment(previous, current, point);
+                code = check_segment(previous, current, point, false);
                 if (code != analyse_continue)
                 {
                     return code;
@@ -408,7 +470,7 @@ public:
             case analyse_within :
                 mutable_turn.count_within++;
                 return;
-        case analyse_near_offsetted :
+            case analyse_near_offsetted :
                 mutable_turn.count_within_near_offsetted++;
                 return;
             default :
