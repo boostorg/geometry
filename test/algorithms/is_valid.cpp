@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipoint )
     typedef default_validity_tester tester;
     typedef test_valid<tester, G> test;
 
-    test::apply(from_wkt<G>("MULTIPOINT()"), false);
+    test::apply(from_wkt<G>("MULTIPOINT()"), true);
     test::apply(from_wkt<G>("MULTIPOINT(0 0,0 0)"), true);
     test::apply(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,0 1)"), true);
     test::apply(from_wkt<G>("MULTIPOINT(0 0,1 0,1 1,1 0,0 1)"), true);
@@ -200,7 +200,7 @@ void test_multilinestrings()
     typedef test_valid<tester, G> test;
 
     // empty multilinestring
-    test::apply(from_wkt<G>("MULTILINESTRING()"), false);
+    test::apply(from_wkt<G>("MULTILINESTRING()"), true);
 
     // multilinestring with empty linestring(s)
     test::apply(from_wkt<G>("MULTILINESTRING(())"), false);
@@ -667,6 +667,7 @@ void test_open_multipolygons()
     typedef test_valid<tester, OG, CG, CW_OG, CW_CG> test;
 
     // not enough points
+    test::apply(from_wkt<OG>("MULTIPOLYGON()"), true);
     test::apply(from_wkt<OG>("MULTIPOLYGON((()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0)),(()))"), false);
     test::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,1 0)))"), false);
