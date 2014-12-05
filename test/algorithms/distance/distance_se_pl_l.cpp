@@ -159,6 +159,49 @@ void test_distance_point_segment(Strategy const& strategy)
                                          "POINT(3.5 3)",
                                          strategy),
                   strategy);
+    // very small distances to segment
+    tester::apply("p-s-07",
+                  "POINT(90 1e-3)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-3 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-3 * bg::math::d2r * strategy.radius()),
+                  strategy);
+    tester::apply("p-s-08",
+                  "POINT(90 1e-4)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-4 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-4 * bg::math::d2r * strategy.radius()),
+                  strategy);
+    tester::apply("p-s-09",
+                  "POINT(90 1e-5)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-5 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-5 * bg::math::d2r * strategy.radius()),
+                  strategy);
+    tester::apply("p-s-10",
+                  "POINT(90 1e-6)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-6 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-6 * bg::math::d2r * strategy.radius()),
+                  strategy);
+    tester::apply("p-s-11",
+                  "POINT(90 1e-7)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-7 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-7 * bg::math::d2r * strategy.radius()),
+                  strategy);
+    tester::apply("p-s-12",
+                  "POINT(90 1e-8)",
+                  "SEGMENT(0.5 0,175.5 0)",
+                  1e-8 * bg::math::d2r * strategy.radius(),
+                  to_comparable(strategy,
+                                1e-8 * bg::math::d2r * strategy.radius()),
+                  strategy);
 }
 
 //===========================================================================
