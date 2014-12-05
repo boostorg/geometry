@@ -217,7 +217,23 @@ namespace comparable
 
       return_type sin_d_crs1 = sin(d_crs1);
       return_type d1_x_sin = d1 * sin_d_crs1;
-      return 0.5 - math::sqrt(0.25 + d1_x_sin * (d1_x_sin - sin_d_crs1));
+      return_type d = d1_x_sin * (sin_d_crs1 - d1_x_sin);
+      return d / (0.5 + math::sqrt(0.25 - d));
+
+  Notice that instead of computing:
+      0.5 - 0.5 * sqrt(1 - 4 * d) = 0.5 - sqrt(0.25 - d)
+  we use the following formula instead:
+      d / (0.5 + sqrt(0.25 - d)).
+  This is done for numerical robustness. The expression 0.5 - sqrt(0.25 - x)
+  has large numerical errors for values of x close to 0 (if using doubles
+  the error start to become large even when d is as large as 0.001).
+  To remedy that, we re-write 0.5 - sqrt(0.25 - x) as:
+      0.5 - sqrt(0.25 - d)
+      = (0.5 - sqrt(0.25 - d) * (0.5 - sqrt(0.25 - d)) / (0.5 + sqrt(0.25 - d)).
+  The numerator is the difference of two squares:
+      (0.5 - sqrt(0.25 - d) * (0.5 - sqrt(0.25 - d))
+      = 0.5^2 - (sqrt(0.25 - d))^ = 0.25 - (0.25 - d) = d,
+  which gives the expression we use.
 
   For the complexity analysis, we distinguish between two cases:
   (A) The distance is realized between the point D and an
@@ -270,11 +286,12 @@ namespace comparable
       -> 1 call to sin
       -> 1 call to sqrt
       -> 2 multiplications
+      -> 1 division
       -> 1 addition
       -> 2 subtractions
 
       So roughly speaking the net gain is:
-      -> 8 fewer function calls and 4 fewer arithmetic operations
+      -> 8 fewer function calls and 3 fewer arithmetic operations
 
       If we were to implement cross_track directly from the
       comparable version (much like what haversine<> does using
@@ -285,7 +302,7 @@ namespace comparable
       So it pays off to re-implement cross_track<> to use
       comparable::cross_track<>; in this case the net gain would be:
       -> 6 function calls
-      -> 2 arithmetic operations
+      -> 1 arithmetic operation
 
    Summary/Conclusion
    ------------------
@@ -407,11 +424,12 @@ public :
                   = 1.0 - 4.0 * (d1 - d1 * d1) * sin_d_crs1 * sin_d_crs1;
               return 0.5 - 0.5 * math::sqrt(discriminant);
             
-              Below we optimize the number of arithmetic operations:
+              Below we optimize the number of arithmetic operations
+              and account for numerical robustness:
             */
             return_type d1_x_sin = d1 * sin_d_crs1;
-            return
-                half - math::sqrt(quarter + d1_x_sin * (d1_x_sin - sin_d_crs1));
+            return_type d = d1_x_sin * (sin_d_crs1 - d1_x_sin);
+            return d / (half + math::sqrt(quarter - d));
         }
         else
         {
