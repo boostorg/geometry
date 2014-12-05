@@ -108,7 +108,7 @@ struct is_valid<MultiLinestring, multi_linestring_tag, AllowSpikes>
                         typename boost::range_value<MultiLinestring>::type,
                         AllowSpikes
                     >,
-                false // do not allow empty multilinestring
+                true // allow empty multilinestring
             >::apply(boost::begin(multilinestring),
                      boost::end(multilinestring));
     }
