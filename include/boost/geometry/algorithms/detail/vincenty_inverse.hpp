@@ -25,6 +25,11 @@
 #include <boost/geometry/algorithms/detail/flattening.hpp>
 
 
+#ifndef BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS
+#define BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS 1000
+#endif
+
+
 namespace boost { namespace geometry { namespace detail
 {
 
@@ -103,6 +108,8 @@ public:
 
         CT previous_lambda;
 
+        int counter = 0; // robustness
+
         do
         {
             previous_lambda = lambda; // (13)
@@ -119,8 +126,11 @@ public:
             lambda = L + (c1 - C) * flattening * sin_alpha *
                 (sigma + C * sin_sigma * ( cos2_sigma_m + C * cos_sigma * (-c1 + c2 * math::sqr(cos2_sigma_m)))); // (11)
 
+            ++counter; // robustness
+
         } while ( geometry::math::abs(previous_lambda - lambda) > c_e_12
-               && geometry::math::abs(lambda) < pi );
+               && geometry::math::abs(lambda) < pi
+               && counter < BOOST_GEOMETRY_DETAIL_VINCENTY_MAX_STEPS ); // robustness
     }
 
     inline CT distance() const
