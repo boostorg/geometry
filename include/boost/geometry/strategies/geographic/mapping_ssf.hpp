@@ -15,6 +15,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_MAPPING_SSF_HPP
 
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/math.hpp>
@@ -115,7 +117,10 @@ class mapping_spherical_side_formula
 {
 
 public :
-    explicit inline mapping_spherical_side_formula(Spheroid const& spheroid = Spheroid())
+    inline mapping_spherical_side_formula()
+    {}
+
+    explicit inline mapping_spherical_side_formula(Spheroid const& spheroid)
         : m_spheroid(spheroid)
     {}
 
@@ -146,6 +151,8 @@ public :
     template <typename ResP, typename P, typename Mapper>
     static inline ResP mapped(P const& src, Mapper const& mapper)
     {
+        boost::ignore_unused(mapper);
+
         ResP dst;
         geometry::set<0>(dst, geometry::get<0>(src));
         geometry::set<1>(dst, mapper.map_lat(geometry::get<1>(src)));
@@ -163,7 +170,8 @@ class mapping_spherical_side_formula<Spheroid, mapping_geodetic, CalculationType
 {
 
 public :
-    explicit inline mapping_spherical_side_formula(Spheroid const& /*spheroid*/ = Spheroid()) {}
+    inline mapping_spherical_side_formula() {}
+    explicit inline mapping_spherical_side_formula(Spheroid const& /*spheroid*/) {}
 
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
