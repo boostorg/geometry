@@ -24,8 +24,9 @@
 
 #include <boost/geometry/algorithms/detail/azimuth.hpp>
 
-#include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategies/side.hpp>
 //#include <boost/geometry/strategies/concepts/side_concept.hpp>
@@ -58,15 +59,10 @@ public:
     {
         typedef typename promote_floating_point
             <
-                typename boost::mpl::if_c
+                typename select_calculation_type_alt
                     <
-                        boost::is_void<CalculationType>::type::value,
-                        typename select_most_precise
-                            <
-                                typename select_coordinate_type<P1, P2>::type,
-                                typename coordinate_type<P>::type
-                            >::type,
-                        CalculationType
+                        CalculationType,
+                        P1, P2, P
                     >::type
             >::type calc_t;
 
