@@ -39,7 +39,7 @@ namespace strategy { namespace distance
 /*!
 \brief Point-point distance approximation taking flattening into account
 \ingroup distance
-\tparam RadiusType Type of specified radius of the Earth
+\tparam Spheroid The reference spheroid model
 \tparam CalculationType \tparam_calculation
 \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
 \note Although not so well-known, the approximation is very good: in all cases the results
