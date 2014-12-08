@@ -50,7 +50,6 @@ struct mapper
 {
     explicit inline mapper(Spheroid const& /*spheroid*/) {}
 
-    template <typename CalculationType>
     static inline CalculationType const& map_lat(CalculationType const& lat)
     {
         return lat;
@@ -62,12 +61,11 @@ struct mapper<Spheroid, mapping_reduced, CalculationType>
 {
     explicit inline mapper(Spheroid const& spheroid)
     {
-        CalculationType const a = geometry::get_radius<0>(m_spheroid);
-        CalculationType const b = geometry::get_radius<2>(m_spheroid);
+        CalculationType const a = geometry::get_radius<0>(spheroid);
+        CalculationType const b = geometry::get_radius<2>(spheroid);
         b_div_a = b / a;
     }
 
-    template <typename CalculationType>
     inline CalculationType map_lat(CalculationType const& lat) const
     {
         return ::atan(b_div_a * ::tan(lat));
@@ -81,13 +79,12 @@ struct mapper<Spheroid, mapping_geocentric, CalculationType>
 {
     explicit inline mapper(Spheroid const& spheroid)
     {
-        CalculationType const a = geometry::get_radius<0>(m_spheroid);
-        CalculationType const b = geometry::get_radius<2>(m_spheroid);
+        CalculationType const a = geometry::get_radius<0>(spheroid);
+        CalculationType const b = geometry::get_radius<2>(spheroid);
         sqr_b_div_a = b / a;
         sqr_b_div_a *= sqr_b_div_a;
     }
 
-    template <typename CalculationType>
     inline CalculationType map_lat(CalculationType const& lat) const
     {
         return ::atan(sqr_b_div_a * ::tan(lat));
