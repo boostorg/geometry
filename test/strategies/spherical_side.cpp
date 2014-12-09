@@ -18,7 +18,9 @@
 //#include <boost/geometry/strategies/spherical/side_via_plane.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+
 #include <boost/geometry/strategies/agnostic/side_by_azimuth.hpp>
+#include <boost/geometry/strategies/geographic/mapping_ssf.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 
@@ -51,24 +53,34 @@ template <typename Point>
 void test_side1(std::string const& case_id, Point const& p1, Point const& p2, Point const& p3,
                    int expected, int expected_cartesian)
 {
-    // std::cout << case_id << ": ";
-    //int s = bg::strategy::side::side_via_plane<>::apply(p1, p2, p3);
-    int side_ssf = bg::strategy::side::spherical_side_formula<>::apply(p1, p2, p3);
-    //int side2 = bg::strategy::side::side_via_plane<>::apply(p1, p2, p3);
-    int side_ct = bg::strategy::side::side_by_cross_track<>::apply(p1, p2, p3);
-    int side_azi = bg::strategy::side::side_by_azimuth
-                        <
-                            bg::srs::spheroid<double>
-                        >(bg::srs::spheroid<double>(1.0, 1.0)).apply(p1, p2, p3);
+    namespace bgss = bg::strategy::side;
 
+    // std::cout << case_id << ": ";
+    //int s = bgss::side_via_plane<>::apply(p1, p2, p3);
+    int side_ssf = bgss::spherical_side_formula<>::apply(p1, p2, p3);
+    //int side2 = bgss::side_via_plane<>::apply(p1, p2, p3);
+    int side_ct = bgss::side_by_cross_track<>::apply(p1, p2, p3);
+
+    // non-official
+    typedef bg::srs::spheroid<double> spheroid;
+    spheroid const sph(1.0, 1.0);
+    int side_azi = bgss::side_by_azimuth<spheroid>(sph).apply(p1, p2, p3);
+    int side_mssf1 = bgss::mapping_spherical_side_formula<spheroid>(sph).apply(p1, p2, p3);
+    int side_mssf2 = bgss::mapping_spherical_side_formula<spheroid, bgss::mapping_reduced>(sph).apply(p1, p2, p3);
+    int side_mssf3 = bgss::mapping_spherical_side_formula<spheroid, bgss::mapping_geocentric>(sph).apply(p1, p2, p3);
+
+    // cartesian
     typedef bg::strategy::side::services::default_strategy<bg::cartesian_tag>::type cartesian_strategy;
     int side_cart = cartesian_strategy::apply(p1, p2, p3);
-
 
     BOOST_CHECK_EQUAL(side_ssf, expected);
     BOOST_CHECK_EQUAL(side_ct, expected);
     BOOST_CHECK_EQUAL(side_azi, expected);
+    BOOST_CHECK_EQUAL(side_mssf1, expected);
+    BOOST_CHECK_EQUAL(side_mssf2, expected);
+    BOOST_CHECK_EQUAL(side_mssf3, expected);
     BOOST_CHECK_EQUAL(side_cart, expected_cartesian);
+
     /*
     std::cout
         << "exp: " << side_char(expected)
