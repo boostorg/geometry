@@ -22,7 +22,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/strategies/geographic/andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>

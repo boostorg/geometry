@@ -63,8 +63,8 @@
 #include <boost/geometry/strategies/spherical/compare_circular.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
-#include <boost/geometry/strategies/geographic/andoyer.hpp>
-#include <boost/geometry/strategies/geographic/vincenty.hpp>
+#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 
 #include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
 #include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>

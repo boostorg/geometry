@@ -22,7 +22,7 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/strategies/geographic/vincenty.hpp>
+#include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
