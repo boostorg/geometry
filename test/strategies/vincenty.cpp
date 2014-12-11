@@ -115,11 +115,30 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         double direct_lat2_deg = direct_lat2 * bg::math::r2d;
         double direct_az21_deg = direct_az21 * bg::math::r2d;
         // normalize angles
+        normalize_deg(direct_lon2_deg);
+        normalize_deg(direct_lat2_deg);
         normalize_deg(direct_az21_deg);
+        
+        double lon2_deg = lon2;
+        double lat2_deg = lat2;
+        normalize_deg(lon2_deg);
+        normalize_deg(lat2_deg);
 
-        BOOST_CHECK_CLOSE(direct_lon2_deg, lon2, 0.001);
-        BOOST_CHECK_CLOSE(direct_lat2_deg, lat2, 0.001);
-        BOOST_CHECK_CLOSE(direct_az21_deg, az21_deg, 0.001);
+        // BOOST_CHECK_CLOSE doesn't work properly for 0 and some very small number
+        if ( bg::math::equals(lon2_deg, 0.0) || bg::math::equals(direct_lon2_deg, 0.0) )
+            BOOST_CHECK( fabs(direct_lon2_deg - lon2_deg) < 1e-12);
+        else
+            BOOST_CHECK_CLOSE(direct_lon2_deg, lon2_deg, 0.001);
+            
+        if ( bg::math::equals(lat2_deg, 0.0) || bg::math::equals(direct_lat2_deg, 0.0) )
+            BOOST_CHECK( fabs(direct_lat2_deg - lat2_deg) < 1e-12);
+        else
+            BOOST_CHECK_CLOSE(direct_lat2_deg, lat2_deg, 0.001);
+
+        if ( bg::math::equals(az21_deg, 0.0) || bg::math::equals(direct_az21_deg, 0.0) )
+            BOOST_CHECK( fabs(direct_az21_deg - az21_deg) < 1e-12);
+        else
+            BOOST_CHECK_CLOSE(direct_az21_deg, az21_deg, 0.001);
     }
 
     // strategy
