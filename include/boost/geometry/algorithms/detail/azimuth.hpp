@@ -27,6 +27,13 @@
 namespace boost { namespace geometry
 {
 
+// An azimuth is an angle between a vector/segment from origin to a point of
+// interest and a reference vector. Typically north-based azimuth is used.
+// North direction is used as a reference, angle is measured clockwise
+// (North - 0deg, East - 90deg). For consistency in 2d cartesian CS
+// the reference vector is Y axis, angle is measured clockwise.
+// http://en.wikipedia.org/wiki/Azimuth
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace detail_dispatch
 {
