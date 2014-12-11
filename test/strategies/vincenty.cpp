@@ -23,6 +23,8 @@
 #include <boost/concept_check.hpp>
 
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
+#include <boost/geometry/algorithms/detail/vincenty_inverse.hpp>
+#include <boost/geometry/algorithms/detail/vincenty_direct.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -99,6 +101,25 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         BOOST_CHECK_CLOSE(dist, expected_distance, 0.001);
         BOOST_CHECK_CLOSE(az12_deg, expected_azimuth_12, 0.001);
         BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
+
+        bg::detail::vincenty_direct<double> vd(lon1 * bg::math::d2r,
+                                               lat1 * bg::math::d2r,
+                                               dist,
+                                               az12,
+                                               spheroid);
+        double direct_lon2 = vd.lon2();
+        double direct_lat2 = vd.lat2();
+        double direct_az21 = vd.azimuth21();
+
+        double direct_lon2_deg = direct_lon2 * bg::math::r2d;
+        double direct_lat2_deg = direct_lat2 * bg::math::r2d;
+        double direct_az21_deg = direct_az21 * bg::math::r2d;
+        // normalize angles
+        normalize_deg(direct_az21_deg);
+
+        BOOST_CHECK_CLOSE(direct_lon2_deg, lon2, 0.001);
+        BOOST_CHECK_CLOSE(direct_lat2_deg, lat2, 0.001);
+        BOOST_CHECK_CLOSE(direct_az21_deg, az21_deg, 0.001);
     }
 
     // strategy

@@ -34,7 +34,7 @@ namespace boost { namespace geometry { namespace detail
 {
 
 /*!
-\brief Distance calculation formulae on latlong coordinates, after Vincenty, 1975
+\brief The solution of the inverse problem of geodesics on latlong coordinates, after Vincenty, 1975
 \author See
     - http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf
     - http://www.icsm.gov.au/gda/gdav2.3.pdf
