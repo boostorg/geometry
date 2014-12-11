@@ -68,7 +68,7 @@ struct mapper<Spheroid, mapping_reduced, CalculationType>
 
     inline CalculationType map_lat(CalculationType const& lat) const
     {
-        return ::atan(b_div_a * ::tan(lat));
+        return atan(b_div_a * tan(lat));
     }
 
     CalculationType b_div_a;
@@ -87,7 +87,7 @@ struct mapper<Spheroid, mapping_geocentric, CalculationType>
 
     inline CalculationType map_lat(CalculationType const& lat) const
     {
-        return ::atan(sqr_b_div_a * ::tan(lat));
+        return atan(sqr_b_div_a * tan(lat));
     }
 
     CalculationType sqr_b_div_a;
