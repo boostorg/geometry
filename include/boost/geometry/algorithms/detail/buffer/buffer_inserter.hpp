@@ -869,6 +869,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
             areal_tag
         >::type::value;
+    bool const linear = boost::is_same
+        <
+            typename tag_cast<typename tag<GeometryInput>::type, linear_tag>::type,
+            linear_tag
+        >::type::value;
 
     dispatch::buffer_inserter
         <
@@ -885,6 +890,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy);
 
     collection.get_turns();
+    collection.classify_turns(linear);
     if (areal)
     {
         collection.check_remaining_points(distance_strategy);

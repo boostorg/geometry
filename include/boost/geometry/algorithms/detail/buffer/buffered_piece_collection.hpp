@@ -90,7 +90,7 @@ enum segment_relation_code
  *    form together the offsetted ring (marked with o below)
  *  The 8 pieces are part of the piece collection and use for inside-checks
  *  The inner parts form (using 1 or 2 points per piece, often co-located)
- *    form together the robust_ring (marked with r below)
+ *    form together the robust_polygons (marked with r below)
  *  The remaining piece-segments are helper-segments (marked with h)
  *
  *     ooooooooooooooooo
@@ -185,13 +185,19 @@ struct buffered_piece_collection
         std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
 
+        bool is_monotonic_increasing[2]; // 0=x, 1=y
+        bool is_monotonic_decreasing[2]; // 0=x, 1=y
+
         // Robust representations
         // 3: complete ring
         robust_ring_type robust_ring;
 
         geometry::model::box<robust_point_type> robust_envelope;
+        geometry::model::box<robust_point_type> robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
+
+        typedef robust_ring_type piece_robust_ring_type;
     };
 
     typedef std::vector<piece> piece_vector_type;
@@ -379,12 +385,16 @@ struct buffered_piece_collection
         }
     }
 
-    inline void classify_turns()
+    inline void classify_turns(bool linear)
     {
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
             if (it->count_within > 0)
+            {
+                it->location = inside_buffer;
+            }
+            if (it->count_on_original_boundary > 0 && ! linear)
             {
                 it->location = inside_buffer;
             }
@@ -503,6 +513,7 @@ struct buffered_piece_collection
                 // Take into account for the box (intersection points should fall inside,
                 // but in theory they can be one off because of rounding
                 geometry::expand(pc.robust_envelope, it->robust_point);
+                geometry::expand(pc.robust_offsetted_envelope, it->robust_point);
             }
         }
 
@@ -546,6 +557,56 @@ struct buffered_piece_collection
         BOOST_ASSERT(assert_indices_in_robust_rings());
     }
 
+    template <std::size_t Dimension>
+    void determine_monotonicity(piece& pc,
+            robust_point_type const& current,
+            robust_point_type const& next) const
+    {
+        if (geometry::get<Dimension>(current) >= geometry::get<Dimension>(next))
+        {
+            pc.is_monotonic_increasing[Dimension] = false;
+        }
+        if (geometry::get<Dimension>(current) <= geometry::get<Dimension>(next))
+        {
+            pc.is_monotonic_decreasing[Dimension] = false;
+        }
+    }
+
+    void determine_properties(piece& pc)
+    {
+        pc.is_monotonic_increasing[0] = true;
+        pc.is_monotonic_increasing[1] = true;
+        pc.is_monotonic_decreasing[0] = true;
+        pc.is_monotonic_decreasing[1] = true;
+
+        if (pc.offsetted_count < 2)
+        {
+            return;
+        }
+
+        typename robust_ring_type::const_iterator current = pc.robust_ring.begin();
+        typename robust_ring_type::const_iterator next = current + 1;
+
+        for (int i = 1; i < pc.offsetted_count; i++)
+        {
+            determine_monotonicity<0>(pc, *current, *next);
+            determine_monotonicity<1>(pc, *current, *next);
+            current = next;
+            ++next;
+        }
+
+    }
+
+    void determine_properties()
+    {
+        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
+            it != boost::end(m_pieces);
+            ++it)
+        {
+            determine_properties(*it);
+        }
+    }
+
     inline void reverse_negative_robust_rings()
     {
         for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
@@ -576,13 +637,16 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    model::box<robust_point_type>, piece_get_box, piece_ovelaps_box
+                    model::box<robust_point_type>,
+                    piece_get_offsetted_box, piece_ovelaps_offsetted_box
                 >::apply(m_pieces, visitor);
         }
 
         insert_rescaled_piece_turns();
 
         reverse_negative_robust_rings();
+
+        determine_properties();
 
         {
             // Check if it is inside any of the pieces
@@ -599,10 +663,6 @@ struct buffered_piece_collection
                 >::apply(m_turns, m_pieces, visitor);
 
         }
-
-        classify_turns();
-
-        //get_occupation();
     }
 
     inline void start_new_ring()
@@ -731,10 +791,30 @@ struct buffered_piece_collection
         return rob_point;
     }
 
+    // TODO: this is shared with sectionalize, move to somewhere else (assign?)
+    template <typename Box, typename Value>
+    inline void enlarge_box(Box& box, Value value)
+    {
+        geometry::set<0, 0>(box, geometry::get<0, 0>(box) - value);
+        geometry::set<0, 1>(box, geometry::get<0, 1>(box) - value);
+        geometry::set<1, 0>(box, geometry::get<1, 0>(box) + value);
+        geometry::set<1, 1>(box, geometry::get<1, 1>(box) + value);
+    }
+
     inline void calculate_robust_envelope(piece& pc)
     {
         geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
                 pc.robust_envelope);
+
+        geometry::assign_inverse(pc.robust_offsetted_envelope);
+        for (int i = 0; i < pc.offsetted_count; i++)
+        {
+            geometry::expand(pc.robust_offsetted_envelope, pc.robust_ring[i]);
+        }
+
+        // Take roundings into account, enlarge boxes with 1 integer
+        enlarge_box(pc.robust_envelope, 1);
+        enlarge_box(pc.robust_offsetted_envelope, 1);
     }
 
     inline void finish_piece(piece& pc)

@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_HPP
 
 #include <vector>
-#include <boost/assert.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -79,8 +78,8 @@ inline void divide_into_subsets(Box const& lower_box,
         }
         else
         {
-            // Is nowhere! Should not occur!
-            BOOST_ASSERT(false);
+            // Is nowhere. That is (since 1.58) possible, it might be
+            // skipped by the OverlapsPolicy to enhance performance
         }
     }
 }
@@ -340,14 +339,16 @@ class partition
     static inline void expand_to_collection(InputCollection const& collection,
                 Box& total, index_vector_type& index_vector)
     {
+        index_vector.resize(boost::size(collection));
+        index_vector_type::iterator index_it = index_vector.begin();
         std::size_t index = 0;
         for(typename boost::range_iterator<InputCollection const>::type it
             = boost::begin(collection);
             it != boost::end(collection);
-            ++it, ++index)
+            ++it, ++index_it, ++index)
         {
             ExpandPolicy::apply(total, *it);
-            index_vector.push_back(index);
+            *index_it = index;
         }
     }
 

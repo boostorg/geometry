@@ -267,6 +267,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                   << string_from_type<default_distance_result>::name()
                   << string_from_type<default_comparable_distance_result>::name()
                   << std::endl;
+        std::cout << "strategy radius: " << strategy.radius() << std::endl;
         std::cout << "expected distance = "
                   << expected_distance << " ; "
                   << "expected comp. distance = "
@@ -301,7 +302,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
             check_equal
                 <
                     default_comparable_distance_result
-                >::apply(case_id, "rb", geometry2, geometry1,
+                >::apply(case_id, "rc", geometry2, geometry1,
                          cdist, expected_comparable_distance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
