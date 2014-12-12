@@ -23,7 +23,7 @@ namespace detail { namespace partition
 typedef std::vector<std::size_t> index_vector_type;
 
 template <int Dimension, typename Box>
-void divide_box(Box const& box, Box& lower_box, Box& upper_box)
+inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 {
     typedef typename coordinate_type<Box>::type ctype;
 
