@@ -90,8 +90,14 @@ inline void handle_one(InputCollection const& collection,
         index_vector_type const& input,
         Policy& policy)
 {
+    if (boost::size(input) == 0)
+    {
+        return;
+    }
+
     typedef boost::range_iterator<index_vector_type const>::type
                 index_iterator_type;
+
     // Quadratic behaviour at lowest level (lowest quad, or all exceeding)
     for(index_iterator_type it1 = boost::begin(input);
         it1 != boost::end(input);
@@ -117,6 +123,11 @@ inline void handle_two(
         InputCollection2 const& collection2, index_vector_type const& input2,
         Policy& policy)
 {
+    if (boost::size(input1) == 0 || boost::size(input2) == 0)
+    {
+        return;
+    }
+
     typedef boost::range_iterator
         <
             index_vector_type const
