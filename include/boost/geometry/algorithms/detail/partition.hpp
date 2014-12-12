@@ -145,7 +145,6 @@ template
 class partition_one_collection
 {
     typedef std::vector<std::size_t> index_vector_type;
-    typedef typename coordinate_type<Box>::type ctype;
     typedef partition_one_collection
             <
                 1 - Dimension,
@@ -158,7 +157,7 @@ class partition_one_collection
     static inline void next_level(Box const& box,
             InputCollection const& collection,
             index_vector_type const& input,
-            int level, std::size_t min_elements,
+            std::size_t level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         if (boost::size(input) > 0)
@@ -180,7 +179,7 @@ public :
     static inline void apply(Box const& box,
             InputCollection const& collection,
             index_vector_type const& input,
-            int level,
+            std::size_t level,
             std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
@@ -221,7 +220,6 @@ template
 class partition_two_collections
 {
     typedef std::vector<std::size_t> index_vector_type;
-    typedef typename coordinate_type<Box>::type ctype;
     typedef partition_two_collections
             <
                 1 - Dimension,
@@ -242,7 +240,7 @@ class partition_two_collections
             index_vector_type const& input1,
             InputCollection2 const& collection2,
             index_vector_type const& input2,
-            int level, std::size_t min_elements,
+            std::size_t level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
         if (boost::size(input1) > 0 && boost::size(input2) > 0)
@@ -273,7 +271,7 @@ public :
     static inline void apply(Box const& box,
             InputCollection1 const& collection1, index_vector_type const& input1,
             InputCollection2 const& collection2, index_vector_type const& input2,
-            int level,
+            std::size_t level,
             std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
     {
