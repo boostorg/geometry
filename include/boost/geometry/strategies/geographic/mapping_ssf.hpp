@@ -150,9 +150,11 @@ public :
     {
         boost::ignore_unused(mapper);
 
+        // NOTE: coordinate system of Point and ResultPoint should be the same
+
         ResultPoint result;
         geometry::set<0>(result, geometry::get<0>(point));
-        geometry::set<1>(result, mapper.map_lat(geometry::get<1>(point)));
+        geometry::set_from_radian<1>(result, mapper.map_lat(geometry::get_as_radian<1>(point)));
         return result;
     }
 

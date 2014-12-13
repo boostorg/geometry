@@ -55,7 +55,7 @@ inline char side_char(int side)
 }
 
 template <typename Point>
-void test_side1(std::string const& case_id, Point const& p1, Point const& p2, Point const& p3,
+void test_side1(std::string const& /*case_id*/, Point const& p1, Point const& p2, Point const& p3,
                    int expected, int expected_cartesian)
 {
     namespace bgss = bg::strategy::side;
@@ -151,7 +151,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
+    //test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
