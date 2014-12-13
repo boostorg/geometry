@@ -39,10 +39,41 @@
 template <typename T>
 void normalize_deg(T & deg)
 {
-    while ( deg > 180 )
-        deg -= 360;
-    while ( deg <= -180 )
-        deg += 360;
+    while ( deg > T(180) )
+        deg -= T(360);
+    while ( deg <= T(-180) )
+        deg += T(360);
+}
+
+template <typename T>
+T difference_deg(T const& a1, T const& a2)
+{
+    T d = a1 - a2;
+    normalize_deg(d);
+    return d;
+}
+
+template <typename T>
+void check_deg(std::string const& name, T const& a1, T const& a2, T const& percent, T const& error)
+{
+    T diff = bg::math::abs(difference_deg(a1, a2));
+    
+    if ( bg::math::equals(a1, T(0)) || bg::math::equals(a2, T(0)) )
+    {
+        if ( diff > error )
+        {
+            BOOST_ERROR(name << " - the difference {" << diff << "} between {" << a1 << "} and {" << a2 << "} exceeds {" << error << "}");
+        }
+    }
+    else
+    {
+        T greater = (std::max)(bg::math::abs(a1), bg::math::abs(a2));
+
+        if ( diff > greater * percent / T(100) )
+        {
+            BOOST_ERROR(name << " the difference {" << diff << "} between {" << a1 << "} and {" << a2 << "} exceeds {" << percent << "}%");
+        }
+    }
 }
 
 double azimuth(double deg, double min, double sec)
@@ -65,7 +96,7 @@ double azimuth(double deg, double min)
 }
 
 template <typename P>
-bool non_precise_ct(P const&)
+bool non_precise_ct()
 {
     typedef typename bg::coordinate_type<P>::type ct;
     return boost::is_integral<ct>::value || boost::is_float<ct>::value;
@@ -78,67 +109,50 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                    double expected_azimuth_21,
                    Spheroid const& spheroid)
 {
+    typedef typename bg::promote_floating_point
+        <
+            typename bg::select_calculation_type<P1, P2, void>::type
+        >::type calc_t;
+
+    calc_t tolerance = non_precise_ct<P1>() || non_precise_ct<P2>() ?
+                       5.0 : 0.001;
+    calc_t error = non_precise_ct<P1>() || non_precise_ct<P2>() ?
+                   1e-5 : 1e-12;
+
     // formula
     {
-        bg::detail::vincenty_inverse<double> vi(lon1 * bg::math::d2r,
+        bg::detail::vincenty_inverse<calc_t> vi(lon1 * bg::math::d2r,
                                                 lat1 * bg::math::d2r,
                                                 lon2 * bg::math::d2r,
                                                 lat2 * bg::math::d2r,
                                                 spheroid);
-        double dist = vi.distance();
-        double az12 = vi.azimuth12();
-        double az21 = vi.azimuth21();
+        calc_t dist = vi.distance();
+        calc_t az12 = vi.azimuth12();
+        calc_t az21 = vi.azimuth21();
 
-        double az12_deg = az12 * bg::math::r2d;
-        double az21_deg = az21 * bg::math::r2d;
+        calc_t az12_deg = az12 * bg::math::r2d;
+        calc_t az21_deg = az21 * bg::math::r2d;
         
-        // normalize angles
-        normalize_deg(az12_deg);
-        normalize_deg(az21_deg);
-        normalize_deg(expected_azimuth_12);
-        normalize_deg(expected_azimuth_21);
-        
-        BOOST_CHECK_CLOSE(dist, expected_distance, 0.001);
-        BOOST_CHECK_CLOSE(az12_deg, expected_azimuth_12, 0.001);
-        BOOST_CHECK_CLOSE(az21_deg, expected_azimuth_21, 0.001);
+        BOOST_CHECK_CLOSE(dist, calc_t(expected_distance), tolerance);
+        check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
+        check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
 
-        bg::detail::vincenty_direct<double> vd(lon1 * bg::math::d2r,
+        bg::detail::vincenty_direct<calc_t> vd(lon1 * bg::math::d2r,
                                                lat1 * bg::math::d2r,
                                                dist,
                                                az12,
                                                spheroid);
-        double direct_lon2 = vd.lon2();
-        double direct_lat2 = vd.lat2();
-        double direct_az21 = vd.azimuth21();
+        calc_t direct_lon2 = vd.lon2();
+        calc_t direct_lat2 = vd.lat2();
+        calc_t direct_az21 = vd.azimuth21();
 
-        double direct_lon2_deg = direct_lon2 * bg::math::r2d;
-        double direct_lat2_deg = direct_lat2 * bg::math::r2d;
-        double direct_az21_deg = direct_az21 * bg::math::r2d;
-        // normalize angles
-        normalize_deg(direct_lon2_deg);
-        normalize_deg(direct_lat2_deg);
-        normalize_deg(direct_az21_deg);
+        calc_t direct_lon2_deg = direct_lon2 * bg::math::r2d;
+        calc_t direct_lat2_deg = direct_lat2 * bg::math::r2d;
+        calc_t direct_az21_deg = direct_az21 * bg::math::r2d;
         
-        double lon2_deg = lon2;
-        double lat2_deg = lat2;
-        normalize_deg(lon2_deg);
-        normalize_deg(lat2_deg);
-
-        // BOOST_CHECK_CLOSE doesn't work properly for 0 and some very small number
-        if ( bg::math::equals(lon2_deg, 0.0) || bg::math::equals(direct_lon2_deg, 0.0) )
-            BOOST_CHECK( fabs(direct_lon2_deg - lon2_deg) < 1e-12);
-        else
-            BOOST_CHECK_CLOSE(direct_lon2_deg, lon2_deg, 0.001);
-            
-        if ( bg::math::equals(lat2_deg, 0.0) || bg::math::equals(direct_lat2_deg, 0.0) )
-            BOOST_CHECK( fabs(direct_lat2_deg - lat2_deg) < 1e-12);
-        else
-            BOOST_CHECK_CLOSE(direct_lat2_deg, lat2_deg, 0.001);
-
-        if ( bg::math::equals(az21_deg, 0.0) || bg::math::equals(direct_az21_deg, 0.0) )
-            BOOST_CHECK( fabs(direct_az21_deg - az21_deg) < 1e-12);
-        else
-            BOOST_CHECK_CLOSE(direct_az21_deg, az21_deg, 0.001);
+        check_deg("direct_lon2_deg", direct_lon2_deg, calc_t(lon2), tolerance, error);
+        check_deg("direct_lat2_deg", direct_lat2_deg, calc_t(lat2), tolerance, error);
+        check_deg("direct_az21_deg", direct_az21_deg, az21_deg, tolerance, error);
     }
 
     // strategy
@@ -158,8 +172,6 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
 
         bg::assign_values(p1, lon1, lat1);
         bg::assign_values(p2, lon2, lat2);
-
-        double tolerance = non_precise_ct(p1) || non_precise_ct(p2) ? 5 : 0.001;
         
         BOOST_CHECK_CLOSE(vincenty.apply(p1, p2), return_type(expected_distance), tolerance);
         BOOST_CHECK_CLOSE(bg::distance(p1, p2, vincenty), return_type(expected_distance), tolerance);
