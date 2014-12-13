@@ -124,6 +124,7 @@ struct buffer_turn_info
     intersection_location_type location;
 
     int count_within;
+    int count_on_original_boundary;
     int count_on_offsetted;
     int count_on_helper;
     int count_within_near_offsetted;
@@ -138,6 +139,7 @@ struct buffer_turn_info
         : turn_index(-1)
         , location(location_ok)
         , count_within(0)
+        , count_on_original_boundary(0)
         , count_on_offsetted(0)
         , count_on_helper(0)
         , count_within_near_offsetted(0)
