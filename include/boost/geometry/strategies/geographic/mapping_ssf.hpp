@@ -131,9 +131,9 @@ public :
                         CalculationType,
                         P1, P2, P
                     >::type
-            >::type calc_t;
+            >::type calculation_type;
 
-        side::detail::mapper<Spheroid, mapping_geodetic, calc_t> const
+        side::detail::mapper<Spheroid, Mapping, calculation_type> const
             mapper(m_spheroid);
 
         // NOTE: Should CalculateType be used as CoordinateType in the following Points?
@@ -145,15 +145,15 @@ public :
                         mapped<P>(p, mapper));
     }
 
-    template <typename ResP, typename P, typename Mapper>
-    static inline ResP mapped(P const& src, Mapper const& mapper)
+    template <typename ResultPoint, typename Point, typename Mapper>
+    static inline ResultPoint mapped(Point const& point, Mapper const& mapper)
     {
         boost::ignore_unused(mapper);
 
-        ResP dst;
-        geometry::set<0>(dst, geometry::get<0>(src));
-        geometry::set<1>(dst, mapper.map_lat(geometry::get<1>(src)));
-        return dst;
+        ResultPoint result;
+        geometry::set<0>(result, geometry::get<0>(point));
+        geometry::set<1>(result, mapper.map_lat(geometry::get<1>(point)));
+        return result;
     }
 
 private:
