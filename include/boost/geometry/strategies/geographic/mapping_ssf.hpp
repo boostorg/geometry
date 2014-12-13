@@ -45,52 +45,65 @@ enum mapping_type { mapping_geodetic, mapping_reduced, mapping_geocentric };
 namespace detail
 {
 
-template <typename Spheroid, mapping_type Mapping, typename CalculationType>
+template <typename Spheroid, mapping_type Mapping>
 struct mapper
 {
     explicit inline mapper(Spheroid const& /*spheroid*/) {}
 
+    template <typename CalculationType>
     static inline CalculationType const& apply(CalculationType const& lat)
     {
         return lat;
     }
 };
 
-template <typename Spheroid, typename CalculationType>
-struct mapper<Spheroid, mapping_reduced, CalculationType>
+template <typename Spheroid>
+struct mapper<Spheroid, mapping_reduced>
 {
+    typedef typename promote_floating_point
+        <
+            typename radius_type<Spheroid>::type
+        >::type fraction_type;
+
     explicit inline mapper(Spheroid const& spheroid)
     {
-        CalculationType const a = geometry::get_radius<0>(spheroid);
-        CalculationType const b = geometry::get_radius<2>(spheroid);
+        fraction_type const a = geometry::get_radius<0>(spheroid);
+        fraction_type const b = geometry::get_radius<2>(spheroid);
         b_div_a = b / a;
     }
 
+    template <typename CalculationType>
     inline CalculationType apply(CalculationType const& lat) const
     {
-        return atan(b_div_a * tan(lat));
+        return atan(static_cast<CalculationType>(b_div_a) * tan(lat));
     }
 
-    CalculationType b_div_a;
+    fraction_type b_div_a;
 };
 
-template <typename Spheroid, typename CalculationType>
-struct mapper<Spheroid, mapping_geocentric, CalculationType>
+template <typename Spheroid>
+struct mapper<Spheroid, mapping_geocentric>
 {
+    typedef typename promote_floating_point
+        <
+            typename radius_type<Spheroid>::type
+        >::type fraction_type;
+
     explicit inline mapper(Spheroid const& spheroid)
     {
-        CalculationType const a = geometry::get_radius<0>(spheroid);
-        CalculationType const b = geometry::get_radius<2>(spheroid);
+        fraction_type const a = geometry::get_radius<0>(spheroid);
+        fraction_type const b = geometry::get_radius<2>(spheroid);
         sqr_b_div_a = b / a;
         sqr_b_div_a *= sqr_b_div_a;
     }
 
+    template <typename CalculationType>
     inline CalculationType apply(CalculationType const& lat) const
     {
-        return atan(sqr_b_div_a * tan(lat));
+        return atan(static_cast<CalculationType>(sqr_b_div_a) * tan(lat));
     }
 
-    CalculationType sqr_b_div_a;
+    fraction_type sqr_b_div_a;
 };
 
 }
@@ -115,10 +128,11 @@ class mapping_spherical_side_formula
 
 public :
     inline mapping_spherical_side_formula()
+        : m_mapper(Spheroid())
     {}
 
     explicit inline mapping_spherical_side_formula(Spheroid const& spheroid)
-        : m_spheroid(spheroid)
+        : m_mapper(spheroid)
     {}
 
     template <typename P1, typename P2, typename P>
@@ -133,21 +147,18 @@ public :
                     >::type
             >::type calculation_type;
 
-        side::detail::mapper<Spheroid, Mapping, calculation_type> const
-            mapper(m_spheroid);
-
         calculation_type lon1 = get_as_radian<0>(p1);
-        calculation_type lat1 = mapper.apply(get_as_radian<1>(p1));
+        calculation_type lat1 = m_mapper.apply(get_as_radian<1>(p1));
         calculation_type lon2 = get_as_radian<0>(p2);
-        calculation_type lat2 = mapper.apply(get_as_radian<1>(p2));
+        calculation_type lat2 = m_mapper.apply(get_as_radian<1>(p2));
         calculation_type lon = get_as_radian<0>(p);
-        calculation_type lat = mapper.apply(get_as_radian<1>(p));
+        calculation_type lat = m_mapper.apply(get_as_radian<1>(p));
 
         return detail::spherical_side_formula(lon1, lat1, lon2, lat2, lon, lat);
     }
 
 private:
-    Spheroid m_spheroid;
+    side::detail::mapper<Spheroid, Mapping> const m_mapper;
 };
 
 // The specialization for geodetic latitude which can be used directly
