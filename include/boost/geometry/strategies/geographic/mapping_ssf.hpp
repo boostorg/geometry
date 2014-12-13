@@ -50,7 +50,7 @@ struct mapper
 {
     explicit inline mapper(Spheroid const& /*spheroid*/) {}
 
-    static inline CalculationType const& map_lat(CalculationType const& lat)
+    static inline CalculationType const& apply(CalculationType const& lat)
     {
         return lat;
     }
@@ -66,7 +66,7 @@ struct mapper<Spheroid, mapping_reduced, CalculationType>
         b_div_a = b / a;
     }
 
-    inline CalculationType map_lat(CalculationType const& lat) const
+    inline CalculationType apply(CalculationType const& lat) const
     {
         return atan(b_div_a * tan(lat));
     }
@@ -85,7 +85,7 @@ struct mapper<Spheroid, mapping_geocentric, CalculationType>
         sqr_b_div_a *= sqr_b_div_a;
     }
 
-    inline CalculationType map_lat(CalculationType const& lat) const
+    inline CalculationType apply(CalculationType const& lat) const
     {
         return atan(sqr_b_div_a * tan(lat));
     }
@@ -136,26 +136,14 @@ public :
         side::detail::mapper<Spheroid, Mapping, calculation_type> const
             mapper(m_spheroid);
 
-        // NOTE: Should CalculateType be used as CoordinateType in the following Points?
-        //       Coordinates could also be passed directly to some SSF utility.
+        calculation_type lon1 = get_as_radian<0>(p1);
+        calculation_type lat1 = mapper.apply(get_as_radian<1>(p1));
+        calculation_type lon2 = get_as_radian<0>(p2);
+        calculation_type lat2 = mapper.apply(get_as_radian<1>(p2));
+        calculation_type lon = get_as_radian<0>(p);
+        calculation_type lat = mapper.apply(get_as_radian<1>(p));
 
-        return spherical_side_formula<CalculationType>
-                ::apply(mapped<P1>(p1, mapper),
-                        mapped<P2>(p2, mapper),
-                        mapped<P>(p, mapper));
-    }
-
-    template <typename ResultPoint, typename Point, typename Mapper>
-    static inline ResultPoint mapped(Point const& point, Mapper const& mapper)
-    {
-        boost::ignore_unused(mapper);
-
-        // NOTE: coordinate system of Point and ResultPoint should be the same
-
-        ResultPoint result;
-        geometry::set<0>(result, geometry::get<0>(point));
-        geometry::set_from_radian<1>(result, mapper.map_lat(geometry::get_as_radian<1>(point)));
-        return result;
+        return detail::spherical_side_formula(lon1, lat1, lon2, lat2, lon, lat);
     }
 
 private:

@@ -151,7 +151,7 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    //test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
+    test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 
 #if defined(HAVE_TTMATH)
