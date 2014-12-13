@@ -148,11 +148,11 @@ public :
             >::type calculation_type;
 
         calculation_type lon1 = get_as_radian<0>(p1);
-        calculation_type lat1 = m_mapper.apply(get_as_radian<1>(p1));
+        calculation_type lat1 = m_mapper.template apply<calculation_type>(get_as_radian<1>(p1));
         calculation_type lon2 = get_as_radian<0>(p2);
-        calculation_type lat2 = m_mapper.apply(get_as_radian<1>(p2));
+        calculation_type lat2 = m_mapper.template apply<calculation_type>(get_as_radian<1>(p2));
         calculation_type lon = get_as_radian<0>(p);
-        calculation_type lat = m_mapper.apply(get_as_radian<1>(p));
+        calculation_type lat = m_mapper.template apply<calculation_type>(get_as_radian<1>(p));
 
         return detail::spherical_side_formula(lon1, lat1, lon2, lat2, lon, lat);
     }
