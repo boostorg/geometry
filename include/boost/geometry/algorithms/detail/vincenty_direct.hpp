@@ -110,7 +110,7 @@ public:
             cos_2sigma_m_sqr = math::sqr(cos_2sigma_m);
 
             CT const delta_sigma = B * sin_sigma * (cos_2sigma_m
-                                        + (B/CT(4)) * ( cos_sigma * (CT(-1) + 2*cos_2sigma_m_sqr)
+                                        + (B/CT(4)) * ( cos_sigma * (CT(-1) + CT(2)*cos_2sigma_m_sqr)
                                             - (B/CT(6) * cos_2sigma_m * (CT(-3)+CT(4)*sin_sigma_sqr) * (CT(-3)+CT(4)*cos_2sigma_m_sqr)) )); // (6)
 
             sigma = s_div_bA + delta_sigma; // (7)
