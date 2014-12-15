@@ -144,8 +144,8 @@ namespace resolve_variant
     };
     
     
-    template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
-    struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_PARAMS(B)> >
+    template <BOOST_VARIANT_ENUM_PARAMS(typename T1), BOOST_VARIANT_ENUM_PARAMS(typename T2)>
+    struct crosses<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
     {
         struct visitor: static_visitor<bool>
         {
@@ -165,8 +165,8 @@ namespace resolve_variant
         
         static inline bool
         apply(
-              const variant<BOOST_VARIANT_ENUM_PARAMS(A)>& geometry1,
-              const variant<BOOST_VARIANT_ENUM_PARAMS(B)>& geometry2)
+              const variant<BOOST_VARIANT_ENUM_PARAMS(T1)>& geometry1,
+              const variant<BOOST_VARIANT_ENUM_PARAMS(T2)>& geometry2)
         {
             return apply_visitor(visitor(), geometry1, geometry2);
         }
