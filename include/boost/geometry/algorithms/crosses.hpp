@@ -21,7 +21,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_CROSSES_HPP
 
 #include <cstddef>
+
 #include <boost/variant/variant_fwd.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <boost/geometry/core/access.hpp>
 
