@@ -32,7 +32,7 @@ struct flattening
 template <typename ResultType, typename Geometry>
 struct flattening<ResultType, Geometry, srs_sphere_tag>
 {
-    static inline ResultType apply(Geometry const& geometry)
+    static inline ResultType apply(Geometry const& /*geometry*/)
     {
         return ResultType(0);
     }
