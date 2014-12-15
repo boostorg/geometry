@@ -26,6 +26,10 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
 
+#include <boost/variant/variant_fwd.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
+
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
@@ -40,8 +44,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
-
-#include <boost/variant/variant_fwd.hpp>
 
 namespace boost { namespace geometry
 {
