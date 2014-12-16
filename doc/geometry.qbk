@@ -130,12 +130,10 @@ Boost.Geometry contains contributions by:
 
 [include reference.qbk]
 
-[section Indexes] 
 [include matrix.qbk]
-[section Alphabetical Index]
+[section Reference Alphabetical Index]
 '''<index><title/></index>'''
 [endsect]
-[endsect] 
 
 [section Examples] 
 [include example_adapting_a_legacy_geometry_object_model.qbk]
