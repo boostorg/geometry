@@ -319,8 +319,8 @@ struct assign<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 };
     
     
-template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
-struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_PARAMS(B)> >
+template <BOOST_VARIANT_ENUM_PARAMS(typename T1), BOOST_VARIANT_ENUM_PARAMS(typename T2)>
+struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
 {
     struct visitor: static_visitor<void>
     {
@@ -339,8 +339,8 @@ struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_
     };
         
     static inline void
-    apply(variant<BOOST_VARIANT_ENUM_PARAMS(A)>& geometry1,
-          variant<BOOST_VARIANT_ENUM_PARAMS(B)> const& geometry2)
+    apply(variant<BOOST_VARIANT_ENUM_PARAMS(T1)>& geometry1,
+          variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
     {
         return apply_visitor(visitor(), geometry1, geometry2);
     }
