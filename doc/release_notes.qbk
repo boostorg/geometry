@@ -26,9 +26,11 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/10108 10108] Error in overlay operations in specific cases where geometries touch at one point
+* [@https://svn.boost.org/trac/boost/ticket/10467 10467] Template parameter name coliding with B0 macro name defined in termios.h
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
 * [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joints, where concavities where not intersected properly
 * [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
+* [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
 
 [*Bugfixes]
 
