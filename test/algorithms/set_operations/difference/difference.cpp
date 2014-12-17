@@ -277,7 +277,10 @@ void test_all()
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
-        10, -1, 0.02148439);
+         9, -1, 0.01953125);
+
+    //        10, -1, 0.02148439); // change in partition might give these results
+
     // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
     // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
 
