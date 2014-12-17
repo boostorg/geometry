@@ -16,6 +16,7 @@
 
 test-suite boost-geometry-strategies
     :
+    [ run andoyer.cpp ]
     [ run cross_track.cpp ]
     [ run crossings_multiply.cpp ]
     [ run distance_default_result.cpp ]
@@ -30,5 +31,6 @@ test-suite boost-geometry-strategies
     [ run segment_intersection_collinear.cpp ]
     [ run transform_cs.cpp ]
     [ run transformer.cpp ]
+    [ run vincenty.cpp ]
     [ run winding.cpp ]
     ;

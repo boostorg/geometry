@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -39,7 +39,7 @@ namespace strategy { namespace distance
 /*!
 \brief Point-point distance approximation taking flattening into account
 \ingroup distance
-\tparam RadiusType Type of specified radius of the Earth
+\tparam Spheroid The reference spheroid model
 \tparam CalculationType \tparam_calculation
 \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
 \note Although not so well-known, the approximation is very good: in all cases the results
@@ -221,4 +221,4 @@ struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, ge
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP
