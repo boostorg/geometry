@@ -42,10 +42,11 @@ void test_polygon()
     test_centroid<Polygon>(
         "POLYGON((2 1.3,2.4 1.7,2.8 1.8,3.4 1.2"
         ",3.7 1.6,3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3)"
-        ",(4 2,4.2 1.4,4.8 1.9,4.4 2.2,4 2))"
-        ,
+        ",(4 2,4.2 1.4,4.8 1.9,4.4 2.2,4 2))",
         4.0466264962959677, 1.6348996057331333);
 
+    test_centroid<Polygon>("POLYGON((0 0,0 10,10 10,10 0,0 0))", 5.0, 5.0);
+    test_centroid<Polygon>("POLYGON((-10 0,0 0,0 -10,-10 -10,-10 0))", -5.0, -5.0);
 }
 
 
@@ -55,6 +56,9 @@ void test_2d()
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1, 2 2, 3 3)", 2.0, 2.0);
     test_centroid<bg::model::linestring<P> >("LINESTRING(0 0,0 4, 4 4)", 1.0, 3.0);
     test_centroid<bg::model::linestring<P> >("LINESTRING(0 0,3 3,0 6,3 9,0 12)", 1.5, 6.0);
+
+    test_centroid<bg::model::linestring<P> >("LINESTRING(1 1,10 1,1 0,10 0,4 -2,1 1)",
+                                             5.41385255923004, 0.13507358481085);
 
     test_centroid<bg::model::segment<P> >("LINESTRING(1 1, 3 3)", 2.0, 2.0);
 
