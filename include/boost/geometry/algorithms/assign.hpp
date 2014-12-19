@@ -226,28 +226,25 @@ template <typename Geometry1, typename Geometry2>
 struct assign
 {
     static inline void
-    apply(
-            Geometry1& geometry1,
-            const Geometry2& geometry2)
+    apply(Geometry1& geometry1, const Geometry2& geometry2)
     {
         concept::check<Geometry1>();
         concept::check<Geometry2 const>();
         concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
             
-        bool const same_point_order =
-            point_order<Geometry1>::value == point_order<Geometry2>::value;
-        bool const same_closure =
-            closure<Geometry1>::value == closure<Geometry2>::value;
-            
+        // same point_order
         BOOST_MPL_ASSERT_MSG
         (
-                same_point_order, ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_POINT_ORDER
-                , (types<Geometry1, Geometry2>)
+            (point_order<Geometry1>::value == point_order<Geometry2>::value),
+            ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_POINT_ORDER,
+            (types<Geometry1, Geometry2>)
         );
+        // same closure
         BOOST_MPL_ASSERT_MSG
         (
-                same_closure, ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_CLOSURE
-                , (types<Geometry1, Geometry2>)
+            (closure<Geometry1>::value == closure<Geometry2>::value),
+            ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_CLOSURE,
+            (types<Geometry1, Geometry2>)
         );
             
         dispatch::convert<Geometry2, Geometry1>::apply(geometry2, geometry1);
