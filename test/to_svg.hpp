@@ -212,7 +212,7 @@ inline void geom_to_svg(G1 const& g1, G2 const& g2,
         "stroke:rgb(51,51,153);stroke-width:3");
 }
 
-template <typename G1, typename G2>
+template <typename G1>
 inline void geom_to_svg(G1 const& g1, std::string const& filename)
 {
     namespace bg = boost::geometry;
