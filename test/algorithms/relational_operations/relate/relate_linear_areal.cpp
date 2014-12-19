@@ -272,6 +272,24 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(0 0,3 3)",
                              "MULTIPOLYGON(((0 0,2 8,8 8,8 2,0 0)),((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 9,1 9,0 0)))",
                              "1FF00F212");
+
+    // MySQL report 18.12.2014 (https://svn.boost.org/trac/boost/ticket/10887)
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 2)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             "10F0FF212");
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 5)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             "10F00F212");
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             "1FF00F212");
+    // MySQL report 18.12.2014 - extended
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)),((5 0,7 1,7 -1,5 0)))",
+                             "1FF00F212");
+    test_geometry<ls, mpoly>("LINESTRING(0 0,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)),((5 0,7 1,7 -1,5 0)))",
+                             "FF1F00212");
 }
 
 template <typename P>
@@ -313,6 +331,26 @@ void test_multi_linestring_multi_polygon()
     test_geometry<mls, mpoly>("MULTILINESTRING((5 5,0 0),(5 5,5 0),(10 10,10 5,5 5,5 10,10 10))",
                               "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)),((5 5,10 1,10 0,5 5)))",
                               "11FF0F212");
+
+    // MySQL report 18.12.2014 - extended
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,4 -2,5 0),(5 -2,6 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "10FFFF212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 1,5 0),(0 0,0 -1,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "F01FFF212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,4 -2,5 0),(6 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "10F0FF212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 1,5 0),(0 -1,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "F01FF0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,5 0),(5 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "1010F0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,5 0),(0 0,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              "1010F0212");
 }
 
 template <typename P>

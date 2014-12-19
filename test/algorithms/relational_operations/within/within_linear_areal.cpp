@@ -50,6 +50,42 @@ void test_l_a()
     // BIBEBIB
     test_geometry<ls, mpoly>("LINESTRING(0 0, 10 10)", "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((6 6,5 10,10 10,10 5,6 6)))", false);
 
+    // MySQL report 18.12.2014 (https://svn.boost.org/trac/boost/ticket/10887)
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 2)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             true);
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 5)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             true);
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                             true);
+    // MySQL report 18.12.2014 - extended
+    test_geometry<ls, mpoly>("LINESTRING(5 -2,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)),((5 0,7 1,7 -1,5 0)))",
+                             true);
+    test_geometry<ls, mpoly>("LINESTRING(0 0,5 0)",
+                             "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)),((5 0,7 1,7 -1,5 0)))",
+                             false);
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,4 -2,5 0),(5 -2,6 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              true);
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 1,5 0),(0 0,0 -1,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              false);
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,4 -2,5 0),(6 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              true);
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 1,5 0),(0 -1,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              false);
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,5 0),(5 -2,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              false);
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,5 0),(0 0,5 0))",
+                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
+                              false);
+
     // BI
     test_geometry<mls, poly>("MULTILINESTRING((0 0,2 2),(2 2,3 3))", "POLYGON((0 0,0 5,5 5,5 0,0 0))", true);
     // I E

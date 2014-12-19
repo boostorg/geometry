@@ -31,6 +31,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joints, where concavities where not intersected properly
 * [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
 * [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
+* [@https://svn.boost.org/trac/boost/ticket/10887 10887] Invalid result of within() and relate() for Linear/MultiPolygon
 
 [*Bugfixes]
 
