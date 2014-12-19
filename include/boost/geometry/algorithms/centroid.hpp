@@ -23,6 +23,7 @@
 
 #include <cstddef>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 
 #include <boost/variant/variant_fwd.hpp>
@@ -184,8 +185,9 @@ inline bool range_ok(Range const& range, Point& centroid)
     {
 #if ! defined(BOOST_GEOMETRY_CENTROID_NO_THROW)
         throw centroid_exception();
-#endif
+#else
         return false;
+#endif
     }
     else // if (n == 1)
     {
@@ -193,7 +195,7 @@ inline bool range_ok(Range const& range, Point& centroid)
         geometry::convert(*boost::begin(range), centroid);
         return false;
     }
-    return true;
+    //return true; // unreachable
 }
 
 /*!
@@ -208,6 +210,8 @@ struct centroid_range_state
                              Strategy const& strategy,
                              typename Strategy::state_type& state)
     {
+        boost::ignore_unused(strategy);
+
         typedef typename geometry::point_type<Ring const>::type point_type;
         typedef typename closeable_view<Ring const, Closure>::type view_type;
 
