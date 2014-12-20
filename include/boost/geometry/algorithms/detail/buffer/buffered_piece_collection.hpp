@@ -561,9 +561,9 @@ struct buffered_piece_collection
     }
 
     template <std::size_t Dimension>
-    void determine_monotonicity(piece& pc,
+    static inline void determine_monotonicity(piece& pc,
             robust_point_type const& current,
-            robust_point_type const& next) const
+            robust_point_type const& next)
     {
         if (geometry::get<Dimension>(current) >= geometry::get<Dimension>(next))
         {
@@ -575,7 +575,7 @@ struct buffered_piece_collection
         }
     }
 
-    void determine_properties(piece& pc)
+    static inline void determine_properties(piece& pc)
     {
         pc.is_monotonic_increasing[0] = true;
         pc.is_monotonic_increasing[1] = true;
