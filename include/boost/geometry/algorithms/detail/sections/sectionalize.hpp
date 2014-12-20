@@ -266,12 +266,10 @@ struct sectionalize_part
     static inline void apply(Sections& sections,
                              Range const& range,
                              RobustPolicy const& robust_policy,
-                             bool make_rescaled_boxes,
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
         boost::ignore_unused_variable_warning(robust_policy);
-        boost::ignore_unused_variable_warning(make_rescaled_boxes);
 
         typedef model::referring_segment<Point const> segment_type;
         typedef typename boost::range_value<Sections>::type section_type;
@@ -432,7 +430,6 @@ struct sectionalize_range
     >
     static inline void apply(Range const& range,
                              RobustPolicy const& robust_policy,
-                             bool make_rescaled_boxes,
                              Sections& sections,
                              ring_identifier ring_id,
                              std::size_t max_count)
@@ -461,7 +458,7 @@ struct sectionalize_range
         }
 
         sectionalize_part<Point, DimensionCount>
-                ::apply(sections, view, robust_policy, make_rescaled_boxes, ring_id, max_count);
+                ::apply(sections, view, robust_policy, ring_id, max_count);
     }
 };
 
@@ -480,7 +477,6 @@ struct sectionalize_polygon
     >
     static inline void apply(Polygon const& poly,
                 RobustPolicy const& robust_policy,
-                bool make_rescaled_boxes,
                 Sections& sections,
                 ring_identifier ring_id, std::size_t max_count)
     {
@@ -493,7 +489,7 @@ struct sectionalize_polygon
             > per_range;
 
         ring_id.ring_index = -1;
-        per_range::apply(exterior_ring(poly), robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
+        per_range::apply(exterior_ring(poly), robust_policy, sections, ring_id, max_count);
 
         ring_id.ring_index++;
         typename interior_return_type<Polygon const>::type
@@ -501,7 +497,7 @@ struct sectionalize_polygon
         for (typename detail::interior_iterator<Polygon const>::type
                 it = boost::begin(rings); it != boost::end(rings); ++it, ++ring_id.ring_index)
         {
-            per_range::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
+            per_range::apply(*it, robust_policy, sections, ring_id, max_count);
         }
     }
 };
@@ -520,7 +516,6 @@ struct sectionalize_box
     >
     static inline void apply(Box const& box,
                 RobustPolicy const& robust_policy,
-                bool make_rescaled_boxes,
                 Sections& sections,
                 ring_identifier const& ring_id, std::size_t max_count)
     {
@@ -551,7 +546,7 @@ struct sectionalize_box
                 closed, false,
                 point_type,
                 DimensionCount
-            >::apply(points, robust_policy, make_rescaled_boxes, sections,
+            >::apply(points, robust_policy, sections,
                      ring_id, max_count);
     }
 };
@@ -567,7 +562,6 @@ struct sectionalize_multi
     >
     static inline void apply(MultiGeometry const& multi,
                 RobustPolicy const& robust_policy,
-                bool make_rescaled_boxes,
                 Sections& sections, ring_identifier ring_id, std::size_t max_count)
     {
         ring_id.multi_index = 0;
@@ -576,7 +570,7 @@ struct sectionalize_multi
             it != boost::end(multi);
             ++it, ++ring_id.multi_index)
         {
-            Policy::apply(*it, robust_policy, make_rescaled_boxes, sections, ring_id, max_count);
+            Policy::apply(*it, robust_policy, sections, ring_id, max_count);
         }
     }
 };
@@ -776,13 +770,12 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             Sections::value
-        >::apply(geometry, robust_policy, enlarge_secion_boxes, sections, ring_id, 10);
-
     detail::sectionalize::set_section_unique_ids(sections);
     if (! enlarge_secion_boxes)
     {
         detail::sectionalize::enlarge_sections(sections);
     }
+        >::apply(geometry, robust_policy, sections, ring_id, 10);
 }
 
 
