@@ -491,14 +491,24 @@ public :
     }
 };
 
-}} // namespace detail::partition
-
 struct visit_no_policy
 {
     template <typename Box>
     static inline void apply(Box const&, int )
     {}
 };
+
+struct include_all_policy
+{
+    template <typename Item>
+    static inline bool apply(Item const&)
+    {
+        return true;
+    }
+};
+
+
+}} // namespace detail::partition
 
 template
 <
@@ -507,26 +517,29 @@ template
     typename OverlapsPolicy1,
     typename ExpandPolicy2 = ExpandPolicy1,
     typename OverlapsPolicy2 = OverlapsPolicy1,
-    typename VisitBoxPolicy = visit_no_policy
+    typename IncludePolicy1 = detail::partition::include_all_policy,
+    typename IncludePolicy2 = detail::partition::include_all_policy,
+    typename VisitBoxPolicy = detail::partition::visit_no_policy
 >
 class partition
 {
     typedef std::vector<std::size_t> index_vector_type;
 
-    template <typename ExpandPolicy, typename InputCollection>
+    template <typename ExpandPolicy, typename IncludePolicy, typename InputCollection>
     static inline void expand_to_collection(InputCollection const& collection,
                 Box& total, index_vector_type& index_vector)
     {
-        index_vector.resize(boost::size(collection));
-        index_vector_type::iterator index_it = index_vector.begin();
         std::size_t index = 0;
         for(typename boost::range_iterator<InputCollection const>::type it
             = boost::begin(collection);
             it != boost::end(collection);
-            ++it, ++index_it, ++index)
+            ++it, ++index)
         {
-            ExpandPolicy::apply(total, *it);
-            *index_it = index;
+            if (IncludePolicy::apply(*it))
+            {
+                ExpandPolicy::apply(total, *it);
+                index_vector.push_back(index);
+            }
         }
     }
 
@@ -535,7 +548,7 @@ public :
     static inline void apply(InputCollection const& collection,
             VisitPolicy& visitor,
             std::size_t min_elements = 16,
-            VisitBoxPolicy box_visitor = visit_no_policy()
+            VisitBoxPolicy box_visitor = detail::partition::visit_no_policy()
             )
     {
         if (std::size_t(boost::size(collection)) > min_elements)
@@ -543,7 +556,8 @@ public :
             index_vector_type index_vector;
             Box total;
             assign_inverse(total);
-            expand_to_collection<ExpandPolicy1>(collection, total, index_vector);
+            expand_to_collection<ExpandPolicy1, IncludePolicy1>(collection,
+                    total, index_vector);
 
             detail::partition::partition_one_collection
                 <
@@ -583,7 +597,7 @@ public :
                 InputCollection2 const& collection2,
                 VisitPolicy& visitor,
                 std::size_t min_elements = 16,
-                VisitBoxPolicy box_visitor = visit_no_policy()
+                VisitBoxPolicy box_visitor = detail::partition::visit_no_policy()
                 )
     {
         if (std::size_t(boost::size(collection1)) > min_elements
@@ -592,12 +606,15 @@ public :
             index_vector_type index_vector1, index_vector2;
             Box total;
             assign_inverse(total);
-            expand_to_collection<ExpandPolicy1>(collection1, total, index_vector1);
-            expand_to_collection<ExpandPolicy2>(collection2, total, index_vector2);
+            expand_to_collection<ExpandPolicy1, IncludePolicy1>(collection1,
+                    total, index_vector1);
+            expand_to_collection<ExpandPolicy2, IncludePolicy2>(collection2,
+                    total, index_vector2);
 
             detail::partition::partition_two_collections
                 <
-                    0, Box, OverlapsPolicy1, OverlapsPolicy2, ExpandPolicy1, ExpandPolicy2, VisitBoxPolicy
+                    0, Box, OverlapsPolicy1, OverlapsPolicy2,
+                    ExpandPolicy1, ExpandPolicy2, VisitBoxPolicy
                 >::apply(total,
                     collection1, index_vector1,
                     collection2, index_vector2,

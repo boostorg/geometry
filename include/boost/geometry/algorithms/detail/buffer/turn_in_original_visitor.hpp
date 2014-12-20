@@ -41,6 +41,15 @@ struct original_ovelaps_box
     }
 };
 
+struct include_turn_policy
+{
+    template <typename Turn>
+    static inline bool apply(Turn const& turn)
+    {
+        return turn.location == location_ok;
+    }
+};
+
 struct turn_in_original_ovelaps_box
 {
     template <typename Box, typename Turn>

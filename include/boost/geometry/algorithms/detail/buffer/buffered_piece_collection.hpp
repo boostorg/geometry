@@ -436,12 +436,12 @@ struct buffered_piece_collection
         // Check if a turn is inside any of the originals
 
         turn_in_original_visitor<turn_vector_type> visitor(m_turns);
-
         geometry::partition
             <
                 model::box<robust_point_type>,
                 turn_get_box, turn_in_original_ovelaps_box,
-                original_get_box, original_ovelaps_box
+                original_get_box, original_ovelaps_box,
+                include_turn_policy, detail::partition::include_all_policy
             >::apply(m_turns, robust_originals, visitor);
 
         bool const deflate = distance_strategy.negative();
