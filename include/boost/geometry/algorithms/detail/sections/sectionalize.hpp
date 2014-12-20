@@ -744,15 +744,12 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionCou
     \tparam Sections type of sections to create
     \param geometry geometry to create sections from
     \param robust_policy policy to handle robustness issues
-    \param enlarge_secion_boxes if true, boxes are enlarged a tiny bit to be sure
-        they really contain all geometries (w.r.t. robustness)
     \param sections structure with sections
     \param source_index index to assign to the ring_identifiers
  */
 template<bool Reverse, typename Geometry, typename Sections, typename RobustPolicy>
 inline void sectionalize(Geometry const& geometry,
                 RobustPolicy const& robust_policy,
-                bool enlarge_secion_boxes,
                 Sections& sections,
                 int source_index = 0)
 {
@@ -771,10 +768,6 @@ inline void sectionalize(Geometry const& geometry,
             Reverse,
             Sections::value
     detail::sectionalize::set_section_unique_ids(sections);
-    if (! enlarge_secion_boxes)
-    {
-        detail::sectionalize::enlarge_sections(sections);
-    }
         >::apply(geometry, robust_policy, sections, ring_id, 10);
 }
 
@@ -787,7 +780,7 @@ inline void sectionalize(Geometry const& geometry,
                          int source_index = 0)
 {
     return geometry::sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
-                                           false, sections,
+                                           sections,
                                            source_index);
 }
 #endif

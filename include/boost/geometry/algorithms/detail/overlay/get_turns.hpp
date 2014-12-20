@@ -500,8 +500,8 @@ public:
 
         sections_type sec1, sec2;
 
-        geometry::sectionalize<Reverse1>(geometry1, robust_policy, true, sec1, 0);
-        geometry::sectionalize<Reverse2>(geometry2, robust_policy, true, sec2, 1);
+        geometry::sectionalize<Reverse1>(geometry1, robust_policy, sec1, 0);
+        geometry::sectionalize<Reverse2>(geometry2, robust_policy, sec2, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor
