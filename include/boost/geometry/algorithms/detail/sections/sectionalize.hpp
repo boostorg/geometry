@@ -68,8 +68,6 @@ struct section
 {
     typedef Box box_type;
 
-    int id; // might be obsolete now, BSG 14-03-2011 TODO decide about this
-
     int directions[DimensionCount];
     ring_identifier ring_id;
     Box bounding_box;
@@ -85,8 +83,7 @@ struct section
     bool is_non_duplicate_last;
 
     inline section()
-        : id(-1)
-        , begin_index(-1)
+        : begin_index(-1)
         , end_index(-1)
         , count(0)
         , range_count(0)
@@ -576,19 +573,6 @@ struct sectionalize_multi
 };
 
 template <typename Sections>
-inline void set_section_unique_ids(Sections& sections)
-{
-    // Set ID's.
-    int index = 0;
-    for (typename boost::range_iterator<Sections>::type it = boost::begin(sections);
-        it != boost::end(sections);
-        ++it)
-    {
-        it->id = index++;
-    }
-}
-
-template <typename Sections>
 inline void enlarge_sections(Sections& sections)
 {
     // Robustness issue. Increase sections a tiny bit such that all points are really within (and not on border)
@@ -767,7 +751,6 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             Sections::value
-    detail::sectionalize::set_section_unique_ids(sections);
         >::apply(geometry, robust_policy, sections, ring_id, 10);
 }
 
