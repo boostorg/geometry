@@ -407,9 +407,9 @@ struct sectionalize_part
                         RobustPolicy const& robust_policy,
                         Section& section)
     {
-                typename geometry::point_type<typename Section::box_type>::type robust_point;
-                geometry::recalculate(robust_point, point, robust_policy);
-                geometry::expand(section.bounding_box, robust_point);
+        typename geometry::point_type<typename Section::box_type>::type robust_point;
+        geometry::recalculate(robust_point, point, robust_policy);
+        geometry::expand(section.bounding_box, robust_point);
     }
 };
 
