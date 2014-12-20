@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
@@ -790,7 +791,7 @@ public:
                     distance, side_strategy,
                     join_strategy, end_strategy, point_strategy,
                     robust_policy);
-            collection.finish_ring();
+            collection.finish_ring(false, geometry::num_interior_rings(polygon) > 0u);
         }
 
         apply_interior_rings(interior_rings(polygon),

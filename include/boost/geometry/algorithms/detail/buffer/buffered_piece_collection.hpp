@@ -25,12 +25,12 @@
 #include <boost/geometry/strategies/buffer.hpp>
 
 #include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
+#include <boost/geometry/algorithms/detail/buffer/turn_in_original_visitor.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
@@ -121,7 +121,7 @@ struct buffered_piece_collection
 
     // Robust ring/polygon type, always clockwise
     typedef geometry::model::ring<robust_point_type> robust_ring_type;
-    typedef geometry::model::polygon<robust_point_type> robust_polygon_type;
+    typedef geometry::model::box<robust_point_type> robust_box_type;
 
     typedef typename strategy::side::services::default_strategy
         <
@@ -192,12 +192,34 @@ struct buffered_piece_collection
         // 3: complete ring
         robust_ring_type robust_ring;
 
-        geometry::model::box<robust_point_type> robust_envelope;
-        geometry::model::box<robust_point_type> robust_offsetted_envelope;
+        robust_box_type robust_envelope;
+        robust_box_type robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
 
         typedef robust_ring_type piece_robust_ring_type;
+    };
+
+    struct robust_original
+    {
+        inline robust_original()
+            : m_is_interior(false)
+            , m_has_interiors(true)
+        {}
+
+        inline robust_original(robust_ring_type const& ring,
+                bool is_interior, bool has_interiors)
+            : m_ring(ring)
+            , m_is_interior(is_interior)
+            , m_has_interiors(has_interiors)
+        {
+            geometry::envelope(m_ring, m_box);
+        }
+
+        robust_ring_type m_ring;
+        robust_box_type m_box;
+        bool m_is_interior;
+        bool m_has_interiors;
     };
 
     typedef std::vector<piece> piece_vector_type;
@@ -207,7 +229,7 @@ struct buffered_piece_collection
     int m_first_piece_index;
 
     buffered_ring_collection<buffered_ring<Ring> > offsetted_rings; // indexed by multi_index
-    buffered_ring_collection<robust_polygon_type> robust_polygons; // robust representation of the original(s)
+    std::vector<robust_original> robust_originals; // robust representation of the original(s)
     robust_ring_type current_robust_ring;
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
@@ -409,56 +431,37 @@ struct buffered_piece_collection
     }
 
     template <typename DistanceStrategy>
-    inline void check_point_in_original(buffer_turn_info_type& turn,
-            DistanceStrategy const& distance_strategy)
-    {
-        strategy::within::winding<robust_point_type> winding;
-
-        for (std::size_t i = 0; i < robust_polygons.size(); i++)
-        {
-            int const code = detail::within::point_in_geometry(turn.robust_point,
-                        robust_polygons[i], winding);
-
-            switch (code)
-            {
-                case 0 :
-                    // On border of original: always discard
-                    turn.location = location_discard;
-                    return;
-                case 1 :
-                    // Inside original
-                    if (distance_strategy.negative())
-                    {
-                        // For deflate: it is inside the (multi)polygon
-                        // OK, no action, we can return
-                    }
-                    else
-                    {
-                        // For inflate: it is inside, discard
-                        turn.location = location_discard;
-                    }
-                    return;
-            }
-        }
-
-        if (distance_strategy.negative())
-        {
-            // For deflate: it was not found in one of the polygons, discard
-            turn.location = location_discard;
-        }
-    }
-
-    template <typename DistanceStrategy>
     inline void check_remaining_points(DistanceStrategy const& distance_strategy)
     {
-        // TODO: partition: this one is, together with the overlay, quadratic
+        // Check if a turn is inside any of the originals
+
+        turn_in_original_visitor<turn_vector_type> visitor(m_turns);
+
+        geometry::partition
+            <
+                model::box<robust_point_type>,
+                turn_get_box, turn_in_original_ovelaps_box,
+                original_get_box, original_ovelaps_box
+            >::apply(m_turns, robust_originals, visitor);
+
+        bool const deflate = distance_strategy.negative();
 
         for (typename boost::range_iterator<turn_vector_type>::type it =
             boost::begin(m_turns); it != boost::end(m_turns); ++it)
         {
-            if (it->location == location_ok)
+            buffer_turn_info_type& turn = *it;
+            if (turn.location == location_ok)
             {
-                check_point_in_original(*it, distance_strategy);
+                if (deflate && turn.count_in_original <= 0)
+                {
+                    // For deflate: it is not in original, discard
+                    turn.location = location_discard;
+                }
+                else if (! deflate && turn.count_in_original > 0)
+                {
+                    // For inflate: it is in original, discard
+                    turn.location = location_discard;
+                }
             }
         }
     }
@@ -679,7 +682,7 @@ struct buffered_piece_collection
         m_first_piece_index = boost::size(m_pieces);
     }
 
-    inline void finish_ring(bool is_interior = false)
+    inline void finish_ring(bool is_interior = false, bool has_interiors = false)
     {
         if (m_first_piece_index == -1)
         {
@@ -696,22 +699,12 @@ struct buffered_piece_collection
         }
         m_first_piece_index = -1;
 
-        if (!current_robust_ring.empty())
+        if (! current_robust_ring.empty())
         {
             BOOST_ASSERT(geometry::equals(current_robust_ring.front(), current_robust_ring.back()));
-
-            if (is_interior)
-            {
-                if (!robust_polygons.empty())
-                {
-                    robust_polygons.back().inners().push_back(current_robust_ring);
-                }
-            }
-            else
-            {
-                robust_polygons.resize(robust_polygons.size() + 1);
-                robust_polygons.back().outer() = current_robust_ring;
-            }
+            robust_originals.push_back(
+                robust_original(current_robust_ring,
+                    is_interior, has_interiors));
         }
     }
 
