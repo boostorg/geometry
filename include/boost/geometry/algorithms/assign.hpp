@@ -232,17 +232,19 @@ struct assign
         concept::check<Geometry2 const>();
         concept::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
             
-        // same point_order
+        static bool const same_point_order
+            = point_order<Geometry1>::value == point_order<Geometry2>::value;
         BOOST_MPL_ASSERT_MSG
         (
-            (point_order<Geometry1>::value == point_order<Geometry2>::value),
+            (same_point_order),
             ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_POINT_ORDER,
             (types<Geometry1, Geometry2>)
         );
-        // same closure
+        static bool const same_closure
+            = closure<Geometry1>::value == closure<Geometry2>::value;
         BOOST_MPL_ASSERT_MSG
         (
-            (closure<Geometry1>::value == closure<Geometry2>::value),
+            (same_closure),
             ASSIGN_IS_NOT_SUPPORTED_FOR_DIFFERENT_CLOSURE,
             (types<Geometry1, Geometry2>)
         );
