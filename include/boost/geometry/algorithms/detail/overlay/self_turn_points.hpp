@@ -127,10 +127,8 @@ struct get_turns
                     RobustPolicy
                 >::type
             > box_type;
-        typedef typename geometry::sections
-            <
-                box_type, 1
-            > sections_type;
+
+        typedef geometry::sections<box_type, 1> sections_type;
 
         typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 

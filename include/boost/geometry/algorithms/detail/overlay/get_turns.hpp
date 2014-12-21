@@ -496,7 +496,7 @@ public:
                     point_type, RobustPolicy
                 >::type
             > box_type;
-        typedef typename geometry::sections<box_type, 2> sections_type;
+        typedef geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
         typedef boost::mpl::vector_c<std::size_t, 0, 1> dimensions;
