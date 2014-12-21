@@ -499,9 +499,12 @@ public:
         typedef typename geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
+        typedef boost::mpl::vector_c<std::size_t, 0, 1> dimensions;
 
-        geometry::sectionalize<Reverse1>(geometry1, robust_policy, sec1, 0);
-        geometry::sectionalize<Reverse2>(geometry2, robust_policy, sec2, 1);
+        geometry::sectionalize<Reverse1, dimensions>(geometry1, robust_policy,
+                sec1, 0);
+        geometry::sectionalize<Reverse2, dimensions>(geometry2, robust_policy,
+                sec2, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
         section_visitor

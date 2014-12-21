@@ -128,8 +128,10 @@ struct get_turns
                 box_type, 1
             > sections_type;
 
+        typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
+
         sections_type sec;
-        geometry::sectionalize<false>(geometry, robust_policy, sec);
+        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec);
 
         self_section_visitor
             <
