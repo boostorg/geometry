@@ -759,6 +759,24 @@ inline void sectionalize(Geometry const& geometry,
 
     BOOST_STATIC_ASSERT((Sections::value == mpl::size<DimensionVector>::value));
 
+    // Compiletime check for point type of section boxes
+    // and point type related to robust policy
+    typedef typename geometry::coordinate_type
+    <
+        typename Sections::box_type
+    >::type ctype1;
+    typedef typename geometry::coordinate_type
+    <
+        typename geometry::robust_point_type
+        <
+            typename geometry::point_type<Geometry>::type,
+            RobustPolicy
+        >::type
+    >::type ctype2;
+
+    BOOST_MPL_ASSERT((boost::is_same<ctype1, ctype2>));
+
+
     sections.clear();
 
     ring_identifier ring_id;
