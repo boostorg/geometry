@@ -138,16 +138,6 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
     {
         BOOST_CHECK_EQUAL(out_dirs.str(), dir_check);
     }
-    else
-    {
-        if (out_sections.str().length() < 80)
-        {
-            std::cout << std::endl << bg::wkt(g) << std::endl;
-            std::cout << out_sections.str() << std::endl;
-            //std::cout << out_boxes.str() << std::endl;
-        }
-        std::cout << out_dirs.str() << std::endl;
-    }
 
 #if defined(TEST_WITH_SVG)
     {
