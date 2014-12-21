@@ -728,12 +728,16 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionCou
     \param robust_policy policy to handle robustness issues
     \param sections structure with sections
     \param source_index index to assign to the ring_identifiers
+    \param max_count maximal number of points per section
+        (defaults to 10, this seems to give the fastest results)
+
  */
 template<bool Reverse, typename Geometry, typename Sections, typename RobustPolicy>
 inline void sectionalize(Geometry const& geometry,
                 RobustPolicy const& robust_policy,
                 Sections& sections,
-                int source_index = 0)
+                int source_index = 0,
+                std::size_t max_count = 10)
 {
     concept::check<Geometry const>();
 
@@ -742,14 +746,13 @@ inline void sectionalize(Geometry const& geometry,
     ring_identifier ring_id;
     ring_id.source_index = source_index;
 
-    // A maximum of 10 segments per section seems to give the fastest results
     dispatch::sectionalize
         <
             typename tag<Geometry>::type,
             Geometry,
             Reverse,
             Sections::value
-        >::apply(geometry, robust_policy, sections, ring_id, 10);
+        >::apply(geometry, robust_policy, sections, ring_id, max_count);
 }
 
 

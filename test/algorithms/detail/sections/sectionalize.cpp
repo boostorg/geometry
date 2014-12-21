@@ -71,7 +71,8 @@ void test_sectionalize_part()
 
 template <int DimensionCount, bool Reverse, typename G>
 void test_sectionalize(std::string const& caseid, G const& g, std::size_t section_count,
-        std::string const& index_check, std::string const& dir_check)
+        std::string const& index_check, std::string const& dir_check,
+        std::size_t max_count = 10)
 {
     boost::ignore_unused_variable_warning(caseid);
 
@@ -80,7 +81,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
     typedef bg::sections<box, DimensionCount> sections;
 
     sections s;
-    bg::sectionalize<Reverse>(g, bg::detail::no_rescale_policy(), s);
+    bg::sectionalize<Reverse>(g, bg::detail::no_rescale_policy(), s, 0, max_count);
 
     BOOST_CHECK_EQUAL(s.size(), section_count);
 
@@ -203,12 +204,13 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
 template <typename G, bool Reverse>
 void test_sectionalize(std::string const& caseid, std::string const& wkt,
         std::size_t count2, std::string const& s2, std::string const d2,
-        std::size_t count1, std::string const& s1, std::string const d1)
+        std::size_t count1, std::string const& s1, std::string const d1,
+        std::size_t max_count = 10)
 {
     G g;
     bg::read_wkt(wkt, g);
-    test_sectionalize<2, Reverse>(caseid + "_d2", g, count2, s2, d2);
-    test_sectionalize<1, Reverse>(caseid + "_d1", g, count1, s1, d1);
+    test_sectionalize<2, Reverse>(caseid + "_d2", g, count2, s2, d2, max_count);
+    test_sectionalize<1, Reverse>(caseid + "_d1", g, count1, s1, d1, max_count);
 }
 
 template <typename P>
