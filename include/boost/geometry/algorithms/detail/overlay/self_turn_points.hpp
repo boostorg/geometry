@@ -121,7 +121,11 @@ struct get_turns
     {
         typedef model::box
             <
-                typename geometry::point_type<Geometry>::type
+                typename geometry::robust_point_type
+                <
+                    typename geometry::point_type<Geometry>::type,
+                    RobustPolicy
+                >::type
             > box_type;
         typedef typename geometry::sections
             <
