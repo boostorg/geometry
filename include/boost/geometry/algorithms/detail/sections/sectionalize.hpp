@@ -740,7 +740,14 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionVec
         (defaults to 10, this seems to give the fastest results)
 
  */
-template<bool Reverse, typename Geometry, typename Sections, typename RobustPolicy>
+template
+<
+    bool Reverse,
+    typename DimensionVector,
+    typename Geometry,
+    typename Sections,
+    typename RobustPolicy
+>
 inline void sectionalize(Geometry const& geometry,
                 RobustPolicy const& robust_policy,
                 Sections& sections,
@@ -754,19 +761,12 @@ inline void sectionalize(Geometry const& geometry,
     ring_identifier ring_id;
     ring_id.source_index = source_index;
 
-    typedef typename boost::mpl::if_c
-        <
-            Sections::value == 1,
-            boost::mpl::vector_c<std::size_t, 0>, // In X dimension
-            boost::mpl::vector_c<std::size_t, 0, 1> // In X,Y dimensions
-        >::type dimension_vector;
-
     dispatch::sectionalize
         <
             typename tag<Geometry>::type,
             Geometry,
             Reverse,
-            dimension_vector
+            DimensionVector
         >::apply(geometry, robust_policy, sections, ring_id, max_count);
 }
 
