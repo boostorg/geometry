@@ -11,7 +11,7 @@
 
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
 
@@ -69,6 +69,30 @@ struct turn_in_original_ovelaps_box
     }
 };
 
+template <typename Point, typename Original>
+inline int point_in_original(Point const& point, Original const& original)
+{
+    typedef strategy::within::winding<Point> strategy_type;
+    strategy_type strategy;
+
+    typedef typename Original::original_robust_ring_type ring_type;
+    typedef typename boost::range_iterator<ring_type const>::type iterator_type;
+    typename strategy_type::state_type state;
+    iterator_type it = boost::begin(original.m_ring);
+
+    for (iterator_type previous = it++;
+        it != boost::end(original.m_ring);
+        ++previous, ++it)
+    {
+        if (! strategy.apply(point, *previous, *it, state))
+        {
+            break;
+        }
+    }
+
+    return strategy.result(state);
+}
+
 
 template <typename Turns>
 class turn_in_original_visitor
@@ -95,7 +119,7 @@ public:
             return;
         }
 
-        int const code = detail::within::point_in_geometry(turn.robust_point, original.m_ring);
+        int const code = point_in_original(turn.robust_point, original);
 
         if (code == -1)
         {

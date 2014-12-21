@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
@@ -214,10 +215,19 @@ struct buffered_piece_collection
             , m_has_interiors(has_interiors)
         {
             geometry::envelope(m_ring, m_box);
+
+            // create monotonic sections in y-dimension
+            typedef boost::mpl::vector_c<std::size_t, 1> dimensions;
+            geometry::sectionalize<false, dimensions>(m_ring,
+                    detail::no_rescale_policy(), m_sections);
         }
 
         robust_ring_type m_ring;
         robust_box_type m_box;
+        geometry::sections<robust_box_type, 1> m_sections;
+
+        typedef robust_ring_type original_robust_ring_type;
+
         bool m_is_interior;
         bool m_has_interiors;
     };
