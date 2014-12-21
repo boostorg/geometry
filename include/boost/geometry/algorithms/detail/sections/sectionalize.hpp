@@ -272,12 +272,12 @@ struct sectionalize_part
     {
         boost::ignore_unused_variable_warning(robust_policy);
 
-        typedef model::referring_segment<Point const> segment_type;
         typedef typename boost::range_value<Sections>::type section_type;
-        typedef model::segment
-            <
-                typename robust_point_type<Point, RobustPolicy>::type
-            > robust_segment_type;
+        typedef typename geometry::robust_point_type
+        <
+            Point,
+            RobustPolicy
+        >::type robust_point_type;
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
         if (boost::empty(range))
@@ -293,14 +293,17 @@ struct sectionalize_part
         std::size_t last_non_duplicate_index = sections.size();
 
         iterator_type it = boost::begin(range);
+        robust_point_type previous_robust_point;
+        geometry::recalculate(previous_robust_point, *it, robust_policy);
         
         for(iterator_type previous = it++;
             it != boost::end(range);
             ++previous, ++it, index++)
         {
-            segment_type segment(*previous, *it);
-            robust_segment_type robust_segment;
-            geometry::recalculate(robust_segment, segment, robust_policy);
+            robust_point_type current_robust_point;
+            geometry::recalculate(current_robust_point, *it, robust_policy);
+            model::referring_segment<robust_point_type> robust_segment(
+                    previous_robust_point, current_robust_point);
 
             int direction_classes[DimensionCount] = {0};
             get_direction_loop
@@ -372,16 +375,17 @@ struct sectionalize_part
                         int, 0, DimensionCount
                     >::apply(direction_classes, section.directions);
 
-                expand_box(*previous, robust_policy, section);
+                geometry::expand(section.bounding_box, previous_robust_point);
             }
 
-            expand_box(*it, robust_policy, section);
+            geometry::expand(section.bounding_box, current_robust_point);
             section.end_index = index + 1;
             section.count++;
             if (! duplicate)
             {
                 ndi++;
             }
+            previous_robust_point = current_robust_point;
         }
 
         // Add last section if applicable
@@ -400,16 +404,6 @@ struct sectionalize_part
         {
             sections[last_non_duplicate_index].is_non_duplicate_last = true;
         }
-    }
-
-    template <typename InputPoint, typename RobustPolicy, typename Section>
-    static inline void expand_box(InputPoint const& point,
-                        RobustPolicy const& robust_policy,
-                        Section& section)
-    {
-        typename geometry::point_type<typename Section::box_type>::type robust_point;
-        geometry::recalculate(robust_point, point, robust_policy);
-        geometry::expand(section.bounding_box, robust_point);
     }
 };
 
