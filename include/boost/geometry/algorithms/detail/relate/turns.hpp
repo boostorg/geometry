@@ -125,7 +125,7 @@ struct less_op_linear_linear
 {};
 
 template <std::size_t OpId>
-struct less_op_linear_areal
+struct less_op_linear_areal_single
 {
     template <typename Turn>
     inline bool operator()(Turn const& left, Turn const& right) const
@@ -137,27 +137,19 @@ struct less_op_linear_areal
         segment_identifier const& left_other_seg_id = left.operations[other_op_id].seg_id;
         segment_identifier const& right_other_seg_id = right.operations[other_op_id].seg_id;
 
-        if ( left_other_seg_id.multi_index == right_other_seg_id.multi_index )
-        {
-            typedef typename Turn::turn_operation_type operation_type;
-            operation_type const& left_operation = left.operations[OpId];
-            operation_type const& right_operation = right.operations[OpId];
+        typedef typename Turn::turn_operation_type operation_type;
+        operation_type const& left_operation = left.operations[OpId];
+        operation_type const& right_operation = right.operations[OpId];
 
-            if ( left_other_seg_id.ring_index == right_other_seg_id.ring_index )
-            {
-                return op_to_int_xuic(left_operation)
-                     < op_to_int_xuic(right_operation);
-            }
-            else
-            {
-                return op_to_int_xiuc(left_operation)
-                     < op_to_int_xiuc(right_operation);
-            }
+        if ( left_other_seg_id.ring_index == right_other_seg_id.ring_index )
+        {
+            return op_to_int_xuic(left_operation)
+                 < op_to_int_xuic(right_operation);
         }
         else
         {
-            //return op_to_int_xuic(left.operations[OpId]) < op_to_int_xuic(right.operations[OpId]);
-            return left_other_seg_id.multi_index < right_other_seg_id.multi_index;
+            return op_to_int_xiuc(left_operation)
+                 < op_to_int_xiuc(right_operation);
         }
     }
 };
@@ -214,6 +206,19 @@ struct less_op_areal_areal
         {
             return op_to_int_uixc(left_operation) < op_to_int_uixc(right_operation);
         }
+    }
+};
+
+template <std::size_t OpId>
+struct less_other_multi_index
+{
+    static const std::size_t other_op_id = (OpId + 1) % 2;
+
+    template <typename Turn>
+    inline bool operator()(Turn const& left, Turn const& right) const
+    {
+        return left.operations[other_op_id].seg_id.multi_index
+             < right.operations[other_op_id].seg_id.multi_index;
     }
 };
 

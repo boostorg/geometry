@@ -1505,6 +1505,16 @@ inline void test_polygon_polygon()
                   from_wkt<PL>("POLYGON((0 0,9 0,9 9,0 9),(3 3,3 6,6 6,6 3))"),
                   from_wkt<PL>("POLYGON((2 2,7 2,7 7,2 7))"),
                   false);
+
+    {
+        typedef bg::model::polygon<P> PL; // cw, closed
+
+        // https://svn.boost.org/trac/boost/ticket/10647
+        tester::apply("ticket-10647",
+            from_wkt<PL>("POLYGON((0 0, 0 5, 5 5, 5 0, 0 0)(1 1, 4 1, 4 4, 1 4, 1 1))"),
+            from_wkt<PL>("POLYGON((2 2, 2 3, 3 3, 3 2, 2 2))"),
+            true);
+    }
 }
 
 template <typename P>
