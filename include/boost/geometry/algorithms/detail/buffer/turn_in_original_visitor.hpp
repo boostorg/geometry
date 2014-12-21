@@ -73,20 +73,54 @@ template <typename Point, typename Original>
 inline int point_in_original(Point const& point, Original const& original)
 {
     typedef strategy::within::winding<Point> strategy_type;
-    strategy_type strategy;
 
     typedef typename Original::original_robust_ring_type ring_type;
+    typedef typename Original::sections_type sections_type;
     typedef typename boost::range_iterator<ring_type const>::type iterator_type;
-    typename strategy_type::state_type state;
-    iterator_type it = boost::begin(original.m_ring);
+    typedef typename boost::range_iterator<sections_type const>::type siterator_type;
 
-    for (iterator_type previous = it++;
-        it != boost::end(original.m_ring);
-        ++previous, ++it)
+    typename geometry::coordinate_type<Point>::type const point_y
+            = geometry::get<1>(point);
+
+    typename strategy_type::state_type state;
+    strategy_type strategy;
+
+    // Walk through all monotonic sections
+    for (siterator_type sit = boost::begin(original.m_sections);
+        sit != boost::end(original.m_sections);
+        ++sit)
     {
-        if (! strategy.apply(point, *previous, *it, state))
+        typename boost::range_value<sections_type const>::type const& section = *sit;
+        if (! section.duplicate
+            && section.begin_index < section.end_index
+            && point_y >= geometry::get<min_corner, 1>(section.bounding_box)
+            && point_y <= geometry::get<max_corner, 1>(section.bounding_box))
         {
-            break;
+            // Walk through this section
+            iterator_type it
+                = boost::begin(original.m_ring) + section.begin_index;
+            iterator_type const end
+                = boost::begin(original.m_ring) + section.end_index + 1;
+            for (iterator_type previous = it++; it != end; ++previous, ++it)
+            {
+                if (! strategy.apply(point, *previous, *it, state))
+                {
+                    break;
+                }
+
+                // Depending on sections.direction we can quit the inner loop
+                typename geometry::coordinate_type<Point>::type const ring_y
+                        = geometry::get<1>(*it);
+
+                if (section.directions[0] == 1 && point_y < ring_y)
+                {
+                    break;
+                }
+                else if (section.directions[0] == -1 && point_y > ring_y)
+                {
+                    break;
+                }
+            }
         }
     }
 

@@ -203,6 +203,9 @@ struct buffered_piece_collection
 
     struct robust_original
     {
+        typedef robust_ring_type original_robust_ring_type;
+        typedef geometry::sections<robust_box_type, 1> sections_type;
+
         inline robust_original()
             : m_is_interior(false)
             , m_has_interiors(true)
@@ -224,9 +227,7 @@ struct buffered_piece_collection
 
         robust_ring_type m_ring;
         robust_box_type m_box;
-        geometry::sections<robust_box_type, 1> m_sections;
-
-        typedef robust_ring_type original_robust_ring_type;
+        sections_type m_sections;
 
         bool m_is_interior;
         bool m_has_interiors;
