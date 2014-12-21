@@ -27,6 +27,7 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -755,6 +756,8 @@ inline void sectionalize(Geometry const& geometry,
                 std::size_t max_count = 10)
 {
     concept::check<Geometry const>();
+
+    BOOST_STATIC_ASSERT((Sections::value == mpl::size<DimensionVector>::value));
 
     sections.clear();
 
