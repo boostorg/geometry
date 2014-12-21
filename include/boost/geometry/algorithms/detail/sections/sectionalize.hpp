@@ -63,7 +63,11 @@ namespace boost { namespace geometry
     \tparam DimensionCount number of dimensions for this section
     \ingroup sectionalize
  */
-template <typename Box, std::size_t DimensionCount>
+template
+<
+    typename Box,
+    std::size_t DimensionCount
+>
 struct section
 {
     typedef Box box_type;
@@ -256,7 +260,7 @@ struct sectionalize_part
 {
     template
     <
-        typename Range,  // Can be closeable_view
+        typename Range,
         typename RobustPolicy,
         typename Sections
     >
@@ -276,7 +280,7 @@ struct sectionalize_part
             > robust_segment_type;
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-        if ( boost::empty(range) )
+        if (boost::empty(range))
         {
             return;
         }
@@ -333,15 +337,14 @@ struct sectionalize_part
             }
 
             if (section.count > 0
-                && (!compare_loop
+                && (! compare_loop
                         <
                             int, 0, DimensionCount
                         >::apply(direction_classes, section.directions)
-                    || section.count > max_count
-                    )
+                    || section.count > max_count)
                 )
             {
-                if ( !section.duplicate )
+                if (! section.duplicate)
                 {
                     last_non_duplicate_index = sections.size();
                 }
@@ -358,7 +361,7 @@ struct sectionalize_part
                 section.non_duplicate_index = ndi;
                 section.range_count = boost::size(range);
 
-                if ( mark_first_non_duplicated && !duplicate )
+                if (mark_first_non_duplicated && ! duplicate)
                 {
                     section.is_non_duplicate_first = true;
                     mark_first_non_duplicated = false;
@@ -384,7 +387,7 @@ struct sectionalize_part
         // Add last section if applicable
         if (section.count > 0)
         {
-            if ( !section.duplicate )
+            if (! section.duplicate)
             {
                 last_non_duplicate_index = sections.size();
             }
@@ -392,8 +395,8 @@ struct sectionalize_part
             sections.push_back(section);
         }
 
-        if ( last_non_duplicate_index < sections.size()
-          && !sections[last_non_duplicate_index].duplicate )
+        if (last_non_duplicate_index < sections.size()
+            && ! sections[last_non_duplicate_index].duplicate)
         {
             sections[last_non_duplicate_index].is_non_duplicate_last = true;
         }
@@ -413,7 +416,8 @@ struct sectionalize_part
 
 template
 <
-    closure_selector Closure, bool Reverse,
+    closure_selector Closure,
+    bool Reverse,
     typename Point,
     std::size_t DimensionCount
 >
@@ -431,8 +435,8 @@ struct sectionalize_range
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-    typedef typename closeable_view<Range const, Closure>::type cview_type;
-    typedef typename reversible_view
+        typedef typename closeable_view<Range const, Closure>::type cview_type;
+        typedef typename reversible_view
         <
             cview_type const,
             Reverse ? iterate_reverse : iterate_forward
