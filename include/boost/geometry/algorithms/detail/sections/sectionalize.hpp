@@ -225,9 +225,9 @@ struct check_duplicate_loop
         }
 
         return check_duplicate_loop
-            <
+        <
                 Dimension + 1, DimensionCount
-            >::apply(seg);
+        >::apply(seg);
     }
 };
 
@@ -488,7 +488,6 @@ struct sectionalize_polygon
                 ring_identifier ring_id, std::size_t max_count)
     {
         typedef typename point_type<Polygon>::type point_type;
-        //typedef typename ring_type<Polygon>::type ring_type;
         typedef sectionalize_range
         <
                 closure<Polygon>::value, Reverse,
