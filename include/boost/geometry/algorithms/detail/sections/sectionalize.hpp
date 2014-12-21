@@ -755,20 +755,6 @@ inline void sectionalize(Geometry const& geometry,
 }
 
 
-#if defined(BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE)
-// Backwards compatibility
-template<bool Reverse, typename Geometry, typename Sections>
-inline void sectionalize(Geometry const& geometry,
-                         Sections& sections,
-                         int source_index = 0)
-{
-    return geometry::sectionalize<Reverse>(geometry, detail::no_rescale_policy(),
-                                           sections,
-                                           source_index);
-}
-#endif
-
-
 }} // namespace boost::geometry
 
 

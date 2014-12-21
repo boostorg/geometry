@@ -15,8 +15,6 @@
 #include <iostream>
 #include <string>
 
-#define BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE
-
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
@@ -82,7 +80,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
     typedef bg::sections<box, DimensionCount> sections;
 
     sections s;
-    bg::sectionalize<Reverse>(g, s);
+    bg::sectionalize<Reverse>(g, bg::detail::no_rescale_policy(), s);
 
     BOOST_CHECK_EQUAL(s.size(), section_count);
 
@@ -314,8 +312,8 @@ void test_large_integers()
     bg::sections<bg::model::box<int_point_type>, 1> int_sections;
     bg::sections<bg::model::box<double_point_type>, 1> double_sections;
 
-    bg::sectionalize<false>(int_poly, int_sections);
-    bg::sectionalize<false>(double_poly, double_sections);
+    bg::sectionalize<false>(int_poly, bg::detail::no_rescale_policy(), int_sections);
+    bg::sectionalize<false>(double_poly, bg::detail::no_rescale_policy(), double_sections);
 
     bool equally_sized = int_sections.size() == double_sections.size();
     BOOST_CHECK(equally_sized);
