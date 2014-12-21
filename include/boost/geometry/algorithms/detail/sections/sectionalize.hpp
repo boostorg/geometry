@@ -152,46 +152,43 @@ struct get_direction_loop<DimensionCount, DimensionCount>
     {}
 };
 
-template <typename T, std::size_t Dimension, std::size_t DimensionCount>
+//! Copy one static array to another
+template <typename T, std::size_t Index, std::size_t Count>
 struct copy_loop
 {
-    static inline void apply(T const source[DimensionCount],
-                T target[DimensionCount])
+    static inline void apply(T const source[Count], T target[Count])
     {
-        target[Dimension] = source[Dimension];
-        copy_loop<T, Dimension + 1, DimensionCount>::apply(source, target);
+        target[Index] = source[Index];
+        copy_loop<T, Index + 1, Count>::apply(source, target);
     }
 };
 
-template <typename T, std::size_t DimensionCount>
-struct copy_loop<T, DimensionCount, DimensionCount>
+template <typename T, std::size_t Count>
+struct copy_loop<T, Count, Count>
 {
-    static inline void apply(T const [DimensionCount], T [DimensionCount])
+    static inline void apply(T const [Count], T [Count])
     {}
 };
 
-template <typename T, std::size_t Dimension, std::size_t DimensionCount>
+//! Compare two static arrays
+template <typename T, std::size_t Index, std::size_t Count>
 struct compare_loop
 {
-    static inline bool apply(T const source[DimensionCount],
-                T const target[DimensionCount])
+    static inline bool apply(T const array1[Count], T const array2[Count])
     {
-        bool const not_equal = target[Dimension] != source[Dimension];
-
-        return not_equal
+        return array1[Index] != array2[Index]
             ? false
             : compare_loop
                 <
-                    T, Dimension + 1, DimensionCount
-                >::apply(source, target);
+                    T, Index + 1, Count
+                >::apply(array1, array2);
     }
 };
 
-template <typename T, std::size_t DimensionCount>
-struct compare_loop<T, DimensionCount, DimensionCount>
+template <typename T, std::size_t Count>
+struct compare_loop<T, Count, Count>
 {
-    static inline bool apply(T const [DimensionCount],
-                T const [DimensionCount])
+    static inline bool apply(T const [Count], T const [Count])
     {
 
         return true;
@@ -232,20 +229,21 @@ struct check_duplicate_loop<DimensionCount, DimensionCount>
     }
 };
 
-template <typename T, std::size_t Dimension, std::size_t DimensionCount>
+//! Assign a value to a static array
+template <typename T, std::size_t Index, std::size_t Count>
 struct assign_loop
 {
-    static inline void apply(T dims[DimensionCount], int const value)
+    static inline void apply(T dims[Count], int const value)
     {
-        dims[Dimension] = value;
-        assign_loop<T, Dimension + 1, DimensionCount>::apply(dims, value);
+        dims[Index] = value;
+        assign_loop<T, Index + 1, Count>::apply(dims, value);
     }
 };
 
-template <typename T, std::size_t DimensionCount>
-struct assign_loop<T, DimensionCount, DimensionCount>
+template <typename T, std::size_t Count>
+struct assign_loop<T, Count, Count>
 {
-    static inline void apply(T [DimensionCount], int const)
+    static inline void apply(T [Count], int const)
     {
     }
 };
