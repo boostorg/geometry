@@ -376,13 +376,13 @@ void test_all()
 
     test_areal<ring, polygon>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
     test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 #endif
@@ -433,8 +433,8 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<long double> >();
 #endif
-    //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
     std::cout << "Testing TTMATH" << std::endl;
