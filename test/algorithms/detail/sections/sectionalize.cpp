@@ -282,6 +282,20 @@ void test_all()
     test_sectionalize<1, false, B>("box1", bg::make<B>(0,0,4,4),
             4, "0..1|1..2|2..3|3..4", ".|+|.|-");
 
+    std::string horizontal("POLYGON((0 10,1 8,2 10,3 8,4 10,5 8,6 10,7 8,8 10,9 8,10 10,11 8,12 10,12 5,9 5,9 4,8 4,8 5,7 5,7 4,6 4,6 5,5 5,5 4,4 4,4 5,3 5,3 4,2 4,2 5,1 5,1 4,0 4,0 10))");
+    test_sectionalize<bg::model::polygon<P>, false>("horizontal", horizontal,
+        33, "", "",
+        22, "", "", 100);
+    test_sectionalize<bg::model::polygon<P>, false>("horizontal4", horizontal,
+        33, "", "",
+        24, "", "", 4);
+
+    std::string vertical("POLYGON((4 0,6 1,4 2,6 3,4 4,6 5,4 6,6 7,4 8,6 9,4 10,10 10,10 9,9 9,9 8,10 8,10 7,9 7,9 6,10 6,10 5,9 5,9 4,10 4,10 3,9 3,9 2,10 2,10 1,9 1,9 0,5 0))");
+    test_sectionalize<bg::model::polygon<P>, false>("vertical", vertical,
+        31, "", "",
+        31, "", "", 100);
+
+
     return;
     // Buffer-case
     test_sectionalize<bg::model::polygon<P>, false>("buffer",
