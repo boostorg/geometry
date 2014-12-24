@@ -65,7 +65,7 @@ int main()
         boxes.push_back(b);
     }
 
-    // create the rtree using default constructor
+    // create the rtree passing a Range
     bgi::rtree< value, bgi::quadratic<16> >
         rtree(boxes | boost::adaptors::indexed()
                     | boost::adaptors::transformed(pair_maker<box, size_type>()));
