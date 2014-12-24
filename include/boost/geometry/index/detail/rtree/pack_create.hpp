@@ -161,10 +161,16 @@ public:
         geometry::assign_inverse(hint_box);
         for ( ; first != last ; ++first )
         {
-            geometry::expand(hint_box, translator(*first));
+            typename Translator::result_type indexable = translator(*first);
+
+            // NOTE: added for consistency with insert()
+            // CONSIDER: alternative - ignore invalid indexable or throw an exception
+            BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(indexable), "Indexable is invalid");
+
+            geometry::expand(hint_box, indexable);
 
             point_type pt;
-            geometry::centroid(translator(*first), pt);
+            geometry::centroid(indexable, pt);
             entries.push_back(std::make_pair(pt, first));
         }
 
