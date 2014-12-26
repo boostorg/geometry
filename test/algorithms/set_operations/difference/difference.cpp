@@ -278,6 +278,9 @@ void test_all()
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
          9, -1, 0.01953125);
+
+    //        10, -1, 0.02148439); // change in partition might give these results
+
     // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
     // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
 
@@ -373,6 +376,22 @@ void test_all()
             0, 0, 0,
             6, 24, 20.096189);
 #endif
+
+    test_one<polygon, polygon, polygon>("ticket_10108_a",
+            ticket_10108_a[0], ticket_10108_a[1],
+            1, 4,  0.0145037,
+            1, 4,  0.029019232);
+    test_one<polygon, polygon, polygon>("ticket_10108_b",
+            ticket_10108_b[0], ticket_10108_b[1],
+            1, 5, 1081.68697,
+            1, 5, 1342.65795);
+
+    // From assemble-test, with a u/u case
+    test_one<polygon, polygon, polygon>("assemble_0210",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0),(8.5 1,9.5 1,9.5 2,8.5 2,8.5 1))",
+            "POLYGON((2 0.5,0.5 2,0.5 8,2 9.5,6 9.5,8.5 8,8.5 2,7 0.5,2 0.5),(2 2,7 2,7 8,2 8,2 2))",
+            2, 23, 62.25,
+            0, 0, 0.0);
 
     // Other combi's
     {

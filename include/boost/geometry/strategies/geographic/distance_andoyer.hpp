@@ -2,22 +2,31 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP
 
+
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/srs.hpp>
+
+#include <boost/geometry/algorithms/detail/flattening.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
-#include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/extensions/gis/geographic/detail/ellipsoid.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -30,7 +39,7 @@ namespace strategy { namespace distance
 /*!
 \brief Point-point distance approximation taking flattening into account
 \ingroup distance
-\tparam RadiusType Type of specified radius of the Earth
+\tparam Spheroid The reference spheroid model
 \tparam CalculationType \tparam_calculation
 \author After Andoyer, 19xx, republished 1950, republished by Meeus, 1999
 \note Although not so well-known, the approximation is very good: in all cases the results
@@ -44,7 +53,7 @@ are about the same as Vincenty. In my (Barend's) testcases the results didn't di
 */
 template
 <
-    typename RadiusType,
+    typename Spheroid,
     typename CalculationType = void
 >
 class andoyer
@@ -63,18 +72,14 @@ public :
           >
     {};
 
-    typedef RadiusType radius_type;
+    typedef Spheroid model_type;
 
     inline andoyer()
-        : m_ellipsoid()
+        : m_spheroid()
     {}
 
-    explicit inline andoyer(RadiusType f)
-        : m_ellipsoid(f)
-    {}
-
-    explicit inline andoyer(geometry::detail::ellipsoid<RadiusType> const& e)
-        : m_ellipsoid(e)
+    explicit inline andoyer(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
     {}
 
 
@@ -89,20 +94,12 @@ public :
             );
     }
 
-    inline geometry::detail::ellipsoid<RadiusType> ellipsoid() const
+    inline Spheroid const& model() const
     {
-        return m_ellipsoid;
+        return m_spheroid;
     }
-
-    inline RadiusType radius() const
-    {
-        return m_ellipsoid.a();
-    }
-
 
 private :
-    geometry::detail::ellipsoid<RadiusType> m_ellipsoid;
-
     template <typename CT, typename T>
     inline CT calc(T const& lon1,
                 T const& lat1,
@@ -140,15 +137,19 @@ private :
             return c0;
         }
 
+        CT const radius_a = CT(get_radius<0>(m_spheroid));
+        CT const flattening = geometry::detail::flattening<CT>(m_spheroid);
+
         CT const omega = atan(math::sqrt(S / C));
         CT const r3 = c3 * math::sqrt(S * C) / omega; // not sure if this is r or greek nu
-        CT const D = c2 * omega * m_ellipsoid.a();
+        CT const D = c2 * omega * radius_a;
         CT const H1 = (r3 - c1) / (c2 * C);
         CT const H2 = (r3 + c1) / (c2 * S);
-        CT const f = m_ellipsoid.f();
 
-        return D * (c1 + f * H1 * sinF2 * cosG2 - f * H2 * cosF2 * sinG2);
+        return D * (c1 + flattening * (H1 * sinF2 * cosG2 - H2 * cosF2 * sinG2) );
     }
+
+    Spheroid m_spheroid;
 };
 
 
@@ -156,41 +157,41 @@ private :
 namespace services
 {
 
-template <typename RadiusType, typename CalculationType>
-struct tag<andoyer<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct tag<andoyer<Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_point_point type;
 };
 
 
-template <typename RadiusType, typename CalculationType, typename P1, typename P2>
-struct return_type<andoyer<RadiusType, CalculationType>, P1, P2>
-    : andoyer<RadiusType, CalculationType>::template calculation_type<P1, P2>
+template <typename Spheroid, typename CalculationType, typename P1, typename P2>
+struct return_type<andoyer<Spheroid, CalculationType>, P1, P2>
+    : andoyer<Spheroid, CalculationType>::template calculation_type<P1, P2>
 {};
 
 
-template <typename RadiusType, typename CalculationType>
-struct comparable_type<andoyer<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct comparable_type<andoyer<Spheroid, CalculationType> >
 {
-    typedef andoyer<RadiusType, CalculationType> type;
+    typedef andoyer<Spheroid, CalculationType> type;
 };
 
 
-template <typename RadiusType, typename CalculationType>
-struct get_comparable<andoyer<RadiusType, CalculationType> >
+template <typename Spheroid, typename CalculationType>
+struct get_comparable<andoyer<Spheroid, CalculationType> >
 {
-    static inline andoyer<RadiusType, CalculationType> apply(andoyer<RadiusType, CalculationType> const& input)
+    static inline andoyer<Spheroid, CalculationType> apply(andoyer<Spheroid, CalculationType> const& input)
     {
         return input;
     }
 };
 
-template <typename RadiusType, typename CalculationType, typename P1, typename P2>
-struct result_from_distance<andoyer<RadiusType, CalculationType>, P1, P2>
+template <typename Spheroid, typename CalculationType, typename P1, typename P2>
+struct result_from_distance<andoyer<Spheroid, CalculationType>, P1, P2>
 {
     template <typename T>
-    static inline typename return_type<andoyer<RadiusType, CalculationType>, P1, P2>::type
-        apply(andoyer<RadiusType, CalculationType> const& , T const& value)
+    static inline typename return_type<andoyer<Spheroid, CalculationType>, P1, P2>::type
+        apply(andoyer<Spheroid, CalculationType> const& , T const& value)
     {
         return value;
     }
@@ -200,7 +201,13 @@ struct result_from_distance<andoyer<RadiusType, CalculationType>, P1, P2>
 template <typename Point1, typename Point2>
 struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, geographic_tag>
 {
-    typedef strategy::distance::andoyer<typename select_coordinate_type<Point1, Point2>::type> type;
+    typedef strategy::distance::andoyer
+                <
+                    srs::spheroid
+                        <
+                            typename select_coordinate_type<Point1, Point2>::type
+                        >
+                > type;
 };
 
 
@@ -214,4 +221,4 @@ struct default_strategy<point_tag, point_tag, Point1, Point2, geographic_tag, ge
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_GIS_GEOGRAPHIC_STRATEGIES_ANDOYER_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_ANDOYER_HPP

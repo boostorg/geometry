@@ -174,9 +174,13 @@ struct visitor<Value, Parameters, Box, Allocators, node_throwing_static_tag, IsV
 // allocators
 
 template <typename Allocator, typename Value, typename Parameters, typename Box>
-struct allocators<Allocator, Value, Parameters, Box, node_throwing_static_tag>
+class allocators<Allocator, Value, Parameters, Box, node_throwing_static_tag>
     : public Allocator::template rebind<
-        typename node<Value, Parameters, Box, allocators<Allocator, Value, Parameters, Box, node_throwing_static_tag>, node_throwing_static_tag>::type
+        typename node<
+            Value, Parameters, Box,
+            allocators<Allocator, Value, Parameters, Box, node_throwing_static_tag>,
+            node_throwing_static_tag
+        >::type
     >::other
 {
     typedef typename Allocator::template rebind<

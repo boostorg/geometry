@@ -121,15 +121,19 @@ struct get_turns
     {
         typedef model::box
             <
-                typename geometry::point_type<Geometry>::type
+                typename geometry::robust_point_type
+                <
+                    typename geometry::point_type<Geometry>::type,
+                    RobustPolicy
+                >::type
             > box_type;
-        typedef typename geometry::sections
-            <
-                box_type, 1
-            > sections_type;
+
+        typedef geometry::sections<box_type, 1> sections_type;
+
+        typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
 
         sections_type sec;
-        geometry::sectionalize<false>(geometry, robust_policy, false, sec);
+        geometry::sectionalize<false, dimensions>(geometry, robust_policy, sec);
 
         self_section_visitor
             <

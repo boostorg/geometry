@@ -58,9 +58,11 @@ static inline void init_rescale_policy(Geometry const& geometry,
     num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
     num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
     num_type const half = 0.5;
-    factor = math::equals(diff, num_type()) ? 1
+    factor = math::equals(diff, num_type()) || diff >= range ? 1
         : boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
+
+    BOOST_ASSERT(factor >= 1);
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);
@@ -83,7 +85,7 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     geometry::expand(env, env2);
 
     // TODO: merge this with implementation above
-    // Scale this to integer-range
+    // Scale this down to integer-range
     typedef typename promote_floating_point
         <
             typename geometry::coordinate_type<Point>::type
@@ -91,9 +93,11 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     num_type const diff = boost::numeric_cast<num_type>(detail::get_max_size(env));
     num_type const range = 10000000.0; // Define a large range to get precise integer coordinates
     num_type const half = 0.5;
-    factor = math::equals(diff, num_type()) ? 1
+    factor = math::equals(diff, num_type()) || diff >= range ? 1
         : boost::numeric_cast<num_type>(
             boost::numeric_cast<boost::long_long_type>(half + range / diff));
+
+    BOOST_ASSERT(factor >= 1);
 
     // Assign input/output minimal points
     detail::assign_point_from_index<0>(env, min_point);

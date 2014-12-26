@@ -29,6 +29,7 @@
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
@@ -145,15 +146,25 @@ struct buffer_range
                         intersection_point);
 
         }
+
         switch(join)
         {
             case strategy::buffer::join_continue :
                 // No join, we get two consecutive sides
-                return;
+                break;
             case strategy::buffer::join_concave :
-                collection.add_piece(strategy::buffer::buffered_concave,
-                        previous_input, prev_perp2, perp1);
-                return;
+                {
+                    std::vector<output_point_type> range_out;
+                    range_out.push_back(prev_perp2);
+                    range_out.push_back(previous_input);
+                    collection.add_piece(strategy::buffer::buffered_concave, previous_input, range_out);
+
+                    range_out.clear();
+                    range_out.push_back(previous_input);
+                    range_out.push_back(perp1);
+                    collection.add_piece(strategy::buffer::buffered_concave, previous_input, range_out);
+                }
+                break;
             case strategy::buffer::join_spike :
                 {
                     // For linestrings, only add spike at one side to avoid
@@ -161,22 +172,24 @@ struct buffer_range
                     std::vector<output_point_type> range_out;
                     end_strategy.apply(penultimate_input, prev_perp2, previous_input, perp1, side, distance, range_out);
                     collection.add_endcap(end_strategy, range_out, previous_input);
+                    collection.set_current_ring_concave();
                 }
-                return;
+                break;
             case strategy::buffer::join_convex :
-                break; // All code below handles this
-        }
-
-        // The corner is convex, we create a join
-        // TODO (future) - avoid a separate vector, add the piece directly
-        std::vector<output_point_type> range_out;
-        if (join_strategy.apply(intersection_point,
-                    previous_input, prev_perp2, perp1,
-                    distance.apply(previous_input, input, side),
-                    range_out))
-        {
-            collection.add_piece(strategy::buffer::buffered_join,
-                    previous_input, range_out);
+                {
+                    // The corner is convex, we create a join
+                    // TODO (future) - avoid a separate vector, add the piece directly
+                    std::vector<output_point_type> range_out;
+                    if (join_strategy.apply(intersection_point,
+                                previous_input, prev_perp2, perp1,
+                                distance.apply(previous_input, input, side),
+                                range_out))
+                    {
+                        collection.add_piece(strategy::buffer::buffered_join,
+                                previous_input, range_out);
+                    }
+                }
+                break;
         }
     }
 
@@ -778,7 +791,7 @@ public:
                     distance, side_strategy,
                     join_strategy, end_strategy, point_strategy,
                     robust_policy);
-            collection.finish_ring();
+            collection.finish_ring(false, geometry::num_interior_rings(polygon) > 0u);
         }
 
         apply_interior_rings(interior_rings(polygon),
@@ -857,6 +870,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
             areal_tag
         >::type::value;
+    bool const linear = boost::is_same
+        <
+            typename tag_cast<typename tag<GeometryInput>::type, linear_tag>::type,
+            linear_tag
+        >::type::value;
 
     dispatch::buffer_inserter
         <
@@ -873,6 +891,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy);
 
     collection.get_turns();
+    collection.classify_turns(linear);
     if (areal)
     {
         collection.check_remaining_points(distance_strategy);

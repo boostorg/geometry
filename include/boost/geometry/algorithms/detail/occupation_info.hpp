@@ -57,6 +57,12 @@ class occupation_info
 public :
     typedef std::vector<AngleInfo> collection_type;
 
+    int count;
+
+    inline occupation_info()
+        : count(0)
+    {}
+
     template <typename RobustPoint>
     inline void add(RobustPoint const& incoming_point,
                     RobustPoint const& outgoing_point,

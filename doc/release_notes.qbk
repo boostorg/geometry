@@ -14,6 +14,32 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.58]
+[/=================]
+
+[*Additional functionality]
+
+[*Improvements]
+
+* Buffer now supports flat-ends for linestrings with a bend close to the start (such that buffered segment crosses flat-end).
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/10108 10108] Error in overlay operations in specific cases where geometries touch at one point
+* [@https://svn.boost.org/trac/boost/ticket/10467 10467] Template parameter name coliding with B0 macro name defined in termios.h
+* [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
+* [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joints, where concavities where not intersected properly
+* [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
+* [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
+* [@https://svn.boost.org/trac/boost/ticket/10887 10887] Invalid result of within() and relate() for Linear/MultiPolygon
+
+[*Bugfixes]
+
+* Bug in multipoint/polygon multipoint/multipolygon distance computation (wrong detection of points inside the areal geometry)
+* Bug in flatten_iterator's assignment operator causing an access violation 
+* Bug in Cartesian segment-segment intersection strategy when one segment degenerates to a point and is collinear to the other non-degenerate segment
+
+[/=================]
 [heading Boost 1.57]
 [/=================]
 
@@ -34,8 +60,10 @@
 * [@https://svn.boost.org/trac/boost/ticket/10345 10345] Distance fails to compile for some coordinate types
 * [@https://svn.boost.org/trac/boost/ticket/10398 10398] Wrong neighbour check in buffer, calculating turns
 * [@https://svn.boost.org/trac/boost/ticket/10421 10421] Invalid Point-Box distance for spherical CS
+* [@https://svn.boost.org/trac/boost/ticket/10562 10562] Invalid number of Points in the result of convex_hull() for open output
 * [@https://svn.boost.org/trac/boost/ticket/10615 10615] Rtree constructor feature request
 * [@https://svn.boost.org/trac/boost/ticket/10643 10643] Invalid point_on_surface() result for big coordinates
+* [@https://svn.boost.org/trac/boost/ticket/10647 10647] Invalid result of disjoint() in some cases when polygon is inside inner ring of other polygon
 * [@https://svn.boost.org/trac/boost/ticket/10668 10668] Implicit conversion warnings (duplicated 8402)
 
 [*Bugfixes]

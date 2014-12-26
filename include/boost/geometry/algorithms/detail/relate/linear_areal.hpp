@@ -193,6 +193,33 @@ struct linear_areal
 
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
+
+    template <typename Geometry>
+        struct is_multi
+            : boost::is_base_of
+                <
+                    multi_tag,
+                    typename tag<Geometry>::type
+                >
+        {};
+
+    template <typename Geom1, typename Geom2>
+    struct multi_turn_info
+        : turns::get_turns<Geom1, Geom2>::turn_info
+    {
+        multi_turn_info() : priority(0) {}
+        int priority; // single-geometry sorting priority
+    };
+
+    template <typename Geom1, typename Geom2>
+    struct turn_info_type
+        : boost::mpl::if_c
+            <
+                is_multi<Geometry2>::value,
+                multi_turn_info<Geom1, Geom2>,
+                typename turns::get_turns<Geom1, Geom2>::turn_info
+            >
+    {};
     
     template <typename Result>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Result & result)
@@ -206,7 +233,7 @@ struct linear_areal
             return;
 
         // get and analyse turns
-        typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
+        typedef typename turn_info_type<Geometry1, Geometry2>::type turn_type;
         std::vector<turn_type> turns;
 
         interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
@@ -242,10 +269,7 @@ struct linear_areal
             return;
 
         {
-            // for different multi or same ring id: x, u, i, c
-            // for same multi and different ring id: c, i, u, x
-            typedef turns::less<0, turns::less_op_linear_areal<0> > less;
-            std::sort(turns.begin(), turns.end(), less());
+            sort_dispatch(turns.begin(), turns.end(), is_multi<Geometry2>());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
@@ -383,6 +407,127 @@ struct linear_areal
         }
     }
 
+    template <typename It, typename Pred, typename Comp>
+    static void for_each_equal_range(It first, It last, Pred pred, Comp comp)
+    {
+        if ( first == last )
+            return;
+
+        It first_equal = first;
+        It prev = first;
+        for ( ++first ; ; ++first, ++prev )
+        {
+            if ( first == last || !comp(*prev, *first) )
+            {
+                pred(first_equal, first);
+                first_equal = first;
+            }
+            
+            if ( first == last )
+                break;
+        }
+    }
+
+    struct same_ip
+    {
+        template <typename Turn>
+        bool operator()(Turn const& left, Turn const& right) const
+        {
+            return left.operations[0].seg_id == right.operations[0].seg_id
+                && left.operations[0].fraction == right.operations[0].fraction;
+        }
+    };
+
+    struct same_ip_and_multi_index
+    {
+        template <typename Turn>
+        bool operator()(Turn const& left, Turn const& right) const
+        {
+            return same_ip()(left, right)
+                && left.operations[1].seg_id.multi_index == right.operations[1].seg_id.multi_index;
+        }
+    };
+
+    template <typename OpToPriority>
+    struct set_turns_group_priority
+    {
+        template <typename TurnIt>
+        void operator()(TurnIt first, TurnIt last) const
+        {
+            BOOST_ASSERT(first != last);
+            static OpToPriority op_to_priority;
+            // find the operation with the least priority
+            int least_priority = op_to_priority(first->operations[0]);
+            for ( TurnIt it = first + 1 ; it != last ; ++it )
+            {
+                int priority = op_to_priority(it->operations[0]);
+                if ( priority < least_priority )
+                    least_priority = priority;
+            }
+            // set the least priority for all turns of the group
+            for ( TurnIt it = first ; it != last ; ++it )
+            {
+                it->priority = least_priority;
+            }
+        }
+    };
+
+    template <typename SingleLess>
+    struct sort_turns_group
+    {
+        struct less
+        {
+            template <typename Turn>
+            bool operator()(Turn const& left, Turn const& right) const
+            {
+                return left.operations[1].seg_id.multi_index == right.operations[1].seg_id.multi_index ?
+                    SingleLess()(left, right) :
+                    left.priority < right.priority;
+            }
+        };
+
+        template <typename TurnIt>
+        void operator()(TurnIt first, TurnIt last) const
+        {
+            std::sort(first, last, less());
+        }
+    };
+
+    template <typename TurnIt>
+    static void sort_dispatch(TurnIt first, TurnIt last, boost::true_type const& /*is_multi*/)
+    {
+        // sort turns by Linear seg_id, then by fraction, then by other multi_index
+        typedef turns::less<0, turns::less_other_multi_index<0> > less;
+        std::sort(first, last, less());
+
+        // For the same IP and multi_index - the same other's single geometry
+        // set priorities as the least operation found for the whole single geometry
+        // so e.g. single geometries containing 'u' will always be before those only containing 'i'
+        typedef turns::op_to_int<0,2,3,1,4,0> op_to_int_xuic;
+        for_each_equal_range(first, last,
+                             set_turns_group_priority<op_to_int_xuic>(), // least operation in xuic order
+                             same_ip_and_multi_index()); // other's multi_index
+
+        // When priorities for single geometries are set now sort turns for the same IP
+        // if multi_index is the same sort them according to the single-less
+        // else use priority of the whole single-geometry set earlier
+        typedef turns::less<0, turns::less_op_linear_areal_single<0> > single_less;
+        for_each_equal_range(first, last,
+                             sort_turns_group<single_less>(),
+                             same_ip());
+    }
+
+    template <typename TurnIt>
+    static void sort_dispatch(TurnIt first, TurnIt last, boost::false_type const& /*is_multi*/)
+    {
+        // sort turns by Linear seg_id, then by fraction, then
+        // for same ring id: x, u, i, c
+        // for different ring id: c, i, u, x
+        typedef turns::less<0, turns::less_op_linear_areal_single<0> > less;
+        std::sort(first, last, less());
+    }
+    
+
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
     template <typename Areal, typename Result>
@@ -458,6 +603,8 @@ struct linear_areal
             , m_boundary_counter(0)
             , m_interior_detected(false)
             , m_first_interior_other_id_ptr(NULL)
+            , m_first_from_unknown(false)
+            , m_first_from_unknown_boundary_detected(false)
         {}
 
         template <typename Result,
@@ -508,9 +655,12 @@ struct linear_areal
             }
             else if ( m_exit_watcher.get_exit_operation() == overlay::operation_blocked )
             {
-                // ignore multiple BLOCKs
-                if ( op == overlay::operation_blocked )
+                // ignore multiple BLOCKs for this same single geometry1
+                if ( op == overlay::operation_blocked
+                  && seg_id.multi_index == m_previous_turn_ptr->operations[op_id].seg_id.multi_index )
+                {
                     return;
+                }
 
                 if ( ( op == overlay::operation_intersection
                     || op == overlay::operation_continue )
@@ -522,10 +672,31 @@ struct linear_areal
                 m_exit_watcher.reset_detected_exit();
             }
 
+            // For MultiPolygon many x/u operations may be generated as a first IP
+            // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
+            // then we know that the LineString is outside
+            if ( is_multi<OtherGeometry>::value
+              && m_previous_operation == overlay::operation_blocked
+              && m_first_from_unknown
+              && ( op != overlay::operation_blocked // operation different than block
+                || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index ) ) // or the next single-geometry
+            {
+                update<interior, exterior, '1', TransposeResult>(res);
+                if ( m_first_from_unknown_boundary_detected )
+                {
+                    update<boundary, exterior, '0', TransposeResult>(res);
+                }
+
+                m_first_from_unknown = false;
+                m_first_from_unknown_boundary_detected = false;
+            }
+
 // NOTE: THE WHOLE m_interior_detected HANDLING IS HERE BECAUSE WE CAN'T EFFICIENTLY SORT TURNS (CORRECTLY)
 // BECAUSE THE SAME IP MAY BE REPRESENTED BY TWO SEGMENTS WITH DIFFERENT DISTANCES
 // IT WOULD REQUIRE THE CALCULATION OF MAX DISTANCE
 // TODO: WE COULD GET RID OF THE TEST IF THE DISTANCES WERE NORMALIZED
+
+// UPDATE: THEY SHOULD BE NORMALIZED NOW
 
 // TODO: THIS IS POTENTIALLY ERROREOUS!
 // THIS ALGORITHM DEPENDS ON SOME SPECIFIC SEQUENCE OF OPERATIONS
@@ -709,7 +880,11 @@ struct linear_areal
                     if ( it->operations[op_id].position != overlay::position_front )
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool const first_from_inside = first_in_range
+                        // NOTE: this is not enough for MultiPolygon and operation_blocked
+                        // For LS/MultiPolygon multiple x/u turns may be generated
+                        // the first checked Polygon may be the one which LS is outside for.
+                        bool const first_point = first_in_range || m_first_from_unknown;
+                        bool const first_from_inside = first_point
                                                     && calculate_from_inside(geometry,
                                                                              other_geometry,
                                                                              *it);
@@ -719,14 +894,25 @@ struct linear_areal
 
                             // notify the exit_watcher that we started inside
                             m_exit_watcher.enter(*it);
+                            // and reset unknown flags since we know that we started inside
+                            m_first_from_unknown = false;
+                            m_first_from_unknown_boundary_detected = false;
                         }
                         else
                         {
-                            update<interior, exterior, '1', TransposeResult>(res);
+                            if ( is_multi<OtherGeometry>::value
+                              && op == overlay::operation_blocked )
+                            {
+                                m_first_from_unknown = true;
+                            }
+                            else
+                            {
+                                update<interior, exterior, '1', TransposeResult>(res);
+                            }
                         }
 
                         // first IP on the last segment point - this means that the first point is outside or inside
-                        if ( first_in_range && ( !this_b || op_blocked ) )
+                        if ( first_point && ( !this_b || op_blocked ) )
                         {
                             bool const front_b = is_endpoint_on_boundary<boundary_front>(
                                                     range::front(sub_range(geometry, seg_id)),
@@ -736,9 +922,22 @@ struct linear_areal
                             if ( front_b )
                             {
                                 if ( first_from_inside )
+                                {
                                     update<boundary, interior, '0', TransposeResult>(res);
+                                }
                                 else
-                                    update<boundary, exterior, '0', TransposeResult>(res);
+                                {
+                                    if ( is_multi<OtherGeometry>::value
+                                      && op == overlay::operation_blocked )
+                                    {
+                                        BOOST_ASSERT(m_first_from_unknown);
+                                        m_first_from_unknown_boundary_detected = true;
+                                    }
+                                    else
+                                    {
+                                        update<boundary, exterior, '0', TransposeResult>(res);
+                                    }
+                                }
                             }
                         }
                     }
@@ -773,6 +972,23 @@ struct linear_areal
         {
             boost::ignore_unused(first, last);
             //BOOST_ASSERT( first != last );
+
+            // For MultiPolygon many x/u operations may be generated as a first IP
+            // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
+            // then we know that the LineString is outside
+            if ( is_multi<OtherGeometry>::value
+              && m_first_from_unknown )
+            {
+                update<interior, exterior, '1', TransposeResult>(res);
+                if ( m_first_from_unknown_boundary_detected )
+                {
+                    update<boundary, exterior, '0', TransposeResult>(res);
+                }
+
+                // done below
+                //m_first_from_unknown = false;
+                //m_first_from_unknown_boundary_detected = false;
+            }
 
             // here, the possible exit is the real one
             // we know that we entered and now we exit
@@ -828,6 +1044,8 @@ struct linear_areal
             // Reset exit watcher before the analysis of the next Linestring
             m_exit_watcher.reset();
             m_boundary_counter = 0;
+            m_first_from_unknown = false;
+            m_first_from_unknown_boundary_detected = false;
         }
 
         // check if the passed turn's segment of Linear geometry arrived
@@ -945,6 +1163,8 @@ struct linear_areal
         unsigned m_boundary_counter;
         bool m_interior_detected;
         const segment_identifier * m_first_interior_other_id_ptr;
+        bool m_first_from_unknown;
+        bool m_first_from_unknown_boundary_detected;
     };
 
     // call analyser.apply() for each turn in range

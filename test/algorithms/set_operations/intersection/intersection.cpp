@@ -41,6 +41,10 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
+    typedef typename bg::coordinate_type<Polygon>::type ct;
+    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
+    bool const open = bg::closure<Polygon>::value == bg::open;
+
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -154,12 +158,6 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, 0.1);
 
-
-    typedef typename bg::coordinate_type<Polygon>::type ct;
-    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
-    bool const open = bg::closure<Polygon>::value == bg::open;
-
-
     test_one<Polygon, Polygon, Polygon>("isovist",
         isovist1[0], isovist1[1],
         1, 19, 88.19203,
@@ -254,6 +252,29 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
                 ticket_9081_15[0], ticket_9081_15[1],
                 1, 4, 0.0068895780745301394);
+
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
+                ticket_10108_a[0], ticket_10108_a[1],
+                0, 0, 0.0);
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
+                ticket_10108_b[0], ticket_10108_b[1],
+                0, 0, 0.0);
+
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
+                ticket_10747_a[0], ticket_10747_a[1],
+                1, 4, 70368744177664);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_b",
+                ticket_10747_b[0], ticket_10747_b[1],
+                1, 4, 7036874417766400);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_c",
+                ticket_10747_c[0], ticket_10747_c[1],
+                1, 4, 17592186044416);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_d",
+                ticket_10747_d[0], ticket_10747_d[1],
+                1, 4, 703687777321);
+    test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
+                ticket_10747_e[0], ticket_10747_e[1],
+                1, 4, 7.0368748575710959e-15);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],

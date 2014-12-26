@@ -282,6 +282,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
             1, 0, 10, 1289.08374);
 
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
+            2, 0, 8, 0.0435229);
+    test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
+            2, 0, 10, 2424.3449);
+
     test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
             1, 0, -1, 3461.3203125);
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
@@ -371,13 +376,13 @@ void test_all()
 
     test_areal<ring, polygon>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Open
     test_areal<bg::model::ring<P, true, false>, bg::model::polygon<P, true, false> >();
 
     // Counter clockwise
     test_areal<bg::model::ring<P, false>, bg::model::polygon<P, false> >();
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Counter clockwise and open
     test_areal<bg::model::ring<P, false, false>, bg::model::polygon<P, false, false> >();
 #endif
@@ -428,8 +433,8 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_all<bg::model::d2::point_xy<float> >();
+    test_all<bg::model::d2::point_xy<long double> >();
 #endif
-    //test_all<bg::model::d2::point_xy<long double> >();
 
 #if defined(HAVE_TTMATH)
     std::cout << "Testing TTMATH" << std::endl;

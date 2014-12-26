@@ -51,6 +51,22 @@
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 
+
+inline char piece_type_char(bg::strategy::buffer::piece_type const& type)
+{
+    using namespace bg::strategy::buffer;
+    switch(type)
+    {
+        case buffered_segment : return 's';
+        case buffered_join : return 'j';
+        case buffered_round_end : return 'r';
+        case buffered_flat_end : return 'f';
+        case buffered_point : return 'p';
+        case buffered_concave : return 'c';
+        default : return '?';
+    }
+}
+
 template <typename Geometry, typename Mapper, typename RescalePolicy>
 void post_map(Geometry const& geometry, Mapper& mapper, RescalePolicy const& rescale_policy)
 {
@@ -242,13 +258,15 @@ struct svg_visitor
                 typedef typename bg::point_type<ring_type>::type point_type;
 
                 std::ostringstream out;
-                out << piece.index << "/" << int(piece.type) << "/" << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
-                point_type label_point = corner.front();
-                int const mid_offset = piece.offsetted_count / 2 - 1;
-                if (mid_offset >= 0 && mid_offset + 1 < corner.size())
+                out << piece.index << " (" << piece_type_char(piece.type) << ") " << piece.first_seg_id.segment_index << ".." << piece.last_segment_index - 1;
+                point_type label_point = bg::return_centroid<point_type>(corner);
+
+                if ((piece.type == bg::strategy::buffer::buffered_concave
+                     || piece.type == bg::strategy::buffer::buffered_flat_end)
+                    && corner.size() >= 2u)
                 {
-                    bg::set<0>(label_point, (bg::get<0>(corner[mid_offset]) + bg::get<0>(corner[mid_offset + 1])) / 2.0);
-                    bg::set<1>(label_point, (bg::get<1>(corner[mid_offset]) + bg::get<1>(corner[mid_offset + 1])) / 2.0);
+                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
+                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
                 }
                 m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
@@ -305,7 +323,10 @@ struct svg_visitor
 
 //-----------------------------------------------------------------------------
 template <typename JoinStrategy>
-struct JoinTestProperties { };
+struct JoinTestProperties
+{
+    static std::string name() { return "joinunknown"; }
+};
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
 { 

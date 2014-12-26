@@ -15,6 +15,9 @@ static std::string const simplex = "MULTILINESTRING((0 0,4 5),(5 4,10 0))";
 static std::string const two_bends = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6))";
 static std::string const turn_inside = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6),(0 4,-2 6))";
 
+static std::string const bend_near_start1 = "MULTILINESTRING((10 0,11 0,15 2),(9 0,8 0,4 2))";
+static std::string const bend_near_start2 = "MULTILINESTRING((10 0,11 0,12 1.5,15 3),(9 0,8 0,7 1.5,4 3))";
+
 static std::string const degenerate0 = "MULTILINESTRING()";
 static std::string const degenerate1 = "MULTILINESTRING((5 5))";
 static std::string const degenerate2 = "MULTILINESTRING((5 5),(9 9))";
@@ -44,6 +47,9 @@ void test_all()
     // Round joins / flat ends:
     test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_flat, 38.2623, 1.5, 1.5);
     test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_flat, 64.6217, 1.5, 1.5);
+
+    test_one<multi_linestring_type, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 202.5910, 9.0, 9.0);
+    test_one<multi_linestring_type, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 231.4882, 9.0, 9.0);
 
     // TODO this should be fixed test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_flat, 99, 1.5, 1.5);
     test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_flat, 52.3793, 1.5, 0.75);

@@ -1,7 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -351,6 +356,12 @@ private:
         //              b1/b2      (4..4)
         // Ratio: (4-2)/(6-2)
         RatioType const ratio(d - s1, s2 - s1);
+
+        if (!ratio.on_segment())
+        {
+            return Policy::disjoint();
+        }
+
         return Policy::one_degenerate(degenerate_segment, ratio, a_degenerate);
     }
 };
