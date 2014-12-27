@@ -40,8 +40,16 @@ namespace math
 namespace detail
 {
 
+struct error_identity
+{
+    template <typename T>
+    static inline T const& apply(T const& err)
+    {
+        return err;
+    }
+};
 
-template <typename Type, bool IsFloatingPoint>
+template <typename ErrorCalc, typename Type, bool IsFloatingPoint>
 struct equals
 {
     static inline bool apply(Type const& a, Type const& b)
@@ -50,14 +58,9 @@ struct equals
     }
 };
 
-template <typename Type>
-struct equals<Type, true>
+template <typename ErrorCalc, typename Type>
+struct equals<ErrorCalc, Type, true>
 {
-    static inline Type get_max(Type const& a, Type const& b, Type const& c)
-    {
-        return (std::max)((std::max)(a, b), c);
-    }
-
     static inline bool apply(Type const& a, Type const& b)
     {
         if (a == b)
@@ -65,9 +68,16 @@ struct equals<Type, true>
             return true;
         }
 
-        // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
-        // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
-        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * get_max(std::abs(a), std::abs(b), 1.0);
+        Type const diff = std::abs(a - b);
+
+        // See https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+        //     http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
+        //     http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+        //     http://floating-point-gui.de/errors/comparison/
+        // The first check is for numbers close to 0, an expected value of absolute error is used
+        // then the value is compared using relative error
+        return diff <= ErrorCalc::apply(std::numeric_limits<Type>::epsilon())
+            || diff <= std::numeric_limits<Type>::epsilon() * (std::max)(std::abs(a), std::abs(b));
     }
 };
 
@@ -85,7 +95,7 @@ struct smaller<Type, true>
 {
     static inline bool apply(Type const& a, Type const& b)
     {
-        if (equals<Type, true>::apply(a, b))
+        if (equals<detail::error_identity, Type, true>::apply(a, b))
         {
             return false;
         }
@@ -94,8 +104,9 @@ struct smaller<Type, true>
 };
 
 
-template <typename Type, bool IsFloatingPoint>
-struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
+template <typename ErrorCalc, typename Type, bool IsFloatingPoint>
+struct equals_with_epsilon
+    : public equals<ErrorCalc, Type, IsFloatingPoint> {};
 
 template
 <
@@ -221,8 +232,32 @@ inline T relaxed_epsilon(T const& factor)
     return detail::relaxed_epsilon<T>::apply(factor);
 }
 
-
 // Maybe replace this by boost equals or boost ublas numeric equals or so
+
+/*!
+    \brief returns true if both arguments are equal.
+    \ingroup utility
+    \param a first argument
+    \param b second argument
+    \tparam ErrorCalc a class defining static apply() member function calculating expected error of compared values
+    \return true if a == b
+    \note If both a and b are of an integral type, comparison is done by ==.
+    If one of the types is floating point, comparison is done by abs and
+    comparing with epsilon. If one of the types is non-fundamental, it might
+    be a high-precision number and comparison is done using the == operator
+    of that class.
+*/
+template <typename ErrorCalc, typename T1, typename T2>
+inline bool equals(T1 const& a, T2 const& b)
+{
+    typedef typename select_most_precise<T1, T2>::type select_type;
+    return detail::equals
+        <
+            ErrorCalc,
+            select_type,
+            boost::is_floating_point<select_type>::type::value
+        >::apply(a, b);
+}
 
 /*!
     \brief returns true if both arguments are equal.
@@ -236,16 +271,10 @@ inline T relaxed_epsilon(T const& factor)
     be a high-precision number and comparison is done using the == operator
     of that class.
 */
-
 template <typename T1, typename T2>
 inline bool equals(T1 const& a, T2 const& b)
 {
-    typedef typename select_most_precise<T1, T2>::type select_type;
-    return detail::equals
-        <
-            select_type,
-            boost::is_floating_point<select_type>::type::value
-        >::apply(a, b);
+    return equals<detail::error_identity>(a, b);
 }
 
 template <typename T1, typename T2>
@@ -254,6 +283,7 @@ inline bool equals_with_epsilon(T1 const& a, T2 const& b)
     typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::equals_with_epsilon
         <
+            detail::error_identity,
             select_type,
             boost::is_floating_point<select_type>::type::value
         >::apply(a, b);
@@ -364,6 +394,7 @@ inline Result round(T const& v)
     // NOTE: boost::round() could be used instead but it throws in some situations
     return detail::round<Result, T>::apply(v);
 }
+
 
 } // namespace math
 

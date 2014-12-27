@@ -38,6 +38,16 @@ namespace strategy { namespace side
 template <typename CalculationType = void>
 class side_by_triangle
 {
+    struct error_calc
+    {
+        template <typename T>
+        static inline T apply(T const& err)
+        {
+            // 2 * sqr(2 * err)
+            return T(8) * math::sqr(err);
+        }
+    };
+
 public :
 
     // Template member function, because it is not always trivial
@@ -99,7 +109,7 @@ public :
         promoted_type const s = side_value<coordinate_type, promoted_type>(p1, p2, p);
         promoted_type const zero = promoted_type();
 
-        return math::equals(s, zero) ? 0
+        return math::equals<error_calc>(s, zero) ? 0
             : s > zero ? 1
             : -1;
     }
