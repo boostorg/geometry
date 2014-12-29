@@ -216,9 +216,15 @@ struct relate_cartesian_segments
 
         if (collinear)
         {
+            robust_coordinate_type const min_dx
+                = (std::min)(geometry::math::abs(robust_dx_a), geometry::math::abs(robust_dx_b));
+            robust_coordinate_type const min_dy
+                = (std::min)(geometry::math::abs(robust_dy_a), geometry::math::abs(robust_dy_b));
             bool const collinear_use_first
-                    = geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b)
-                    >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
+                = min_dx != min_dy ?
+                    min_dx > min_dy :
+                    ( geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b) >=
+                      geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b) );
 
             // Degenerate cases: segments of single point, lying on other segment, are not disjoint
             // This situation is collinear too
