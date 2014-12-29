@@ -2,7 +2,7 @@
 //
 // R-tree query iterators
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -29,27 +29,27 @@ struct end_query_iterator
 
     reference operator*() const
     {
-        BOOST_ASSERT_MSG(false, "iterator not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferencable");
         pointer p(0);
         return *p;
     }
 
     const value_type * operator->() const
     {
-        BOOST_ASSERT_MSG(false, "iterator not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferencable");
         const value_type * p = 0;
         return p;
     }
 
     end_query_iterator & operator++()
     {
-        BOOST_ASSERT_MSG(false, "iterator not incrementable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not incrementable");
         return *this;
     }
 
     end_query_iterator operator++(int)
     {
-        BOOST_ASSERT_MSG(false, "iterator not incrementable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not incrementable");
         return *this;
     }
 
@@ -246,7 +246,7 @@ public:
     virtual bool equals(base_t const& r) const
     {
         const query_iterator_wrapper * p = dynamic_cast<const query_iterator_wrapper *>(boost::addressof(r));
-        BOOST_ASSERT_MSG(p, "those iterators can't be compared");
+        BOOST_GEOMETRY_INDEX_ASSERT(p, "iterators can't be compared");
         return m_iterator == p->m_iterator;
     }
 
@@ -312,7 +312,7 @@ private:
     bool equals_(base_t const& r) const
     {
         const query_iterator_wrapper * p = dynamic_cast<const query_iterator_wrapper *>(boost::addressof(r));
-        BOOST_ASSERT_MSG(p, "those iterators can't be compared");
+        BOOST_GEOMETRY_INDEX_ASSERT(p, "iterators can't be compared");
         return m_iterator == p->m_iterator;
     }
 
