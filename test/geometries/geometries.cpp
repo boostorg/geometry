@@ -14,10 +14,16 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+#include <boost/geometry/geometries/register/point.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
+
+typedef std::pair<float, float> pt_pair_t;
+BOOST_GEOMETRY_REGISTER_POINT_2D(pt_pair_t, float, bg::cs::cartesian, first, second)
+BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 template <typename P>
 void test_default()
@@ -59,14 +65,50 @@ void test_boost_assign_2d()
     // using Boost.Assign
     mpt mpt2 = boost::assign::list_of(P(0, 0))(P(1, 0));
     BOOST_CHECK(bg::num_points(mpt2) == 2);
+    mpt2 = boost::assign::list_of(P(0, 0))(P(1, 0));
+    BOOST_CHECK(bg::num_points(mpt2) == 2);
 
     // using Boost.Assign
     ls ls2 = boost::assign::list_of(P(0, 0))(P(1, 0))(P(1, 1));
+    BOOST_CHECK(bg::num_points(ls2) == 3);
+    ls2 = boost::assign::list_of(P(0, 0))(P(1, 0))(P(1, 1));
     BOOST_CHECK(bg::num_points(ls2) == 3);
 
     // using Boost.Assign
     ring r2 = boost::assign::list_of(P(0, 0))(P(0, 1))(P(1, 1))(P(1, 0))(P(0, 0));
     BOOST_CHECK(bg::num_points(r2) == 5);
+    r2 = boost::assign::list_of(P(0, 0))(P(0, 1))(P(1, 1))(P(1, 0))(P(0, 0));
+    BOOST_CHECK(bg::num_points(r2) == 5);
+}
+
+void test_boost_assign_pair_2d()
+{
+    typedef std::pair<float, float> pt;
+
+    test_boost_assign_2d<pt>();
+
+    typedef bg::model::multi_point<pt> mpt;
+
+    // using Boost.Assign
+    mpt mpt2 = boost::assign::pair_list_of(0, 0)(1, 0);
+    BOOST_CHECK(bg::num_points(mpt2) == 2);
+    mpt2 = boost::assign::pair_list_of(0, 0)(1, 0);
+    BOOST_CHECK(bg::num_points(mpt2) == 2);
+}
+
+void test_boost_assign_tuple_2d()
+{
+    typedef boost::tuple<float, float> pt;
+
+    test_boost_assign_2d<pt>();
+
+    typedef bg::model::multi_point<pt> mpt;
+
+    // using Boost.Assign
+    mpt mpt2 = boost::assign::tuple_list_of(0, 0)(1, 0);
+    BOOST_CHECK(bg::num_points(mpt2) == 2);
+    mpt2 = boost::assign::tuple_list_of(0, 0)(1, 0);
+    BOOST_CHECK(bg::num_points(mpt2) == 2);
 }
 
 template <typename P>
@@ -157,6 +199,9 @@ int test_main(int, char* [])
 {
     test_all_2d< bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all_2d< bg::model::d2::point_xy<float> >();
+
+    test_boost_assign_pair_2d();
+    test_boost_assign_tuple_2d();
 
     return 0;
 }
