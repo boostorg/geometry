@@ -102,6 +102,8 @@ public:
         , m_inners(l.size() > 0 ? l.begin() + 1 : l.begin(), l.end())
     {}
 
+// Without this workaround in MSVC the assignment operator is ambiguous
+#ifndef BOOST_MSVC
     /// \assignment_initializer_list{polygon}
     inline polygon & operator=(std::initializer_list<ring_type> l)
     {
@@ -117,21 +119,8 @@ public:
         }
         return *this;
     }
+#endif
 
-    // ambiguous
-    /*/// \constructor_initializer_list{polygon}
-    inline polygon(std::initializer_list<Point> l)
-        : m_outer(l.begin(), l.end())
-        , m_inners()
-    {}
-
-    /// \assignment_initializer_list{polygon}
-    inline polygon & operator=(std::initializer_list<Point> l)
-    {
-        m_outer.assign(l.begin(), l.end());
-        m_inners.clear();
-        return *this;
-    }*/
 #endif
 
     /// Utility method, clears outer and inner rings

@@ -64,17 +64,22 @@ public:
     {}
 
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+
     /// \constructor_initializer_list{multi_polygon}
     inline multi_polygon(std::initializer_list<Polygon> l)
         : base_type(l.begin(), l.end())
     {}
 
+// Without this workaround in MSVC the assignment operator is ambiguous
+#ifndef BOOST_MSVC
     /// \assignment_initializer_list{multi_polygon}
     inline multi_polygon & operator=(std::initializer_list<Polygon> l)
     {
         base_type::assign(l.begin(), l.end());
         return *this;
     }
+#endif
+
 #endif
 };
 
