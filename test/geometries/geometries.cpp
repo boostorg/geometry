@@ -54,14 +54,19 @@ void test_boost_assign_2d()
 {
     typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
+    typedef bg::model::ring<P> ring;
 
     // using Boost.Assign
     mpt mpt2 = boost::assign::list_of(P(0, 0))(P(1, 0));
     BOOST_CHECK(bg::num_points(mpt2) == 2);
 
     // using Boost.Assign
-    mpt ls2 = boost::assign::list_of(P(0, 0))(P(1, 0));
-    BOOST_CHECK(bg::num_points(ls2) == 2);
+    ls ls2 = boost::assign::list_of(P(0, 0))(P(1, 0))(P(1, 1));
+    BOOST_CHECK(bg::num_points(ls2) == 3);
+
+    // using Boost.Assign
+    ring r2 = boost::assign::list_of(P(0, 0))(P(0, 1))(P(1, 1))(P(1, 0))(P(0, 0));
+    BOOST_CHECK(bg::num_points(r2) == 5);
 }
 
 template <typename P>
