@@ -21,7 +21,8 @@
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
-#include <boost/geometry/extensions/gis/geographic/strategies/andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/extensions/gis/geographic/strategies/distance_cross_track.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
