@@ -213,6 +213,18 @@ void test_linestring_polygon()
         
         test_geometry<ls, poly>("LINESTRING(0 1,1 1,-1 1)", "POLYGON((0 0,3 3,3 0,0 0))", "F01FF0212");
     }
+
+    {
+        // SPIKES AND SELF-INTERSECTIONS
+
+        // MySQL bug 15.12.2014
+//        test_geometry<ls, poly>("LINESTRING(6 3,9 0)",
+//                                "POLYGON((0 0,5 8,6 1,6 3,8 1,5 4,9 6,2 5,7 4,1 7,0 0))",
+//                                "FF1F00212");
+//        test_geometry<ls, poly>("LINESTRING(9 0,2 7)",
+//                                "POLYGON((4 1,3 2,5 9,8 4,4 5,3 6,8 1,6 2,2 4,6 0,4 1))",
+//                                "FF1F00212");
+    }
 }
 
 template <typename P>
