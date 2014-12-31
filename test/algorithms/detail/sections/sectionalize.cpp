@@ -121,7 +121,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
         out_sections << s[i].begin_index << ".." << s[i].end_index;
         out_boxes << bg::get<0,0>(b) << " " << bg::get<0,1>(b)
             << ".." << bg::get<1,0>(b) << " " << bg::get<1,1>(b);
-        for (int d = 0; d < dimension_count; d++)
+        for (std::size_t d = 0; d < dimension_count; d++)
         {
             out_dirs << (d == 0 ? "" : " ");
             switch(s[i].directions[d])

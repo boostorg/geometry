@@ -216,25 +216,31 @@ struct relate_cartesian_segments
 
         if (collinear)
         {
-            bool const collinear_use_first
-                    = geometry::math::abs(robust_dx_a) + geometry::math::abs(robust_dx_b)
-                    >= geometry::math::abs(robust_dy_a) + geometry::math::abs(robust_dy_b);
+            std::pair<bool, bool> const collinear_use_first
+                    = is_x_more_significant(geometry::math::abs(robust_dx_a),
+                                            geometry::math::abs(robust_dy_a),
+                                            geometry::math::abs(robust_dx_b),
+                                            geometry::math::abs(robust_dy_b),
+                                            a_is_point, b_is_point);
 
-            // Degenerate cases: segments of single point, lying on other segment, are not disjoint
-            // This situation is collinear too
+            if ( collinear_use_first.second )
+            {
+                // Degenerate cases: segments of single point, lying on other segment, are not disjoint
+                // This situation is collinear too
 
-            if (collinear_use_first)
-            {
-                return relate_collinear<0, ratio_type>(a, b,
-                        robust_a1, robust_a2, robust_b1, robust_b2,
-                        a_is_point, b_is_point);
-            }
-            else
-            {
-                // Y direction contains larger segments (maybe dx is zero)
-                return relate_collinear<1, ratio_type>(a, b,
-                        robust_a1, robust_a2, robust_b1, robust_b2,
-                        a_is_point, b_is_point);
+                if (collinear_use_first.first)
+                {
+                    return relate_collinear<0, ratio_type>(a, b,
+                            robust_a1, robust_a2, robust_b1, robust_b2,
+                            a_is_point, b_is_point);
+                }
+                else
+                {
+                    // Y direction contains larger segments (maybe dx is zero)
+                    return relate_collinear<1, ratio_type>(a, b,
+                            robust_a1, robust_a2, robust_b1, robust_b2,
+                            a_is_point, b_is_point);
+                }
             }
         }
 
@@ -242,6 +248,40 @@ struct relate_cartesian_segments
     }
 
 private:
+    // first is true if x is more significant
+    // second is true if the more significant difference is not 0
+    template <typename RobustCoordinateType>
+    static inline std::pair<bool, bool>
+        is_x_more_significant(RobustCoordinateType const& abs_robust_dx_a,
+                              RobustCoordinateType const& abs_robust_dy_a,
+                              RobustCoordinateType const& abs_robust_dx_b,
+                              RobustCoordinateType const& abs_robust_dy_b,
+                              bool const a_is_point,
+                              bool const b_is_point)
+    {
+        //BOOST_ASSERT_MSG(!(a_is_point && b_is_point), "both segments shouldn't be degenerated");
+
+        // for degenerated segments the second is always true because this function
+        // shouldn't be called if both segments were degenerated
+
+        if ( a_is_point )
+        {
+            return std::make_pair(abs_robust_dx_b >= abs_robust_dy_b, true);
+        }
+        else if ( b_is_point )
+        {
+            return std::make_pair(abs_robust_dx_a >= abs_robust_dy_a, true);
+        }
+        else
+        {
+            RobustCoordinateType const min_dx = (std::min)(abs_robust_dx_a, abs_robust_dx_b);
+            RobustCoordinateType const min_dy = (std::min)(abs_robust_dy_a, abs_robust_dy_b);
+            return min_dx == min_dy ?
+                    std::make_pair(true, min_dx > RobustCoordinateType(0)) :
+                    std::make_pair(min_dx > min_dy, true);
+        }
+    }
+
     template
     <
         std::size_t Dimension,

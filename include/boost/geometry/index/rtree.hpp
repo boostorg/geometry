@@ -1239,6 +1239,7 @@ private:
     inline void raw_insert(value_type const& value)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        // CONSIDER: alternative - ignore invalid indexable or throw an exception
         BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_members.translator()(value)), "Indexable is invalid");
 
         detail::rtree::visitors::insert<
