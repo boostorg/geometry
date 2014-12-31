@@ -708,7 +708,8 @@ void test_with_custom_strategies(std::string const& caseid,
         DistanceStrategy const& distance_strategy,
         SideStrategy const& side_strategy,
         PointStrategy const& point_strategy,
-        double expected_area)
+        double expected_area,
+        double tolerance = 0.01)
 {
     namespace bg = boost::geometry;
     Geometry g;
@@ -719,7 +720,7 @@ void test_with_custom_strategies(std::string const& caseid,
             (caseid, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, point_strategy,
-            true, expected_area, 0.01, NULL);
+            true, expected_area, tolerance, NULL);
 }
 
 
