@@ -21,9 +21,9 @@
 
 #include <boost/array.hpp>
 
-#include <boost/variant/variant_fwd.hpp>
-#include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_order.hpp>
