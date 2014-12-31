@@ -26,23 +26,19 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/algorithms/intersects.hpp>
-#include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
-
-#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
-
 #include <boost/geometry/strategies/buffer.hpp>
-
-
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -522,6 +518,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                 );
         }
     }
+
+#ifdef BOOST_GEOMETRY_BUFFER_TEST_IS_VALID
+    if (! bg::is_valid(buffered))
+    {
+        std::cout
+            << "NOT VALID: " << complete.str() << std::endl
+            << std::fixed << std::setprecision(16) << bg::wkt(buffered) << std::endl;
+    }
+//    BOOST_CHECK_MESSAGE(bg::is_valid(buffered) == true, complete.str() <<  " is not valid");
+//    BOOST_CHECK_MESSAGE(bg::intersects(buffered) == false, complete.str() <<  " intersects");
+#endif
 
 #if defined(TEST_WITH_SVG)
     bool const areal = boost::is_same
