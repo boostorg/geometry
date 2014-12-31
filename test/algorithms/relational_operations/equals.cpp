@@ -73,9 +73,14 @@ void test_linestring_linestring()
     // https://svn.boost.org/trac/boost/ticket/10904
     if ( boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value )
     {
-        test_geometry<ls, ls>("ls2d_small",
+        test_geometry<ls, ls>("ls2d_small1",
                               "LINESTRING(5.6956521739130430148634331999347 -0.60869565217391330413931882503675,5.5 -0.50000000000000066613381477509392)",
                               "LINESTRING(5.5 -0.50000000000000066613381477509392,5.5 -0.5)",
+                              false);
+
+        test_geometry<ls, ls>("ls2d_small2",
+                              "LINESTRING(-3.2333333333333333925452279800083 5.5999999999999978683717927196994,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
+                              "LINESTRING(-3.2333333333333325043668082798831 5.5999999999999996447286321199499,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
                               false);
     }
 }
