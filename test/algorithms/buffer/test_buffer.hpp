@@ -479,7 +479,7 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     rescale_policy_type rescale_policy
             = bg::get_rescale_policy<rescale_policy_type>(envelope);
 
-    std::vector<GeometryOut> buffered;
+    bg::model::multi_polygon<GeometryOut> buffered;
 
     bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
                         std::back_inserter(buffered),
@@ -491,19 +491,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
                         rescale_policy,
                         visitor);
 
-    typename bg::default_area_result<GeometryOut>::type area = 0;
-    BOOST_FOREACH(GeometryOut const& polygon, buffered)
-    {
-        area += bg::area(polygon);
-    }
+    typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
     //std::cout << caseid << " " << distance_left << std::endl;
     //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
     //std::cout << "OUTPUT: " << area << std::endl;
-    //BOOST_FOREACH(GeometryOut const& polygon, buffered)
-    //{
-    //    std::cout << bg::wkt(polygon) << std::endl;
-    //}
+    //std::cout << bg::wkt(buffered) << std::endl;
 
 
     if (expected_area > -0.1)
@@ -521,15 +514,12 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         {
             // Be sure resulting polygon does not contain
             // self-intersections
-            BOOST_FOREACH(GeometryOut const& polygon, buffered)
-            {
-                BOOST_CHECK_MESSAGE
-                    (
-                        ! bg::detail::overlay::has_self_intersections(polygon,
-                                rescale_policy, false),
-                        complete.str() << " output is self-intersecting. "
-                    );
-            }
+            BOOST_CHECK_MESSAGE
+                (
+                    ! bg::detail::overlay::has_self_intersections(buffered,
+                            rescale_policy, false),
+                    complete.str() << " output is self-intersecting. "
+                );
         }
     }
 
@@ -550,30 +540,24 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     }
 
     // Map buffer in yellow (inflate) and with orange-dots (deflate)
-    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    if (distance_strategy.negative())
     {
-        if (distance_strategy.negative())
-        {
-            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
-        }
-        else
-        {
-            mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
-        }
-        post_map(polygon, mapper, rescale_policy);
+        mapper.map(buffered, "opacity:0.4;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3");
     }
+    else
+    {
+        mapper.map(buffered, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
+    }
+    post_map(buffered, mapper, rescale_policy);
 #endif
 
     if (self_ip_count != NULL)
     {
         std::size_t count = 0;
-        BOOST_FOREACH(GeometryOut const& polygon, buffered)
+        if (bg::detail::overlay::has_self_intersections(buffered,
+                rescale_policy, false))
         {
-            if (bg::detail::overlay::has_self_intersections(polygon,
-                    rescale_policy, false))
-            {
-                count += count_self_ips(polygon, rescale_policy);
-            }
+            count = count_self_ips(buffered, rescale_policy);
         }
 
         *self_ip_count += count;
