@@ -38,6 +38,20 @@ std::string transposed(std::string matrix)
     return matrix;
 }
 
+bool matrix_equal(std::string const& m1, std::string const& m2)
+{
+    BOOST_ASSERT(m1.size() == 9 && m2.size() == 9);
+    for ( size_t i = 0 ; i < 9 ; ++i )
+    {
+        if ( m1[i] == '*' || m2[i] == '*' )
+            continue;
+
+        if ( m1[i] != m2[i] )
+            return false;
+    }
+    return true;
+}
+
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
@@ -47,7 +61,7 @@ void check_geometry(Geometry1 const& geometry1,
 {
     {
         std::string res_str = bgdr::relate<bgdr::matrix9>(geometry1, geometry2);
-        bool ok = boost::equal(res_str, expected);
+        bool ok = matrix_equal(res_str, expected);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
             << " and " << wkt2
@@ -59,7 +73,7 @@ void check_geometry(Geometry1 const& geometry1,
     {
         std::string res_str = bgdr::relate(geometry2, geometry1, bgdr::matrix9());
         std::string expected_tr = transposed(expected);
-        bool ok = boost::equal(res_str, expected_tr);
+        bool ok = matrix_equal(res_str, expected_tr);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt2
             << " and " << wkt1
