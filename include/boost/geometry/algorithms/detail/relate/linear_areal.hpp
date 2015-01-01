@@ -1038,8 +1038,10 @@ struct linear_areal
                 }
             }
 
-            BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
-                                "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
+            // This condition may be false if the Linestring is lying on the Polygon's collinear spike
+            // if Polygon's spikes are not handled in get_turns() (they currently aren't)
+            //BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
+            //                    "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
 
             // Reset exit watcher before the analysis of the next Linestring
             m_exit_watcher.reset();
