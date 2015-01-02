@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -185,17 +185,21 @@ void test_linestring_linestring()
     // Point/Point
     //test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
 
-    // https://svn.boost.org/trac/boost/ticket/10904
-    // very small segments
     if ( boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value )
     {
+        // https://svn.boost.org/trac/boost/ticket/10904
+        // very small segments
         test_geometry<ls, ls>("LINESTRING(5.6956521739130430148634331999347 -0.60869565217391330413931882503675,5.5 -0.50000000000000066613381477509392)",
                               "LINESTRING(5.5 -0.50000000000000066613381477509392,5.5 -0.5)",
                               "FF1F00102");
-
         test_geometry<ls, ls>("LINESTRING(-3.2333333333333333925452279800083 5.5999999999999978683717927196994,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
                               "LINESTRING(-3.2333333333333325043668082798831 5.5999999999999996447286321199499,-3.2333333333333333925452279800083 5.5999999999999996447286321199499)",
                               "FF1F00102", "F0FFFF102"); // on some platforms the first Linestring may be detected as degenerated to Point
+
+        // detected as collinear
+        test_geometry<ls, ls>("LINESTRING(1 -10, 3.069359e+307 3.069359e+307)",
+                              "LINESTRING(1 6, 1 0)",
+                              "*********"); // TODO: be more specific with the result
     }
 
     // OTHER MASKS
