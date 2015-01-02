@@ -195,6 +195,49 @@ void test_all_2d()
     test_initializer_list_2d<P>();
 }
 
+template <typename T>
+struct test_point
+{
+    test_point(T = T(), T = T()) {}
+};
+
+template <typename T>
+struct test_range
+{
+    test_range() {}
+    template <typename It>
+    test_range(It, It) {}
+#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
+    test_range(std::initializer_list<T>) {}
+    //test_range & operator=(std::initializer_list<T>) { return *this; }
+#endif
+};
+
+void test_sanity_check()
+{
+    typedef test_point<float> P;
+    typedef test_range<P> R;
+    typedef std::vector<P> V;
+
+#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
+    {
+        R r = {{1, 1},{2, 2},{3, 3}};
+        r = {{1, 1},{2, 2},{3, 3}};
+
+        V v = {{1, 1},{2, 2},{3, 3}};
+        v = {{1, 1},{2, 2},{3, 3}};
+    }
+#endif
+    {
+        R r = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));
+        r = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));
+
+        V v = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));
+        //v = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));
+        v.empty();
+    }
+}
+
 int test_main(int, char* [])
 {
     test_all_2d< bg::model::point<float, 2, bg::cs::cartesian> >();
@@ -202,6 +245,8 @@ int test_main(int, char* [])
 
     test_boost_assign_pair_2d();
     test_boost_assign_tuple_2d();
+
+    test_sanity_check();
 
     return 0;
 }
