@@ -32,13 +32,16 @@ namespace bgdr = bg::detail::relate;
 
 std::string transposed(std::string matrix)
 {
-    std::swap(matrix[1], matrix[3]);
-    std::swap(matrix[2], matrix[6]);
-    std::swap(matrix[5], matrix[7]);
+    if ( !matrix.empty() )
+    {
+        std::swap(matrix[1], matrix[3]);
+        std::swap(matrix[2], matrix[6]);
+        std::swap(matrix[5], matrix[7]);
+    }
     return matrix;
 }
 
-bool matrix_equal(std::string const& m1, std::string const& m2)
+bool matrix_compare(std::string const& m1, std::string const& m2)
 {
     BOOST_ASSERT(m1.size() == 9 && m2.size() == 9);
     for ( size_t i = 0 ; i < 9 ; ++i )
@@ -52,70 +55,87 @@ bool matrix_equal(std::string const& m1, std::string const& m2)
     return true;
 }
 
+bool matrix_compare(std::string const& m, std::string const& res1, std::string const& res2)
+{
+    return matrix_compare(m, res1)
+        || ( !res2.empty() ? matrix_compare(m, res2) : false );
+}
+
+std::string matrix_format(std::string const& matrix1, std::string const& matrix2)
+{
+    return matrix1
+         + ( !matrix2.empty() ? " || " : "" ) + matrix2;
+}
+
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
                     std::string const& wkt1,
                     std::string const& wkt2,
-                    std::string const& expected)
+                    std::string const& expected1,
+                    std::string const& expected2 = std::string())
 {
     {
         std::string res_str = bgdr::relate<bgdr::matrix9>(geometry1, geometry2);
-        bool ok = matrix_equal(res_str, expected);
+        bool ok = matrix_compare(res_str, expected1, expected2);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
             << " and " << wkt2
-            << " -> Expected: " << expected
+            << " -> Expected: " << matrix_format(expected1, expected2)
             << " detected: " << res_str);
     }
 
     // changed sequence of geometries - transposed result
     {
         std::string res_str = bgdr::relate(geometry2, geometry1, bgdr::matrix9());
-        std::string expected_tr = transposed(expected);
-        bool ok = matrix_equal(res_str, expected_tr);
+        std::string expected1_tr = transposed(expected1);
+        std::string expected2_tr = transposed(expected2);
+        bool ok = matrix_compare(res_str, expected1_tr, expected2_tr);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt2
             << " and " << wkt1
-            << " -> Expected: " << expected_tr
+            << " -> Expected: " << matrix_format(expected1_tr, expected2_tr)
             << " detected: " << res_str);
     }
 
+    if ( expected2.empty() )
     {
-        bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected));
-        // TODO: SHOULD BE !interrupted - CHECK THIS!
-        BOOST_CHECK_MESSAGE(result, 
-            "relate: " << wkt1
-            << " and " << wkt2
-            << " -> Expected: " << expected);
-    }
-
-    if ( bg::detail::relate::interruption_enabled<Geometry1, Geometry2>::value )
-    {
-        // brake the expected output
-        std::string expected_interrupt = expected;
-        bool changed = false;
-        BOOST_FOREACH(char & c, expected_interrupt)
         {
-            if ( c >= '0' && c <= '9' )
-            {
-                if ( c == '0' )
-                    c = 'F';
-                else
-                    --c;
-
-                changed = true;
-            }
-        }
-
-        if ( changed )
-        {
-            bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected_interrupt));
-            // TODO: SHOULD BE interrupted - CHECK THIS!
-            BOOST_CHECK_MESSAGE(!result,
+            bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected1));
+            // TODO: SHOULD BE !interrupted - CHECK THIS!
+            BOOST_CHECK_MESSAGE(result, 
                 "relate: " << wkt1
                 << " and " << wkt2
-                << " -> Expected interrupt for:" << expected_interrupt);
+                << " -> Expected: " << expected1);
+        }
+
+        if ( bg::detail::relate::interruption_enabled<Geometry1, Geometry2>::value )
+        {
+            // brake the expected output
+            std::string expected_interrupt = expected1;
+            bool changed = false;
+            BOOST_FOREACH(char & c, expected_interrupt)
+            {
+                if ( c >= '0' && c <= '9' )
+                {
+                    if ( c == '0' )
+                        c = 'F';
+                    else
+                        --c;
+
+                    changed = true;
+                }
+            }
+
+            if ( changed )
+            {
+                bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected_interrupt));
+                // TODO: SHOULD BE interrupted - CHECK THIS!
+                BOOST_CHECK_MESSAGE(!result,
+                    "relate: " << wkt1
+                    << " and " << wkt2
+                    << " -> Expected interrupt for:" << expected_interrupt);
+            }
         }
     }
 }
@@ -123,13 +143,14 @@ void check_geometry(Geometry1 const& geometry1,
 template <typename Geometry1, typename Geometry2>
 void test_geometry(std::string const& wkt1,
                    std::string const& wkt2,
-                   std::string const& expected)
+                   std::string const& expected1,
+                   std::string const& expected2 = std::string())
 {
     Geometry1 geometry1;
     Geometry2 geometry2;
     bg::read_wkt(wkt1, geometry1);
     bg::read_wkt(wkt2, geometry2);
-    check_geometry(geometry1, geometry2, wkt1, wkt2, expected);
+    check_geometry(geometry1, geometry2, wkt1, wkt2, expected1, expected2);
 }
 
 #endif // BOOST_GEOMETRY_TEST_RELATE_HPP
