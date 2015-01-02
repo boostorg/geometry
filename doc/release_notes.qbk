@@ -32,6 +32,8 @@
 * [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
 * [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
 * [@https://svn.boost.org/trac/boost/ticket/10887 10887] Invalid result of within() and relate() for Linear/MultiPolygon
+* [@https://svn.boost.org/trac/boost/ticket/10890 10890] Invalid result of disjoint() for Point/Segment.
+* [@https://svn.boost.org/trac/boost/ticket/10904 10904] Invalid calculation of most significant Dimension of a segment in relate_cartesian_segments strategy.
 
 [*Bugfixes]
 

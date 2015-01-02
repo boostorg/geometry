@@ -69,57 +69,124 @@ struct turn_in_original_ovelaps_box
     }
 };
 
+//! Check if specified is in range of specified iterators
+//! Return value of strategy (true if we can bail out)
+template
+<
+    typename Strategy,
+    typename State,
+    typename Point,
+    typename Iterator
+>
+inline bool point_in_range(Strategy& strategy, State& state,
+        Point const& point, Iterator begin, Iterator end)
+{
+    Iterator it = begin;
+    for (Iterator previous = it++; it != end; ++previous, ++it)
+    {
+        if (! strategy.apply(point, *previous, *it, state))
+        {
+            // We're probably on the boundary
+            return false;
+        }
+    }
+    return true;
+}
+
+template
+<
+    typename Strategy,
+    typename State,
+    typename Point,
+    typename CoordinateType,
+    typename Iterator
+>
+inline bool point_in_section(Strategy& strategy, State& state,
+        Point const& point, CoordinateType const& point_y,
+        Iterator begin, Iterator end,
+        int direction)
+{
+    if (direction == 0)
+    {
+        // Not a monotonic section, or no change in Y-direction
+        return point_in_range(strategy, state, point, begin, end);
+    }
+
+    // We're in a monotonic section in y-direction
+    Iterator it = begin;
+
+    for (Iterator previous = it++; it != end; ++previous, ++it)
+    {
+        // Depending on sections.direction we can quit for this section
+        CoordinateType const previous_y = geometry::get<1>(*previous);
+
+        if (direction == 1 && point_y < previous_y)
+        {
+            // Section goes upwards, y increases, point is is below section
+            return true;
+        }
+        else if (direction == -1 && point_y > previous_y)
+        {
+            // Section goes downwards, y decreases, point is above section
+            return true;
+        }
+
+        if (! strategy.apply(point, *previous, *it, state))
+        {
+            // We're probably on the boundary
+            return false;
+        }
+    }
+    return true;
+}
+
+
 template <typename Point, typename Original>
 inline int point_in_original(Point const& point, Original const& original)
 {
     typedef strategy::within::winding<Point> strategy_type;
 
-    typedef typename Original::original_robust_ring_type ring_type;
-    typedef typename Original::sections_type sections_type;
-    typedef typename boost::range_iterator<ring_type const>::type iterator_type;
-    typedef typename boost::range_iterator<sections_type const>::type siterator_type;
-
-    typename geometry::coordinate_type<Point>::type const point_y
-            = geometry::get<1>(point);
-
     typename strategy_type::state_type state;
     strategy_type strategy;
 
-    // Walk through all monotonic sections
-    for (siterator_type sit = boost::begin(original.m_sections);
-        sit != boost::end(original.m_sections);
-        ++sit)
+    if (boost::size(original.m_sections) == 0
+        || boost::size(original.m_ring) - boost::size(original.m_sections) < 16)
     {
-        typename boost::range_value<sections_type const>::type const& section = *sit;
+        // There are no sections, or it does not profit to walk over sections
+        // instead of over points. Boundary of 16 is arbitrary but can influence
+        // performance
+        point_in_range(strategy, state, point,
+                original.m_ring.begin(), original.m_ring.end());
+        return strategy.result(state);
+    }
+
+    typedef typename Original::sections_type sections_type;
+    typedef typename boost::range_iterator<sections_type const>::type iterator_type;
+    typedef typename boost::range_value<sections_type const>::type section_type;
+    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+
+    coordinate_type const point_y = geometry::get<1>(point);
+
+    // Walk through all monotonic sections of this original
+    for (iterator_type it = boost::begin(original.m_sections);
+        it != boost::end(original.m_sections);
+        ++it)
+    {
+        section_type const& section = *it;
+
         if (! section.duplicate
             && section.begin_index < section.end_index
             && point_y >= geometry::get<min_corner, 1>(section.bounding_box)
             && point_y <= geometry::get<max_corner, 1>(section.bounding_box))
         {
-            // Walk through this section
-            iterator_type it
-                = boost::begin(original.m_ring) + section.begin_index;
-            iterator_type const end
-                = boost::begin(original.m_ring) + section.end_index + 1;
-            for (iterator_type previous = it++; it != end; ++previous, ++it)
+            // y-coordinate of point overlaps with section
+            if (! point_in_section(strategy, state, point, point_y,
+                    boost::begin(original.m_ring) + section.begin_index,
+                    boost::begin(original.m_ring) + section.end_index + 1,
+                    section.directions[0]))
             {
-                if (! strategy.apply(point, *previous, *it, state))
-                {
-                    break;
-                }
-
-                // Depending on sections.direction we can quit the inner loop
-                typename geometry::coordinate_type<Point>::type const ring_y
-                        = geometry::get<1>(*it);
-
-                if (section.directions[0] == 1 && point_y < ring_y)
-                {
-                    break;
-                }
-                else if (section.directions[0] == -1 && point_y > ring_y)
-                {
-                    break;
-                }
+                // We're probably on the boundary
+                break;
             }
         }
     }
@@ -180,7 +247,7 @@ public:
         else
         {
             // It is an exterior ring and there are no interior rings.
-            // Then we are ready with this point
+            // Then we are completely ready with this turn
             mutable_turn.within_original = true;
             mutable_turn.count_in_original = 1;
         }

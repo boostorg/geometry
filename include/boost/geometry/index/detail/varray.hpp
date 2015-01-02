@@ -32,12 +32,11 @@
 #include <boost/iterator/iterator_concepts.hpp>
 
 #include <boost/geometry/index/detail/assert.hpp>
+#include <boost/geometry/index/detail/exception.hpp>
 
-#include <boost/geometry/index/detail/assert.hpp>
 #include <boost/geometry/index/detail/varray_detail.hpp>
 
 #include <boost/concept_check.hpp>
-#include <boost/throw_exception.hpp>
 
 /*!
 \defgroup varray_non_member varray non-member functions
@@ -79,12 +78,8 @@ struct checker
 
     static inline void throw_out_of_bounds(Varray const& v, size_type i)
     {
-//#ifndef BOOST_NO_EXCEPTIONS
         if ( v.size() <= i )
-            BOOST_THROW_EXCEPTION(std::out_of_range("index out of bounds"));
-//#else // BOOST_NO_EXCEPTIONS
-//        BOOST_GEOMETRY_INDEX_ASSERT(i < v.size(), "index out of bounds");
-//#endif // BOOST_NO_EXCEPTIONS
+            throw_out_of_range("index out of bounds");
 
         ::boost::ignore_unused_variable_warning(v);
         ::boost::ignore_unused_variable_warning(i);
@@ -920,9 +915,9 @@ public:
         difference_type n = std::distance(first, last);
         
         //TODO - add invalid range check?
-        //BOOST_ASSERT_MSG(0 <= n, "invalid range");
+        //BOOST_GEOMETRY_INDEX_ASSERT(0 <= n, "invalid range");
         //TODO - add this->size() check?
-        //BOOST_ASSERT_MSG(n <= this->size(), "invalid range");
+        //BOOST_GEOMETRY_INDEX_ASSERT(n <= this->size(), "invalid range");
 
         sv::move(last, this->end(), first);                                         // may throw
         sv::destroy(this->end() - n, this->end());
@@ -1614,7 +1609,8 @@ private:
     //   Linear O(N).
     void swap_dispatch_impl(iterator first_sm, iterator last_sm, iterator first_la, iterator last_la, boost::true_type const& /*use_memop*/)
     {
-        //BOOST_ASSERT_MSG(std::distance(first_sm, last_sm) <= std::distance(first_la, last_la));
+        //BOOST_GEOMETRY_INDEX_ASSERT(std::distance(first_sm, last_sm) <= std::distance(first_la, last_la),
+        //                            "incompatible ranges");
 
         namespace sv = varray_detail;
         for (; first_sm != last_sm ; ++first_sm, ++first_la)
@@ -1639,7 +1635,8 @@ private:
     //   Linear O(N).
     void swap_dispatch_impl(iterator first_sm, iterator last_sm, iterator first_la, iterator last_la, boost::false_type const& /*use_memop*/)
     {
-        //BOOST_ASSERT_MSG(std::distance(first_sm, last_sm) <= std::distance(first_la, last_la));
+        //BOOST_GEOMETRY_INDEX_ASSERT(std::distance(first_sm, last_sm) <= std::distance(first_la, last_la),
+        //                            "incompatible ranges");
 
         namespace sv = varray_detail;
         for (; first_sm != last_sm ; ++first_sm, ++first_la)
@@ -1961,7 +1958,7 @@ public:
         errh::check_iterator_end_eq(*this, first);
         errh::check_iterator_end_eq(*this, last);
 
-        //BOOST_ASSERT_MSG(0 <= n, "invalid range");
+        //BOOST_GEOMETRY_INDEX_ASSERT(0 <= n, "invalid range");
     }
 
     // basic
