@@ -85,15 +85,18 @@ public :
         : base_type(l.begin(), l.end())
     {}
 
-// Without this workaround in MSVC the assignment operator is ambiguous
-#ifndef BOOST_MSVC
-    /// \assignment_initializer_list{ring}
-    inline ring & operator=(std::initializer_list<Point> l)
-    {
-        base_type::assign(l.begin(), l.end());
-        return *this;
-    }
-#endif
+// Commented out for now in order to support Boost.Assign
+// Without this assignment operator first the object should be created
+//   from initializer list, then it shoudl be moved.
+//// Without this workaround in MSVC the assignment operator is ambiguous
+//#ifndef BOOST_MSVC
+//    /// \assignment_initializer_list{ring}
+//    inline ring & operator=(std::initializer_list<Point> l)
+//    {
+//        base_type::assign(l.begin(), l.end());
+//        return *this;
+//    }
+//#endif
 
 #endif
 };

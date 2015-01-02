@@ -102,24 +102,27 @@ public:
         , m_inners(l.size() > 0 ? l.begin() + 1 : l.begin(), l.end())
     {}
 
-// Without this workaround in MSVC the assignment operator is ambiguous
-#ifndef BOOST_MSVC
-    /// \assignment_initializer_list{polygon}
-    inline polygon & operator=(std::initializer_list<ring_type> l)
-    {
-        if ( l.size() > 0 )
-        {
-            m_outer = *l.begin();
-            m_inners.assign(l.begin() + 1, l.end());
-        }
-        else
-        {
-            m_outer.clear();
-            m_inners.clear();
-        }
-        return *this;
-    }
-#endif
+// Commented out for now in order to support Boost.Assign
+// Without this assignment operator first the object should be created
+//   from initializer list, then it shoudl be moved.
+//// Without this workaround in MSVC the assignment operator is ambiguous
+//#ifndef BOOST_MSVC
+//    /// \assignment_initializer_list{polygon}
+//    inline polygon & operator=(std::initializer_list<ring_type> l)
+//    {
+//        if ( l.size() > 0 )
+//        {
+//            m_outer = *l.begin();
+//            m_inners.assign(l.begin() + 1, l.end());
+//        }
+//        else
+//        {
+//            m_outer.clear();
+//            m_inners.clear();
+//        }
+//        return *this;
+//    }
+//#endif
 
 #endif
 
