@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -118,8 +118,8 @@ template
 <
     typename Indexed,
     typename Point,
-    std::size_t Dimension,
-    std::size_t DimensionCount
+    std::size_t Dimension = 0,
+    std::size_t DimensionCount = dimension<Indexed>::type::value
 >
 struct centroid_indexed_calculator
 {
@@ -139,8 +139,7 @@ struct centroid_indexed_calculator
 
         centroid_indexed_calculator
             <
-                Indexed, Point,
-                Dimension + 1, DimensionCount
+                Indexed, Point, Dimension + 1
             >::apply(indexed, centroid);
     }
 };
@@ -163,8 +162,7 @@ struct centroid_indexed
     {
         centroid_indexed_calculator
             <
-                Indexed, Point,
-                0, dimension<Indexed>::type::value
+                Indexed, Point
             >::apply(indexed, centroid);
     }
 };
@@ -253,10 +251,12 @@ struct centroid_range
             typename Strategy::state_type state;
             centroid_range_state<Closure>::apply(range, transformer,
                                                  strategy, state);
-            strategy.result(state, centroid);
-
-            // translate the result back
-            transformer.apply_reverse(centroid);
+            
+            if ( strategy.result(state, centroid) )
+            {
+                // translate the result back
+                transformer.apply_reverse(centroid);
+            }
         }
     }
 };
@@ -305,10 +305,12 @@ struct centroid_polygon
             
             typename Strategy::state_type state;
             centroid_polygon_state::apply(poly, transformer, strategy, state);
-            strategy.result(state, centroid);
-
-            // translate the result back
-            transformer.apply_reverse(centroid);
+            
+            if ( strategy.result(state, centroid) )
+            {
+                // translate the result back
+                transformer.apply_reverse(centroid);
+            }
         }
     }
 };
@@ -369,10 +371,12 @@ struct centroid_multi
         {
             Policy::apply(*it, transformer, strategy, state);
         }
-        Strategy::result(state, centroid);
 
-        // translate the result back
-        transformer.apply_reverse(centroid);
+        if ( strategy.result(state, centroid) )
+        {
+            // translate the result back
+            transformer.apply_reverse(centroid);
+        }
     }
 };
 
