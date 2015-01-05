@@ -1,6 +1,6 @@
 // Boost.Container varray
 //
-// Copyright (c) 2012-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2012-2015 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2011-2013 Andrew Hundt.
 //
 // Use, modification and distribution is subject to the Boost Software License,
