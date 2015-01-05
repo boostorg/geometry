@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -29,6 +29,17 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+template <typename Geometry>
+void test_invalid(std::string const& wkt)
+{
+    Geometry geom;
+    typename bg::point_type<Geometry>::type pt, pt2;
+    bg::read_wkt(wkt, geom);
+    bg::assign_zero(pt);
+    pt2 = pt;
+    bg::centroid(geom, pt);
+    BOOST_CHECK(bg::equals(pt, pt2));
+}
 
 template <typename Polygon>
 void test_polygon()
@@ -47,6 +58,11 @@ void test_polygon()
 
     test_centroid<Polygon>("POLYGON((0 0,0 10,10 10,10 0,0 0))", 5.0, 5.0);
     test_centroid<Polygon>("POLYGON((-10 0,0 0,0 -10,-10 -10,-10 0))", -5.0, -5.0);
+
+    // invalid, self-intersecting polygon (area = 0)
+    //test_centroid<Polygon>("POLYGON((1 1,4 -2,4 2,10 0,1 0,10 1,1 1))", 5.5, 0.0);
+    test_invalid<Polygon>("POLYGON((1 1,4 -2,4 2,10 0,1 0,10 1,1 1))");
+    test_invalid<Polygon>("POLYGON((1 1,1 1,1 1,1 1))");
 }
 
 
@@ -59,6 +75,10 @@ void test_2d()
 
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1,10 1,1 0,10 0,4 -2,1 1)",
                                              5.41385255923004, 0.13507358481085);
+
+    // degenerated linestring (length = 0)
+    //test_centroid<bg::model::linestring<P> >("LINESTRING(1 1, 1 1)", 1.0, 1.0);
+    test_invalid<bg::model::linestring<P> >("LINESTRING(1 1, 1 1)");
 
     test_centroid<bg::model::segment<P> >("LINESTRING(1 1, 3 3)", 2.0, 2.0);
 
