@@ -236,6 +236,27 @@ inline void geom_to_svg(G1 const& g1, G2 const& g2, std::string const& filename)
     geom_to_svg(g1, g2, mapper);
 }
 
+template <typename G1>
+inline void geom_to_svg(std::string const& wkt1, std::string const& filename)
+{
+    namespace bg = boost::geometry;
+
+    G1 g1;
+    bg::read_wkt(wkt1, g1);
+    geom_to_svg(g1, filename);
+}
+
+template <typename G1, typename G2>
+inline void geom_to_svg(std::string const& wkt1, std::string const& wkt2, std::string const& filename)
+{
+    namespace bg = boost::geometry;
+
+    G1 g1;
+    G2 g2;
+    bg::read_wkt(wkt1, g1);
+    bg::read_wkt(wkt2, g2);
+    geom_to_svg(g1, g2, filename);
+}
 
 struct to_svg_assign_policy
     : boost::geometry::detail::overlay::assign_null_policy
