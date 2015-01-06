@@ -3,14 +3,15 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_within.hpp"
 
@@ -59,6 +60,14 @@ void test_a_a()
                                 "MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))", true);
     test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 5,5 5,5 0,0 0)),((5 5,5 10,10 10,10 5,5 5)))",
                                 "MULTIPOLYGON(((0 0,0 1,1 0,0 0)),((3 3,3 4,4 3,3 3)))", false);
+
+    // https://svn.boost.org/trac/boost/ticket/10912
+    test_geometry<poly, poly>("POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2),(6 6,8 6,8 8,6 8,6 6))",
+                              false);
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                              "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,2 4,4 4,4 2,2 2))",
+                              false);
 }
 
 template <typename P>
