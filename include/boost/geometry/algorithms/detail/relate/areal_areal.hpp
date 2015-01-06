@@ -574,7 +574,8 @@ struct areal_areal
             // check which relations must be analysed
 
             if ( ! may_update<interior, interior, '2', transpose_result>(m_result)
-              && ! may_update<boundary, interior, '1', transpose_result>(m_result) )
+              && ! may_update<boundary, interior, '1', transpose_result>(m_result)
+              && ! may_update<exterior, interior, '2', transpose_result>(m_result) )
             {
                 m_flags |= 1;
             }
@@ -614,7 +615,7 @@ struct areal_areal
             // to know which other single geometries should be checked
 
             // TODO: optimize! e.g. use spatial index
-            // O(N) - running it in a loop would gives O(NM)
+            // O(N) - running it in a loop gives O(NM)
             int const pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
             //BOOST_ASSERT(pig != 0);
@@ -622,6 +623,7 @@ struct areal_areal
             {
                 update<boundary, interior, '1', transpose_result>(m_result);
                 update<interior, interior, '2', transpose_result>(m_result);
+                update<exterior, interior, '2', transpose_result>(m_result);
                 m_flags |= 1;
             }
             else
