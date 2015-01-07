@@ -19,6 +19,10 @@
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
+#include <boost/geometry/index/detail/rtree/utilities/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_counts_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
+
 namespace bg = boost::geometry;
 namespace bgi = bg::index;
 
@@ -77,6 +81,11 @@ void test_queries(RT const& t, std::vector< std::pair<float, float> > const& coo
 
 int main()
 {
+    //typedef bgi::rtree<V, bgi::linear<4, 2> > RT;
+    //typedef bgi::rtree<V, bgi::linear<16, 4> > RT;
+    //typedef bgi::rtree<V, bgi::quadratic<4, 2> > RT;
+    typedef bgi::rtree<V, bgi::rstar<8, 2> > RT;
+
     typedef boost::chrono::thread_clock clock_t;
     typedef boost::chrono::duration<float> dur_t;
 
@@ -85,11 +94,13 @@ int main()
     size_t queries_count = 100000;
     size_t nearest_queries_count = 20000;
     unsigned neighbours_count = 10;
+    size_t max_range_inserts = 10;
 #else
-    size_t values_count = 1000;
-    size_t queries_count = 1;
-    size_t nearest_queries_count = 1;
+    size_t values_count = 10000;
+    size_t queries_count = 1000;
+    size_t nearest_queries_count = 100;
     unsigned neighbours_count = 10;
+    size_t max_range_inserts = 10;
 #endif
 
     float max_val = static_cast<float>(values_count / 2);
@@ -116,10 +127,6 @@ int main()
         std::cout << "randomized\n";
     }
 
-    typedef bgi::rtree<V, bgi::linear<16, 4> > RT;
-    //typedef bgi::rtree<V, bgi::quadratic<16, 4> > RT;
-    //typedef bgi::rtree<V, bgi::rstar<16, 4> > RT;
-
     for (;;)
     {
         // packing test
@@ -128,6 +135,10 @@ int main()
 
             RT t(values.begin(), values.end());
 
+            BOOST_ASSERT(bgi::detail::rtree::utilities::are_boxes_ok(t));
+            BOOST_ASSERT(bgi::detail::rtree::utilities::are_counts_ok(t));
+            BOOST_ASSERT(bgi::detail::rtree::utilities::are_levels_ok(t));
+
             dur_t time = clock_t::now() - start;
             std::cout << "pack(" << values_count << ") - " << time.count() << ", ";
 
@@ -135,9 +146,9 @@ int main()
         }
 
         {
-            size_t n_10 = values_count / 10;
+            size_t n_per_max = values_count / max_range_inserts;
 
-            for ( size_t j = 0 ; j < 10 ; ++j )
+            for ( size_t j = 0 ; j < max_range_inserts ; ++j )
             {
                 clock_t::time_point start = clock_t::now();
 
@@ -146,19 +157,33 @@ int main()
                 // perform j range-inserts
                 for ( size_t i = 0 ; i < j ; ++i )
                 {
-                    t.insert(values.begin() + n_10 * i,
-                             values.begin() + (std::min)(n_10 * (i + 1), values_count));
+                    t.insert(values.begin() + n_per_max * i,
+                             values.begin() + (std::min)(n_per_max * (i + 1), values_count));
                 }
 
-                // perform n-n/10*j inserts
-                size_t inserted_count = (std::min)(n_10*j, values_count);
+                if ( !t.empty() )
+                {
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_boxes_ok(t));
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_counts_ok(t));
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_levels_ok(t));
+                }
+
+                // perform n-n/max_inserts*j inserts
+                size_t inserted_count = (std::min)(n_per_max*j, values_count);
                 for ( size_t i = inserted_count ; i < values_count ; ++i )
                 {
                     t.insert(values[i]);
                 }
 
+                if ( !t.empty() )
+                {
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_boxes_ok(t));
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_counts_ok(t));
+                    BOOST_ASSERT(bgi::detail::rtree::utilities::are_levels_ok(t));
+                }
+
                 dur_t time = clock_t::now() - start;
-                std::cout << j << "*insert(N/10)+insert(" << (values_count - inserted_count) << ") - " << time.count() << ", ";
+                std::cout << j << "*insert(N/" << max_range_inserts << ")+insert(" << (values_count - inserted_count) << ") - " << time.count() << ", ";
 
                 test_queries(t, coords, queries_count);
             }
