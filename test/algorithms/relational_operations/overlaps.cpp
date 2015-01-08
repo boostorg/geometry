@@ -2,14 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_overlaps.hpp"
 
@@ -82,6 +82,14 @@ void test_aa()
     test_geometry<mpoly, mpoly>("MULTIPOLYGON(((3 3,3 5,5 5,5 3,3 3)),((0 0,0 3,3 3,3 0,0,0)))",
                                 "MULTIPOLYGON(((3 3,3 5,5 5,5 3,3 3)),((5 5,5 6,6 6,6 5,5 5)))",
                                 true);
+
+    // related to https://svn.boost.org/trac/boost/ticket/10912
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))",
+                              "POLYGON((3 3,3 9,9 9,9 3,3 3))",
+                              true);
+    test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2),(6 6,8 6,8 8,6 8,6 6))",
+                              "POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                              true);
 }
 
 template <typename P>
