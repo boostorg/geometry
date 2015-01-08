@@ -55,6 +55,11 @@ void test_2d(bool is_integer = false)
             "MULTILINESTRING((0 0,0 2),(1 0,1 2))",
             0.5, 1.0);
 
+        // degenerated
+        test_centroid<bg::model::multi_linestring<bg::model::linestring<P> > >(
+            "MULTILINESTRING((1 1,1 1))",
+            1.0, 1.0);
+
 
         test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
             "MULTIPOLYGON(((1 1,1 3,3 3,3 1,1 1)),((4 1,4 3,8 3,8 1,4 1)))",
@@ -65,6 +70,14 @@ void test_2d(bool is_integer = false)
             ",3.7 1.6,3.4 2,4.1 3,5.3 2.6,5.4 1.2,4.9 0.8,2.9 0.7,2 1.3)),"
             "((10 10,10 12,12 12,12 10,10 10)))",
             7.338463104108615, 6.0606722055552407);
+
+        // degenerated
+        test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
+            "MULTIPOLYGON(((1 1,1 1,1 1,1 1,1 1)))",
+            1.0, 1.0);
+        test_centroid<bg::model::multi_polygon<bg::model::polygon<P> > >(
+            "MULTIPOLYGON(((1 1)))",
+            1.0, 1.0);
     }
 
 
