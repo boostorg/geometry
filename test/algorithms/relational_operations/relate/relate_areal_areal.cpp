@@ -295,6 +295,10 @@ void test_polygon_polygon()
         test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
                                   "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
                                   "2FF11F212");
+
+        test_geometry<poly, poly>("POLYGON((3 3,3 9,9 9,9 3,3 3))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))",
+                                  "212101212");
     }
 }
 
