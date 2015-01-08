@@ -1039,9 +1039,30 @@ struct linear_areal
             }
 
             // This condition may be false if the Linestring is lying on the Polygon's collinear spike
-            // if Polygon's spikes are not handled in get_turns() (they currently aren't)
+            // if Polygon's spikes are not handled in get_turns() or relate() (they currently aren't)
             //BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
             //                    "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
+            // Currently one c/c turn is generated for the exit
+            //   when a Linestring is going out on a collinear spike
+            // When a Linestring is going in on a collinear spike
+            //   the turn is not generated for the entry
+            // So assume it's the former
+            if ( m_previous_operation == overlay::operation_continue )
+            {
+                update<interior, exterior, '1', TransposeResult>(res);
+
+                segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_range(geometry, prev_seg_id)),
+                                            boundary_checker);
+
+                // if there is a boundary on the last point
+                if ( prev_back_b )
+                {
+                    update<boundary, exterior, '0', TransposeResult>(res);
+                }
+            }
 
             // Reset exit watcher before the analysis of the next Linestring
             m_exit_watcher.reset();
