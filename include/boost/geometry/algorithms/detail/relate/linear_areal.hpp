@@ -2,14 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
@@ -1039,9 +1039,30 @@ struct linear_areal
             }
 
             // This condition may be false if the Linestring is lying on the Polygon's collinear spike
-            // if Polygon's spikes are not handled in get_turns() (they currently aren't)
+            // if Polygon's spikes are not handled in get_turns() or relate() (they currently aren't)
             //BOOST_ASSERT_MSG(m_previous_operation != overlay::operation_continue,
             //                    "Unexpected operation! Probably the error in get_turns(L,A) or relate(L,A)");
+            // Currently one c/c turn is generated for the exit
+            //   when a Linestring is going out on a collinear spike
+            // When a Linestring is going in on a collinear spike
+            //   the turn is not generated for the entry
+            // So assume it's the former
+            if ( m_previous_operation == overlay::operation_continue )
+            {
+                update<interior, exterior, '1', TransposeResult>(res);
+
+                segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                            range::back(sub_range(geometry, prev_seg_id)),
+                                            boundary_checker);
+
+                // if there is a boundary on the last point
+                if ( prev_back_b )
+                {
+                    update<boundary, exterior, '0', TransposeResult>(res);
+                }
+            }
 
             // Reset exit watcher before the analysis of the next Linestring
             m_exit_watcher.reset();

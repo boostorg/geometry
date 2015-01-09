@@ -1,6 +1,6 @@
 // Boost.Container varray
 //
-// Copyright (c) 2012-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2012-2015 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2011-2013 Andrew Hundt.
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -13,7 +13,10 @@
 // TODO - REMOVE/CHANGE
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
-#include <boost/container/detail/preprocessor.hpp>
+
+#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#include <boost/move/detail/fwd_macros.hpp>
+#endif
 
 #include <boost/config.hpp>
 #include <boost/swap.hpp>
@@ -979,7 +982,7 @@ public:
     }
 
 #if !defined(BOOST_CONTAINER_VARRAY_DISABLE_EMPLACE)
-#if defined(BOOST_CONTAINER_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
+#if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
     //! @pre <tt>size() < capacity()</tt>
     //!
     //! @brief Inserts a Value constructed with
@@ -1060,27 +1063,23 @@ public:
         return position;
     }
 
-#else // BOOST_CONTAINER_PERFECT_FORWARDING || BOOST_CONTAINER_DOXYGEN_INVOKED
+#else // !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
-    #define BOOST_PP_LOCAL_MACRO(n)                                                              \
-    BOOST_PP_EXPR_IF(n, template<) BOOST_PP_ENUM_PARAMS(n, class P) BOOST_PP_EXPR_IF(n, >)       \
-    void emplace_back(BOOST_PP_ENUM(n, BOOST_CONTAINER_PP_PARAM_LIST, _))                        \
+    #define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_EMPLACE(N)                                        \
+    BOOST_MOVE_TMPL_LT##N BOOST_MOVE_CLASS##N BOOST_MOVE_GT##N                                   \
+    void emplace_back(BOOST_MOVE_UREF##N)                                                        \
     {                                                                                            \
         typedef typename vt::disable_trivial_init dti;                                           \
                                                                                                  \
         errh::check_capacity(*this, m_size + 1);                                    /*may throw*/\
                                                                                                  \
-        namespace sv = varray_detail;                                                     \
-        sv::construct(dti(), this->end() BOOST_PP_ENUM_TRAILING(n, BOOST_CONTAINER_PP_PARAM_FORWARD, _) ); /*may throw*/\
+        namespace sv = varray_detail;                                                            \
+        sv::construct(dti(), this->end() BOOST_MOVE_I##N BOOST_MOVE_FWD##N );       /*may throw*/\
         ++m_size; /*update end*/                                                                 \
     }                                                                                            \
-    //
-    #define BOOST_PP_LOCAL_LIMITS (0, BOOST_CONTAINER_MAX_CONSTRUCTOR_PARAMETERS)
-    #include BOOST_PP_LOCAL_ITERATE()
-
-    #define BOOST_PP_LOCAL_MACRO(n)                                                                 \
-    BOOST_PP_EXPR_IF(n, template<) BOOST_PP_ENUM_PARAMS(n, class P) BOOST_PP_EXPR_IF(n, >)          \
-    iterator emplace(iterator position BOOST_PP_ENUM_TRAILING(n, BOOST_CONTAINER_PP_PARAM_LIST, _)) \
+    \
+    BOOST_MOVE_TMPL_LT##N BOOST_MOVE_CLASS##N BOOST_MOVE_GT##N                                      \
+    iterator emplace(iterator position BOOST_MOVE_I##N BOOST_MOVE_UREF##N)                          \
     {                                                                                               \
         typedef typename vt::disable_trivial_init dti;                                              \
         namespace sv = varray_detail;                                                               \
@@ -1090,7 +1089,7 @@ public:
                                                                                                     \
         if ( position == this->end() )                                                              \
         {                                                                                           \
-            sv::construct(dti(), position BOOST_PP_ENUM_TRAILING(n, BOOST_CONTAINER_PP_PARAM_FORWARD, _) ); /*may throw*/\
+            sv::construct(dti(), position BOOST_MOVE_I##N BOOST_MOVE_FWD##N );         /*may throw*/\
             ++m_size; /*update end*/                                                                \
         }                                                                                           \
         else                                                                                        \
@@ -1099,24 +1098,24 @@ public:
             /* TODO - should move be used only if it's nonthrowing? */                              \
                                                                                                     \
             value_type & r = *(this->end() - 1);                                                    \
-            sv::construct(dti(), this->end(), boost::move(r));                                /*may throw*/\
+            sv::construct(dti(), this->end(), boost::move(r));                         /*may throw*/\
             ++m_size; /*update end*/                                                                \
             sv::move_backward(position, this->end() - 2, this->end() - 1);             /*may throw*/\
                                                                                                     \
             aligned_storage<sizeof(value_type), alignment_of<value_type>::value> temp_storage;      \
             value_type * val_p = static_cast<value_type *>(temp_storage.address());                 \
-            sv::construct(dti(), val_p BOOST_PP_ENUM_TRAILING(n, BOOST_CONTAINER_PP_PARAM_FORWARD, _) ); /*may throw*/\
+            sv::construct(dti(), val_p BOOST_MOVE_I##N BOOST_MOVE_FWD##N );            /*may throw*/\
             sv::scoped_destructor<value_type> d(val_p);                                             \
             sv::assign(position, ::boost::move(*val_p));                               /*may throw*/\
         }                                                                                           \
                                                                                                     \
         return position;                                                                            \
     }                                                                                               \
-    //
-    #define BOOST_PP_LOCAL_LIMITS (0, BOOST_CONTAINER_MAX_CONSTRUCTOR_PARAMETERS)
-    #include BOOST_PP_LOCAL_ITERATE()
+    
+    BOOST_MOVE_ITERATE_0TO9(BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_EMPLACE)
+    #undef BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_EMPLACE
 
-#endif // BOOST_CONTAINER_PERFECT_FORWARDING || BOOST_CONTAINER_DOXYGEN_INVOKED
+#endif // !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 #endif // !BOOST_CONTAINER_VARRAY_DISABLE_EMPLACE
 
     //! @brief Removes all elements from the container.

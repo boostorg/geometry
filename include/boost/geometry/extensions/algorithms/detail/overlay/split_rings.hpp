@@ -15,7 +15,6 @@
 #include <string>
 
 #include <boost/range.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -179,7 +178,13 @@ struct insert_rings<polygon_tag, RingCollection, Polygon>
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+
+        typedef typename boost::range_const_iterator
+            <
+                typename interior_type<Polygon const>::type
+            >::type ring_iterator;
+
+        for (ring_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_SPLIT_RINGS
 std::cout << geometry::wkt(*it)
@@ -480,7 +485,13 @@ struct polygon_split_rings
     static inline void apply(Polygon const& polygon, RingCollection& ring_collection)
     {
         per_ring::apply(exterior_ring(polygon), ring_collection);
-        for (BOOST_AUTO_TPL(it, boost::begin(interior_rings(polygon)));
+
+        typedef typename boost::range_const_iterator
+            <
+                typename interior_type<Polygon const>::type
+            >::type ring_iterator;
+
+        for (ring_iterator it = boost::begin(interior_rings(polygon));
              it != boost::end(interior_rings(polygon));
              ++it)
         {

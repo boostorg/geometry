@@ -2,19 +2,18 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_relate.hpp"
 
-//TEST
-//#include <to_svg.hpp>
 
 template <typename P>
 void test_polygon_polygon()
@@ -221,8 +220,8 @@ void test_polygon_polygon()
 
     {
         test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
-                              "POLYGON((5 5,5 10,6 10,6 5,5 5))",
-                              "212F11FF2");
+                                  "POLYGON((5 5,5 10,6 10,6 5,5 5))",
+                                  "212F11FF2");
 
         test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                                   "POLYGON((10 0,10 10,20 10,20 0,10 0))",
@@ -263,6 +262,43 @@ void test_polygon_polygon()
         test_geometry<poly, poly>("POLYGON((0 0,10 0,10 10,0 10),(5 5,5 6,10 5))",
                                   "POLYGON((0 0,10 0,10 5,5 5))",
                                   "212F11FF2");
+    }
+
+    // https://svn.boost.org/trac/boost/ticket/10912
+    {
+        // external rings touches and G2's hole is inside G1
+        test_geometry<poly, poly>("POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2),(6 6,8 6,8 8,6 8,6 6))",
+                                  "21211F212");
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,2 4,4 4,4 2,2 2))",
+                                  "212F1FFF2");
+        // extended
+        // external rings touches and G1's hole is inside G2
+        test_geometry<poly, poly>("POLYGON((0 0,0 9,9 9,9 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                                  "2FF11F212");
+        // external rings touches, holes doesn't
+        test_geometry<poly, poly>("POLYGON((0 0,0 9,9 9,9 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,8 1,8 8,1 8,1 1))",
+                                  "212111212");
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,8 1,8 8,1 8,1 1))",
+                                  "212F11FF2");
+        // holes touches, external rings doesn't
+        test_geometry<poly, poly>("POLYGON((1 1,1 9,9 9,9 1,1 1),(2 2,8 2,8 8,2 8,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
+                                  "2FF11F212");
+        test_geometry<poly, poly>("POLYGON((1 1,1 9,9 9,9 1,1 1),(2 2,7 2,7 7,2 7,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                                  "212111212");
+        test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,8 2,8 8,2 8,2 2))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,7 2,7 7,2 7,2 2))",
+                                  "2FF11F212");
+
+        test_geometry<poly, poly>("POLYGON((3 3,3 9,9 9,9 3,3 3))",
+                                  "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))",
+                                  "212101212");
     }
 }
 

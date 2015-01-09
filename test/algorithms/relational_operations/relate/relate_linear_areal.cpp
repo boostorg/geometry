@@ -2,19 +2,19 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-
 #include "test_relate.hpp"
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 template <typename P>
 void test_linestring_polygon()
@@ -216,28 +216,43 @@ void test_linestring_polygon()
 
     {
         // POLYGON SPIKES
+        // note that those are invalid Polygons and in general the result is undefined
 
-        // MySQL bug 15.12.2014
+        // MySQL bug 15.12.2014 (assertion for invalid polygon)
         test_geometry<ls, poly>("LINESTRING(6 3,9 0)",
                                 "POLYGON((0 0,5 8,6 1,6 3,8 1,5 4,9 6,2 5,7 4,1 7,0 0))",
-                                "******212");
+                                "F11F00212");
         test_geometry<ls, poly>("LINESTRING(9 0,2 7)",
                                 "POLYGON((4 1,3 2,5 9,8 4,4 5,3 6,8 1,6 2,2 4,6 0,4 1))",
-                                "******212");
+                                "F11FF0212");
 
         test_geometry<ls, poly>("LINESTRING(6 3,9 0)",
                                 "POLYGON((6 1,6 3,8 1,5 4,6 1))",
-                                "******212");
+                                "F11F00212");
         test_geometry<ls, poly>("LINESTRING(6 3,8 1,9 0)",
                                 "POLYGON((6 1,6 3,8 1,5 4,6 1))",
-                                "******212");
+                                "F11F00212");
 
+        // entry-point spikes are not handled
         test_geometry<ls, poly>("LINESTRING(9 0,6 3)",
                                 "POLYGON((6 1,6 3,8 1,5 4,6 1))",
-                                "******212");
+                                "**1*00212");
         test_geometry<ls, poly>("LINESTRING(9 0,8 1,6 3)",
                                 "POLYGON((6 1,6 3,8 1,5 4,6 1))",
-                                "******212");
+                                "F11F00212");
+
+        // Ls going out-in on 2 collinear spikes touching each other
+        //  this works partially, other invalid effect is noticeable here,
+        //  the bottom of a spike shouldn't be there so the algorithm
+        //  thinks the linestring is going into the interior
+        test_geometry<ls, poly>("LINESTRING(2 2,6 6)",
+                                "POLYGON((0 0,0 2,2 2,4 4,3 3,5 3,5 5,4 4,7 7,7 0,0 0))",
+                                "*1FF0F212");
+        // Ls going out-in on 2 collinear spikes NOT touching each other
+        // This is not supported, plus the same as above
+        test_geometry<ls, poly>("LINESTRING(2 2,6 6)",
+                                "POLYGON((0 0,0 2,2 2,3 3,2 2,5 3,5 5,4 4,7 7,7 0,0 0))",
+                                "*1*F0*212");
     }
 }
 
