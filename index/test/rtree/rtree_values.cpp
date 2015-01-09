@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Unit Test
 
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -43,17 +43,17 @@ void test_pair()
     rt.insert(val);
     rt.insert(std::make_pair(box, 0));
     rt.insert(std::make_pair(box, (unsigned short)0));
-    BOOST_CHECK( rt.size() == 3 );
+    BOOST_CHECK_EQUAL(rt.size(), 3u);
 
-    BOOST_CHECK( rt.count(val) == 3 );
-    BOOST_CHECK( rt.count(std::make_pair(box, 0)) == 3 );
-    BOOST_CHECK( rt.count(std::make_pair(box, (unsigned short)0)) == 3 );
-    BOOST_CHECK( rt.count(box) == 3 );
+    BOOST_CHECK_EQUAL(rt.count(val), 3u);
+    BOOST_CHECK_EQUAL(rt.count(std::make_pair(box, 0)), 3u);
+    BOOST_CHECK_EQUAL(rt.count(std::make_pair(box, (unsigned short)0)), 3u);
+    BOOST_CHECK_EQUAL(rt.count(box), 3u);
 
-    BOOST_CHECK( rt.remove(val) == 1 );
-    BOOST_CHECK( rt.remove(std::make_pair(box, 0)) == 1 );
-    BOOST_CHECK( rt.remove(std::make_pair(box, (unsigned short)0)) == 1 );
-    BOOST_CHECK( rt.size() == 0 );
+    BOOST_CHECK_EQUAL(rt.remove(val), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, 0)), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, (unsigned short)0)), 1u);
+    BOOST_CHECK_EQUAL(rt.size(), 0u);
 }
 
 template <typename Box, typename Params>
@@ -75,12 +75,12 @@ void test_pair_geom_ptr()
     rt.insert(val);
     rt.insert(std::make_pair(box, boost::addressof(poly)));
 
-    BOOST_CHECK( rt.size() == 2 );
+    BOOST_CHECK_EQUAL(rt.size(), 2u);
 
-    BOOST_CHECK( rt.remove(val) == 1 );
-    BOOST_CHECK( rt.remove(std::make_pair(box, boost::addressof(poly))) == 1 );
+    BOOST_CHECK_EQUAL(rt.remove(val), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, boost::addressof(poly))), 1u);
 
-    BOOST_CHECK( rt.size() == 0 );
+    BOOST_CHECK_EQUAL(rt.size(), 0u);
 }
 
 template <typename Params>
@@ -89,8 +89,8 @@ void test_point()
     bgi::rtree<point, Params> rt;
     
     rt.insert(0.0);
-    BOOST_CHECK( rt.size() == 1 );
-    BOOST_CHECK( rt.remove(0.0) == 1 );
+    BOOST_CHECK_EQUAL(rt.size(), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(0.0), 1u);
 }
 
 int test_main(int, char* [])
