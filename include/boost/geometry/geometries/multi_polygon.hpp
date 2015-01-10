@@ -19,13 +19,15 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
-#include <boost/config.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -55,6 +57,8 @@ class multi_polygon : public Container<Polygon, Allocator<Polygon> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Polygon<Polygon>) );
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+
     typedef Container<Polygon, Allocator<Polygon> > base_type;
 
 public:
@@ -83,6 +87,7 @@ public:
 //    }
 //#endif
 
+#endif
 #endif
 };
 

@@ -19,7 +19,6 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
-#include <boost/config.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -28,8 +27,11 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -89,6 +91,8 @@ public:
     inline ring_type& outer() { return m_outer; }
     inline inner_container_type & inners() { return m_inners; }
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+
     /// \constructor_default{polygon}
     inline polygon()
         : m_outer()
@@ -124,6 +128,7 @@ public:
 //    }
 //#endif
 
+#endif
 #endif
 
     /// Utility method, clears outer and inner rings

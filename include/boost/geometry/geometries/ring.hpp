@@ -19,7 +19,6 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
-#include <boost/config.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
@@ -28,8 +27,11 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -78,6 +80,7 @@ public :
         : base_type(begin, end)
     {}
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{ring}
@@ -98,6 +101,7 @@ public :
 //    }
 //#endif
 
+#endif
 #endif
 };
 

@@ -19,13 +19,15 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
-#include <boost/config.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -56,6 +58,8 @@ class multi_linestring : public Container<LineString, Allocator<LineString> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Linestring<LineString>) );
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+
     typedef Container<LineString, Allocator<LineString> > base_type;
 
 public:
@@ -84,6 +88,7 @@ public:
 //    }
 //#endif
 
+#endif
 #endif
 };
 

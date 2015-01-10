@@ -19,7 +19,6 @@
 #include <vector>
 
 #include <boost/concept/assert.hpp>
-#include <boost/config.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/tag.hpp>
@@ -27,8 +26,11 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -74,6 +76,7 @@ public :
         : base_type(begin, end)
     {}
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{linestring}
@@ -83,7 +86,7 @@ public :
 
 // Commented out for now in order to support Boost.Assign
 // Without this assignment operator first the object should be created
-//   from initializer list, then it shoudl be moved.
+//   from initializer list, then it should be moved.
 //// Without this workaround in MSVC the assignment operator is ambiguous
 //#ifndef BOOST_MSVC
 //    /// \assignment_initializer_list{linestring}
@@ -94,6 +97,7 @@ public :
 //    }
 //#endif
 
+#endif
 #endif
 };
 
