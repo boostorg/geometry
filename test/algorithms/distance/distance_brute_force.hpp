@@ -98,7 +98,7 @@ struct one_to_many
         >::type distance_type;
 
         bool first = true;
-        distance_type d_min;
+        distance_type d_min(0);
         for (Iterator it = begin; it != end; ++it, first = false)
         {
             distance_type d = Policy::apply(geometry, *it, strategy);
