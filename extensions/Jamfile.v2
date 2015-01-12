@@ -13,6 +13,7 @@ project boost-geometry-extensions
     requirements
         <include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
+        <library>/boost/timer//boost_timer
     ;
 
 build-project test ;
