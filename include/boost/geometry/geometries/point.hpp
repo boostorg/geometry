@@ -82,6 +82,9 @@ public:
     inline point()
     {}
 
+#ifndef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+    explicit
+#endif
     /// @brief Constructor to set one, two or three values
     inline point(CoordinateType const& v0, CoordinateType const& v1 = 0, CoordinateType const& v2 = 0)
     {
