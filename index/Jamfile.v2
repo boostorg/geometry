@@ -12,7 +12,6 @@ project boost-geometry-index
     :
     requirements
         <toolset>msvc:<asynch-exceptions>on
-        <library>/boost/timer//boost_timer
     ;
 
 build-project test ;
