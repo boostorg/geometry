@@ -28,7 +28,7 @@
 #endif
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
@@ -397,7 +397,7 @@ void time_compare_s(int const n)
 {
     typedef bg::model::box<P> box_type;
 
-    boost::timer t;
+    boost::timer::cpu_timer t;
     P p;
     box_type b;
     bg::assign_values(b, 0, 0, 1, 1);
@@ -415,7 +415,8 @@ void time_compare_s(int const n)
             s += strategy.apply(p, b);
         }
     }
-    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
+    
+    std::cout << "s: " << s << " t: " << t.format(3, "%t") << std::endl;
 }
 
 template <typename P>

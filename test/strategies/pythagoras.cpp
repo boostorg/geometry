@@ -19,7 +19,7 @@
 #  pragma warning( disable : 4101 )
 #endif
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
@@ -296,7 +296,7 @@ void test_all_3d()
 template <typename P, typename Strategy>
 void time_compare_s(int const n)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
     P p1, p2;
     bg::assign_values(p1, 1, 1);
     bg::assign_values(p2, 2, 2);
@@ -310,7 +310,8 @@ void time_compare_s(int const n)
             s += strategy.apply(p1, p2);
         }
     }
-    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
+    
+    std::cout << "s: " << s << " t: " << t.format(3, "%t") << std::endl;
 }
 
 template <typename P>

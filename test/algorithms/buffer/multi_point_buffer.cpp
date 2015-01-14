@@ -174,7 +174,7 @@ void test_growth(int n, int distance_count)
 {
     srand(int(time(NULL)));
     //std::cout << typeid(bg::coordinate_type<P>::type).name() << std::endl;
-    boost::timer t;
+    boost::timer::cpu_timer t;
 
     namespace buf = bg::strategy::buffer;
     typedef bg::model::polygon<P> polygon;
@@ -203,7 +203,8 @@ void test_growth(int n, int distance_count)
         }
         previous_area = area;
     }
-    std::cout << "n=" << n << " time=" << t.elapsed() << std::endl;
+    
+    std::cout << "n=" << n << " time=" << t.format(3, "%t") << std::endl;
 }
 
 int test_main(int, char* [])

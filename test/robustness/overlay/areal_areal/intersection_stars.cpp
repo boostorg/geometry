@@ -16,7 +16,7 @@
 #include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 template <typename Polygon>
 inline void make_star(Polygon& polygon,
@@ -64,7 +64,7 @@ inline void make_star(Polygon& polygon,
 template <typename T, typename CalculationType>
 void test_star(int count, int min_points, int max_points, T rotation, p_q_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
     typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type> polygon;
 
@@ -97,7 +97,7 @@ void test_star(int count, int min_points, int max_points, T rotation, p_q_settin
     std::cout
         << "polygons: " << n
         << " type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << t.format(3, "%t")  << std::endl;
 }
 
 template <typename T, typename CalculationType>

@@ -23,7 +23,7 @@
  #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <boost/foreach.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <fstream>
@@ -91,7 +91,7 @@ int main()
     {
 
 
-    boost::timer t;
+    boost::timer::cpu_timer t;
     std::vector<multi_polygon> poly_list;
 
     for(int i=0;i<num_orig;i++)
@@ -219,7 +219,7 @@ int main()
         }
     }
 
-    std::cout << "FINISHED " << t.elapsed() << std::endl;
+    std::cout << "FINISHED " << t.format(3, "%t") << std::endl;
 
     }
     catch(std::exception const& e)

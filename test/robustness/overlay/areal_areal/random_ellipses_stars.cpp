@@ -14,7 +14,7 @@
 #include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -103,7 +103,7 @@ void test_star_ellipse(int seed, int index, star_params const& par_p,
 template <typename T, bool Clockwise, bool Closed>
 void test_type(int seed, int count, p_q_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
 
     typedef boost::minstd_rand base_generator_type;
 
@@ -162,7 +162,7 @@ void test_type(int seed, int count, p_q_settings const& settings)
     }
     std::cout
         << "type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << t.format(3, "%t")  << std::endl;
 }
 
 template <bool Clockwise, bool Closed>
