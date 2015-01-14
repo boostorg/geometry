@@ -21,7 +21,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -396,7 +396,7 @@ bool test_linear_areal(MultiPolygon& result, int& index,
 template <typename T, bool Clockwise, bool Closed>
 void test_all(int seed, int count, int level, common_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
 
     typedef boost::minstd_rand base_generator_type;
 
@@ -422,7 +422,7 @@ void test_all(int seed, int count, int level, common_settings const& settings)
     std::cout
         << "geometries: " << index
         << " type: " << typeid(T).name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << t.format(3, "%t")  << std::endl;
 }
 
 int main(int argc, char** argv)
