@@ -20,7 +20,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <star_comb.hpp>
 
@@ -53,7 +53,7 @@ void test_star_comb(int star_point_count, int comb_comb_count, double factor1, d
 template <typename T, bool Clockwise, bool Closed>
 void test_all(int count, int star_point_count, int comb_comb_count, double factor1, double factor2, bool do_union, p_q_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
 
     typedef bg::model::polygon
         <
@@ -66,7 +66,7 @@ void test_all(int count, int star_point_count, int comb_comb_count, double facto
     }
     std::cout
         << " type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << t.format(3, "%t")  << std::endl;
 }
 
 int main(int argc, char** argv)

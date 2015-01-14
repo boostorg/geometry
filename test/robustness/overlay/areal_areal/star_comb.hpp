@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/math/constants/constants.hpp>
 

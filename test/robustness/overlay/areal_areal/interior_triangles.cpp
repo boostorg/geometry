@@ -24,7 +24,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 template <typename Polygon>
 inline void make_polygon(Polygon& polygon, int count_x, int count_y, int index, int offset)
@@ -73,7 +73,7 @@ void test_star_comb(int count_x, int count_y, int offset, p_q_settings const& se
 template <typename T, bool Clockwise, bool Closed>
 void test_all(int count, int count_x, int count_y, int offset, p_q_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
 
     typedef bg::model::polygon
         <
@@ -87,7 +87,7 @@ void test_all(int count, int count_x, int count_y, int offset, p_q_settings cons
     }
     std::cout
         << " type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << t.format(3, "%t")  << std::endl;
 }
 
 int main(int argc, char** argv)

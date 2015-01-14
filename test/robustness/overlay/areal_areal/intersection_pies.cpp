@@ -14,7 +14,7 @@
 #include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 template <typename Polygon>
 inline void make_pie(Polygon& polygon,
@@ -133,7 +133,7 @@ template <typename T, bool Clockwise, bool Closed>
 void test_pie(int total_segment_count, T factor_p, T factor_q,
             bool multi, bool single_selftangent, p_q_settings const& settings)
 {
-    boost::timer t;
+    boost::timer::cpu_timer t;
     typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type, Clockwise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
@@ -224,7 +224,7 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
         }
     }
     std::cout
-        << "Time: " << t.elapsed()  << std::endl
+        << "Time: " << t.format(3, "%t")  << std::endl
         << "Good: " << good_count << std::endl
         << "Bad: " << bad_count << std::endl;
 }
