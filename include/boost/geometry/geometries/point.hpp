@@ -29,7 +29,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -44,6 +43,37 @@ namespace boost { namespace geometry
 namespace model
 {
 
+namespace detail
+{
+
+template <std::size_t DimensionCount, std::size_t Index>
+struct array_assign
+{
+    template <typename T>
+    static inline void apply(T values[], T const& value)
+    {
+        values[Index] = value;
+    }
+};
+
+// Specialization avoiding assigning element [2] for only 2 dimensions
+template <> struct array_assign<2, 2>
+{
+    template <typename T> static inline void apply(T [], T const& ) {}
+};
+
+// Specialization avoiding assigning elements for (rarely used) points in 1 dim
+template <> struct array_assign<1, 1>
+{
+    template <typename T> static inline void apply(T [], T const& ) {}
+};
+
+template <> struct array_assign<1, 2>
+{
+    template <typename T> static inline void apply(T [], T const& ) {}
+};
+
+}
 /*!
 \brief Basic point class, having coordinates defined in a neutral way
 \details Defines a neutral point class, fulfilling the Point Concept.
@@ -80,17 +110,33 @@ public:
 
     /// @brief Default constructor, no initialization
     inline point()
-    {}
-
-#ifndef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
-    explicit
-#endif
-    /// @brief Constructor to set one, two or three values
-    inline point(CoordinateType const& v0, CoordinateType const& v1 = 0, CoordinateType const& v2 = 0)
     {
-        if (DimensionCount >= 1) m_values[0] = v0;
-        if (DimensionCount >= 2) m_values[1] = v1;
-        if (DimensionCount >= 3) m_values[2] = v2;
+        BOOST_STATIC_ASSERT(DimensionCount >= 1);
+    }
+
+    /// @brief Constructor to set one value
+    explicit inline point(CoordinateType const& v0)
+    {
+        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
+        detail::array_assign<DimensionCount, 1>::apply(m_values, CoordinateType());
+        detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
+    }
+
+    /// @brief Constructor to set two values
+    inline point(CoordinateType const& v0, CoordinateType const& v1)
+    {
+        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
+        detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
+        detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
+    }
+
+    /// @brief Constructor to set three values
+    inline point(CoordinateType const& v0, CoordinateType const& v1,
+            CoordinateType const& v2)
+    {
+        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
+        detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
+        detail::array_assign<DimensionCount, 2>::apply(m_values, v2);
     }
 
     /// @brief Get a coordinate
