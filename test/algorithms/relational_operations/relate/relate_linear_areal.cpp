@@ -14,7 +14,7 @@
 #include "test_relate.hpp"
 
 //TEST
-#include <to_svg.hpp>
+//#include <to_svg.hpp>
 
 template <typename P>
 void test_linestring_polygon()
