@@ -573,9 +573,7 @@ struct areal_areal
         {
             // check which relations must be analysed
 
-            if ( ! may_update<interior, interior, '2', transpose_result>(m_result)
-              && ! may_update<boundary, interior, '1', transpose_result>(m_result)
-              && ! may_update<exterior, interior, '2', transpose_result>(m_result) )
+            if ( ! may_update<interior, interior, '2', transpose_result>(m_result) )
             {
                 m_flags |= 1;
             }
@@ -596,7 +594,7 @@ struct areal_areal
         inline void no_turns(segment_identifier const& seg_id)
         {
             // if those flags are set nothing will change
-            if ( (m_flags & 3) == 3 )
+            if ( m_flags == 7 )
             {
                 return;
             }
@@ -621,10 +619,12 @@ struct areal_areal
             //BOOST_ASSERT(pig != 0);
             if ( pig > 0 )
             {
-                update<boundary, interior, '1', transpose_result>(m_result);
                 update<interior, interior, '2', transpose_result>(m_result);
-                update<exterior, interior, '2', transpose_result>(m_result);
                 m_flags |= 1;
+
+                update<boundary, interior, '1', transpose_result>(m_result);
+                update<exterior, interior, '2', transpose_result>(m_result);
+                m_flags |= 4;
             }
             else
             {
