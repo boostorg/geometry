@@ -134,6 +134,32 @@ void test_intersects_point_segment()
 }
 
 template <typename P>
+void test_multi_linestring_polygon()
+{
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
+    typedef bg::model::polygon<P> poly;
+
+    test_geometry<mls, poly>("MULTILINESTRING((11 11, 20 20),(5 7, 4 1))",
+                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))",
+                             true);
+    test_geometry<mls, poly>("MULTILINESTRING((10 0, 18 12),(2 2,2 1))",
+                             "POLYGON((5 0,0 -5,-5 0,0 5,5 0))",
+                             true);
+}
+
+template <typename P>
+void test_multi_polygon_polygon()
+{
+    typedef bg::model::polygon<P> poly;
+    typedef bg::model::multi_polygon<poly> mpoly;
+
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((11 11,11 20,20 20,20 11,11 11)),((5 5,5 6,6 6,6 5,5 5)))",
+                               "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))",
+                               true);
+}
+
+template <typename P>
 void test_all()
 {
     typedef bg::model::polygon<P> polygon;
@@ -164,6 +190,8 @@ void test_all()
     test_intersects_linestring_segment<P>();
     test_intersects_linestring_linestring<P>();
     test_intersects_ring_polygon<P>();
+    test_multi_linestring_polygon<P>();
+    test_multi_polygon_polygon<P>();
 
     // self-intersecting is not tested in disjoint, so that is done here.
 
