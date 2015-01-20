@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2014.
-// Modifications copyright (c) 2013-2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2015.
+// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -31,6 +31,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
@@ -51,13 +52,48 @@
 namespace boost { namespace geometry
 {
 
-
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
 {
 
+template <typename Geometry1, typename Geometry2,
+          typename Tag1 = typename tag<Geometry1>::type,
+          typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
+struct disjoint_no_intersections_policy
+{
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        typedef typename point_type<Geometry1>::type point1_type;
+        point1_type p;
+        geometry::point_on_border(p, g1);
+        return !geometry::covered_by(p, g2);
+    }
+};
 
-template<typename Geometry1, typename Geometry2>
+template <typename Geometry1, typename Geometry2, typename Tag1>
+struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
+{
+    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
+    {
+        // TODO: use partition or rtree on g2
+        typedef typename boost::range_iterator<Geometry1 const>::type iterator;
+        for ( iterator it = boost::begin(g1) ; it != boost::end(g1) ; ++it )
+        {
+            typedef typename boost::range_value<Geometry1 const>::type value_type;
+            if ( ! disjoint_no_intersections_policy<value_type const, Geometry2>
+                    ::apply(*it, g2) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+
+template<typename Geometry1, typename Geometry2,
+         typename NoIntersectionsPolicy
+                    = disjoint_no_intersections_policy<Geometry1, Geometry2> >
 struct disjoint_linear_areal
 {
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
@@ -68,10 +104,7 @@ struct disjoint_linear_areal
             return false;
         }
 
-        typedef typename point_type<Geometry1>::type point1_type;
-        point1_type p;
-        geometry::point_on_border(p, g1);
-        return !geometry::covered_by(p, g2);
+        return NoIntersectionsPolicy::apply(g1, g2);
     }
 };
 
