@@ -16,7 +16,7 @@ project boost-geometry-test
         <include>.
         <include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
-        <library>/boost/timer//boost_timer
+        <toolset>clang:<cxxflags>-Wno-unneeded-internal-declaration # supress warning by Boost.None
     ;
 
 build-project core ;

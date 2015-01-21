@@ -757,7 +757,11 @@ inline void sectionalize(Geometry const& geometry,
 {
     concept::check<Geometry const>();
 
-    BOOST_STATIC_ASSERT((Sections::value == mpl::size<DimensionVector>::value));
+    BOOST_STATIC_ASSERT
+        (
+            (static_cast<int>(Sections::value)
+          == static_cast<int>(mpl::size<DimensionVector>::value))
+        );
 
     // Compiletime check for point type of section boxes
     // and point type related to robust policy

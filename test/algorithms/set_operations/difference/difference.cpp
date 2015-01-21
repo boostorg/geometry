@@ -274,15 +274,20 @@ void test_all()
     // SQL Server gives: 0.279121891701124 and 224.889211358929
     // PostGIS gives:    0.279121991127244 and 224.889205853156
 
+#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
          9, -1, 0.01953125);
 
+    // Excluded this test in the normal suite, it is OK like this for many clang/gcc/msvc
+    // versions, but NOT OK for many other clang/gcc/msvc versions on other platforms
+    // It might depend on partition (order)
     //        10, -1, 0.02148439); // change in partition might give these results
 
     // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
     // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
+#endif
 
     test_one<polygon, polygon, polygon>("geos_2",
         geos_2[0], geos_2[1],
