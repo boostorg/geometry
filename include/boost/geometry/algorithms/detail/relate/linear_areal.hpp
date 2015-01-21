@@ -632,6 +632,11 @@ struct linear_areal
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
 
+            // TODO: should apply() for the post-last ip be called if first_in_range ?
+            // this would unify how last points in ranges are handled
+            // possibly replacing parts of the code below
+            // e.g. for is_multi and m_interior_detected
+
             // handle possible exit
             bool fake_enter_detected = false;
             if ( m_exit_watcher.get_exit_operation() == overlay::operation_union )
@@ -711,6 +716,34 @@ struct linear_areal
                 {
                     update<interior, interior, '1', TransposeResult>(res);
                     m_interior_detected = false;
+
+                    // new range detected - reset previous state and check the boundary
+                    if ( first_in_range )
+                    {
+                        // actually it should be != NULL if m_interior_detected
+                        // so an assert could be checked here
+                        if ( m_previous_turn_ptr )
+                        {
+                            segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                            bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                                        range::back(sub_range(geometry, prev_seg_id)),
+                                                        boundary_checker);
+
+                            // if there is a boundary on the last point
+                            if ( prev_back_b )
+                            {
+                                update<boundary, interior, '0', TransposeResult>(res);
+                            }
+                        }
+
+                        // CONSIDER: maybe watcher should be reset in all cases when first_in_range
+                        // not only if m_interior_detected?
+                        // NOTE that this would be done if apply() for post-last-turn was called
+                        // always for first_in_range.
+                        // CONSIDER: exit() ?
+                        m_exit_watcher.reset();
+                    }
                 }
                 // fake interior overlap
                 else if ( op == overlay::operation_continue )
