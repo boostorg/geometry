@@ -221,6 +221,9 @@ void test_linestring_linestring()
                                         || bgdr::mask9("F***T****")));
         BOOST_CHECK(bgdr::relate(ls2, ls4, bgdr::mask9("T*F**F***"))); // within
     }
+
+    // spike - boundary and interior on the same point
+    test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "0010F0102");
 }
 
 template <typename P>
