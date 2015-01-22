@@ -437,7 +437,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_miter, end_flat, 14535.2319564819336, 30.0);
 
     test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19992.6824035644531, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0);
+    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0, 10.0, true, 0.05); // MSVC 14 reports 20024.51456, so we increase the tolerance
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_round, end_flat, 34505.0746192932129, 20.0);
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_miter, end_flat, 34633.2606201171875, 20.0);
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);

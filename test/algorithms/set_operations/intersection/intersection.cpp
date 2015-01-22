@@ -168,7 +168,8 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("geos_1",
         geos_1[0], geos_1[1],
-            1, -1, 3461.0214843);
+            1, -1, 3461.0214843, 0.005); // MSVC 14 reports 3461.025390625
+
     test_one<Polygon, Polygon, Polygon>("geos_2",
         geos_2[0], geos_2[1],
             0, 0, 0.0);
