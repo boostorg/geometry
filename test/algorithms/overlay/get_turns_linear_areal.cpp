@@ -5,8 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,8 +16,6 @@
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
@@ -158,6 +158,46 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(2 1,1 1,2 1)",
                             "POLYGON((1 0,1 1,2 1,1 0))",
                             expected("tcu+")("txc=")("tcc=")("txu="));
+
+    // 21.01.2015
+    test_geometry<ls, poly>("LINESTRING(1 3,3 1)",
+                            "POLYGON((0 0,0 4,4 4,4 0,2 2,0 0))",
+                            expected("mcu+")("mxc="));
+    // extended
+    test_geometry<ls, poly>("LINESTRING(1 7,4 4,7 1)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("tcu+")("mxc="));
+    test_geometry<ls, poly>("LINESTRING(1 7,3 5,7 1)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcu+")("mxc="));
+    test_geometry<ls, poly>("LINESTRING(1 7,5 3,7 1)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcu+")("mxc="));
+    test_geometry<ls, poly>("LINESTRING(4 4,7 1)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("tcu+")("mxc="));
+    test_geometry<ls, poly>("LINESTRING(5 3,7 1)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcu+")("mxc="));
+    // reversed
+    test_geometry<ls, poly>("LINESTRING(7 1,4 4,1 7)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("tiu="));
+    test_geometry<ls, poly>("LINESTRING(7 1,3 5,1 7)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("miu="));
+    test_geometry<ls, poly>("LINESTRING(7 1,5 3,1 7)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("ccc=")("miu="));
+    test_geometry<ls, poly>("LINESTRING(7 1,4 4)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("txu="));
+    test_geometry<ls, poly>("LINESTRING(7 1,5 3)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("mxu="));
+    test_geometry<ls, poly>("LINESTRING(7 1,3 5)",
+                            "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
+                            expected("mcc+")("miu="));
 }
 
 int test_main(int, char* [])

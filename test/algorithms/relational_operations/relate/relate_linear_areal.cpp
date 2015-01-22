@@ -256,12 +256,9 @@ void test_linestring_polygon()
     }
 
     // 21.01.2015
-    /*test_geometry<ls, poly>("LINESTRING(1 3, 3 1)",
-                            "POLYGON((0 0,0 4,4 4,4 0,2 2,0 0))",
-                            "11F00F212");
     test_geometry<ls, poly>("LINESTRING(3 7, 9 1)",
                             "POLYGON((0 0,0 10,10 10,10 0,5 5,0 0))",
-                            "11F00F212");*/
+                            "11F00F212");
 
     // inspired by the bug for mls/poly
     test_geometry<ls, poly>("LINESTRING(0 0, 7 7)",
