@@ -705,6 +705,7 @@ struct get_turn_info_linear_areal
         // ANALYSE AND ASSIGN FIRST
 
         // IP on the first point of Linear Geometry
+        bool was_first_point_handled = false;
         if ( EnableFirst && is_p_first && ip0.is_pi && !ip0.is_qi ) // !q0i prevents duplication
         {
             TurnInfo tp = tp_model;
@@ -776,6 +777,8 @@ struct get_turn_info_linear_areal
 
             AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
+
+            was_first_point_handled = true;
         }
 
         // ANALYSE AND ASSIGN LAST
@@ -828,7 +831,8 @@ struct get_turn_info_linear_areal
             AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
             *out++ = tp;
 
-            return true;
+            // don't ignore the first IP if the segment is opposite
+            return !( opposite && ip_count > 1 ) || was_first_point_handled;
         }
 
         // don't ignore anything for now
