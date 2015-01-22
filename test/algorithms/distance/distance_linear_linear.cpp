@@ -79,6 +79,10 @@ void test_distance_segment_linestring(Strategy const& strategy)
     tester::apply("segment(1 1,2 2)",
                   "linestring(3 3,3 3)",
                   sqrt(2.0), 2, strategy);
+
+    tester::apply("segment(1 1,2 2)",
+                  "linestring(3 3)",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -163,6 +167,14 @@ void test_distance_segment_multilinestring(Strategy const& strategy)
     tester::apply("segment(1 1,2 2)",
                   "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",
                    sqrt(2.0), 2, strategy);
+
+    tester::apply("segment(1 1,2 2)",
+                  "multilinestring((2.5 0),(3 3,3 3))",
+                   sqrt(2.0), 2, strategy);
+
+    tester::apply("segment(1 1,2 2)",
+                  "multilinestring((2.5 0,4 0,5 0),(3 3))",
+                   sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -190,6 +202,14 @@ void test_distance_linestring_multilinestring(Strategy const& strategy)
 
     tester::apply("linestring(1 1,2 2)",
                   "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",
+                   sqrt(2.0), 2, strategy);
+
+    tester::apply("linestring(2 2)",
+                  "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",
+                   sqrt(2.0), 2, strategy);
+
+    tester::apply("linestring(1 1,2 2)",
+                  "multilinestring((2.5 0,4 0,5 0),(3 3))",
                    sqrt(2.0), 2, strategy);
 
     tester::apply("linestring(1 1,2 2,3 3,4 4,5 5,6 6,7 7,8 8,9 9)",
@@ -223,6 +243,10 @@ void test_distance_multilinestring_multilinestring(Strategy const& strategy)
     tester::apply("multilinestring((0 0,0 1,1 1),(10 0,11 1,12 2))",
                   "multilinestring((0.5 0.5,0.75 0.75),(11.1 0,11.1 0.9))",
                   sqrt(0.02), 0.02, strategy);
+
+    tester::apply("multilinestring((0 0),(1 1))",
+                  "multilinestring((2 2),(3 3))",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
