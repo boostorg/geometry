@@ -184,6 +184,12 @@ void test_all()
     // TODO test_disjoint<ls, segment>("ls/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     // TODO test_disjoint<ls, segment>("ls/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
 
+    // 22.01.2015
+    test_disjoint<ls, ls>("col-op", "LINESTRING(5 5,10 10)", "LINESTRING(6 6,3 3)", false);
+    test_disjoint<ls, ls>("col-op", "LINESTRING(5 5,2 8)", "LINESTRING(4 6,7 3)", false);
+
+    test_disjoint<ls, polygon>("col-op", "LINESTRING(10 10,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
+    test_disjoint<ls, polygon>("col-op", "LINESTRING(9 10,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
 }
 
 

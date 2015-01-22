@@ -224,6 +224,10 @@ void test_linestring_linestring()
 
     // spike - boundary and interior on the same point
     test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "0010F0102");
+
+    // 22.01.2015
+    test_geometry<ls, ls>("LINESTRING(5 5,10 10)", "LINESTRING(6 6,3 3)", "1010F0102");
+    test_geometry<ls, ls>("LINESTRING(5 5,2 8)", "LINESTRING(4 6,7 3)", "1010F0102");
 }
 
 template <typename P>
@@ -328,6 +332,10 @@ void test_linestring_multi_linestring()
                            "MULTILINESTRING((0 0, 5 0),(2 0, 2 2))",    //   |--------------|
                            "10FF0F102");                                //            |
                                                                         //            |
+
+    // 22.01 2015
+    // inspired by L/A and A/A
+    test_geometry<ls, mls>("LINESTRING(1 1,2 2)", "MULTILINESTRING((0 0,1 1),(1 1,3 3))", "1FF0FF102");
 }
 
 template <typename P>
