@@ -410,20 +410,37 @@ struct get_turn_info_linear_areal
 
         if ( is_p_spike )
         {
-            bool going_in = false, going_out = false;
-                
             int const pk_q1 = inters.sides().pk_wrt_q1();
-            int const pk_q2 = inters.sides().pk_wrt_q2();
+            
+            bool going_in = pk_q1 < 0; // Pk on the right
+            bool going_out = pk_q1 > 0; // Pk on the left
 
-            if ( inters.sides().qk_wrt_q1() <= 0 ) // Q turning R or C
+            int const qk_q1 = inters.sides().qk_wrt_q1();
+
+            // special cases
+            if ( qk_q1 < 0 ) // Q turning R
             { 
-                going_in = pk_q1 < 0 && pk_q2 < 0; // Pk on the right of both
-                going_out = pk_q1 > 0 || pk_q2 > 0; // Pk on the left of one of them
+                // spike on the edge point
+                // if it's already known that the spike is going out this musn't be checked
+                if ( ! going_out
+                  && equals::equals_point_point(inters.rpj(), inters.rqj()) )
+                {
+                    int const pk_q2 = inters.sides().pk_wrt_q2();
+                    going_in = pk_q1 < 0 && pk_q2 < 0; // Pk on the right of both
+                    going_out = pk_q1 > 0 || pk_q2 > 0; // Pk on the left of one of them
+                }
             }
-            else
+            else if ( qk_q1 > 0 ) // Q turning L
             {
-                going_in = pk_q1 < 0 || pk_q2 < 0; // Pk on the right of one of them
-                going_out = pk_q1 > 0 && pk_q2 > 0; // Pk on the left of both
+                // spike on the edge point
+                // if it's already known that the spike is going in this musn't be checked
+                if ( ! going_in
+                  && equals::equals_point_point(inters.rpj(), inters.rqj()) )
+                {
+                    int const pk_q2 = inters.sides().pk_wrt_q2();
+                    going_in = pk_q1 < 0 || pk_q2 < 0; // Pk on the right of one of them
+                    going_out = pk_q1 > 0 && pk_q2 > 0; // Pk on the left of both
+                }
             }
 
             if ( going_in )
