@@ -57,7 +57,7 @@ struct closing_iterator
         , m_iterator(boost::end(range))
         , m_end(boost::end(range))
         , m_size(boost::size(range))
-        , m_index(m_size + 1)
+        , m_index((m_size == 0) ? 0 : m_size + 1)
     {}
 
     /// Default constructor
