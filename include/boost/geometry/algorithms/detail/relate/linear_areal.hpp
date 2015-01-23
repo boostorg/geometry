@@ -760,12 +760,8 @@ struct linear_areal
                             }
                         }
 
-                        // CONSIDER: maybe watcher should be reset in all cases when first_in_range
-                        // not only if m_interior_detected?
-                        // NOTE that this would be done if apply() for post-last-turn was called
-                        // always for first_in_range.
-                        // CONSIDER: exit() ?
-                        m_exit_watcher.reset();
+                        // The exit_watcher is reset below
+                        // m_exit_watcher.reset();
                     }
                 }
                 // fake interior overlap
@@ -787,7 +783,7 @@ struct linear_areal
                 }
             }
 
-            // If post-last-ip apply() was called this wouldn't be needed
+            // NOTE: If post-last-ip apply() was called this wouldn't be needed
             if ( first_in_range )
             {
                 m_exit_watcher.reset();
