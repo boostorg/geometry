@@ -787,6 +787,15 @@ struct linear_areal
                 }
             }
 
+            // If post-last-ip apply() was called this wouldn't be needed
+            if ( first_in_range )
+            {
+                m_exit_watcher.reset();
+                m_boundary_counter = 0;
+                m_first_from_unknown = false;
+                m_first_from_unknown_boundary_detected = false;
+            }
+
             // i/u, c/u
             if ( op == overlay::operation_intersection
               || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
