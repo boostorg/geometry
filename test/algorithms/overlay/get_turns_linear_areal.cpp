@@ -198,6 +198,15 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(7 1,3 5)",
                             "POLYGON((0 0,0 8,8 8,8 0,4 4,0 0))",
                             expected("mcc+")("miu="));
+
+    // 23.01.2015 - spikes
+    test_geometry<ls, poly>("LINESTRING(3 10, 1 5, 1 10, 3 4, 7 8, 6 10, 10 2)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            expected("miu+")("miu+")("miu+")("mxu+"));
+    // extended
+    test_geometry<ls, poly>("LINESTRING(7 8, 6 10, 11 0)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                            expected("miu+")("iuu+"));
 }
 
 int test_main(int, char* [])

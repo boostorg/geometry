@@ -405,6 +405,11 @@ void test_multi_linestring_polygon()
     test_geometry<mls, poly>("MULTILINESTRING((4 10, 3 10, 10 6),(5 0, 7 5, 9 10))",
                              "POLYGON((0 0,0 10,10 10,10 0,5 5,0 0))",
                              "111F00212");
+
+    // 23.01.2015
+    test_geometry<mls, poly>("MULTILINESTRING((3 10, 1 5, 1 10, 3 4, 7 8, 6 10, 10 2))",
+                             "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                             "10FF0F212");
 }
 
 template <typename P>
