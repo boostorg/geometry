@@ -647,8 +647,24 @@ struct linear_areal
                 {
                     m_exit_watcher.reset_detected_exit();
                     
-                    // not the last IP
                     update<interior, exterior, '1', TransposeResult>(res);
+
+                    // next single geometry
+                    if ( first_in_range && m_previous_turn_ptr )
+                    {
+                        // NOTE: similar code is in the post-last-ip-apply()
+                        segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;
+
+                        bool const prev_back_b = is_endpoint_on_boundary<boundary_back>(
+                                                    range::back(sub_range(geometry, prev_seg_id)),
+                                                    boundary_checker);
+
+                        // if there is a boundary on the last point
+                        if ( prev_back_b )
+                        {
+                            update<boundary, exterior, '0', TransposeResult>(res);
+                        }
+                    }
                 }
                 // fake exit point, reset state
                 else if ( op == overlay::operation_intersection
@@ -677,23 +693,30 @@ struct linear_areal
                 m_exit_watcher.reset_detected_exit();
             }
 
-            // For MultiPolygon many x/u operations may be generated as a first IP
-            // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
-            // then we know that the LineString is outside
             if ( is_multi<OtherGeometry>::value
-              && m_previous_operation == overlay::operation_blocked
-              && m_first_from_unknown
-              && ( op != overlay::operation_blocked // operation different than block
-                || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index ) ) // or the next single-geometry
+              && m_first_from_unknown )
             {
-                update<interior, exterior, '1', TransposeResult>(res);
-                if ( m_first_from_unknown_boundary_detected )
+                // For MultiPolygon many x/u operations may be generated as a first IP
+                // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
+                // then we know that the LineString is outside
+                // Similar with the u/u turns, if it was the first one it doesn't mean that the
+                // Linestring came from the exterior
+                if ( ( m_previous_operation == overlay::operation_blocked
+                    && ( op != overlay::operation_blocked // operation different than block
+                        || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index ) ) // or the next single-geometry
+                  || ( m_previous_operation == overlay::operation_union
+                    && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it) )
+                   )
                 {
-                    update<boundary, exterior, '0', TransposeResult>(res);
-                }
+                    update<interior, exterior, '1', TransposeResult>(res);
+                    if ( m_first_from_unknown_boundary_detected )
+                    {
+                        update<boundary, exterior, '0', TransposeResult>(res);
+                    }
 
-                m_first_from_unknown = false;
-                m_first_from_unknown_boundary_detected = false;
+                    m_first_from_unknown = false;
+                    m_first_from_unknown_boundary_detected = false;
+                }
             }
 
 // NOTE: THE WHOLE m_interior_detected HANDLING IS HERE BECAUSE WE CAN'T EFFICIENTLY SORT TURNS (CORRECTLY)
@@ -768,6 +791,7 @@ struct linear_areal
             if ( op == overlay::operation_intersection
               || op == overlay::operation_continue ) // operation_boundary/operation_boundary_intersection
             {
+                bool const first_point = first_in_range || m_first_from_unknown;
                 bool no_enters_detected = m_exit_watcher.is_outside();
                 m_exit_watcher.enter(*it);
 
@@ -796,7 +820,7 @@ struct linear_areal
                 {
                     // don't add to the count for all met boundaries
                     // only if this is the "new" boundary
-                    if ( first_in_range || !it->operations[op_id].is_collinear )
+                    if ( first_point || !it->operations[op_id].is_collinear )
                         ++m_boundary_counter;
 
                     update<interior, boundary, '1', TransposeResult>(res);
@@ -823,7 +847,7 @@ struct linear_areal
                       && it->operations[op_id].position != overlay::position_front )
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool const from_inside = first_in_range
+                        bool const from_inside = first_point
                                               && calculate_from_inside(geometry,
                                                                        other_geometry,
                                                                        *it);
@@ -834,7 +858,7 @@ struct linear_areal
                             update<interior, exterior, '1', TransposeResult>(res);
 
                         // if it's the first IP then the first point is outside
-                        if ( first_in_range )
+                        if ( first_point )
                         {
                             bool const front_b = is_endpoint_on_boundary<boundary_front>(
                                                     range::front(sub_range(geometry, seg_id)),
@@ -850,6 +874,12 @@ struct linear_areal
                             }
                         }
                     }
+                }
+
+                if ( is_multi<OtherGeometry>::value )
+                {
+                    m_first_from_unknown = false;
+                    m_first_from_unknown_boundary_detected = false;
                 }
             }
             // u/u, x/u
@@ -934,7 +964,8 @@ struct linear_areal
                         else
                         {
                             if ( is_multi<OtherGeometry>::value
-                              && op == overlay::operation_blocked )
+                              /*&& ( op == overlay::operation_blocked
+                                || op == overlay::operation_union )*/ ) // if we're here it's u or x
                             {
                                 m_first_from_unknown = true;
                             }
@@ -961,7 +992,8 @@ struct linear_areal
                                 else
                                 {
                                     if ( is_multi<OtherGeometry>::value
-                                      && op == overlay::operation_blocked )
+                                      /*&& ( op == overlay::operation_blocked
+                                        || op == overlay::operation_union )*/ ) // if we're here it's u or x
                                     {
                                         BOOST_ASSERT(m_first_from_unknown);
                                         m_first_from_unknown_boundary_detected = true;
