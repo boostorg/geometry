@@ -38,7 +38,8 @@
 * [@https://svn.boost.org/trac/boost/ticket/10957 10957] Assertion failure and invalid results of various relational operations.
 * [@https://svn.boost.org/trac/boost/ticket/10958 10958] Invalid results of disjoint() L/L and L/A.
 * [@https://svn.boost.org/trac/boost/ticket/10959 10959] Assertion failure in get_turns() used with no_rescale_policy.
-* [@https://svn.boost.org/trac/boost/ticket/10960 10960] Invalid result of get_turns() for L/A.
+* [@https://svn.boost.org/trac/boost/ticket/10960 10960] Invalid result of get_turns() for L/A, missing turn.
+* [@https://svn.boost.org/trac/boost/ticket/10961 10961] Invalid result of get_turns() for L/A, invalid turn for a Linear spike.
 
 [*Bugfixes]
 
