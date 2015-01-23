@@ -90,6 +90,13 @@ void test_aa()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2),(6 6,8 6,8 8,6 8,6 6))",
                               "POLYGON((0 0,0 5,5 5,5 0,0 0))",
                               true);
+
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                               "POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                               false);
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                               "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               false);
 }
 
 template <typename P>

@@ -68,6 +68,13 @@ void test_a_a()
     test_geometry<poly, poly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                               "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,2 4,4 4,4 2,2 2))",
                               false);
+
+    test_geometry<poly, mpoly>("POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                               true);
+    test_geometry<poly, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
+                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                               true);
 }
 
 template <typename P>

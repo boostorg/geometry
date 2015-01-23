@@ -354,7 +354,9 @@ void test_polygon_multi_polygon()
                                "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
                                "212F11212");
 
-#ifdef BOOST_GEOMETRY_TEST_RELATE_ENABLE_BUGS
+    test_geometry<mpoly, poly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                               "POLYGON((0 0,0 5,5 5,5 0,0 0))",
+                               "212F11FF2");
     test_geometry<poly, mpoly>("POLYGON((0 0,0 5,5 5,5 0,0 0))",
                                "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
                                "2FF11F212");
@@ -364,7 +366,6 @@ void test_polygon_multi_polygon()
     test_geometry<poly, mpoly>("POLYGON((0 0,0 10,10 10,10 0,0 0))",
                                "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
                                "2FFF1F212");
-#endif
 }
 
 template <typename P>
