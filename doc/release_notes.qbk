@@ -35,12 +35,17 @@
 * [@https://svn.boost.org/trac/boost/ticket/10890 10890] Invalid result of disjoint() for Point/Segment.
 * [@https://svn.boost.org/trac/boost/ticket/10904 10904] Invalid calculation of most significant Dimension of a segment in relate_cartesian_segments strategy
 * [@https://svn.boost.org/trac/boost/ticket/10912 10912] Invalid result of within() and relate() for Areal/Areal
+* [@https://svn.boost.org/trac/boost/ticket/10957 10957] Assertion failure and invalid results of various relational operations.
+* [@https://svn.boost.org/trac/boost/ticket/10958 10958] Invalid results of disjoint() L/L and L/A.
+* [@https://svn.boost.org/trac/boost/ticket/10959 10959] Assertion failure in get_turns() used with no_rescale_policy.
+* [@https://svn.boost.org/trac/boost/ticket/10960 10960] Invalid result of get_turns() for L/A.
 
 [*Bugfixes]
 
 * Bug in multipoint/polygon multipoint/multipolygon distance computation (wrong detection of points inside the areal geometry)
 * Bug in flatten_iterator's assignment operator causing an access violation 
 * Bug in Cartesian segment-segment intersection strategy when one segment degenerates to a point and is collinear to the other non-degenerate segment
+* Bug in centroid(), non-deterministic result if calculated for e.g. a Polygon with zero-area.
 
 [/=================]
 [heading Boost 1.57]
