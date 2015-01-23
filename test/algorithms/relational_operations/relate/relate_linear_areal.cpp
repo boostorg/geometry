@@ -341,6 +341,27 @@ void test_linestring_multi_polygon()
     test_geometry<ls, mpoly>("LINESTRING(0 0,5 0)",
                              "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)),((5 0,7 1,7 -1,5 0)))",
                              "FF1F00212");
+
+    // 22.01.2015
+    test_geometry<ls, mpoly>("LINESTRING(5 5,0 0,10 0)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "11F00F212");
+    test_geometry<ls, mpoly>("LINESTRING(5 5,0 0,0 10)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "11F00F212");
+    // extended
+    test_geometry<ls, mpoly>("LINESTRING(5 5,0 0,2 1)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "10F0FF212");
+    test_geometry<ls, mpoly>("LINESTRING(5 5,0 0,5 -5)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "1010F0212");
+    test_geometry<ls, mpoly>("LINESTRING(5 5,0 0,5 -5,5 1)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "1010FF212");
+    test_geometry<ls, mpoly>("LINESTRING(-5 5,0 0,5 -5)",
+                             "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                             "F01FF0212");
 }
 
 template <typename P>
@@ -440,6 +461,17 @@ void test_multi_linestring_multi_polygon()
     test_geometry<mls, mpoly>("MULTILINESTRING((5 -2,5 0),(0 0,5 0))",
                               "MULTIPOLYGON(((5 0,0 5,10 5,5 0)),((5 0,10 -5,0 -5,5 0)))",
                               "1010F0212");
+
+    // 22.01.2015 - extended
+    test_geometry<mls, mpoly>("MULTILINESTRING((10 10,0 10),(5 5,0 0,10 0))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                              "11F00F212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 5,0 0,5 -5),(0 0,9 1))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                              "101000212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((5 -5,0 0,5 5),(0 0,5 -1))",
+                              "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
+                              "101000212");
 }
 
 template <typename P>
