@@ -59,18 +59,18 @@ struct check_equal
     template <typename Value, typename = void>
     struct equal_to
     {
-        static inline bool apply(Value const& x, Value const& y)
+        static inline void apply(Value const& x, Value const& y)
         {
-            return x == y;
+            BOOST_CHECK(x == y);
         }
     };
 
     template <typename Dummy>
     struct equal_to<double, Dummy>
     {
-        static inline bool apply(double x, double y)
+        static inline void apply(double x, double y)
         {
-            return boost::test_tools::check_is_close_t()(x, y, 0.0001);
+            BOOST_CHECK_CLOSE(x, y, 0.001);
         }
     };
 
@@ -82,6 +82,12 @@ struct check_equal
                              T const& detected,
                              T const& expected)
     {
+        equal_to<T>::apply(expected, detected);
+        /*
+          TODO:
+          Ideally we would want the following, but it does not work well
+          approximate equality test.
+
         BOOST_CHECK_MESSAGE(equal_to<T>::apply(expected, detected),
              "case ID: " << case_id << "-" << subcase_id << "; "
              << "G1: " << bg::wkt(geometry1)
@@ -89,6 +95,7 @@ struct check_equal
              << "G2: " << bg::wkt(geometry2)
              << " -> Detected: " << detected
              << "; Expected: " << expected);
+        */
     }
 };
 
