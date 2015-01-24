@@ -2,14 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
@@ -573,8 +573,7 @@ struct areal_areal
         {
             // check which relations must be analysed
 
-            if ( ! may_update<interior, interior, '2', transpose_result>(m_result)
-              && ! may_update<boundary, interior, '1', transpose_result>(m_result) )
+            if ( ! may_update<interior, interior, '2', transpose_result>(m_result) )
             {
                 m_flags |= 1;
             }
@@ -595,7 +594,7 @@ struct areal_areal
         inline void no_turns(segment_identifier const& seg_id)
         {
             // if those flags are set nothing will change
-            if ( (m_flags & 3) == 3 )
+            if ( m_flags == 7 )
             {
                 return;
             }
@@ -614,15 +613,18 @@ struct areal_areal
             // to know which other single geometries should be checked
 
             // TODO: optimize! e.g. use spatial index
-            // O(N) - running it in a loop would gives O(NM)
+            // O(N) - running it in a loop gives O(NM)
             int const pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
             //BOOST_ASSERT(pig != 0);
             if ( pig > 0 )
             {
-                update<boundary, interior, '1', transpose_result>(m_result);
                 update<interior, interior, '2', transpose_result>(m_result);
                 m_flags |= 1;
+
+                update<boundary, interior, '1', transpose_result>(m_result);
+                update<exterior, interior, '2', transpose_result>(m_result);
+                m_flags |= 4;
             }
             else
             {
@@ -696,12 +698,6 @@ struct areal_areal
                 update<boundary, exterior, '1', transpose_result>(m_result);
                 update<interior, exterior, '2', transpose_result>(m_result);
                 m_flags |= 2;
-
-                // not necessary since this will be checked in the next iteration
-                // but increases the pruning strength
-                // WARNING: this is not reflected in flags
-                update<exterior, boundary, '1', transpose_result>(m_result);
-                update<exterior, interior, '2', transpose_result>(m_result);
             }
 
             interrupt = m_flags == 7 || m_result.interrupt; // interrupt if the result won't be changed in the future
@@ -795,7 +791,8 @@ struct areal_areal
         {
             segment_identifier const& seg_id = turn.operations[OpId].seg_id;
 
-            int count = boost::numeric_cast<int>(
+            signed_index_type
+                count = boost::numeric_cast<signed_index_type>(
                             geometry::num_interior_rings(
                                 detail::single_geometry(analyser.geometry, seg_id)));
             
@@ -803,7 +800,10 @@ struct areal_areal
         }
 
         template <typename Analyser, typename Turn>
-        static inline void for_no_turns_rings(Analyser & analyser, Turn const& turn, int first, int last)
+        static inline void for_no_turns_rings(Analyser & analyser,
+                                              Turn const& turn,
+                                              signed_index_type first,
+                                              signed_index_type last)
         {
             segment_identifier seg_id = turn.operations[OpId].seg_id;
 

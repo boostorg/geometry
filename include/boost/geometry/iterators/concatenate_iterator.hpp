@@ -89,36 +89,6 @@ public:
                              (types<OtherIt1, OtherIt2>));
     }
 
-    template
-    <
-        typename OtherIt1,
-        typename OtherIt2,
-        typename OtherValue,
-        typename OtherReference
-    >
-    concatenate_iterator operator=(concatenate_iterator
-                                   <
-                                       OtherIt1,
-                                       OtherIt2,
-                                       OtherValue,
-                                       OtherReference
-                                   > const& other)
-    {
-        static const bool are_conv
-            = boost::is_convertible<OtherIt1, Iterator1>::value
-           && boost::is_convertible<OtherIt2, Iterator2>::value;
-
-        BOOST_MPL_ASSERT_MSG((are_conv),
-                             NOT_CONVERTIBLE,
-                             (types<OtherIt1, OtherIt2>));
-
-        m_it1 = other.m_it1;
-        m_end1 = other.m_end1;
-        m_begin2 = other.m_begin2;
-        m_it2 = other.m_it2;
-        return *this;
-    }
-
 private:
     friend class boost::iterator_core_access;
 

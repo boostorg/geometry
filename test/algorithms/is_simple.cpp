@@ -36,7 +36,7 @@
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/is_simple.hpp>
 
-#include "from_wkt.hpp"
+#include <from_wkt.hpp>
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include "pretty_print_geometry.hpp"

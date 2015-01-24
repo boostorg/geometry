@@ -161,10 +161,16 @@ public:
         geometry::assign_inverse(hint_box);
         for ( ; first != last ; ++first )
         {
-            geometry::expand(hint_box, translator(*first));
+            typename Translator::result_type indexable = translator(*first);
+
+            // NOTE: added for consistency with insert()
+            // CONSIDER: alternative - ignore invalid indexable or throw an exception
+            BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(indexable), "Indexable is invalid");
+
+            geometry::expand(hint_box, indexable);
 
             point_type pt;
-            geometry::centroid(translator(*first), pt);
+            geometry::centroid(indexable, pt);
             entries.push_back(std::make_pair(pt, first));
         }
 
@@ -187,12 +193,14 @@ private:
     internal_element per_level(EIt first, EIt last, Box const& hint_box, std::size_t values_count, subtree_elements_counts const& subtree_counts,
                                parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        BOOST_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count,
+                                    "unexpected parameters");
 
         if ( subtree_counts.maxc <= 1 )
         {
             // ROOT or LEAF
-            BOOST_ASSERT(values_count <= parameters.get_max_elements());
+            BOOST_GEOMETRY_INDEX_ASSERT(values_count <= parameters.get_max_elements(),
+                                        "too big number of elements");
             // if !root check m_parameters.get_min_elements() <= count
 
             // create new leaf node
@@ -248,9 +256,11 @@ private:
                            internal_elements & elements, Box & elements_box,
                            parameters_type const& parameters, Translator const& translator, Allocators & allocators)
     {
-        BOOST_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count);
+        BOOST_GEOMETRY_INDEX_ASSERT(0 < std::distance(first, last) && static_cast<std::size_t>(std::distance(first, last)) == values_count,
+                                    "unexpected parameters");
 
-        BOOST_ASSERT_MSG( subtree_counts.minc <= values_count, "too small number of elements");
+        BOOST_GEOMETRY_INDEX_ASSERT(subtree_counts.minc <= values_count,
+                                    "too small number of elements");
 
         // only one packet
         if ( values_count <= subtree_counts.maxc )
@@ -343,7 +353,7 @@ private:
         {
             if ( subtree_counts.minc <= r ) // e.g. 10 <= 2 == false
             {
-                //BOOST_ASSERT_MSG(0 < n, "unexpected value");
+                //BOOST_GEOMETRY_INDEX_ASSERT(0 < n, "unexpected value");
                 median_count = ((n+1)/2) * subtree_counts.maxc; // if calculated ((2+1)/2) * 25 which would be ok, but not in all cases
             }
             else // r < subtree_counts.second  // e.g. 2 < 10 == true
@@ -354,7 +364,7 @@ private:
                 if ( r == 0 )                               // e.g. false
                 {
                     // n can't be equal to 0 because then there wouldn't be any element in the other node
-                    //BOOST_ASSERT_MSG(0 < n, "unexpected value");
+                    //BOOST_GEOMETRY_INDEX_ASSERT(0 < n, "unexpected value");
                     median_count = ((n+1)/2) * subtree_counts.maxc;     // if calculated ((1+1)/2) * 25 which would be ok, but not in all cases
                 }
                 else

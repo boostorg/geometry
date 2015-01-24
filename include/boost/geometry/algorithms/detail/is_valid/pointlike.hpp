@@ -45,9 +45,11 @@ struct is_valid<Point, point_tag>
 template <typename MultiPoint>
 struct is_valid<MultiPoint, multi_point_tag>
 {
-    static inline bool apply(MultiPoint const& multipoint)
+    static inline bool apply(MultiPoint const& /*multipoint*/)
     {
-        return boost::size(multipoint) > 0;
+        // we allow empty multi-geometries, so an empty multipoint
+        // is considered valid
+        return true;
     }
 };
 

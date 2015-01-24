@@ -20,5 +20,7 @@ test-suite boost-geometry-algorithms-buffer
     [ run multi_point_buffer.cpp      : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
     [ run multi_linestring_buffer.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
     [ run multi_polygon_buffer.cpp    : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run aimes_linestring_buffer.cpp    : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+#    [ run country_buffer.cpp    : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ] # Uncomment if you want to test this manually; requires access to data/ folder
     ;
 

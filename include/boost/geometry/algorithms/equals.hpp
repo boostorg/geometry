@@ -26,6 +26,10 @@
 
 #include <boost/range.hpp>
 
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/geometry_id.hpp>
@@ -50,8 +54,6 @@
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
 
 namespace boost { namespace geometry
 {

@@ -16,9 +16,11 @@
 
 #include <cstddef>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
-#include <boost/variant/static_visitor.hpp>
+
 #include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -52,6 +54,8 @@ struct simplify_range_insert
     static inline void apply(Range const& range, OutputIterator out,
                              Distance const& max_distance, Strategy const& strategy)
     {
+        boost::ignore_unused(strategy);
+
         if (boost::size(range) <= 2 || max_distance < 0)
         {
             std::copy(boost::begin(range), boost::end(range), out);

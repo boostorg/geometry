@@ -23,6 +23,10 @@ static std::string const simplex = "LINESTRING(0 0,4 5)";
 static std::string const straight = "LINESTRING(0 0,4 5,8 10)";
 static std::string const one_bend = "LINESTRING(0 0,4 5,7 4)";
 static std::string const two_bends = "LINESTRING(0 0,4 5,7 4,10 6)";
+
+static std::string const bend_near_start1 = "LINESTRING(0 0,1 0,5 2)";
+static std::string const bend_near_start2 = "LINESTRING(0 0,1 0,2 1.5,5 3)";
+
 static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
 static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
 static std::string const tripod = "LINESTRING(5 0,5 5,1 8,5 5,9 8)"; // with spike
@@ -93,6 +97,8 @@ void test_all()
     test_one<linestring, polygon>("two_bends_right", two_bends, join_round, end_flat, 19.211, 0.0, 1.5);
     test_one<linestring, polygon>("two_bends_right", two_bends, join_miter, end_flat, 19.288, 0.0, 1.5);
 
+    test_one<linestring, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 109.2625, 9.0, 9.0);
+    test_one<linestring, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 142.8709, 9.0, 9.0);
 
     // Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed. TODO
     //test_one<linestring, polygon>("two_bends_neg", two_bends, join_miter, end_flat, 99, +1.5, -1.0);
@@ -119,11 +125,8 @@ void test_all()
     test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0, 2.0);
 #endif
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // Having flat end causing self-intersection
-    test_one<linestring, polygon>("curve", curve, join_round, end_flat, 54.8448, 5.0, 3.0);
-    test_one<linestring, polygon>("curve", curve, join_miter, end_flat, 55.3875, 5.0, 3.0);
-#endif
+    test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, 3.0);
+    test_one<linestring, polygon>("curve", curve, join_miter, end_flat, 58.7371, 5.0, 3.0);
 
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_flat, 74.25, 3.0);
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_round, 116.6336, 3.0);
@@ -132,10 +135,7 @@ void test_all()
     test_one<linestring, polygon>("chained3", chained3, join_round, end_flat, 16.9706, 2.5, 1.5);
     test_one<linestring, polygon>("chained4", chained4, join_round, end_flat, 22.6274, 2.5, 1.5);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // Having flat end causing self-intersection
-    test_one<linestring, polygon>("field_sprayer1", reallife1, join_round, end_flat, 99, 16.5, 6.5);
-#endif
+    test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_flat, 324.3550, 16.5, 6.5);
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_round, 718.761877, 16.5, 6.5);
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_miter, end_round, 718.939628, 16.5, 6.5);
 
@@ -151,10 +151,7 @@ void test_all()
     test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
     test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // Having flat end causing self-intersection
-    test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, true, tolerance);
-#endif
+    test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
     test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
 
     test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);

@@ -223,8 +223,8 @@ struct intersection<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 };
 
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename A), BOOST_VARIANT_ENUM_PARAMS(typename B)>
-struct intersection<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT_ENUM_PARAMS(B)> >
+template <BOOST_VARIANT_ENUM_PARAMS(typename T1), BOOST_VARIANT_ENUM_PARAMS(typename T2)>
+struct intersection<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
 {
     template <typename GeometryOut>
     struct visitor: static_visitor<bool>
@@ -255,8 +255,8 @@ struct intersection<variant<BOOST_VARIANT_ENUM_PARAMS(A)>, variant<BOOST_VARIANT
     template <typename GeometryOut>
     static inline bool
     apply(
-          const variant<BOOST_VARIANT_ENUM_PARAMS(A)>& geometry1,
-          const variant<BOOST_VARIANT_ENUM_PARAMS(B)>& geometry2,
+          const variant<BOOST_VARIANT_ENUM_PARAMS(T1)>& geometry1,
+          const variant<BOOST_VARIANT_ENUM_PARAMS(T2)>& geometry2,
           GeometryOut& geometry_out)
     {
         return apply_visitor(visitor<GeometryOut>(geometry_out), geometry1, geometry2);

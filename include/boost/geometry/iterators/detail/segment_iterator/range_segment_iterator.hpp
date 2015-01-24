@@ -143,33 +143,6 @@ public:
         BOOST_MPL_ASSERT_MSG((are_conv), NOT_CONVERTIBLE, (types<OtherRange>));
     }
 
-    template
-    <
-        typename OtherRange,
-        typename OtherValue,
-        typename OtherReference
-    >
-    range_segment_iterator operator=(range_segment_iterator
-                                     <
-                                         OtherRange,
-                                         OtherValue,
-                                         OtherReference
-                                     > const& other)
-    {
-        typedef typename range_segment_iterator
-            <
-                OtherRange, OtherValue, OtherReference
-            >::iterator_type other_iterator_type;
-
-        static const bool are_conv
-            = boost::is_convertible<other_iterator_type, iterator_type>::value;
-
-        BOOST_MPL_ASSERT_MSG((are_conv), NOT_CONVERTIBLE, (types<OtherRange>));
-
-        m_it = other.m_it;
-        return *this;
-    }
-
 private:
     friend class boost::iterator_core_access;
 

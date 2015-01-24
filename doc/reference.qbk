@@ -136,6 +136,7 @@
 [include generated/num_geometries.qbk]
 [include generated/num_interior_rings.qbk]
 [include generated/num_points.qbk]
+[include generated/num_segments.qbk]
 
 
 [include generated/overlaps.qbk]
