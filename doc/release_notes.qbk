@@ -170,10 +170,10 @@
 
 [*Internal changes]
 
-* Distance-strategy TODO
-* Transform-strategy TODO
+* Adapted projected_point<> distance strategy, point-type in template is replaced by calculation-type
+* Adapted transform strategies, they have points now as member-template, and calculation-type as template. Similar to what was done for projected_point distance
 * Spikes (could be generated in difference) in integer-based overlays are now avoided during generation
-* Cleanup, removed old MSVC2005 project files, let all tests pass green (also in extensions)
+* Cleanup, removed old MSVC2005 project files
 * R*-tree balancing algorithm optimized
 
 [/=================]
