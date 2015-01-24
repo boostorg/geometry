@@ -19,6 +19,8 @@
 
 [*Additional functionality]
 
+* New algorithm num_segments, returning the number of segments of a geometry
+
 [*Improvements]
 
 * Buffer now supports flat-ends for linestrings with a bend close to the start (such that buffered segment crosses flat-end).
