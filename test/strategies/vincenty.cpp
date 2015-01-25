@@ -106,7 +106,7 @@ template <typename P1, typename P2, typename Spheroid>
 void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                    double expected_distance,
                    double expected_azimuth_12,
-                   double expected_azimuth_21,
+                   double /*expected_azimuth_21*/,
                    Spheroid const& spheroid)
 {
     typedef typename bg::promote_floating_point
@@ -127,15 +127,15 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                                                 lat2 * bg::math::d2r,
                                                 spheroid);
         calc_t dist = vi.distance();
-        calc_t az12 = vi.azimuth12();
-        calc_t az21 = vi.azimuth21();
+        calc_t az12 = vi.azimuth();
+        //calc_t az21 = vi.azimuth21();
 
         calc_t az12_deg = az12 * bg::math::r2d;
-        calc_t az21_deg = az21 * bg::math::r2d;
+        //calc_t az21_deg = az21 * bg::math::r2d;
         
         BOOST_CHECK_CLOSE(dist, calc_t(expected_distance), tolerance);
         check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
-        check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
+        //check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
 
         bg::detail::vincenty_direct<calc_t> vd(lon1 * bg::math::d2r,
                                                lat1 * bg::math::d2r,
@@ -144,15 +144,15 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
                                                spheroid);
         calc_t direct_lon2 = vd.lon2();
         calc_t direct_lat2 = vd.lat2();
-        calc_t direct_az21 = vd.azimuth21();
+        //calc_t direct_az21 = vd.azimuth21();
 
         calc_t direct_lon2_deg = direct_lon2 * bg::math::r2d;
         calc_t direct_lat2_deg = direct_lat2 * bg::math::r2d;
-        calc_t direct_az21_deg = direct_az21 * bg::math::r2d;
+        //calc_t direct_az21_deg = direct_az21 * bg::math::r2d;
         
         check_deg("direct_lon2_deg", direct_lon2_deg, calc_t(lon2), tolerance, error);
         check_deg("direct_lat2_deg", direct_lat2_deg, calc_t(lat2), tolerance, error);
-        check_deg("direct_az21_deg", direct_az21_deg, az21_deg, tolerance, error);
+        //check_deg("direct_az21_deg", direct_az21_deg, az21_deg, tolerance, error);
     }
 
     // strategy
