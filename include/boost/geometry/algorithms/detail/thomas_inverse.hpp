@@ -44,20 +44,20 @@ public:
                    T2 const& lon2,
                    T2 const& lat2,
                    Spheroid const& spheroid)
-        : a(get_radius<0>(spheroid))
-        , f(detail::flattening<CT>(spheroid))
-        , is_result_zero(false)
+        : m_a(get_radius<0>(spheroid))
+        , m_f(detail::flattening<CT>(spheroid))
+        , m_is_result_zero(false)
     {
         // coordinates in radians
 
         if ( math::equals(lon1, lon2)
           && math::equals(lat1, lat2) )
         {
-            is_result_zero = true;
+            m_is_result_zero = true;
             return;
         }
 
-        CT const one_minus_f = CT(1) - f;
+        CT const one_minus_f = CT(1) - m_f;
 
 //        CT const tan_theta1 = one_minus_f * tan(lat1);
 //        CT const tan_theta2 = one_minus_f * tan(lat2);
@@ -74,41 +74,41 @@ public:
 
         CT const theta_m = (theta1 + theta2) / CT(2);
         CT const d_theta_m = (theta2 - theta1) / CT(2);
-        d_lambda = lon2 - lon1;
-        CT const d_lambda_m = d_lambda / CT(2);
+        m_d_lambda = lon2 - lon1;
+        CT const d_lambda_m = m_d_lambda / CT(2);
 
-        sin_theta_m = sin(theta_m);
-        cos_theta_m = cos(theta_m);
-        sin_d_theta_m = sin(d_theta_m);
-        cos_d_theta_m = cos(d_theta_m);
-        CT const sin2_theta_m = math::sqr(sin_theta_m);
-        CT const cos2_theta_m = math::sqr(cos_theta_m);
-        CT const sin2_d_theta_m = math::sqr(sin_d_theta_m);
-        CT const cos2_d_theta_m = math::sqr(cos_d_theta_m);
+        m_sin_theta_m = sin(theta_m);
+        m_cos_theta_m = cos(theta_m);
+        m_sin_d_theta_m = sin(d_theta_m);
+        m_cos_d_theta_m = cos(d_theta_m);
+        CT const sin2_theta_m = math::sqr(m_sin_theta_m);
+        CT const cos2_theta_m = math::sqr(m_cos_theta_m);
+        CT const sin2_d_theta_m = math::sqr(m_sin_d_theta_m);
+        CT const cos2_d_theta_m = math::sqr(m_cos_d_theta_m);
         CT const sin_d_lambda_m = sin(d_lambda_m);
         CT const sin2_d_lambda_m = math::sqr(sin_d_lambda_m);
 
         CT const H = cos2_theta_m - sin2_d_theta_m;
         CT const L = sin2_d_theta_m + H * sin2_d_lambda_m;
-        cos_d = CT(1) - CT(2) * L;
-        CT const d = acos(cos_d);
-        sin_d = sin(d);
+        m_cos_d = CT(1) - CT(2) * L;
+        CT const d = acos(m_cos_d);
+        m_sin_d = sin(d);
 
         CT const one_minus_L = CT(1) - L;
 
-        if ( math::equals(sin_d, CT(0))
+        if ( math::equals(m_sin_d, CT(0))
           || math::equals(L, CT(0))
           || math::equals(one_minus_L, CT(0)) )
         {
-            is_result_zero = true;
+            m_is_result_zero = true;
             return;
         }
 
         CT const U = CT(2) * sin2_theta_m * cos2_d_theta_m / one_minus_L;
         CT const V = CT(2) * sin2_d_theta_m * cos2_theta_m / L;
-        X = U + V;
-        Y = U - V;
-        T = d / sin_d;
+        m_X = U + V;
+        m_Y = U - V;
+        m_T = d / m_sin_d;
         //CT const D = CT(4) * math::sqr(T);
         //CT const E = CT(2) * cos_d;
         //CT const A = D * E;
@@ -118,7 +118,7 @@ public:
 
     inline CT distance() const
     {
-        if ( is_result_zero )
+        if ( m_is_result_zero )
         {
             // TODO return some approximated value
             return CT(0);
@@ -131,10 +131,10 @@ public:
         //CT const f_sqr = math::sqr(f);
         //CT const f_sqr_per_64 = f_sqr / CT(64);
 
-        CT const delta1d = f * (T*X-Y) / CT(4);
+        CT const delta1d = m_f * (m_T*m_X-m_Y) / CT(4);
         //CT const delta2d = f_sqr_per_64 * (n1 - n2 + n3);
 
-        return a * sin_d * (T - delta1d);
+        return m_a * m_sin_d * (m_T - delta1d);
         //double S2 = a * sin_d * (T - delta1d + delta2d);
     }
 
@@ -143,56 +143,58 @@ public:
         // NOTE: if both cos_latX == 0 then below we'd have 0 * INF
         // it's a situation when the endpoints are on the poles +-90 deg
         // in this case the azimuth could either be 0 or +-pi
-        if ( is_result_zero )
+        if ( m_is_result_zero )
         {
             return CT(0);
         }
 
         // may also be used to calculate distance21
         //CT const D = CT(4) * math::sqr(T);
-        CT const E = CT(2) * cos_d;
+        CT const E = CT(2) * m_cos_d;
         //CT const A = D * E;
         //CT const B = CT(2) * D;
         // may also be used to calculate distance21
-        CT const f_sqr = math::sqr(f);
+        CT const f_sqr = math::sqr(m_f);
         CT const f_sqr_per_64 = f_sqr / CT(64);
 
-        CT const F = CT(2)*Y-E*(CT(4)-X);
+        CT const F = CT(2)*m_Y-E*(CT(4)-m_X);
         //CT const M = CT(32)*T-(CT(20)*T-A)*X-(B+CT(4))*Y;
-        CT const G = f*T/CT(2) + f_sqr_per_64;
-        CT const tan_d_lambda = tan(d_lambda);
+        CT const G = m_f*m_T/CT(2) + f_sqr_per_64;
+        CT const tan_d_lambda = tan(m_d_lambda);
         CT const Q = -(F*G*tan_d_lambda) / CT(4);
 
-        CT const d_lambda_p = (d_lambda + Q) / CT(2);
+        CT const d_lambda_p = (m_d_lambda + Q) / CT(2);
         CT const tan_d_lambda_p = tan(d_lambda_p);
 
-        CT const v = atan2(cos_d_theta_m, sin_theta_m * tan_d_lambda_p);
-        CT const u = atan2(-sin_d_theta_m, cos_theta_m * tan_d_lambda_p);
+        CT const v = atan2(m_cos_d_theta_m, m_sin_theta_m * tan_d_lambda_p);
+        CT const u = atan2(-m_sin_d_theta_m, m_cos_theta_m * tan_d_lambda_p);
 
         CT const pi = math::pi<CT>();
         CT alpha1 = v + u;
         if ( alpha1 > pi )
+        {
             alpha1 -= CT(2) * pi;
+        }
 
         return alpha1;
     }
 
 private:
-    CT const a;
-    CT const f;
+    CT const m_a;
+    CT const m_f;
 
-    CT d_lambda;
-    CT cos_d;
-    CT sin_d;
-    CT X;
-    CT Y;
-    CT T;
-    CT sin_theta_m;
-    CT cos_theta_m;
-    CT sin_d_theta_m;
-    CT cos_d_theta_m;
+    CT m_d_lambda;
+    CT m_cos_d;
+    CT m_sin_d;
+    CT m_X;
+    CT m_Y;
+    CT m_T;
+    CT m_sin_theta_m;
+    CT m_cos_theta_m;
+    CT m_sin_d_theta_m;
+    CT m_cos_d_theta_m;
 
-    bool is_result_zero;
+    bool m_is_result_zero;
 };
 
 }}} // namespace boost::geometry::detail

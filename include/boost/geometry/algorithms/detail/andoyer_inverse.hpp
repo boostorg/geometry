@@ -44,17 +44,17 @@ public:
                     T2 const& lon2,
                     T2 const& lat2,
                     Spheroid const& spheroid)
-        : a(get_radius<0>(spheroid))
-        , b(get_radius<2>(spheroid))
-        , f(detail::flattening<CT>(spheroid))
-        , is_result_zero(false)
+        : m_a(get_radius<0>(spheroid))
+        , m_b(get_radius<2>(spheroid))
+        , m_f(detail::flattening<CT>(spheroid))
+        , m_is_result_zero(false)
     {
         // coordinates in radians
 
         if ( math::equals(lon1, lon2)
           && math::equals(lat1, lat2) )
         {
-            is_result_zero = true;
+            m_is_result_zero = true;
             return;
         }
 
@@ -63,109 +63,109 @@ public:
         if ( math::equals(math::abs(lat1), pi_half)
           && math::equals(math::abs(lat2), pi_half) )
         {
-            is_result_zero = true;
+            m_is_result_zero = true;
             return;
         }
 
         CT const dlon = lon2 - lon1;
-        sin_dlon = sin(dlon);
-        cos_dlon = cos(dlon);
-        sin_lat1 = sin(lat1);
-        cos_lat1 = cos(lat1);
-        sin_lat2 = sin(lat2);
-        cos_lat2 = cos(lat2);
+        m_sin_dlon = sin(dlon);
+        m_cos_dlon = cos(dlon);
+        m_sin_lat1 = sin(lat1);
+        m_cos_lat1 = cos(lat1);
+        m_sin_lat2 = sin(lat2);
+        m_cos_lat2 = cos(lat2);
 
         // H,G,T = infinity if cos_d = 1 or cos_d = -1
         // lat1 == +-90 && lat2 == +-90
         // lat1 == lat2 && lon1 == lon2
-        cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
-        d = acos(cos_d);
-        sin_d = sin(d);
+        m_cos_d = m_sin_lat1*m_sin_lat2 + m_cos_lat1*m_cos_lat2*m_cos_dlon;
+        m_d = acos(m_cos_d);
+        m_sin_d = sin(m_d);
 
         // just in case since above lat1 and lat2 is checked
         // the check below is equal to cos_d == 1 || cos_d == -1 || d == 0
-        if ( math::equals(sin_d, CT(0)) )
+        if ( math::equals(m_sin_d, CT(0)) )
         {
-            is_result_zero = true;
+            m_is_result_zero = true;
             return;
         }
     }
 
     inline CT distance() const
     {
-        if ( is_result_zero )
+        if ( m_is_result_zero )
         {
             // TODO return some approximated value
             return CT(0);
         }
 
-        CT const K = math::sqr(sin_lat1-sin_lat2);
-        CT const L = math::sqr(sin_lat1+sin_lat2);
-        CT const three_sin_d = CT(3) * sin_d;
+        CT const K = math::sqr(m_sin_lat1-m_sin_lat2);
+        CT const L = math::sqr(m_sin_lat1+m_sin_lat2);
+        CT const three_sin_d = CT(3) * m_sin_d;
         // H or G = infinity if cos_d = 1 or cos_d = -1
-        CT const H = (d+three_sin_d)/(CT(1)-cos_d);
-        CT const G = (d-three_sin_d)/(CT(1)+cos_d);
+        CT const H = (m_d+three_sin_d)/(CT(1)-m_cos_d);
+        CT const G = (m_d-three_sin_d)/(CT(1)+m_cos_d);
 
         // for e.g. lat1=-90 && lat2=90 here we have G*L=INF*0
-        CT const dd = -(f/CT(4))*(H*K+G*L);
+        CT const dd = -(m_f/CT(4))*(H*K+G*L);
 
-        return a * (d + dd);
+        return m_a * (m_d + dd);
     }
 
     inline CT azimuth() const
     {
         // it's a situation when the endpoints are on the poles +-90 deg
         // in this case the azimuth could either be 0 or +-pi
-        if ( is_result_zero )
+        if ( m_is_result_zero )
         {
             return CT(0);
         }
 
         CT A = CT(0);
         CT U = CT(0);
-        if ( !math::equals(cos_lat2, CT(0)) )
+        if ( ! math::equals(m_cos_lat2, CT(0)) )
         {
-            CT const tan_lat2 = sin_lat2/cos_lat2;
-            CT const M = cos_lat1*tan_lat2-sin_lat1*cos_dlon;
-            A = atan2(sin_dlon, M);
+            CT const tan_lat2 = m_sin_lat2/m_cos_lat2;
+            CT const M = m_cos_lat1*tan_lat2-m_sin_lat1*m_cos_dlon;
+            A = atan2(m_sin_dlon, M);
             CT const sin_2A = sin(CT(2)*A);
-            U = (f/CT(2))*math::sqr(cos_lat1)*sin_2A;
+            U = (m_f/CT(2))*math::sqr(m_cos_lat1)*sin_2A;
         }
 
         CT V = CT(0);
-        if ( !math::equals(cos_lat1, CT(0)) )
+        if ( ! math::equals(m_cos_lat1, CT(0)) )
         {
-            CT const tan_lat1 = sin_lat1/cos_lat1;
-            CT const N = cos_lat2*tan_lat1-sin_lat2*cos_dlon;
-            CT const B = atan2(sin_dlon, N);
+            CT const tan_lat1 = m_sin_lat1/m_cos_lat1;
+            CT const N = m_cos_lat2*tan_lat1-m_sin_lat2*m_cos_dlon;
+            CT const B = atan2(m_sin_dlon, N);
             CT const sin_2B = sin(CT(2)*B);
-            V = (f/CT(2))*math::sqr(cos_lat2)*sin_2B;
+            V = (m_f/CT(2))*math::sqr(m_cos_lat2)*sin_2B;
         }
 
         // infinity if sin_d = 0, so cos_d = 1 or cos_d = -1
-        CT const T = d / sin_d;
+        CT const T = m_d / m_sin_d;
         CT const dA = V*T-U;
 
         return A - dA;
     }
 
 private:
-    CT const a;
-    CT const b;
-    CT const f;
+    CT const m_a;
+    CT const m_b;
+    CT const m_f;
 
-    CT sin_dlon;
-    CT cos_dlon;
-    CT sin_lat1;
-    CT cos_lat1;
-    CT sin_lat2;
-    CT cos_lat2;
+    CT m_sin_dlon;
+    CT m_cos_dlon;
+    CT m_sin_lat1;
+    CT m_cos_lat1;
+    CT m_sin_lat2;
+    CT m_cos_lat2;
 
-    CT cos_d;
-    CT d;
-    CT sin_d;
+    CT m_cos_d;
+    CT m_d;
+    CT m_sin_d;
 
-    bool is_result_zero;
+    bool m_is_result_zero;
 };
 
 }}} // namespace boost::geometry::detail
