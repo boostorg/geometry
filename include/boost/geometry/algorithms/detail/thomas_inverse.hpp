@@ -59,10 +59,18 @@ public:
 
         CT const one_minus_f = CT(1) - f;
 
-        CT const tan_theta1 = one_minus_f * tan(lat1);
-        CT const tan_theta2 = one_minus_f * tan(lat2);
-        CT const theta1 = atan(tan_theta1);
-        CT const theta2 = atan(tan_theta2);
+//        CT const tan_theta1 = one_minus_f * tan(lat1);
+//        CT const tan_theta2 = one_minus_f * tan(lat2);
+//        CT const theta1 = atan(tan_theta1);
+//        CT const theta2 = atan(tan_theta2);
+
+        CT const pi_half = math::pi<CT>() / CT(2);
+        CT const theta1 = math::equals(lat1, pi_half) ? lat1 :
+                          math::equals(lat1, -pi_half) ? lat1 :
+                          atan(one_minus_f * tan(lat1));
+        CT const theta2 = math::equals(lat2, pi_half) ? lat2 :
+                          math::equals(lat2, -pi_half) ? lat2 :
+                          atan(one_minus_f * tan(lat2));
 
         CT const theta_m = (theta1 + theta2) / CT(2);
         CT const d_theta_m = (theta2 - theta1) / CT(2);
