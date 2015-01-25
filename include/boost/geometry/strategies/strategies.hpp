@@ -64,6 +64,7 @@
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 
 #include <boost/geometry/strategies/agnostic/buffer_distance_symmetric.hpp>
