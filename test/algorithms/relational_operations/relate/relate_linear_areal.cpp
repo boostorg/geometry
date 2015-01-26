@@ -264,6 +264,17 @@ void test_linestring_polygon()
     test_geometry<ls, poly>("LINESTRING(0 0, 7 7)",
                             "POLYGON((5 5,5 15,15 15,15 5,5 5))",
                             "1010F0212");
+
+    // 25.01.2015
+    test_geometry<ls, poly>("LINESTRING(4 5, 0 6, 5 6)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))",
+                            "11FF0F212");
+    test_geometry<ls, poly>("LINESTRING(2 3, 4 5, 0 6, 5 6)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))",
+                            "11F00F212");
+    test_geometry<ls, poly>("LINESTRING(2 9, 1 1, 10 1, 10 10, 1 10, 0 6, 5 6)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))",
+                            "11F00F212");
 }
 
 template <typename P>
