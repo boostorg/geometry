@@ -333,9 +333,32 @@ void test_linestring_multi_linestring()
                            "10FF0F102");                                //            |
                                                                         //            |
 
-    // 22.01 2015
+    // 22.01.2015
     // inspired by L/A and A/A
     test_geometry<ls, mls>("LINESTRING(1 1,2 2)", "MULTILINESTRING((0 0,1 1),(1 1,3 3))", "1FF0FF102");
+
+    // 25.01.2015
+    test_geometry<ls, mls>("LINESTRING(1 1, 5 5, 4 4)",
+                           "MULTILINESTRING((2 5, 7 5, 8 3, 6 3, 4 0),(0 0,10 10))",
+                           "1FF0FF102");
+    test_geometry<ls, mls>("LINESTRING(4 1, 4 5, 4 4)",
+                           "MULTILINESTRING((2 5, 7 5, 8 3, 6 3, 4 0),(4 0, 4 8, 0 4))",
+                           "1FF0FF102");
+    test_geometry<ls, mls>("LINESTRING(1 1,5 5,4 4)",
+                           "MULTILINESTRING((5 0,5 5,5 10),(0 0,10 10))",
+                           "1FF0FF102");
+    test_geometry<ls, mls>("LINESTRING(1 1,5 5,1 0)",
+                           "MULTILINESTRING((5 0,5 5,5 10),(0 0,5 5,1 0))",
+                           "1FF00F102");
+    test_geometry<ls, mls>("LINESTRING(5 5,4 4)",
+                           "MULTILINESTRING((5 0,5 5,5 10),(0 0,10 10))",
+                           "1FF0FF102");
+    test_geometry<ls, mls>("LINESTRING(6 6,5 5,4 4)",
+                           "MULTILINESTRING((5 0,5 5,5 10),(0 0,10 10))",
+                           "1FF0FF102");
+    test_geometry<ls, mls>("LINESTRING(5 5,4 4)",
+                           "MULTILINESTRING((5 0,5 5,5 10))",
+                           "FF10F0102");
 }
 
 template <typename P>
