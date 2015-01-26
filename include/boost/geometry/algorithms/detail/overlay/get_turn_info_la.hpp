@@ -354,7 +354,8 @@ struct get_turn_info_linear_areal
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
                                 tp, out, inters.i_info(), inters.d_info(),
-                                inters.sides(), transformer);
+                                inters.sides(), transformer,
+                                !is_p_last, true); // qk is always valid
                     }
                 }
             }
