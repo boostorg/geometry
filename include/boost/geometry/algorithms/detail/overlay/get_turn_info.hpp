@@ -754,8 +754,11 @@ public:
     {
         TurnInfo tp = tp_model;
 
+        int const p_arrival = info.d_info().arrival[0];
+        int const q_arrival = info.d_info().arrival[1];
+
         // If P arrives within Q, there is a turn dependent on P
-        if ( info.d_info().arrival[0] == 1
+        if ( p_arrival == 1
           && is_pk_valid
           && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, info.i_info()) )
         {
@@ -766,7 +769,7 @@ public:
         }
 
         // If Q arrives within P, there is a turn dependent on Q
-        if ( info.d_info().arrival[1] == 1
+        if ( q_arrival == 1
           && is_qk_valid
           && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, info.i_info()) )
         {
@@ -779,8 +782,8 @@ public:
         if (AssignPolicy::include_opposite)
         {
             // Handle cases not yet handled above
-            if ((info.d_info().arrival[1] == -1 && info.d_info().arrival[0] == 0)
-                || (info.d_info().arrival[0] == -1 && info.d_info().arrival[1] == 0))
+            if ((q_arrival == -1 && p_arrival == 0)
+                || (p_arrival == -1 && q_arrival == 0))
             {
                 for (int i = 0; i < 2; i++)
                 {
