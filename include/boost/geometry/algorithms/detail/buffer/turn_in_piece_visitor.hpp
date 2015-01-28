@@ -331,16 +331,18 @@ class analyse_turn_wrt_piece
     }
 
 public :
-    template <typename Point, typename Piece>
-    static inline analyse_result apply(Point const& point, Piece const& piece)
+    template <typename Turn, typename Piece>
+    static inline analyse_result apply(Turn const& turn, Piece const& piece)
     {
+        typedef typename Piece::piece_robust_point_type point_type;
+        const point_type& point = turn.robust_point;
         analyse_result code = check_helper_segments(point, piece);
         if (code != analyse_continue)
         {
             return code;
         }
 
-        geometry::equal_to<Point> comparator;
+        geometry::equal_to<point_type> comparator;
 
         if (piece.offsetted_count > 8)
         {
@@ -349,22 +351,22 @@ public :
             // We try it only once.
             if (piece.is_monotonic_increasing[0])
             {
-                code = check_monotonic(point, piece, geometry::less<Point, 0>());
+                code = check_monotonic(point, piece, geometry::less<point_type, 0>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_increasing[1])
             {
-                code = check_monotonic(point, piece, geometry::less<Point, 1>());
+                code = check_monotonic(point, piece, geometry::less<point_type, 1>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[0])
             {
-                code = check_monotonic(point, piece, geometry::greater<Point, 0>());
+                code = check_monotonic(point, piece, geometry::greater<point_type, 0>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[1])
             {
-                code = check_monotonic(point, piece, geometry::greater<Point, 1>());
+                code = check_monotonic(point, piece, geometry::greater<point_type, 1>());
                 if (code != analyse_continue) return code;
             }
         }
@@ -374,8 +376,8 @@ public :
 
         for (int i = 1; i < piece.offsetted_count; i++)
         {
-            Point const& previous = piece.robust_ring[i - 1];
-            Point const& current = piece.robust_ring[i];
+            point_type const& previous = piece.robust_ring[i - 1];
+            point_type const& current = piece.robust_ring[i];
 
             // The robust ring can contain duplicates
             // (on which any side or side-value would return 0)
@@ -460,7 +462,7 @@ public:
 
         // TODO: mutable_piece to make some on-demand preparations in analyse
         analyse_result analyse_code
-            = analyse_turn_wrt_piece::apply(turn.robust_point, piece);
+            = analyse_turn_wrt_piece::apply(turn, piece);
 
         Turn& mutable_turn = m_turns[turn.turn_index];
         switch(analyse_code)
