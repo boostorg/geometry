@@ -250,6 +250,7 @@ struct linear_linear
             : m_previous_turn_ptr(NULL)
             , m_previous_operation(overlay::operation_none)
             , m_degenerated_turn_ptr(NULL)
+            , m_collinear_spike_exit(false)
         {}
 
         template <typename Result,
@@ -383,7 +384,8 @@ struct linear_linear
                     // if we didn't enter in the past, we were outside
                     if ( was_outside
                       && ! fake_enter_detected
-                      && it->operations[op_id].position != overlay::position_front )
+                      && it->operations[op_id].position != overlay::position_front
+                      && ! m_collinear_spike_exit )
                     {
                         update<interior, exterior, '1', transpose_result>(res);
 
@@ -402,6 +404,8 @@ struct linear_linear
                         }
                     }
                 }
+
+                m_collinear_spike_exit = false;
             }
             // u/i, u/u, u/x, x/i, x/u, x/x
             else if ( op == overlay::operation_union || op == overlay::operation_blocked )
@@ -418,6 +422,11 @@ struct linear_linear
                 if ( !was_outside && is_collinear )
                 {
                     m_exit_watcher.exit(*it, false);
+                    // if the position is not set to back it must be a spike
+                    if ( it->operations[op_id].position != overlay::position_back )
+                    {
+                        m_collinear_spike_exit = true;
+                    }
                 }
 
                 bool const op_blocked = op == overlay::operation_blocked;
@@ -456,6 +465,7 @@ struct linear_linear
                     // if we are truly outside
                     if ( was_outside
                       && it->operations[op_id].position != overlay::position_front
+                      && ! m_collinear_spike_exit
                       /*&& !is_collinear*/ )
                     {
                         update<interior, exterior, '1', transpose_result>(res);
@@ -526,6 +536,7 @@ struct linear_linear
                           && ( !this_b || op_blocked )
                           && was_outside
                           && it->operations[op_id].position != overlay::position_front
+                          && ! m_collinear_spike_exit
                           /*&& !is_collinear*/ )
                         {
                             bool const front_b = is_endpoint_on_boundary<boundary_front>(
@@ -607,6 +618,10 @@ struct linear_linear
             m_previous_turn_ptr = NULL;
             m_previous_operation = overlay::operation_none;
             m_degenerated_turn_ptr = NULL;
+
+            // actually if this is set to true here there is some error
+            // in get_turns_ll or relate_ll, an assert could be checked here
+            m_collinear_spike_exit = false;
         }
 
         template <typename Result,
@@ -724,6 +739,7 @@ struct linear_linear
         const TurnInfo * m_previous_turn_ptr;
         overlay::operation_type m_previous_operation;
         const TurnInfo * m_degenerated_turn_ptr;
+        bool m_collinear_spike_exit;
     };
 
     template <typename Result,

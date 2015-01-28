@@ -13,23 +13,24 @@
 
 #include <cstddef>
 
+#include <boost/core/enable_if.hpp>
+
 #include <boost/fusion/include/is_sequence.hpp>
 #include <boost/fusion/include/size.hpp>
 #include <boost/fusion/include/tag_of.hpp>
 #include <boost/fusion/include/front.hpp>
 #include <boost/fusion/include/at.hpp>
-#include <boost/utility/enable_if.hpp>
-
 #include <boost/fusion/mpl.hpp>
-#include <boost/mpl/front.hpp>
+
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/count_if.hpp>
+#include <boost/mpl/front.hpp>
+#include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/pop_front.hpp>
 #include <boost/mpl/size.hpp>
+
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/front.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>

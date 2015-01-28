@@ -29,9 +29,9 @@ namespace dispatch
 {
 
 
-template <typename Geometry>
-struct num_points<nsphere_tag, Geometry>
-        : detail::num_points::other_count<1>
+template <typename Geometry, bool AddForOpen>
+struct num_points<Geometry, AddForOpen, nsphere_tag>
+        : detail::counting::other_count<1>
 {};
 
 

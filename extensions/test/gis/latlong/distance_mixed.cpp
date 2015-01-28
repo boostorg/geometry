@@ -19,6 +19,8 @@
 #include <boost/geometry/algorithms/assign.hpp>
 
 #include <boost/geometry/geometry.hpp>
+#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 #include <boost/geometry/extensions/gis/latlong/latlong.hpp>
 
 #include <test_common/test_point.hpp>

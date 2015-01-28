@@ -10,8 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_INTERFACE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_INTERFACE_HPP
 
-#include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -62,7 +62,8 @@ struct is_valid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 \ingroup is_valid
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\return \return_check{is valid (in the OGC sense)}
+\return \return_check{is valid (in the OGC sense), with one exception:
+multi-geometries with no elements are considered valid}
 
 \qbk{[include reference/algorithms/is_valid.qbk]}
 */

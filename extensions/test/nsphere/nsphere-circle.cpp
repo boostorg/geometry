@@ -81,7 +81,7 @@ struct access<custom_circle, 1>
 };
 
 template<>
-struct radius_access<custom_circle, int, 0>
+struct radius_access<custom_circle, 0>
 {
     static inline int get(custom_circle const& c)
     {

@@ -13,7 +13,6 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/scoped_array.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -104,7 +103,13 @@ struct shape_create_polygon
 
         typename interior_return_type<Polygon const>::type rings
                     = interior_rings(polygon);
-        for (BOOST_AUTO_TPL(it, boost::begin(rings)); it != boost::end(rings); ++it)
+
+        typedef typename boost::range_const_iterator
+            <
+                typename interior_type<Polygon const>::type
+            >::type ring_iterator;
+
+        for (ring_iterator it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             parts[ring++] = offset;
             offset = range_to_part(*it, xp, yp, offset);

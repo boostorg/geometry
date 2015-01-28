@@ -161,14 +161,14 @@ struct dissolve_ring_or_polygon
                             rescale_policy,
                             turns, rings);
 
-            std::map<ring_identifier, int> map;
-            map_turns(map, turns);
+            std::map<ring_identifier, detail::overlay::ring_turn_info> map;
+            get_ring_turn_info(map, turns);
 
             typedef detail::overlay::ring_properties<typename geometry::point_type<Geometry>::type> properties;
 
             std::map<ring_identifier, properties> selected;
 
-            detail::overlay::select_rings<overlay_union>(geometry, map, selected, true);
+            detail::overlay::select_rings<overlay_union>(geometry, map, selected);
 
             // Add intersected rings
             {
@@ -178,7 +178,7 @@ struct dissolve_ring_or_polygon
                         it != boost::end(rings);
                         ++it)
                 {
-                    selected[id] = properties(*it, true);
+                    selected[id] = properties(*it);
                     id.multi_index++;
                 }
             }
@@ -260,13 +260,21 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry, OutputIterator
     concept::check<Geometry const>();
     concept::check<GeometryOut>();
 
+    typedef typename geometry::rescale_policy_type
+    <
+        typename geometry::point_type<Geometry>::type
+    >::type rescale_policy_type;
+
+    rescale_policy_type robust_policy
+        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+
     return dispatch::dissolve
     <
         typename tag<Geometry>::type,
         typename tag<GeometryOut>::type,
         Geometry,
         GeometryOut
-    >::apply(geometry, detail::no_rescale_policy(), out);
+    >::apply(geometry, robust_policy, out);
 }
 
 
