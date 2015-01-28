@@ -161,6 +161,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
     // simple closed linestrings
     test_simple(from_wkt<G>("LINESTRING(0 0,1 0,1 1,0 0)"), true);
     test_simple(from_wkt<G>("LINESTRING(0 0,1 0,1 1,0 1,0 0)"), true);
+    test_simple(from_wkt<G>("LINESTRING(0 0,10 0,10 10,0 10,0 0)"), true);
 
     // non-simple linestrings
     test_simple(from_wkt<G>("LINESTRING(0 0,1 0,0 0)"), false);
@@ -173,6 +174,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
     test_simple(from_wkt<G>("LINESTRING(0 0,3 0,5 0,4 0,2 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(0 0,3 0,2 0,5 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(0 0,2 0,2 2,1 0,0 0)"), false);
+    test_simple(from_wkt<G>("LINESTRING(0 0,0 10,5 10,0 0,10 10,10 5,10 0,0 0)"), false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
@@ -208,6 +210,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 true);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0),(0 0,0 1),(0 0,-1 0),(0 0,0 -1))"),
                 true);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,10 0,10 10,0 10,0 0))"), true);
 
     // non-simple multilinestrings
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,2 2),(0 0,2 2))"), false);
@@ -246,6 +249,7 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((0 0,1 0,1 1,0 1,0 0),(-1 -1,-1 0,0 0,0 -1,-1 -1))"),
                 false);
+    test_simple(from_wkt<G>("MULTILINESTRING((0 0,0 10,5 10,0 0,10 10,10 5,10 0,0 0))"), false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_areal )
