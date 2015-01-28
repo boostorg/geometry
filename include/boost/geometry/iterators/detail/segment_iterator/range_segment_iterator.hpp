@@ -104,7 +104,7 @@ struct range_segment_iterator
 
     // default constructor
     range_segment_iterator()
-        : m_it(), m_has_less_than_two_elements()
+        : m_it(), m_has_less_than_two_elements(false)
     {}
 
     // for begin
