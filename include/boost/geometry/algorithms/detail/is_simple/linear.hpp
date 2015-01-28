@@ -93,6 +93,19 @@ private:
                   || geometry::equals(point, range::back(linestring)) );
         }
 
+        template <typename Point, typename Linestring>
+        static inline bool is_closing_point_of(Point const& point,
+                                               Linestring const& linestring)
+        {
+            BOOST_ASSERT( boost::size(linestring) > 1 );
+            return
+                geometry::equals(range::front(linestring),
+                                 range::back(linestring))
+                &&
+                geometry::equals(range::front(linestring), point)
+                ;
+        }
+
         template <typename Linestring1, typename Linestring2>
         static inline bool have_same_boundary_points(Linestring1 const& ls1,
                                                      Linestring2 const& ls2)
@@ -129,6 +142,13 @@ private:
             linestring const& ls2 =
                 range::at(m_multilinestring,
                           turn.operations[1].seg_id.multi_index);
+
+            if (turn.operations[0].seg_id.multi_index
+                == turn.operations[1].seg_id.multi_index)
+            {
+                BOOST_ASSERT(is_closing_point_of(turn.point, ls1));
+                return true;
+            }
 
             return
                 is_boundary_point_of(turn.point, ls1)
