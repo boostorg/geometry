@@ -109,9 +109,9 @@ class analyse_turn_wrt_piece
         return geometry::covered_by(point, box);
     }
 
-    template <typename Point>
+    template <typename Point, typename Turn>
     static inline analyse_result check_segment(Point const& previous,
-            Point const& current, Point const& point,
+            Point const& current, Turn const& turn,
             bool from_monotonic)
     {
         typedef typename strategy::side::services::default_strategy
@@ -125,12 +125,12 @@ class analyse_turn_wrt_piece
                 <
                     coordinate_type,
                     coordinate_type
-                >(previous, current, point);
+                >(previous, current, turn.robust_point);
 
         if (twice_area == 0)
         {
             // Collinear, only on segment if it is covered by its bbox
-            if (in_box(previous, current, point))
+            if (in_box(previous, current, turn.robust_point))
             {
                 return analyse_on_offsetted;
             }
@@ -141,7 +141,7 @@ class analyse_turn_wrt_piece
             // segment is the hypothenusa. Check if it is close
             // (within rounding-area)
             if (twice_area * twice_area < geometry::comparable_distance(previous, current)
-                && in_box(previous, current, point))
+                && in_box(previous, current, turn.robust_point))
             {
                 return analyse_near_offsetted;
             }
@@ -161,9 +161,9 @@ class analyse_turn_wrt_piece
     }
 
 
-    template <typename Point>
+    template <typename Point, typename Turn>
     static inline analyse_result check_helper_segment(Point const& s1,
-                Point const& s2, Point const& point,
+                Point const& s2, Turn const& turn,
                 bool is_original,
                 Point const& offsetted)
     {
@@ -172,7 +172,7 @@ class analyse_turn_wrt_piece
                 typename cs_tag<Point>::type
             >::type side_strategy;
 
-        switch(side_strategy::apply(s1, s2, point))
+        switch(side_strategy::apply(s1, s2, turn.robust_point))
         {
             case 1 :
                 return analyse_disjoint; // left of segment
@@ -186,11 +186,11 @@ class analyse_turn_wrt_piece
                     geometry::expand(box, s1);
                     geometry::expand(box, s2);
 
-                    if (geometry::covered_by(point, box))
+                    if (geometry::covered_by(turn.robust_point, box))
                     {
                         // It is on the segment
                         if (! is_original
-                            && geometry::comparable_distance(point, offsetted) <= 1)
+                            && geometry::comparable_distance(turn.robust_point, offsetted) <= 1)
                         {
                             // It is close to the offsetted-boundary, take
                             // any rounding-issues into account
@@ -217,12 +217,13 @@ class analyse_turn_wrt_piece
         return analyse_continue;
     }
 
-    template <typename Point, typename Piece>
-    static inline analyse_result check_helper_segments(Point const& point, Piece const& piece)
+    template <typename Turn, typename Piece>
+    static inline analyse_result check_helper_segments(Turn const& turn, Piece const& piece)
     {
-        geometry::equal_to<Point> comparator;
+        typedef typename Turn::robust_point_type point_type;
+        geometry::equal_to<point_type> comparator;
 
-        Point points[4];
+        point_type points[4];
 
         int helper_count = piece.robust_ring.size() - piece.offsetted_count;
         if (helper_count == 4)
@@ -249,6 +250,7 @@ class analyse_turn_wrt_piece
         }
 
         // First check point-equality
+        point_type const& point = turn.robust_point;
         if (comparator(point, points[0]) || comparator(point, points[3]))
         {
             return analyse_on_offsetted;
@@ -260,7 +262,7 @@ class analyse_turn_wrt_piece
 
         // Right side of the piece
         analyse_result result
-            = check_helper_segment(points[0], points[1], point,
+            = check_helper_segment(points[0], points[1], turn,
                     false, points[0]);
         if (result != analyse_continue)
         {
@@ -268,7 +270,7 @@ class analyse_turn_wrt_piece
         }
 
         // Left side of the piece
-        result = check_helper_segment(points[2], points[3], point,
+        result = check_helper_segment(points[2], points[3], turn,
                     false, points[3]);
         if (result != analyse_continue)
         {
@@ -278,7 +280,7 @@ class analyse_turn_wrt_piece
         if (! comparator(points[1], points[2]))
         {
             // Side of the piece at side of original geometry
-            result = check_helper_segment(points[1], points[2], point,
+            result = check_helper_segment(points[1], points[2], turn,
                         true, point);
             if (result != analyse_continue)
             {
@@ -293,7 +295,7 @@ class analyse_turn_wrt_piece
             // Not in offsetted-area. This makes a cheap check possible
             typedef typename strategy::side::services::default_strategy
                 <
-                    typename cs_tag<Point>::type
+                    typename cs_tag<point_type>::type
                 >::type side_strategy;
 
             switch(side_strategy::apply(points[3], points[0], point))
@@ -307,15 +309,15 @@ class analyse_turn_wrt_piece
         return analyse_continue;
     }
 
-    template <typename Point, typename Piece, typename Compare>
-    static inline analyse_result check_monotonic(Point const& point, Piece const& piece, Compare const& compare)
+    template <typename Turn, typename Piece, typename Compare>
+    static inline analyse_result check_monotonic(Turn const& turn, Piece const& piece, Compare const& compare)
     {
         typedef typename Piece::piece_robust_ring_type ring_type;
         typedef typename ring_type::const_iterator it_type;
         it_type end = piece.robust_ring.begin() + piece.offsetted_count;
         it_type it = std::lower_bound(piece.robust_ring.begin(),
                     end,
-                    point,
+                    turn.robust_point,
                     compare);
 
         if (it != end
@@ -325,7 +327,7 @@ class analyse_turn_wrt_piece
             // w.r.t. specified direction, and prev points to a point smaller
             // We now know if it is inside/outside
             it_type prev = it - 1;
-            return check_segment(*prev, *it, point, true);
+            return check_segment(*prev, *it, turn, true);
         }
         return analyse_continue;
     }
@@ -334,9 +336,8 @@ public :
     template <typename Turn, typename Piece>
     static inline analyse_result apply(Turn const& turn, Piece const& piece)
     {
-        typedef typename Piece::piece_robust_point_type point_type;
-        const point_type& point = turn.robust_point;
-        analyse_result code = check_helper_segments(point, piece);
+        typedef typename Turn::robust_point_type point_type;
+        analyse_result code = check_helper_segments(turn, piece);
         if (code != analyse_continue)
         {
             return code;
@@ -351,22 +352,22 @@ public :
             // We try it only once.
             if (piece.is_monotonic_increasing[0])
             {
-                code = check_monotonic(point, piece, geometry::less<point_type, 0>());
+                code = check_monotonic(turn, piece, geometry::less<point_type, 0>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_increasing[1])
             {
-                code = check_monotonic(point, piece, geometry::less<point_type, 1>());
+                code = check_monotonic(turn, piece, geometry::less<point_type, 1>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[0])
             {
-                code = check_monotonic(point, piece, geometry::greater<point_type, 0>());
+                code = check_monotonic(turn, piece, geometry::greater<point_type, 0>());
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[1])
             {
-                code = check_monotonic(point, piece, geometry::greater<point_type, 1>());
+                code = check_monotonic(turn, piece, geometry::greater<point_type, 1>());
                 if (code != analyse_continue) return code;
             }
         }
@@ -383,7 +384,7 @@ public :
             // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                code = check_segment(previous, current, point, false);
+                code = check_segment(previous, current, turn, false);
                 if (code != analyse_continue)
                 {
                     return code;
