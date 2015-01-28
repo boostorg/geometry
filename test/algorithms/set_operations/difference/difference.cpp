@@ -292,7 +292,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("geos_2",
         geos_2[0], geos_2[1],
         1, -1, 138.6923828,
-        1, -1, 211.859375);
+        1, -1, 211.859375,
+        0.01); // MSVC 14 expects 138.69214 and 211.85913
 
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
