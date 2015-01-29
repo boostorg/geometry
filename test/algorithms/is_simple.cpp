@@ -266,6 +266,8 @@ BOOST_AUTO_TEST_CASE( test_is_simple_multilinestring )
                 false);
     test_simple(from_wkt<G>("MULTILINESTRING((4 1,10 8,4 6,4 1,10 5,10 3))"),
                 false);
+    test_simple(from_wkt<G>("MULTILINESTRING((10 3,10 5,4 1,4 6,10 8,4 1))"),
+                false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_areal )
