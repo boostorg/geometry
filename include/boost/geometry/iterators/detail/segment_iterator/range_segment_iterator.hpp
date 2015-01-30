@@ -91,7 +91,7 @@ struct range_iterator_end<Range, open>
 
 
 template <typename Range, typename Value, typename Reference = Value>
-struct range_segment_iterator
+class range_segment_iterator
     : public boost::iterator_facade
         <
             range_segment_iterator<Range, Value, Reference>,
@@ -100,6 +100,12 @@ struct range_segment_iterator
             Reference
         >
 {
+    static inline bool has_less_than_two_elements(Range const& r)
+    {
+        return boost::size(r) < ((closure<Range>::value == open) ? 1u : 2u);
+    }
+
+public:
     typedef typename range_iterator_type<Range>::type iterator_type;
 
     // default constructor
@@ -110,13 +116,13 @@ struct range_segment_iterator
     // for begin
     range_segment_iterator(Range& r)
         : m_it(range_iterator_begin<Range>::apply(r))
-        , m_has_less_than_two_elements(boost::size(r) < 2u)
+        , m_has_less_than_two_elements(has_less_than_two_elements(r))
     {}
 
     // for end
     range_segment_iterator(Range& r, bool)
         : m_it(range_iterator_end<Range>::apply(r))
-        , m_has_less_than_two_elements(boost::size(r) < 2u)
+        , m_has_less_than_two_elements(has_less_than_two_elements(r))
     {
         if (! m_has_less_than_two_elements)
         {
