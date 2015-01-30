@@ -214,6 +214,17 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(0 4,5 4)",
                           expected("muu++"));
     
+    // 29.01.2015
+    if ( boost::is_same<T, double>::value )
+    {
+        /*test_geometry<ls, ls>("LINESTRING(3 -0.6,0 -0.9)",
+                              "LINESTRING(4 2.232432,1 -0.8,9 0)",
+                              expected("mui=+")("miu+="));*/
+    }
+    test_geometry<ls, ls>("LINESTRING(3 0,0 0)",
+                          "LINESTRING(4 2,1 0,9 0)",
+                          expected("mui=+")("miu+="));
+
     // TODO:
     //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
     //test_geometry<ls, ls>("LINESTRING(2 0,0 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
