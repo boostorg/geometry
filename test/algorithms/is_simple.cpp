@@ -183,6 +183,8 @@ BOOST_AUTO_TEST_CASE( test_is_simple_linestring )
                 false);
     test_simple(from_wkt<G>("LINESTRING(0 0,0 0,10 0,10 10,10 10,10 10,10 10,10 10,0 10,0 0,0 0)"),
                 false);
+    test_simple(from_wkt<G>("LINESTRING(0 0,1 0,2 0,2 2,1 0)"), false);
+    test_simple(from_wkt<G>("LINESTRING(1 0,2 2,2 0,1 0,0 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(0 0,1 0,2 0,2 2,1 0,1 4,0 0)"), false);
     test_simple(from_wkt<G>("LINESTRING(4 1,10 8,4 6,4 1,10 5,10 3)"),
                 false);
