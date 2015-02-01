@@ -217,13 +217,38 @@ void test_all()
     // 29.01.2015
     if ( boost::is_same<T, double>::value )
     {
+        // FAILING
         /*test_geometry<ls, ls>("LINESTRING(3 -0.6,0 -0.9)",
                               "LINESTRING(4 2.232432,1 -0.8,9 0)",
-                              expected("mui=+")("miu+="));*/
+                              expected("mui=+")("miu+="));
+
+        test_geometry<ls, ls>("LINESTRING(3 -0.6,1 -0.8,0 -0.9)",
+                              "LINESTRING(4 2.232432,1 -0.8,9 0)",
+                              expected("tuu++"));
+
+        test_geometry<ls, ls>("LINESTRING(3 -0.6, 0 -0.9, -1 -1)",
+                              "LINESTRING(4 2.232432, 0 -0.9, 9 0)",
+                              expected("tui=+")("miu+="));
+
+        test_geometry<ls, ls>("LINESTRING(3 -0.6, 0 -0.9, -1 -1, -2 -2)",
+                              "LINESTRING(4 2.232432,-1 -1, 0 -0.9, 9 0)",
+                              expected("tui=+")("ecc==")("miu+="));*/
     }
+
     test_geometry<ls, ls>("LINESTRING(3 0,0 0)",
                           "LINESTRING(4 2,1 0,9 0)",
                           expected("mui=+")("miu+="));
+
+
+    // 01.02.2015
+    // FAILING
+    /*test_geometry<ls, ls>("LINESTRING(6 0,0 0,5 0)",
+                          "LINESTRING(2 0,0 0,-10 0)",
+                          expected("mii++")("mui=+")("cxu==")("ciu=="));
+    // the reversal could be automatic...
+    test_geometry<ls, ls>("LINESTRING(2 0,0 0,-10 0)",
+                          "LINESTRING(6 0,0 0,5 0)",
+                          expected("mii++")("miu+=")("cux==")("cui=="));*/
 
     // TODO:
     //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
