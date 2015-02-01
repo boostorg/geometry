@@ -92,7 +92,7 @@ public:
         return m_is_closed
             && turn.method == overlay::method_none
             && check_segment_indices(turn, boost::size(m_linestring) - 2)
-            && geometry::equals(range::front(m_linestring), turn.point);
+            && turn.operations[0].fraction.is_zero();
     }
 
 private:
@@ -132,7 +132,7 @@ private:
             &&
             geometry::equals(range::front(linestring), range::back(linestring))
             &&
-            geometry::equals(range::front(linestring), turn.point)
+            turn.operations[0].fraction.is_zero();
             ;
     }
 
