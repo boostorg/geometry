@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,6 +26,9 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
+
+#include <boost/geometry/algorithms/detail/relate/less.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
 namespace boost { namespace geometry
@@ -96,9 +104,30 @@ public :
                 double
             >::type promoted_type;
 
-        promoted_type const s = side_value<coordinate_type, promoted_type>(p1, p2, p);
-        promoted_type const zero = promoted_type();
+        if (detail::equals::equals_point_point(p1, p2)
+            || detail::equals::equals_point_point(p1, p)
+            || detail::equals::equals_point_point(p2, p))
+        {
+            return 0;
+        }
 
+        geometry::detail::relate::less less;
+
+        promoted_type s;
+        if (less(p2, p1) && less(p2, p))
+        {
+            s = side_value<coordinate_type, promoted_type>(p2, p, p1);
+        }
+        else if (less(p, p1) && less(p, p2))
+        {
+            s = side_value<coordinate_type, promoted_type>(p, p1, p2);
+        }
+        else
+        {
+            s = side_value<coordinate_type, promoted_type>(p1, p2, p);
+        }
+
+        promoted_type const zero = promoted_type();
         return math::equals(s, zero) ? 0
             : s > zero ? 1
             : -1;
