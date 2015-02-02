@@ -351,7 +351,11 @@ struct get_turn_info_linear_linear
                                     tp, inters.i_info(), inters.d_info(), inters.sides());
 
                             method_replace = method_touch;
-                            spike_op = operation_union;
+                            if ( tp.operations[0].operation != operation_continue
+                              || tp.operations[1].operation != operation_continue )
+                            {
+                                spike_op = operation_union;
+                            }
                         }
                         else
                         {
