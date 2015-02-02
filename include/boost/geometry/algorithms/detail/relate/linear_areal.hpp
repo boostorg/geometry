@@ -321,7 +321,7 @@ struct linear_areal
                     // if there was some previous ring
                     if ( prev_seg_id_ptr != NULL )
                     {
-                        int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                        signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
                         BOOST_ASSERT(next_ring_index >= 0);
                         
                         // if one of the last rings of previous single geometry was ommited
@@ -392,7 +392,7 @@ struct linear_areal
             // if there was some previous ring
             if ( prev_seg_id_ptr != NULL )
             {
-                int const next_ring_index = prev_seg_id_ptr->ring_index + 1;
+                signed_index_type const next_ring_index = prev_seg_id_ptr->ring_index + 1;
                 BOOST_ASSERT(next_ring_index >= 0);
 
                 // if one of the last rings of previous single geometry was ommited
@@ -1163,8 +1163,8 @@ struct linear_areal
             BOOST_ASSERT(s2 > 2);
             std::size_t const seg_count2 = s2 - 1;
 
-            std::size_t const p_seg_ij = turn.operations[op_id].seg_id.segment_index;
-            std::size_t const q_seg_ij = turn.operations[other_op_id].seg_id.segment_index;
+            std::size_t const p_seg_ij = static_cast<std::size_t>(turn.operations[op_id].seg_id.segment_index);
+            std::size_t const q_seg_ij = static_cast<std::size_t>(turn.operations[other_op_id].seg_id.segment_index);
 
             BOOST_ASSERT(p_seg_ij + 1 < boost::size(range1));
             BOOST_ASSERT(q_seg_ij + 1 < s2);
@@ -1187,7 +1187,7 @@ struct linear_areal
 // TODO: the following function should return immediately, however the worst case complexity is O(N)
 // It would be good to replace it with some O(1) mechanism
                 range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
-                                                                 boost::begin(range2) + q_seg_jk,
+                                                                 range::pos(range2, q_seg_jk),
                                                                  boost::end(range2));
 
                 // Will this sequence of points be always correct?
@@ -1330,8 +1330,8 @@ struct linear_areal
         if ( first == last )
             return last;
 
-        int const multi_index = first->operations[1].seg_id.multi_index;
-        int const ring_index = first->operations[1].seg_id.ring_index;
+        signed_index_type const multi_index = first->operations[1].seg_id.multi_index;
+        signed_index_type const ring_index = first->operations[1].seg_id.ring_index;
 
         fun(*first);
         ++first;

@@ -98,9 +98,9 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
         std::vector<bool> detected_intersections(count, false);
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            int multi_index = it->operations[OpId].seg_id.multi_index;
+            signed_index_type multi_index = it->operations[OpId].seg_id.multi_index;
             BOOST_ASSERT(multi_index >= 0);
-            std::size_t index = static_cast<std::size_t>(multi_index);
+            std::size_t const index = static_cast<std::size_t>(multi_index);
             BOOST_ASSERT(index < count);
             detected_intersections[index] = true;
         }
@@ -116,8 +116,8 @@ struct for_each_disjoint_geometry_if<OpId, Geometry, Tag, true>
             if ( *it == false )
             {
                 found = true;
-                bool cont = pred(range::at(geometry,
-                                           std::distance(detected_intersections.begin(), it)));
+                std::size_t const index = std::size_t(std::distance(detected_intersections.begin(), it));
+                bool cont = pred(range::at(geometry, index));
                 if ( !cont )
                     break;
             }

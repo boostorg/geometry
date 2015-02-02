@@ -299,8 +299,8 @@ public :
                     if (InterruptPolicy::enabled)
                     {
                         if (interrupt_policy.apply(
-                            std::make_pair(boost::begin(turns) + size_before,
-                                boost::end(turns))))
+                                std::make_pair(range::pos(turns, size_before),
+                                               boost::end(turns))))
                         {
                             return false;
                         }
