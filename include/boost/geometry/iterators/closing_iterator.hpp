@@ -42,12 +42,14 @@ struct closing_iterator
         boost::random_access_traversal_tag
     >
 {
+    typedef typename boost::range_difference<Range>::type difference_type;
+
     /// Constructor including the range it is based on
     explicit inline closing_iterator(Range& range)
         : m_range(&range)
         , m_iterator(boost::begin(range))
         , m_end(boost::end(range))
-        , m_size(boost::size(range))
+        , m_size(static_cast<difference_type>(boost::size(range)))
         , m_index(0)
     {}
 
@@ -56,7 +58,7 @@ struct closing_iterator
         : m_range(&range)
         , m_iterator(boost::end(range))
         , m_end(boost::end(range))
-        , m_size(boost::size(range))
+        , m_size(static_cast<difference_type>(boost::size(range)))
         , m_index((m_size == 0) ? 0 : m_size + 1)
     {}
 
@@ -66,8 +68,6 @@ struct closing_iterator
         , m_size(0)
         , m_index(0)
     {}
-
-    typedef std::ptrdiff_t difference_type;
 
 private:
     friend class boost::iterator_core_access;
