@@ -241,14 +241,20 @@ void test_all()
 
 
     // 01.02.2015
-    // FAILING
-    /*test_geometry<ls, ls>("LINESTRING(6 0,0 0,5 0)",
+    test_geometry<ls, ls>("LINESTRING(6 0,0 0,5 0)",
                           "LINESTRING(2 0,0 0,-10 0)",
-                          expected("mii++")("mui=+")("cxu==")("ciu=="));
+                          expected("mii++")("txu==")("tiu==")("mui=+"));
     // the reversal could be automatic...
     test_geometry<ls, ls>("LINESTRING(2 0,0 0,-10 0)",
                           "LINESTRING(6 0,0 0,5 0)",
-                          expected("mii++")("miu+=")("cux==")("cui=="));*/
+                          expected("mii++")("tux==")("tui==")("miu+="));
+    // sanity check
+    test_geometry<ls, ls>("LINESTRING(6 0,0 0)",
+                          "LINESTRING(2 0,0 0,-10 0)",
+                          expected("mii++")("txu=="));
+    test_geometry<ls, ls>("LINESTRING(0 0,5 0)",
+                          "LINESTRING(2 0,0 0,-10 0)",
+                          expected("tiu+=")("mui=+"));
 
     // TODO:
     //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");
