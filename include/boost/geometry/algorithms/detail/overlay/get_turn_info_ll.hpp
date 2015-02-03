@@ -298,7 +298,7 @@ struct get_turn_info_linear_linear
                              || tp.operations[1].operation != operation_continue ) ?
                                 operation_union :
                                 operation_continue;
-                        
+
                         // transform turn
                         turn_transformer_ec transformer(method_touch);
                         transformer(tp);
