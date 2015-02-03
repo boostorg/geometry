@@ -65,6 +65,10 @@ void test_distance_segment_polygon(Strategy const& strategy)
     tester::apply("segment(-1 20,-1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
+
+    tester::apply("segment(0 0,1 1)",
+                  "polygon((2 2))",
+                  sqrt(2.0), 2, strategy);
 }
 
 //===========================================================================
@@ -93,6 +97,14 @@ void test_distance_linestring_polygon(Strategy const& strategy)
     tester::apply("linestring(-1 20,1 20,1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy, true);
+
+    tester::apply("linestring(-2 1)",
+                  "polygon((0 0,10 0,10 10,0 10,0 0))",
+                  2, 4, strategy, true);
+
+    tester::apply("linestring(-5 1,-2 1)",
+                  "polygon((0 0))",
+                  sqrt(5.0), 5, strategy, true);
 }
 
 //===========================================================================
@@ -139,6 +151,14 @@ void test_distance_multilinestring_polygon(Strategy const& strategy)
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 -20))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy, true);
+
+    tester::apply("multilinestring((-100 -100,-90 -90),(1 20))",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
+                  10, 100, strategy, true);
+
+    tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
+                  "polygon((-110 -110))",
+                  sqrt(200.0), 200, strategy, true);
 }
 
 //===========================================================================
