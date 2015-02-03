@@ -114,17 +114,31 @@ public :
         geometry::detail::relate::less less;
 
         promoted_type s;
-        if (less(p2, p1) && less(p2, p))
+        if (less(p, p1))
         {
-            s = side_value<coordinate_type, promoted_type>(p2, p, p1);
-        }
-        else if (less(p, p1) && less(p, p2))
-        {
-            s = side_value<coordinate_type, promoted_type>(p, p1, p2);
+            if (less(p, p2))
+            {
+                // p is the lexicographically smallest
+                s = side_value<coordinate_type, promoted_type>(p, p1, p2);
+            }
+            else
+            {
+                // p2 is the lexicographically smallest
+                s = side_value<coordinate_type, promoted_type>(p2, p, p1);
+            }
         }
         else
         {
-            s = side_value<coordinate_type, promoted_type>(p1, p2, p);
+            if (less(p1, p2))
+            {
+                // p1 is the lexicographically smallest
+                s = side_value<coordinate_type, promoted_type>(p1, p2, p);
+            }
+            else
+            {
+                // p2 is the lexicographically smallest
+                s = side_value<coordinate_type, promoted_type>(p2, p, p1);
+            }
         }
 
         promoted_type const zero = promoted_type();
