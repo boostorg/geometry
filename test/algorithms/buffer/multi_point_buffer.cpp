@@ -14,12 +14,14 @@
 static std::string const simplex = "MULTIPOINT((5 5),(7 7))";
 static std::string const three = "MULTIPOINT((5 8),(9 8),(7 11))";
 
-// Generates error (extra polygon on top of rest) at distance 14.0:
+// Generated error (extra polygon on top of rest) at distance 14.0:
 static std::string const multipoint_a = "MULTIPOINT((39 44),(38 37),(41 29),(15 33),(58 39))";
 
 // Just one with holes at distance ~ 15
 static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60),(10 4),(75 68),(61 68),(75 62),(92 26),(74 6),(67 54),(20 43),(63 30),(45 7))";
 
+// Grid, U-form, generates error for square point at 0.54 (top cells to control rescale)
+static std::string const grid_a = "MULTIPOINT(5 0,6 0,7 0,  5 1,7 1,  0 13,8 13)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -46,6 +48,29 @@ void test_all()
     test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join_miter, end_flat, 7109.88, 15.0, 15.0);
     test_one<multi_point_type, polygon>("multipoint_b1", multipoint_b, join_miter, end_flat, 6911.89, 14.7, 14.7);
     test_one<multi_point_type, polygon>("multipoint_b2", multipoint_b, join_miter, end_flat, 7174.79, 15.1, 15.1);
+
+
+    // Grid tests
+    {
+        bg::strategy::buffer::point_square point_strategy;
+        bg::strategy::buffer::side_straight side_strategy;
+
+        typedef bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<P>::type
+        > distance_strategy;
+
+        test_with_custom_strategies<multi_point_type, polygon>("grid_a50",
+                grid_a, join_miter, end_flat,
+                distance_strategy(0.5), side_strategy, point_strategy, 7.0);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+        test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
+                grid_a, join_miter, end_flat,
+                distance_strategy(0.54), side_strategy, point_strategy, 99);
+#endif
+    }
+
+
 }
 
 template 

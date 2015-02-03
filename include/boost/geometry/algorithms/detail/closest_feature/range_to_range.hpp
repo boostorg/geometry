@@ -60,6 +60,7 @@ private:
         BOOST_ASSERT( queries_first != queries_last );
 
         Distance const zero = Distance(0);
+        dist_min = zero;
 
         // create -- packing algorithm
         rtree_type rt(rtree_first, rtree_last);

@@ -210,7 +210,7 @@ public:
         if ( !detail::check_iterator_range
                   <
                       base,
-                      false // do not allow empty multi-polygons
+                      true // allow empty multi-polygons
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon)) )
         {

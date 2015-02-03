@@ -107,42 +107,15 @@ public:
                              (types<OtherOuterIterator, OtherInnerIterator>));
     }
 
-    template
-    <
-        typename OtherOuterIterator,
-        typename OtherInnerIterator,
-        typename OtherValue,
-        typename OtherAccessInnerBegin,
-        typename OtherAccessInnerEnd,
-        typename OtherReference
-    >
-    flatten_iterator operator=(flatten_iterator
-                               <
-                                   OtherOuterIterator,
-                                   OtherInnerIterator,
-                                   OtherValue,
-                                   OtherAccessInnerBegin,
-                                   OtherAccessInnerEnd,
-                                   OtherReference
-                               > const& other)
+    flatten_iterator& operator=(flatten_iterator const& other)
     {
-        static const bool are_conv
-            = boost::is_convertible
-                <
-                    OtherOuterIterator, OuterIterator
-                >::value
-           && boost::is_convertible
-                <
-                    OtherInnerIterator, InnerIterator
-                >::value;
-
-        BOOST_MPL_ASSERT_MSG((are_conv),
-                             NOT_CONVERTIBLE,
-                             (types<OtherOuterIterator, OtherInnerIterator>));
-             
         m_outer_it = other.m_outer_it;
         m_outer_end = other.m_outer_end;
-        m_inner_it = other.m_inner_it;
+        // avoid assigning an iterator having singular value
+        if ( other.m_outer_it != other.m_outer_end )
+        {
+            m_inner_it = other.m_inner_it;
+        }
         return *this;
     }
 
@@ -162,8 +135,8 @@ private:
 
     static inline bool empty(OuterIterator outer_it)
     {
-        return
-            AccessInnerBegin::apply(*outer_it) == AccessInnerEnd::apply(*outer_it);
+        return AccessInnerBegin::apply(*outer_it)
+            == AccessInnerEnd::apply(*outer_it);
     }
 
     inline void advance_through_empty()

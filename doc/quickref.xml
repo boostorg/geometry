@@ -424,6 +424,7 @@
      <member><link linkend="geometry.reference.algorithms.num_interior_rings">num_interior_rings</link></member>
      <member><link linkend="geometry.reference.algorithms.num_geometries">num_geometries</link></member>
      <member><link linkend="geometry.reference.algorithms.num_points">num_points</link></member>
+     <member><link linkend="geometry.reference.algorithms.num_segments">num_segments</link></member>
     </simplelist>
     
     

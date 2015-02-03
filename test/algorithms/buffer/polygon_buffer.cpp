@@ -14,6 +14,10 @@ static std::string const simplex
     = "POLYGON ((0 0,1 5,6 1,0 0))";
 static std::string const concave_simplex
     = "POLYGON ((0 0,3 5,3 3,5 3,0 0))";
+static std::string const concave_b
+    = "POLYGON((0 10,5 15,6 13,8 11,0 10))";
+static std::string const square_simplex
+    = "POLYGON ((0 0,0 1,1 1,1 0,0 0))";
 static std::string const spike_simplex
     = "POLYGON ((0 0,1 5,3 3,5 5,3 3,5 1,0 0))";
 static std::string const chained_box
@@ -63,6 +67,11 @@ static std::string const bowl
 static std::string const triangle
     = "POLYGON((4 5,5 4,4 4,3 4,3 5,3 6,4 5))";
 
+// Triangle which caused acos in join_round to fail with larger side strategy
+static std::string const sharp_triangle
+    = "POLYGON((2 0,3 8,4 0,2 0))";
+
+
 static std::string const degenerate0
     = "POLYGON(())";
 static std::string const degenerate1
@@ -90,6 +99,15 @@ static std::string const parcel3
 static std::string const parcel3_bend // of parcel_3 - clipped
     = "POLYGON((120399.40000152588 461986.43000030518, 120399.47999954224 461986.43000030518, 120403 461986.76769953477, 120403 461987.777217312, 120399.90000152588 461987.47999954224, 120399.72722010587 461990, 120398.71791817161 461990, 120398.93000030518 461986.90000152588, 120398.95000076294 461986.81999969482, 120398.9700012207 461986.74000167847, 120399.00999832153 461986.66999816895, 120399.04999923706 461986.61000061035, 120399.11000061035 461986.54999923706, 120399.16999816895 461986.5, 120399.25 461986.4700012207, 120399.31999969482 461986.43999862671, 120399.40000152588 461986.43000030518))";
 
+// Has concavety
+static std::string const italy_part1
+    = "POLYGON ((1660000 5190000 , 1651702.9375 5167014.5, 1650311.34375 5167763.53125, 1643318.59375 5172188.15625, 1642488.03125 5172636.75, 1640818.25 5173802.75, 1640107.03125 5174511.21875, 1638931.9375 5176054.03125, 1638684.5625 5177095.75, 1660000 5190000))";
+
+// Did have a self-intersection for first flat/convex solution
+static std::string const nl_part1
+    = "POLYGON ((471871.966884626832325 6683515.683521211147308,470695.876464393688366 6681756.129975977353752,469211.542374156008009 6679924.978601523675025,464542.357652322971262 6674631.078279769048095,463243.59315323777264 6673494.345109832473099,459502.033748187706806 6670774.304660517722368,452204.484529234410729 6666030.372161027044058,439990.287360413349234 6659313.515823394991457,434547.988775020290632 6657783.034025833010674,433867.715366783668287 6657685.311832630075514,433063.65468478546245 6657783.034025833010674,423725.285241116478574 6659758.338574352674186,422581.143514745577704 6660350.880751021206379,422333.791606202081311 6660844.461689073592424,421993.599242338153999 6662622.453031159006059,421993.599242338153999 6663363.130126810632646,422612.090333183819894 6667314.244697011075914,422241.062470370030496 6667759.324870104901493,421096.80942450783914 6668303.522556710988283,408449.802075482031796 6673245.655735924839973,401646.845354124438018 6675273.665065255947411,400842.895991614612285 6675372.844085373915732,400255.351719210040756 6675224.699206517077982,392370.258227849320974 6672455.311684883199632,391968.283546594379004 6672009.975794731639326,391875.554410762328189 6671219.573235900141299,391937.336728153284639 6670527.121663697995245,392122.906319305824582 6669933.841785561293364,392339.311409408226609 6667957.501854715868831,392308.475910458364524 6665733.178529324010015,391937.336728153284639 6665289.631341196596622,387793.802641845482867 6664449.731981083750725,385814.7647345236619 6664202.740090588107705,384268.648326894966885 6664300.5401631873101,382846.319193030707538 6664646.406163938343525,382289.610419573145919 6664943.560305980034173,377186.502322628628463 6668957.888622742146254,376352.608017096004914 6669834.728738470934331,376197.985244384559337 6670428.001423852518201,375548.658654586179182 6676313.056885857135057,375243.086652359867003 6687692.866469252854586,379228.324422756850254 6689778.692146780900657,391782.713955441897269 6694388.125634397380054,393885.427817036863416 6694487.537080916576087,395215.139134563156404 6694091.147844122722745,405171.999669074953999 6689084.665672835893929,414263.128523688821588 6684478.40333267301321,415778.298112876422238 6683439.398042757064104,416396.677884233708028 6683192.009851422160864,419025.042381353967357 6682597.809754087589681,429909.63955213711597 6681508.792763692326844,430497.183824544539675 6681656.873437026515603,440979.806314075656701 6686955.330480101518333,467325.344922157470137 6687797.546342735178769,468129.294284664443694 6687698.216345063410699,468747.785375512961764 6687450.699095219373703,469211.542374156008009 6687054.651439971290529,469489.952420631831046 6686707.835750493220985,471871.966884626832325 6683515.683521211147308))";
+
+
 // Ticket 10398, fails at next distances ( /10.0 ):
 // #1: 5,25,84
 // #2: 5,13,45,49,60,62,66,73
@@ -108,9 +126,58 @@ static std::string const ticket_10398_4
 static std::string const ticket_10412
     = "POLYGON((897747.8 6270564.3,897764.3 6270569.7,897776.5 6270529.5,897768.1 6270527.1,897767.6 6270529.4,897756.3 6270525.8,897745.8 6270522.3,897752 6270502.9,897749.7 6270502,897750.7 6270499.1,897751.8 6270498.6,897752.3 6270499.3,897754.6 6270497.9,897755.8 6270500.2,897766.8 6270494.1,897765.6 6270491.5,897768.3 6270490.5,897770.9 6270491.5,897770.2 6270494.6,897780.1 6270497.5,897781 6270494.6,897786.8 6270496.6,897790.8 6270482.5,897785.3 6270480.7,897785.9 6270478.2,897768.9 6270473.2,897768.1 6270475.8,897766.1 6270475.2,897758.7 6270479.2,897753.2 6270481.8,897751.9 6270479,897746.5 6270481.9,897748 6270484.6,897745.2 6270486.1,897743.9 6270483.3,897741.4 6270484.7,897742.6 6270487.3,897739.4 6270488.9,897738.3 6270486.3,897735.6 6270487.8,897733.1 6270496.8,897731.2 6270502.7,897732.4 6270503.2,897731.5 6270506.1,897730.3 6270505.7,897725.8 6270520.2,897726.8 6270520.7,897726 6270523,897728 6270523.7,897726.3 6270529.6,897742.8 6270534.5,897741.2 6270539.9,897751.4 6270543.4,897750.7 6270546.4,897753.2 6270547.2,897747.8 6270564.3))";
 
+// CCW Polygons not working in 1.56
 static std::string const mysql_report_2014_10_24
     = "POLYGON((0 0, 0 8, 8 8, 8 10, -10 10, -10 0, 0 0))";
+static std::string const mysql_report_2014_10_28_1
+    = "POLYGON((0 0,10 10,0 8,0 0))";
+static std::string const mysql_report_2014_10_28_2
+    = "POLYGON((1 1,10 10,0 8,1 1))";
+static std::string const mysql_report_2014_10_28_3
+    = "POLYGON((2 2,8 2,8 8,2 8,2 2))";
 
+
+class buffer_custom_side_strategy
+{
+public :
+    template
+    <
+        typename Point,
+        typename OutputRange,
+        typename DistanceStrategy
+    >
+    static inline void apply(
+                Point const& input_p1, Point const& input_p2,
+                bg::strategy::buffer::buffer_side_selector side,
+                DistanceStrategy const& distance,
+                OutputRange& output_range)
+    {
+        // Generate a block along (left or right of) the segment
+
+        double const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
+        double const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
+
+        // For normalization [0,1] (=dot product d.d, sqrt)
+        double const length = bg::math::sqrt(dx * dx + dy * dy);
+
+        if (bg::math::equals(length, 0))
+        {
+            return;
+        }
+
+        // Generate the perpendicular p, to the left (ccw), and use an adapted distance
+        double const d = 1.1 * distance.apply(input_p1, input_p2, side);
+        double const px = d * -dy / length;
+        double const py = d * dx / length;
+
+        output_range.resize(2);
+
+        bg::set<0>(output_range.front(), bg::get<0>(input_p1) + px);
+        bg::set<1>(output_range.front(), bg::get<1>(input_p1) + py);
+        bg::set<0>(output_range.back(), bg::get<0>(input_p2) + px);
+        bg::set<1>(output_range.back(), bg::get<1>(input_p2) + py);
+    }
+};
 
 
 template <bool Clockwise, typename P>
@@ -120,14 +187,47 @@ void test_all()
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
+    bg::strategy::buffer::join_round join_round_rough(12);
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
     test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 47.9408, 1.5);
     test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 52.8733, 1.5);
 
+    test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
+    test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 7.04043, -0.5);
+
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_round, end_flat, 14.0639, 1.5);
+    test_one<polygon_type, polygon_type>("square_simplex", square_simplex, join_miter, end_flat, 16.0000, 1.5);
+
+    test_one<polygon_type, polygon_type>("square_simplex01", square_simplex, join_miter, end_flat, 0.6400, -0.1);
+    test_one<polygon_type, polygon_type>("square_simplex04", square_simplex, join_miter, end_flat, 0.0400, -0.4);
+    test_one<polygon_type, polygon_type>("square_simplex05", square_simplex, join_miter, end_flat, 0.0, -0.5);
+    test_one<polygon_type, polygon_type>("square_simplex06", square_simplex, join_miter, end_flat, 0.0, -0.6);
+
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 14.5616, 0.5);
     test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 16.3861, 0.5);
+
+    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 0.777987, -0.5);
+    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 0.724208, -0.5);
+
+    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_miter, end_flat, 836.9106, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_miter, end_flat, 4386.6479, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_miter, end_flat, 16487.2000, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1642, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5140, 100.0);
+
+    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2763, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.7577, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_round, end_flat, 8872.6784, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_round, end_flat, 19186.8841, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_round, end_flat, 33425.4379, 100.0);
+
+    test_one<polygon_type, polygon_type>("concave_b_rough_10", concave_b, join_round_rough, end_flat, 512.8457, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_25", concave_b, join_round_rough, end_flat, 2364.5658, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_50", concave_b, join_round_rough, end_flat, 8410.399996, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_75", concave_b, join_round_rough, end_flat, 18153.9268, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_100", concave_b, join_round_rough, end_flat, 31595.1463, 100.0);
 
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_round, end_round, 50.3633, 1.5);
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_miter, end_flat, 51.5509, 1.5);
@@ -168,13 +268,13 @@ void test_all()
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 46.3541, 1.2);
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 45.0537, 1.2);
 
-    // TODO: fix, the buffered pieces are currently counterclockwise, that should be reversed
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation4_neg", indentation, join_round, end_flat, 7.25523322189147, -0.4);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation8_neg", indentation, join_round, end_flat, 1.37375487490664, -0.8);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_miter, end_flat, 0, -1.2);
-    //test_one<polygon_type, polygon_type>("indentation12_neg", indentation, join_round, end_flat, 0, -1.2);
+    // Indentation - deflated
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_round, end_flat, 7.25523322189147, -0.4);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_round, end_flat, 1.37375487490664, -0.8);
+    test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 0, -1.2);
+    test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 0, -1.2);
 
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 53.648, 0.6);
     test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 52.820, 0.6);
@@ -189,10 +289,19 @@ void test_all()
     test_one<polygon_type, polygon_type>("donut_simplex16", donut_simplex, join_miter, end_flat, 93.777, 1.6);
     test_one<polygon_type, polygon_type>("donut_simplex16", donut_simplex, join_round, end_flat, 87.933, 1.6);
 
+    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_miter, end_flat, 19.7636, -0.3);
+    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_round, end_flat, 19.8861, -0.3);
+    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
+    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
+
     test_one<polygon_type, polygon_type>("donut_diamond1", donut_diamond, join_miter, end_flat, 280.0, 1.0);
     test_one<polygon_type, polygon_type>("donut_diamond4", donut_diamond, join_miter, end_flat, 529.0, 4.0);
     test_one<polygon_type, polygon_type>("donut_diamond5", donut_diamond, join_miter, end_flat, 625.0, 5.0);
     test_one<polygon_type, polygon_type>("donut_diamond6", donut_diamond, join_miter, end_flat, 729.0, 6.0);
+
+    test_one<polygon_type, polygon_type>("donut_diamond1", donut_diamond, join_miter, end_flat, 122.0417, -1.0);
+    test_one<polygon_type, polygon_type>("donut_diamond2", donut_diamond, join_miter, end_flat, 56.3750, -2.0);
+    test_one<polygon_type, polygon_type>("donut_diamond3", donut_diamond, join_miter, end_flat, 17.7084, -3.0);
 
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_miter, end_flat, 28.265, 0.4);
     test_one<polygon_type, polygon_type>("arrow4", arrow, join_round, end_flat, 27.039, 0.4);
@@ -253,6 +362,9 @@ void test_all()
     test_one<polygon_type, polygon_type>("flower55", flower, join_round, end_flat, 96.580, 0.55);
     test_one<polygon_type, polygon_type>("flower60", flower, join_round, end_flat, 99.408, 0.60);
 
+    // Flower - deflated
+    test_one<polygon_type, polygon_type>("flower60", flower, join_round, end_flat, 19.3210, -0.60);
+
     // Saw
     {
         // SQL Server:
@@ -307,6 +419,8 @@ void test_all()
     }
     test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, 0.01);
     test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, 0.01);
+    test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, -0.01);
+    test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, -0.01);
 
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.39121246337891, 10.0);
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.45314788818359, 10.0);
@@ -323,7 +437,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_miter, end_flat, 14535.2319564819336, 30.0);
 
     test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19992.6824035644531, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0);
+    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0, 10.0, true, 0.05); // MSVC 14 reports 20024.51456, so we increase the tolerance
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_round, end_flat, 34505.0746192932129, 20.0);
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_miter, end_flat, 34633.2606201171875, 20.0);
     test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);
@@ -336,17 +450,20 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, Clockwise ? 917.9747 : 917.996, 15.0);
     test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, Clockwise ? 1534.4795 : 1534.508, 20.0);
 
-    // Negative buffers making polygons smaller
-    test_one<polygon_type, polygon_type>("simplex", simplex, join_round, end_flat, 7.04043, -0.5);
-    test_one<polygon_type, polygon_type>("simplex", simplex, join_miter, end_flat, 7.04043, -0.5);
-    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_round, end_flat, 0.777987, -0.5);
-    test_one<polygon_type, polygon_type>("concave_simplex", concave_simplex, join_miter, end_flat, 0.724208, -0.5);
+    // Parcel - deflated
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 1571.9024, -10.0);
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 1473.7325, -10.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_miter, end_flat, 19.7636, -0.3);
-    test_one<polygon_type, polygon_type>("donut_simplex3", donut_simplex, join_round, end_flat, 19.8861, -0.3);
-    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_miter, end_flat, 12.8920, -0.6);
-    test_one<polygon_type, polygon_type>("donut_simplex6", donut_simplex, join_round, end_flat, 12.9157, -0.6);
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737386.1343, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775954035.2947, -0.5 * 1000.0);
 
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015307172.18164, 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11362317400.63281, 50.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15478123348.53125, 60.0 * 1000.0);
+
+    // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 697.7798, 2.5, -999, false);
     test_one<polygon_type, polygon_type>("ticket_10398_1_84", ticket_10398_1, join_miter, end_flat, 1470.8096, 8.4, -999, false);
@@ -365,9 +482,39 @@ void test_all()
 
     test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, -999, false);
 
-    bg::strategy::buffer::join_round join_round32(32);
-    bg::strategy::buffer::end_round end_round32(32);
-    test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24, join_round32, end_round32, 174.902, 1.0, -999, false);
+    // Tickets - deflated
+    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 404.3936, -0.5);
+    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 246.7329, -2.5);
+
+    {
+        bg::strategy::buffer::join_round join_round32(32);
+        bg::strategy::buffer::end_round end_round32(32);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_24", mysql_report_2014_10_24,
+            join_round32, end_round32, 174.902, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_1", mysql_report_2014_10_28_1,
+            join_round32, end_round32, 75.46, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_2", mysql_report_2014_10_28_2,
+            join_round32, end_round32, 69.117, 1.0);
+        test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
+            join_round32, end_round32, 63.121, 1.0);
+    }
+
+
+    {
+        bg::strategy::buffer::join_round join_round12(12);
+        buffer_custom_side_strategy side_strategy;
+        bg::strategy::buffer::point_circle point_strategy;
+        bg::strategy::buffer::distance_symmetric
+        <
+            typename bg::coordinate_type<P>::type
+        > distance_strategy(1.0);
+
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle",
+                sharp_triangle,
+                join_round12, end_flat, distance_strategy, side_strategy, point_strategy,
+                31.0721);
+    }
+
 }
 
 template
@@ -405,9 +552,9 @@ int test_main(int, char* [])
     typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
 
     test_all<true, dpoint>();
+    test_all<false, dpoint>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    test_all<false, dpoint>();
 
     test_mixed<dpoint, dpoint, false, false, true, true>();
     test_mixed<dpoint, dpoint, false, true, true, true>();
