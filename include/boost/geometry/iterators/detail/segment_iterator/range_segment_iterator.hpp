@@ -100,23 +100,36 @@ class range_segment_iterator
             Reference
         >
 {
+    static inline bool has_less_than_two_elements(Range const& r)
+    {
+        return boost::size(r) < ((closure<Range>::value == open) ? 1u : 2u);
+    }
+
 public:
     typedef typename range_iterator_type<Range>::type iterator_type;
 
     // default constructor
     range_segment_iterator()
-        : m_it()
+        : m_it(), m_has_less_than_two_elements(false)
     {}
 
     // for begin
     range_segment_iterator(Range& r)
         : m_it(range_iterator_begin<Range>::apply(r))
+        , m_has_less_than_two_elements(has_less_than_two_elements(r))
     {}
 
     // for end
     range_segment_iterator(Range& r, bool)
-        : m_it(--range_iterator_end<Range>::apply(r))
-    {}
+        : m_it(range_iterator_end<Range>::apply(r))
+        , m_has_less_than_two_elements(has_less_than_two_elements(r))
+    {
+        if (! m_has_less_than_two_elements)
+        {
+            // the range consists of at least two items
+            --m_it;
+        }
+    }
 
     template
     <
@@ -151,6 +164,11 @@ private:
 
     inline Reference dereference() const
     {
+        if (m_has_less_than_two_elements)
+        {
+            return Reference(*m_it, *m_it);
+        }
+
         iterator_type next(m_it);
         ++next;
         return Reference(*m_it, *next);
@@ -184,6 +202,7 @@ private:
 
 private:
     iterator_type m_it;
+    bool m_has_less_than_two_elements;
 };
 
 
