@@ -465,6 +465,76 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((-3 6,-3 2),(-3 2,-3 5))"),
          "lldf28c"
          );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-7 -8,3 0,4 -1)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4)"),
+         from_wkt<ML>("MULTILINESTRING((-7 -8,3 0))"),
+         "lldf29a"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-7 -8,3 0,4 -1,-7 10)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,2 -1)"),
+         from_wkt<ML>("MULTILINESTRING((-7 -8,3 0),(3 0,-7 10))"),
+         "lldf29b"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-7 -8,3 0,4 -1,-7 10)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1)"),
+         from_wkt<ML>("MULTILINESTRING((-7 -8,3 0),(3 0,-7 10))"),
+         "lldf29c"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1)"),
+         from_wkt<L>("LINESTRING(-7 -8,3 0,4 -1,-7 10)"),
+         from_wkt<ML>("MULTILINESTRING((-5 -4,3 0),(4 -1,7 -4,2 -1))"),
+         "lldf29c-r"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,\
+                     3 0,4 -1,-7 10,-4 10)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1,-4 -1,-2 6)"),
+         from_wkt<ML>("MULTILINESTRING((-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,\
+                      3 0),(3 0,-7 10,-4 10))"),
+         "lldf29d"
+         );
+
+#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+     tester::apply
+         (from_wkt<L>("LINESTRING(8 5,5 1,-2 3,1 10)"),
+          from_wkt<L>("LINESTRING(1.9375 1.875,\
+                      1.7441860465116283 1.9302325581395348,\
+                      -0.7692307692307692 2.6483516483516487,\
+                      -2 3,-1.0071942446043165 5.316546762589928)"),
+          from_wkt<ML>("MULTILINESTRING()"),
+          "lldf30a"
+          );
+
+     tester::apply
+         (from_wkt<L>("LINESTRING(1.9375 1.875,\
+                      1.7441860465116283 1.9302325581395348,\
+                      -0.7692307692307692 2.6483516483516487,\
+                      -2 3,-1.0071942446043165 5.316546762589928)"),
+          from_wkt<L>("LINESTRING(8 5,5 1,-2 3,1 10)"),
+          from_wkt<ML>("MULTILINESTRING()"),
+          "lldf30b"
+          );
+
+   tester::apply
+        (from_wkt<L>("LINESTRING(5 -8,-7 -6,-3 6,-3 1,-5 4,-1 0,8 5,\
+                     5 1,-2 3,1 10,8 5,6 2,7 4)"),
+         from_wkt<L>("LINESTRING(1.9375 1.875,\
+                     1.7441860465116283 1.9302325581395348,\
+                     -0.7692307692307692 2.6483516483516487,\
+                     -2 3,-1.0071942446043165 5.316546762589928)"),
+         from_wkt<ML>("MULTILINESTRING()"),
+         "lldf30c"
+         );
+#endif
 }
 
 
