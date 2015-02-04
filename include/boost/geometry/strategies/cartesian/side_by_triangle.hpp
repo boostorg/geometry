@@ -104,12 +104,25 @@ public :
                 double
             >::type promoted_type;
 
+        // For robustness purposes, first check if any two points are
+        // the same; in this case simply return that the points are
+        // collinear
         if (detail::equals::equals_point_point(p1, p2)
             || detail::equals::equals_point_point(p1, p)
             || detail::equals::equals_point_point(p2, p))
         {
             return 0;
         }
+
+        // The side_by_triangle strategy computes the signed area of
+        // the point triplet (p1, p2, p); as such it is (in theory)
+        // invariant under cyclic permutations of its three arguments.
+        //
+        // In the context of numerical errors that arise in
+        // floating-point computations, and in order to make the strategy
+        // consistent with respect to cyclic permutations of its three
+        // arguments, we cyclically permute them so that the first
+        // argument is always the lexicographically smallest point.
 
         geometry::detail::relate::less less;
 
