@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -34,6 +34,7 @@
 #include <boost/geometry/strategies/agnostic/simplify_douglas_peucker.hpp>
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/distance.hpp>
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
