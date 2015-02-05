@@ -120,7 +120,7 @@ struct get_turn_info_linear_linear
                                                      tp.operations[0].operation,
                                                      tp.operations[1].operation);
                     
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }
@@ -132,7 +132,7 @@ struct get_turn_info_linear_linear
 
                 replace_operations_i(tp.operations[0].operation, tp.operations[1].operation);
 
-                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
@@ -260,7 +260,7 @@ struct get_turn_info_linear_linear
                                                      tp.operations[1].operation);
 
 // TODO: move this into the append_xxx and call for each turn?
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
 
                     if ( ! handle_spikes
                       || ! append_opposite_spikes<append_touches>(tp, inters,
@@ -293,18 +293,24 @@ struct get_turn_info_linear_linear
                         equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                             tp, inters.i_info(), inters.d_info(), inters.sides());
 
+                        operation_type spike_op
+                            = ( tp.operations[0].operation != operation_continue
+                             || tp.operations[1].operation != operation_continue ) ?
+                                operation_union :
+                                operation_continue;
+
                         // transform turn
                         turn_transformer_ec transformer(method_touch);
                         transformer(tp);
 
 // TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                        AssignPolicy::apply(tp, pi, qi, inters);
 
                         // conditionally handle spikes
                         if ( ! handle_spikes
                           || ! append_collinear_spikes(tp, inters,
                                                        is_p_last, is_q_last,
-                                                       method_touch, operation_union,
+                                                       method_touch, spike_op,
                                                        out) )
                         {
                             *out++ = tp; // no spikes
@@ -318,7 +324,7 @@ struct get_turn_info_linear_linear
                             <
                                 TurnInfo,
                                 AssignPolicy
-                            >::apply(pi, qi, tp, out, inters.i_info(), inters.d_info());
+                            >::apply(pi, qi, tp, out, inters);
                     }
                 }
             }
@@ -371,7 +377,7 @@ struct get_turn_info_linear_linear
                         transformer(tp);
                         
 // TODO: move this into the append_xxx and call for each turn?
-                        AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                        AssignPolicy::apply(tp, pi, qi, inters);
 
                         // conditionally handle spikes
                         if ( ! handle_spikes
@@ -406,7 +412,7 @@ struct get_turn_info_linear_linear
                                 TurnInfo,
                                 AssignPolicy
                             >::apply(pi, pj, pk, qi, qj, qk,
-                                tp, out, inters.i_info(), inters.d_info(), inters.sides(),
+                                tp, out, inters, inters.sides(),
                                 transformer, !is_p_last, !is_q_last);
                     }
                 }
@@ -441,7 +447,7 @@ struct get_turn_info_linear_linear
                         tp.operations[1].position = position_back;
                     }
 
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }
@@ -482,6 +488,14 @@ struct get_turn_info_linear_linear
 
         if ( is_p_spike && is_q_spike )
         {
+            if ( tp.method == method_equal
+              && tp.operations[0].operation == operation_continue
+              && tp.operations[1].operation == operation_continue )
+            {
+                // treat both non-opposite collinear spikes as no-spikes
+                return false;
+            }
+
             tp.method = method;
             tp.operations[0].operation = operation_blocked;
             tp.operations[1].operation = operation_blocked;
@@ -564,8 +578,7 @@ struct get_turn_info_linear_linear
                 base_turn_handler::assign_point(tp, method_touch_interior,
                                                 inters.i_info(), 1);
 
-                AssignPolicy::apply(tp, inters.pi(), inters.qi(),
-                                    inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
             }
 
             tp.operations[0].operation = operation_blocked;
@@ -595,8 +608,7 @@ struct get_turn_info_linear_linear
 
                 base_turn_handler::assign_point(tp, method_touch_interior, inters.i_info(), 0);
 
-                AssignPolicy::apply(tp, inters.pi(), inters.qi(),
-                                    inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, inters.pi(), inters.qi(), inters);
             }
 
             tp.operations[0].operation = operation_intersection;

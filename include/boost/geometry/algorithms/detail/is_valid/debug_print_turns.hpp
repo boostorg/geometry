@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -45,6 +45,10 @@ inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
                   << tit->operations[0].seg_id.ring_index
                   << ", "
                   << tit->operations[1].seg_id.ring_index
+                  << "} {"
+                  << tit->operations[0].seg_id.segment_index
+                  << ", "
+                  << tit->operations[1].seg_id.segment_index
                   << "} "
                   << geometry::dsv(tit->point)
                   << "]";
