@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 
+
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
@@ -81,6 +84,8 @@ template
 inline bool point_in_range(Strategy& strategy, State& state,
         Point const& point, Iterator begin, Iterator end)
 {
+    boost::ignore_unused(strategy);
+
     Iterator it = begin;
     for (Iterator previous = it++; it != end; ++previous, ++it)
     {

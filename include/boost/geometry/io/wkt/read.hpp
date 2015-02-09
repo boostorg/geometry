@@ -680,7 +680,7 @@ struct box_parser
         }
         check_end(it, end, wkt);
 
-        int index = 0;
+        unsigned int index = 0;
         std::size_t n = boost::size(points);
         if (n == 2)
         {

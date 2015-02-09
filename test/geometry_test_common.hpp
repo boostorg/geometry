@@ -41,10 +41,13 @@
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
 
 // Until Boost.Test fixes it, silence warning issued by clang:
-// warning: unused variable 'check_is_close' [-Wunused-variable]
 #ifdef __clang__
 # pragma clang diagnostic push
+// warning: unused variable 'check_is_close' [-Wunused-variable]
 # pragma clang diagnostic ignored "-Wunused-variable"
+// warnings when -Wconversion is set
+# pragma clang diagnostic ignored "-Wsign-conversion"
+# pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
 # include <boost/test/floating_point_comparison.hpp>
