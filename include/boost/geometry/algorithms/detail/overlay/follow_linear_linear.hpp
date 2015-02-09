@@ -35,6 +35,28 @@
 namespace boost { namespace geometry
 {
 
+#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
+class inconsistent_turns_exception : public geometry::exception
+{
+    std::string message;
+
+public:
+
+    inline inconsistent_turns_exception()
+    {
+        message = "Boost.Geometry Inconsistent Turns exception";
+    }
+
+    virtual ~inconsistent_turns_exception() throw()
+    {}
+
+    virtual char const* what() const throw()
+    {
+        return message.c_str();
+    }
+};
+#endif
+
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
@@ -304,7 +326,14 @@ public:
                                oit);
         }
 
-        BOOST_ASSERT( enter_count == 0 );
+#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
+        if (enter_count != 0)
+        {
+            throw inconsistent_turns_exception();
+        }
+#else
+        BOOST_ASSERT(enter_count == 0);
+#endif
 
         return process_end(entered, linestring,
                            current_segment_id, current_piece,
