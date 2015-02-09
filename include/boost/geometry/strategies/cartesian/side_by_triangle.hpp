@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,6 +26,9 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/strategies/side.hpp>
+
+#include <boost/geometry/algorithms/detail/relate/less.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
 namespace boost { namespace geometry
@@ -47,23 +55,31 @@ public :
     // Types can be all three different. Therefore it is
     // not implemented (anymore) as "segment"
 
-    template <typename coordinate_type, typename promoted_type, typename P1, typename P2, typename P>
-    static inline promoted_type side_value(P1 const& p1, P2 const& p2, P const& p)
+    template
+    <
+        typename CoordinateType,
+        typename PromotedType,
+        typename P1,
+        typename P2,
+        typename P
+    >
+    static inline
+    PromotedType side_value(P1 const& p1, P2 const& p2, P const& p)
     {
-        coordinate_type const x = get<0>(p);
-        coordinate_type const y = get<1>(p);
+        CoordinateType const x = get<0>(p);
+        CoordinateType const y = get<1>(p);
 
-        coordinate_type const sx1 = get<0>(p1);
-        coordinate_type const sy1 = get<1>(p1);
-        coordinate_type const sx2 = get<0>(p2);
-        coordinate_type const sy2 = get<1>(p2);
+        CoordinateType const sx1 = get<0>(p1);
+        CoordinateType const sy1 = get<1>(p1);
+        CoordinateType const sx2 = get<0>(p2);
+        CoordinateType const sy2 = get<1>(p2);
 
-        promoted_type const dx = sx2 - sx1;
-        promoted_type const dy = sy2 - sy1;
-        promoted_type const dpx = x - sx1;
-        promoted_type const dpy = y - sy1;
+        PromotedType const dx = sx2 - sx1;
+        PromotedType const dy = sy2 - sy1;
+        PromotedType const dpx = x - sx1;
+        PromotedType const dpy = y - sy1;
 
-        return geometry::detail::determinant<promoted_type>
+        return geometry::detail::determinant<PromotedType>
                 (
                     dx, dy,
                     dpx, dpy
@@ -71,9 +87,84 @@ public :
 
     }
 
+
+    template
+    <
+        typename CoordinateType,
+        typename PromotedType,
+        bool AreAllIntegralCoordinates
+    >
+    struct compute_side_value
+    {
+        template <typename P1, typename P2, typename P>
+        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p)
+        {
+            return side_value<CoordinateType, PromotedType>(p1, p2, p);
+        }
+    };
+
+    template <typename CoordinateType, typename PromotedType>
+    struct compute_side_value<CoordinateType, PromotedType, false>
+    {
+        template <typename P1, typename P2, typename P>
+        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p)
+        {
+            // For robustness purposes, first check if any two points are
+            // the same; in this case simply return that the points are
+            // collinear
+            if (detail::equals::equals_point_point(p1, p2)
+                || detail::equals::equals_point_point(p1, p)
+                || detail::equals::equals_point_point(p2, p))
+            {
+                return PromotedType(0);
+            }
+
+            // The side_by_triangle strategy computes the signed area of
+            // the point triplet (p1, p2, p); as such it is (in theory)
+            // invariant under cyclic permutations of its three arguments.
+            //
+            // In the context of numerical errors that arise in
+            // floating-point computations, and in order to make the strategy
+            // consistent with respect to cyclic permutations of its three
+            // arguments, we cyclically permute them so that the first
+            // argument is always the lexicographically smallest point.
+
+            geometry::detail::relate::less less;
+            if (less(p, p1))
+            {
+                if (less(p, p2))
+                {
+                    // p is the lexicographically smallest
+                    return side_value<CoordinateType, PromotedType>(p, p1, p2);
+                }
+                else
+                {
+                    // p2 is the lexicographically smallest
+                    return side_value<CoordinateType, PromotedType>(p2, p, p1);
+                }
+            }
+
+            if (less(p1, p2))
+            {
+                // p1 is the lexicographically smallest
+                return side_value<CoordinateType, PromotedType>(p1, p2, p);
+            }
+            else
+            {
+                // p2 is the lexicographically smallest
+                return side_value<CoordinateType, PromotedType>(p2, p, p1);
+            }
+        }
+    };
+
+
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
+        typedef typename coordinate_type<P1>::type coordinate_type1;
+        typedef typename coordinate_type<P2>::type coordinate_type2;
+        typedef typename coordinate_type<P>::type coordinate_type3;
+
         typedef typename boost::mpl::if_c
             <
                 boost::is_void<CalculationType>::type::value,
@@ -81,10 +172,9 @@ public :
                     <
                         typename select_most_precise
                             <
-                                typename coordinate_type<P1>::type,
-                                typename coordinate_type<P2>::type
+                                coordinate_type1, coordinate_type2
                             >::type,
-                        typename coordinate_type<P>::type
+                        coordinate_type3
                     >::type,
                 CalculationType
             >::type coordinate_type;
@@ -96,9 +186,17 @@ public :
                 double
             >::type promoted_type;
 
-        promoted_type const s = side_value<coordinate_type, promoted_type>(p1, p2, p);
-        promoted_type const zero = promoted_type();
+        bool const are_all_integral_coordinates =
+            boost::is_integral<coordinate_type1>::value
+            && boost::is_integral<coordinate_type2>::value
+            && boost::is_integral<coordinate_type3>::value;
 
+        promoted_type s = compute_side_value
+            <
+                coordinate_type, promoted_type, are_all_integral_coordinates
+            >::apply(p1, p2, p);
+
+        promoted_type const zero = promoted_type();
         return math::equals(s, zero) ? 0
             : s > zero ? 1
             : -1;
