@@ -35,6 +35,7 @@ private:
                                  MultiLineString const& mls_union1,
                                  MultiLineString const& mls_union2,
                                  std::string const& case_id,
+                                 double tolerance,
                                  bool test_vector_and_deque = false)
     {
         static bool vector_deque_already_tested = false;
@@ -50,8 +51,9 @@ private:
 
         bg::union_(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_union1, mls_output),
-                             "union L/L: " << bg::wkt(geometry1)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_union1, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", union L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_union1)
                              << " computed: " << bg::wkt(mls_output) );
@@ -82,11 +84,15 @@ private:
             bg::union_(geometry1, geometry2, ls_vector_output);
             bg::union_(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_union1,
-                                                             ls_vector_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_union1, ls_vector_output, tolerance));
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_union1,
-                                                             ls_deque_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_union1, ls_deque_output, tolerance));
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
@@ -98,8 +104,9 @@ private:
         bg::clear(mls_output);
         bg::union_(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_union2, mls_output),
-                             "union L/L: " << bg::wkt(geometry2)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_union2, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", union L/L: " << bg::wkt(geometry2)
                              << " " << bg::wkt(geometry1)
                              << " -> Expected: " << bg::wkt(mls_union2)
                              << " computed: " << bg::wkt(mls_output) );
@@ -123,7 +130,9 @@ public:
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_union1,
                              MultiLineString const& mls_union2,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
@@ -146,10 +155,11 @@ public:
 #endif
         test_get_turns_ll_invariance<>::apply(rg1, geometry2);
 
-        base_test(geometry1, geometry2, mls_union1, mls_union2, case_id, true);
+        base_test(geometry1, geometry2, mls_union1, mls_union2,
+                  case_id, tolerance, true);
         //        base_test(geometry1, rg2, mls_sym_diff);
         //        base_test(rg1, geometry2, mls_sym_diff);
-        base_test(rg1, rg2, mls_union1, mls_union2, case_id);
+        base_test(rg1, rg2, mls_union1, mls_union2, case_id, tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
@@ -161,9 +171,11 @@ public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_union,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
-        apply(geometry1, geometry2, mls_union, mls_union, case_id);
+        apply(geometry1, geometry2, mls_union, mls_union, case_id, tolerance);
     }
 };
 
