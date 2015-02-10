@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -787,9 +787,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          "mlmlsdf05"
         );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // the following produces an assertion failure in line 483 of
-    // get_turn_info_ll
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
@@ -802,7 +799,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                       (10 20,15 10),(20 10,25 10,30 15))"),
          "mlmlsdf06"
         );
-#endif
 
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
