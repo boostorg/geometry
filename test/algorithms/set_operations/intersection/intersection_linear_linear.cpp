@@ -1343,7 +1343,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
                       (-0.7654 8.88178e-16,-0.7654 0,5 3))"),
 #endif
           "mlmli21",
-          1e-5
+          1e-4
          );
 }
 #endif // BOOST_GEOMETRY_TEST_NO_DEGENERATE

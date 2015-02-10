@@ -73,17 +73,32 @@ struct ls_equal
 
 
 template <typename Point1, typename Point2>
-struct pt_equal
+class pt_equal
 {
+private:
     double m_tolerence;
 
+    template <typename T>
+    static inline T const& get_max(T const& a, T const& b, T const& c)
+    {
+        return (std::max)((std::max)(a, b), c);
+    }
+
+    template <typename T>
+    static inline bool check_close(T const& a, T const& b, T const& tol)
+    {
+        return (a == b)
+            || (std::abs(a - b) <= tol * get_max(std::abs(a), std::abs(b), 1.0));
+    }
+
+public:
     pt_equal(double tolerence) : m_tolerence(tolerence) {}
 
     bool operator()(Point1 const& point1, Point2 const& point2) const
     {
         // allow for some tolerence in testing equality of points
-        return std::abs(bg::get<0>(point1) - bg::get<0>(point2)) < m_tolerence
-            && std::abs(bg::get<1>(point1) - bg::get<1>(point2)) < m_tolerence;
+        return check_close(bg::get<0>(point1), bg::get<0>(point2), m_tolerence)
+            && check_close(bg::get<1>(point1), bg::get<1>(point2), m_tolerence);
     }
 };
 
