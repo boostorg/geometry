@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_TEST_UNION_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_UNION_LINEAR_LINEAR_HPP
 
+#include <limits>
+
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>
