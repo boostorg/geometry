@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP
 
+#include <limits>
+
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>
@@ -34,6 +36,7 @@ private:
                                  Geometry2 const& geometry2,
                                  MultiLineString const& mls_diff,
                                  std::string const& case_id,
+                                 double tolerance,
                                  bool test_vector_and_deque = true,
                                  bool reverse_output_for_checking = false)
     {
@@ -55,8 +58,9 @@ private:
             bg::reverse(mls_output);
         }
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_diff, mls_output),
-                             "difference L/L: " << bg::wkt(geometry1)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_diff, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", difference L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_diff)
                              << " computed: " << bg::wkt(mls_output) );
@@ -75,11 +79,15 @@ private:
             bg::difference(geometry1, geometry2, ls_vector_output);
             bg::difference(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_diff,
-                                                             ls_vector_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_diff, ls_vector_output, tolerance));
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_diff,
-                                                             ls_deque_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_diff, ls_deque_output, tolerance));
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
@@ -103,7 +111,9 @@ public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_diff,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
@@ -128,10 +138,10 @@ public:
 #endif
         test_get_turns_ll_invariance<>::apply(rg1, geometry2);
 
-        base_test(geometry1, geometry2, mls_diff, case_id);
-        base_test(geometry1, rg2, mls_diff, case_id, false);
-        base_test(rg1, geometry2, mls_diff, case_id, false, true);
-        base_test(rg1, rg2, mls_diff, case_id, false, true);
+        base_test(geometry1, geometry2, mls_diff, case_id, tolerance);
+        base_test(geometry1, rg2, mls_diff, case_id, tolerance, false);
+        base_test(rg1, geometry2, mls_diff, case_id, tolerance, false, true);
+        base_test(rg1, rg2, mls_diff, case_id, tolerance, false, true);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
