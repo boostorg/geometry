@@ -16,14 +16,19 @@
 
 
 #include <boost/variant/variant_fwd.hpp>
+#include <boost/mpl/front.hpp>
 
 
 namespace boost { namespace geometry {
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct point_type<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
-    : point_type<T0>
+struct point_type<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    : point_type<
+        typename mpl::front<
+            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types
+        >::type
+    >
 {};
 
 
