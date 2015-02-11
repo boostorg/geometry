@@ -71,7 +71,8 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("ls2d_overl_ring2", "LINESTRING(0 0,5 0,5 5,0 5,0 0)", "LINESTRING(5 5,5 0,0 0,0 5,5 5,5 0)", true);
 
     // https://svn.boost.org/trac/boost/ticket/10904
-    if ( boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value )
+    if ( BOOST_GEOMETRY_CONDITION(
+            boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value ) )
     {
         test_geometry<ls, ls>("ls2d_small1",
                               "LINESTRING(5.6956521739130430148634331999347 -0.60869565217391330413931882503675,5.5 -0.50000000000000066613381477509392)",

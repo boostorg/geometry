@@ -84,7 +84,7 @@ void test_ordered_ring(std::string const& wkt_point,
     Point point;
 
     bg::read_wkt(wkt_geometry, ring);
-    if (! Clockwise)
+    if ( BOOST_GEOMETRY_CONDITION(! Clockwise) )
     {
         std::reverse(boost::begin(ring), boost::end(ring));
     }

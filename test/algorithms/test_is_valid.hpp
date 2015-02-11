@@ -355,7 +355,7 @@ struct test_valid
             }
         }
 
-        if ( is_convertible_to_polygon<Geometry>::value )
+        if ( BOOST_GEOMETRY_CONDITION(is_convertible_to_polygon<Geometry>::value) )
         {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "...checking geometry converted to polygon..."
@@ -366,7 +366,7 @@ struct test_valid
             base_test(polygon, expected_result);
         }
 
-        if ( is_convertible_to_multipolygon<Geometry>::value )
+        if ( BOOST_GEOMETRY_CONDITION(is_convertible_to_multipolygon<Geometry>::value) )
         {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "...checking geometry converted to multi-polygon..."
