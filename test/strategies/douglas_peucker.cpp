@@ -26,6 +26,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -39,6 +40,7 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/register/multi_point.hpp>
 
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -188,6 +190,8 @@ struct test_one_case
 
         strategy.apply(geometry, std::back_inserter(result), max_distance);
 
+        boost::ignore_unused(strategy);
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, boost::begin(result), boost::end(result),
                           "output: ");
@@ -221,12 +225,15 @@ inline void test_with_strategy()
 
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
     typedef bg::model::linestring<point_type> linestring_type;
+    typedef bg::model::segment<point_type> segment_type;
     typedef test_one_case<linestring_type> tester;
 
     linestring_type ls1, ls2;
     linestring_type res1, res2;
+    point_type const p1(-6,-13), p2(0,-15);
+    segment_type const s(point_type(12,-3), point_type(-12,5));
 
-    if (boost::is_same<CoordinateType, long double>::value)
+    if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
     {
         tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
                       10,
