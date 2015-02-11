@@ -27,10 +27,14 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 
 /*
@@ -95,7 +99,7 @@ struct range_remove_spikes
         }
 
         // For a closed-polygon, remove closing point, this makes checking first point(s) easier and consistent
-        if (geometry::closure<Range>::value == geometry::closed)
+        if ( BOOST_GEOMETRY_CONDITION(geometry::closure<Range>::value == geometry::closed) )
         {
             cleaned.pop_back();
         }
@@ -128,7 +132,7 @@ struct range_remove_spikes
         }
 
         // Close if necessary
-        if (geometry::closure<Range>::value == geometry::closed)
+        if ( BOOST_GEOMETRY_CONDITION(geometry::closure<Range>::value == geometry::closed) )
         {
             cleaned.push_back(cleaned.front());
         }

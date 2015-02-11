@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 //#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
@@ -375,14 +376,14 @@ static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
     bool res = false;
 
     // IP on the last point of the linestring
-    if ( (BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
+    if ( BOOST_GEOMETRY_CONDITION(BoundaryQuery == boundary_back || BoundaryQuery == boundary_any)
       && operation_info.position == overlay::position_back )
     {
         // check if this point is a boundary
         res = boundary_checker.template is_endpoint_boundary<boundary_back>(ip);
     }
     // IP on the last point of the linestring
-    else if ( (BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
+    else if ( BOOST_GEOMETRY_CONDITION(BoundaryQuery == boundary_front || BoundaryQuery == boundary_any)
            && operation_info.position == overlay::position_front )
     {
         // check if this point is a boundary

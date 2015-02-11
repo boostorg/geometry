@@ -35,6 +35,8 @@
 
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -271,7 +273,7 @@ public:
             }
         }
 
-        if (is_comparable<Strategy>::value)
+        if ( BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value) )
         {
             return (std::min)(cd_min1, cd_min2);
         }

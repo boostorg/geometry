@@ -26,6 +26,8 @@
 
 #include <boost/geometry/geometries/box.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -96,7 +98,7 @@ struct self_section_visitor
                             m_rescale_policy,
                             m_turns, m_interrupt_policy);
         }
-        if (m_interrupt_policy.has_intersections)
+        if ( BOOST_GEOMETRY_CONDITION(m_interrupt_policy.has_intersections) )
         {
             // TODO: we should give partition an interrupt policy.
             // Now we throw, and catch below, to stop the partition loop.
