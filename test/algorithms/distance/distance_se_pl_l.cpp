@@ -52,7 +52,7 @@ template <typename Strategy>
 inline bg::default_comparable_distance_result<point_type>::type
 pp_comparable_distance(std::string const& wkt1,
                        std::string const& wkt2,
-                       Strategy const& strategy)
+                       Strategy const&)
 {
     point_type p1, p2;
     bg::read_wkt(wkt1, p1);
