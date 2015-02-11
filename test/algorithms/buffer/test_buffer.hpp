@@ -53,6 +53,8 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 
 #if defined(TEST_WITH_SVG)
 
@@ -449,8 +451,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
-    if (boost::is_same<tag, bg::point_tag>::value 
-        || boost::is_same<tag, bg::multi_point_tag>::value)
+    if ( BOOST_GEOMETRY_CONDITION((
+            boost::is_same<tag, bg::point_tag>::value 
+         || boost::is_same<tag, bg::multi_point_tag>::value )) )
     {
         join_name.clear();
     }

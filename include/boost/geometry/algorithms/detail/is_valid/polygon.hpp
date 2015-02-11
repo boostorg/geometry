@@ -26,6 +26,7 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
@@ -311,7 +312,7 @@ public:
             return false;
         }
 
-        if ( CheckRingValidityOnly )
+        if (BOOST_GEOMETRY_CONDITION(CheckRingValidityOnly))
         {
             return true;
         }
