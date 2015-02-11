@@ -92,7 +92,7 @@ static inline bool point_is_spike_or_equal(Point1 const& last_point,
         return true;
     }
 
-    if ( BOOST_GEOMETRY_CONDITION(! RobustPolicy::enabled) )
+    if (BOOST_GEOMETRY_CONDITION(! RobustPolicy::enabled))
     {
         return false;
     }

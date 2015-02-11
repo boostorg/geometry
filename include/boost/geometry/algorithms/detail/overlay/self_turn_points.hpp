@@ -98,7 +98,7 @@ struct self_section_visitor
                             m_rescale_policy,
                             m_turns, m_interrupt_policy);
         }
-        if ( BOOST_GEOMETRY_CONDITION(m_interrupt_policy.has_intersections) )
+        if (BOOST_GEOMETRY_CONDITION(m_interrupt_policy.has_intersections))
         {
             // TODO: we should give partition an interrupt policy.
             // Now we throw, and catch below, to stop the partition loop.

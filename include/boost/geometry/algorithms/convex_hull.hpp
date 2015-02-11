@@ -125,7 +125,7 @@ struct convex_hull<Box, box_tag>
         boost::array<typename point_type<Box>::type, 4> range;
         geometry::detail::assign_box_corners_oriented<Reverse>(box, range);
         geometry::append(out, range);
-        if ( BOOST_GEOMETRY_CONDITION(Close) )
+        if (BOOST_GEOMETRY_CONDITION(Close))
         {
             geometry::append(out, *boost::begin(range));
         }

@@ -312,7 +312,7 @@ public:
             return false;
         }
 
-        if ( BOOST_GEOMETRY_CONDITION(CheckRingValidityOnly) )
+        if (BOOST_GEOMETRY_CONDITION(CheckRingValidityOnly))
         {
             return true;
         }

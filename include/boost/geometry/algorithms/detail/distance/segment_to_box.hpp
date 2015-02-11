@@ -152,7 +152,7 @@ public:
             }
         }
 
-        if ( BOOST_GEOMETRY_CONDITION( is_comparable<Strategy>::value ) )
+        if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
         {
             return cd[imin];
         }
