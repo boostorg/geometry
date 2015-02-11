@@ -264,7 +264,7 @@ void test_all()
                           "LINESTRING(-5 -4,3 0,7 -4,2 -1)",
                           expected("tii++")("mxu==")("miu==")("mui=+"));
 
-    if ( boost::is_same<T, double>::value )
+    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
     {
         // FAILING
         /*
