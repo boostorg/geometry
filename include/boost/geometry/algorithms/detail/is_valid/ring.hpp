@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -144,7 +144,7 @@ struct is_valid_ring
 };
 
 
-}} // namespace dispatch
+}} // namespace detail::is_valid
 #endif // DOXYGEN_NO_DETAIL
 
 

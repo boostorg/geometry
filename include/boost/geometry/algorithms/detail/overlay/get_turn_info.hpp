@@ -513,14 +513,12 @@ struct equal_opposite : public base_turn_handler
         typename Point1,
         typename Point2,
         typename OutputIterator,
-        typename IntersectionInfo,
-        typename DirInfo
+        typename IntersectionInfo
     >
     static inline void apply(Point1 const& pi, Point2 const& qi,
                 /* by value: */ TurnInfo tp,
                 OutputIterator& out,
-                IntersectionInfo const& intersection_info,
-                DirInfo const& dir_info)
+                IntersectionInfo const& intersection_info)
     {
         // For equal-opposite segments, normally don't do anything.
         if (AssignPolicy::include_opposite)
@@ -530,10 +528,10 @@ struct equal_opposite : public base_turn_handler
             {
                 tp.operations[i].operation = operation_opposite;
             }
-            for (unsigned int i = 0; i < intersection_info.count; i++)
+            for (unsigned int i = 0; i < intersection_info.i_info().count; i++)
             {
-                assign_point(tp, method_none, intersection_info, i);
-                AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+                assign_point(tp, method_none, intersection_info.i_info(), i);
+                AssignPolicy::apply(tp, pi, qi, intersection_info);
                 *out++ = tp;
             }
         }
@@ -726,7 +724,6 @@ public:
         typename Point2,
         typename OutputIterator,
         typename IntersectionInfo,
-        typename DirInfo,
         typename SidePolicy
     >
     static inline void apply(
@@ -738,10 +735,9 @@ public:
                 OutputIterator& out,
 
                 IntersectionInfo const& intersection_info,
-                DirInfo const& dir_info,
                 SidePolicy const& side)
     {
-        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, dir_info, side, empty_transformer);
+        apply(pi, pj, pk, qi, qj, qk, tp_model, out, intersection_info, side, empty_transformer);
     }
 
 public:
@@ -751,7 +747,6 @@ public:
         typename Point2,
         typename OutputIterator,
         typename IntersectionInfo,
-        typename DirInfo,
         typename SidePolicy,
         typename TurnTransformer
     >
@@ -763,50 +758,52 @@ public:
                 TurnInfo const& tp_model,
                 OutputIterator& out,
 
-                IntersectionInfo const& intersection_info,
-                DirInfo const& dir_info,
+                IntersectionInfo const& info,
                 SidePolicy const& side,
                 TurnTransformer turn_transformer,
                 bool const is_pk_valid = true, bool const is_qk_valid = true)
     {
         TurnInfo tp = tp_model;
 
+        int const p_arrival = info.d_info().arrival[0];
+        int const q_arrival = info.d_info().arrival[1];
+
         // If P arrives within Q, there is a turn dependent on P
-        if ( dir_info.arrival[0] == 1
+        if ( p_arrival == 1
           && is_pk_valid
-          && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, intersection_info) )
+          && set_tp<0>(pi, pj, pk, side.pk_wrt_p1(), true, qi, qj, side.pk_wrt_q1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
-            AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+            AssignPolicy::apply(tp, pi, qi, info);
             *out++ = tp;
         }
 
         // If Q arrives within P, there is a turn dependent on Q
-        if ( dir_info.arrival[1] == 1
+        if ( q_arrival == 1
           && is_qk_valid
-          && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, intersection_info) )
+          && set_tp<1>(qi, qj, qk, side.qk_wrt_q1(), false, pi, pj, side.qk_wrt_p1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
-            AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+            AssignPolicy::apply(tp, pi, qi, info);
             *out++ = tp;
         }
 
         if (AssignPolicy::include_opposite)
         {
             // Handle cases not yet handled above
-            if ((dir_info.arrival[1] == -1 && dir_info.arrival[0] == 0)
-                || (dir_info.arrival[0] == -1 && dir_info.arrival[1] == 0))
+            if ((q_arrival == -1 && p_arrival == 0)
+                || (p_arrival == -1 && q_arrival == 0))
             {
                 for (unsigned int i = 0; i < 2; i++)
                 {
                     tp.operations[i].operation = operation_opposite;
                 }
-                for (unsigned int i = 0; i < intersection_info.count; i++)
+                for (unsigned int i = 0; i < info.i_info().count; i++)
                 {
-                    assign_point(tp, method_collinear, intersection_info, i);
-                    AssignPolicy::apply(tp, pi, qi, intersection_info, dir_info);
+                    assign_point(tp, method_collinear, info.i_info(), i);
+                    AssignPolicy::apply(tp, pi, qi, info);
                     *out++ = tp;
                 }
             }
@@ -878,10 +875,9 @@ struct assign_null_policy
         typename Info,
         typename Point1,
         typename Point2,
-        typename IntersectionInfo,
-        typename DirInfo
+        typename IntersectionInfo
     >
-    static inline void apply(Info& , Point1 const& , Point2 const&, IntersectionInfo const&, DirInfo const&)
+    static inline void apply(Info& , Point1 const& , Point2 const&, IntersectionInfo const&)
     {}
 
 };
@@ -944,7 +940,7 @@ struct get_turn_info
                     && inters.i_info().count > 0)
                 {
                     only_convert::apply(tp, inters.i_info());
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
                 break;
@@ -979,7 +975,7 @@ struct get_turn_info
                                 tp, inters.i_info(), inters.d_info(),
                                 swapped_side_calc);
                 }
-                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
@@ -987,7 +983,7 @@ struct get_turn_info
             {
                 crosses<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                     tp, inters.i_info(), inters.d_info());
-                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
@@ -996,7 +992,7 @@ struct get_turn_info
                 // Both touch (both arrive there)
                 touch<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                     tp, inters.i_info(), inters.d_info(), inters.sides());
-                AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                AssignPolicy::apply(tp, pi, qi, inters);
                 *out++ = tp;
             }
             break;
@@ -1008,7 +1004,7 @@ struct get_turn_info
                     // or collinear-and-ending at intersection point
                     equal<TurnInfo>::apply(pi, pj, pk, qi, qj, qk,
                         tp, inters.i_info(), inters.d_info(), inters.sides());
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
                 else
@@ -1018,7 +1014,7 @@ struct get_turn_info
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, qi,
-                            tp, out, inters.i_info(), inters.d_info());
+                            tp, out, inters);
                 }
             }
             break;
@@ -1043,7 +1039,7 @@ struct get_turn_info
                                 tp, inters.i_info(), inters.d_info(), inters.sides());
                     }
 
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
                 else
@@ -1053,7 +1049,7 @@ struct get_turn_info
                             TurnInfo,
                             AssignPolicy
                         >::apply(pi, pj, pk, qi, qj, qk,
-                            tp, out, inters.i_info(), inters.d_info(), inters.sides());
+                            tp, out, inters, inters.sides());
                 }
             }
             break;
@@ -1063,7 +1059,7 @@ struct get_turn_info
                 if (AssignPolicy::include_degenerate)
                 {
                     only_convert::apply(tp, inters.i_info());
-                    AssignPolicy::apply(tp, pi, qi, inters.i_info(), inters.d_info());
+                    AssignPolicy::apply(tp, pi, qi, inters);
                     *out++ = tp;
                 }
             }

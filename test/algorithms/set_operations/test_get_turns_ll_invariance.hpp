@@ -14,6 +14,8 @@
 
 #include <boost/geometry/algorithms/reverse.hpp>
 
+#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
+
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
@@ -44,11 +46,10 @@ private:
             typename Info,
             typename Point1,
             typename Point2,
-            typename IntersectionInfo,
-            typename DirInfo
+            typename IntersectionInfo
         >
         static inline void apply(Info& , Point1 const& , Point2 const& ,
-                                 IntersectionInfo const& , DirInfo const& )
+                                 IntersectionInfo const&)
         {
         }
     };

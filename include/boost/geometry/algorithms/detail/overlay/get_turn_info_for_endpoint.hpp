@@ -585,7 +585,9 @@ struct get_turn_info_for_endpoint
             }
         }
 
-        AssignPolicy::apply(tp, pi, qi, result.template get<0>(), result.template get<1>());
+        // TODO: this should get an intersection_info, which is unavailable here
+        // Because the assign_null policy accepts any structure, we pass the result instead for now
+        AssignPolicy::apply(tp, pi, qi, result);
         *out++ = tp;
     }
 

@@ -334,6 +334,14 @@ void test_linestring_multi_linestring()
                            "10FF0F102");                                //            |
                                                                         //            |
 
+    if ( boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value )
+    {
+        // related to https://svn.boost.org/trac/boost/ticket/10904
+        test_geometry<ls, mls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+                               "MULTILINESTRING((20 100, 31 -97, -46 57, -20 -4),(-71 -4))",
+                               "*********"); // TODO: be more specific with the result
+    }
+
     // 22.01.2015
     // inspired by L/A and A/A
     test_geometry<ls, mls>("LINESTRING(1 1,2 2)", "MULTILINESTRING((0 0,1 1),(1 1,3 3))", "1FF0FF102");
