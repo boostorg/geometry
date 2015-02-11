@@ -26,6 +26,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -39,8 +40,8 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/register/multi_point.hpp>
 
-#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
@@ -188,6 +189,8 @@ struct test_one_case
 #endif
 
         strategy.apply(geometry, std::back_inserter(result), max_distance);
+
+        boost::ignore_unused(strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, boost::begin(result), boost::end(result),
