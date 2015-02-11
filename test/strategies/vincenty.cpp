@@ -205,8 +205,9 @@ void test_all()
     bg::srs::spheroid<double> gda_spheroid(gda_a, gda_b);
 
     // Test fractional coordinates only for non-integral types
-    if ( ! boost::is_integral<typename bg::coordinate_type<P1>::type>::value
-      && ! boost::is_integral<typename bg::coordinate_type<P2>::type>::value )
+    if ( BOOST_GEOMETRY_CONDITION(
+            ! boost::is_integral<typename bg::coordinate_type<P1>::type>::value
+         && ! boost::is_integral<typename bg::coordinate_type<P2>::type>::value  ) )
     {
         // Flinders Peak -> Buninyong
         test_vincenty<P1, P2>(azimuth(144,25,29.52440), azimuth(-37,57,3.72030),
