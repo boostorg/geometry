@@ -267,12 +267,17 @@ void test_all()
     if ( boost::is_same<T, double>::value )
     {
         // FAILING
-        /*test_geometry<ls, ls>("LINESTRING(8 5,5 1,-2 3,1 10)",
+        /*
+        test_geometry<ls, ls>("LINESTRING(8 5,5 1,-2 3,1 10)",
                               "LINESTRING(1.9375 1.875, 1.7441860465116283 1.9302325581395348, -0.7692307692307692 2.6483516483516487, -2 3, -1.0071942446043165 5.316546762589928)",
-                              expected(""));
+                              expected("mii++")("cuu==")("tuu++"));
         test_geometry<ls, ls>("LINESTRING(8 5,5 1,-2 3,1 10)",
                               "LINESTRING(1.9375 1.875, 1.7441860465116283 1.9302325581395348, -0.7692307692307692 2.6483516483516487, -2 3, -0.5 6.5)",
-                              expected(""));*/
+                              expected("mii++")("cuu==")("tii++")("mux=="));
+        test_geometry<ls, ls>("LINESTRING(-0.5 7,8 1,0 -0.2)",
+                              "LINESTRING(2 8,4 0.4,8 1,0 5)",
+                              expected(""));
+        */
     }
 
 
