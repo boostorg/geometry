@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -636,20 +636,14 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
                       (-1032.34324 4,1 5,9 7,3 9,0.2 5,1 -0.3),\
                       (1 0.9,1 6,1 -0.6,2.232432 -0.7654,0.9 3,1 5,\
                       -0.7654 9,3 0.1,9 0,-6 8,-0.7 8,0 1,-1032.34324 0))"),
-         /*
-         from_wkt<ML>("MULTILINESTRING((-0.7654 2,2 5),\
-                      (1 -0.3,0.2 5,3 9,9 7,1 5,-1032.34 4),\
-                      (-1032.34 0,0 1,-0.7 8,-6 8,9 0,3 0.1,\
-                      -0.7654 9,1 5,0.9 3,2.23243 -0.7654,1 -0.6),\
-                      (-0.7654 3,2 5,1 189.765,1 6),\
-                      (1 -0.6,1 -1.1,4 2,1 5))"),
-         */
-         from_wkt<ML>("MULTILINESTRING((1 5,4 2,1 -1.1,1 -0.6),\
-                      (1 6,1 189.7654,2 5,-0.7654 3),(2 5,-0.7654 2),\
+         from_wkt<ML>("MULTILINESTRING((2 5,-0.7654 2),\
                       (-1032.34324 4,1 5,9 7,3 9,0.2 5,1 -0.3),\
                       (1 -0.6,2.232432 -0.7654,0.9 3,1 5,-0.7654 9,\
-                      3 0.1,9 0,-6 8,-0.7 8,0 1,-1032.34324 0))"),
-         "lmlsdf19"
+                      3 0.1,9 0,-6 8,-0.7 8,0 1,-1032.34324 0),\
+                      (1 5,4 2,1 -1.1,1 -0.6),\
+                      (1 6,1 189.7654,2 5,-0.7654 3))"),
+         "lmlsdf19",
+         1e-10
          );
 #endif
 }
@@ -787,9 +781,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
          "mlmlsdf05"
         );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-    // the following produces an assertion failure in line 483 of
-    // get_turn_info_ll
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 1),(1 0,7 0),\
                        (10 10,20 10,30 20))"),
@@ -802,7 +793,6 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_multilinestring_multilinestring )
                       (10 20,15 10),(20 10,25 10,30 15))"),
          "mlmlsdf06"
         );
-#endif
 
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((0 0,10 0,20 10),(1 0,7 0),\
