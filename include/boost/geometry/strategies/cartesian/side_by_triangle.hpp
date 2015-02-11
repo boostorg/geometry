@@ -112,9 +112,9 @@ public :
             // For robustness purposes, first check if any two points are
             // the same; in this case simply return that the points are
             // collinear
-            if (detail::equals::equals_point_point(p1, p2)
-                || detail::equals::equals_point_point(p1, p)
-                || detail::equals::equals_point_point(p2, p))
+            if (geometry::detail::equals::equals_point_point(p1, p2)
+                || geometry::detail::equals::equals_point_point(p1, p)
+                || geometry::detail::equals::equals_point_point(p2, p))
             {
                 return PromotedType(0);
             }
