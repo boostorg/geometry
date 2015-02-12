@@ -23,10 +23,10 @@ namespace boost { namespace geometry {
 
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct point_type<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct point_type<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     : point_type<
-        typename mpl::front<
-            typename variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types
+        typename boost::mpl::front<
+            typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types
         >::type
     >
 {};
