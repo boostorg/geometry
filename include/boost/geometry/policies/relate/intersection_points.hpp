@@ -101,6 +101,7 @@ struct segments_intersection_points
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type segments_collinear(
         Segment1 const& a, Segment2 const& b,
+        int a1_wrt_b, int a2_wrt_b, int b1_wrt_a, int b2_wrt_a,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
         Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a)
     {
@@ -112,7 +113,7 @@ struct segments_intersection_points
         // if index would be 2 this indicate an (currently uncatched) error
 
         // IMPORTANT: the order of conditions is different as in direction.hpp
-        if (ra_from_wrt_b.on_segment()
+        if (a1_wrt_b >= 1 && a1_wrt_b <= 3 // ra_from_wrt_b.on_segment()
             && index < 2)
         {
             //     a1--------->a2
@@ -126,7 +127,7 @@ struct segments_intersection_points
             index++;
             count_a++;
         }
-        if (rb_from_wrt_a.in_segment()
+        if (b1_wrt_a == 2 //rb_from_wrt_a.in_segment()
             && index < 2)
         {
             // We take the first intersection point of B
@@ -143,7 +144,7 @@ struct segments_intersection_points
             count_b++;
         }
 
-        if (ra_to_wrt_b.on_segment()
+        if (a2_wrt_b >= 1 && a2_wrt_b <= 3 //ra_to_wrt_b.on_segment()
             && index < 2)
         {
             // Similarly, second IP (here a2)
@@ -155,7 +156,7 @@ struct segments_intersection_points
             index++;
             count_a++;
         }
-        if (rb_to_wrt_a.in_segment()
+        if (b2_wrt_a == 2 // rb_to_wrt_a.in_segment()
             && index < 2)
         {
             detail::assign_point_from_index<1>(b, result.intersections[index]);
