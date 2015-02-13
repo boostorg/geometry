@@ -364,7 +364,7 @@ private:
         // count describes a closed case but comparison with min size of closed
         // gives the result compatible also with open
         // here core_detail::closure::minimum_ring_size<closed> could be used
-        if ( count < 4 )
+        if (count < 4)
         {
             // there should be only one missing
             *out++ = *boost::begin(first);
