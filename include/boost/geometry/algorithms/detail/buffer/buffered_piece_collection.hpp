@@ -556,9 +556,10 @@ struct buffered_piece_collection
                 {
                     int const index_in_vector = 1 + rit->seg_id.segment_index - piece_segment_index;
                     BOOST_ASSERT
-                        (
-                            index_in_vector > 0 && index_in_vector < pc.offsetted_count
-                        );
+                    (
+                        index_in_vector > 0
+                        && index_in_vector < pc.offsetted_count
+                    );
 
                     pc.robust_ring.insert(boost::begin(pc.robust_ring) + index_in_vector, rit->point);
                     pc.offsetted_count++;
@@ -724,7 +725,12 @@ struct buffered_piece_collection
 
         if (! current_robust_ring.empty())
         {
-            BOOST_ASSERT(geometry::equals(current_robust_ring.front(), current_robust_ring.back()));
+            BOOST_ASSERT
+            (
+                geometry::equals(current_robust_ring.front(),
+                    current_robust_ring.back())
+            );
+
             robust_originals.push_back(
                 robust_original(current_robust_ring,
                     is_interior, has_interiors));
@@ -748,7 +754,8 @@ struct buffered_piece_collection
 
     //-------------------------------------------------------------------------
 
-    inline piece& create_piece(strategy::buffer::piece_type type, bool decrease_segment_index_by_one)
+    inline piece& create_piece(strategy::buffer::piece_type type,
+            bool decrease_segment_index_by_one)
     {
         if (type == strategy::buffer::buffered_concave)
         {
@@ -903,7 +910,8 @@ struct buffered_piece_collection
 
 
     template <typename Range>
-    inline void add_piece(strategy::buffer::piece_type type, Range const& range, bool decrease_segment_index_by_one)
+    inline void add_piece(strategy::buffer::piece_type type, Range const& range,
+            bool decrease_segment_index_by_one)
     {
         piece& pc = create_piece(type, decrease_segment_index_by_one);
 
@@ -926,7 +934,8 @@ struct buffered_piece_collection
     }
 
     template <typename Range>
-    inline void add_piece(strategy::buffer::piece_type type, point_type const& p, Range const& range)
+    inline void add_piece(strategy::buffer::piece_type type,
+            point_type const& p, Range const& range)
     {
         piece& pc = create_piece(type, true);
 
@@ -942,7 +951,8 @@ struct buffered_piece_collection
     }
 
     template <typename EndcapStrategy, typename Range>
-    inline void add_endcap(EndcapStrategy const& strategy, Range const& range, point_type const& end_point)
+    inline void add_endcap(EndcapStrategy const& strategy, Range const& range,
+            point_type const& end_point)
     {
         boost::ignore_unused(strategy);
 
@@ -1032,7 +1042,8 @@ struct buffered_piece_collection
         typedef detail::overlay::traverse
             <
                 false, false,
-                buffered_ring_collection<buffered_ring<Ring> >, buffered_ring_collection<buffered_ring<Ring > >,
+                buffered_ring_collection<buffered_ring<Ring> >,
+                buffered_ring_collection<buffered_ring<Ring > >,
                 backtrack_for_buffer
             > traverser;
 
