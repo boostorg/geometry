@@ -53,10 +53,10 @@ template
     typename RobustPoint,
     typename Factor
 >
-inline void scale_to_integer_range(Box const& box,
-                                   Point& min_point,
-                                   RobustPoint& min_robust_point,
-                                   Factor& factor)
+inline void scale_box_to_integer_range(Box const& box,
+                                       Point& min_point,
+                                       RobustPoint& min_robust_point,
+                                       Factor& factor)
 {
     // Scale box to integer-range
     typedef typename promote_floating_point
@@ -104,7 +104,7 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     model::box<Point> env2 = geometry::return_envelope<model::box<Point> >(geometry2);
     geometry::expand(env, env2);
 
-    scale_to_integer_range(env, min_point, min_robust_point, factor);
+    scale_box_to_integer_range(env, min_point, min_robust_point, factor);
 }
 
 
