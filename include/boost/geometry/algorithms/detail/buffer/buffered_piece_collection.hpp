@@ -693,6 +693,16 @@ struct buffered_piece_collection
         m_first_piece_index = boost::size(m_pieces);
     }
 
+    inline void update_closing_point()
+    {
+        BOOST_ASSERT(! offsetted_rings.empty());
+        buffered_ring<Ring>& added = offsetted_rings.back();
+        if (! added.empty())
+        {
+            added.back() = added.front();
+        }
+    }
+
     inline void finish_ring(bool is_interior = false, bool has_interiors = false)
     {
         if (m_first_piece_index == -1)
@@ -709,6 +719,8 @@ struct buffered_piece_collection
             geometry::range::back(m_pieces).right_index = m_first_piece_index;
         }
         m_first_piece_index = -1;
+
+        update_closing_point();
 
         if (! current_robust_ring.empty())
         {
