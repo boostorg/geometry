@@ -704,6 +704,27 @@ struct buffered_piece_collection
         }
     }
 
+    inline void update_last_point(point_type const& p,
+            buffered_ring<Ring>& ring)
+    {
+        // For the first point of a new piece, and there were already
+        // points in the offsetted ring, for some piece types the first point
+        // is a duplicate of the last point of the previous piece.
+
+        // TODO: disable that, that point should not be added
+
+        // For now, it is made equal because due to numerical instability,
+        // it can be a tiny bit off, possibly causing a self-intersection
+
+        BOOST_ASSERT(boost::size(m_pieces) > 0);
+        if (! ring.empty()
+            && current_segment_id.segment_index
+                == m_pieces.back().first_seg_id.segment_index)
+        {
+            ring.back() = p;
+        }
+    }
+
     inline void finish_ring(bool is_interior = false, bool has_interiors = false)
     {
         if (m_first_piece_index == -1)
@@ -747,9 +768,12 @@ struct buffered_piece_collection
     {
         BOOST_ASSERT(boost::size(offsetted_rings) > 0);
 
+        buffered_ring<Ring>& current_ring = offsetted_rings.back();
+        update_last_point(p, current_ring);
+
         current_segment_id.segment_index++;
-        offsetted_rings.back().push_back(p);
-        return offsetted_rings.back().size();
+        current_ring.push_back(p);
+        return current_ring.size();
     }
 
     //-------------------------------------------------------------------------

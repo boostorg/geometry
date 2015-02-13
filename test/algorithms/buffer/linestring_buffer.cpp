@@ -75,14 +75,13 @@ void test_all()
     test_one<linestring, polygon>("simplex", simplex, join_miter, end_flat, 19.209, 1.5, 1.5);
     test_one<linestring, polygon>("simplex", simplex, join_miter, end_round, 26.2733, 1.5, 1.5);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     // Should be about PI + 2
     test_one<linestring, polygon>("simplex_vertical", simplex_vertical, join_round, end_round, 5.14, 1, 1);
     test_one<linestring, polygon>("simplex_horizontal", simplex_horizontal, join_round, end_round, 5.14, 1, 1);
 
+    // Should be a bit less than PI + 2
     test_one<linestring, polygon>("simplex_vertical32", simplex_vertical, join_round32, end_round32, 5.12145, 1, 1);
     test_one<linestring, polygon>("simplex_horizontal32", simplex_horizontal, join_round32, end_round32, 5.12145, 1, 1);
-#endif
 
     test_one<linestring, polygon>("simplex_asym_neg", simplex, join_miter, end_flat, 3.202, +1.5, -1.0);
     test_one<linestring, polygon>("simplex_asym_pos", simplex, join_miter, end_flat, 3.202, -1.0, +1.5);
