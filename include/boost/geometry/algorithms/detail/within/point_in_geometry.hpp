@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013, 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015, Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,6 +21,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_POINT_IN_GEOMETRY_HPP
 
 #include <boost/assert.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -58,7 +59,7 @@ inline T check_result_type(T result)
 template <typename Point, typename Range, typename Strategy> inline
 int point_in_range(Point const& point, Range const& range, Strategy const& strategy)
 {
-    boost::ignore_unused_variable_warning(strategy);
+    boost::ignore_unused(strategy);
 
     typedef typename boost::range_iterator<Range const>::type iterator_type;
     typename Strategy::state_type state;
@@ -147,7 +148,7 @@ struct point_in_geometry<Point2, point_tag>
     template <typename Point1, typename Strategy> static inline
     int apply(Point1 const& point1, Point2 const& point2, Strategy const& strategy)
     {
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
         return strategy.apply(point1, point2) ? 1 : -1;
     }
 };
@@ -158,6 +159,8 @@ struct point_in_geometry<Segment, segment_tag>
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Segment const& segment, Strategy const& strategy)
     {
+        boost::ignore_unused(strategy);
+
         typedef typename geometry::point_type<Segment>::type point_type;
         point_type p0, p1;
 // TODO: don't copy points

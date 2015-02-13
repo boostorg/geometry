@@ -1,15 +1,16 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
@@ -19,7 +20,11 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+
 #include <boost/type_traits/is_base_of.hpp>
+
 
 namespace boost { namespace geometry {
 
@@ -35,10 +40,16 @@ struct assign_policy
 
 // GET_TURNS
 
-template <typename Geometry1,
-          typename Geometry2,
-          typename GetTurnPolicy
-            = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, assign_policy<> > >
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename GetTurnPolicy = detail::get_turns::get_turn_info_type
+        <
+            Geometry1, Geometry2, assign_policy<>
+        >,
+    typename RobustPolicy = detail::no_rescale_policy
+>
 struct get_turns
 {
     typedef typename geometry::point_type<Geometry1>::type point1_type;
@@ -46,11 +57,14 @@ struct get_turns
     typedef overlay::turn_info
             <
                 point1_type,
-                typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type,
+                typename segment_ratio_type<point1_type, RobustPolicy>::type,
                 typename detail::get_turns::turn_operation_type
                     <
                         Geometry1, Geometry2,
-                        typename segment_ratio_type<point1_type, detail::no_rescale_policy>::type
+                        typename segment_ratio_type
+                            <
+                                point1_type, RobustPolicy
+                            >::type
                     >::type
             > turn_info;
 
@@ -73,6 +87,12 @@ struct get_turns
         static const bool reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value;
         static const bool reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value;
 
+        RobustPolicy robust_policy = geometry::get_rescale_policy
+            <
+                RobustPolicy
+            >(geometry1, geometry2);
+
+
         dispatch::get_turns
             <
                 typename geometry::tag<Geometry1>::type,
@@ -83,7 +103,7 @@ struct get_turns
                 reverse2,
                 GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2,
-                     detail::no_rescale_policy(), turns, interrupt_policy);
+                     robust_policy, turns, interrupt_policy);
     }
 };
 

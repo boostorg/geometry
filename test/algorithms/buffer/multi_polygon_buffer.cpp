@@ -396,7 +396,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
-    if (Clockwise)
+    if (BOOST_GEOMETRY_CONDITION(Clockwise))
     {
         // This configuration is not yet stable. By the changed sorting of turns, they now fail
         // (the change was irrelevant to this, so they succeeded earlier by luck).

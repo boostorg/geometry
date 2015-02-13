@@ -21,6 +21,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
@@ -892,7 +893,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     collection.get_turns();
     collection.classify_turns(linear);
-    if (areal)
+    if (BOOST_GEOMETRY_CONDITION(areal))
     {
         collection.check_remaining_points(distance_strategy);
     }
@@ -913,7 +914,8 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     // - the output is counter clockwise
     // and avoid reversing twice
     bool reverse = distance_strategy.negative() && areal;
-    if (geometry::point_order<GeometryOutput>::value == counterclockwise)
+    if (BOOST_GEOMETRY_CONDITION(
+            geometry::point_order<GeometryOutput>::value == counterclockwise))
     {
         reverse = ! reverse;
     }

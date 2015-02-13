@@ -20,6 +20,9 @@
 
 
 static std::string const simplex = "LINESTRING(0 0,4 5)";
+static std::string const simplex_vertical = "LINESTRING(0 0,0 1)";
+static std::string const simplex_horizontal = "LINESTRING(0 0,1 0)";
+
 static std::string const straight = "LINESTRING(0 0,4 5,8 10)";
 static std::string const one_bend = "LINESTRING(0 0,4 5,7 4)";
 static std::string const two_bends = "LINESTRING(0 0,4 5,7 4,10 6)";
@@ -64,9 +67,21 @@ void test_all()
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
+    // For testing MySQL issues, who use 32 by default
+    bg::strategy::buffer::end_round end_round32(32);
+    bg::strategy::buffer::join_round join_round32(32);
+
     // Simplex (join-type is not relevant)
     test_one<linestring, polygon>("simplex", simplex, join_miter, end_flat, 19.209, 1.5, 1.5);
     test_one<linestring, polygon>("simplex", simplex, join_miter, end_round, 26.2733, 1.5, 1.5);
+
+    // Should be about PI + 2
+    test_one<linestring, polygon>("simplex_vertical", simplex_vertical, join_round, end_round, 5.14, 1, 1);
+    test_one<linestring, polygon>("simplex_horizontal", simplex_horizontal, join_round, end_round, 5.14, 1, 1);
+
+    // Should be a bit less than PI + 2
+    test_one<linestring, polygon>("simplex_vertical32", simplex_vertical, join_round32, end_round32, 5.12145, 1, 1);
+    test_one<linestring, polygon>("simplex_horizontal32", simplex_horizontal, join_round32, end_round32, 5.12145, 1, 1);
 
     test_one<linestring, polygon>("simplex_asym_neg", simplex, join_miter, end_flat, 3.202, +1.5, -1.0);
     test_one<linestring, polygon>("simplex_asym_pos", simplex, join_miter, end_flat, 3.202, -1.0, +1.5);

@@ -494,7 +494,7 @@ public :
 struct visit_no_policy
 {
     template <typename Box>
-    static inline void apply(Box const&, int )
+    static inline void apply(Box const&, std::size_t )
     {}
 };
 

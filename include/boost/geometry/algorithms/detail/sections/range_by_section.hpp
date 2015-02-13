@@ -58,7 +58,8 @@ struct full_section_polygon
     {
         return section.ring_id.ring_index < 0
             ? geometry::exterior_ring(polygon)
-            : range::at(geometry::interior_rings(polygon), section.ring_id.ring_index);
+            : range::at(geometry::interior_rings(polygon),
+                        static_cast<std::size_t>(section.ring_id.ring_index));
     }
 };
 
@@ -74,13 +75,15 @@ struct full_section_multi
     static inline typename ring_return_type<MultiGeometry const>::type apply(
                 MultiGeometry const& multi, Section const& section)
     {
+        typedef typename boost::range_size<MultiGeometry>::type size_type;
+
         BOOST_ASSERT
             (
                 section.ring_id.multi_index >= 0
-                && section.ring_id.multi_index < int(boost::size(multi))
+                && size_type(section.ring_id.multi_index) < boost::size(multi)
             );
 
-        return Policy::apply(range::at(multi, section.ring_id.multi_index), section);
+        return Policy::apply(range::at(multi, size_type(section.ring_id.multi_index)), section);
     }
 };
 

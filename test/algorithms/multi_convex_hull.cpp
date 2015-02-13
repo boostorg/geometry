@@ -54,22 +54,22 @@ void test_all()
     typedef bg::model::multi_polygon<bg::model::polygon<P> > mpoly;
 
     // All points below in upper-points and lower-points
-    test_geometry<mp>("MULTIPOINT((0 0),(5 0),(1 1),(4 1))", -1, 5, 4.0);
-    test_geometry<mp>("MULTIPOINT((0 1),(5 1),(1 0),(4 0))", -1, 5, 4.0);
+    test_geometry<mp>("MULTIPOINT((0 0),(5 0),(1 1),(4 1))", 0, 5, 4.0);
+    test_geometry<mp>("MULTIPOINT((0 1),(5 1),(1 0),(4 0))", 0, 5, 4.0);
 
     // All points in vertical line (this delivers an empty polygon with 3 points and closing point for closed)
-    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", -1, 4, 0.0);
+    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", 0, 4, 0.0);
 
     // One point only
-    test_geometry<mp>("MULTIPOINT((1 0))", -1, 4, 0.0);
+    test_geometry<mp>("MULTIPOINT((1 0))", 0, 4, 0.0);
 
     // Problem of 6019, reproduced by the convex hull robustness test:
     test_geometry<mp>("MULTIPOINT((2 9),(1 3),(9 4),(1 1),(1 0),(7 9),(2 5),(3 7),(3 6),(2 4))",
-            -1, 6, 48.0);
+            0, 6, 48.0);
 
     // Ticket 6019:
     test_geometry<mp>("MULTIPOINT((0 53),(0 103),(0 53),(0 3),(0 3),(0 0),(1 0),(1 1),(2 1),(2 0),(2 0),(2 0),(3 0),(3 1),(4 1),(4 0),(5 0),(0 3),(10 3),(10 2),(10 2),(10 2),(5 2),(5 0),(5 0),(55 0),(105 0))",
-            -1, 4, 5407.5);
+            0, 4, 5407.5);
     // Ticket 6021:
     test_geometry<mp>("multipoint((0 53), (0 103), (1 53))", 3, 4, 25);
 

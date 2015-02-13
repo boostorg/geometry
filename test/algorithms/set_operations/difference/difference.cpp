@@ -244,7 +244,7 @@ void test_all()
         1, 61, 10.2717);
 #endif
 
-    if (boost::is_same<ct, double>::value)
+    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
         test_one<polygon, polygon, polygon>("buffer_mp2",
             buffer_mp2[0], buffer_mp2[1],
@@ -316,7 +316,7 @@ void test_all()
         1, 4, 3200.4,
         0.01);
 
-    if (! boost::is_same<ct, float>::value)
+    if ( BOOST_GEOMETRY_CONDITION((! boost::is_same<ct, float>::value)) )
     {
         test_one<polygon, polygon, polygon>("ggl_list_20110716_enrico",
             ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
