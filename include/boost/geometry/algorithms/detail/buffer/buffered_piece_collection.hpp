@@ -700,7 +700,7 @@ struct buffered_piece_collection
         buffered_ring<Ring>& added = offsetted_rings.back();
         if (! added.empty())
         {
-            added.back() = added.front();
+            added.back() = range::front(added);
         }
     }
 
