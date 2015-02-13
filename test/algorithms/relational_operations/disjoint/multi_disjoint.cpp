@@ -25,7 +25,6 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 #include <test_common/test_point.hpp>
 
@@ -35,6 +34,8 @@
 template <typename P>
 void test_all()
 {
+    typedef bg::model::linestring<P> ls;
+    typedef bg::model::multi_linestring<ls> mls;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_polygon<polygon> mp;
 
@@ -104,6 +105,11 @@ void test_all()
         "POINT(0 0)",
         false);
 
+//    assertion failure in 1.57
+//    test_disjoint<ls, mls>("point_l_ls_assert",
+//        "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+//        "MULTILINESTRING((20 100, 31 -97, -46 57, -20 -4),(-71 -4))",
+//        false);
 }
 
 int test_main(int, char* [])
