@@ -698,9 +698,9 @@ struct buffered_piece_collection
     {
         BOOST_ASSERT(! offsetted_rings.empty());
         buffered_ring<Ring>& added = offsetted_rings.back();
-        if (! added.empty())
+        if (! boost::empty(added))
         {
-            added.back() = added.front();
+            range::back(added) = range::front(added);
         }
     }
 
