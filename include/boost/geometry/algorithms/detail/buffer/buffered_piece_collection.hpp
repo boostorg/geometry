@@ -807,6 +807,9 @@ struct buffered_piece_collection
     {
         pc.offsetted_count = pc.last_segment_index - pc.first_seg_id.segment_index;
         BOOST_ASSERT(pc.offsetted_count >= 0);
+        BOOST_ASSERT(pc.first_seg_id.multi_index >= 0);
+        BOOST_ASSERT(pc.first_seg_id.segment_index >= 0);
+        BOOST_ASSERT(pc.last_segment_index >= 0);
 
         pc.robust_ring.reserve(pc.offsetted_count + helper_points_size);
 
