@@ -419,6 +419,14 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 999, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
 #endif
+
+    {
+        bg::strategy::buffer::join_round join_round32(32);
+        bg::strategy::buffer::end_round end_round32(32);
+        test_one<multi_polygon_type, polygon_type>("mysql_report_2015_02_17_passing",
+            "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((10 10,10 20,20 20,20 10,10 10)))",
+            join_round32, end_round32, 64*2, -1);
+    }
 }
 
 int test_main(int, char* [])

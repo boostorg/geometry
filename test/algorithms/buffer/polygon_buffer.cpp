@@ -497,6 +497,24 @@ void test_all()
             join_round32, end_round32, 69.117, 1.0);
         test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
             join_round32, end_round32, 63.121, 1.0);
+
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))",
+            join_round32, end_round32, 0, -10);
+#endif
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_0",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+            join_round32, end_round32, 0, -10);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_1",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))",
+            join_round32, end_round32, 0, -5);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_2",
+            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+            join_round32, end_round32, 64, -1);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_3",
+            "POLYGON((10 10,10 20,20 20,20 10,10 10))",
+            join_round32, end_round32, 64, -1);
     }
 
 
