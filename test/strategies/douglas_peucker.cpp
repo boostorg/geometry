@@ -228,26 +228,26 @@ inline void test_with_strategy()
     typedef bg::model::segment<point_type> segment_type;
     typedef test_one_case<linestring_type> tester;
 
-    linestring_type ls1, ls2;
-    linestring_type res1, res2;
-    point_type const p1(-6,-13), p2(0,-15);
-    segment_type const s(point_type(12,-3), point_type(-12,5));
+    {
+        point_type const p1(-6,-13), p2(0,-15);
+        segment_type const s(point_type(12,-3), point_type(-12,5));
 
-    if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
-    {
-        tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
-                      10,
-                      strategy,
-                      ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5),
-                      "l01");
-    }
-    else
-    {
-        tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
-                      10,
-                      strategy,
-                      ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-9,4)(0,-15)(-12,5),
-                      "l01");
+        if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
+        {
+            tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
+                          10,
+                          strategy,
+                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5),
+                          "l01");
+        }
+        else
+        {
+            tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
+                          10,
+                          strategy,
+                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-9,4)(0,-15)(-12,5),
+                          "l01");
+        }
     }
 
     tester::apply("LINESTRING(-6 -13,-9 4,0 -15,-12 5)",
@@ -267,6 +267,72 @@ inline void test_with_strategy()
                   strategy,
                   ba::tuple_list_of(12,-3)(-6,-13)(-12,5),
                   "l04");
+
+    {
+        segment_type const s(point_type(0,-1), point_type(5,-4));
+        point_type const p1(5,-1), p2(0,-4);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        bool d_larger_first = (bg::distance(p1, s) > bg::distance(p2, s));
+        bool d_larger_second = (bg::distance(p1, s) < bg::distance(p2, s));
+        bool cd_larger_first
+            = (bg::comparable_distance(p1, s) > bg::comparable_distance(p2, s));
+        bool cd_larger_second
+            = (bg::comparable_distance(p1, s) < bg::comparable_distance(p2, s));
+
+        std::cout << "segment: " << bg::dsv(s) << std::endl;
+        std::cout << "distance from " << bg::dsv(p1) << ": "
+                  << bg::distance(p1, s) << std::endl;
+        std::cout << "comp. distance from " << bg::dsv(p1) << ": "
+                  << bg::comparable_distance(p1, s) << std::endl;
+        std::cout << "distance from " << bg::dsv(p2) << ": "
+                  << bg::distance(p2, s) << std::endl;
+        std::cout << "comp. distance from " << bg::dsv(p2) << ": "
+                  << bg::comparable_distance(p2, s) << std::endl;
+        std::cout << "larger distance from "
+                  << (d_larger_first ? "first" : (d_larger_second ? "second" : "equal"))
+                  << std::endl;
+        std::cout << "larger comp. distance from "
+                  << (cd_larger_first ? "first" : (cd_larger_second ? "second" : "equal"))
+                  << std::endl;
+        std::cout << "difference of distances: "
+                  << (bg::distance(p1, s) - bg::distance(p2, s))
+                  << std::endl;
+        std::cout << "difference of comp. distances: "
+                  << (bg::comparable_distance(p1, s) - bg::comparable_distance(p2, s))
+                  << std::endl;
+#endif
+
+        std::string wkt =
+            "LINESTRING(0 0,5 0,0 -1,5 -1,0 -2,5 -2,0 -3,5 -3,0 -4,5 -4,0 0)";
+
+        if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
+        {
+            tester::apply(wkt,
+                          1,
+                          strategy,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-3)(5,-4)(0,0),
+                          "l05");
+            tester::apply(wkt,
+                          2,
+                          strategy,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-4)(0,0),
+                          "l05a");
+        }
+        else
+        {
+            tester::apply(wkt,
+                          1,
+                          strategy,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-4)(5,-4)(0,0),
+                          "l05");
+            tester::apply(wkt,
+                          2,
+                          strategy,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-4)(5,-4)(0,0),
+                          "l05a");
+        }
+    }
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
