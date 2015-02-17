@@ -68,6 +68,12 @@ void test_all()
     test_one<multi_linestring_type, polygon>("degenerate4", degenerate4, join_round, end_round, 104.3142, 3.0, 3.0);
 
 #ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
+    test_one<multi_linestring_type, polygon>("empty_result",
+                                             "MULTILINESTRING((0 0,10 10),(10 0,0 10))",
+                                             bg::strategy::buffer::join_round(32),
+                                             end_flat,
+                                             1/*not 0*/, 50);
+
     test_one<multi_linestring_type, polygon>("segfault1",
                                              "MULTILINESTRING((-2 0,-17 -11,3.7142857142857144125969171000179 -2.4285714285714283811046243499732),(11.406143344709896325639419956133 0.75426621160409546007485914742574,12 1,11.403846153846153299582510953769 0.75),(4.25 -2.25,-19 -12,-1 0))",
                                              bg::strategy::buffer::join_round(32),

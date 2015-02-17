@@ -179,6 +179,23 @@ void test_all()
     test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, true, tolerance);
     test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
     test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
+    test_one<linestring, polygon>("empty_result", "LINESTRING(0 0,10 10,10 0,0 10)", join_round32, end_flat, 1/*not 0*/, 20);
+
+    linestring ls;
+    bg::read_wkt("LINESTRING(0 0,10 10,10 0,0 10)", ls);
+    bg::model::multi_polygon<polygon> mp;
+
+    bg::buffer(ls, mp,
+               bg::strategy::buffer::distance_symmetric<double>(20),
+               bg::strategy::buffer::side_straight(),
+               bg::strategy::buffer::join_round(32),
+               bg::strategy::buffer::end_flat(),
+               bg::strategy::buffer::point_circle(32));
+
+    BOOST_CHECK(bg::num_points(mp) > 0);
+#endif
 }
 
 
