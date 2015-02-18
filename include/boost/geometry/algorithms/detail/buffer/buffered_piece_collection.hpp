@@ -805,11 +805,20 @@ struct buffered_piece_collection
 
     inline void init_rescale_piece(piece& pc, std::size_t helper_points_size)
     {
+        if (pc.first_seg_id.segment_index < 0)
+        {
+            // This indicates an error situation: an earlier piece was empty
+            // It currently does not happen
+            // std::cout << "EMPTY " << pc.type << " " << pc.index << " " << pc.first_seg_id.multi_index << std::endl;
+            pc.offsetted_count = 0;
+            return;
+        }
+
+        BOOST_ASSERT(pc.first_seg_id.multi_index >= 0);
+        BOOST_ASSERT(pc.last_segment_index >= 0);
+
         pc.offsetted_count = pc.last_segment_index - pc.first_seg_id.segment_index;
         BOOST_ASSERT(pc.offsetted_count >= 0);
-        BOOST_ASSERT(pc.first_seg_id.multi_index >= 0);
-        BOOST_ASSERT(pc.first_seg_id.segment_index >= 0);
-        BOOST_ASSERT(pc.last_segment_index >= 0);
 
         pc.robust_ring.reserve(pc.offsetted_count + helper_points_size);
 
@@ -853,6 +862,11 @@ struct buffered_piece_collection
 
     inline void calculate_robust_envelope(piece& pc)
     {
+        if (pc.offsetted_count == 0)
+        {
+            return;
+        }
+
         geometry::detail::envelope::envelope_range::apply(pc.robust_ring,
                 pc.robust_envelope);
 
@@ -879,6 +893,11 @@ struct buffered_piece_collection
                     const point_type& point3)
     {
         init_rescale_piece(pc, 3u);
+        if (pc.offsetted_count == 0)
+        {
+            return;
+        }
+
         add_helper_point(pc, point1);
         robust_point_type mid_point = add_helper_point(pc, point2);
         add_helper_point(pc, point3);

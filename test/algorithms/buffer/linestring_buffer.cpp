@@ -56,6 +56,9 @@ static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.
 
 static std::string const crossing = "LINESTRING(0 0,10 10,10 0,0 10)";
 
+// Simplified cases from multi_linestring tesets:
+static std::string const mikado1 = "LINESTRING(11.406143344709896325639419956133 0.75426621160409546007485914742574,12 1,11.403846153846153299582510953769 0.75)";
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -186,6 +189,8 @@ void test_all()
 
     test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.119, 20.0);
     test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.450, 20.0);
+
+    test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
 }
 
 

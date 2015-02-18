@@ -253,7 +253,6 @@ struct buffer_range
             RobustPolicy
         >::type robust_point_type;
 
-        robust_point_type previous_robust_input;
         point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
         /*
@@ -278,57 +277,50 @@ struct buffer_range
 
         Iterator it = begin;
 
-        geometry::recalculate(previous_robust_input, *begin, robust_policy);
-
         std::vector<output_point_type> generated_side;
         generated_side.reserve(2);
 
         for (Iterator prev = it++; it != end; ++it)
         {
-            robust_point_type robust_input;
-            geometry::recalculate(robust_input, *it, robust_policy);
-            // Check on equality - however, if input is simplified, this is
-            // unlikely (though possible by rescaling or for degenerated pointlike polygons)
-            if (! detail::equals::equals_point_point(previous_robust_input, robust_input))
+            generated_side.clear();
+            side_strategy.apply(*prev, *it, side,
+                                distance_strategy, generated_side);
+
+            if (generated_side.empty())
             {
-                generated_side.clear();
-                side_strategy.apply(*prev, *it, side,
-                                    distance_strategy, generated_side);
-
-                if (generated_side.empty())
-                {
-                    break;
-                }
-
-                result = true;
-
-                if (! first)
-                {
-                     add_join(collection,
-                            penultimate_point,
-                            *prev, last_p1, last_p2,
-                            *it, generated_side.front(), generated_side.back(),
-                            side,
-                            distance_strategy, join_strategy, end_strategy,
-                            robust_policy);
-                }
-
-                collection.add_side_piece(*prev, *it, generated_side, first);
-
-                penultimate_point = *prev;
-                ultimate_point = *it;
-                last_p1 = generated_side.front();
-                last_p2 = generated_side.back();
-                prev = it;
-                if (first)
-                {
-                    first = false;
-                    second_point = *it;
-                    first_p1 = generated_side.front();
-                    first_p2 = generated_side.back();
-                }
+                // Because input is simplified, this is improbable,
+                // but it can happen for degenerate geometries
+                // Further handling of this side is skipped
+                continue;
             }
-            previous_robust_input = robust_input;
+
+            result = true;
+
+            if (! first)
+            {
+                 add_join(collection,
+                        penultimate_point,
+                        *prev, last_p1, last_p2,
+                        *it, generated_side.front(), generated_side.back(),
+                        side,
+                        distance_strategy, join_strategy, end_strategy,
+                        robust_policy);
+            }
+
+            collection.add_side_piece(*prev, *it, generated_side, first);
+
+            penultimate_point = *prev;
+            ultimate_point = *it;
+            last_p1 = generated_side.front();
+            last_p2 = generated_side.back();
+            prev = it;
+            if (first)
+            {
+                first = false;
+                second_point = *it;
+                first_p1 = generated_side.front();
+                first_p2 = generated_side.back();
+            }
         }
         return result;
     }
