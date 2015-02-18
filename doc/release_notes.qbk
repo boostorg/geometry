@@ -54,6 +54,7 @@
 * Bug in centroid(), non-deterministic result if calculated for e.g. a Polygon with zero-area.
 * Bug in buffers for joins with a imited number of points
 * Bug in buffers for joins with large buffer distances
+* Bug in buffers for flat ends with large buffer distances
 * Bug in closing iterator not working properly when the input range is empty
 * Bug in is_simple, not handling properly closed simple linestrings within multilinestrings
 

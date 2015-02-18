@@ -54,6 +54,8 @@ static std::string const aimes175 = "LINESTRING(-2.3116 52.354326,-2.311555 52.3
 static std::string const aimes171 = "LINESTRING(-2.393161 52.265087,-2.393002 52.264965,-2.392901 52.264891)";
 static std::string const aimes181 = "LINESTRING(-2.320686 52.43505,-2.320678 52.435016,-2.320697 52.434978,-2.3207 52.434977,-2.320741 52.434964,-2.320807 52.434964,-2.320847 52.434986,-2.320903 52.435022)";
 
+static std::string const crossing = "LINESTRING(0 0,10 10,10 0,0 10)";
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -67,7 +69,7 @@ void test_all()
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
-    // For testing MySQL issues, who use 32 by default
+    // For testing MySQL issues, which uses 32 by default
     bg::strategy::buffer::end_round end_round32(32);
     bg::strategy::buffer::join_round join_round32(32);
 
@@ -161,41 +163,29 @@ void test_all()
     test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_round, 36.7410, 3.0);
     test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_flat, 8.4853, 3.0);
 
-    double tolerance = 1.0e-10;
+    {
+        double tolerance = 1.0e-10;
 
-    test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
-    test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes120", aimes120, join_miter, end_flat, 1.62669948622351512e-08, 0.000018, 0.000018, false, tolerance);
+        test_one<linestring, polygon>("aimes120", aimes120, join_round, end_round, 1.72842078427493107e-08, 0.000018, 0.000018, true, tolerance);
 
-    test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
-    test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes167", aimes167, join_miter, end_flat, 1.88900628472765675e-09, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes167", aimes167, join_round, end_round, 2.85734813587623648e-09, 0.000018, 0.000018, true, tolerance);
 
-    test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
-    test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes175", aimes175, join_miter, end_flat, 2.81111809385947709e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes175", aimes175, join_round, end_round, 3.21215765097804251e-08, 0.000036, 0.000036, true, tolerance);
 
-    test_one<linestring, polygon>("aimes171", aimes171, join_miter, end_flat, 1.1721873249825876e-08, 0.000018, 0.000018, true, tolerance);
-    test_one<linestring, polygon>("aimes171", aimes171, join_round, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
-    test_one<linestring, polygon>("aimes171", aimes171, join_round_by_divide, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes171", aimes171, join_miter, end_flat, 1.1721873249825876e-08, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes171", aimes171, join_round, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
+        test_one<linestring, polygon>("aimes171", aimes171, join_round_by_divide, end_round, 1.2739093335767393e-08, 0.000018, 0.000018, true, tolerance);
 
-    test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, true, tolerance);
-    test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
-    test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes181", aimes181, join_miter, end_flat, 2.1729405830228643e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes181", aimes181, join_round, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+        test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
+    }
 
-#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
-    test_one<linestring, polygon>("empty_result", "LINESTRING(0 0,10 10,10 0,0 10)", join_round32, end_flat, 1/*not 0*/, 20);
-
-    linestring ls;
-    bg::read_wkt("LINESTRING(0 0,10 10,10 0,0 10)", ls);
-    bg::model::multi_polygon<polygon> mp;
-
-    bg::buffer(ls, mp,
-               bg::strategy::buffer::distance_symmetric<double>(20),
-               bg::strategy::buffer::side_straight(),
-               bg::strategy::buffer::join_round(32),
-               bg::strategy::buffer::end_flat(),
-               bg::strategy::buffer::point_circle(32));
-
-    BOOST_CHECK(bg::num_points(mp) > 0);
-#endif
+    test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.119, 20.0);
+    test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.450, 20.0);
 }
 
 

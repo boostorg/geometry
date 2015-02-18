@@ -450,6 +450,13 @@ public:
             return;
         }
 
+        if (piece.type == strategy::buffer::buffered_flat_end
+            || piece.type == strategy::buffer::buffered_concave)
+        {
+            // Turns cannot be located within flat-end or concave pieces
+            return;
+        }
+
         if (! geometry::covered_by(turn.robust_point, piece.robust_envelope))
         {
             // Easy check: if the turn is not in the envelope, we can safely return
