@@ -24,6 +24,9 @@ static std::string const degenerate2 = "MULTILINESTRING((5 5),(9 9))";
 static std::string const degenerate3 = "MULTILINESTRING((5 5),(9 9),(4 10))";
 static std::string const degenerate4 = "MULTILINESTRING((5 5,5 5),(9 9,9 9,10 10,9 9,9 9,9 9),(4 10,4 10,3 11,4 12,3 11,4 10,4 10))";
 
+static std::string const crossing = "MULTILINESTRING((0 0,10 10),(10 0,0 10))";
+
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -36,6 +39,9 @@ void test_all()
     bg::strategy::buffer::join_round_by_divide join_round_by_divide(4);
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
+
+    bg::strategy::buffer::end_round end_round32(32);
+    bg::strategy::buffer::join_round join_round32(32);
 
     // Round joins / round ends
     test_one<multi_linestring_type, polygon>("simplex", simplex, join_round, end_round, 49.0217, 1.5, 1.5);
@@ -67,13 +73,10 @@ void test_all()
     test_one<multi_linestring_type, polygon>("degenerate3", degenerate3, join_round, end_round, 80.4531, 3.0, 3.0);
     test_one<multi_linestring_type, polygon>("degenerate4", degenerate4, join_round, end_round, 104.3142, 3.0, 3.0);
 
-#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
-    test_one<multi_linestring_type, polygon>("empty_result",
-                                             "MULTILINESTRING((0 0,10 10),(10 0,0 10))",
-                                             bg::strategy::buffer::join_round(32),
-                                             end_flat,
-                                             1/*not 0*/, 50);
+    test_one<multi_linestring_type, polygon>("crossing", crossing, join_round32, end_flat, 2628.4272, 50.0);
+    test_one<multi_linestring_type, polygon>("crossing", crossing, join_round32, end_round32,  9893.764, 50.0);
 
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
     test_one<multi_linestring_type, polygon>("segfault1",
                                              "MULTILINESTRING((-2 0,-17 -11,3.7142857142857144125969171000179 -2.4285714285714283811046243499732),(11.406143344709896325639419956133 0.75426621160409546007485914742574,12 1,11.403846153846153299582510953769 0.75),(4.25 -2.25,-19 -12,-1 0))",
                                              bg::strategy::buffer::join_round(32),
