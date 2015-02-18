@@ -75,10 +75,10 @@ struct check_equal
     };
 
     template <typename Geometry1, typename Geometry2>
-    static inline void apply(std::string const& case_id,
-                             std::string const& subcase_id,
-                             Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
+    static inline void apply(std::string const& /*case_id*/,
+                             std::string const& /*subcase_id*/,
+                             Geometry1 const& /*geometry1*/,
+                             Geometry2 const& /*geometry2*/,
                              T const& detected,
                              T const& expected)
     {

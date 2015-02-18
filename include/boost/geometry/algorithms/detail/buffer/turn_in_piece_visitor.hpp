@@ -17,6 +17,7 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/policies/compare.hpp>
@@ -73,11 +74,7 @@ struct turn_ovelaps_box
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)
     {
-        return ! dispatch::disjoint
-            <
-                typename Turn::robust_point_type,
-                Box
-            >::apply(turn.robust_point, box);
+        return ! geometry::detail::disjoint::disjoint_point_box(turn.robust_point, box);
     }
 };
 
@@ -447,6 +444,13 @@ public:
         if (turn.count_within > 0)
         {
             // Already inside - no need to check again
+            return;
+        }
+
+        if (piece.type == strategy::buffer::buffered_flat_end
+            || piece.type == strategy::buffer::buffered_concave)
+        {
+            // Turns cannot be located within flat-end or concave pieces
             return;
         }
 

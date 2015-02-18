@@ -461,6 +461,19 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
                       (2 2,5 -1,15 2,18 0))"),
          "llu21a"
          );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0,\
+                     4 -1,-7 10,-4 10)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1,-4 -1,-2 6)"),
+         from_wkt<ML>("MULTILINESTRING((-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0,\
+                     4 -1,-7 10,-4 10),(-5 -4,3 0),\
+                     (4 -1,7 -4,2 -1,-4 -1,-2 6))"),
+         from_wkt<ML>("MULTILINESTRING((-5 -4,3 0,4 -1,7 -4,2 -1,-4 -1,-2 6),\
+                      (-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0),\
+                      (3 0,-7 10,-4 10))"),
+         "llu22"
+         );
 }
 
 

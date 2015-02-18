@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2014 Oracle and/or its affiliates.
+// Copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -135,35 +135,35 @@ void test_all()
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
-    BOOST_CHECK(it == begin(v) + 2);
+    BOOST_CHECK(it == bgr::pos(v, 2));
 
     it = bgr::erase(v, begin(v) + 2, begin(v) + 2);
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
-    BOOST_CHECK(it == begin(v) + 2);
+    BOOST_CHECK(it == bgr::pos(v, 2));
 
     it = bgr::erase(v, begin(v) + 2, begin(v) + 5);
     BOOST_CHECK(boost::size(v) == 6); // {0,1,6..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
-    BOOST_CHECK(it == begin(v) + 2);
+    BOOST_CHECK(it == bgr::pos(v, 2));
 
     it = bgr::erase(v, begin(v));
     BOOST_CHECK(boost::size(v) == 5); // {1,6..9}
     BOOST_CHECK(bgr::at(v, 0) == 1);
     BOOST_CHECK(bgr::at(v, 1) == 6);
     BOOST_CHECK(bgr::back(v) == 9);
-    BOOST_CHECK(it == begin(v));
+    BOOST_CHECK(it == bgr::pos(v, 0));
 
     it = bgr::erase(v, begin(v), begin(v) + 3);
     BOOST_CHECK(boost::size(v) == 2); // {8,9}
     BOOST_CHECK(bgr::at(v, 0) == 8);
     BOOST_CHECK(bgr::at(v, 1) == 9);
     BOOST_CHECK(bgr::back(v) == 9);
-    BOOST_CHECK(it == begin(v));
+    BOOST_CHECK(it == bgr::pos(v, 0));
 
     it = bgr::erase(v, begin(v), end(v));
     BOOST_CHECK(boost::size(v) == 0);

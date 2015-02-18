@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -72,6 +72,37 @@ struct ls_equal
 };
 
 
+template <typename Point1, typename Point2>
+class pt_equal
+{
+private:
+    double m_tolerence;
+
+    template <typename T>
+    static inline T const& get_max(T const& a, T const& b, T const& c)
+    {
+        return (std::max)((std::max)(a, b), c);
+    }
+
+    template <typename T>
+    static inline bool check_close(T const& a, T const& b, T const& tol)
+    {
+        return (a == b)
+            || (std::abs(a - b) <= tol * get_max(std::abs(a), std::abs(b), 1.0));
+    }
+
+public:
+    pt_equal(double tolerence) : m_tolerence(tolerence) {}
+
+    bool operator()(Point1 const& point1, Point2 const& point2) const
+    {
+        // allow for some tolerence in testing equality of points
+        return check_close(bg::get<0>(point1), bg::get<0>(point2), m_tolerence)
+            && check_close(bg::get<1>(point1), bg::get<1>(point2), m_tolerence);
+    }
+};
+
+
 template <bool EnableUnique = false>
 struct multilinestring_equals
 {
@@ -79,21 +110,33 @@ struct multilinestring_equals
     struct unique
     {
         typedef typename boost::range_value<MultiLinestring>::type Linestring;
+        typedef typename bg::point_type<MultiLinestring>::type point_type;
         typedef ls_equal<Linestring, Linestring> linestring_equal;
+        typedef pt_equal<point_type, point_type> point_equal;
 
-        void operator()(MultiLinestring& mls)
+        template <typename Range, typename EqualTo>
+        void apply_to_range(Range& range, EqualTo const& equal_to)
         {
-            mls.erase(std::unique(boost::begin(mls),
-                                  boost::end(mls),
-                                  linestring_equal()),
-                      boost::end(mls));
+            range.erase(std::unique(boost::begin(range), boost::end(range),
+                                    equal_to),
+                        boost::end(range));
+        }
+
+        void operator()(MultiLinestring& mls, double tolerance)
+        {
+            for (typename boost::range_iterator<MultiLinestring>::type it
+                     = boost::begin(mls); it != boost::end(mls); ++it)
+            {
+                apply_to_range(*it, point_equal(tolerance));
+            }
+            apply_to_range(mls, linestring_equal());
         }
     };
 
     template <typename MultiLinestring>
     struct unique<MultiLinestring, false>
     {
-        void operator()(MultiLinestring&)
+        void operator()(MultiLinestring&, double)
         {
         }
     };
@@ -101,7 +144,8 @@ struct multilinestring_equals
     template <typename MultiLinestring1, typename MultiLinestring2>
     static inline
     bool apply(MultiLinestring1 const& multilinestring1,
-               MultiLinestring2 const& multilinestring2)
+               MultiLinestring2 const& multilinestring2,
+               double tolerance)
     {
         typedef typename boost::range_iterator
             <
@@ -129,14 +173,27 @@ struct multilinestring_equals
 
         typedef ls_less<Linestring1, Linestring2> linestring_less;
 
+        typedef pt_equal
+            <
+                typename boost::range_value
+                    <
+                        typename boost::range_value<MultiLinestring1>::type
+                    >::type,
+                typename boost::range_value
+                    <
+                        typename boost::range_value<MultiLinestring2>::type
+                    >::type
+            > point_equal;
+
+
         MultiLinestring1 mls1 = multilinestring1;
         MultiLinestring2 mls2 = multilinestring2;
 
         std::sort(boost::begin(mls1), boost::end(mls1), linestring_less());
         std::sort(boost::begin(mls2), boost::end(mls2), linestring_less());
 
-        unique<MultiLinestring1, EnableUnique>()(mls1);
-        unique<MultiLinestring2, EnableUnique>()(mls2);
+        unique<MultiLinestring1, EnableUnique>()(mls1, tolerance);
+        unique<MultiLinestring2, EnableUnique>()(mls2, tolerance);
 
         if ( boost::size(mls1) != boost::size(mls2) )
         {
@@ -155,7 +212,7 @@ struct multilinestring_equals
             point2_iterator pit2 = boost::begin(*it2);
             for (; pit1 != boost::end(*it1); ++pit1, ++pit2)
             {
-                if ( !bg::equals(*pit1, *pit2) )
+                if (! point_equal(tolerance)(*pit1, *pit2))
                 {
                     return false;
                 }
@@ -209,31 +266,37 @@ private:
 
     template <typename MultiLinestring1, typename MultiLinestring2>
     static inline bool apply_base(MultiLinestring1 const& multilinestring1,
-                                  MultiLinestring2 const& multilinestring2)
+                                  MultiLinestring2 const& multilinestring2,
+                                  double tolerance)
     {
         typedef multilinestring_equals<true> mls_equals;
 
-        if ( mls_equals::apply(multilinestring1, multilinestring2) )
+        if ( mls_equals::apply(multilinestring1, multilinestring2, tolerance) )
         {
             return true;
         }
 
         MultiLinestring1 reverse_multilinestring1 = multilinestring1;
         bg::reverse(reverse_multilinestring1);
-        if ( mls_equals::apply(reverse_multilinestring1, multilinestring2) )
+        if ( mls_equals::apply(reverse_multilinestring1,
+                               multilinestring2,
+                               tolerance) )
         {
             return true;
         }
 
         MultiLinestring2 reverse_multilinestring2 = multilinestring2;
         bg::reverse(reverse_multilinestring2);
-        if ( mls_equals::apply(multilinestring1, reverse_multilinestring2) )
+        if ( mls_equals::apply(multilinestring1,
+                               reverse_multilinestring2,
+                               tolerance) )
         {
             return true;
         }
 
         return mls_equals::apply(reverse_multilinestring1,
-                                 reverse_multilinestring2);
+                                 reverse_multilinestring2,
+                                 tolerance);
     }
 
 
@@ -241,7 +304,8 @@ private:
 public:
     template <typename MultiLinestring1, typename MultiLinestring2>
     static inline bool apply(MultiLinestring1 const& multilinestring1,
-                             MultiLinestring2 const& multilinestring2)
+                             MultiLinestring2 const& multilinestring2,
+                             double tolerance)
     {
 #ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
         MultiLinestring1 converted_multilinestring1;
@@ -251,9 +315,9 @@ public:
         convert_isolated_points_to_segments
             (multilinestring2, std::back_inserter(converted_multilinestring2));
         return apply_base(converted_multilinestring1,
-                          converted_multilinestring2);
+                          converted_multilinestring2, tolerance);
 #else
-        return apply_base(multilinestring1, multilinestring2);
+        return apply_base(multilinestring1, multilinestring2, tolerance);
 #endif
     }
 };

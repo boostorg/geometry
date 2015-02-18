@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -35,6 +35,8 @@
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/concepts/convex_hull_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 #include <boost/geometry/views/detail/range_type.hpp>
 
@@ -123,7 +125,7 @@ struct convex_hull<Box, box_tag>
         boost::array<typename point_type<Box>::type, 4> range;
         geometry::detail::assign_box_corners_oriented<Reverse>(box, range);
         geometry::append(out, range);
-        if (Close)
+        if (BOOST_GEOMETRY_CONDITION(Close))
         {
             geometry::append(out, *boost::begin(range));
         }

@@ -224,7 +224,7 @@ struct relate_cartesian_segments
                                             geometry::math::abs(robust_dy_b),
                                             a_is_point, b_is_point);
 
-            if ( collinear_use_first.second )
+            if (collinear_use_first.second)
             {
                 // Degenerate cases: segments of single point, lying on other segment, are not disjoint
                 // This situation is collinear too
@@ -265,11 +265,11 @@ private:
         // for degenerated segments the second is always true because this function
         // shouldn't be called if both segments were degenerated
 
-        if ( a_is_point )
+        if (a_is_point)
         {
             return std::make_pair(abs_robust_dx_b >= abs_robust_dy_b, true);
         }
-        else if ( b_is_point )
+        else if (b_is_point)
         {
             return std::make_pair(abs_robust_dx_a >= abs_robust_dy_a, true);
         }
@@ -377,22 +377,22 @@ private:
         // the endpoints intersect (but maybe it doesn't)
         // should also the opposite case be handled explicitly? That is,
         // if ratio indicates that the endpoints intersect but they aren't?
-        if ( math::equals(oa_1, ob_1) )
+        if (math::equals(oa_1, ob_1))
         {
             ra_from.assign(0, 1);
             rb_from.assign(0, 1);
         }
-        if ( math::equals(oa_2, ob_1) )
+        if (math::equals(oa_2, ob_1))
         {
             ra_to.assign(0, 1);
             rb_from.assign(1, 1);
         }
-        if ( math::equals(oa_1, ob_2) )
+        if (math::equals(oa_1, ob_2))
         {
             ra_from.assign(1, 1);
             rb_to.assign(0, 1);
         }        
-        if ( math::equals(oa_2, ob_2) )
+        if (math::equals(oa_2, ob_2))
         {
             ra_to.assign(1, 1);
             rb_to.assign(1, 1);
