@@ -136,6 +136,14 @@ static std::string const mysql_report_2014_10_28_2
 static std::string const mysql_report_2014_10_28_3
     = "POLYGON((2 2,8 2,8 8,2 8,2 2))";
 
+// Polygons having problems with negative distances in 1.57
+static std::string const mysql_report_2015_02_17_1
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))";
+static std::string const mysql_report_2015_02_17_2
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0))";
+static std::string const mysql_report_2015_02_17_3
+    = "POLYGON((10 10,10 20,20 20,20 10,10 10))";
+
 
 class buffer_custom_side_strategy
 {
@@ -498,22 +506,27 @@ void test_all()
         test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
             join_round32, end_round32, 63.121, 1.0);
 
-#ifdef BOOST_GEOMETRY_TEST_BUFFER_BUGS
-        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17",
-            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))",
-            join_round32, end_round32, 0, -10);
-#endif
-        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_0",
-            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
-            join_round32, end_round32, 0, -10);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_1",
-            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))",
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d1",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 48.879, -1);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d5",
+            mysql_report_2015_02_17_1,
             join_round32, end_round32, 0, -5);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_2",
-            "POLYGON((0 0,0 10,10 10,10 0,0 0))",
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d6",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 0, -6);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d10",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 0, -10);
+
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_2_d1",
+            mysql_report_2015_02_17_2,
             join_round32, end_round32, 64, -1);
-        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_passing_3",
-            "POLYGON((10 10,10 20,20 20,20 10,10 10))",
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_2_d10",
+            mysql_report_2015_02_17_2,
+            join_round32, end_round32, 0, -10);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_3_d1",
+            mysql_report_2015_02_17_3,
             join_round32, end_round32, 64, -1);
     }
 

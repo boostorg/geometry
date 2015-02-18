@@ -916,6 +916,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         collection.reverse();
     }
 
+    if (distance_strategy.negative() && areal)
+    {
+        collection.discard_nonintersecting_deflated_rings();
+    }
+
     collection.template assign<GeometryOutput>(out);
 
     // Visit collection again

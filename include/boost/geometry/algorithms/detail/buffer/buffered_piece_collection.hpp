@@ -32,6 +32,7 @@
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_original_visitor.hpp>
 
+#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/add_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
@@ -1054,6 +1055,80 @@ struct buffered_piece_collection
         }
     }
 
+    inline bool point_coveredby_original(point_type const& point)
+    {
+        robust_point_type any_point;
+        geometry::recalculate(any_point, point, m_robust_policy);
+
+        int count_in_original = 0;
+
+        // Check of the robust point of this outputted ring is in
+        // any of the robust original rings
+        // This can go quadratic if the input has many rings, and there
+        // are many untouched deflated rings around
+        for (typename std::vector<robust_original>::const_iterator it
+            = robust_originals.begin();
+            it != robust_originals.end();
+            ++it)
+        {
+            robust_original const& original = *it;
+            if (detail::disjoint::disjoint_point_box(any_point,
+                    original.m_box))
+            {
+                continue;
+            }
+
+            int const geometry_code
+                = detail::within::point_in_geometry(any_point,
+                    original.m_ring);
+
+            if (geometry_code == -1)
+            {
+                // Outside, continue
+                continue;
+            }
+
+            // Apply for possibly nested interior rings
+            if (original.m_is_interior)
+            {
+                count_in_original--;
+            }
+            else if (original.m_has_interiors)
+            {
+                count_in_original++;
+            }
+            else
+            {
+                // Exterior ring without interior rings
+                return true;
+            }
+        }
+        return count_in_original > 0;
+    }
+
+    // For a deflate, all rings around inner rings which are untouched
+    // (no intersections/turns) and which are OUTSIDE the original should
+    // be discarded
+    inline void discard_nonintersecting_deflated_rings()
+    {
+        for(typename buffered_ring_collection<buffered_ring<Ring> >::iterator it
+            = boost::begin(offsetted_rings);
+            it != boost::end(offsetted_rings);
+            ++it)
+        {
+            buffered_ring<Ring>& ring = *it;
+            if (! ring.has_intersections()
+                && boost::size(ring) > 0u
+                && geometry::area(ring) < 0)
+            {
+                if (! point_coveredby_original(geometry::range::front(ring)))
+                {
+                    ring.is_untouched_outside_original = true;
+                }
+            }
+        }
+    }
+
     inline void block_turns()
     {
         // To fix left-turn issues like #rt_u13
@@ -1127,13 +1202,17 @@ struct buffered_piece_collection
 
         std::map<ring_identifier, properties> selected;
 
-        // Select all rings which do not have any self-intersection (other ones should be traversed)
+        // Select all rings which do not have any self-intersection
+        // Inner rings, for deflate, which do not have intersections, and
+        // which are outside originals, are skipped
+        // (other ones should be traversed)
         int index = 0;
         for(typename buffered_ring_collection<buffered_ring<Ring> >::const_iterator it = boost::begin(offsetted_rings);
             it != boost::end(offsetted_rings);
             ++it, ++index)
         {
-            if (! it->has_intersections())
+            if (! it->has_intersections()
+                && ! it->is_untouched_outside_original)
             {
                 ring_identifier id(0, index, -1);
                 selected[id] = properties(*it);
