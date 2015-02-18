@@ -47,6 +47,8 @@
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
+#include <from_wkt.hpp>
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include "pretty_print_geometry.hpp"
 #endif
@@ -294,11 +296,13 @@ template
     typename CWClosedGeometry = Geometry,
     typename Tag = typename bg::tag<Geometry>::type
 >
-struct test_valid
+class test_valid
 {
+protected:
     template <typename G>
-    static inline void base_test(G const& g, bool expected_result,
-                                 std::string const& case_id)
+    static inline void base_test(std::string const& case_id,
+                                 G const& g,
+                                 bool expected_result)
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "=======" << std::endl;
@@ -323,13 +327,15 @@ struct test_valid
 #endif
     }
 
-    static inline void apply(Geometry const& geometry,
-                             bool expected_result,
-                             std::string const& case_id)
+public:
+    static inline void apply(std::string const& case_id,
+                             Geometry const& geometry,
+                             bool expected_result)
+
     {
         std::stringstream sstr;
         sstr << case_id << "-original";
-        base_test(geometry, expected_result, sstr.str());
+        base_test(sstr.str(), geometry, expected_result);
 
         if ( is_convertible_to_closed<Geometry>::apply(geometry) )
         {
@@ -341,7 +347,7 @@ struct test_valid
             bg::convert(geometry, closed_geometry);
             sstr.str("");
             sstr << case_id << "-2closed";
-            base_test(closed_geometry, expected_result, sstr.str());
+            base_test(sstr.str(), closed_geometry, expected_result);
         }
         if ( is_convertible_to_cw<Geometry>::apply(geometry) )
         {
@@ -353,7 +359,7 @@ struct test_valid
             bg::convert(geometry, cw_geometry);
             sstr.str("");
             sstr << case_id << "-2CW";
-            base_test(cw_geometry, expected_result, sstr.str());
+            base_test(sstr.str(), cw_geometry, expected_result);
             if ( is_convertible_to_closed<CWGeometry>::apply(cw_geometry) )
             {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -364,7 +370,7 @@ struct test_valid
                 bg::convert(cw_geometry, cw_closed_geometry);
                 sstr.str("");
                 sstr << case_id << "-2CWclosed";
-                base_test(cw_closed_geometry, expected_result, sstr.str());
+                base_test(sstr.str(), cw_closed_geometry, expected_result);
             }
         }
 
@@ -378,7 +384,7 @@ struct test_valid
             bg::convert(geometry, polygon);
             sstr.str("");
             sstr << case_id << "-2Polygon";
-            base_test(polygon, expected_result, sstr.str());
+            base_test(sstr.str(), polygon, expected_result);
         }
 
         if ( BOOST_GEOMETRY_CONDITION(is_convertible_to_multipolygon<Geometry>::value) )
@@ -395,12 +401,19 @@ struct test_valid
             bg::convert(geometry, multipolygon);
             sstr.str("");
             sstr << case_id << "-2MultiPolygon";
-            base_test(multipolygon, expected_result, sstr.str());
+            base_test(sstr.str(), multipolygon, expected_result);
         }
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl << std::endl;
 #endif
+    }
+
+    static inline void apply(std::string const& case_id,
+                             std::string const& wkt,
+                             bool expected_result)
+    {
+        apply(case_id, from_wkt<Geometry>(wkt), expected_result);
     }
 };
 
@@ -409,16 +422,18 @@ struct test_valid
 
 
 template <typename VariantGeometry>
-struct test_valid_variant
+class test_valid_variant
+    : test_valid<default_validity_tester, VariantGeometry>
 {
-    static inline void apply(VariantGeometry const& vg,
-                             bool expected_result,
-                             std::string const& case_id)
+private:
+    typedef test_valid<default_validity_tester, VariantGeometry> base_type;
+
+public:
+    static inline void apply(std::string const& case_id,
+                             VariantGeometry const& vg,
+                             bool expected_result)
     {
-        test_valid
-            <
-                default_validity_tester, VariantGeometry
-            >::base_test(vg, expected_result, case_id);
+        base_type::base_test(case_id, vg, expected_result);
     }
 };
 
