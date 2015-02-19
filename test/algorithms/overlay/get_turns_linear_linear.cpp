@@ -285,6 +285,9 @@ void test_all()
         test_geometry<ls, ls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
                               "LINESTRING(31 -97, -46 57, -20 -4)",
                               expected("")(""));
+        test_geometry<ls, ls>("LINESTRING(31 -97, -46 57, -20 -4)",
+                              "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+                              expected("")(""));
     }
 
     // TODO:
