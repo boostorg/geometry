@@ -20,7 +20,16 @@ namespace boost { namespace geometry
 {
 
 
-// MK::need to add documentation
+/*!
+\brief \brief_calc{message explaining the reason for which is_valid failed}
+\ingroup is_valid_reason
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\return \return_calc{message explaining the reason for which is_valid
+failed, or indicating that the input geometry is valid}
+
+\qbk{[include reference/algorithms/is_valid_reason.qbk]}
+*/
 template <typename Geometry>
 inline std::string is_valid_reason(Geometry const& geometry)
 {
