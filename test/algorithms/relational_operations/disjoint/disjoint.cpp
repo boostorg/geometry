@@ -190,6 +190,12 @@ void test_all()
 
     test_disjoint<ls, polygon>("col-op", "LINESTRING(10 10,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
     test_disjoint<ls, polygon>("col-op", "LINESTRING(9 10,11 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))", false);
+
+    // assertion failure in 1.57
+    test_disjoint<ls, ls>("point_ll_assert_1_57",
+                          "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+                          "LINESTRING(31 -97, -46 57, -20 -4)",
+                          false);
 }
 
 
