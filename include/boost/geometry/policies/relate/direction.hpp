@@ -240,20 +240,11 @@ struct segments_direction
 
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type segments_collinear(
-        Segment1 const& , Segment2 const& ,
+        Segment1 const& , Segment2 const& , bool opposite,
         int a1_wrt_b, int a2_wrt_b, int b1_wrt_a, int b2_wrt_a,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
         Ratio const& /*rb_from_wrt_a*/, Ratio const& /*rb_to_wrt_a*/)
     {
-        // If segments are opposite, the ratio of the FROM w.r.t. the other
-        // is larger than the ratio of the TO w.r.t. the other
-        bool const opposite = ra_to_wrt_b < ra_from_wrt_b;
-        // NOTE: an alternative version could compare ratios only
-        // if both ax_wrt_b positions were equal, otherwise use int positions
-        /*bool const opposite = a1_wrt_b == a2_wrt_b
-                            ? ra_to_wrt_b < ra_from_wrt_b
-                            : a2_wrt_b < a1_wrt_b;*/
-        
         return_type r('c', opposite);
 
         // IMPORTANT: the order of conditions is different as in intersection_points.hpp

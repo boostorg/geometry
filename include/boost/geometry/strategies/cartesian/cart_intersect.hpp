@@ -412,7 +412,9 @@ private:
             return Policy::disjoint();
         }
 
-        return Policy::segments_collinear(a, b,
+        bool const opposite = math::sign(length_a) != math::sign(length_b);
+
+        return Policy::segments_collinear(a, b, opposite,
                                           a1_wrt_b, a2_wrt_b, b1_wrt_a, b2_wrt_a,
                                           ra_from, ra_to, rb_from, rb_to);
     }

@@ -100,7 +100,7 @@ struct segments_intersection_points
 
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type segments_collinear(
-        Segment1 const& a, Segment2 const& b,
+        Segment1 const& a, Segment2 const& b, bool /*opposite*/,
         int a1_wrt_b, int a2_wrt_b, int b1_wrt_a, int b2_wrt_a,
         Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
         Ratio const& rb_from_wrt_a, Ratio const& rb_to_wrt_a)
