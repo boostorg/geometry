@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -16,12 +16,16 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/policies/is_valid/null_policy.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/validity_failure_type.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 
 namespace boost { namespace geometry
@@ -69,7 +73,8 @@ struct not_equal_to
 template <typename Range, closure_selector Closure>
 struct has_spikes
 {
-    static inline bool apply(Range const& range)
+    template <typename VisitPolicy>
+    static inline bool apply(Range const& range, VisitPolicy& visitor)
     {
         typedef not_equal_to<typename point_type<Range>::type> not_equal;
 
@@ -85,6 +90,7 @@ struct has_spikes
         {
             // the range has only one distinct point, so it
             // cannot have a spike
+            visitor.template apply<no_failure>();
             return false;
         }
 
@@ -93,6 +99,7 @@ struct has_spikes
         {
             // the range has only two distinct points, so it
             // cannot have a spike
+            visitor.template apply<no_failure>();
             return false;
         }
 
@@ -102,6 +109,7 @@ struct has_spikes
                                                            *next,
                                                            *cur) )
             {
+                visitor.template apply<failure_spikes>(*cur);
                 return true;
             }
             prev = cur;
@@ -120,10 +128,27 @@ struct has_spikes
                                             not_equal(range::back(view)));
             iterator next =
                 std::find_if(cur, boost::end(view), not_equal(*cur));
-            return detail::point_is_spike_or_equal(*prev, *next, *cur);
+            if (detail::point_is_spike_or_equal(*prev, *next, *cur))
+            {
+                visitor.template apply<failure_spikes>(*cur);
+                return true;
+            }
+            else
+            {
+                visitor.template apply<no_failure>();
+                return false;
+            }
         }
 
+        visitor.template apply<no_failure>();
         return false;
+    }
+
+    // needed by the is_simple algorithm
+    static inline bool apply(Range const& range)
+    {
+        is_valid_null_policy visitor;
+        return apply(range, visitor);
     }
 };
 

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -21,6 +21,7 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/validity_failure_type.hpp>
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 #include <boost/geometry/algorithms/detail/num_distinct_consecutive_points.hpp>
@@ -39,8 +40,16 @@ namespace detail { namespace is_valid
 template <typename Linestring, bool AllowSpikes>
 struct is_valid_linestring
 {
-    static inline bool apply(Linestring const& linestring)
+    template <typename VisitPolicy>
+    static inline bool apply(Linestring const& linestring,
+                             VisitPolicy& visitor)
     {
+        if (boost::size(linestring) < 2)
+        {
+            visitor.template apply<failure_few_points>();
+            return false;
+        }
+
         std::size_t num_distinct = detail::num_distinct_consecutive_points
             <
                 Linestring,
@@ -49,14 +58,18 @@ struct is_valid_linestring
                 not_equal_to<typename point_type<Linestring>::type>
             >::apply(linestring);
 
-        if ( num_distinct < 2u )
+        if (num_distinct < 2u)
         {
+            visitor.template apply<failure_wrong_dimension>();
             return false;
         }
 
-        return num_distinct == 2u
-            || AllowSpikes
-            || !has_spikes<Linestring, closed>::apply(linestring);
+        if (num_distinct == 2u || AllowSpikes)
+        {
+            visitor.template apply<no_failure>();
+            return true;
+        }
+        return ! has_spikes<Linestring, closed>::apply(linestring, visitor);
     }
 };
 
@@ -84,9 +97,11 @@ namespace dispatch
 // By default, spikes are disallowed
 //
 // Reference: OGC 06-103r4 (6.1.6.1)
-template <typename Linestring, bool AllowSpikes>
-struct is_valid<Linestring, linestring_tag, AllowSpikes>
-    : detail::is_valid::is_valid_linestring<Linestring, AllowSpikes>
+template <typename Linestring, bool AllowEmptyMultiGeometries, bool AllowSpikes>
+struct is_valid
+    <
+        Linestring, linestring_tag, AllowEmptyMultiGeometries, AllowSpikes
+    > : detail::is_valid::is_valid_linestring<Linestring, AllowSpikes>
 {};
 
 
@@ -96,21 +111,54 @@ struct is_valid<Linestring, linestring_tag, AllowSpikes>
 // are on the boundaries of both elements.
 //
 // Reference: OGC 06-103r4 (6.1.8.1; Fig. 9)
-template <typename MultiLinestring, bool AllowSpikes>
-struct is_valid<MultiLinestring, multi_linestring_tag, AllowSpikes>
+template
+<
+    typename MultiLinestring,
+    bool AllowEmptyMultiGeometries,
+    bool AllowSpikes
+>
+class is_valid
+    <
+        MultiLinestring, multi_linestring_tag,
+        AllowEmptyMultiGeometries, AllowSpikes
+    >
 {
-    static inline bool apply(MultiLinestring const& multilinestring)
+private:
+    template <typename VisitPolicy>
+    struct per_linestring
     {
+        per_linestring(VisitPolicy& policy) : m_policy(policy) {}
+
+        template <typename Linestring>
+        inline bool apply(Linestring const& linestring) const
+        {
+            return detail::is_valid::is_valid_linestring
+                <
+                    Linestring, AllowSpikes
+                >::apply(linestring, m_policy);
+        }
+
+        VisitPolicy& m_policy;
+    };
+
+public:
+    template <typename VisitPolicy>
+    static inline bool apply(MultiLinestring const& multilinestring,
+                             VisitPolicy& visitor)
+    {
+        if (AllowEmptyMultiGeometries && boost::empty(multilinestring))
+        {
+            visitor.template apply<no_failure>();
+            return true;
+        }
+
         return detail::check_iterator_range
             <
-                detail::is_valid::is_valid_linestring
-                    <
-                        typename boost::range_value<MultiLinestring>::type,
-                        AllowSpikes
-                    >,
-                true // allow empty multilinestring
+                per_linestring<VisitPolicy>,
+                false // do not check for empty multilinestring (done above)
             >::apply(boost::begin(multilinestring),
-                     boost::end(multilinestring));
+                     boost::end(multilinestring),
+                     per_linestring<VisitPolicy>(visitor));
     }
 };
 

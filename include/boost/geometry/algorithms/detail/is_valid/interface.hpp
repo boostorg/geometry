@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -17,6 +17,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
+#include <boost/geometry/policies/is_valid/null_policy.hpp>
 
 
 namespace boost { namespace geometry
@@ -28,29 +29,38 @@ namespace resolve_variant {
 template <typename Geometry>
 struct is_valid
 {
-    static inline bool apply(Geometry const& geometry)
+    template <typename VisitPolicy>
+    static inline bool apply(Geometry const& geometry, VisitPolicy& visitor)
     {
         concept::check<Geometry const>();
-        return dispatch::is_valid<Geometry>::apply(geometry);
+        return dispatch::is_valid<Geometry>::apply(geometry, visitor);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct is_valid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
+    template <typename VisitPolicy>
     struct visitor : boost::static_visitor<bool>
     {
+        visitor(VisitPolicy& policy) : m_policy(policy) {}
+
         template <typename Geometry>
         bool operator()(Geometry const& geometry) const
         {
-            return is_valid<Geometry>::apply(geometry);
+            return is_valid<Geometry>::apply(geometry, m_policy);
         }
+
+        VisitPolicy& m_policy;
     };
 
+    template <typename VisitPolicy>
     static inline bool
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry)
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
+          VisitPolicy& policy_visitor)
     {
-        return boost::apply_visitor(visitor(), geometry);
+        return boost::apply_visitor(visitor<VisitPolicy>(policy_visitor),
+                                    geometry);
     }
 };
 
@@ -70,7 +80,11 @@ multi-geometries with no elements are considered valid}
 template <typename Geometry>
 inline bool is_valid(Geometry const& geometry)
 {
-    return resolve_variant::is_valid<Geometry>::apply(geometry);
+    is_valid_null_policy policy_visitor;
+    return resolve_variant::is_valid
+        <
+            Geometry
+        >::apply(geometry, policy_visitor);
 }
 
 
