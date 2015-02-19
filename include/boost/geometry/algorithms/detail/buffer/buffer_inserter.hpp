@@ -247,12 +247,6 @@ struct buffer_range
             Iterator
         >::value_type point_type;
 
-        typedef typename robust_point_type
-        <
-            point_type,
-            RobustPolicy
-        >::type robust_point_type;
-
         point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
         /*
