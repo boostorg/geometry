@@ -25,10 +25,11 @@ enum validity_failure_type
     failure_not_closed = 20, // for areal geometries
     failure_self_intersections = 21, // for areal geometries
     failure_wrong_orientation = 22, // for areal geometries
-    failure_holes_outside = 23, // for areal geometries
-    failure_intersecting_holes = 24, // for areal geometries
-    failure_disconnected_interior = 30, // for polygons
-    failure_intersecting_interiors = 40 // for multipolygons
+    failure_holes_outside = 30, // for (multi-)polygons
+    failure_nested_holes = 31, // for (multi-)polygons
+    failure_disconnected_interior = 32, // for (multi-)polygons
+    failure_intersecting_interiors = 40, // for multi-polygons
+    failure_wrong_corner_order = 50 // for boxes
 };
 
 
