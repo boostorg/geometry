@@ -34,11 +34,17 @@ struct has_valid_corners
     template <typename VisitPolicy>
     static inline bool apply(Box const& box, VisitPolicy& visitor)
     {
-        if ( geometry::get<geometry::max_corner, I-1>(box)
-             <=
-             geometry::get<geometry::min_corner, I-1>(box) )
+        if (math::equals(geometry::get<geometry::min_corner, I-1>(box),
+                         geometry::get<geometry::max_corner, I-1>(box)))
         {
             visitor.template apply<failure_wrong_dimension>();
+            return false;
+        }
+        else if (geometry::get<geometry::min_corner, I-1>(box)
+                 >
+                 geometry::get<geometry::max_corner, I-1>(box))
+        {
+            visitor.template apply<failure_wrong_corner_order>();
             return false;
         }
         return has_valid_corners<Box, I-1>::apply(box, visitor);
