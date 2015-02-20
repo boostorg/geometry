@@ -21,12 +21,12 @@
 
 #include <boost/geometry/algorithms/equals.hpp>
 
-#include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/num_distinct_consecutive_points.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
@@ -151,29 +151,40 @@ struct is_valid_ring
     {
         // return invalid if any of the following condition holds:
         // (a) the ring's size is below the minimal one
-        // (b) the ring is not topologically closed
-        // (c) the ring has spikes
-        // (d) the ring has duplicate points (if AllowDuplicates is false)
-        // (e) the boundary of the ring has self-intersections
-        // (f) the order of the points is inconsistent with the defined order
+        // (b) the ring consists of at most two distinct points
+        // (c) the ring is not topologically closed
+        // (d) the ring has spikes
+        // (e) the ring has duplicate points (if AllowDuplicates is false)
+        // (f) the boundary of the ring has self-intersections
+        // (g) the order of the points is inconsistent with the defined order
         //
         // Note: no need to check if the area is zero. If this is the
         // case, then the ring must have at least two spikes, which is
         // checked by condition (c).
 
         closure_selector const closure = geometry::closure<Ring>::value;
+        typedef typename closeable_view<Ring const, closure>::type view_type;
 
-        if ( boost::size(ring)
-             < core_detail::closure::minimum_ring_size<closure>::value )
+        if (boost::size(ring)
+            < core_detail::closure::minimum_ring_size<closure>::value)
         {
             visitor.template apply<failure_few_points>();
             return false;
         }
 
+        view_type const view(ring);
+        if (detail::num_distinct_consecutive_points
+                <
+                    view_type, 4u, true,
+                    not_equal_to<typename point_type<Ring>::type>
+                >::apply(view)
+            < 4u)
+        {
+            visitor.template apply<failure_wrong_dimension>();
+            return false;
+        }
+
         return
-            /*( boost::size(ring)
-              >= core_detail::closure::minimum_ring_size<closure>::value )
-              &&*/
             is_topologically_closed<Ring, closure>::apply(ring, visitor)
             && (AllowDuplicates
                 || ! has_duplicates<Ring, closure>::apply(ring, visitor))
