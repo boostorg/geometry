@@ -263,7 +263,7 @@ protected:
 
         if (item_visitor.items_overlap)
         {
-            visitor.template apply<failure_intersecting_holes>();
+            visitor.template apply<failure_nested_holes>();
             return false;
         }
         else
