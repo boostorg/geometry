@@ -36,19 +36,21 @@ inline char const* validity_failure_type_message(validity_failure_type failure)
     case failure_spikes:
         return "Geometry has spikes";
     case failure_self_intersections:
-        return "Geometry has self-intersections";
+        return "Geometry has invalid self-intersections";
     case failure_wrong_orientation:
         return "Geometry has wrong orientation";
     case failure_holes_outside:
         return "Geometry has holes defined outside the outer boundary";
-    case failure_intersecting_holes:
-        return "Geometry has intersecting holes";
+    case failure_nested_holes:
+        return "Geometry has nested holes";
     case failure_disconnected_interior:
         return "Geometry has disconnected interior";
     case failure_intersecting_interiors:
-        return "Geometry has intersecting interiors";
+        return "Multi-polygon has intersecting interiors";
     case failure_duplicate_points:
         return "Geometry has duplicate (consecutive) points";
+    case failure_wrong_corner_order:
+        return "Box has corners in wrong order";
     default: // to avoid -Wreturn-type warning
         return "";
     }
