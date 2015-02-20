@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multilinestring )
 }
 
 template <typename Point, bool AllowDuplicates>
-void test_open_rings()
+inline void test_open_rings()
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -328,20 +328,22 @@ void test_open_rings()
     test::apply("r31", "POLYGON((1 0,1 1,0 1,0 0))", true);
 
     // test cases coming from buffer
-    test::apply
-        ("r32",
-         "POLYGON((1.1713032141645456 -0.9370425713316364,\
-                   5.1713032141645456 4.0629574286683638,\
-                   4.7808688094430307 4.3753049524455756,\
-                   4.7808688094430307 4.3753049524455756,\
-                   0.7808688094430304 -0.6246950475544243,\
-                   0.7808688094430304 -0.6246950475544243))",
-         AllowDuplicates);
+    test::apply("r32",
+                "POLYGON((1.1713032141645456 -0.9370425713316364,\
+                          5.1713032141645456 4.0629574286683638,\
+                          4.7808688094430307 4.3753049524455756,\
+                          4.7808688094430307 4.3753049524455756,\
+                          0.7808688094430304 -0.6246950475544243,\
+                          0.7808688094430304 -0.6246950475544243))",
+                AllowDuplicates);
+
+    // wrong orientation
+    test::apply("r33", "POLYGON((0 0,0 1,1 1))", false);
 }
 
 
 template <typename Point, bool AllowDuplicates>
-void test_closed_rings()
+inline void test_closed_rings()
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -374,6 +376,13 @@ void test_closed_rings()
     // boundary not closed
     test::apply("r09c", "POLYGON((0 0,1 0,1 1,1 2))", false);
     test::apply("r10c", "POLYGON((0 0,1 0,1 0,1 1,1 1,1 2))", false);
+
+    // with spikes
+    test::apply("r11c", "POLYGON((0 0,1 0,1 0,2 0,0 0))", false);
+    test::apply("r12c", "POLYGON((0 0,1 0,1 1,2 2,0.5 0.5,0 1,0 0))", false);
+
+    // wrong orientation
+    test::apply("r13c", "POLYGON((0 0,0 1,1 1,2 0,0 0))", false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_ring )
@@ -389,7 +398,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_ring )
 }
 
 template <typename Point, bool AllowDuplicates>
-void test_open_polygons()
+inline void test_open_polygons()
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -568,12 +577,21 @@ void test_open_polygons()
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
                 false);
     test::apply("pg058",
+                "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
+                false);
+    test::apply("pg058a",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,8 2,9 6,8 8,2 8))",
                 false);
     test::apply("pg059",
+                "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
+                false);
+    test::apply("pg059a",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,9 1,9 9,1 9),(2 2,2 8,8 8,9 6,8 2))",
                 false);
     test::apply("pg060",
+                "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
+                false);
+    test::apply("pg060a",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,9 1,9 9,1 9),(2 2,8 2,9 6,8 8,2 8))",
                 false);
     // hole touches exterior ring at two points
@@ -705,9 +723,6 @@ inline void test_doc_example_polygon()
 #endif
 
     typedef bg::model::polygon<Point> CCW_CG;
-
-    CCW_CG poly;
-
     typedef validity_tester_areal<true> tester;
     typedef test_valid<tester, CCW_CG> test;
 
@@ -727,7 +742,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 }
 
 template <typename Point, bool AllowDuplicates>
-void test_open_multipolygons()
+inline void test_open_multipolygons()
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -903,7 +918,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_variant )
     polygon_type valid_polygon =
         from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0,0 0))");
     polygon_type invalid_polygon =
-        from_wkt<polygon_type>("POLYGON((0 0,1 1,1 0))");
+        from_wkt<polygon_type>("POLYGON((0 0,2 2,2 0,1 0))");
 
     vg = valid_linestring;
     test::apply("v01", vg, true);
