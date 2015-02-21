@@ -63,10 +63,10 @@ char const* to_string(failure_type failure)
         return "failure_self_intersections";
     case bg::failure_wrong_orientation:
         return "failure_wrong_orientation";
-    case bg::failure_holes_outside:
-        return "failure_holes_outside";
-    case bg::failure_nested_holes:
-        return "failure_nested_holes";
+    case bg::failure_interior_rings_outside:
+        return "failure_interior_rings_outside";
+    case bg::failure_nested_interior_rings:
+        return "failure_nested_interior_rings";
     case bg::failure_disconnected_interior:
         return "failure_disconnected_interior";
     case bg::failure_intersecting_interiors:
@@ -690,7 +690,7 @@ void test_open_polygons()
                 bg::no_failure);
 
     // "hole" is outside the exterior ring, but touches it
-    // TODO: return the failure value failure_holes_outside
+    // TODO: return the failure value failure_interior_rings_outside
     test::apply("pg049",
                 "POLYGON((0 0,10 0,10 10,0 10),(5 10,4 11,6 11))",
                 bg::failure_self_intersections);
@@ -703,18 +703,18 @@ void test_open_polygons()
     // "hole" is completely outside the exterior ring
     test::apply("pg051",
                 "POLYGON((0 0,10 0,10 10,0 10),(20 20,20 21,21 21,21 20))",
-                bg::failure_holes_outside);
+                bg::failure_interior_rings_outside);
 
     // two "holes" completely outside the exterior ring, that touch
     // each other
     test::apply("pg052",
                 "POLYGON((0 0,10 0,10 10,0 10),(20 0,25 10,21 0),(30 0,25 10,31 0))",
-                bg::failure_holes_outside);
+                bg::failure_interior_rings_outside);
 
     // example from Norvald Ryeng
     test::apply("pg053",
                 "POLYGON((58 31,56.57 30,62 33),(35 9,28 14,31 16),(23 11,29 5,26 4))",
-                bg::failure_holes_outside);
+                bg::failure_interior_rings_outside);
     // and with points reversed
     test::apply("pg054",
                 "POLYGON((58 31,62 33,56.57 30),(35 9,31 16,28 14),(23 11,26 4,29 5))",
@@ -723,31 +723,31 @@ void test_open_polygons()
     // "hole" is completely inside another "hole"
     test::apply("pg055",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,8 2))",
-                bg::failure_nested_holes);
+                bg::failure_nested_interior_rings);
     test::apply("pg056",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,8 2,8 8,2 8))",
                 bg::failure_wrong_orientation);
 
     // "hole" is inside another "hole" (touching)
-    // TODO: return the failure value failure_nested_holes
+    // TODO: return the failure value failure_nested_interior_rings
     test::apply("pg057",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
                 bg::failure_self_intersections);
-    // TODO: return the failure value failure_nested_holes
+    // TODO: return the failure value failure_nested_interior_rings
     test::apply("pg058",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
                 bg::failure_self_intersections);
     test::apply("pg058a",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,8 2,9 6,8 8,2 8))",
                 bg::failure_wrong_orientation);
-    // TODO: return the failure value failure_nested_holes
+    // TODO: return the failure value failure_nested_interior_rings
     test::apply("pg059",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
                 bg::failure_self_intersections);
     test::apply("pg059a",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,9 1,9 9,1 9),(2 2,2 8,8 8,9 6,8 2))",
                 bg::failure_wrong_orientation);
-    // TODO: return the failure value failure_nested_holes
+    // TODO: return the failure value failure_nested_interior_rings
     test::apply("pg060",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 9,9 9,9 1),(2 2,2 8,8 8,9 6,8 2))",
                 bg::failure_self_intersections);
@@ -771,7 +771,7 @@ void test_open_polygons()
                 "POLYGON((0 10,0 0,0 0,0 0,10 0,10 10),(2 9,0 0,0 0,1 9),(9 1,0 0,0 0,9 2))",
                 bg::no_failure);
     // two holes, one inside the other
-    // TODO: return the failure value failure_nested_holes
+    // TODO: return the failure value failure_nested_interior_rings
     test::apply("pg064",
                 "POLYGON((0 0,10 0,10 10,0 10),(0 0,1 9,9 1),(0 0,4 5,5 4))",
                 bg::failure_self_intersections);
@@ -811,8 +811,8 @@ void test_open_polygons()
     // the exterior ring
     test::apply("pg073",
                 "POLYGON((0 0,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))",
-                bg::failure_holes_outside);
-    // TODO: return the failure value failure_holes_outside
+                bg::failure_interior_rings_outside);
+    // TODO: return the failure value failure_interior_rings_outside
     test::apply("pg074",
                 "POLYGON((-10 -10,1 0,1 1,0 1),(-10 -10,-10 10,10 10,10 -10))",
                 bg::failure_self_intersections);
@@ -921,7 +921,7 @@ void test_open_multipolygons()
     // and the invalid case:
     test::apply("mpg15",
                 "MULTIPOLYGON(((0 0,100 0,100 100,0 100),(3 3,3 97,97 97,97 3)),((2 2,98 2,98 98,2 98),(1 1,1 99,99 99,99 1)))",
-                bg::failure_holes_outside);
+                bg::failure_interior_rings_outside);
 
     test::apply
         ("mpg16",
