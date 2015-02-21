@@ -51,8 +51,8 @@ char const* to_string(failure_type failure)
         return "no_failure";
     case bg::failure_few_points:
         return "failure_few_points";
-    case bg::failure_wrong_dimension:
-        return "failure_wrong_dimension";
+    case bg::failure_wrong_topological_dimension:
+        return "failure_wrong_topological_dimension";
     case bg::failure_spikes:
         return "failure_spikes";
     case bg::failure_duplicate_points:
@@ -211,7 +211,9 @@ BOOST_AUTO_TEST_CASE( test_reason_segment )
     typedef segment_type G;
     typedef test_reason<G> test;
 
-    test::apply("s01", "SEGMENT(0 0,0 0)", bg::failure_wrong_dimension);
+    test::apply("s01",
+                "SEGMENT(0 0,0 0)",
+                bg::failure_wrong_topological_dimension);
     test::apply("s02", "SEGMENT(0 0,1 0)", bg::no_failure);
 }
 
@@ -228,14 +230,16 @@ BOOST_AUTO_TEST_CASE( test_reason_box )
     typedef test_reason<G> test;
 
     // boxes where the max corner and below and/or to the left of min corner
-    test::apply("b01", "BOX(0 0,-1 0)", bg::failure_wrong_dimension);
+    test::apply("b01",
+                "BOX(0 0,-1 0)",
+                bg::failure_wrong_topological_dimension);
     test::apply("b02", "BOX(0 0,0 -1)", bg::failure_wrong_corner_order);
     test::apply("b03", "BOX(0 0,-1 -1)", bg::failure_wrong_corner_order);
 
     // boxes of zero area; they are not 2-dimensional, so invalid
-    test::apply("b04", "BOX(0 0,0 0)", bg::failure_wrong_dimension);
-    test::apply("b05", "BOX(0 0,1 0)", bg::failure_wrong_dimension);
-    test::apply("b06", "BOX(0 0,0 1)", bg::failure_wrong_dimension);
+    test::apply("b04", "BOX(0 0,0 0)", bg::failure_wrong_topological_dimension);
+    test::apply("b05", "BOX(0 0,1 0)", bg::failure_wrong_topological_dimension);
+    test::apply("b06", "BOX(0 0,0 1)", bg::failure_wrong_topological_dimension);
 
     test::apply("b07", "BOX(0 0,1 1)", bg::no_failure);
 }
@@ -257,8 +261,12 @@ BOOST_AUTO_TEST_CASE( test_reason_linestring )
 
     // 1-point linestrings
     test::apply("l02", "LINESTRING(0 0)", bg::failure_few_points);
-    test::apply("l03", "LINESTRING(0 0,0 0)", bg::failure_wrong_dimension);
-    test::apply("l04", "LINESTRING(0 0,0 0,0 0)", bg::failure_wrong_dimension);
+    test::apply("l03",
+                "LINESTRING(0 0,0 0)",
+                bg::failure_wrong_topological_dimension);
+    test::apply("l04",
+                "LINESTRING(0 0,0 0,0 0)",
+                bg::failure_wrong_topological_dimension);
 
     // 2-point linestrings
     test::apply("l05", "LINESTRING(0 0,1 2)", bg::no_failure);
@@ -301,12 +309,12 @@ BOOST_AUTO_TEST_CASE( test_reason_multilinestring )
                 bg::failure_few_points);
     test::apply("mls06",
                 "MULTILINESTRING((0 0,0 0),(0 1,1 0))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("mls07", "MULTILINESTRING((0 0),(1 0))",
                 bg::failure_few_points);
     test::apply("mls08",
                 "MULTILINESTRING((0 0,0 0),(1 0,1 0))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("mls09",
                 "MULTILINESTRING((0 0),(0 0))",
                 bg::failure_few_points);
@@ -356,9 +364,15 @@ inline void test_open_rings()
     test::apply("r03", "POLYGON((0 0,1 0))", bg::failure_few_points);
 
     // duplicate points
-    test::apply("r04", "POLYGON((0 0,0 0,0 0))", bg::failure_wrong_dimension);
-    test::apply("r05", "POLYGON((0 0,1 0,1 0))", bg::failure_wrong_dimension);
-    test::apply("r06", "POLYGON((0 0,1 0,0 0))", bg::failure_wrong_dimension);
+    test::apply("r04",
+                "POLYGON((0 0,0 0,0 0))",
+                bg::failure_wrong_topological_dimension);
+    test::apply("r05",
+                "POLYGON((0 0,1 0,1 0))",
+                bg::failure_wrong_topological_dimension);
+    test::apply("r06",
+                "POLYGON((0 0,1 0,0 0))",
+                bg::failure_wrong_topological_dimension);
     test::apply("r07", "POLYGON((0 0,1 0,1 1,0 0,0 0))", bg::no_failure);
     test::apply("r08", "POLYGON((0 0,1 0,1 0,1 1))", bg::no_failure);
     test::apply("r09", "POLYGON((0 0,1 0,1 0,1 1,0 0))", bg::no_failure);
@@ -469,10 +483,10 @@ void test_closed_rings()
     test::apply("r06c", "POLYGON((0 0,1 0,2 0))", bg::failure_few_points);
     test::apply("r07c",
                 "POLYGON((0 0,1 0,1 0,2 0))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("r08c",
                 "POLYGON((0 0,1 0,2 0,2 0))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
 
     // boundary not closed
     test::apply("r09c", "POLYGON((0 0,1 0,1 1,1 2))", bg::failure_not_closed);
@@ -530,22 +544,28 @@ void test_open_polygons()
                 bg::failure_few_points);
 
     // duplicate points in exterior ring
-    test::apply("pg007", "POLYGON((0 0,0 0,0 0))", bg::failure_wrong_dimension);
-    test::apply("pg008", "POLYGON((0 0,1 0,1 0))", bg::failure_wrong_dimension);
-    test::apply("pg009", "POLYGON((0 0,1 0,0 0))", bg::failure_wrong_dimension);
+    test::apply("pg007",
+                "POLYGON((0 0,0 0,0 0))",
+                bg::failure_wrong_topological_dimension);
+    test::apply("pg008",
+                "POLYGON((0 0,1 0,1 0))",
+                bg::failure_wrong_topological_dimension);
+    test::apply("pg009",
+                "POLYGON((0 0,1 0,0 0))",
+                bg::failure_wrong_topological_dimension);
     test::apply("pg010", "POLYGON((0 0,1 0,1 1,0 0,0 0))", bg::no_failure);
     test::apply("pg011", "POLYGON((0 0,1 0,1 0,1 1))", bg::no_failure);
     test::apply("pg012", "POLYGON((0 0,1 0,1 0,1 1,0 0))",  bg::no_failure);
 
     test::apply("pg013",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,1 1,1 1))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("pg014",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,2 1))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("pg015",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,2 1,1 1))",
-                bg::failure_wrong_dimension);
+                bg::failure_wrong_topological_dimension);
     test::apply("pg016",
                 "POLYGON((0 0,10 0,10 10,0 10),(1 1,2 2,2 1,1 1,1 1))",
                 bg::no_failure);
