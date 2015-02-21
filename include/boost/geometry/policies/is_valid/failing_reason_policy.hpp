@@ -29,8 +29,8 @@ inline char const* validity_failure_type_message(validity_failure_type failure)
         return "Geometry is valid";
     case failure_few_points:
         return "Geometry has too few points";
-    case failure_wrong_dimension:
-        return "Geometry has wrong dimension";
+    case failure_wrong_topological_dimension:
+        return "Geometry has wrong topological dimension";
     case failure_not_closed:
         return "Geometry is defined as closed but is open";
     case failure_spikes:
