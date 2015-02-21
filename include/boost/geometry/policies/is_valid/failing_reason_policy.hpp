@@ -39,10 +39,10 @@ inline char const* validity_failure_type_message(validity_failure_type failure)
         return "Geometry has invalid self-intersections";
     case failure_wrong_orientation:
         return "Geometry has wrong orientation";
-    case failure_holes_outside:
-        return "Geometry has holes defined outside the outer boundary";
-    case failure_nested_holes:
-        return "Geometry has nested holes";
+    case failure_interior_rings_outside:
+        return "Geometry has interior rings defined outside the outer boundary";
+    case failure_nested_interior_rings:
+        return "Geometry has nested interior rings";
     case failure_disconnected_interior:
         return "Geometry has disconnected interior";
     case failure_intersecting_interiors:
