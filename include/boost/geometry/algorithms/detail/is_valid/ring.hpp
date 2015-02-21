@@ -180,7 +180,7 @@ struct is_valid_ring
                 >::apply(view)
             < 4u)
         {
-            visitor.template apply<failure_wrong_dimension>();
+            visitor.template apply<failure_wrong_topological_dimension>();
             return false;
         }
 

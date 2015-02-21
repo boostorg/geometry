@@ -37,7 +37,7 @@ struct has_valid_corners
         if (math::equals(geometry::get<geometry::min_corner, I-1>(box),
                          geometry::get<geometry::max_corner, I-1>(box)))
         {
-            visitor.template apply<failure_wrong_dimension>();
+            visitor.template apply<failure_wrong_topological_dimension>();
             return false;
         }
         else if (geometry::get<geometry::min_corner, I-1>(box)

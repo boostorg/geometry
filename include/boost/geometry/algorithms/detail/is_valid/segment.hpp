@@ -55,7 +55,7 @@ struct is_valid<Segment, segment_tag>
         }
         else
         {
-            visitor.template apply<failure_wrong_dimension>();
+            visitor.template apply<failure_wrong_topological_dimension>();
             return false;
         }
     }

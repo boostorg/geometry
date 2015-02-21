@@ -19,7 +19,7 @@ enum validity_failure_type
 {
     no_failure = 0,
     failure_few_points = 10,
-    failure_wrong_dimension = 11,
+    failure_wrong_topological_dimension = 11,
     failure_spikes = 12,
     failure_duplicate_points = 13,
     failure_not_closed = 20, // for areal geometries

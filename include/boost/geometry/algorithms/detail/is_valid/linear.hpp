@@ -60,7 +60,7 @@ struct is_valid_linestring
 
         if (num_distinct < 2u)
         {
-            visitor.template apply<failure_wrong_dimension>();
+            visitor.template apply<failure_wrong_topological_dimension>();
             return false;
         }
 
