@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_IS_VALID_REASON_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_IS_VALID_REASON_HPP
 
+#include <sstream>
 #include <string>
 
 #include <boost/geometry/algorithms/is_valid.hpp>
@@ -33,10 +34,10 @@ failed, or indicating that the input geometry is valid}
 template <typename Geometry>
 inline std::string is_valid_reason(Geometry const& geometry)
 {
-    std::ostringstream sstr;
-    failing_reason_policy policy_visitor(sstr);
+    std::ostringstream stream;
+    failing_reason_policy policy_visitor(stream);
     resolve_variant::is_valid<Geometry>::apply(geometry, policy_visitor);
-    return sstr.str();
+    return stream.str();
 }
 
 
