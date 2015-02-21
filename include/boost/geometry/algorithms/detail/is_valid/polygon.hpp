@@ -226,7 +226,7 @@ protected:
             if (  ring_indices.find(ring_index) == ring_indices.end()
                   && !geometry::covered_by(range::front(*it), exterior_ring) )
             {
-                visitor.template apply<failure_holes_outside>();
+                visitor.template apply<failure_interior_rings_outside>();
                 return false;
             }
         }
@@ -263,7 +263,7 @@ protected:
 
         if (item_visitor.items_overlap)
         {
-            visitor.template apply<failure_nested_holes>();
+            visitor.template apply<failure_nested_interior_rings>();
             return false;
         }
         else
