@@ -35,7 +35,7 @@ template <typename Geometry>
 inline std::string is_valid_reason(Geometry const& geometry)
 {
     std::ostringstream stream;
-    failing_reason_policy policy_visitor(stream);
+    failing_reason_policy<> policy_visitor(stream);
     resolve_variant::is_valid<Geometry>::apply(geometry, policy_visitor);
     return stream.str();
 }
