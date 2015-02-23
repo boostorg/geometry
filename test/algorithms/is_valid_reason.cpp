@@ -88,21 +88,23 @@ public:
     {}
 
     template <failure_type Failure>
-    inline void apply()
+    inline bool apply()
     {
         m_failure = Failure;
+        return Failure == bg::no_failure
+            || Failure == bg::failure_duplicate_points;
     }
 
     template <failure_type Failure, typename Data>
-    inline void apply(Data const&)
+    inline bool apply(Data const&)
     {
-        m_failure = Failure;
+        return apply<Failure>();
     }
 
     template <failure_type Failure, typename Data1, typename Data2>
-    inline void apply(Data1 const&, Data2 const&)
+    inline bool apply(Data1 const&, Data2 const&)
     {
-        m_failure = Failure;
+        return apply<Failure>();
     }
 
     failure_type failure() const
