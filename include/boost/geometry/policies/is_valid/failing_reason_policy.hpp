@@ -57,9 +57,16 @@ inline char const* validity_failure_type_message(validity_failure_type failure)
 }
 
 
+template <bool AllowDuplicates = true>
 class failing_reason_policy
 {
 private:
+    inline bool is_valid() const
+    {
+        return m_failure == no_failure
+            || (AllowDuplicates && m_failure == failure_duplicate_points);
+    }
+
     inline void update_status(validity_failure_type failure)
     {
         m_failure = failure;
@@ -116,22 +123,25 @@ public:
     {}
 
     template <validity_failure_type Failure>
-    inline void apply()
+    inline bool apply()
     {
         update_status(Failure);
+        return is_valid();
     }
 
     template <validity_failure_type Failure, typename Data>
-    inline void apply(Data const& data)
+    inline bool apply(Data const& data)
     {
         update_status(Failure);
         process_data<Failure, Data>::apply(m_oss, data);
+        return is_valid();
     }
 
     template <validity_failure_type Failure, typename Data1, typename Data2>
-    inline void apply(Data1 const&, Data2 const&)
+    inline bool apply(Data1 const&, Data2 const&)
     {
         update_status(Failure);
+        return is_valid();
     }
 
     inline validity_failure_type get_failure_type() const

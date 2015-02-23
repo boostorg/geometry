@@ -17,21 +17,33 @@ namespace boost { namespace geometry
 {
 
 
-struct is_valid_null_policy
+template <bool AllowDuplicates = true>
+class is_valid_null_policy
 {
-    template <validity_failure_type>
-    static inline void apply()
+private:
+    static inline bool is_valid(validity_failure_type failure)
     {
+        return failure == no_failure
+            || (AllowDuplicates && failure == failure_duplicate_points);
     }
 
-    template <validity_failure_type, typename Data>
-    static inline void apply(Data const&)
+public:
+    template <validity_failure_type Failure>
+    static inline bool apply()
     {
+        return is_valid(Failure);
     }
 
-    template <validity_failure_type, typename Data1, typename Data2>
-    static inline void apply(Data1 const&, Data2 const&)
+    template <validity_failure_type Failure, typename Data>
+    static inline bool apply(Data const&)
     {
+        return is_valid(Failure);
+    }
+
+    template <validity_failure_type Failure, typename Data1, typename Data2>
+    static inline bool apply(Data1 const&, Data2 const&)
+    {
+        return is_valid(Failure);
     }
 };
 
