@@ -90,8 +90,7 @@ struct has_spikes
         {
             // the range has only one distinct point, so it
             // cannot have a spike
-            visitor.template apply<no_failure>();
-            return false;
+            return ! visitor.template apply<no_failure>();
         }
 
         iterator next = std::find_if(cur, boost::end(view), not_equal(*cur));
@@ -99,8 +98,7 @@ struct has_spikes
         {
             // the range has only two distinct points, so it
             // cannot have a spike
-            visitor.template apply<no_failure>();
-            return false;
+            return ! visitor.template apply<no_failure>();
         }
 
         while ( next != boost::end(view) )
@@ -109,8 +107,7 @@ struct has_spikes
                                                            *next,
                                                            *cur) )
             {
-                visitor.template apply<failure_spikes>(*cur);
-                return true;
+                return ! visitor.template apply<failure_spikes>(*cur);
             }
             prev = cur;
             cur = next;
@@ -130,24 +127,21 @@ struct has_spikes
                 std::find_if(cur, boost::end(view), not_equal(*cur));
             if (detail::point_is_spike_or_equal(*prev, *next, *cur))
             {
-                visitor.template apply<failure_spikes>(*cur);
-                return true;
+                return ! visitor.template apply<failure_spikes>(*cur);
             }
             else
             {
-                visitor.template apply<no_failure>();
-                return false;
+                return ! visitor.template apply<no_failure>();
             }
         }
 
-        visitor.template apply<no_failure>();
-        return false;
+        return ! visitor.template apply<no_failure>();
     }
 
     // needed by the is_simple algorithm
     static inline bool apply(Range const& range)
     {
-        is_valid_null_policy visitor;
+        is_valid_null_policy<> visitor;
         return apply(range, visitor);
     }
 };

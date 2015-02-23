@@ -118,13 +118,11 @@ private:
 
         if (item_visitor.items_overlap)
         {
-            visitor.template apply<failure_intersecting_interiors>();
-            return false;
+            return visitor.template apply<failure_intersecting_interiors>();
         }
         else
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
     }
 
@@ -261,8 +259,7 @@ public:
 
         if (AllowEmptyMultiGeometries && boost::empty(multipolygon))
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
 
         // check validity of all polygons ring

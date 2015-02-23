@@ -80,7 +80,7 @@ multi-geometries with no elements are considered valid}
 template <typename Geometry>
 inline bool is_valid(Geometry const& geometry)
 {
-    is_valid_null_policy policy_visitor;
+    is_valid_null_policy<> policy_visitor;
     return resolve_variant::is_valid
         <
             Geometry

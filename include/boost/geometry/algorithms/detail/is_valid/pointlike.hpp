@@ -34,8 +34,7 @@ struct is_valid<Point, point_tag>
     template <typename VisitPolicy>
     static inline bool apply(Point const&, VisitPolicy& visitor)
     {
-        visitor.template apply<no_failure>();
-        return true;
+        return visitor.template apply<no_failure>();
     }
 };
 
@@ -56,14 +55,12 @@ struct is_valid<MultiPoint, multi_point_tag, AllowEmptyMultiGeometries>
         {
             // we allow empty multi-geometries, so an empty multipoint
             // is considered valid
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
         else
         {
             // we do not allow an empty multipoint
-            visitor.template apply<failure_few_points>();
-            return false;
+            return visitor.template apply<failure_few_points>();
         }
     }
 };

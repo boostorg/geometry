@@ -53,8 +53,7 @@ struct is_topologically_closed
     template <typename VisitPolicy>
     static inline bool apply(Ring const&, VisitPolicy& visitor)
     {
-        visitor.template apply<no_failure>();
-        return true;
+        return visitor.template apply<no_failure>();
     }
 };
 
@@ -66,13 +65,11 @@ struct is_topologically_closed<Ring, closed>
     {
         if (geometry::equals(range::front(ring), range::back(ring)))
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
         else
         {
-            visitor.template apply<failure_not_closed>();
-            return false;
+            return visitor.template apply<failure_not_closed>();
         }
     }
 };
@@ -124,13 +121,11 @@ struct is_properly_oriented
         area_result_type const zero = area_result_type();
         if (predicate(ring_area_type::apply(ring, strategy_type()), zero))
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
         else
         {
-            visitor.template apply<failure_wrong_orientation>();
-            return false;
+            return visitor.template apply<failure_wrong_orientation>();
         }
     }
 };
@@ -168,8 +163,7 @@ struct is_valid_ring
         if (boost::size(ring)
             < core_detail::closure::minimum_ring_size<closure>::value)
         {
-            visitor.template apply<failure_few_points>();
-            return false;
+            return visitor.template apply<failure_few_points>();
         }
 
         view_type const view(ring);
@@ -180,8 +174,8 @@ struct is_valid_ring
                 >::apply(view)
             < 4u)
         {
-            visitor.template apply<failure_wrong_topological_dimension>();
-            return false;
+            return
+                visitor.template apply<failure_wrong_topological_dimension>();
         }
 
         return

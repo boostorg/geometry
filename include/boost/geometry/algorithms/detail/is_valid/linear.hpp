@@ -46,8 +46,7 @@ struct is_valid_linestring
     {
         if (boost::size(linestring) < 2)
         {
-            visitor.template apply<failure_few_points>();
-            return false;
+            return visitor.template apply<failure_few_points>();
         }
 
         std::size_t num_distinct = detail::num_distinct_consecutive_points
@@ -60,14 +59,13 @@ struct is_valid_linestring
 
         if (num_distinct < 2u)
         {
-            visitor.template apply<failure_wrong_topological_dimension>();
-            return false;
+            return
+                visitor.template apply<failure_wrong_topological_dimension>();
         }
 
         if (num_distinct == 2u || AllowSpikes)
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
         return ! has_spikes<Linestring, closed>::apply(linestring, visitor);
     }
@@ -148,8 +146,7 @@ public:
     {
         if (AllowEmptyMultiGeometries && boost::empty(multilinestring))
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
 
         return detail::check_iterator_range

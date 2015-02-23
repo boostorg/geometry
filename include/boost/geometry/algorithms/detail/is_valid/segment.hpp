@@ -50,13 +50,12 @@ struct is_valid<Segment, segment_tag>
 
         if(! geometry::equals(p[0], p[1]))
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
         else
         {
-            visitor.template apply<failure_wrong_topological_dimension>();
-            return false;
+            return
+                visitor.template apply<failure_wrong_topological_dimension>();
         }
     }
 };

@@ -42,8 +42,7 @@ struct has_duplicates
 
         if ( boost::size(view) < 2 )
         {
-            visitor.template apply<no_failure>();
-            return false;
+            return ! visitor.template apply<no_failure>();
         }
 
         geometry::equal_to<typename boost::range_value<Range>::type> equal;
@@ -54,18 +53,16 @@ struct has_duplicates
         {
             if ( equal(*it, *next) )
             {
-                visitor.template apply<failure_duplicate_points>(*it);
-                return true;
+                return ! visitor.template apply<failure_duplicate_points>(*it);
             }
         }
-        visitor.template apply<no_failure>();
-        return false;
+        return ! visitor.template apply<no_failure>();
     }
 
     // needed by the is_simple algorithm
     static inline bool apply(Range const& range)
     {
-        is_valid_null_policy visitor;
+        is_valid_null_policy<> visitor;
         return apply(range, visitor);
     }
 };

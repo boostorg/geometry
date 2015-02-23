@@ -226,8 +226,7 @@ protected:
             if (  ring_indices.find(ring_index) == ring_indices.end()
                   && !geometry::covered_by(range::front(*it), exterior_ring) )
             {
-                visitor.template apply<failure_interior_rings_outside>();
-                return false;
+                return visitor.template apply<failure_interior_rings_outside>();
             }
         }
 
@@ -263,13 +262,11 @@ protected:
 
         if (item_visitor.items_overlap)
         {
-            visitor.template apply<failure_nested_interior_rings>();
-            return false;
+            return visitor.template apply<failure_nested_interior_rings>();
         }
         else
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
     }
 
@@ -344,13 +341,11 @@ protected:
 
             if (g.has_cycles())
             {
-                visitor.template apply<failure_disconnected_interior>();
-                return false;
+                return visitor.template apply<failure_disconnected_interior>();
             }
             else
             {
-                visitor.template apply<no_failure>();
-                return true;
+                return visitor.template apply<no_failure>();
             }
         }
     };

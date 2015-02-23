@@ -89,13 +89,11 @@ public:
         if (interrupt_policy.has_intersections)
         {
             BOOST_ASSERT(! boost::empty(turns));
-            visitor.template apply<failure_self_intersections>(turns);
-            return false;
+            return visitor.template apply<failure_self_intersections>(turns);
         }
         else
         {
-            visitor.template apply<no_failure>();
-            return true;
+            return visitor.template apply<no_failure>();
         }
     }
 
