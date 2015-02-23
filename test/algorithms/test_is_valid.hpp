@@ -284,7 +284,7 @@ struct validity_tester_linear
     template <typename Geometry>
     static inline bool apply(Geometry const& geometry)
     {
-        bg::is_valid_null_policy visitor;
+        bg::is_valid_null_policy<> visitor;
         return bg::dispatch::is_valid
             <
                 Geometry,
@@ -298,7 +298,7 @@ struct validity_tester_linear
     static inline std::string reason(Geometry const& geometry,
                                      std::ostringstream& oss)
     {
-        bg::failing_reason_policy visitor(oss);
+        bg::failing_reason_policy<> visitor(oss);
         bg::dispatch::is_valid
             <
                 Geometry,
@@ -320,7 +320,7 @@ struct validity_tester_areal
     {
         bool const irrelevant = true;
 
-        bg::is_valid_null_policy visitor;
+        bg::is_valid_null_policy<AllowDuplicates> visitor;
         return bg::dispatch::is_valid
             <
                 Geometry,
@@ -337,7 +337,7 @@ struct validity_tester_areal
     {
         bool const irrelevant = true;
 
-        bg::failing_reason_policy visitor(oss);
+        bg::failing_reason_policy<AllowDuplicates> visitor(oss);
         bg::dispatch::is_valid
             <
                 Geometry,
