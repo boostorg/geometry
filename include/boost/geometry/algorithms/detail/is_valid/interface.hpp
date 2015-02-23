@@ -17,7 +17,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
-#include <boost/geometry/policies/is_valid/null_policy.hpp>
+#include <boost/geometry/policies/is_valid/default_policy.hpp>
 
 
 namespace boost { namespace geometry
@@ -80,7 +80,7 @@ multi-geometries with no elements are considered valid}
 template <typename Geometry>
 inline bool is_valid(Geometry const& geometry)
 {
-    is_valid_null_policy<> policy_visitor;
+    is_valid_default_policy<> policy_visitor;
     return resolve_variant::is_valid
         <
             Geometry

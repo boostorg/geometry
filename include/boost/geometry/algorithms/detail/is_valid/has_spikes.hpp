@@ -16,7 +16,7 @@
 
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/policies/is_valid/null_policy.hpp>
+#include <boost/geometry/policies/is_valid/default_policy.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
@@ -141,7 +141,7 @@ struct has_spikes
     // needed by the is_simple algorithm
     static inline bool apply(Range const& range)
     {
-        is_valid_null_policy<> visitor;
+        is_valid_default_policy<> visitor;
         return apply(range, visitor);
     }
 };

@@ -15,7 +15,7 @@
 #include <boost/geometry/core/closure.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
-#include <boost/geometry/policies/is_valid/null_policy.hpp>
+#include <boost/geometry/policies/is_valid/default_policy.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
@@ -62,7 +62,7 @@ struct has_duplicates
     // needed by the is_simple algorithm
     static inline bool apply(Range const& range)
     {
-        is_valid_null_policy<> visitor;
+        is_valid_default_policy<> visitor;
         return apply(range, visitor);
     }
 };

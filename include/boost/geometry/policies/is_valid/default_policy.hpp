@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_POLICIES_IS_VALID_NULL_POLICY_HPP
-#define BOOST_GEOMETRY_POLICIES_IS_VALID_NULL_POLICY_HPP
+#ifndef BOOST_GEOMETRY_POLICIES_IS_VALID_DEFAULT_POLICY_HPP
+#define BOOST_GEOMETRY_POLICIES_IS_VALID_DEFAULT_POLICY_HPP
 
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
 
@@ -18,7 +18,7 @@ namespace boost { namespace geometry
 
 
 template <bool AllowDuplicates = true>
-class is_valid_null_policy
+class is_valid_default_policy
 {
 private:
     static inline bool is_valid(validity_failure_type failure)
@@ -50,4 +50,4 @@ public:
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_POLICIES_IS_VALID_NULL_POLICY_HPP
+#endif // BOOST_GEOMETRY_POLICIES_IS_VALID_DEFAULT_POLICY_HPP
