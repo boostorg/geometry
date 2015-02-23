@@ -50,17 +50,11 @@ namespace detail { namespace is_valid
 {
 
 
-template
-<
-    typename MultiPolygon,
-    bool AllowEmptyMultiGeometries,
-    bool AllowDuplicates
->
+template <typename MultiPolygon, bool AllowEmptyMultiGeometries>
 class is_valid_multipolygon
     : is_valid_polygon
         <
             typename boost::range_value<MultiPolygon>::type,
-            AllowDuplicates,
             true // check only the validity of rings
         >
 {
@@ -68,7 +62,6 @@ private:
     typedef is_valid_polygon
         <
             typename boost::range_value<MultiPolygon>::type,
-            AllowDuplicates,
             true
         > base;
 
@@ -349,16 +342,15 @@ template
 <
     typename MultiPolygon,
     bool AllowEmptyMultiGeometries,
-    bool AllowSpikes,
-    bool AllowDuplicates
+    bool AllowSpikes
 >
 struct is_valid
     <
         MultiPolygon, multi_polygon_tag,
-        AllowEmptyMultiGeometries, AllowSpikes, AllowDuplicates
+        AllowEmptyMultiGeometries, AllowSpikes
     > : detail::is_valid::is_valid_multipolygon
         <
-            MultiPolygon, AllowEmptyMultiGeometries, AllowDuplicates
+            MultiPolygon, AllowEmptyMultiGeometries
         >
 {};
 

@@ -64,12 +64,7 @@ namespace detail { namespace is_valid
 {
 
 
-template
-<
-    typename Polygon,
-    bool AllowDuplicates,
-    bool CheckRingValidityOnly = false
->
+template <typename Polygon, bool CheckRingValidityOnly = false>
 class is_valid_polygon
 {
 protected:
@@ -85,7 +80,7 @@ protected:
         {
             return detail::is_valid::is_valid_ring
                 <
-                    Ring, AllowDuplicates, false, true
+                    Ring, false, true
                 >::apply(ring, m_policy);
         }
 
@@ -100,15 +95,6 @@ protected:
             detail::check_iterator_range
                 <
                     per_ring<VisitPolicy>,
-                    /*
-                    detail::is_valid::is_valid_ring
-                        <
-                            typename boost::range_value<InteriorRings>::type,
-                            AllowDuplicates,
-                            false, // do not check self-intersections
-                            true // indicate that the ring is interior
-                        >,
-                    */
                     true // allow for empty interior ring range
                 >::apply(boost::begin(interior_rings),
                          boost::end(interior_rings),
@@ -128,9 +114,8 @@ protected:
             if ( !detail::is_valid::is_valid_ring
                      <
                          ring_type,
-                         AllowDuplicates,
                          false // do not check self intersections
-                 >::apply(exterior_ring(polygon), visitor) )
+                     >::apply(exterior_ring(polygon), visitor) )
             {
                 return false;
             }
@@ -417,14 +402,12 @@ template
 <
     typename Polygon,
     bool AllowEmptyMultiGeometries,
-    bool AllowSpikes,
-    bool AllowDuplicates
+    bool AllowSpikes
 >
 struct is_valid
     <
-        Polygon, polygon_tag,
-        AllowEmptyMultiGeometries, AllowSpikes, AllowDuplicates
-    > : detail::is_valid::is_valid_polygon<Polygon, AllowDuplicates>
+        Polygon, polygon_tag, AllowEmptyMultiGeometries, AllowSpikes
+    > : detail::is_valid::is_valid_polygon<Polygon>
 {};
 
 

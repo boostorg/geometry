@@ -135,7 +135,6 @@ struct is_properly_oriented
 template
 <
     typename Ring,
-    bool AllowDuplicates,
     bool CheckSelfIntersections = true,
     bool IsInteriorRing = false
 >
@@ -180,8 +179,7 @@ struct is_valid_ring
 
         return
             is_topologically_closed<Ring, closure>::apply(ring, visitor)
-            && (AllowDuplicates
-                || ! has_duplicates<Ring, closure>::apply(ring, visitor))
+            && ! has_duplicates<Ring, closure>::apply(ring, visitor)
             && ! has_spikes<Ring, closure>::apply(ring, visitor)
             && (! CheckSelfIntersections
                 || has_valid_self_turns<Ring>::apply(ring, visitor))
@@ -208,13 +206,12 @@ template
 <
     typename Ring,
     bool AllowEmptyMultiGeometries,
-    bool AllowSpikes,
-    bool AllowDuplicates
+    bool AllowSpikes
 >
 struct is_valid
     <
-        Ring, ring_tag, AllowEmptyMultiGeometries, AllowSpikes, AllowDuplicates
-    > : detail::is_valid::is_valid_ring<Ring, AllowDuplicates>
+        Ring, ring_tag, AllowEmptyMultiGeometries, AllowSpikes
+    > : detail::is_valid::is_valid_ring<Ring>
 {};
 
 

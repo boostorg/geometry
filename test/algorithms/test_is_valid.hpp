@@ -318,16 +318,12 @@ struct validity_tester_areal
     template <typename Geometry>
     static inline bool apply(Geometry const& geometry)
     {
-        bool const irrelevant = true;
-
         bg::is_valid_default_policy<AllowDuplicates> visitor;
         return bg::dispatch::is_valid
             <
                 Geometry,
                 typename bg::tag<Geometry>::type,
-                true, // allow empty multi-geometries
-                irrelevant,
-                AllowDuplicates
+                true
             >::apply(geometry, visitor);
     }
 
@@ -335,16 +331,12 @@ struct validity_tester_areal
     static inline std::string reason(Geometry const& geometry,
                                      std::ostringstream& oss)
     {
-        bool const irrelevant = true;
-
         bg::failing_reason_policy<AllowDuplicates> visitor(oss);
         bg::dispatch::is_valid
             <
                 Geometry,
                 typename bg::tag<Geometry>::type,
-                true, // allow empty multi-geometries
-                irrelevant,
-                AllowDuplicates
+                true // allow empty multi-geometries
             >::apply(geometry, visitor);
         return oss.str();
     }

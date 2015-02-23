@@ -30,9 +30,7 @@ template
     // for multi-geometries: determines if empty multi-geometries are allowed
     bool AllowEmptyMultiGeometries = true,
     // for linear geometries: determines if spikes are allowed
-    bool AllowSpikes = true,
-    // for areal geometries: determines if duplicate points are allowed
-    bool AllowDuplicates = false
+    bool AllowSpikes = true
 >
 struct is_valid
     : not_implemented<Geometry>
