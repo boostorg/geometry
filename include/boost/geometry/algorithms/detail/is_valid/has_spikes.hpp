@@ -145,13 +145,6 @@ struct has_spikes
 
         return ! visitor.template apply<no_failure>();
     }
-
-    // needed by the is_simple algorithm
-    static inline bool apply(Range const& range)
-    {
-        is_valid_default_policy<> visitor;
-        return apply(range, visitor);
-    }
 };
 
 
