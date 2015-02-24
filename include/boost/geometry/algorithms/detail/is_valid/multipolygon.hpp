@@ -338,16 +338,10 @@ namespace dispatch
 // that the MultiPolygon is also valid.
 //
 // Reference (for validity of MultiPolygons): OGC 06-103r4 (6.1.14)
-template
-<
-    typename MultiPolygon,
-    bool AllowEmptyMultiGeometries,
-    bool AllowSpikes
->
+template <typename MultiPolygon, bool AllowEmptyMultiGeometries>
 struct is_valid
     <
-        MultiPolygon, multi_polygon_tag,
-        AllowEmptyMultiGeometries, AllowSpikes
+        MultiPolygon, multi_polygon_tag, AllowEmptyMultiGeometries
     > : detail::is_valid::is_valid_multipolygon
         <
             MultiPolygon, AllowEmptyMultiGeometries

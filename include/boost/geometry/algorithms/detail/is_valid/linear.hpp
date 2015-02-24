@@ -37,7 +37,7 @@ namespace detail { namespace is_valid
 {
 
 
-template <typename Linestring, bool AllowSpikes>
+template <typename Linestring>
 struct is_valid_linestring
 {
     template <typename VisitPolicy>
@@ -63,7 +63,7 @@ struct is_valid_linestring
                 visitor.template apply<failure_wrong_topological_dimension>();
         }
 
-        if (num_distinct == 2u || AllowSpikes)
+        if (num_distinct == 2u)
         {
             return visitor.template apply<no_failure>();
         }
@@ -95,11 +95,11 @@ namespace dispatch
 // By default, spikes are disallowed
 //
 // Reference: OGC 06-103r4 (6.1.6.1)
-template <typename Linestring, bool AllowEmptyMultiGeometries, bool AllowSpikes>
+template <typename Linestring, bool AllowEmptyMultiGeometries>
 struct is_valid
     <
-        Linestring, linestring_tag, AllowEmptyMultiGeometries, AllowSpikes
-    > : detail::is_valid::is_valid_linestring<Linestring, AllowSpikes>
+        Linestring, linestring_tag, AllowEmptyMultiGeometries
+    > : detail::is_valid::is_valid_linestring<Linestring>
 {};
 
 
@@ -109,16 +109,10 @@ struct is_valid
 // are on the boundaries of both elements.
 //
 // Reference: OGC 06-103r4 (6.1.8.1; Fig. 9)
-template
-<
-    typename MultiLinestring,
-    bool AllowEmptyMultiGeometries,
-    bool AllowSpikes
->
+template <typename MultiLinestring, bool AllowEmptyMultiGeometries>
 class is_valid
     <
-        MultiLinestring, multi_linestring_tag,
-        AllowEmptyMultiGeometries, AllowSpikes
+        MultiLinestring, multi_linestring_tag, AllowEmptyMultiGeometries
     >
 {
 private:
@@ -132,7 +126,7 @@ private:
         {
             return detail::is_valid::is_valid_linestring
                 <
-                    Linestring, AllowSpikes
+                    Linestring
                 >::apply(linestring, m_policy);
         }
 

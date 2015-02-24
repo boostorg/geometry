@@ -202,15 +202,10 @@ namespace dispatch
 // 6.1.7.1, for the definition of LinearRing)
 //
 // Reference (for polygon validity): OGC 06-103r4 (6.1.11.1)
-template
-<
-    typename Ring,
-    bool AllowEmptyMultiGeometries,
-    bool AllowSpikes
->
+template <typename Ring, bool AllowEmptyMultiGeometries>
 struct is_valid
     <
-        Ring, ring_tag, AllowEmptyMultiGeometries, AllowSpikes
+        Ring, ring_tag, AllowEmptyMultiGeometries
     > : detail::is_valid::is_valid_ring<Ring>
 {};
 
