@@ -54,6 +54,7 @@ exe intersects_linestring : intersects_linestring.cpp ;
 exe is_simple : is_simple.cpp ;
 
 exe is_valid : is_valid.cpp ;
+exe is_valid_message : is_valid_message.cpp ;
 
 exe length : length.cpp ;
 exe length_with_strategy : length_with_strategy.cpp ;
