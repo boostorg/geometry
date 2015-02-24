@@ -13,8 +13,11 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/policies/is_valid/default_policy.hpp>
 
@@ -81,6 +84,9 @@ struct has_spikes
         typedef typename closeable_view<Range const, Closure>::type view_type;
         typedef typename boost::range_iterator<view_type const>::type iterator; 
 
+        bool const is_linear
+            = boost::is_same<typename tag<Range>::type, linestring_tag>::value;
+
         view_type const view(range);
 
         iterator prev = boost::begin(view);
@@ -107,7 +113,8 @@ struct has_spikes
                                                            *next,
                                                            *cur) )
             {
-                return ! visitor.template apply<failure_spikes>(*cur);
+                return
+                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
             }
             prev = cur;
             cur = next;
@@ -127,7 +134,8 @@ struct has_spikes
                 std::find_if(cur, boost::end(view), not_equal(*cur));
             if (detail::point_is_spike_or_equal(*prev, *next, *cur))
             {
-                return ! visitor.template apply<failure_spikes>(*cur);
+                return
+                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
             }
             else
             {
