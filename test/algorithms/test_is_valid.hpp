@@ -44,7 +44,6 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/is_valid_reason.hpp>
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
@@ -224,13 +223,13 @@ struct validity_checker
     static inline bool apply(std::string const& case_id,
                              Geometry const& geometry,
                              bool expected_result,
-                             std::ostringstream& oss)
+                             std::string& reason)
     {
         bool valid = ValidityTester::apply(geometry);
-        std::string reason = ValidityTester::reason(geometry, oss);
-
         std::string const reason_valid
             = bg::validity_failure_type_message(bg::no_failure);
+        reason = ValidityTester::reason(geometry);
+        std::string reason_short = reason.substr(0, reason_valid.length());
 
         BOOST_CHECK_MESSAGE(valid == expected_result,
             "case id: " << case_id
@@ -246,7 +245,9 @@ struct validity_checker
 
         BOOST_CHECK_MESSAGE((valid && reason == reason_valid)
                             ||
-                            (! valid && reason != reason_valid),
+                            (! valid && reason != reason_valid)
+                            ||
+                            (! valid && reason_short != reason_valid),
             "case id (reason): " << case_id
             << ", Expected: " << valid
             << ", detected reason: " << reason
@@ -269,11 +270,11 @@ struct default_validity_tester
     }
 
     template <typename Geometry>
-    static inline std::string reason(Geometry const& geometry,
-                                     std::ostringstream& oss)
+    static inline std::string reason(Geometry const& geometry)
     {
-        oss << bg::is_valid_reason(geometry);
-        return oss.str();
+        std::string message;
+        bg::is_valid(geometry, message);
+        return message;
     }
 };
 
@@ -284,29 +285,18 @@ struct validity_tester_linear
     template <typename Geometry>
     static inline bool apply(Geometry const& geometry)
     {
-        bg::is_valid_default_policy<> visitor;
-        return bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                true, // allow empty multi-geometries
-                AllowSpikes
-            >::apply(geometry, visitor);
+        bool const irrelevant = true;
+        bg::is_valid_default_policy<irrelevant, AllowSpikes> visitor;
+        return bg::is_valid(geometry, visitor);
     }
 
     template <typename Geometry>
-    static inline std::string reason(Geometry const& geometry,
-                                     std::ostringstream& oss)
+    static inline std::string reason(Geometry const& geometry)
     {
-        bg::failing_reason_policy<> visitor(oss);
-        bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                true, // allow empty multi-geometries
-                AllowSpikes
-            >::apply(geometry, visitor);
-
+        bool const irrelevant = true;
+        std::ostringstream oss;
+        bg::failing_reason_policy<irrelevant, AllowSpikes> visitor(oss);
+        bg::is_valid(geometry, visitor);
         return oss.str();
     }
 };
@@ -319,25 +309,15 @@ struct validity_tester_areal
     static inline bool apply(Geometry const& geometry)
     {
         bg::is_valid_default_policy<AllowDuplicates> visitor;
-        return bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                true
-            >::apply(geometry, visitor);
+        return bg::is_valid(geometry, visitor);
     }
 
     template <typename Geometry>
-    static inline std::string reason(Geometry const& geometry,
-                                     std::ostringstream& oss)
+    static inline std::string reason(Geometry const& geometry)
     {
+        std::ostringstream oss;
         bg::failing_reason_policy<AllowDuplicates> visitor(oss);
-        bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                true // allow empty multi-geometries
-            >::apply(geometry, visitor);
+        bg::is_valid(geometry, visitor);
         return oss.str();
     }
 
@@ -368,11 +348,11 @@ protected:
         std::cout << "=======" << std::endl;
 #endif
 
-        std::ostringstream oss;
+        std::string reason;
         bool valid = validity_checker
             <
                 ValidityTester
-            >::apply(case_id, g, expected_result, oss);
+            >::apply(case_id, g, expected_result, reason);
         boost::ignore_unused(valid);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -383,10 +363,7 @@ protected:
         std::cout << std::boolalpha;
         std::cout << "is valid? " << valid << std::endl;
         std::cout << "expected result: " << expected_result << std::endl;
-        if (! valid)
-        {
-            std::cout << "failure reason: " << oss.str() << std::endl;
-        }
+        std::cout << "reason: " << reason << std::endl;
         std::cout << "=======" << std::endl;
         std::cout << std::noboolalpha;
 #endif
