@@ -30,7 +30,7 @@ template
     // for multi-geometries: determines if empty multi-geometries are allowed
     bool AllowEmptyMultiGeometries = true,
     // for linear geometries: determines if spikes are allowed
-    bool AllowSpikes = true
+    bool AllowSpikes = false
 >
 struct is_valid
     : not_implemented<Geometry>
