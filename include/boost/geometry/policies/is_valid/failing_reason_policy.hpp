@@ -15,6 +15,7 @@
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
 
 namespace boost { namespace geometry
@@ -129,11 +130,34 @@ private:
     template <typename Turns>
     struct process_data<failure_self_intersections, Turns>
     {
+        static inline
+        void apply_to_segment_identifier(std::ostringstream& oss,
+                                         segment_identifier seg_id)
+        {
+            oss << "{" << seg_id.source_index
+                << ", " << seg_id.multi_index
+                << ", " << seg_id.ring_index
+                << ", " << seg_id.segment_index
+                << "}";
+        }
+
         static inline void apply(std::ostringstream& oss,
                                  Turns const& turns)
         {
+            typedef typename boost::range_value<Turns>::type turn_type;
+            turn_type const& turn = range::front(turns);
             oss << ". A self-intersection point was found at "
-                << geometry::dsv(range::front(turns).point);
+                << geometry::dsv(turn.point);
+
+            oss << "; method: " << method_char(turn.method)
+                << "; operations: "
+                << operation_char(turn.operations[0].operation)
+                << "/"
+                << operation_char(turn.operations[1].operation)
+                << "; segment IDs {source, multi, ring, segment}: ";
+            apply_to_segment_identifier(oss, turn.operations[0].seg_id);
+            oss << "/";
+            apply_to_segment_identifier(oss, turn.operations[1].seg_id);
         }
     };
 
