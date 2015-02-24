@@ -20,6 +20,7 @@
 [*Additional functionality]
 
 * New algorithm num_segments, returning the number of segments of a geometry
+* New overload for is_valid algorithm, that takes a string reference as a second argument and fills it with a message related to the validity or invalidity of the geometry
 
 [*Improvements]
 
