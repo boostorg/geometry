@@ -94,7 +94,7 @@ private:
         for (PolygonIterator it = polygons_first; it != polygons_beyond;
              ++it, ++multi_index)
         {
-            if ( multi_indices.find(multi_index) == multi_indices.end() )
+            if (multi_indices.find(multi_index) == multi_indices.end())
             {
                 polygon_iterators.push_back(it);
             }
@@ -258,13 +258,13 @@ public:
         // check validity of all polygons ring
         debug_phase::apply(1);
 
-        if ( !detail::check_iterator_range
+        if (! detail::check_iterator_range
                   <
                       per_polygon<VisitPolicy>,
                       false // do not check for empty multipolygon (done above)
                   >::apply(boost::begin(multipolygon),
                            boost::end(multipolygon),
-                           per_polygon<VisitPolicy>(visitor)) )
+                           per_polygon<VisitPolicy>(visitor)))
         {
             return false;
         }
@@ -280,7 +280,7 @@ public:
             ! has_valid_turns::apply(multipolygon, turns, visitor);
         debug_print_turns(turns.begin(), turns.end());
 
-        if ( has_invalid_turns )
+        if (has_invalid_turns)
         {
             return false;
         }
@@ -290,11 +290,11 @@ public:
         // exterior and not one inside the other
         debug_phase::apply(3);
 
-        if ( !have_holes_inside(boost::begin(multipolygon),
+        if (! have_holes_inside(boost::begin(multipolygon),
                                 boost::end(multipolygon),
                                 turns.begin(),
                                 turns.end(),
-                                visitor) )
+                                visitor))
         {
             return false;
         }
@@ -303,11 +303,11 @@ public:
         // check that each polygon's interior is connected
         debug_phase::apply(4);
 
-        if ( !have_connected_interior(boost::begin(multipolygon),
+        if (! have_connected_interior(boost::begin(multipolygon),
                                       boost::end(multipolygon),
                                       turns.begin(),
                                       turns.end(),
-                                      visitor) )
+                                      visitor))
         {
             return false;
         }

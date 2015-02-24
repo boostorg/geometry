@@ -111,11 +111,11 @@ protected:
             // check validity of exterior ring
             debug_phase::apply(1);
 
-            if ( !detail::is_valid::is_valid_ring
+            if (! detail::is_valid::is_valid_ring
                      <
                          ring_type,
                          false // do not check self intersections
-                     >::apply(exterior_ring(polygon), visitor) )
+                     >::apply(exterior_ring(polygon), visitor))
             {
                 return false;
             }
@@ -145,7 +145,7 @@ protected:
         template <typename Box, typename Iterator>
         static inline bool apply(Box const& box, Iterator const& it)
         {
-            return !geometry::disjoint(*it, box);
+            return ! geometry::disjoint(*it, box);
         }
     };
 
@@ -159,10 +159,10 @@ protected:
         template <typename Item1, typename Item2>
         inline void apply(Item1 const& item1, Item2 const& item2)
         {
-            if ( !items_overlap
-                 && (geometry::within(*points_begin(*item1), *item2)
-                     || geometry::within(*points_begin(*item2), *item1))
-                 )
+            if (! items_overlap
+                && (geometry::within(*points_begin(*item1), *item2)
+                    || geometry::within(*points_begin(*item2), *item1))
+                )
             {
                 items_overlap = true;
             }
@@ -190,14 +190,14 @@ protected:
         std::set<signed_index_type> ring_indices;
         for (TurnIterator tit = turns_first; tit != turns_beyond; ++tit)
         {
-            if ( tit->operations[0].seg_id.ring_index == -1 )
+            if (tit->operations[0].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT( tit->operations[1].seg_id.ring_index != -1 );
+                BOOST_ASSERT(tit->operations[1].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[1].seg_id.ring_index);
             }
-            else if ( tit->operations[1].seg_id.ring_index == -1 )
+            else if (tit->operations[1].seg_id.ring_index == -1)
             {
-                BOOST_ASSERT( tit->operations[0].seg_id.ring_index != -1 );
+                BOOST_ASSERT(tit->operations[0].seg_id.ring_index != -1);
                 ring_indices.insert(tit->operations[0].seg_id.ring_index);
             }
         }
@@ -208,8 +208,8 @@ protected:
         {
             // do not examine interior rings that have turns with the
             // exterior ring
-            if (  ring_indices.find(ring_index) == ring_indices.end()
-                  && !geometry::covered_by(range::front(*it), exterior_ring) )
+            if (ring_indices.find(ring_index) == ring_indices.end()
+                && ! geometry::covered_by(range::front(*it), exterior_ring))
             {
                 return visitor.template apply<failure_interior_rings_outside>();
             }
@@ -228,7 +228,7 @@ protected:
         for (RingIterator it = rings_first; it != rings_beyond;
              ++it, ++ring_index)
         {
-            if ( ring_indices.find(ring_index) == ring_indices.end() )
+            if (ring_indices.find(ring_index) == ring_indices.end())
             {
                 ring_iterators.push_back(it);
             }
@@ -339,7 +339,7 @@ public:
     template <typename VisitPolicy>
     static inline bool apply(Polygon const& polygon, VisitPolicy& visitor)
     {
-        if ( !has_valid_rings::apply(polygon, visitor) )
+        if (! has_valid_rings::apply(polygon, visitor))
         {
             return false;
         }
@@ -359,7 +359,7 @@ public:
             = ! has_valid_turns::apply(polygon, turns, visitor);
         debug_print_turns(turns.begin(), turns.end());
 
-        if ( has_invalid_turns )
+        if (has_invalid_turns)
         {
             return false;
         }
@@ -367,9 +367,9 @@ public:
         // check if all interior rings are inside the exterior ring
         debug_phase::apply(4);
 
-        if ( ! has_holes_inside::apply(polygon,
-                                       turns.begin(), turns.end(),
-                                       visitor) )
+        if (! has_holes_inside::apply(polygon,
+                                      turns.begin(), turns.end(),
+                                      visitor))
         {
             return false;
         }
