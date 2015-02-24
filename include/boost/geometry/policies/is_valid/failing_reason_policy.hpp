@@ -57,38 +57,70 @@ inline char const* validity_failure_type_message(validity_failure_type failure)
 }
 
 
-template <bool AllowDuplicates = true>
+template <bool AllowDuplicates = true, bool AllowSpikes = true>
 class failing_reason_policy
 {
 private:
-    inline bool is_valid() const
+    static inline
+    validity_failure_type transform_failure_type(validity_failure_type failure)
     {
-        return m_failure == no_failure
-            || (AllowDuplicates && m_failure == failure_duplicate_points);
+        if (AllowDuplicates && failure == failure_duplicate_points)
+        {
+            return no_failure;
+        }
+        return failure;
     }
 
-    inline void update_status(validity_failure_type failure)
+    static inline
+    validity_failure_type transform_failure_type(validity_failure_type failure,
+                                                 bool is_linear)
     {
-        m_failure = failure;
+        if (is_linear && AllowSpikes && failure == failure_spikes)
+        {
+            return no_failure;
+        }
+        return transform_failure_type(failure);
+    }
+
+    inline void set_failure_message(validity_failure_type failure)
+    {
         m_oss.str("");
         m_oss.clear();
-        m_oss << validity_failure_type_message(m_failure);
+        m_oss << validity_failure_type_message(failure);
     }
 
-    template <validity_failure_type Failure, typename Data>
+    template
+    <
+        validity_failure_type Failure,
+        typename Data1,
+        typename Data2 = Data1,
+        typename Dummy = void
+    >
     struct process_data
     {
-        static inline void apply(std::ostringstream&, Data const&)
+        static inline void apply(std::ostringstream&, Data1 const&)
+        {
+        }
+
+        static inline void apply(std::ostringstream&,
+                                 Data1 const&,
+                                 Data2 const&)
         {
         }
     };
 
     template <typename SpikePoint>
-    struct process_data<failure_spikes, SpikePoint>
+    struct process_data<failure_spikes, bool, SpikePoint>
     {
         static inline void apply(std::ostringstream& oss,
+                                 bool is_linear,
                                  SpikePoint const& spike_point)
         {
+            if (is_linear && AllowSpikes)
+            {
+                return;
+            }
+
             oss << ". A spike point was found with apex at "
                 << geometry::dsv(spike_point);
         }
@@ -111,6 +143,10 @@ private:
         static inline void apply(std::ostringstream& oss,
                                  Point const& point)
         {
+            if (AllowDuplicates)
+            {
+                return;
+            }
             oss << ". Duplicate points were found near point "
                 << geometry::dsv(point);
         }
@@ -118,39 +154,37 @@ private:
 
 public:
     failing_reason_policy(std::ostringstream& oss)
-        : m_failure(no_failure)
-        , m_oss(oss)
+        : m_oss(oss)
     {}
 
     template <validity_failure_type Failure>
     inline bool apply()
     {
-        update_status(Failure);
-        return is_valid();
+        validity_failure_type const failure = transform_failure_type(Failure);
+        set_failure_message(failure);
+        return failure == no_failure;
     }
 
     template <validity_failure_type Failure, typename Data>
     inline bool apply(Data const& data)
     {
-        update_status(Failure);
+        validity_failure_type const failure = transform_failure_type(Failure);
+        set_failure_message(failure);
         process_data<Failure, Data>::apply(m_oss, data);
-        return is_valid();
+        return failure == no_failure;
     }
 
     template <validity_failure_type Failure, typename Data1, typename Data2>
-    inline bool apply(Data1 const&, Data2 const&)
+    inline bool apply(Data1 const& data1, Data2 const& data2)
     {
-        update_status(Failure);
-        return is_valid();
-    }
-
-    inline validity_failure_type get_failure_type() const
-    {
-        return m_failure;
+        validity_failure_type const failure
+            = transform_failure_type(Failure, data1);
+        set_failure_message(failure);
+        process_data<Failure, Data1, Data2>::apply(m_oss, data1, data2);
+        return failure == no_failure;
     }
 
 private:
-    validity_failure_type m_failure;
     std::ostringstream& m_oss;
 };
 
