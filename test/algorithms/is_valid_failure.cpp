@@ -9,7 +9,7 @@
 // http://www.boost.org/users/license.html
 
 #ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_is_valid_reason
+#define BOOST_TEST_MODULE test_is_valid_failure
 #endif
 
 #include <iostream>
@@ -21,7 +21,7 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/algorithms/is_valid_reason.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -79,57 +79,18 @@ char const* to_string(failure_type failure)
 }
 
 
-// policy that simply keeps (and can return) the failure type
-class failure_type_policy
-{
-public:
-    failure_type_policy()
-        : m_failure(bg::no_failure)
-    {}
-
-    template <failure_type Failure>
-    inline bool apply()
-    {
-        m_failure = Failure;
-        return Failure == bg::no_failure
-            || Failure == bg::failure_duplicate_points;
-    }
-
-    template <failure_type Failure, typename Data>
-    inline bool apply(Data const&)
-    {
-        return apply<Failure>();
-    }
-
-    template <failure_type Failure, typename Data1, typename Data2>
-    inline bool apply(Data1 const&, Data2 const&)
-    {
-        return apply<Failure>();
-    }
-
-    failure_type failure() const
-    {
-        return m_failure;
-    }
-
-private:
-    failure_type m_failure;
-};
-
-
-
 template <typename Geometry>
-struct test_reason
+struct test_failure
 {
     static inline void apply(std::string const& case_id,
                              Geometry const& geometry,
                              failure_type expected)
     {
-        failure_type_policy visitor;
-        bg::resolve_variant::is_valid<Geometry>::apply(geometry, visitor);
-        failure_type detected = visitor.failure();
+        failure_type detected;
+        bg::is_valid(geometry, detected);
         std::string expected_msg = bg::validity_failure_type_message(expected);
-        std::string detected_msg = bg::is_valid_reason(geometry);
+        std::string detected_msg;
+        bg::is_valid(geometry, detected_msg);
         std::string detected_msg_short
             = detected_msg.substr(0, expected_msg.length());
 
@@ -168,32 +129,32 @@ struct test_reason
 };
 
 
-BOOST_AUTO_TEST_CASE( test_reason_point )
+BOOST_AUTO_TEST_CASE( test_failure_point )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: POINT " << std::endl;
+    std::cout << " is_valid_failure: POINT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef point_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     test::apply("p01", "POINT(0 0)", bg::no_failure);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_multipoint )
+BOOST_AUTO_TEST_CASE( test_failure_multipoint )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: MULTIPOINT " << std::endl;
+    std::cout << " is_valid_failure: MULTIPOINT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef multi_point_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     test::apply("mp01", "MULTIPOINT()", bg::no_failure);
     test::apply("mp02", "MULTIPOINT(0 0,0 0)", bg::no_failure);
@@ -201,17 +162,17 @@ BOOST_AUTO_TEST_CASE( test_reason_multipoint )
     test::apply("mp04", "MULTIPOINT(0 0,1 0,1 1,1 0,0 1)", bg::no_failure);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_segment )
+BOOST_AUTO_TEST_CASE( test_failure_segment )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: SEGMENT " << std::endl;
+    std::cout << " is_valid_failure: SEGMENT " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef segment_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     test::apply("s01",
                 "SEGMENT(0 0,0 0)",
@@ -219,17 +180,17 @@ BOOST_AUTO_TEST_CASE( test_reason_segment )
     test::apply("s02", "SEGMENT(0 0,1 0)", bg::no_failure);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_box )
+BOOST_AUTO_TEST_CASE( test_failure_box )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: BOX " << std::endl;
+    std::cout << " is_valid_failure: BOX " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef box_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // boxes where the max corner and below and/or to the left of min corner
     test::apply("b01",
@@ -246,17 +207,17 @@ BOOST_AUTO_TEST_CASE( test_reason_box )
     test::apply("b07", "BOX(0 0,1 1)", bg::no_failure);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_linestring )
+BOOST_AUTO_TEST_CASE( test_failure_linestring )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: LINESTRING " << std::endl;
+    std::cout << " is_valid_failure: LINESTRING " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef linestring_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // empty linestring
     test::apply("l01", "LINESTRING()", bg::failure_few_points);
@@ -283,17 +244,17 @@ BOOST_AUTO_TEST_CASE( test_reason_linestring )
     test::apply("l10", "LINESTRING(0 0,1 2,0 0)", bg::no_failure);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_multilinestring )
+BOOST_AUTO_TEST_CASE( test_failure_multilinestring )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: MULTILINESTRING " << std::endl;
+    std::cout << " is_valid_failure: MULTILINESTRING " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef multi_linestring_type G;
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // empty multilinestring
     test::apply("mls01", "MULTILINESTRING()", bg::no_failure);
@@ -353,12 +314,12 @@ inline void test_open_rings()
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: RING (open) " << std::endl;
+    std::cout << " is_valid_failure: RING (open) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef bg::model::ring<Point, false, false> G; // ccw, open ring
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // not enough points
     test::apply("r01", "POLYGON(())", bg::failure_few_points);
@@ -469,12 +430,12 @@ void test_closed_rings()
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: RING (closed) " << std::endl;
+    std::cout << " is_valid_failure: RING (closed) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef bg::model::ring<Point, false, true> G; // ccw, closed ring
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // not enough points
     test::apply("r01c", "POLYGON(())", bg::failure_few_points);
@@ -509,7 +470,7 @@ void test_closed_rings()
 
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_ring )
+BOOST_AUTO_TEST_CASE( test_failure_ring )
 {
     test_open_rings<point_type>();
     test_closed_rings<point_type>();
@@ -522,12 +483,12 @@ void test_open_polygons()
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: POLYGON (open) " << std::endl;
+    std::cout << " is_valid_failure: POLYGON (open) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef bg::model::polygon<Point, false, false> G; // ccw, open
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // not enough points in exterior ring
     test::apply("pg001", "POLYGON(())", bg::failure_few_points);
@@ -826,19 +787,19 @@ inline void test_doc_example_polygon()
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: doc example polygon " << std::endl;
+    std::cout << " is_valid_failure: doc example polygon " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef bg::model::polygon<Point> CCW_CG;
-    typedef test_reason<CCW_CG> test;
+    typedef test_failure<CCW_CG> test;
 
     test::apply("pg-doc",
                 "POLYGON((0 0,0 10,10 10,10 0,0 0),(0 0,9 1,9 2,0 0),(0 0,2 9,1 9,0 0),(2 9,9 2,9 9,2 9))",
                 bg::failure_disconnected_interior);
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_polygon )
+BOOST_AUTO_TEST_CASE( test_failure_polygon )
 {
     test_open_polygons<point_type>();
     test_doc_example_polygon<point_type>();
@@ -851,14 +812,14 @@ void test_open_multipolygons()
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: MULTIPOLYGON (open) " << std::endl;
+    std::cout << " is_valid_failure: MULTIPOLYGON (open) " << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
     typedef bg::model::polygon<point_type,false,false> ccw_open_polygon_type;
     typedef bg::model::multi_polygon<ccw_open_polygon_type> G;
 
-    typedef test_reason<G> test;
+    typedef test_failure<G> test;
 
     // not enough points
     test::apply("mpg01", "MULTIPOLYGON()", bg::no_failure);
@@ -974,17 +935,17 @@ void test_open_multipolygons()
     }
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_multipolygon )
+BOOST_AUTO_TEST_CASE( test_failure_multipolygon )
 {
     test_open_multipolygons<point_type>();
 }
 
-BOOST_AUTO_TEST_CASE( test_reason_variant )
+BOOST_AUTO_TEST_CASE( test_failure_variant )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
-    std::cout << " is_valid_reason: variant support" << std::endl;
+    std::cout << " is_valid_failure: variant support" << std::endl;
     std::cout << "************************************" << std::endl;
 #endif
 
@@ -994,7 +955,7 @@ BOOST_AUTO_TEST_CASE( test_reason_variant )
         <
             linestring_type, multi_linestring_type, polygon_type
         > variant_geometry;
-    typedef test_reason<variant_geometry> test;
+    typedef test_failure<variant_geometry> test;
 
     variant_geometry vg;
 
