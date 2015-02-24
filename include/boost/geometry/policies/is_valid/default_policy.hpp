@@ -17,14 +17,20 @@ namespace boost { namespace geometry
 {
 
 
-template <bool AllowDuplicates = true>
+template <bool AllowDuplicates = true, bool AllowSpikes = true>
 class is_valid_default_policy
 {
-private:
+protected:
     static inline bool is_valid(validity_failure_type failure)
     {
         return failure == no_failure
             || (AllowDuplicates && failure == failure_duplicate_points);
+    }
+
+    static inline bool is_valid(validity_failure_type failure, bool is_linear)
+    {
+        return is_valid(failure)
+            || (is_linear && AllowSpikes && failure == failure_spikes);
     }
 
 public:
@@ -41,9 +47,9 @@ public:
     }
 
     template <validity_failure_type Failure, typename Data1, typename Data2>
-    static inline bool apply(Data1 const&, Data2 const&)
+    static inline bool apply(Data1 const& data1, Data2 const&)
     {
-        return is_valid(Failure);
+        return is_valid(Failure, data1);
     }
 };
 
