@@ -27,32 +27,16 @@ namespace detail { namespace buffer
 {
 
 
-struct piece_get_offsetted_box
-{
-    template <typename Box, typename Piece>
-    static inline void apply(Box& total, Piece const& piece)
-    {
-        geometry::expand(total, piece.robust_offsetted_envelope);
-    }
-};
-
-struct piece_ovelaps_offsetted_box
-{
-    template <typename Box, typename Piece>
-    static inline bool apply(Box const& box, Piece const& piece)
-    {
-        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.robust_offsetted_envelope);
-    }
-};
-
 template
 <
+    typename Pieces,
     typename Rings,
     typename Turns,
     typename RobustPolicy
 >
 class piece_turn_visitor
 {
+    Pieces const& m_pieces;
     Rings const& m_rings;
     Turns& m_turns;
     RobustPolicy const& m_robust_policy;
@@ -104,46 +88,57 @@ class piece_turn_visitor
         return result;
     }
 
-    template <typename Piece>
-    inline void calculate_turns(Piece const& piece1, Piece const& piece2)
+    template <typename Piece, typename Section>
+    inline void calculate_turns(Piece const& piece1, Piece const& piece2,
+        Section const& section1, Section const& section2)
     {
         typedef typename boost::range_value<Rings const>::type ring_type;
         typedef typename boost::range_value<Turns const>::type turn_type;
         typedef typename boost::range_iterator<ring_type const>::type iterator;
 
-        segment_identifier seg_id1 = piece1.first_seg_id;
-        segment_identifier seg_id2 = piece2.first_seg_id;
-
-        if (seg_id1.segment_index < 0 || seg_id2.segment_index < 0)
+        int const piece1_first_index = piece1.first_seg_id.segment_index;
+        int const piece2_first_index = piece2.first_seg_id.segment_index;
+        if (piece1_first_index < 0 || piece2_first_index < 0)
         {
             return;
         }
 
-        ring_type const& ring1 = m_rings[seg_id1.multi_index];
-        iterator it1_first = boost::begin(ring1) + seg_id1.segment_index;
-        iterator it1_last = boost::begin(ring1) + piece1.last_segment_index;
+        // Get indices of part of offsetted_rings for this monotonic section:
+        int const sec1_first_index = piece1_first_index + section1.begin_index;
+        int const sec2_first_index = piece2_first_index + section2.begin_index;
 
-        ring_type const& ring2 = m_rings[seg_id2.multi_index];
-        iterator it2_first = boost::begin(ring2) + seg_id2.segment_index;
-        iterator it2_last = boost::begin(ring2) + piece2.last_segment_index;
+        // index of last point in section, beyond-end is one further
+        int const sec1_last_index = piece1_first_index + section1.end_index;
+        int const sec2_last_index = piece2_first_index + section2.end_index;
+
+        // get geometry and iterators over these sections
+        ring_type const& ring1 = m_rings[piece1.first_seg_id.multi_index];
+        iterator const it1_first = boost::begin(ring1) + sec1_first_index;
+        iterator const it1_beyond = boost::begin(ring1) + sec1_last_index + 1;
+
+        ring_type const& ring2 = m_rings[piece2.first_seg_id.multi_index];
+        iterator const it2_first = boost::begin(ring2) + sec2_first_index;
+        iterator const it2_beyond = boost::begin(ring2) + sec2_last_index + 1;
 
         turn_type the_model;
         the_model.operations[0].piece_index = piece1.index;
         the_model.operations[0].seg_id = piece1.first_seg_id;
+        the_model.operations[0].seg_id.segment_index = sec1_first_index; // override
 
         iterator it1 = it1_first;
         for (iterator prev1 = it1++;
-                it1 != it1_last;
+                it1 != it1_beyond;
                 prev1 = it1++, the_model.operations[0].seg_id.segment_index++)
         {
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
+            the_model.operations[1].seg_id.segment_index = sec2_first_index; // override
 
             iterator next1 = next_point(ring1, it1);
 
             iterator it2 = it2_first;
             for (iterator prev2 = it2++;
-                    it2 != it2_last;
+                    it2 != it2_beyond;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 iterator next2 = next_point(ring2, it2);
@@ -169,28 +164,36 @@ class piece_turn_visitor
 
 public:
 
-    piece_turn_visitor(Rings const& ring_collection,
+    piece_turn_visitor(Pieces const& pieces,
+            Rings const& ring_collection,
             Turns& turns,
             RobustPolicy const& robust_policy)
-        : m_rings(ring_collection)
+        : m_pieces(pieces)
+        , m_rings(ring_collection)
         , m_turns(turns)
         , m_robust_policy(robust_policy)
     {}
 
-    template <typename Piece>
-    inline void apply(Piece const& piece1, Piece const& piece2,
+    template <typename Section>
+    inline void apply(Section const& section1, Section const& section2,
                     bool first = true)
     {
         boost::ignore_unused_variable_warning(first);
-        if ( is_adjacent(piece1, piece2)
+
+        typedef typename boost::range_value<Pieces const>::type piece_type;
+        piece_type const& piece1 = m_pieces[section1.ring_id.source_index];
+        piece_type const& piece2 = m_pieces[section2.ring_id.source_index];
+
+        if ( piece1.index == piece2.index
+          || is_adjacent(piece1, piece2)
           || is_on_same_convex_ring(piece1, piece2)
-          || detail::disjoint::disjoint_box_box(piece1.robust_offsetted_envelope,
-                    piece2.robust_offsetted_envelope))
+          || detail::disjoint::disjoint_box_box(section1.bounding_box,
+                    section2.bounding_box) )
         {
             return;
         }
 
-        calculate_turns(piece1, piece2);
+        calculate_turns(piece1, piece2, section1, section2);
     }
 };
 
