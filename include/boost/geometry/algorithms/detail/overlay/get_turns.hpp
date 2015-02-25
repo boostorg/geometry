@@ -54,6 +54,7 @@
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
@@ -62,8 +63,6 @@
 
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/algorithms/expand.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
@@ -299,8 +298,8 @@ public :
                     if (InterruptPolicy::enabled)
                     {
                         if (interrupt_policy.apply(
-                            std::make_pair(boost::begin(turns) + size_before,
-                                boost::end(turns))))
+                                std::make_pair(range::pos(turns, size_before),
+                                               boost::end(turns))))
                         {
                             return false;
                         }
@@ -392,24 +391,6 @@ private :
         {}
         // Go back one step because we want to start completely preceding
         it = prev;
-    }
-};
-
-struct get_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline void apply(Box& total, InputItem const& item)
-    {
-        geometry::expand(total, item.bounding_box);
-    }
-};
-
-struct ovelaps_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline bool apply(Box const& box, InputItem const& item)
-    {
-        return ! detail::disjoint::disjoint_box_box(box, item.bounding_box);
     }
 };
 
@@ -516,7 +497,9 @@ public:
 
         geometry::partition
             <
-                box_type, get_section_box, ovelaps_section_box
+                box_type,
+                detail::section::get_section_box,
+                detail::section::overlaps_section_box
             >::apply(sec1, sec2, visitor);
     }
 };
@@ -559,7 +542,8 @@ struct get_turns_cs
                 RobustPolicy const& robust_policy,
                 Turns& turns,
                 InterruptPolicy& interrupt_policy,
-                int multi_index = -1, int ring_index = -1)
+                signed_index_type multi_index = -1,
+                signed_index_type ring_index = -1)
     {
         if ( boost::size(range) <= 1)
         {
@@ -572,7 +556,8 @@ struct get_turns_cs
         cview_type cview(range);
         view_type view(cview);
 
-        typename boost::range_size<view_type>::type segments_count1 = boost::size(view) - 1;
+        typedef typename boost::range_size<view_type>::type size_type;
+        size_type segments_count1 = boost::size(view) - 1;
 
         iterator_type it = boost::begin(view);
 
@@ -585,7 +570,7 @@ struct get_turns_cs
 
         //char previous_side[2] = {0, 0};
 
-        int index = 0;
+        signed_index_type index = 0;
 
         for (iterator_type prev = it++;
             it != boost::end(view);
@@ -624,7 +609,7 @@ struct get_turns_cs
                         bp[0], bp[1], bp[2], bp[3],
                         // NOTE: some dummy values could be passed below since this would be called only for Polygons and Boxes
                         index == 0,
-                        unsigned(index) == segments_count1,
+                        size_type(index) == segments_count1,
                         robust_policy,
                         turns, interrupt_policy);
                 // Future performance enhancement:
@@ -729,7 +714,7 @@ struct get_turns_polygon_cs
             int source_id2, Box const& box,
             RobustPolicy const& robust_policy,
             Turns& turns, InterruptPolicy& interrupt_policy,
-            int multi_index = -1)
+            signed_index_type multi_index = -1)
     {
         typedef typename geometry::ring_type<Polygon>::type ring_type;
 
@@ -747,7 +732,7 @@ struct get_turns_polygon_cs
                 turns, interrupt_policy,
                 multi_index, -1);
 
-        int i = 0;
+        signed_index_type i = 0;
 
         typename interior_return_type<Polygon const>::type
             rings = interior_rings(polygon);
@@ -786,7 +771,7 @@ struct get_turns_multi_polygon_cs
                 Multi const
             >::type iterator_type;
 
-        int i = 0;
+        signed_index_type i = 0;
         for (iterator_type it = boost::begin(multi);
              it != boost::end(multi);
              ++it, ++i)

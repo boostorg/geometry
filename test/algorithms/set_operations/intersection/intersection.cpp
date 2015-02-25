@@ -181,7 +181,7 @@ void test_areal()
             1, -1, 0.08368849);
 
 
-    if (! ccw && open)
+    if ( BOOST_GEOMETRY_CONDITION(! ccw && open) )
     {
         // Pointcount for ttmath/double (both 5) or float (4)
         // double returns 5 (since method append_no_dups_or_spikes)

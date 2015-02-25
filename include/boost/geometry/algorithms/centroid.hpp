@@ -335,6 +335,7 @@ struct centroid_multi_point_state
                              Strategy const& strategy,
                              typename Strategy::state_type& state)
     {
+        boost::ignore_unused(strategy);
         strategy.apply(static_cast<Point const&>(transformer.apply(point)),
                        state);
     }

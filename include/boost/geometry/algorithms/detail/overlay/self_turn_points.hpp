@@ -23,8 +23,11 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 
 namespace boost { namespace geometry
@@ -96,7 +99,7 @@ struct self_section_visitor
                             m_rescale_policy,
                             m_turns, m_interrupt_policy);
         }
-        if (m_interrupt_policy.has_intersections)
+        if (BOOST_GEOMETRY_CONDITION(m_interrupt_policy.has_intersections))
         {
             // TODO: we should give partition an interrupt policy.
             // Now we throw, and catch below, to stop the partition loop.
@@ -146,8 +149,8 @@ struct get_turns
             geometry::partition
                 <
                     box_type,
-                    detail::get_turns::get_section_box,
-                    detail::get_turns::ovelaps_section_box
+                    detail::section::get_section_box,
+                    detail::section::overlaps_section_box
                 >::apply(sec, visitor);
         }
         catch(self_ip_exception const& )

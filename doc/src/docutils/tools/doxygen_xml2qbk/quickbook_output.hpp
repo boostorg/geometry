@@ -1,7 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
-// Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -166,9 +172,27 @@ void quickbook_synopsis(enumeration const& e, std::ostream& out)
 {
     out << "``enum " << e.name;
     bool first = true;
+
+    bool has_many_values = e.enumeration_values.size() > 4;
+
     BOOST_FOREACH(enumeration_value const& value, e.enumeration_values)
     {
-        out << (first ? " {" : ", ") << value.name;
+        if (has_many_values)
+        {
+            if (first)
+            {
+                out << std::endl << "{";
+            }
+            else
+            {
+                out << ",";
+            }
+            out << std::endl << "    " << value.name;
+        }
+        else
+        {
+            out << (first ? " {" : ", ") << value.name;
+        }
         if (! value.initializer.empty())
         {
             // Doxygen 1.6 does not include "=" in the <initializer> tag, Doxygen 1.8 does.
@@ -179,6 +203,10 @@ void quickbook_synopsis(enumeration const& e, std::ostream& out)
     }
     if (! first)
     {
+        if (has_many_values)
+        {
+            out << std::endl;
+        }
         out << "};";
     }
     out << "``"

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -9,6 +9,8 @@
 
 #ifndef BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
+
+#include <limits>
 
 #include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/geometry.hpp>
@@ -36,6 +38,7 @@ private:
                                  MultiLineString const& mls_int1,
                                  MultiLineString const& mls_int2,
                                  std::string const& case_id,
+                                 double tolerance,
                                  bool test_vector_and_deque = false)
     {
         static bool vector_deque_already_tested = false;
@@ -51,9 +54,10 @@ private:
 
         bg::intersection(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output)
-                             || equals::apply(mls_int2, mls_output),
-                             "intersection L/L: " << bg::wkt(geometry1)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
+                             || equals::apply(mls_int2, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", intersection L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_int1)
                              << " or: " << bg::wkt(mls_int2)
@@ -84,11 +88,15 @@ private:
             bg::intersection(geometry1, geometry2, ls_vector_output);
             bg::intersection(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_int1,
-                                                             ls_vector_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_int1, ls_vector_output, tolerance));
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_int1,
-                                                             ls_deque_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_int1, ls_deque_output, tolerance));
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
@@ -100,9 +108,10 @@ private:
         bg::clear(mls_output);
         bg::intersection(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output)
-                             || equals::apply(mls_int2, mls_output),
-                             "intersection L/L: " << bg::wkt(geometry1)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
+                             || equals::apply(mls_int2, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", intersection L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_int1)
                              << " or: " << bg::wkt(mls_int2)
@@ -121,10 +130,10 @@ private:
 #endif
     }
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
     static inline void base_test_all(Geometry1 const& geometry1,
                                      Geometry2 const& geometry2)
     {
-        //typedef typename boost::range_value<MultiLineString>::type LineString;
         typedef typename bg::point_type<MultiLineString>::type Point;
         typedef bg::model::multi_point<Point> multi_point;
 
@@ -136,7 +145,6 @@ private:
         bg::intersection(geometry2, geometry1, mls21_output);
         bg::intersection(geometry2, geometry1, mp21_output);
 
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "************************************" << std::endl;
         std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
         std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
@@ -153,8 +161,12 @@ private:
         std::cout << "************************************" << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
-#endif
     }
+#else
+    static inline void base_test_all(Geometry1 const&, Geometry2 const&)
+    {
+    }
+#endif
 
 
 public:
@@ -162,7 +174,9 @@ public:
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_int1,
                              MultiLineString const& mls_int2,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
@@ -188,7 +202,7 @@ public:
         test_get_turns_ll_invariance<>::apply(rg1, geometry2);
 
 
-        base_test(geometry1, geometry2, mls_int1, mls_int2, case_id);
+        base_test(geometry1, geometry2, mls_int1, mls_int2, case_id, tolerance);
         //        base_test(rg1, rg2, mls_int1, mls_int2);
         base_test_all(geometry1, geometry2);
 
@@ -203,9 +217,11 @@ public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_int,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
-        apply(geometry1, geometry2, mls_int, mls_int, case_id);
+        apply(geometry1, geometry2, mls_int, mls_int, case_id, tolerance);
     }
 };
 

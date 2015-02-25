@@ -72,14 +72,7 @@ struct access<rw_lon_lat_point<CoordinateType, CoordinateSystem>, Dimension>
     void set(rw_lon_lat_point<CoordinateType, CoordinateSystem>& p,
              CoordinateType const& value)
     {
-        if (Dimension == 0)
-        {
-            p.longitude = value;
-        }
-        else
-        {
-            p.latitude = value;
-        }
+        ( Dimension == 0 ? p.longitude : p.latitude ) = value;
     }
 };
 

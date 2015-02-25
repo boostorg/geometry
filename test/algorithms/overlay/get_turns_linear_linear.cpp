@@ -5,8 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -15,13 +17,11 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
 
 //TEST
-//#include <to_svg.hpp>
+#include <to_svg.hpp>
 
 template <typename T>
 void test_all()
@@ -215,10 +215,10 @@ void test_all()
                           expected("muu++"));
     
     // 29.01.2015
-    if ( boost::is_same<T, double>::value )
+    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
     {
-        // FAILING
-        /*test_geometry<ls, ls>("LINESTRING(3 -0.6,0 -0.9)",
+        // FAILING - possibly wrong IPs
+        test_geometry<ls, ls>("LINESTRING(3 -0.6,0 -0.9)",
                               "LINESTRING(4 2.232432,1 -0.8,9 0)",
                               expected("mui=+")("miu+="));
 
@@ -232,7 +232,7 @@ void test_all()
 
         test_geometry<ls, ls>("LINESTRING(3 -0.6, 0 -0.9, -1 -1, -2 -2)",
                               "LINESTRING(4 2.232432,-1 -1, 0 -0.9, 9 0)",
-                              expected("tui=+")("ecc==")("miu+="));*/
+                              expected("tui=+")("ecc==")("miu+="));
     }
 
     test_geometry<ls, ls>("LINESTRING(3 0,0 0)",
@@ -255,6 +255,40 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(0 0,5 0)",
                           "LINESTRING(2 0,0 0,-10 0)",
                           expected("tiu+=")("mui=+"));
+
+    // 03.02.2015
+    test_geometry<ls, ls>("LINESTRING(-7 -8,3 0,4 -1,-7 10)",
+                          "LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1)",
+                          expected("tii++")("txu==")("tiu==")("mui=+"));
+    test_geometry<ls, ls>("LINESTRING(-7 -8,3 0,4 -1,-7 10)",
+                          "LINESTRING(-5 -4,3 0,7 -4,2 -1)",
+                          expected("tii++")("mxu==")("miu==")("mui=+"));
+
+    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    {
+        // BUG - the operations are correct but IP coordinates are wrong
+        test_geometry<ls, ls>("LINESTRING(8 5,5 1,-2 3,1 10)",
+                              "LINESTRING(1.9375 1.875, 1.7441860465116283 1.9302325581395348, -0.7692307692307692 2.6483516483516487, -2 3, -1.0071942446043165 5.316546762589928)",
+                              expected("mii++")("ccc==")("tuu++"));
+        test_geometry<ls, ls>("LINESTRING(8 5,5 1,-2 3,1 10)",
+                              "LINESTRING(1.9375 1.875, 1.7441860465116283 1.9302325581395348, -0.7692307692307692 2.6483516483516487, -2 3, -0.5 6.5)",
+                              expected("mii++")("ccc==")("tii++")("mux=="));
+
+        // FAILING - wrong number of turns
+        test_geometry<ls, ls>("LINESTRING(-0.5 7,8 1,0 -0.2)",
+                              "LINESTRING(2 8,4 0.4,8 1,0 5)",
+                              //expected("iuu++")("mui=+")("tiu+="));
+                              expected("")(""));
+
+        // assertion failure in 1.57
+        // FAILING - no assertion failure but the result is not very good
+        test_geometry<ls, ls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+                              "LINESTRING(31 -97, -46 57, -20 -4)",
+                              expected("")(""));
+        test_geometry<ls, ls>("LINESTRING(31 -97, -46 57, -20 -4)",
+                              "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+                              expected("")(""));
+    }
 
     // TODO:
     //test_geometry<ls, ls>("LINESTRING(0 0,2 0,1 0)", "LINESTRING(0 1,0 0,2 0)", "1FF00F102");

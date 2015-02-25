@@ -87,9 +87,11 @@ struct equal_turn<1>
     template <typename T>
     bool operator()(T const& t) const
     {
-        unsigned count = turn_ptr->size();
-        BOOST_ASSERT(turn_ptr && count >= 1);
-        return bg::method_char(t.method) == (*turn_ptr)[0]
+        std::string::size_type count = turn_ptr->size();
+        //BOOST_ASSERT(turn_ptr && count >= 1);
+        return ( count > 0
+               ? bg::method_char(t.method) == (*turn_ptr)[0]
+               : true )
             && ( count > 1
                ? bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
                : true )

@@ -15,6 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 
 #include <boost/geometry/core/topological_dimension.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
@@ -197,7 +199,7 @@ struct areal_areal
         // The result should be FFFFFFFFF
         relate::set<exterior, exterior, result_dimension<Geometry2>::value>(result);// FFFFFFFFd, d in [1,9] or T
 
-        if ( result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
         // get and analyse turns
@@ -207,17 +209,17 @@ struct areal_areal
         interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy);
-        if ( result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
         no_turns_aa_pred<Geometry2, Result, false> pred1(geometry2, result);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
-        if ( result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
         no_turns_aa_pred<Geometry1, Result, true> pred2(geometry1, result);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
-        if ( result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
         
         if ( turns.empty() )
@@ -242,7 +244,7 @@ struct areal_areal
                 turns_analyser<turn_type, 0> analyser;
                 analyse_each_turn(result, analyser, turns.begin(), turns.end());
 
-                if ( result.interrupt )
+                if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
                     return;
             }
 
@@ -257,7 +259,7 @@ struct areal_areal
                 uncertain_rings_analyser<0, Result, Geometry1, Geometry2> rings_analyser(result, geometry1, geometry2);
                 analyse_uncertain_rings<0>::apply(rings_analyser, turns.begin(), turns.end());
 
-                if ( result.interrupt )
+                if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
                     return;
             }
         }
@@ -281,7 +283,7 @@ struct areal_areal
                 turns_analyser<turn_type, 1> analyser;
                 analyse_each_turn(result, analyser, turns.begin(), turns.end());
 
-                if ( result.interrupt )
+                if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
                     return;
             }
 
@@ -549,7 +551,7 @@ struct areal_areal
         {
             analyser.apply(res, it);
 
-            if ( res.interrupt )
+            if ( BOOST_GEOMETRY_CONDITION(res.interrupt) )
                 return;
         }
 

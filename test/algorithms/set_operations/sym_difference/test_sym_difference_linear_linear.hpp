@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -9,6 +9,8 @@
 
 #ifndef BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_SYM_DIFFERENCE_LINEAR_LINEAR_HPP
+
+#include <limits>
 
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
@@ -34,6 +36,7 @@ private:
                                  Geometry2 const& geometry2,
                                  MultiLineString const& mls_sym_diff,
                                  std::string const& case_id,
+                                 double tolerance,
                                  bool test_vector_and_deque = false)
     {
         static bool vector_deque_already_tested = false;
@@ -49,8 +52,9 @@ private:
 
         bg::sym_difference(geometry1, geometry2, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output),
-                             "sym diff L/L: " << bg::wkt(geometry1)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", sym diff L/L: " << bg::wkt(geometry1)
                              << " " << bg::wkt(geometry2)
                              << " -> Expected: " << bg::wkt(mls_sym_diff)
                              << " computed: " << bg::wkt(mls_output) );
@@ -82,11 +86,15 @@ private:
             bg::sym_difference(geometry1, geometry2, ls_vector_output);
             bg::sym_difference(geometry1, geometry2, ls_deque_output);
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_sym_diff,
-                                                      ls_vector_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_sym_diff, ls_vector_output, tolerance));
 
-            BOOST_CHECK(multilinestring_equals<false>::apply(mls_sym_diff, 
-                                                             ls_deque_output));
+            BOOST_CHECK(multilinestring_equals
+                        <
+                            false
+                        >::apply(mls_sym_diff, ls_deque_output, tolerance));
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
             std::cout << "Done!" << std::endl << std::endl;
@@ -98,8 +106,9 @@ private:
         bg::clear(mls_output);
         bg::sym_difference(geometry2, geometry1, mls_output);
 
-        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output),
-                             "sym diff L/L: " << bg::wkt(geometry2)
+        BOOST_CHECK_MESSAGE( equals::apply(mls_sym_diff, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", sym diff L/L: " << bg::wkt(geometry2)
                              << " " << bg::wkt(geometry1)
                              << " -> Expected: " << bg::wkt(mls_sym_diff)
                              << " computed: " << bg::wkt(mls_output) );
@@ -122,7 +131,9 @@ public:
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiLineString const& mls_sym_diff,
-                             std::string const& case_id)
+                             std::string const& case_id,
+                             double tolerance
+                                 = std::numeric_limits<double>::epsilon())
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
@@ -147,10 +158,10 @@ public:
 #endif
         test_get_turns_ll_invariance<>::apply(rg1, geometry2);
 
-        base_test(geometry1, geometry2, mls_sym_diff, case_id, true);
+        base_test(geometry1, geometry2, mls_sym_diff, case_id, tolerance, true);
         //        base_test(geometry1, rg2, mls_sym_diff);
         //        base_test(rg1, geometry2, mls_sym_diff);
-        base_test(rg1, rg2, mls_sym_diff, case_id);
+        base_test(rg1, rg2, mls_sym_diff, case_id, tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;

@@ -25,37 +25,47 @@ namespace detail { namespace is_valid
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
+template <typename Turn>
+inline void debug_print_turn(Turn const& turn)
+{
+    std::cout << " ["
+              << geometry::method_char(turn.method)
+              << ","
+              << geometry::operation_char(turn.operations[0].operation)
+              << "/"
+              << geometry::operation_char(turn.operations[1].operation)
+              << " {"
+              << turn.operations[0].seg_id.multi_index
+              << ", "
+              << turn.operations[1].seg_id.multi_index
+              << "} {"
+              << turn.operations[0].seg_id.ring_index
+              << ", "
+              << turn.operations[1].seg_id.ring_index
+              << "} {"
+              << turn.operations[0].seg_id.segment_index
+              << ", "
+              << turn.operations[1].seg_id.segment_index
+              << "} "
+              << geometry::dsv(turn.point)
+              << "]";
+}
+
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator first, TurnIterator beyond)
 {
     std::cout << "turns:";
     for (TurnIterator tit = first; tit != beyond; ++tit)
     {
-        std::cout << " ["
-                  << geometry::method_char(tit->method)
-                  << ","
-                  << geometry::operation_char(tit->operations[0].operation)
-                  << "/"
-                  << geometry::operation_char(tit->operations[1].operation)
-                  << " {"
-                  << tit->operations[0].seg_id.multi_index
-                  << ", "
-                  << tit->operations[1].seg_id.multi_index
-                  << "} {"
-                  << tit->operations[0].seg_id.ring_index
-                  << ", "
-                  << tit->operations[1].seg_id.ring_index
-                  << "} {"
-                  << tit->operations[0].seg_id.segment_index
-                  << ", "
-                  << tit->operations[1].seg_id.segment_index
-                  << "} "
-                  << geometry::dsv(tit->point)
-                  << "]";
+        debug_print_turn(*tit);
     }
     std::cout << std::endl << std::endl;
 }
 #else
+template <typename Turn>
+inline void debug_print_turn(Turn const&)
+{}
+
 template <typename TurnIterator>
 inline void debug_print_turns(TurnIterator, TurnIterator)
 {}

@@ -8,14 +8,15 @@
 // This file was modified by Oracle on 2013, 2014.
 // Modifications copyright (c) 2013, 2014 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
@@ -133,7 +134,7 @@ template
 >
 struct get_direction_loop
 {
-    typedef typename mpl::at_c<DimensionVector, Index>::type dimension;
+    typedef typename boost::mpl::at_c<DimensionVector, Index>::type dimension;
 
     template <typename Segment>
     static inline void apply(Segment const& seg,
@@ -269,21 +270,27 @@ template
 >
 struct sectionalize_part
 {
-    static const std::size_t dimension_count = mpl::size<DimensionVector>::value;
+    static const std::size_t dimension_count
+        = boost::mpl::size<DimensionVector>::value;
 
     template
     <
-        typename Range,
+        typename Iterator,
         typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Sections& sections,
-                             Range const& range,
+                             Iterator begin, Iterator end,
                              RobustPolicy const& robust_policy,
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
         boost::ignore_unused_variable_warning(robust_policy);
+        BOOST_STATIC_ASSERT
+            (
+                (static_cast<int>(Sections::value)
+                 == static_cast<int>(boost::mpl::size<DimensionVector>::value))
+            );
 
         typedef typename boost::range_value<Sections>::type section_type;
         typedef typename geometry::robust_point_type
@@ -291,9 +298,9 @@ struct sectionalize_part
             Point,
             RobustPolicy
         >::type robust_point_type;
-        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-        if (boost::empty(range))
+        std::size_t const count = std::distance(begin, end);
+        if (count == 0)
         {
             return;
         }
@@ -305,12 +312,12 @@ struct sectionalize_part
         bool mark_first_non_duplicated = true;
         std::size_t last_non_duplicate_index = sections.size();
 
-        iterator_type it = boost::begin(range);
+        Iterator it = begin;
         robust_point_type previous_robust_point;
         geometry::recalculate(previous_robust_point, *it, robust_policy);
         
-        for(iterator_type previous = it++;
-            it != boost::end(range);
+        for(Iterator previous = it++;
+            it != end;
             ++previous, ++it, index++)
         {
             robust_point_type current_robust_point;
@@ -375,7 +382,7 @@ struct sectionalize_part
                 section.ring_id = ring_id;
                 section.duplicate = duplicate;
                 section.non_duplicate_index = ndi;
-                section.range_count = boost::size(range);
+                section.range_count = count;
 
                 if (mark_first_non_duplicated && ! duplicate)
                 {
@@ -465,8 +472,9 @@ struct sectionalize_range
             return;
         }
 
-        sectionalize_part<Point, DimensionVector>
-                ::apply(sections, view, robust_policy, ring_id, max_count);
+        sectionalize_part<Point, DimensionVector>::apply(sections,
+            boost::begin(view), boost::end(view),
+            robust_policy, ring_id, max_count);
     }
 };
 
@@ -760,7 +768,7 @@ inline void sectionalize(Geometry const& geometry,
     BOOST_STATIC_ASSERT
         (
             (static_cast<int>(Sections::value)
-          == static_cast<int>(mpl::size<DimensionVector>::value))
+             == static_cast<int>(boost::mpl::size<DimensionVector>::value))
         );
 
     // Compiletime check for point type of section boxes

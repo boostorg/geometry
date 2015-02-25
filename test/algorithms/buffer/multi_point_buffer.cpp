@@ -23,6 +23,9 @@ static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60
 // Grid, U-form, generates error for square point at 0.54 (top cells to control rescale)
 static std::string const grid_a = "MULTIPOINT(5 0,6 0,7 0,  5 1,7 1,  0 13,8 13)";
 
+static std::string const mysql_report_2015_02_25_1 = "MULTIPOINT(-9 19,9 -6,-4 4,16 -14,-3 16,14 9)";
+static std::string const mysql_report_2015_02_25_2 = "MULTIPOINT(-2 11,-15 3,6 4,-14 0,20 -7,-17 -1)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -31,6 +34,11 @@ void test_all()
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::end_flat end_flat;
+    typedef bg::strategy::buffer::distance_symmetric
+    <
+        typename bg::coordinate_type<P>::type
+    > distance_strategy;
+    bg::strategy::buffer::side_straight side_strategy;
 
     double const pi = boost::geometry::math::pi<double>();
 
@@ -53,21 +61,55 @@ void test_all()
     // Grid tests
     {
         bg::strategy::buffer::point_square point_strategy;
-        bg::strategy::buffer::side_straight side_strategy;
 
-        typedef bg::strategy::buffer::distance_symmetric
-        <
-            typename bg::coordinate_type<P>::type
-        > distance_strategy;
 
         test_with_custom_strategies<multi_point_type, polygon>("grid_a50",
                 grid_a, join_miter, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
+
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join_miter, end_flat,
                 distance_strategy(0.54), side_strategy, point_strategy, 99);
 #endif
+
+
+    }
+
+    // Tests for large distances / many points in circles.
+    // Before Boost 1.58, this would (seem to) hang. It is solved by using monotonic sections in get_turns for buffer
+    // This is more time consuming, only calculate this for counter clockwise
+    if (! BOOST_GEOMETRY_CONDITION(Clockwise))
+    {
+        // Reported by MySQL 2015-02-25
+        //   SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT(''), 6051788, ST_BUFFER_STRATEGY('point_circle', 83585)));
+        //   SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT(''), 5666962, ST_BUFFER_STRATEGY('point_circle', 46641))) ;
+
+        using bg::strategy::buffer::point_circle;
+        test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
+                mysql_report_2015_02_25_1, join_miter, end_flat,
+                distance_strategy(6051788), side_strategy, point_circle(800), 115057490003226.125);
+
+        test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_8000",
+                mysql_report_2015_02_25_1, join_miter, end_flat,
+                distance_strategy(6051788), side_strategy, point_circle(8000), 115058661065242.812);
+
+        test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1",
+                mysql_report_2015_02_25_1, join_miter, end_flat,
+                distance_strategy(6051788), side_strategy, point_circle(83585), 115058672785611.219);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+        // Try to specify even more points per circle
+        // Turns are calculated in 23 seconds
+        // But the follow-up still takes too long (there are 63409 turns), this might be improved too
+        test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1",
+                mysql_report_2015_02_25_1, join_miter, end_flat,
+                distance_strategy(6051788), side_strategy, point_circle(800000), 115058672785611.219);
+#endif
+
+        test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_2",
+                mysql_report_2015_02_25_2, join_miter, end_flat,
+                distance_strategy(5666962), side_strategy, point_circle(46641), 100891031341757.344);
     }
 }
 

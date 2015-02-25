@@ -109,7 +109,8 @@ void check_geometry(Geometry1 const& geometry1,
                 << " -> Expected: " << expected1);
         }
 
-        if ( bg::detail::relate::interruption_enabled<Geometry1, Geometry2>::value )
+        if ( BOOST_GEOMETRY_CONDITION((
+                bg::detail::relate::interruption_enabled<Geometry1, Geometry2>::value )) )
         {
             // brake the expected output
             std::string expected_interrupt = expected1;
