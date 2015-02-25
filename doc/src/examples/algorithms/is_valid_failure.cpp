@@ -12,7 +12,6 @@
 //` Checks whether a geometry is valid and, if not valid, checks if it could be fixed by bg::correct; if so bg::correct is called on the geometry
 
 #include <iostream>
-#include <string>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
