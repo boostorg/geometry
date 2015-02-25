@@ -85,8 +85,11 @@ inline bool is_valid(Geometry const& geometry, VisitPolicy& visitor)
 \ingroup is_valid
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\return \return_check{is valid (in the OGC sense), with one exception:
-multi-geometries with no elements are considered valid}
+\return \return_check{is valid (in the OGC sense);
+    furthermore, the following geometries are considered valid:
+    multi-geometries with no elements,
+    linear geometries containing spikes,
+    areal geometries with duplicate (consecutive) points}
 
 \qbk{[include reference/algorithms/is_valid.qbk]}
 */
@@ -98,7 +101,22 @@ inline bool is_valid(Geometry const& geometry)
 }
 
 
-// Undocumented for now
+/*!
+\brief \brief_check{is valid (in the OGC sense)}
+\ingroup is_valid
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\param failure An enumeration value indicating that the geometry is
+    valid or not, and if not valid indicating the reason why
+\return \return_check{is valid (in the OGC sense);
+    furthermore, the following geometries are considered valid:
+    multi-geometries with no elements,
+    linear geometries containing spikes,
+    areal geometries with duplicate (consecutive) points}
+
+\qbk{distinguish,with failure value}
+\qbk{[include reference/algorithms/is_valid_with_failure.qbk]}
+*/
 template <typename Geometry>
 inline bool is_valid(Geometry const& geometry, validity_failure_type& failure)
 {
@@ -115,9 +133,12 @@ inline bool is_valid(Geometry const& geometry, validity_failure_type& failure)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \param message A string containing a message stating if the geometry
-is valid or not, and if not valid a reason why
-\return \return_check{is valid (in the OGC sense), with one exception:
-multi-geometries with no elements are considered valid}
+    is valid or not, and if not valid a reason why
+\return \return_check{is valid (in the OGC sense);
+    furthermore, the following geometries are considered valid:
+    multi-geometries with no elements,
+    linear geometries containing spikes,
+    areal geometries with duplicate (consecutive) points}
 
 \qbk{distinguish,with message}
 \qbk{[include reference/algorithms/is_valid_with_message.qbk]}
