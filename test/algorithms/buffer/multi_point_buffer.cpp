@@ -88,15 +88,15 @@ void test_all()
         using bg::strategy::buffer::point_circle;
         test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
                 mysql_report_2015_02_25_1, join_miter, end_flat,
-                distance_strategy(6051788), side_strategy, point_circle(800), 115057490003226.125);
+                distance_strategy(6051788), side_strategy, point_circle(800), 115057490003226.125, 1.0);
 
         test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_8000",
                 mysql_report_2015_02_25_1, join_miter, end_flat,
-                distance_strategy(6051788), side_strategy, point_circle(8000), 115058661065242.812);
+                distance_strategy(6051788), side_strategy, point_circle(8000), 115058661065242.812, 1.0);
 
         test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1",
                 mysql_report_2015_02_25_1, join_miter, end_flat,
-                distance_strategy(6051788), side_strategy, point_circle(83585), 115058672785611.219);
+                distance_strategy(6051788), side_strategy, point_circle(83585), 115058672785611.219, 1.0);
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
         // Try to specify even more points per circle
@@ -104,12 +104,12 @@ void test_all()
         // But the follow-up still takes too long (there are 63409 turns), this might be improved too
         test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1",
                 mysql_report_2015_02_25_1, join_miter, end_flat,
-                distance_strategy(6051788), side_strategy, point_circle(800000), 115058672785611.219);
+                distance_strategy(6051788), side_strategy, point_circle(800000), 115058672799999.999, 1.0); // area to be determined
 #endif
 
         test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_2",
                 mysql_report_2015_02_25_2, join_miter, end_flat,
-                distance_strategy(5666962), side_strategy, point_circle(46641), 100891031341757.344);
+                distance_strategy(5666962), side_strategy, point_circle(46641), 100891031341757.344, 1.0);
     }
 }
 
