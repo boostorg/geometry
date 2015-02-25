@@ -220,15 +220,37 @@ template <typename ValidityTester>
 struct validity_checker
 {
     template <typename Geometry>
-    static inline bool apply(Geometry const& geometry,
+    static inline bool apply(std::string const& case_id,
+                             Geometry const& geometry,
                              bool expected_result,
-                             std::string const& case_id)
+                             std::string& reason)
     {
         bool valid = ValidityTester::apply(geometry);
+        std::string const reason_valid
+            = bg::validity_failure_type_message(bg::no_failure);
+        reason = ValidityTester::reason(geometry);
+        std::string reason_short = reason.substr(0, reason_valid.length());
+
         BOOST_CHECK_MESSAGE(valid == expected_result,
             "case id: " << case_id
             << ", Expected: " << expected_result
             << ", detected: " << valid
+            << "; wkt: " << bg::wkt(geometry));
+
+        BOOST_CHECK_MESSAGE(reason != "",
+            "case id (empty reason): " << case_id
+            << ", Expected: " << valid
+            << ", detected reason: " << reason
+            << "; wkt: " << bg::wkt(geometry));
+
+        BOOST_CHECK_MESSAGE((valid && reason == reason_valid)
+                            ||
+                            (! valid && reason != reason_valid)
+                            ||
+                            (! valid && reason_short != reason_valid),
+            "case id (reason): " << case_id
+            << ", Expected: " << valid
+            << ", detected reason: " << reason
             << "; wkt: " << bg::wkt(geometry));
 
         return valid;
@@ -246,6 +268,14 @@ struct default_validity_tester
     {
         return bg::is_valid(geometry);
     }
+
+    template <typename Geometry>
+    static inline std::string reason(Geometry const& geometry)
+    {
+        std::string message;
+        bg::is_valid(geometry, message);
+        return message;
+    }
 };
 
 
@@ -255,12 +285,19 @@ struct validity_tester_linear
     template <typename Geometry>
     static inline bool apply(Geometry const& geometry)
     {
-        return bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                AllowSpikes
-            >::apply(geometry);
+        bool const irrelevant = true;
+        bg::is_valid_default_policy<irrelevant, AllowSpikes> visitor;
+        return bg::is_valid(geometry, visitor);
+    }
+
+    template <typename Geometry>
+    static inline std::string reason(Geometry const& geometry)
+    {
+        bool const irrelevant = true;
+        std::ostringstream oss;
+        bg::failing_reason_policy<irrelevant, AllowSpikes> visitor(oss);
+        bg::is_valid(geometry, visitor);
+        return oss.str();
     }
 };
 
@@ -271,16 +308,19 @@ struct validity_tester_areal
     template <typename Geometry>
     static inline bool apply(Geometry const& geometry)
     {
-        bool const irrelevant = true;
-
-        return bg::dispatch::is_valid
-            <
-                Geometry,
-                typename bg::tag<Geometry>::type,
-                irrelevant,
-                AllowDuplicates
-            >::apply(geometry);
+        bg::is_valid_default_policy<AllowDuplicates> visitor;
+        return bg::is_valid(geometry, visitor);
     }
+
+    template <typename Geometry>
+    static inline std::string reason(Geometry const& geometry)
+    {
+        std::ostringstream oss;
+        bg::failing_reason_policy<AllowDuplicates> visitor(oss);
+        bg::is_valid(geometry, visitor);
+        return oss.str();
+    }
+
 };
 
 
@@ -308,10 +348,11 @@ protected:
         std::cout << "=======" << std::endl;
 #endif
 
+        std::string reason;
         bool valid = validity_checker
             <
                 ValidityTester
-            >::apply(g, expected_result, case_id);
+            >::apply(case_id, g, expected_result, reason);
         boost::ignore_unused(valid);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -322,6 +363,7 @@ protected:
         std::cout << std::boolalpha;
         std::cout << "is valid? " << valid << std::endl;
         std::cout << "expected result: " << expected_result << std::endl;
+        std::cout << "reason: " << reason << std::endl;
         std::cout << "=======" << std::endl;
         std::cout << std::noboolalpha;
 #endif
@@ -331,7 +373,6 @@ public:
     static inline void apply(std::string const& case_id,
                              Geometry const& geometry,
                              bool expected_result)
-
     {
         std::stringstream sstr;
         sstr << case_id << "-original";
@@ -433,6 +474,7 @@ public:
                              VariantGeometry const& vg,
                              bool expected_result)
     {
+        std::ostringstream oss;
         base_type::base_test(case_id, vg, expected_result);
     }
 };

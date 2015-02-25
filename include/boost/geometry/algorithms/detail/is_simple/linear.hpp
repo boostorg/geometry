@@ -43,6 +43,7 @@
 #include <boost/geometry/algorithms/detail/is_valid/has_spikes.hpp>
 
 #include <boost/geometry/algorithms/detail/is_simple/debug_print_boundary_points.hpp>
+#include <boost/geometry/algorithms/detail/is_simple/failure_policy.hpp>
 #include <boost/geometry/algorithms/detail/is_valid/debug_print_turns.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
@@ -233,14 +234,15 @@ struct is_simple_linestring
 {
     static inline bool apply(Linestring const& linestring)
     {
+        simplicity_failure_policy policy;
         return ! detail::is_valid::has_duplicates
                     <
                         Linestring, closed
-                    >::apply(linestring)
+                    >::apply(linestring, policy)
             && ! detail::is_valid::has_spikes
                     <
                         Linestring, closed
-                    >::apply(linestring)
+                    >::apply(linestring, policy)
             && ! (CheckSelfIntersections && has_self_intersections(linestring));
     }
 };

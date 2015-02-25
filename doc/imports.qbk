@@ -47,6 +47,7 @@
 [import src/examples/algorithms/intersects_linestring.cpp]
 [import src/examples/algorithms/is_simple.cpp]
 [import src/examples/algorithms/is_valid.cpp]
+[import src/examples/algorithms/is_valid_message.cpp]
 [import src/examples/algorithms/num_geometries.cpp]
 [import src/examples/algorithms/num_interior_rings.cpp]
 [import src/examples/algorithms/num_points.cpp]
