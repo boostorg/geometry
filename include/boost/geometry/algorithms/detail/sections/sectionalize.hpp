@@ -275,12 +275,12 @@ struct sectionalize_part
 
     template
     <
-        typename Range,
+        typename Iterator,
         typename RobustPolicy,
         typename Sections
     >
     static inline void apply(Sections& sections,
-                             Range const& range,
+                             Iterator begin, Iterator end,
                              RobustPolicy const& robust_policy,
                              ring_identifier ring_id,
                              std::size_t max_count)
@@ -293,9 +293,9 @@ struct sectionalize_part
             Point,
             RobustPolicy
         >::type robust_point_type;
-        typedef typename boost::range_iterator<Range const>::type iterator_type;
 
-        if (boost::empty(range))
+        std::size_t const count = std::distance(begin, end);
+        if (count == 0)
         {
             return;
         }
@@ -307,12 +307,12 @@ struct sectionalize_part
         bool mark_first_non_duplicated = true;
         std::size_t last_non_duplicate_index = sections.size();
 
-        iterator_type it = boost::begin(range);
+        Iterator it = begin;
         robust_point_type previous_robust_point;
         geometry::recalculate(previous_robust_point, *it, robust_policy);
         
-        for(iterator_type previous = it++;
-            it != boost::end(range);
+        for(Iterator previous = it++;
+            it != end;
             ++previous, ++it, index++)
         {
             robust_point_type current_robust_point;
@@ -377,7 +377,7 @@ struct sectionalize_part
                 section.ring_id = ring_id;
                 section.duplicate = duplicate;
                 section.non_duplicate_index = ndi;
-                section.range_count = boost::size(range);
+                section.range_count = count;
 
                 if (mark_first_non_duplicated && ! duplicate)
                 {
@@ -467,8 +467,9 @@ struct sectionalize_range
             return;
         }
 
-        sectionalize_part<Point, DimensionVector>
-                ::apply(sections, view, robust_policy, ring_id, max_count);
+        sectionalize_part<Point, DimensionVector>::apply(sections,
+            boost::begin(view), boost::end(view),
+            robust_policy, ring_id, max_count);
     }
 };
 
