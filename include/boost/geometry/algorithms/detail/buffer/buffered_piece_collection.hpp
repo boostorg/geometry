@@ -44,6 +44,7 @@
 #include <boost/geometry/algorithms/detail/occupation_info.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/util/range.hpp>
 
@@ -245,6 +246,12 @@ struct buffered_piece_collection
     robust_ring_type current_robust_ring;
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
+
+    // Specificly for offsetted rings around points
+    // but also for large joins with many points
+    typedef geometry::sections<robust_box_type, 2> sections_type;
+    sections_type monotonic_sections;
+
 
     RobustPolicy const& m_robust_policy;
 
@@ -450,7 +457,7 @@ struct buffered_piece_collection
         turn_in_original_visitor<turn_vector_type> visitor(m_turns);
         geometry::partition
             <
-                model::box<robust_point_type>,
+                robust_box_type,
                 turn_get_box, turn_in_original_ovelaps_box,
                 original_get_box, original_ovelaps_box,
                 include_turn_policy, detail::partition::include_all_policy
@@ -642,20 +649,30 @@ struct buffered_piece_collection
 
     inline void get_turns()
     {
+        for(typename boost::range_iterator<sections_type>::type it
+                = boost::begin(monotonic_sections);
+            it != boost::end(monotonic_sections);
+            ++it)
+        {
+            enlarge_box(it->bounding_box, 1);
+        }
+
         {
             // Calculate the turns
             piece_turn_visitor
                 <
+                    piece_vector_type,
                     buffered_ring_collection<buffered_ring<Ring> >,
                     turn_vector_type,
                     RobustPolicy
-                > visitor(offsetted_rings, m_turns, m_robust_policy);
+                > visitor(m_pieces, offsetted_rings, m_turns, m_robust_policy);
 
             geometry::partition
                 <
-                    model::box<robust_point_type>,
-                    piece_get_offsetted_box, piece_ovelaps_offsetted_box
-                >::apply(m_pieces, visitor);
+                    robust_box_type,
+                    detail::section::get_section_box,
+                    detail::section::overlaps_section_box
+                >::apply(monotonic_sections, visitor);
         }
 
         insert_rescaled_piece_turns();
@@ -673,7 +690,7 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    model::box<robust_point_type>,
+                    robust_box_type,
                     turn_get_box, turn_ovelaps_box,
                     piece_get_box, piece_ovelaps_box
                 >::apply(m_turns, m_pieces, visitor);
@@ -882,10 +899,34 @@ struct buffered_piece_collection
         enlarge_box(pc.robust_offsetted_envelope, 1);
     }
 
+    inline void sectionalize(piece& pc)
+    {
+
+        buffered_ring<Ring> const& ring = offsetted_rings.back();
+
+        typedef geometry::detail::sectionalize::sectionalize_part
+        <
+            point_type,
+            boost::mpl::vector_c<std::size_t, 0, 1> // x,y dimension
+        > sectionalizer;
+
+        // Create a ring-identifier. The source-index is the piece index
+        // The multi_index is as in this collection (the ring), but not used here
+        // The ring_index is not used
+        ring_identifier ring_id(pc.index, pc.first_seg_id.multi_index, -1);
+
+        sectionalizer::apply(monotonic_sections,
+            boost::begin(ring) + pc.first_seg_id.segment_index,
+            boost::begin(ring) + pc.last_segment_index,
+            m_robust_policy,
+            ring_id, 10);
+    }
+
     inline void finish_piece(piece& pc)
     {
         init_rescale_piece(pc, 0u);
         calculate_robust_envelope(pc);
+        sectionalize(pc);
     }
 
     inline void finish_piece(piece& pc,
@@ -903,6 +944,7 @@ struct buffered_piece_collection
         robust_point_type mid_point = add_helper_point(pc, point2);
         add_helper_point(pc, point3);
         calculate_robust_envelope(pc);
+        sectionalize(pc);
 
         current_robust_ring.push_back(mid_point);
     }
@@ -918,6 +960,7 @@ struct buffered_piece_collection
         robust_point_type mid_point2 = add_helper_point(pc, point2);
         robust_point_type mid_point1 = add_helper_point(pc, point3);
         add_helper_point(pc, point4);
+        sectionalize(pc);
         calculate_robust_envelope(pc);
 
         // Add mid-points in other order to current helper_ring

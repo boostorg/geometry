@@ -54,6 +54,7 @@
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
@@ -62,8 +63,6 @@
 
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/algorithms/expand.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
@@ -395,24 +394,6 @@ private :
     }
 };
 
-struct get_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline void apply(Box& total, InputItem const& item)
-    {
-        geometry::expand(total, item.bounding_box);
-    }
-};
-
-struct ovelaps_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline bool apply(Box const& box, InputItem const& item)
-    {
-        return ! detail::disjoint::disjoint_box_box(box, item.bounding_box);
-    }
-};
-
 template
 <
     typename Geometry1, typename Geometry2,
@@ -516,7 +497,9 @@ public:
 
         geometry::partition
             <
-                box_type, get_section_box, ovelaps_section_box
+                box_type,
+                detail::section::get_section_box,
+                detail::section::overlaps_section_box
             >::apply(sec1, sec2, visitor);
     }
 };

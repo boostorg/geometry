@@ -105,11 +105,15 @@ void test_all()
         "POINT(0 0)",
         false);
 
-//    assertion failure in 1.57
-//    test_disjoint<ls, mls>("point_l_ls_assert",
-//        "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
-//        "MULTILINESTRING((20 100, 31 -97, -46 57, -20 -4),(-71 -4))",
-//        false);
+    // assertion failure in 1.57
+    test_disjoint<ls, mls>("point_l_ml_assert_1_57",
+        "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+        "MULTILINESTRING((20 100, 31 -97, -46 57, -20 -4))",
+        false);
+    test_disjoint<ls, mls>("point_l_ml_assert_1_57",
+        "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
+        "MULTILINESTRING((20 100, 31 -97, -46 57, -20 -4),(-71 -4))",
+        false);
 }
 
 int test_main(int, char* [])
