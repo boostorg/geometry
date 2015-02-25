@@ -457,7 +457,7 @@ struct buffered_piece_collection
         turn_in_original_visitor<turn_vector_type> visitor(m_turns);
         geometry::partition
             <
-                model::box<robust_point_type>,
+                robust_box_type,
                 turn_get_box, turn_in_original_ovelaps_box,
                 original_get_box, original_ovelaps_box,
                 include_turn_policy, detail::partition::include_all_policy
@@ -690,7 +690,7 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    model::box<robust_point_type>,
+                    robust_box_type,
                     turn_get_box, turn_ovelaps_box,
                     piece_get_box, piece_ovelaps_box
                 >::apply(m_turns, m_pieces, visitor);
