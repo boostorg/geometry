@@ -286,6 +286,11 @@ struct sectionalize_part
                              std::size_t max_count)
     {
         boost::ignore_unused_variable_warning(robust_policy);
+        BOOST_STATIC_ASSERT
+            (
+                (static_cast<int>(Sections::value)
+                 == static_cast<int>(boost::mpl::size<DimensionVector>::value))
+            );
 
         typedef typename boost::range_value<Sections>::type section_type;
         typedef typename geometry::robust_point_type
