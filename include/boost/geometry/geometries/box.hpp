@@ -55,7 +55,8 @@ public:
     /*!
         \brief Constructor taking the minimum corner point and the maximum corner point
     */
-    inline box(Point const& min_corner, Point const& max_corner)
+    template <typename Point1, typename Point2>
+    inline box(Point1 const& min_corner, Point2 const& max_corner)
     {
         geometry::convert(min_corner, m_min_corner);
         geometry::convert(max_corner, m_max_corner);
