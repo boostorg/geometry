@@ -16,6 +16,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
 
 
 namespace boost { namespace geometry
@@ -88,6 +89,38 @@ class piece_turn_visitor
         return result;
     }
 
+    template <typename Iterator, typename Box>
+    inline void move_begin_iterator(Iterator& it_begin, Iterator it_beyond,
+            int& index, int dir, Box const& other_bounding_box)
+    {
+        for(; it_begin != it_beyond
+                && it_begin + 1 != it_beyond
+                && detail::section::preceding<0>(dir, *(it_begin + 1),
+                    other_bounding_box, m_robust_policy);
+            ++it_begin, index++)
+        {}
+    }
+
+    template <typename Iterator, typename Box>
+    inline void move_end_iterator(Iterator it_begin, Iterator& it_beyond,
+            int dir, Box const& other_bounding_box)
+    {
+        while (it_beyond != it_begin
+            && it_beyond - 1 != it_begin
+            && it_beyond - 2 != it_begin)
+        {
+            if (detail::section::exceeding<0>(dir, *(it_beyond - 2),
+                        other_bounding_box, m_robust_policy))
+            {
+                --it_beyond;
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
     template <typename Piece, typename Section>
     inline void calculate_turns(Piece const& piece1, Piece const& piece2,
         Section const& section1, Section const& section2)
@@ -113,17 +146,30 @@ class piece_turn_visitor
 
         // get geometry and iterators over these sections
         ring_type const& ring1 = m_rings[piece1.first_seg_id.multi_index];
-        iterator const it1_first = boost::begin(ring1) + sec1_first_index;
-        iterator const it1_beyond = boost::begin(ring1) + sec1_last_index + 1;
+        iterator it1_first = boost::begin(ring1) + sec1_first_index;
+        iterator it1_beyond = boost::begin(ring1) + sec1_last_index + 1;
 
         ring_type const& ring2 = m_rings[piece2.first_seg_id.multi_index];
-        iterator const it2_first = boost::begin(ring2) + sec2_first_index;
-        iterator const it2_beyond = boost::begin(ring2) + sec2_last_index + 1;
+        iterator it2_first = boost::begin(ring2) + sec2_first_index;
+        iterator it2_beyond = boost::begin(ring2) + sec2_last_index + 1;
+
+        // Set begin/end of monotonic ranges
+        int index1 = sec1_first_index;
+        move_begin_iterator(it1_first, it1_beyond, index1,
+                    section1.directions[0], section2.bounding_box);
+        move_end_iterator(it1_first, it1_beyond,
+                    section1.directions[0], section2.bounding_box);
+
+        int index2 = sec2_first_index;
+        move_begin_iterator(it2_first, it2_beyond, index2,
+                    section2.directions[0], section1.bounding_box);
+        move_end_iterator(it2_first, it2_beyond,
+                    section2.directions[0], section1.bounding_box);
 
         turn_type the_model;
         the_model.operations[0].piece_index = piece1.index;
         the_model.operations[0].seg_id = piece1.first_seg_id;
-        the_model.operations[0].seg_id.segment_index = sec1_first_index; // override
+        the_model.operations[0].seg_id.segment_index = index1; // override
 
         iterator it1 = it1_first;
         for (iterator prev1 = it1++;
@@ -132,7 +178,7 @@ class piece_turn_visitor
         {
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
-            the_model.operations[1].seg_id.segment_index = sec2_first_index; // override
+            the_model.operations[1].seg_id.segment_index = index2; // override
 
             iterator next1 = next_point(ring1, it1);
 
