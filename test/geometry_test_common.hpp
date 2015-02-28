@@ -17,6 +17,7 @@
 
 // Determine debug/release mode
 // (it would be convenient if Boost.Config or Boost.Test would define this)
+// Note that they might be combined (e.g. for optimize+no inline)
 #if defined (__clang__) || defined(__gcc__)
 #if defined(__OPTIMIZE__)
     #define BOOST_GEOMETRY_COMPILER_MODE_RELEASE
