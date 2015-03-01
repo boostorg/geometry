@@ -119,14 +119,12 @@ void test_many_points_per_circle()
             distance_strategy(6051788), side_strategy, point_circle(83585),
             115058672785611.219, tolerance);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
-    // Takes about 60 seconds in release mode
+    // Takes about 20 seconds in release mode
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_1_250k",
             mysql_report_2015_02_25_1, join_miter, end_flat,
             distance_strategy(6051788), side_strategy, point_circle(250000),
             115058672880671.531, tolerance);
-#endif
 
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     // Takes too long, TODO improve turn_in_piece_visitor
