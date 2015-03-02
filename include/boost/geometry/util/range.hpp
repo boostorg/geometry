@@ -138,7 +138,7 @@ back(BidirectionalRange const& rng)
 {
     BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange const> ));
     BOOST_ASSERT(!boost::empty(rng));
-    return *(--boost::end(rng));
+    return *(boost::rbegin(rng));
 }
 
 /*!
@@ -151,7 +151,7 @@ back(BidirectionalRange & rng)
 {
     BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange> ));
     BOOST_ASSERT(!boost::empty(rng));
-    return *(--boost::end(rng));
+    return *(boost::rbegin(rng));
 }
 
 
