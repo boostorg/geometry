@@ -96,10 +96,8 @@ private :
         // visually correct also for a low number of points / circle
         // n is set to be at least 2 so that at least one interior
         // point is generated
-        int const n = static_cast<int>
-            (
-                 (std::max)(m_points_per_circle * dangle / two_pi, two)
-            );
+        int const n = (std::max)
+            (static_cast<int>(m_points_per_circle * dangle / two_pi), 2);
 
         PromotedType const diff = dangle / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
