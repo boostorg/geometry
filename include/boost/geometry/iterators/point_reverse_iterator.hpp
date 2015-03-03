@@ -29,16 +29,6 @@ class point_reverse_iterator
 private:
     typedef std::reverse_iterator<point_iterator<Geometry> > base;
 
-    inline base* base_ptr()
-    {
-        return this;
-    }
-
-    inline base const* base_ptr() const
-    {
-        return this;
-    }
-
     template <typename OtherGeometry> friend class point_reverse_iterator;
     template <typename G>
     friend inline point_reverse_iterator<G> points_rbegin(G&);
@@ -54,7 +44,7 @@ public:
     template <typename OtherGeometry>
     inline
     point_reverse_iterator(point_reverse_iterator<OtherGeometry> const& other)
-        : base(*other.base_ptr())
+        : base(other.base())
     {
         static const bool is_conv = boost::is_convertible
             <
