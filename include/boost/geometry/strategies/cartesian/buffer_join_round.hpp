@@ -2,11 +2,6 @@
 
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -94,10 +89,7 @@ private :
 
         // Divide the angle into an integer amount of steps to make it
         // visually correct also for a low number of points / circle
-        // n is set to be at least 2 so that at least one interior
-        // point is generated
-        int const n = (std::max)
-            (static_cast<int>(m_points_per_circle * dangle / two_pi), 2);
+        int const n = static_cast<int>(m_points_per_circle * dangle / two_pi);
 
         PromotedType const diff = dangle / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
