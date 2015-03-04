@@ -432,9 +432,9 @@ void test_all()
 
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.39121246337891, 10.0);
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.45314788818359, 10.0);
-    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 11648.0537185668945, 20.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 11648.0690460205078, 20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 14184.0223083496094, 20.0);
-    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_round, end_flat, 16350.3611068725586, 30.0);
+    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_round, end_flat, 16350.3950881958008, 30.0);
     test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_miter, end_flat, 22417.8007659912109, 30.0);
 
     test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_round, end_flat, 5000.85063171386719, 10.0);
@@ -444,7 +444,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_round, end_flat, 13726.3790588378906, 30.0);
     test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_miter, end_flat, 14535.2319564819336, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19992.6824035644531, 10.0);
+    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19992.6929817199707, 10.0);
     test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0, 10.0, true, 0.05); // MSVC 14 reports 20024.51456, so we increase the tolerance
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_round, end_flat, 34505.0746192932129, 20.0);
     test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_miter, end_flat, 34633.2606201171875, 20.0);
@@ -464,12 +464,12 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737386.1343, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775954035.2947, -0.5 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737377.3323, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953980.2847, -0.5 * 1000.0);
 
-    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015307172.18164, 30.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11362317400.63281, 50.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15478123348.53125, 60.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015409663.37549, 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11362543455.39795, 50.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15478212967.24951, 60.0 * 1000.0);
 
     // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
