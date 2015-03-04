@@ -246,19 +246,19 @@ struct points_end<MultiPolygon, multi_polygon_tag>
 // MK:: need to add doc here
 template <typename Geometry>
 class point_iterator
-    : public boost::iterator_adaptor <
-        point_iterator<Geometry>
-      , typename detail::point_iterator::iterator_type<Geometry>::type
-    >
+    : public boost::iterator_adaptor
+        <
+            point_iterator<Geometry>,
+            typename detail::point_iterator::iterator_type<Geometry>::type
+        >
 {
 private:
-    typedef typename detail::point_iterator::iterator_type<Geometry>::type base;
-
     template <typename OtherGeometry> friend class point_iterator;
     template <typename G> friend inline point_iterator<G> points_begin(G&);
     template <typename G> friend inline point_iterator<G> points_end(G&);
 
-    inline point_iterator(base const& base_it) : point_iterator::iterator_adaptor_(base_it) {}
+    inline point_iterator(typename point_iterator::base_type& base_it)
+        : point_iterator::iterator_adaptor_(base_it) {}
 
 public:
     inline point_iterator() {}
