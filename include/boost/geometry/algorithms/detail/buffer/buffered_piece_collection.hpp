@@ -168,6 +168,9 @@ struct buffered_piece_collection
 
     struct piece
     {
+        typedef robust_ring_type piece_robust_ring_type;
+        typedef geometry::section<robust_box_type, 1> section_type;
+
         strategy::buffer::piece_type type;
         int index;
 
@@ -191,6 +194,10 @@ struct buffered_piece_collection
         bool is_monotonic_increasing[2]; // 0=x, 1=y
         bool is_monotonic_decreasing[2]; // 0=x, 1=y
 
+        // Monotonic sections of pieces around points
+        std::vector<section_type> sections;
+
+
         // Robust representations
         // 3: complete ring
         robust_ring_type robust_ring;
@@ -199,8 +206,6 @@ struct buffered_piece_collection
         robust_box_type robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
-
-        typedef robust_ring_type piece_robust_ring_type;
     };
 
     struct robust_original
@@ -647,6 +652,29 @@ struct buffered_piece_collection
         }
     }
 
+    inline void prepare_buffered_point_piece(piece& pc)
+    {
+        // create monotonic sections in y-dimension
+        typedef boost::mpl::vector_c<std::size_t, 1> dimensions;
+        geometry::sectionalize<false, dimensions>(pc.robust_ring,
+                detail::no_rescale_policy(), pc.sections);
+
+        // TODO (next phase) determine min/max radius
+    }
+
+    inline void prepare_buffered_point_pieces()
+    {
+        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
+            it != boost::end(m_pieces);
+            ++it)
+        {
+            if (it->type == geometry::strategy::buffer::buffered_point)
+            {
+                prepare_buffered_point_piece(*it);
+            }
+        }
+    }
+
     inline void get_turns()
     {
         for(typename boost::range_iterator<sections_type>::type it
@@ -680,6 +708,8 @@ struct buffered_piece_collection
         reverse_negative_robust_rings();
 
         determine_properties();
+
+        prepare_buffered_point_pieces();
 
         {
             // Check if it is inside any of the pieces

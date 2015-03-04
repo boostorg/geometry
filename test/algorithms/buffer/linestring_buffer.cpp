@@ -59,6 +59,10 @@ static std::string const crossing = "LINESTRING(0 0,10 10,10 0,0 10)";
 // Simplified cases from multi_linestring tesets:
 static std::string const mikado1 = "LINESTRING(11.406143344709896325639419956133 0.75426621160409546007485914742574,12 1,11.403846153846153299582510953769 0.75)";
 
+static std::string const mysql_report_2015_03_02a = "LINESTRING(0 0,0 5,5 5,5 0,0 0)"; // closed
+static std::string const mysql_report_2015_03_02b = "LINESTRING(0 1,0 5,5 5,5 0,1 0)"; // not closed, 1 difference
+static std::string const mysql_report_2015_03_02c = "LINESTRING(0 2,0 5,5 5,5 0,2 0)"; // not closed, 2 difference
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -165,6 +169,40 @@ void test_all()
     test_one<linestring, polygon>("degenerate3", degenerate3, join_round, end_round, 28.2503, 3.0);
     test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_round, 36.7410, 3.0);
     test_one<linestring, polygon>("degenerate4", degenerate4, join_round, end_flat, 8.4853, 3.0);
+
+    {
+        // These tests do test behaviour in end_round strategy:
+        // -> it should generate closed pieces, also for an odd number of points.
+        // It also tests behaviour in join_round strategy:
+        // -> it should generate e.g. 4 points for a full circle,
+        //    so a quarter circle does not get points in between
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::end_round;
+
+        double const d10 = 1.0;
+
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_3", mysql_report_2015_03_02a, join_round(3), end_round(3), 38.000, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_4", mysql_report_2015_03_02a, join_round(4), end_round(4), 38.000, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_5", mysql_report_2015_03_02a, join_round(5), end_round(5), 38.169, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_6", mysql_report_2015_03_02a, join_round(6), end_round(6), 38.196, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_7", mysql_report_2015_03_02a, join_round(7), end_round(7), 38.230, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_3", mysql_report_2015_03_02b, join_round(3), end_round(3), 36.500, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_4", mysql_report_2015_03_02b, join_round(4), end_round(4), 36.500, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_5", mysql_report_2015_03_02b, join_round(5), end_round(5), 36.724, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_6", mysql_report_2015_03_02b, join_round(6), end_round(6), 36.781, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_7", mysql_report_2015_03_02b, join_round(7), end_round(7), 36.884, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_3", mysql_report_2015_03_02c, join_round(2), end_round(3), 32.500, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_4", mysql_report_2015_03_02c, join_round(4), end_round(4), 32.500, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_5", mysql_report_2015_03_02c, join_round(5), end_round(5), 32.990, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_6", mysql_report_2015_03_02c, join_round(6), end_round(6), 33.098, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_7", mysql_report_2015_03_02c, join_round(7), end_round(7), 33.279, d10);
+
+        // Testing the asymmetric end caps with odd number of points
+        double const d15 = 1.5;
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.093, d10, d15);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 44.718, d15, d10);
+    }
+
 
     {
         double tolerance = 1.0e-10;

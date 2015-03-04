@@ -688,7 +688,10 @@ void test_one(std::string const& caseid, std::string const& wkt,
             check_self_intersections, expected_area,
             tolerance, NULL);
 
+#if !defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)
+
     // Also test symmetric distance strategy if right-distance is not specified
+    // (only in release mode)
     if (bg::math::equals(distance_right, -999))
     {
         bg::strategy::buffer::distance_symmetric
@@ -704,6 +707,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
                 tolerance, NULL);
 
     }
+#endif
 }
 
 // Version (currently for the Aimes test) counting self-ip's instead of checking

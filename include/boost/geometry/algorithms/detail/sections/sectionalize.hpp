@@ -74,6 +74,7 @@ template
 struct section
 {
     typedef Box box_type;
+    static std::size_t const dimension_count = DimensionCount;
 
     int directions[DimensionCount];
     ring_identifier ring_id;
@@ -286,13 +287,14 @@ struct sectionalize_part
                              std::size_t max_count)
     {
         boost::ignore_unused_variable_warning(robust_policy);
+
+        typedef typename boost::range_value<Sections>::type section_type;
         BOOST_STATIC_ASSERT
             (
-                (static_cast<int>(Sections::value)
+                (static_cast<int>(section_type::dimension_count)
                  == static_cast<int>(boost::mpl::size<DimensionVector>::value))
             );
 
-        typedef typename boost::range_value<Sections>::type section_type;
         typedef typename geometry::robust_point_type
         <
             Point,
@@ -765,17 +767,13 @@ inline void sectionalize(Geometry const& geometry,
 {
     concept::check<Geometry const>();
 
-    BOOST_STATIC_ASSERT
-        (
-            (static_cast<int>(Sections::value)
-             == static_cast<int>(boost::mpl::size<DimensionVector>::value))
-        );
+    typedef typename boost::range_value<Sections>::type section_type;
 
     // Compiletime check for point type of section boxes
     // and point type related to robust policy
     typedef typename geometry::coordinate_type
     <
-        typename Sections::box_type
+        typename section_type::box_type
     >::type ctype1;
     typedef typename geometry::coordinate_type
     <
