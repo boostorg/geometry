@@ -532,18 +532,65 @@ void test_all()
 
 
     {
-        bg::strategy::buffer::join_round join_round12(12);
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::join_miter;
         buffer_custom_side_strategy side_strategy;
         bg::strategy::buffer::point_circle point_strategy;
-        bg::strategy::buffer::distance_symmetric
+        typedef bg::strategy::buffer::distance_symmetric
         <
             typename bg::coordinate_type<P>::type
-        > distance_strategy(1.0);
+        > distance;
 
-        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle",
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j12",
                 sharp_triangle,
-                join_round12, end_flat, distance_strategy, side_strategy, point_strategy,
+                join_round(12), end_flat, distance(1.0), side_strategy, point_strategy,
                 31.0721);
+        // Test very various number of points (min is 3)
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j2",
+                sharp_triangle,
+                join_round(2), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.2865);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j5",
+                sharp_triangle,
+                join_round(5), end_flat, distance(1.0), side_strategy, point_strategy,
+                30.2291);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j36",
+                sharp_triangle,
+                join_round(36), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.9999); // TBD
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j360",
+                sharp_triangle,
+                join_round(360), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.9999); // TBD
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j3600",
+                sharp_triangle,
+                join_round(3600), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.9999); // TBD
+#endif
+
+        // Test with various miter limits
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m2",
+                sharp_triangle,
+                join_miter(2), end_flat, distance(4.0), side_strategy, point_strategy,
+                166.5374);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m3",
+                sharp_triangle,
+                join_miter(3), end_flat, distance(4.0), side_strategy, point_strategy,
+                184.0015);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m4",
+                sharp_triangle,
+                join_miter(4), end_flat, distance(4.0), side_strategy, point_strategy,
+                201.4656);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m5",
+                sharp_triangle,
+                join_miter(5), end_flat, distance(4.0), side_strategy, point_strategy,
+                218.9296);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m25",
+                sharp_triangle,
+                join_miter(25), end_flat, distance(4.0), side_strategy, point_strategy,
+                286.4892);
     }
 
 }
