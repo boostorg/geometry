@@ -198,6 +198,21 @@ void test_detail()
 #endif
 }
 
+void test_pointers()
+{
+    int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    boost::iterator_range<int*> r1(arr, arr+10);
+    std::pair<int*, int*> r2(arr, arr+10);
+
+    BOOST_CHECK(bgr::front(r1) == 0);
+    BOOST_CHECK(bgr::front(r2) == 0);
+    BOOST_CHECK(bgr::back(r1) == 9);
+    BOOST_CHECK(bgr::back(r2) == 9);
+    BOOST_CHECK(bgr::at(r1, 5) == 5);
+    BOOST_CHECK(bgr::at(r2, 5) == 5);
+}
+
 int test_main(int, char* [])
 {
     test_all<int, true>();
@@ -211,6 +226,7 @@ int test_main(int, char* [])
     test_all<bgt::CopyableAndMovable, false>();
 
     test_detail();
+    test_pointers();
 
     return 0;
 }
