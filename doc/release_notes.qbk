@@ -61,6 +61,7 @@
 * Bug in centroid(), non-deterministic result if calculated for e.g. a Polygon with zero-area.
 * Bug in buffers for joins with a limited number of points
 * Bug in buffers for joins with large buffer distances
+* Bug in buffers for round ends with an odd number of points
 * Bug in buffers for flat ends with large buffer distances
 * Bug in buffers for interior rings with large negative buffer distances
 * Bug in closing iterator not working properly when the input range is empty
