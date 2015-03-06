@@ -107,20 +107,8 @@ at(RandomAccessRange & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_value<Range>::type const&
+inline typename boost::range_reference<Range>::type
 front(Range const& rng)
-{
-    BOOST_ASSERT(!boost::empty(rng));
-    return *boost::begin(rng);
-}
-
-/*!
-\brief Short utility to conveniently return the front element of a Range.
-\ingroup utility
-*/
-template <typename Range>
-inline typename boost::range_value<Range>::type &
-front(Range & rng)
 {
     BOOST_ASSERT(!boost::empty(rng));
     return *boost::begin(rng);
@@ -133,27 +121,13 @@ front(Range & rng)
 \ingroup utility
 */
 template <typename BidirectionalRange>
-inline typename boost::range_value<BidirectionalRange>::type const&
+inline typename boost::range_reference<BidirectionalRange>::type
 back(BidirectionalRange const& rng)
 {
     BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange const> ));
     BOOST_ASSERT(!boost::empty(rng));
     return *(boost::rbegin(rng));
 }
-
-/*!
-\brief Short utility to conveniently return the back element of a BidirectionalRange.
-\ingroup utility
-*/
-template <typename BidirectionalRange>
-inline typename boost::range_value<BidirectionalRange>::type &
-back(BidirectionalRange & rng)
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange> ));
-    BOOST_ASSERT(!boost::empty(rng));
-    return *(boost::rbegin(rng));
-}
-
 
 /*!
 \brief Short utility to conveniently clear a mutable range.
