@@ -12,6 +12,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util rational
+#endif
 
 #include <geometry_test_common.hpp>
 
@@ -19,13 +22,16 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/util/rational.hpp>
 
+using namespace boost::unit_test;
+
+BOOST_AUTO_TEST_SUITE(rational)
+
 void test_coordinate_cast(std::string const& s, int expected_nom, int expected_denom)
 {
-    boost::rational<int> a = bg::detail::coordinate_cast<boost::rational<int> >::apply(s);
+    boost::rational<int> a = bg::detail::coordinate_cast<boost::rational<int>>::apply(s);
     BOOST_CHECK_EQUAL(a.numerator(), expected_nom);
     BOOST_CHECK_EQUAL(a.denominator(), expected_denom);
 }
-
 
 void test_wkt(std::string const& wkt, std::string const expected_wkt)
 {
@@ -37,7 +43,7 @@ void test_wkt(std::string const& wkt, std::string const expected_wkt)
     BOOST_CHECK_EQUAL(out.str(), expected_wkt);
 }
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(coordinate_cast)
 {
     test_coordinate_cast("0", 0, 1);
     test_coordinate_cast("1", 1, 1);
@@ -51,11 +57,14 @@ int test_main(int, char* [])
 
     test_coordinate_cast("3/2", 3, 2);
     test_coordinate_cast("-3/2", -3, 2);
+}
 
+BOOST_AUTO_TEST_CASE(wkt)
+{
     test_wkt("POINT(1.5 2.75)", "POINT(3/2 11/4)");
     test_wkt("POINT(3/2 11/4)", "POINT(3/2 11/4)");
     test_wkt("POINT(-1.5 2.75)", "POINT(-3/2 11/4)");
     test_wkt("POINT(-3/2 11/4)", "POINT(-3/2 11/4)");
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

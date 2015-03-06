@@ -12,8 +12,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util compress_variant
+#endif
 
-#include <boost/test/included/test_exec_monitor.hpp>
+#include <geometry_test_common.hpp>
+
 #include <boost/geometry/util/compress_variant.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal.hpp>
@@ -21,6 +25,9 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/variant/variant.hpp>
 
+using namespace boost::unit_test;
+
+BOOST_AUTO_TEST_SUITE(compress_variant)
 
 template <typename ExpectedTypes, BOOST_VARIANT_ENUM_PARAMS(typename T)>
 void check_variant_types(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>)
@@ -50,19 +57,21 @@ void test_single_type_result()
     ));
 }
 
-
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(multiple_type)
 {
     test_variant_result<
         boost::variant<int, float, double>,
-        boost::mpl::vector<int, float, double>
+        boost::mpl::vector < int, float, double >
     >();
 
     test_variant_result<
         boost::variant<int, float, double, int, int, float, double, double, float>,
-        boost::mpl::vector<int, double, float>
+        boost::mpl::vector < int, double, float >
     >();
+}
 
+BOOST_AUTO_TEST_CASE(single_type)
+{
     test_single_type_result<
         boost::variant<int>,
         int
@@ -72,6 +81,6 @@ int test_main(int, char* [])
         boost::variant<double, double, double, double, double>,
         double
     >();
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -12,15 +12,19 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util for_each_coordinate
+#endif
+
 #include <sstream>
 
 #include <geometry_test_common.hpp>
 
+#include <boost/mpl/list.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
-
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
@@ -30,6 +34,9 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+using namespace boost::unit_test;
+
+BOOST_AUTO_TEST_SUITE(for_each_coordinate)
 
 struct test_operation
 {
@@ -53,9 +60,17 @@ struct get_operation
     }
 };
 
-
-template <typename P>
-void test_all()
+typedef boost::mpl::list
+<
+    int[3],
+    float[3],
+    double[3],
+    test::test_point,
+    bg::model::point<int, 3, bg::cs::cartesian>,
+    bg::model::point<float, 3, bg::cs::cartesian>,
+    bg::model::point < double, 3, bg::cs::cartesian >
+> test_types;
+BOOST_AUTO_TEST_CASE_TEMPLATE(all, P, test_types)
 {
     P p;
     bg::assign_values(p, 1, 2, 3);
@@ -70,15 +85,4 @@ void test_all()
     BOOST_CHECK(op.s == std::string("102030"));
 }
 
-int test_main(int, char* [])
-{
-    test_all<int[3]>();
-    test_all<float[3]>();
-    test_all<double[3]>();
-    test_all<test::test_point>();
-    test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
-    test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
-    test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
-
-    return 0;
-}
+BOOST_AUTO_TEST_SUITE_END()

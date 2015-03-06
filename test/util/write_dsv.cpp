@@ -12,19 +12,23 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util write_dsv
+#endif
 
 #include <sstream>
 
 #include <geometry_test_common.hpp>
 
+#include <boost/mpl/list.hpp>
+
 #include <boost/geometry/io/dsv/write.hpp>
-
-
 #include <boost/geometry/geometries/geometries.hpp>
-
 #include <boost/geometry/io/wkt/read.hpp>
 
+using namespace boost::unit_test;
 
+BOOST_AUTO_TEST_SUITE(write_dsv)
 
 template <typename G>
 void test_dsv(std::string const& wkt, std::string const& dsv)
@@ -38,10 +42,10 @@ void test_dsv(std::string const& wkt, std::string const& dsv)
     BOOST_CHECK_EQUAL(out.str(), dsv);
 }
 
-
 #ifndef GEOMETRY_TEST_MULTI
-template <typename T>
-void test_all()
+
+typedef boost::mpl::list<double, int> test_types;
+BOOST_AUTO_TEST_CASE_TEMPLATE(all, T, test_types)
 {
     using namespace boost::geometry;
     typedef model::point<T, 2, cs::cartesian> P;
@@ -59,15 +63,7 @@ void test_all()
     test_dsv<model::box<P> >("BOX(0 0,1 1)",
         "((0, 0), (1, 1))");
 }
-#endif
 
+#endif //GEOMETRY_TEST_MULTI
 
-int test_main(int, char* [])
-{
-    test_all<double>();
-    test_all<int>();
-
-
-    return 0;
-}
-
+BOOST_AUTO_TEST_SUITE_END()
