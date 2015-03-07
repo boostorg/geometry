@@ -47,16 +47,9 @@ inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 // Divide forward_range into three subsets: lower, upper and oversized
 // (not-fitting)
 // (lower == left or bottom, upper == right or top)
-template
-<
-    typename OverlapsPolicy,
-    typename ForwardRange,
-    typename Box,
-    typename IteratorVector
->
+template <typename OverlapsPolicy, typename Box, typename IteratorVector>
 inline void divide_into_subsets(Box const& lower_box,
         Box const& upper_box,
-        ForwardRange const& /*forward_range*/,
         IteratorVector const& input,
         IteratorVector& lower,
         IteratorVector& upper,
@@ -96,12 +89,9 @@ template
 <
     typename ExpandPolicy,
     typename Box,
-    typename ForwardRange,
     typename IteratorVector
 >
-inline void expand_with_elements(Box& total,
-                ForwardRange const& /*forward_range*/,
-                IteratorVector const& input)
+inline void expand_with_elements(Box& total, IteratorVector const& input)
 {
     typedef typename boost::range_iterator<IteratorVector const>::type it_type;
     for(it_type it = boost::begin(input); it != boost::end(input); ++it)
@@ -112,15 +102,8 @@ inline void expand_with_elements(Box& total,
 
 
 // Match forward_range with itself
-template
-<
-    typename ForwardRange,
-    typename Policy,
-    typename IteratorVector
->
-inline void handle_one(ForwardRange const& /*forward_range*/,
-        IteratorVector const& input,
-        Policy& policy)
+template <typename Policy, typename IteratorVector>
+inline void handle_one(IteratorVector const& input, Policy& policy)
 {
     if (boost::size(input) == 0)
     {
@@ -143,15 +126,12 @@ inline void handle_one(ForwardRange const& /*forward_range*/,
 // Match forward range 1 with forward range 2
 template
 <
-    typename ForwardRange1,
-    typename ForwardRange2,
     typename Policy,
     typename IteratorVector1,
     typename IteratorVector2
 >
-inline void handle_two(
-        ForwardRange1 const& /*forward_range1*/, IteratorVector1 const& input1,
-        ForwardRange2 const& /*forward_range2*/, IteratorVector2 const& input2,
+inline void handle_two(IteratorVector1 const& input1,
+        IteratorVector2 const& input2,
         Policy& policy)
 {
     typedef typename boost::range_iterator
@@ -237,24 +217,17 @@ template
 >
 class partition_one_range
 {
-    template <typename ForwardRange, typename IteratorVector>
-    static inline Box get_new_box(ForwardRange const& forward_range,
-                    IteratorVector const& input)
+    template <typename IteratorVector>
+    static inline Box get_new_box(IteratorVector const& input)
     {
         Box box;
         geometry::assign_inverse(box);
-        expand_with_elements<ExpandPolicy>(box, forward_range, input);
+        expand_with_elements<ExpandPolicy>(box, input);
         return box;
     }
 
-    template
-    <
-        typename ForwardRange,
-        typename Policy,
-        typename IteratorVector
-    >
+    template <typename Policy, typename IteratorVector>
     static inline void next_level(Box const& box,
-            ForwardRange const& forward_range,
             IteratorVector const& input,
             std::size_t level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
@@ -268,25 +241,18 @@ class partition_one_range
                 OverlapsPolicy,
                 ExpandPolicy,
                 VisitBoxPolicy
-            >::apply(box, forward_range, input,
-                level + 1, min_elements, policy, box_policy);
+            >::apply(box, input, level + 1, min_elements, policy, box_policy);
         }
         else
         {
-            handle_one(forward_range, input, policy);
+            handle_one(input, policy);
         }
     }
 
     // Function to switch to two forward ranges if there are
     // geometries exceeding the separation line
-    template
-    <
-        typename ForwardRange,
-        typename Policy,
-        typename IteratorVector
-    >
+    template <typename Policy, typename IteratorVector>
     static inline void next_level2(Box const& box,
-            ForwardRange const& forward_range,
             IteratorVector const& input1,
             IteratorVector const& input2,
             std::size_t level, std::size_t min_elements,
@@ -301,24 +267,18 @@ class partition_one_range
                 OverlapsPolicy, OverlapsPolicy,
                 ExpandPolicy, ExpandPolicy,
                 VisitBoxPolicy
-            >::apply(box, forward_range, input1, forward_range, input2,
-                level + 1, min_elements, policy, box_policy);
+            >::apply(box, input1, input2, level + 1, min_elements,
+                policy, box_policy);
         }
         else
         {
-            handle_two(forward_range, input1, forward_range, input2, policy);
+            handle_two(input1, input2, policy);
         }
     }
 
 public :
-    template
-    <
-        typename ForwardRange,
-        typename Policy,
-        typename IteratorVector
-    >
+    template <typename Policy, typename IteratorVector>
     static inline void apply(Box const& box,
-            ForwardRange const& forward_range,
             IteratorVector const& input,
             std::size_t level,
             std::size_t min_elements,
@@ -330,32 +290,30 @@ public :
         divide_box<Dimension>(box, lower_box, upper_box);
 
         IteratorVector lower, upper, exceeding;
-        divide_into_subsets<OverlapsPolicy>(lower_box, upper_box, forward_range,
+        divide_into_subsets<OverlapsPolicy>(lower_box, upper_box,
                     input, lower, upper, exceeding);
 
         if (boost::size(exceeding) > 0)
         {
             // Get the box of exceeding-only
-            Box exceeding_box = get_new_box(forward_range, exceeding);
+            Box exceeding_box = get_new_box(exceeding);
 
             // Recursively do exceeding elements only, in next dimension they
             // will probably be less exceeding within the new box
-            next_level(exceeding_box, forward_range, exceeding, level,
-                min_elements, policy, box_policy);
+            next_level(exceeding_box, exceeding, level, min_elements,
+                policy, box_policy);
 
             // Switch to two forward ranges, combine exceeding with
             // lower resp upper, but not lower/lower, upper/upper
-            next_level2(exceeding_box, forward_range, exceeding, lower, level,
-                min_elements, policy, box_policy);
-            next_level2(exceeding_box, forward_range, exceeding, upper, level,
-                min_elements, policy, box_policy);
+            next_level2(exceeding_box, exceeding, lower, level, min_elements,
+                policy, box_policy);
+            next_level2(exceeding_box, exceeding, upper, level, min_elements,
+                policy, box_policy);
         }
 
         // Recursively call operation both parts
-        next_level(lower_box, forward_range, lower, level, min_elements,
-                        policy, box_policy);
-        next_level(upper_box, forward_range, upper, level, min_elements,
-                        policy, box_policy);
+        next_level(lower_box, lower, level, min_elements, policy, box_policy);
+        next_level(upper_box, upper, level, min_elements, policy, box_policy);
     }
 };
 
@@ -373,16 +331,12 @@ class partition_two_ranges
 {
     template
     <
-        typename ForwardRange1,
-        typename ForwardRange2,
         typename Policy,
         typename IteratorVector1,
         typename IteratorVector2
     >
     static inline void next_level(Box const& box,
-            ForwardRange1 const& forward_range1,
             IteratorVector1 const& input1,
-            ForwardRange2 const& forward_range2,
             IteratorVector2 const& input2,
             std::size_t level, std::size_t min_elements,
             Policy& policy, VisitBoxPolicy& box_policy)
@@ -396,56 +350,37 @@ class partition_two_ranges
             ExpandPolicy1,
             ExpandPolicy2,
             VisitBoxPolicy
-        >::apply(box, forward_range1, input1, forward_range2, input2,
-                level + 1, min_elements,
-                policy, box_policy);
+        >::apply(box, input1, input2, level + 1, min_elements,
+                 policy, box_policy);
     }
 
-    template
-    <
-        typename ExpandPolicy,
-        typename ForwardRange,
-        typename IteratorVector
-    >
-    static inline Box get_new_box(ForwardRange const& forward_range,
-                    IteratorVector const& input)
+    template <typename ExpandPolicy, typename IteratorVector>
+    static inline Box get_new_box(IteratorVector const& input)
     {
         Box box;
         geometry::assign_inverse(box);
-        expand_with_elements<ExpandPolicy>(box, forward_range, input);
+        expand_with_elements<ExpandPolicy>(box, input);
         return box;
     }
 
-    template
-    <
-        typename ForwardRange1,
-        typename ForwardRange2,
-        typename IteratorVector1,
-        typename IteratorVector2
-    >
-    static inline Box get_new_box(ForwardRange1 const& forward_range1,
-                    IteratorVector1 const& input1,
-                    ForwardRange2 const& forward_range2,
+    template <typename IteratorVector1, typename IteratorVector2>
+    static inline Box get_new_box(IteratorVector1 const& input1,
                     IteratorVector2 const& input2)
     {
-        Box box = get_new_box<ExpandPolicy1>(forward_range1, input1);
-        expand_with_elements<ExpandPolicy2>(box, forward_range2, input2);
+        Box box = get_new_box<ExpandPolicy1>(input1);
+        expand_with_elements<ExpandPolicy2>(box, input2);
         return box;
     }
 
 public :
     template
     <
-        typename ForwardRange1,
-        typename ForwardRange2,
         typename Policy,
         typename IteratorVector1,
         typename IteratorVector2
     >
     static inline void apply(Box const& box,
-            ForwardRange1 const& forward_range1,
             IteratorVector1 const& input1,
-            ForwardRange2 const& forward_range2,
             IteratorVector2 const& input2,
             std::size_t level,
             std::size_t min_elements,
@@ -459,9 +394,9 @@ public :
         IteratorVector1 lower1, upper1, exceeding1;
         IteratorVector2 lower2, upper2, exceeding2;
         divide_into_subsets<OverlapsPolicy1>(lower_box, upper_box,
-                    forward_range1, input1, lower1, upper1, exceeding1);
+                    input1, lower1, upper1, exceeding1);
         divide_into_subsets<OverlapsPolicy2>(lower_box, upper_box,
-                    forward_range2, input2, lower2, upper2, exceeding2);
+                    input2, lower2, upper2, exceeding2);
 
         if (boost::size(exceeding1) > 0)
         {
@@ -469,16 +404,13 @@ public :
 
             if (recurse_ok(exceeding1, exceeding2, min_elements, level))
             {
-                Box exceeding_box = get_new_box(forward_range1, exceeding1,
-                            forward_range2, exceeding2);
-                next_level(exceeding_box, forward_range1, exceeding1,
-                                forward_range2, exceeding2, level,
-                                min_elements, policy, box_policy);
+                Box exceeding_box = get_new_box(exceeding1, exceeding2);
+                next_level(exceeding_box, exceeding1, exceeding2, level,
+                           min_elements, policy, box_policy);
             }
             else
             {
-                handle_two(forward_range1, exceeding1, forward_range2,
-                           exceeding2, policy);
+                handle_two(exceeding1, exceeding2, policy);
             }
 
             // All exceeding from 1 with lower and upper of 2:
@@ -487,21 +419,16 @@ public :
             // the same combinations again and again)
             if (recurse_ok(lower2, upper2, exceeding1, min_elements, level))
             {
-                Box exceeding_box
-                    = get_new_box<ExpandPolicy1>(forward_range1, exceeding1);
-                next_level(exceeding_box, forward_range1, exceeding1,
-                    forward_range2, lower2, level, min_elements,
-                    policy, box_policy);
-                next_level(exceeding_box, forward_range1, exceeding1,
-                    forward_range2, upper2, level, min_elements,
-                    policy, box_policy);
+                Box exceeding_box = get_new_box<ExpandPolicy1>(exceeding1);
+                next_level(exceeding_box, exceeding1, lower2, level,
+                           min_elements, policy, box_policy);
+                next_level(exceeding_box, exceeding1, upper2, level,
+                           min_elements, policy, box_policy);
             }
             else
             {
-                handle_two(forward_range1, exceeding1, forward_range2, lower2,
-                    policy);
-                handle_two(forward_range1, exceeding1, forward_range2, upper2,
-                    policy);
+                handle_two(exceeding1, lower2, policy);
+                handle_two(exceeding1, upper2, policy);
             }
         }
 
@@ -510,43 +437,36 @@ public :
             // All exceeding from 2 with lower and upper of 1:
             if (recurse_ok(lower1, upper1, exceeding2, min_elements, level))
             {
-                Box exceeding_box
-                    = get_new_box<ExpandPolicy2>(forward_range2, exceeding2);
-                next_level(exceeding_box, forward_range1, lower1,
-                    forward_range2, exceeding2, level, min_elements,
-                    policy, box_policy);
-                next_level(exceeding_box, forward_range1, upper1,
-                    forward_range2, exceeding2, level, min_elements,
-                    policy, box_policy);
+                Box exceeding_box = get_new_box<ExpandPolicy2>(exceeding2);
+                next_level(exceeding_box, lower1, exceeding2, level,
+                    min_elements, policy, box_policy);
+                next_level(exceeding_box, upper1, exceeding2, level,
+                    min_elements, policy, box_policy);
             }
             else
             {
-                handle_two(forward_range1, lower1, forward_range2, exceeding2,
-                    policy);
-                handle_two(forward_range1, upper1, forward_range2, exceeding2,
-                    policy);
+                handle_two(lower1, exceeding2, policy);
+                handle_two(upper1, exceeding2, policy);
             }
         }
 
         if (recurse_ok(lower1, lower2, min_elements, level))
         {
-            next_level(lower_box, forward_range1, lower1,
-                            forward_range2, lower2, level,
-                            min_elements, policy, box_policy);
+            next_level(lower_box, lower1, lower2, level,
+                       min_elements, policy, box_policy);
         }
         else
         {
-            handle_two(forward_range1, lower1, forward_range2, lower2, policy);
+            handle_two(lower1, lower2, policy);
         }
         if (recurse_ok(upper1, upper2, min_elements, level))
         {
-            next_level(upper_box, forward_range1, upper1,
-                            forward_range2, upper2, level,
-                            min_elements, policy, box_policy);
+            next_level(upper_box, upper1, upper2, level,
+                       min_elements, policy, box_policy);
         }
         else
         {
-            handle_two(forward_range1, upper1, forward_range2, upper2, policy);
+            handle_two(upper1, upper2, policy);
         }
     }
 };
@@ -633,8 +553,8 @@ public :
                     OverlapsPolicy1,
                     ExpandPolicy1,
                     VisitBoxPolicy
-                >::apply(total, forward_range, iterator_vector, 0, min_elements,
-                                visitor, box_visitor);
+                >::apply(total, iterator_vector, 0, min_elements,
+                         visitor, box_visitor);
         }
         else
         {
@@ -691,10 +611,8 @@ public :
                 <
                     0, Box, OverlapsPolicy1, OverlapsPolicy2,
                     ExpandPolicy1, ExpandPolicy2, VisitBoxPolicy
-                >::apply(total,
-                    forward_range1, iterator_vector1,
-                    forward_range2, iterator_vector2,
-                    0, min_elements, visitor, box_visitor);
+                >::apply(total, iterator_vector1, iterator_vector2,
+                         0, min_elements, visitor, box_visitor);
         }
         else
         {
