@@ -24,7 +24,9 @@
 #include <limits>
 
 #include <boost/math/constants/constants.hpp>
+#ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/fpclassify.hpp>
+#endif
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
