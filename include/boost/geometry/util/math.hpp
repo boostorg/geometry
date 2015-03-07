@@ -26,7 +26,7 @@
 #include <boost/math/constants/constants.hpp>
 #ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/fpclassify.hpp>
-#endif
+#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -149,7 +149,7 @@ struct square_root_for_fundamental_fp
 #else
         // for fundamental floating point numbers use std::sqrt
         return std::sqrt(value);
-#endif
+#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
     }
 };
 
