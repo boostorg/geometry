@@ -257,7 +257,7 @@ private:
     template <typename G> friend inline point_iterator<G> points_begin(G&);
     template <typename G> friend inline point_iterator<G> points_end(G&);
 
-    inline point_iterator(typename point_iterator::base_type& base_it)
+    inline point_iterator(typename point_iterator::base_type const& base_it)
         : point_iterator::iterator_adaptor_(base_it) {}
 
 public:
