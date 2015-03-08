@@ -85,13 +85,14 @@ private :
         {
             angle2 -= two_pi;
         }
-        PromotedType const dangle = angle1 - angle2;
+        PromotedType const angle_diff = angle1 - angle2;
 
         // Divide the angle into an integer amount of steps to make it
         // visually correct also for a low number of points / circle
-        int const n = static_cast<int>(m_points_per_circle * dangle / two_pi);
+        int const n
+            = static_cast<int>(m_points_per_circle * angle_diff / two_pi);
 
-        PromotedType const diff = dangle / static_cast<PromotedType>(n);
+        PromotedType const diff = angle_diff / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
         for (int i = 0; i < n - 1; i++, a -= diff)
         {
