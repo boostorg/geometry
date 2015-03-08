@@ -14,7 +14,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_RANGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_RANGE_HPP
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/util/range.hpp>
+
+#include <boost/range/size.hpp>
 
 namespace boost { namespace geometry {
 
@@ -44,7 +49,7 @@ struct sub_range<Geometry, Tag, false>
 template <typename Geometry>
 struct sub_range<Geometry, polygon_tag, false>
 {
-    typedef typename geometry::ring_type<Geometry>::type & return_type;
+    typedef typename geometry::ring_type<Geometry>::type const& return_type;
 
     template <typename Id> static inline
     return_type apply(Geometry & geometry, Id const& id)
