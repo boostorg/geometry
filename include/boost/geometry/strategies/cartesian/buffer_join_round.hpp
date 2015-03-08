@@ -96,7 +96,7 @@ private :
         // - generates 1 point  in between for an angle of 125 based on 3 points
         // - generates 0 points in between for an angle of 90  based on 4 points
 
-        int const n = std::max(static_cast<int>(
+        int const n = (std::max)(static_cast<int>(
             ceil(m_points_per_circle * angle_diff / two_pi)), 1);
 
         PromotedType const diff = angle_diff / static_cast<PromotedType>(n);
