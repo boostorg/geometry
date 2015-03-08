@@ -1,11 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -24,6 +24,9 @@
 #include <limits>
 
 #include <boost/math/constants/constants.hpp>
+#ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -120,28 +123,52 @@ struct square_root
     }
 };
 
-template <>
-struct square_root<float, true>
+template <typename FundamentalFP>
+struct square_root_for_fundamental_fp
 {
-    typedef float return_type;
+    typedef FundamentalFP return_type;
 
-    static inline float apply(float const& value)
+    static inline FundamentalFP apply(FundamentalFP const& value)
     {
-        // for float use std::sqrt
+#ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
+        // This is a workaround for some 32-bit platforms.
+        // For some of those platforms it has been reported that
+        // std::sqrt(nan) and/or std::sqrt(-nan) returns a finite value.
+        // For those platforms we need to define the macro
+        // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS so that the argument
+        // to std::sqrt is checked appropriately before passed to std::sqrt
+        if (boost::math::isfinite(value))
+        {
+            return std::sqrt(value);
+        }
+        else if (boost::math::isinf(value) && value < 0)
+        {
+            return -std::numeric_limits<FundamentalFP>::quiet_NaN();
+        }
+        return value;
+#else
+        // for fundamental floating point numbers use std::sqrt
         return std::sqrt(value);
+#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
     }
 };
 
 template <>
-struct square_root<long double, true>
+struct square_root<float, true>
+    : square_root_for_fundamental_fp<float>
 {
-    typedef long double return_type;
+};
 
-    static inline long double apply(long double const& value)
-    {
-        // for long double use std::sqrt
-        return std::sqrt(value);
-    }
+template <>
+struct square_root<double, true>
+    : square_root_for_fundamental_fp<double>
+{
+};
+
+template <>
+struct square_root<long double, true>
+    : square_root_for_fundamental_fp<long double>
+{
 };
 
 template <typename T>
@@ -156,7 +183,10 @@ struct square_root<T, true>
         // Note: in C++98 the only other possibility is double;
         //       in C++11 there are also overloads for integral types;
         //       this specialization works for those as well.
-        return std::sqrt(boost::numeric_cast<double>(value));
+        return square_root_for_fundamental_fp
+            <
+                double
+            >::apply(boost::numeric_cast<double>(value));
     }
 };
 
