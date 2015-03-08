@@ -183,24 +183,24 @@ void test_all()
 
         test_one<linestring, polygon>("mysql_report_2015_03_02a_3", mysql_report_2015_03_02a, join_round(3), end_round(3), 38.000, d10);
         test_one<linestring, polygon>("mysql_report_2015_03_02a_4", mysql_report_2015_03_02a, join_round(4), end_round(4), 38.000, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02a_5", mysql_report_2015_03_02a, join_round(5), end_round(5), 38.169, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02a_6", mysql_report_2015_03_02a, join_round(6), end_round(6), 38.196, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02a_7", mysql_report_2015_03_02a, join_round(7), end_round(7), 38.230, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_5", mysql_report_2015_03_02a, join_round(5), end_round(5), 38.790, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_6", mysql_report_2015_03_02a, join_round(6), end_round(6), 38.817, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02a_7", mysql_report_2015_03_02a, join_round(7), end_round(7), 38.851, d10);
         test_one<linestring, polygon>("mysql_report_2015_03_02b_3", mysql_report_2015_03_02b, join_round(3), end_round(3), 36.500, d10);
         test_one<linestring, polygon>("mysql_report_2015_03_02b_4", mysql_report_2015_03_02b, join_round(4), end_round(4), 36.500, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02b_5", mysql_report_2015_03_02b, join_round(5), end_round(5), 36.724, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02b_6", mysql_report_2015_03_02b, join_round(6), end_round(6), 36.781, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02b_7", mysql_report_2015_03_02b, join_round(7), end_round(7), 36.884, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_5", mysql_report_2015_03_02b, join_round(5), end_round(5), 37.346, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_6", mysql_report_2015_03_02b, join_round(6), end_round(6), 37.402, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02b_7", mysql_report_2015_03_02b, join_round(7), end_round(7), 37.506, d10);
         test_one<linestring, polygon>("mysql_report_2015_03_02c_3", mysql_report_2015_03_02c, join_round(2), end_round(3), 32.500, d10);
         test_one<linestring, polygon>("mysql_report_2015_03_02c_4", mysql_report_2015_03_02c, join_round(4), end_round(4), 32.500, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02c_5", mysql_report_2015_03_02c, join_round(5), end_round(5), 32.990, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02c_6", mysql_report_2015_03_02c, join_round(6), end_round(6), 33.098, d10);
-        test_one<linestring, polygon>("mysql_report_2015_03_02c_7", mysql_report_2015_03_02c, join_round(7), end_round(7), 33.279, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_5", mysql_report_2015_03_02c, join_round(5), end_round(5), 33.611, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_6", mysql_report_2015_03_02c, join_round(6), end_round(6), 33.719, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_7", mysql_report_2015_03_02c, join_round(7), end_round(7), 33.901, d10);
 
         // Testing the asymmetric end caps with odd number of points
         double const d15 = 1.5;
-        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.093, d10, d15);
-        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 44.718, d15, d10);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.714, d10, d15);
+        test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 46.116, d15, d10);
     }
 
 
