@@ -44,7 +44,7 @@ struct sub_range<Geometry, Tag, false>
 template <typename Geometry>
 struct sub_range<Geometry, polygon_tag, false>
 {
-    typedef typename geometry::ring_type<Geometry>::type & return_type;
+    typedef typename geometry::ring_return_type<Geometry>::type return_type;
 
     template <typename Id> static inline
     return_type apply(Geometry & geometry, Id const& id)
