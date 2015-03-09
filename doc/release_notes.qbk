@@ -19,6 +19,14 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.59]
+[/=================]
+
+[*Additional functionality]
+
+* Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring
+
+[/=================]
 [heading Boost 1.58]
 [/=================]
 
