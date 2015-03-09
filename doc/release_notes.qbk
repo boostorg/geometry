@@ -27,6 +27,7 @@
 * New algorithm num_segments, returning the number of segments of a geometry
 * New overload for is_valid algorithm, that takes a string reference as a second argument and fills it with a message related to the validity or invalidity of the geometry
 * New overload for is_valid algorithm, that takes an enum reference as a second argument and fills it with a value related to the validity or invalidity of the geometry
+* Disjoint and intersects support the following geometry combinations: point/multipoint, multipoint/multipoint, multipoint/segment, multipoint/box
 
 [*Improvements]
 
@@ -65,7 +66,7 @@
 * Bug in buffers for round ends with an odd number of points
 * Bug in buffers for flat ends with large buffer distances
 * Bug in buffers for interior rings with large negative buffer distances
-* Bug in closing iterator not working properly when the input range is empty
+* Bug in closing_iterator not working properly when the input range is empty
 * Bug in is_simple, not handling properly closed simple linestrings within multilinestrings
 
 [/=================]
