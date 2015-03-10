@@ -1,14 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
-#ifndef BOOST_GEOMETRY_TEST_SET_OPS_PL_PL_HPP
-#define BOOST_GEOMETRY_TEST_SET_OPS_PL_PL_HPP
+#ifndef BOOST_GEOMETRY_TEST_SET_OPS_POINTLIKE_HPP
+#define BOOST_GEOMETRY_TEST_SET_OPS_POINTLIKE_HPP
 
 
 #include <boost/geometry/geometry.hpp>
@@ -170,6 +170,54 @@ struct set_op<bg::overlay_intersection>
 };
 
 
+template
+<
+    typename Geometry,
+    typename Tag = typename bg::tag<Geometry>::type
+> struct geometry_info
+{};
+
+template <typename Point>
+struct geometry_info<Point, bg::point_tag>
+{
+    static std::size_t const topological_dimension = 0;
+
+    static inline char const* name() { return "P"; }
+};
+
+template <typename MultiPoint>
+struct geometry_info<MultiPoint, bg::multi_point_tag>
+{
+    static std::size_t const topological_dimension = 0;
+
+    static inline char const* name() { return "MP"; }
+};
+
+template <typename Linestring>
+struct geometry_info<Linestring, bg::linestring_tag>
+{
+    static std::size_t const topological_dimension = 1;
+
+    static inline char const* name() { return "L"; }
+};
+
+template <typename MultiLinestring>
+struct geometry_info<MultiLinestring, bg::multi_linestring_tag>
+{
+    static std::size_t const topological_dimension = 1;
+
+    static inline char const* name() { return "ML"; }
+};
+
+template <typename Segment>
+struct geometry_info<Segment, bg::segment_tag>
+{
+    static std::size_t const topological_dimension = 1;
+
+    static inline char const* name() { return "S"; }
+};
+
+
 
 //==================================================================
 //==================================================================
@@ -188,54 +236,78 @@ template
 class test_set_op_of_pointlike_geometries
 {
 private:
-    template <typename G1, typename G2, typename MP>
-    static inline void base_test(G1 const& geometry1,
-                                 G2 const& geometry2,
-                                 MP const& mp_expected,
-                                 std::string const& case_id)
+    template <bool Enable, typename Dummy = void>
+    struct base_test
     {
-        MultiPoint mp_output;
+        template <typename G1, typename G2, typename MP>
+        static inline void apply(std::string const& case_id,
+                                 G1 const& geometry1,
+                                 G2 const& geometry2,
+                                 MP const& mp_expected)
+        {
+            MultiPoint mp_output;
 
-        set_op<OverlayType>::apply(geometry1, geometry2, mp_output);
+            set_op<OverlayType>::apply(geometry1, geometry2, mp_output);
 
-        std::string op_name = set_op<OverlayType>::name();
+            std::string op_name = set_op<OverlayType>::name();
 
-        BOOST_CHECK_MESSAGE( equals::apply(mp_expected, mp_output),
-                             op_name << " P/P: " << bg::wkt(geometry1)
-                             << " " << bg::wkt(geometry2)
-                             << " -> Expected: " << bg::wkt(mp_expected)
-                             << " computed: " << bg::wkt(mp_output) );
+            BOOST_CHECK_MESSAGE(equals::apply(mp_expected, mp_output),
+                                "case ID: " << case_id << ", "
+                                << op_name << " "
+                                << geometry_info<G1>::name() << "/"
+                                << geometry_info<G2>::name() << ": "
+                                << bg::wkt(geometry1)
+                                << " " << bg::wkt(geometry2)
+                                << " -> Expected: " << bg::wkt(mp_expected)
+                                << " computed: " << bg::wkt(mp_output) );
 
-        set_operation_output(op_name, case_id,
-                             geometry1, geometry2, mp_output);
+            set_operation_output(op_name, case_id,
+                                 geometry1, geometry2, mp_output);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
-        std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
-        std::cout << "expected " << op_name << " : "
-                  << bg::wkt(mp_expected) << std::endl;
-        std::cout << op_name << " : " << bg::wkt(mp_output) << std::endl;
-        std::cout << std::endl;
-        std::cout << "************************************" << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
+            std::cout << "Geometry #1: " << bg::wkt(geometry1) << std::endl;
+            std::cout << "Geometry #2: " << bg::wkt(geometry2) << std::endl;
+            std::cout << "expected " << op_name << " : "
+                      << bg::wkt(mp_expected) << std::endl;
+            std::cout << op_name << " : " << bg::wkt(mp_output) << std::endl;
+            std::cout << std::endl;
+            std::cout << "************************************" << std::endl;
+            std::cout << std::endl;
+            std::cout << std::endl;
 #endif
-    }
+        }
+    };
 
+    template <typename Dummy>
+    struct base_test<false, Dummy>
+    {
+        template <typename G1, typename G2, typename MP>
+        static inline void apply(std::string const&, G1 const&, G2 const&,
+                                 MP const&)
+        {
+        }
+    };
 
 public:
-    static inline void apply(Geometry1 const& geometry1,
+    static inline void apply(std::string const& case_id,
+                             Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              MultiPoint const& mp_expected12,
-                             MultiPoint const& mp_expected21,
-                             std::string const& case_id)
+                             MultiPoint const& mp_expected21)
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
 #endif
 
-        base_test(geometry1, geometry2, mp_expected12, case_id);
-        base_test(geometry2, geometry1, mp_expected21, case_id);
+        base_test<true>::apply(case_id, geometry1, geometry2, mp_expected12);
+        // try the same set operation with the arguments' order
+        // reversed only if the two geometries are of the same
+        // topological dimension
+        base_test
+            <
+                (geometry_info<Geometry1>::topological_dimension
+                 == geometry_info<Geometry2>::topological_dimension)
+            >::apply(case_id, geometry2, geometry1, mp_expected21);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl;
@@ -243,15 +315,14 @@ public:
 #endif
     }
 
-
-    static inline void apply(Geometry1 const& geometry1,
+    static inline void apply(std::string const& case_id,
+                             Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             MultiPoint const& mp_expected,
-                             std::string const& case_id)
+                             MultiPoint const& mp_expected)
     {
-        apply(geometry1, geometry2, mp_expected, mp_expected, case_id);
+        apply(case_id, geometry1, geometry2, mp_expected, mp_expected);
     }
 };
 
 
-#endif // BOOST_GEOMETRY_TEST_SET_OPS_PL_PL_HPP
+#endif // BOOST_GEOMETRY_TEST_SET_OPS_POINTLIKE_HPP
