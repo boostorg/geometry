@@ -438,7 +438,7 @@ void test_all()
         // (the change was irrelevant to this, so they succeeded earlier by luck).
         // TODO: get_occupation/left_turns in combination with a u/u turn
         test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round, end_flat, 35.6233, 1.0);
-        test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, 35.0483, 1.0);
+        test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, 35.1675, 1.0);
     }
 
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);

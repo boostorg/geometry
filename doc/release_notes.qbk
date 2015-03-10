@@ -27,6 +27,7 @@
 * New algorithm num_segments, returning the number of segments of a geometry
 * New overload for is_valid algorithm, that takes a string reference as a second argument and fills it with a message related to the validity or invalidity of the geometry
 * New overload for is_valid algorithm, that takes an enum reference as a second argument and fills it with a value related to the validity or invalidity of the geometry
+* Disjoint and intersects support the following geometry combinations: point/multipoint, multipoint/multipoint, multipoint/segment, multipoint/box
 
 [*Improvements]
 
@@ -40,7 +41,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/10467 10467] Template parameter name coliding with B0 macro name defined in termios.h
 * [@https://svn.boost.org/trac/boost/ticket/10666 10666] MSVC compiler warning C4127: conditional expression is constant
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
-* [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joints, where concavities where not intersected properly
+* [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joins, where concavities where not intersected properly
 * [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
 * [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
 * [@https://svn.boost.org/trac/boost/ticket/10887 10887] Invalid result of within() and relate() for Linear/MultiPolygon
@@ -60,11 +61,12 @@
 * Bug in Cartesian segment-segment intersection strategy when one segment degenerates to a point and is collinear to the other non-degenerate segment
 * Bug in centroid(), non-deterministic result if calculated for e.g. a Polygon with zero-area.
 * Bug in buffers for joins with a limited number of points
+* Bug in buffers for round joins with limited number of points around sharp corners
 * Bug in buffers for joins with large buffer distances
 * Bug in buffers for round ends with an odd number of points
 * Bug in buffers for flat ends with large buffer distances
 * Bug in buffers for interior rings with large negative buffer distances
-* Bug in closing iterator not working properly when the input range is empty
+* Bug in closing_iterator not working properly when the input range is empty
 * Bug in is_simple, not handling properly closed simple linestrings within multilinestrings
 
 [/=================]

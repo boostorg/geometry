@@ -15,7 +15,10 @@
 
 #include <geometry_test_common.hpp>
 
+#include <iterator>
 #include <vector>
+
+#include <boost/mpl/list.hpp>
 #include <boost/geometry/util/range.hpp>
 
 using namespace boost::unit_test;
@@ -205,7 +208,23 @@ BOOST_AUTO_TEST_CASE( detail )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( all )
+typedef boost::mpl::list<int*, int const*> test_types;
+BOOST_AUTO_TEST_CASE_TEMPLATE(pointers, Iterator, test_types)
+{
+    int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    boost::iterator_range<Iterator> r1(arr, arr + 10);
+    std::pair<Iterator, Iterator> r2(arr, arr + 10);
+
+    BOOST_CHECK(bgr::front(r1) == 0);
+    BOOST_CHECK(bgr::front(r2) == 0);
+    BOOST_CHECK(bgr::back(r1) == 9);
+    BOOST_CHECK(bgr::back(r2) == 9);
+    BOOST_CHECK(bgr::at(r1, 5) == 5);
+    BOOST_CHECK(bgr::at(r2, 5) == 5);
+}
+
+BOOST_AUTO_TEST_CASE(all)
 {
     test_all<int, true>();
     test_all<int, false>();
@@ -217,5 +236,5 @@ BOOST_AUTO_TEST_CASE( all )
     test_all<bgt::CopyableAndMovable, true>();
     test_all<bgt::CopyableAndMovable, false>();
 }
-    
+
 BOOST_AUTO_TEST_SUITE_END()
