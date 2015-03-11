@@ -9,11 +9,16 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util calculation_type
+#endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/util/calculation_type.hpp>
+
+BOOST_AUTO_TEST_SUITE(calculation_type)
 
 template <typename G1, typename G2>
 inline std::string helper()
@@ -161,7 +166,7 @@ void test_ternary()
 
 struct user_defined {};
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(all)
 {
     using namespace boost::geometry;
     typedef model::point<double, 2, cs::cartesian> d;
@@ -203,6 +208,6 @@ int test_main(int, char* [])
     test_unary<i, double, int, int>();
     test_unary<u, double, double, user_defined>();
     test_ternary<u, u, u, double, double, user_defined>();
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,6 +3,7 @@
 # Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 # Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 # Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+# Copyright (c) 2015 Samuel Debionne, Grenoble, France.
 #
 # This file was modified by Oracle on 2014.
 # Modifications copyright (c) 2014, Oracle and/or its affiliates.
@@ -13,13 +14,47 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-util
-    :
-    [ run calculation_type.cpp ]
-    [ run for_each_coordinate.cpp ]
-    [ run math_sqrt.cpp ]
-    [ run range.cpp ]
-    [ run rational.cpp ]
-    [ run select_most_precise.cpp ]
-    [ run write_dsv.cpp ]
+# bring in rules for testing
+import testing ;
+
+project boost/geometry/util/test
+    : requirements
+      <source>/boost/test//boost_unit_test_framework
+      <define>BOOST_GEOMETRY_TEST_BUILD_WITH_B2
+    ;
+
+unit-test calculation_type
+    : calculation_type.cpp
+    ;
+    
+unit-test compress_variant
+    : compress_variant.cpp
+    ;
+    
+unit-test for_each_coordinate
+    : for_each_coordinate.cpp
+    ;
+    
+unit-test math_sqrt
+    : math_sqrt.cpp
+    ;
+    
+unit-test range
+    : range.cpp
+    ;
+    
+unit-test rational
+    : rational.cpp
+    ;
+    
+unit-test select_most_precise
+    : select_most_precise.cpp
+    ;
+    
+unit-test transform_variant
+    : transform_variant.cpp
+    ;
+
+unit-test write_dsv
+    : write_dsv.cpp
     ;

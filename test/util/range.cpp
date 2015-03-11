@@ -9,12 +9,19 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util range
+#endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <iterator>
 #include <vector>
+
+#include <boost/mpl/list.hpp>
 #include <boost/geometry/util/range.hpp>
+
+BOOST_AUTO_TEST_SUITE( test_range )
 
 namespace bgt {
 
@@ -171,7 +178,7 @@ void test_all()
     BOOST_CHECK(it == end(v));
 }
 
-void test_detail()
+BOOST_AUTO_TEST_CASE( detail )
 {
     int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     bgr::detail::copy_or_move(arr + 1, arr + 10, arr);
@@ -199,8 +206,8 @@ void test_detail()
 #endif
 }
 
-template <class Iterator>
-void test_pointers()
+typedef boost::mpl::list<int*, int const*> test_types;
+BOOST_AUTO_TEST_CASE_TEMPLATE(pointers, Iterator, test_types)
 {
     int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
@@ -215,7 +222,7 @@ void test_pointers()
     BOOST_CHECK(bgr::at(r2, 5) == 5);
 }
 
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(all)
 {
     test_all<int, true>();
     test_all<int, false>();
@@ -226,10 +233,6 @@ int test_main(int, char* [])
 #endif
     test_all<bgt::CopyableAndMovable, true>();
     test_all<bgt::CopyableAndMovable, false>();
-
-    test_detail();
-    test_pointers<int*>();
-    test_pointers<int const*>();
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

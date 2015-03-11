@@ -12,8 +12,12 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util transform_variant
+#endif
 
-#include <boost/test/included/test_exec_monitor.hpp>
+#include <util/common.hpp>
+
 #include <boost/geometry/util/transform_variant.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal.hpp>
@@ -24,6 +28,7 @@
 
 using boost::mpl::placeholders::_;
 
+BOOST_AUTO_TEST_SUITE(transform_variant)
 
 template <typename ExpectedTypes, BOOST_VARIANT_ENUM_PARAMS(typename T)>
 void check(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>)
@@ -36,8 +41,7 @@ void check(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>)
     ));
 }
 
-
-int test_main(int, char* [])
+BOOST_AUTO_TEST_CASE(variant_to_variant)
 {
     // Transform Variant to Variant
     typedef boost::geometry::transform_variant<
@@ -46,7 +50,10 @@ int test_main(int, char* [])
     >::type transformed1;
 
     check<boost::mpl::vector<int*, float*, long*> >(transformed1());
+}
 
+BOOST_AUTO_TEST_CASE(sequence_to_variant)
+{
     // Transform Sequence to Variant (without inserter)
     typedef boost::geometry::transform_variant<
         boost::mpl::vector<int, float, long>,
@@ -54,7 +61,10 @@ int test_main(int, char* [])
     >::type transformed2;
 
     check<boost::mpl::vector<int*, float*, long*> >(transformed2());
+}
 
+BOOST_AUTO_TEST_CASE(sequence_to_variant_with_inserter)
+{
     // Transform Sequence to Variant (with inserter)
     typedef boost::geometry::transform_variant<
         boost::mpl::vector<int, float, long>,
@@ -63,6 +73,6 @@ int test_main(int, char* [])
     >::type transformed3;
 
     check<boost::mpl::vector<int*, float*, long*> >(transformed3());
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

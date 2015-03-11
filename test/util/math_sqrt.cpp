@@ -8,14 +8,14 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_TEST_MODULE
-#define BOOST_TEST_MODULE test_math_sqrt
+#if !defined(BOOST_TEST_MODULE)
+# define BOOST_TEST_MODULE Boost.Geometry Util math_sqrt
 #endif
 
 #include <cmath>
 #include <iostream>
 
-#include <boost/test/included/unit_test.hpp>
+#include <util/common.hpp>
 
 #include <boost/config.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -35,8 +35,7 @@
 
 namespace bg = boost::geometry;
 
-
-
+BOOST_AUTO_TEST_SUITE(math_sqrt)
 
 // call BOOST_CHECK
 template <typename Argument, bool IsFundamental /* true */>
@@ -51,7 +50,6 @@ struct check
     }
 };
 
-
 template <typename Argument>
 struct check<Argument, false>
 {
@@ -62,11 +60,6 @@ struct check<Argument, false>
         BOOST_CHECK( bg::math::abs(bg::math::sqrt(arg) - result) < tol );
     }
 };
-
-
-
-
-
 
 // test sqrt return type and value
 template
@@ -83,7 +76,6 @@ struct check_sqrt
     : bg::not_implemented<Argument, Result, ExpectedResult>
 {};
 
-
 template <typename Argument, typename Result, bool IsFundamental>
 struct check_sqrt<Argument, Result, Result, IsFundamental>
 {
@@ -97,11 +89,6 @@ struct check_sqrt<Argument, Result, Result, IsFundamental>
         check<Argument, IsFundamental>::apply(arg, result);
     }
 };
-
-
-
-
-
 
 // test cases
 BOOST_AUTO_TEST_CASE( test_math_sqrt_fundamental )
@@ -130,7 +117,6 @@ BOOST_AUTO_TEST_CASE( test_math_sqrt_fundamental )
 #endif
 }
 
-
 BOOST_AUTO_TEST_CASE( test_math_sqrt_custom )
 {
     typedef number_types::custom<double> custom1;
@@ -151,3 +137,5 @@ BOOST_AUTO_TEST_CASE( test_math_sqrt_custom )
     check_sqrt<custom5, custom5>::apply(custom5(2.0), custom5(sqrt2));
 #endif
 }
+
+BOOST_AUTO_TEST_SUITE_END()
