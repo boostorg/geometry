@@ -15,6 +15,7 @@
 #include <iterator>
 #include <vector>
 #include <boost/geometry/util/range.hpp>
+#include <boost/next_prior.hpp>
 
 namespace bgt {
 
@@ -91,13 +92,14 @@ struct CopyableAndMovable
 
 namespace bgr = bg::range;
 
-template <typename T, bool MutableIterator>
+
+template <typename Container, bool MutableIterator>
 void test_all()
 {
     bgt::beginner<MutableIterator> begin;
     bgt::ender<MutableIterator> end;
 
-    std::vector<T> v;
+    Container v;
     for (int i = 0 ; i < 20 ; ++i)
     {
         bgr::push_back(v, i);
@@ -119,33 +121,33 @@ void test_all()
     bgr::pop_back(v);
     BOOST_CHECK(boost::size(v) == 14); // [0,13]
     BOOST_CHECK(bgr::back(v) == 13);
-    
-    typename std::vector<T>::iterator
-        it = bgr::erase(v, end(v) - 1);
+
+    typename Container::iterator
+        it = bgr::erase(v, boost::prior(end(v), 1));
     BOOST_CHECK(boost::size(v) == 13); // [0,12]
     BOOST_CHECK(bgr::back(v) == 12);
     BOOST_CHECK(it == end(v));
 
-    it = bgr::erase(v, end(v) - 3, end(v));
+    it = bgr::erase(v, boost::prior(end(v), 3), end(v));
     BOOST_CHECK(boost::size(v) == 10); // [0,9]
     BOOST_CHECK(bgr::back(v) == 9);
     BOOST_CHECK(it == end(v));
 
-    it = bgr::erase(v, begin(v) + 2);
+    it = bgr::erase(v, boost::next(begin(v), 2));
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
     BOOST_CHECK(it == bgr::pos(v, 2));
 
-    it = bgr::erase(v, begin(v) + 2, begin(v) + 2);
+    it = bgr::erase(v, boost::next(begin(v), 2), boost::next(begin(v), 2));
     BOOST_CHECK(boost::size(v) == 9); // {0,1,3..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 3);
     BOOST_CHECK(bgr::back(v) == 9);
     BOOST_CHECK(it == bgr::pos(v, 2));
 
-    it = bgr::erase(v, begin(v) + 2, begin(v) + 5);
+    it = bgr::erase(v, boost::next(begin(v), 2), boost::next(begin(v), 5));
     BOOST_CHECK(boost::size(v) == 6); // {0,1,6..9}
     BOOST_CHECK(bgr::at(v, 1) == 1);
     BOOST_CHECK(bgr::at(v, 2) == 6);
@@ -159,7 +161,7 @@ void test_all()
     BOOST_CHECK(bgr::back(v) == 9);
     BOOST_CHECK(it == bgr::pos(v, 0));
 
-    it = bgr::erase(v, begin(v), begin(v) + 3);
+    it = bgr::erase(v, begin(v), boost::next(begin(v), 3));
     BOOST_CHECK(boost::size(v) == 2); // {8,9}
     BOOST_CHECK(bgr::at(v, 0) == 8);
     BOOST_CHECK(bgr::at(v, 1) == 9);
@@ -178,7 +180,7 @@ void test_detail()
     BOOST_CHECK(arr[0] == 1);
 
     std::vector<int> v(10, 0);
-    bgr::detail::copy_or_move(v.begin() + 1, v.begin() + 10, v.begin());
+    bgr::detail::copy_or_move(boost::next(begin(v), 1), boost::next(begin(v), 10), v.begin());
     BOOST_CHECK(boost::size(v) == 10);
     bgr::erase(v, v.begin() + 1);
     BOOST_CHECK(boost::size(v) == 9);
@@ -217,15 +219,27 @@ void test_pointers()
 
 int test_main(int, char* [])
 {
-    test_all<int, true>();
-    test_all<int, false>();
+    //Test with a random acces container
+    test_all<std::vector<int>, true>();
+    test_all<std::vector<int>, false>();
     // Storing non-movable elements in a std::vector is not possible in some implementations of STD lib
 #ifdef BOOST_GEOMETRY_TEST_NONMOVABLE_ELEMENTS
-    test_all<bgt::NonMovable, true>();
-    test_all<bgt::NonMovable, false>();
+    test_all<std::vector<bgt::NonMovable>, true>();
+    test_all<std::vector<bgt::NonMovable>, false>();
 #endif
-    test_all<bgt::CopyableAndMovable, true>();
-    test_all<bgt::CopyableAndMovable, false>();
+    test_all<std::vector<bgt::CopyableAndMovable>, true>();
+    test_all<std::vector<bgt::CopyableAndMovable>, false>();
+
+    //Test with a single pass container
+    test_all<std::list<int>, true>();
+    test_all<std::list<int>, false>();
+    // Storing non-movable elements in a std::vector is not possible in some implementations of STD lib
+#ifdef BOOST_GEOMETRY_TEST_NONMOVABLE_ELEMENTS
+    test_all<std::list<bgt::NonMovable>, true>();
+    test_all<std::list<bgt::NonMovable>, false>();
+#endif
+    test_all<std::list<bgt::CopyableAndMovable>, true>();
+    test_all<std::list<bgt::CopyableAndMovable>, false>();
 
     test_detail();
     test_pointers<int*>();

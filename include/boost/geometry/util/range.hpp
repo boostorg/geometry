@@ -32,74 +32,76 @@ namespace boost { namespace geometry { namespace range {
 
 namespace detail {
 
-// NOTE: For SinglePassRanges pos could iterate over all elements until the i-th element was met.
 
-template <typename RandomAccessRange>
+template <typename ForwardRange>
 struct pos
 {
-    typedef typename boost::range_iterator<RandomAccessRange>::type iterator;
-    typedef typename boost::range_size<RandomAccessRange>::type size_type;
-    typedef typename boost::range_difference<RandomAccessRange>::type difference_type;
+    typedef typename boost::range_iterator<ForwardRange>::type iterator;
+    typedef typename boost::range_size<ForwardRange>::type size_type;
+    typedef typename boost::range_difference<ForwardRange>::type difference_type;
 
-    static inline iterator apply(RandomAccessRange & rng, size_type i)
+    static inline iterator apply(ForwardRange & rng, size_type i)
     {
-        BOOST_RANGE_CONCEPT_ASSERT(( boost::RandomAccessRangeConcept<RandomAccessRange> ));
-        return boost::begin(rng) + static_cast<difference_type>(i);
+        BOOST_RANGE_CONCEPT_ASSERT((boost::ForwardRangeConcept<ForwardRange>));
+        iterator it = boost::begin(rng);
+        std::advance(it, static_cast<difference_type>(i));
+        return it;
     }
 };
+
 
 } // namespace detail
 
 /*!
-\brief Short utility to conveniently return an iterator of a RandomAccessRange.
+\brief Short utility to conveniently return an iterator of a ForwardRange.
 \ingroup utility
 */
-template <typename RandomAccessRange>
-inline typename boost::range_iterator<RandomAccessRange const>::type
-pos(RandomAccessRange const& rng,
-    typename boost::range_size<RandomAccessRange const>::type i)
+template <typename ForwardRange>
+inline typename boost::range_iterator<ForwardRange const>::type
+pos(ForwardRange const& rng,
+typename boost::range_size<ForwardRange const>::type i)
 {
     BOOST_ASSERT(i <= boost::size(rng));
-    return detail::pos<RandomAccessRange const>::apply(rng, i);
+    return detail::pos<ForwardRange const>::apply(rng, i);
 }
 
 /*!
-\brief Short utility to conveniently return an iterator of a RandomAccessRange.
+\brief Short utility to conveniently return an iterator of a ForwardRange.
 \ingroup utility
 */
-template <typename RandomAccessRange>
-inline typename boost::range_iterator<RandomAccessRange>::type
-pos(RandomAccessRange & rng,
-    typename boost::range_size<RandomAccessRange>::type i)
+template <typename ForwardRange>
+inline typename boost::range_iterator<ForwardRange>::type
+pos(ForwardRange & rng,
+typename boost::range_size<ForwardRange>::type i)
 {
     BOOST_ASSERT(i <= boost::size(rng));
-    return detail::pos<RandomAccessRange>::apply(rng, i);
+    return detail::pos<ForwardRange>::apply(rng, i);
 }
 
 /*!
-\brief Short utility to conveniently return an element of a RandomAccessRange.
+\brief Short utility to conveniently return an element of a ForwardRange.
 \ingroup utility
 */
-template <typename RandomAccessRange>
-inline typename boost::range_reference<RandomAccessRange const>::type
-at(RandomAccessRange const& rng,
-   typename boost::range_size<RandomAccessRange const>::type i)
+template <typename ForwardRange>
+inline typename boost::range_reference<ForwardRange const>::type
+at(ForwardRange const& rng,
+    typename boost::range_size<ForwardRange const>::type i)
 {
     BOOST_ASSERT(i < boost::size(rng));
-    return * detail::pos<RandomAccessRange const>::apply(rng, i);
+    return * detail::pos<ForwardRange const>::apply(rng, i);
 }
 
 /*!
-\brief Short utility to conveniently return an element of a RandomAccessRange.
+\brief Short utility to conveniently return an element of a ForwardRange.
 \ingroup utility
 */
-template <typename RandomAccessRange>
-inline typename boost::range_reference<RandomAccessRange>::type
-at(RandomAccessRange & rng,
-   typename boost::range_size<RandomAccessRange>::type i)
+template <typename ForwardRange>
+inline typename boost::range_reference<ForwardRange>::type
+at(ForwardRange & rng,
+    typename boost::range_size<ForwardRange>::type i)
 {
     BOOST_ASSERT(i < boost::size(rng));
-    return * detail::pos<RandomAccessRange>::apply(rng, i);
+    return * detail::pos<ForwardRange>::apply(rng, i);
 }
 
 /*!
@@ -279,7 +281,7 @@ erase(Range & rng,
     // assertion failures when iterator debugging is enabled
     // Furthermore the code below should work in the case if resize()
     // invalidates iterators when the container is resized down.
-    return boost::begin(rng) + d;
+    return pos(rng, d);
 }
 
 /*!
@@ -292,11 +294,11 @@ inline typename boost::range_iterator<Range>::type
 erase(Range & rng,
       typename boost::range_iterator<Range const>::type cit)
 {
-    BOOST_RANGE_CONCEPT_ASSERT(( boost::RandomAccessRangeConcept<Range> ));
+    BOOST_RANGE_CONCEPT_ASSERT((boost::ForwardRangeConcept<Range>));
 
     typename boost::range_iterator<Range>::type
-        it = boost::begin(rng)
-                + std::distance(boost::const_begin(rng), cit);
+        it = pos(rng,
+            std::distance(boost::const_begin(rng), cit));
 
     return erase(rng, it);
 }
@@ -333,7 +335,7 @@ erase(Range & rng,
         // assertion failures when iterator debugging is enabled
         // Furthermore the code below should work in the case if resize()
         // invalidates iterators when the container is resized down.
-        return boost::begin(rng) + d;
+        return pos(rng, d);
     }
 
     return first;
@@ -350,14 +352,14 @@ erase(Range & rng,
       typename boost::range_iterator<Range const>::type cfirst,
       typename boost::range_iterator<Range const>::type clast)
 {
-    BOOST_RANGE_CONCEPT_ASSERT(( boost::RandomAccessRangeConcept<Range> ));
+    BOOST_RANGE_CONCEPT_ASSERT((boost::ForwardRangeConcept<Range>));
 
     typename boost::range_iterator<Range>::type
-        first = boost::begin(rng)
-                    + std::distance(boost::const_begin(rng), cfirst);
+        first = pos(rng,
+            std::distance(boost::const_begin(rng), cfirst));
     typename boost::range_iterator<Range>::type
-        last = boost::begin(rng)
-                    + std::distance(boost::const_begin(rng), clast);
+        last = pos(rng,
+            std::distance(boost::const_begin(rng), clast));
 
     return erase(rng, first, last);
 }
