@@ -15,7 +15,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/config.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -34,8 +34,6 @@
 #endif
 
 namespace bg = boost::geometry;
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(math_sqrt)
 

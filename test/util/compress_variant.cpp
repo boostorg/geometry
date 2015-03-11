@@ -16,7 +16,7 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util compress_variant
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/util/compress_variant.hpp>
 #include <boost/mpl/assert.hpp>
@@ -24,8 +24,6 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/variant/variant.hpp>
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(compress_variant)
 
@@ -61,12 +59,12 @@ BOOST_AUTO_TEST_CASE(multiple_type)
 {
     test_variant_result<
         boost::variant<int, float, double>,
-        boost::mpl::vector < int, float, double >
+        boost::mpl::vector<int, float, double>
     >();
 
     test_variant_result<
         boost::variant<int, float, double, int, int, float, double, double, float>,
-        boost::mpl::vector < int, double, float >
+        boost::mpl::vector<int, double, float>
     >();
 }
 

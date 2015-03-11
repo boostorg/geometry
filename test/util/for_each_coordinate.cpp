@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/mpl/list.hpp>
 
@@ -33,8 +33,6 @@
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(for_each_coordinate)
 
@@ -68,7 +66,7 @@ typedef boost::mpl::list
     test::test_point,
     bg::model::point<int, 3, bg::cs::cartesian>,
     bg::model::point<float, 3, bg::cs::cartesian>,
-    bg::model::point < double, 3, bg::cs::cartesian >
+    bg::model::point<double, 3, bg::cs::cartesian>
 > test_types;
 BOOST_AUTO_TEST_CASE_TEMPLATE(all, P, test_types)
 {

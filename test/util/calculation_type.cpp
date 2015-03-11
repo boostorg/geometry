@@ -13,12 +13,10 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util calculation_type
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/util/calculation_type.hpp>
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(calculation_type)
 

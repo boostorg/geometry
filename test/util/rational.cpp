@@ -16,19 +16,17 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util rational
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/util/rational.hpp>
 
-using namespace boost::unit_test;
-
 BOOST_AUTO_TEST_SUITE(rational)
 
 void test_coordinate_cast(std::string const& s, int expected_nom, int expected_denom)
 {
-    boost::rational<int> a = bg::detail::coordinate_cast<boost::rational<int>>::apply(s);
+    boost::rational<int> a = bg::detail::coordinate_cast<boost::rational<int> >::apply(s);
     BOOST_CHECK_EQUAL(a.numerator(), expected_nom);
     BOOST_CHECK_EQUAL(a.denominator(), expected_denom);
 }

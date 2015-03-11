@@ -16,11 +16,9 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util select_most_precise
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(select_most_precise)
 

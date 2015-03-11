@@ -16,7 +16,7 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util transform_variant
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/geometry/util/transform_variant.hpp>
 #include <boost/mpl/assert.hpp>
@@ -27,8 +27,6 @@
 #include <boost/variant/variant.hpp>
 
 using boost::mpl::placeholders::_;
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(transform_variant)
 

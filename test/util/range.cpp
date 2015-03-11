@@ -13,15 +13,13 @@
 # define BOOST_TEST_MODULE Boost.Geometry Util range
 #endif
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <iterator>
 #include <vector>
 
 #include <boost/mpl/list.hpp>
 #include <boost/geometry/util/range.hpp>
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE( test_range )
 

@@ -18,15 +18,13 @@
 
 #include <sstream>
 
-#include <geometry_test_common.hpp>
+#include <util/common.hpp>
 
 #include <boost/mpl/list.hpp>
 
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
-
-using namespace boost::unit_test;
 
 BOOST_AUTO_TEST_SUITE(write_dsv)
 
