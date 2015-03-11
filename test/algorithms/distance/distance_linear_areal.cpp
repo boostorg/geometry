@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -84,27 +84,27 @@ void test_distance_linestring_polygon(Strategy const& strategy)
 
     tester::apply("linestring(-1 20,1 20,1 30)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  10, 100, strategy, true);
+                  10, 100, strategy);
   
     tester::apply("linestring(-5 1,-2 1)",
                   "polygon((0 0,10 0,10 10,0 10,0 0))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
 
     tester::apply("linestring(-1 20,1 20,1 5)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("linestring(-1 20,1 20,1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("linestring(-2 1)",
                   "polygon((0 0,10 0,10 10,0 10,0 0))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
 
     tester::apply("linestring(-5 1,-2 1)",
                   "polygon((0 0))",
-                  sqrt(5.0), 5, strategy, true);
+                  sqrt(5.0), 5, strategy);
 }
 
 //===========================================================================
@@ -123,7 +123,7 @@ void test_distance_linestring_open_polygon(Strategy const& strategy)
 
     tester::apply("linestring(-5 1,-2 1)",
                   "polygon((0 0,10 0,10 10,0 10))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
 }
 
 //===========================================================================
@@ -142,23 +142,23 @@ void test_distance_multilinestring_polygon(Strategy const& strategy)
 
     tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  10, 100, strategy, true);
+                  10, 100, strategy);
   
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 5))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 -20))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("multilinestring((-100 -100,-90 -90),(1 20))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  10, 100, strategy, true);
+                  10, 100, strategy);
 
     tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
                   "polygon((-110 -110))",
-                  sqrt(200.0), 200, strategy, true);
+                  sqrt(200.0), 200, strategy);
 }
 
 //===========================================================================
@@ -213,22 +213,22 @@ void test_distance_linestring_multipolygon(Strategy const& strategy)
     tester::apply("linestring(-1 20,1 20)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((0 22,-1 30, 2 40,0 22)))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
     
     tester::apply("linestring(12 0,14 0)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
 
     tester::apply("linestring(12 0,20.5 0.5)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("linestring(12 0,50 0)",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -247,11 +247,11 @@ void test_distance_linestring_open_multipolygon(Strategy const& strategy)
 
     tester::apply("linestring(-5 1,-2 1)",
                   "multipolygon(((0 0,10 0,10 10,0 10)))",
-                  2, 4, strategy, true);
+                  2, 4, strategy);
 
     tester::apply("linestring(-5 1,-3 1)",
                   "multipolygon(((20 20,21 20,21 21,20 21)),((0 0,10 0,10 10,0 10)))",
-                  3, 9, strategy, true);
+                  3, 9, strategy);
 }
 
 //===========================================================================
@@ -271,12 +271,12 @@ void test_distance_multilinestring_multipolygon(Strategy const& strategy)
     tester::apply("multilinestring((12 0,14 0),(19 0,19.9 -1))",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10)))",
-                  0.1, 0.01, strategy, true);
+                  0.1, 0.01, strategy);
 
     tester::apply("multilinestring((19 0,19.9 -1),(12 0,20.5 0.5))",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -320,15 +320,15 @@ void test_distance_linestring_ring(Strategy const& strategy)
 
     tester::apply("linestring(-1 20,1 20,1 30)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  10, 100, strategy, true);
+                  10, 100, strategy);
   
     tester::apply("linestring(-1 20,1 20,1 5)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("linestring(-1 20,1 20,1 -20)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -347,15 +347,15 @@ void test_distance_multilinestring_ring(Strategy const& strategy)
 
     tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  10, 100, strategy, true);
+                  10, 100, strategy);
   
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 5))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 -20))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
