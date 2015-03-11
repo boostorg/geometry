@@ -72,9 +72,11 @@
 #endif
 
 # include <boost/test/floating_point_comparison.hpp>
+#ifndef BOOST_TEST_MODULE
 # include <boost/test/included/test_exec_monitor.hpp>
 //#  include <boost/test/included/prg_exec_monitor.hpp>
 # include <boost/test/impl/execution_monitor.ipp>
+#endif
 
 #ifdef __clang__
 # pragma clang diagnostic pop
