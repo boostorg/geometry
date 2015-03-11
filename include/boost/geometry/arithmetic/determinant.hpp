@@ -39,7 +39,13 @@ public :
     static inline ReturnType apply(U const& ux, U const& uy
                                  , V const& vx, V const& vy)
     {
-        return rt(ux) * rt(vy) - rt(uy) * rt(vx);
+        // NOTE: the explicit temporaries are here on purpose
+        // without them in some cases MinGW and probably QCC
+        // calculate different results than MSVC and GCC
+        ReturnType const t1 = rt(ux) * rt(vy);
+        ReturnType const t2 = rt(uy) * rt(vx);
+        return t1 - t2;
+        //return rt(ux) * rt(vy) - rt(uy) * rt(vx);
     }
 };
 
