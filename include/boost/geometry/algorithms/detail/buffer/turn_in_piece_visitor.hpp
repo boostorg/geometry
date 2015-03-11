@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_PIECE_VISITOR
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_PIECE_VISITOR
 
+
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/range.hpp>
 
 #include <boost/geometry/arithmetic/dot_product.hpp>
@@ -172,7 +175,8 @@ public :
 
         typename strategy_type::state_type state;
         strategy_type strategy;
-
+        boost::ignore_unused(strategy);
+        
         for (std::size_t s = 0; s < piece.sections.size(); s++)
         {
             section_type const& section = piece.sections[s];
