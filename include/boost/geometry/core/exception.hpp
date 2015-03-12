@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -51,6 +56,33 @@ public:
     virtual char const* what() const throw()
     {
         return "Boost.Geometry Empty-Input exception";
+    }
+};
+
+/*!
+\brief Below Minimum Size Exception
+\ingroup core
+\details The below_minimum_size_exception is thrown if free functions,
+    e.g. distance, are called with geometries whose number of points
+    is below the minimum acceptable threshold size, e.g. a linestring
+    with one point or less, a polygon with two or less points, an
+    empty multi-geometry, etc.
+\qbk{
+[heading See also]
+\* [link geometry.reference.algorithms.area the area function]
+\* [link geometry.reference.algorithms.distance the distance function]
+\* [link geometry.reference.algorithms.length the length function]
+}
+ */
+class below_minimum_size_exception : public geometry::exception
+{
+public:
+
+    inline below_minimum_size_exception() {}
+
+    virtual char const* what() const throw()
+    {
+        return "Boost.Geometry Below-Minimum-Size exception";
     }
 };
 
