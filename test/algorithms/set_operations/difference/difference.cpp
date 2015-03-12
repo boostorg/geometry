@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,12 +16,11 @@
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/intersection.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 
@@ -29,7 +28,6 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #ifdef HAVE_TTMATH
