@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -29,16 +29,13 @@
 #include <boost/type_traits/is_const.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <boost/geometry/multi/geometries/multi_geometries.hpp>
-#include <boost/geometry/multi/geometries/register/multi_point.hpp>
+#include <boost/geometry/geometries/register/multi_point.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
