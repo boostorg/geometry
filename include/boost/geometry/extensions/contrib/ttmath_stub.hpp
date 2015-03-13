@@ -116,6 +116,18 @@ struct ttmath_big : ttmath::Big<1,4>
         : ttmath::Big<1,4>(v)
     {}
 
+    // needed since the binary operator+ needs to be defined
+    inline ttmath_big const& operator+() const
+    {
+        return *this;
+    }
+
+    // needed in order for the result of the addition to be a ttmath_big object
+    inline ttmath_big operator+(ttmath_big const& other) const
+    {
+        return ttmath::Big<1,4>::operator+(other);
+    }
+
     // needed in order to work with boost::geometry::math::abs
     inline ttmath_big operator-() const
     {
@@ -126,6 +138,19 @@ struct ttmath_big : ttmath::Big<1,4>
     inline ttmath_big operator-(ttmath_big const& other) const
     {
         return ttmath::Big<1,4>::operator-(other);
+    }
+
+    // needed in order for the result of the multiplication to be a
+    // ttmath_big object
+    inline ttmath_big operator*(ttmath_big const& other) const
+    {
+        return ttmath::Big<1,4>::operator*(other);
+    }
+
+    // needed in order for the result of the division to be a ttmath_big object
+    inline ttmath_big operator/(ttmath_big const& other) const
+    {
+        return ttmath::Big<1,4>::operator/(other);
     }
 
     /*
