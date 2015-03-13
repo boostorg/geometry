@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -83,7 +88,6 @@ namespace ttmath
         return ACos(v);
     }
 
-
     template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> atan2(Big<Exponent, Mantissa> const& y, Big<Exponent, Mantissa> const& x)
     {
@@ -103,6 +107,12 @@ namespace ttmath
         return two * ATan((sqrt(x * x + y * y) - x) / y);
     }
 
+    // needed in order to work with boost::geometry::math::fmod
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> fmod(Big<Exponent, Mantissa> const& x, Big<Exponent, Mantissa> const& y)
+    {
+        return Mod(x, y);
+    }
 }
 
 // Specific structure implementing constructor
