@@ -30,6 +30,7 @@
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
+#include <boost/type_traits/is_integral.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -189,6 +190,66 @@ struct square_root<T, true>
             >::apply(boost::numeric_cast<double>(value));
     }
 };
+
+
+
+template
+<
+    typename T,
+    bool IsFundemantal = boost::is_fundamental<T>::value /* false */
+>
+struct modulo
+{
+    typedef T return_type;
+
+    static inline T apply(T const& value1, T const& value2)
+    {
+        // for non-fundamental number types assume that sqrt is
+        // defined either:
+        // 1) at T's scope, or
+        // 2) at global scope, or
+        // 3) in namespace std
+        using ::fmod;
+        using std::fmod;
+
+        return fmod(value1, value2);
+    }
+};
+
+template <typename Fundamental, bool IsIntegral>
+struct modulo_for_fundamental
+{
+    typedef Fundamental return_type;
+
+    static inline Fundamental apply(Fundamental const& value1,
+                                    Fundamental const& value2)
+    {
+        return value1 % value2;
+    }
+};
+
+// specialization for floating-point numbers
+template <typename Fundamental>
+struct modulo_for_fundamental<Fundamental, false>
+{
+    typedef Fundamental return_type;
+
+    static inline Fundamental apply(Fundamental const& value1,
+                                    Fundamental const& value2)
+    {
+        return std::fmod(value1, value2);
+    }
+};
+
+// specialization for fundamental number type
+template <typename Fundamental>
+struct modulo<Fundamental, true>
+    : modulo_for_fundamental
+        <
+            Fundamental, boost::is_integral<Fundamental>::value
+        >
+{};
+
 
 
 /*!
@@ -356,6 +417,23 @@ sqrt(T const& value)
         <
             T, boost::is_fundamental<T>::value
         >::apply(value);
+}
+
+/*!
+\brief Short utility to return the result of fmod of two values
+\ingroup utility
+\param value1 First value
+\param value2 Second value
+\return The result of the fmod operation on the (ordered) pair (value1, value2)
+*/
+template <typename T>
+inline typename detail::modulo<T>::return_type
+fmod(T const& value1, T const& value2)
+{
+    return detail::modulo
+        <
+            T, boost::is_fundamental<T>::value
+        >::apply(value1, value2);
 }
 
 /*!
