@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -116,41 +121,16 @@ struct ttmath_big : ttmath::Big<1,4>
         : ttmath::Big<1,4>(v)
     {}
 
-    // needed since the binary operator+ needs to be defined
+    // unary operator+() is implemented for completeness
     inline ttmath_big const& operator+() const
     {
         return *this;
-    }
-
-    // needed in order for the result of the addition to be a ttmath_big object
-    inline ttmath_big operator+(ttmath_big const& other) const
-    {
-        return ttmath::Big<1,4>::operator+(other);
     }
 
     // needed in order to work with boost::geometry::math::abs
     inline ttmath_big operator-() const
     {
         return ttmath::Big<1,4>::operator-();
-    }
-
-    // needed because unary operator-() is defined (above)
-    inline ttmath_big operator-(ttmath_big const& other) const
-    {
-        return ttmath::Big<1,4>::operator-(other);
-    }
-
-    // needed in order for the result of the multiplication to be a
-    // ttmath_big object
-    inline ttmath_big operator*(ttmath_big const& other) const
-    {
-        return ttmath::Big<1,4>::operator*(other);
-    }
-
-    // needed in order for the result of the division to be a ttmath_big object
-    inline ttmath_big operator/(ttmath_big const& other) const
-    {
-        return ttmath::Big<1,4>::operator/(other);
     }
 
     /*
@@ -165,6 +145,29 @@ struct ttmath_big : ttmath::Big<1,4>
     }
     */
 };
+
+
+// arithmetic operators for ttmath_big objects, defined as free functions
+inline ttmath_big operator+(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator+(y);
+}
+
+inline ttmath_big operator-(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator-(y);
+}
+
+inline ttmath_big operator*(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator*(y);
+}
+
+inline ttmath_big operator/(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator/(y);
+}
+
 
 namespace boost{ namespace geometry { namespace math
 {
