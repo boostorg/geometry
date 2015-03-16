@@ -204,19 +204,19 @@ struct modulo
 
     static inline T apply(T const& value1, T const& value2)
     {
-        // for non-fundamental number types assume that sqrt is
-        // defined either:
+        // for non-fundamental number types assume that a free
+        // function mod() is defined either:
         // 1) at T's scope, or
-        // 2) at global scope, or
-        // 3) in namespace std
-        using ::fmod;
-        using std::fmod;
-
-        return fmod(value1, value2);
+        // 2) at global scope
+        return mod(value1, value2);
     }
 };
 
-template <typename Fundamental, bool IsIntegral>
+template
+<
+    typename Fundamental,
+    bool IsIntegral = boost::is_integral<Fundamental>::value
+>
 struct modulo_for_fundamental
 {
     typedef Fundamental return_type;
@@ -244,10 +244,7 @@ struct modulo_for_fundamental<Fundamental, false>
 // specialization for fundamental number type
 template <typename Fundamental>
 struct modulo<Fundamental, true>
-    : modulo_for_fundamental
-        <
-            Fundamental, boost::is_integral<Fundamental>::value
-        >
+    : modulo_for_fundamental<Fundamental>
 {};
 
 
@@ -420,15 +417,16 @@ sqrt(T const& value)
 }
 
 /*!
-\brief Short utility to return the result of fmod of two values
+\brief Short utility to return the modulo of two values
 \ingroup utility
 \param value1 First value
 \param value2 Second value
-\return The result of the fmod operation on the (ordered) pair (value1, value2)
+\return The result of the modulo operation on the (ordered) pair
+(value1, value2)
 */
 template <typename T>
 inline typename detail::modulo<T>::return_type
-fmod(T const& value1, T const& value2)
+mod(T const& value1, T const& value2)
 {
     return detail::modulo
         <
