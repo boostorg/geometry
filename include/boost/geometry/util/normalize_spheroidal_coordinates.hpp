@@ -112,14 +112,14 @@ protected:
     static inline CoordinateType normalize_up(CoordinateType const& value)
     {
         return
-            math::fmod(value + constants::half_period(), constants::period())
+            math::mod(value + constants::half_period(), constants::period())
             - constants::half_period();            
     }
 
     static inline CoordinateType normalize_down(CoordinateType const& value)
     {
         return
-            math::fmod(value - constants::half_period(), constants::period())
+            math::mod(value - constants::half_period(), constants::period())
             + constants::half_period();            
     }
 
