@@ -94,14 +94,15 @@ struct abs<T, true>
 struct equals_default_policy
 {
     template <typename T>
-    static inline T const& apply(T const& a, T const& b)
+    static inline T apply(T const& a, T const& b)
     {
         // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17
         return greatest(abs<T>::apply(a), abs<T>::apply(b), T(1));
     }
 };
 
-template <typename T>
+template <typename T,
+          bool IsFloatingPoint = boost::is_floating_point<T>::value>
 struct equals_factor_policy
 {
     equals_factor_policy()
@@ -121,6 +122,19 @@ struct equals_factor_policy
     }
 
     T factor;
+};
+
+template <typename T>
+struct equals_factor_policy<T, false>
+{
+    equals_factor_policy() {}
+    explicit equals_factor_policy(T const&) {}
+    equals_factor_policy(T const& , T const& , T const& , T const& ) {}
+
+    static inline T apply(T const&, T const&)
+    {
+        return T(1);
+    }
 };
 
 template <typename Type,
@@ -147,7 +161,7 @@ struct equals<Type, true>
             return true;
         }
 
-        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
+        return abs<Type>::apply(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
     }
 };
 
