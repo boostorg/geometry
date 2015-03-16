@@ -200,7 +200,7 @@ struct relate_cartesian_segments
                 get<1>(robust_b1) - get<1>(robust_a1),
                 robust_db0, robust_db);
 
-            math::detail::equals_factor_policy<promoted_type>
+            math::detail::equals_factor_policy<robust_coordinate_type>
                 policy(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
             robust_coordinate_type const zero = 0;
             if (math::detail::equals_by_policy(robust_da0, zero, policy)
