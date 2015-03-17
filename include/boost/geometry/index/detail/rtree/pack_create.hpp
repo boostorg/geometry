@@ -2,7 +2,7 @@
 //
 // R-tree initial packing
 //
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -161,7 +161,10 @@ public:
         geometry::assign_inverse(hint_box);
         for ( ; first != last ; ++first )
         {
-            typename Translator::result_type indexable = translator(*first);
+            // NOTE: support for iterators not returning true references adapted
+            // to Geometry concept and default translator returning true reference
+            typename std::iterator_traits<InIt>::reference in_ref = *first;                         // MAY THROW (ref copy)
+            typename Translator::result_type indexable = translator(in_ref);
 
             // NOTE: added for consistency with insert()
             // CONSIDER: alternative - ignore invalid indexable or throw an exception
@@ -215,8 +218,14 @@ private:
             geometry::assign_inverse(elements_box);
             for ( ; first != last ; ++first )
             {
-                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
-                geometry::expand(elements_box, translator(*(first->second)));
+                // NOTE: support for iterators not returning true references adapted
+                // to Geometry concept and default translator returning true reference
+                // and an optimization (reuse)
+                typedef typename std::iterator_traits<EIt>::value_type::second_type iter_type;
+                typename std::iterator_traits<iter_type>::reference in_ref = *(first->second);              // MAY THROW (ref copy)
+
+                rtree::elements(l).push_back(in_ref);                                                       // MAY THROW (A?,C)
+                geometry::expand(elements_box, translator(in_ref));
             }
 
             auto_remover.release();
