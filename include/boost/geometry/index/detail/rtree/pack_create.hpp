@@ -122,7 +122,7 @@ class pack
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Allocators::node_pointer node_pointer;
-    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
     typedef typename Allocators::size_type size_type;
 
     typedef typename geometry::point_type<Box>::type point_type;
@@ -210,7 +210,7 @@ private:
 
             // create new leaf node
             node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
-            node_auto_ptr auto_remover(n, allocators);
+            subtree_destroyer auto_remover(n, allocators);
             leaf & l = rtree::get<leaf>(*n);
 
             // reserve space for values
@@ -238,7 +238,7 @@ private:
 
         // create new internal node
         node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);                  // MAY THROW (A)
-        node_auto_ptr auto_remover(n, allocators);
+        subtree_destroyer auto_remover(n, allocators);
         internal_node & in = rtree::get<internal_node>(*n);
 
         // reserve space for values
@@ -280,7 +280,7 @@ private:
             // in case if push_back() do throw here
             // and even if this is not probable (previously reserved memory, nonthrowing pairs copy)
             // this case is also tested by exceptions test.
-            node_auto_ptr auto_remover(el.second, allocators);
+            subtree_destroyer auto_remover(el.second, allocators);
             // this container should have memory allocated, reserve() called outside
             elements.push_back(el);                                                 // MAY THROW (A?,C) - however in normal conditions shouldn't
             auto_remover.release();

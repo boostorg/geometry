@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -188,7 +188,7 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
-    typedef detail::rtree::node_auto_ptr<value_type, options_type, translator_type, box_type, allocators_type> node_auto_ptr;
+    typedef detail::rtree::subtree_destroyer<value_type, options_type, translator_type, box_type, allocators_type> subtree_destroyer;
 
     friend class detail::rtree::utilities::view<rtree>;
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -1357,7 +1357,7 @@ private:
             dst.m_members.parameters() = src.m_members.parameters();
         }
 
-        // TODO use node_auto_ptr
+        // TODO use subtree_destroyer
         if ( dst.m_members.root )
         {
             detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
