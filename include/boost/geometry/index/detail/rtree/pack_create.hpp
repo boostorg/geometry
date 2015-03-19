@@ -163,7 +163,9 @@ public:
         {
             // NOTE: support for iterators not returning true references adapted
             // to Geometry concept and default translator returning true reference
-            typename std::iterator_traits<InIt>::reference in_ref = *first;                         // MAY THROW (ref copy)
+            // An alternative would be to dereference the iterator and translate
+            // in one expression each time the indexable was needed.
+            typename std::iterator_traits<InIt>::reference in_ref = *first;
             typename Translator::result_type indexable = translator(in_ref);
 
             // NOTE: added for consistency with insert()
@@ -218,14 +220,11 @@ private:
             geometry::assign_inverse(elements_box);
             for ( ; first != last ; ++first )
             {
-                // NOTE: support for iterators not returning true references adapted
-                // to Geometry concept and default translator returning true reference
-                // and an optimization (reuse)
-                typedef typename std::iterator_traits<EIt>::value_type::second_type iter_type;
-                typename std::iterator_traits<iter_type>::reference in_ref = *(first->second);              // MAY THROW (ref copy)
-
-                rtree::elements(l).push_back(in_ref);                                                       // MAY THROW (A?,C)
-                geometry::expand(elements_box, translator(in_ref));
+                // NOTE: push_back() must be called at the end in order to support move_iterator.
+                //       The iterator is dereferenced 2x (no temporary reference) to support
+                //       non-true reference types and move_iterator without boost::forward<>.
+                geometry::expand(elements_box, translator(*(first->second)));
+                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
             }
 
             auto_remover.release();
