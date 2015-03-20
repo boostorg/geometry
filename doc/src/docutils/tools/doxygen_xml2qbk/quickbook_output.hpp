@@ -996,13 +996,19 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
             offset += f.name.size();
             break;
         case function_member :
-            inline_str_with_links(f.return_type, out);
-            out << " `" << f.name << "`";
-            offset += f.return_type_without_links.size() + 1 + f.name.size();
-            break;
         case function_free :
-            inline_str_with_links(f.definition, out);
-            offset += f.definition.size();
+            if ( f.return_type == "unspecified" )
+            {
+                out << "/unspecified/";
+                offset += 11;
+            }
+            else
+            {
+                inline_str_with_links(f.return_type, out);
+                offset += f.return_type_without_links.size();
+            }
+            out << " `" << f.name << "`";
+            offset += 1 + f.name.size();
             break;
         case function_define :
             out << "`#define " << f.name << "`";
