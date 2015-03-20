@@ -235,7 +235,9 @@ other types using operator==.
 */
 template <typename Value>
 struct equal_to
+#ifndef DOXYGEN_NO_DETAIL
     : detail::equal_to<Value>
+#endif
 {
     /*! \brief The type of result returned by function object. */
     typedef typename detail::equal_to<Value>::result_type result_type;

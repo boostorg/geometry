@@ -43,7 +43,11 @@ bgi::query(spatial_index, bgi::contains(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::contains_tag, false>
+#else
+unspecified
+#endif
 contains(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -73,7 +77,11 @@ bgi::query(spatial_index, bgi::covered_by(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::covered_by_tag, false>
+#else
+unspecified
+#endif
 covered_by(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -103,7 +111,11 @@ bgi::query(spatial_index, bgi::covers(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::covers_tag, false>
+#else
+unspecified
+#endif
 covers(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -133,7 +145,11 @@ bgi::query(spatial_index, bgi::disjoint(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::disjoint_tag, false>
+#else
+unspecified
+#endif
 disjoint(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -165,7 +181,11 @@ bgi::query(spatial_index, bgi::intersects(polygon), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::intersects_tag, false>
+#else
+unspecified
+#endif
 intersects(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -195,7 +215,11 @@ bgi::query(spatial_index, bgi::overlaps(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::overlaps_tag, false>
+#else
+unspecified
+#endif
 overlaps(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -222,7 +246,11 @@ returns true.
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::touches_tag, false>
+#else
+unspecified
+#endif
 touches(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -254,7 +282,11 @@ bgi::query(spatial_index, bgi::within(box), std::back_inserter(result));
 \param g            The Geometry object.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::spatial_predicate<Geometry, detail::predicates::within_tag, false>
+#else
+unspecified
+#endif
 within(Geometry const& g)
 {
     return detail::predicates::spatial_predicate
@@ -299,7 +331,11 @@ std::back_inserter(result));
 \param pred             The unary predicate function or function object.
 */
 template <typename UnaryPredicate> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::satisfies<UnaryPredicate, false>
+#else
+unspecified
+#endif
 satisfies(UnaryPredicate const& pred)
 {
     return detail::predicates::satisfies<UnaryPredicate, false>(pred);
@@ -329,7 +365,11 @@ Only one \c nearest() predicate may be used in a query.
 \param k            The maximum number of values to return.
 */
 template <typename Geometry> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::nearest<Geometry>
+#else
+unspecified
+#endif
 nearest(Geometry const& geometry, unsigned k)
 {
     return detail::predicates::nearest<Geometry>(geometry, k);
@@ -359,7 +399,11 @@ Only one distance predicate (\c nearest() or \c path()) may be used in a query.
 \param k            The maximum number of values to return.
 */
 template <typename SegmentOrLinestring> inline
+#ifndef DOXYGEN_NO_DETAIL
 detail::predicates::path<SegmentOrLinestring>
+#else
+unspecified
+#endif
 path(SegmentOrLinestring const& linestring, unsigned k)
 {
     return detail::predicates::path<SegmentOrLinestring>(linestring, k);
