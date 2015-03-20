@@ -70,12 +70,7 @@ inline size_t default_rstar_reinserted_elements_d_calc(size_t max_elements, size
 \tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
 */
 template <size_t MaxElements,
-#ifndef DOXYGEN_NO_DETAIL
-          size_t MinElements = detail::default_min_elements_s<MaxElements>::value
-#else
-          size_t MinElements = 0.3*MaxElements
-#endif
->
+          size_t MinElements = detail::default_min_elements_s<MaxElements>::value>
 struct linear
 {
     BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
@@ -95,12 +90,7 @@ struct linear
 \tparam MinElements     Minimum number of elements in nodes. Default: 0.3*Max.
 */
 template <size_t MaxElements,
-#ifndef DOXYGEN_NO_DETAIL
-          size_t MinElements = detail::default_min_elements_s<MaxElements>::value
-#else
-          size_t MinElements = 0.3*MaxElements
-#endif
->
+          size_t MinElements = detail::default_min_elements_s<MaxElements>::value>
 struct quadratic
 {
     BOOST_MPL_ASSERT_MSG((0 < MinElements && 2*MinElements <= MaxElements+1),
@@ -128,13 +118,8 @@ struct quadratic
                                 and true minimum overlap cost is calculated. Default: 32.
 */
 template <size_t MaxElements,
-#ifndef DOXYGEN_NO_DETAIL
           size_t MinElements = detail::default_min_elements_s<MaxElements>::value,
           size_t ReinsertedElements = detail::default_rstar_reinserted_elements_s<MaxElements>::value,
-#else
-          size_t MinElements = 0.3*MaxElements,
-          size_t ReinsertedElements = 0.3*MaxElements,
-#endif
           size_t OverlapCostThreshold = 32>
 struct rstar
 {
@@ -172,11 +157,7 @@ public:
     \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
     */
     dynamic_linear(size_t max_elements,
-#ifndef DOXYGEN_NO_DETAIL
                    size_t min_elements = detail::default_min_elements_d())
-#else
-                   size_t min_elements = 0.3*max_elements)
-#endif
         : m_max_elements(max_elements)
         , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
     {
@@ -205,11 +186,7 @@ public:
     \param min_elements     Minimum number of elements in nodes. Default: 0.3*Max.
     */
     dynamic_quadratic(size_t max_elements,
-#ifndef DOXYGEN_NO_DETAIL
                       size_t min_elements = detail::default_min_elements_d())
-#else
-                      size_t min_elements = 0.3*max_elements)
-#endif
         : m_max_elements(max_elements)
         , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))
     {
@@ -246,13 +223,8 @@ public:
                                     and true minimum overlap cost is calculated. Default: 32.
     */
     dynamic_rstar(size_t max_elements,
-#ifndef DOXYGEN_NO_DETAIL
                   size_t min_elements = detail::default_min_elements_d(),
                   size_t reinserted_elements = detail::default_rstar_reinserted_elements_d(),
-#else
-                  size_t min_elements = 0.3*max_elements,
-                  size_t reinserted_elements = 0.3*max_elements,
-#endif
                   size_t overlap_cost_threshold = 32)
         : m_max_elements(max_elements)
         , m_min_elements(detail::default_min_elements_d_calc(max_elements, min_elements))

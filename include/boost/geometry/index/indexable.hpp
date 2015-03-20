@@ -195,9 +195,7 @@ and variadic templates are supported.
 */
 template <typename Value>
 struct indexable
-#ifndef DOXYGEN_NO_DETAIL
     : detail::indexable<Value>
-#endif
 {
     /*! \brief The type of result returned by function object. It should be const Indexable reference. */
     typedef typename detail::indexable<Value>::result_type result_type;

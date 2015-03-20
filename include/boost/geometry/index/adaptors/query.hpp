@@ -75,11 +75,7 @@ operator|(
 \param pred   Predicates.
 */
 template <typename Predicates>
-#ifndef DOXYGEN_NO_DETAIL
 detail::query<Predicates>
-#else
-unspecified
-#endif
 queried(Predicates const& pred)
 {
     return detail::query<Predicates>(pred);
