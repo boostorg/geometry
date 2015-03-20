@@ -54,6 +54,7 @@
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
@@ -62,8 +63,7 @@
 
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
@@ -229,7 +229,7 @@ public :
         // section 2:    [--------------]
         // section 1: |----|---|---|---|---|
         for (prev1 = it1++, next1++;
-            it1 != end1 && ! exceeding<0>(dir1, *prev1, sec2.bounding_box, robust_policy);
+            it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec2.bounding_box, robust_policy);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
             ever_circling_iterator<range1_iterator> nd_next1(
@@ -247,7 +247,7 @@ public :
             next2++;
 
             for (prev2 = it2++, next2++;
-                it2 != end2 && ! exceeding<0>(dir2, *prev2, sec1.bounding_box, robust_policy);
+                it2 != end2 && ! detail::section::exceeding<0>(dir2, *prev2, sec1.bounding_box, robust_policy);
                 ++prev2, ++it2, ++index2, ++next2, ++ndi2)
             {
                 bool skip = same_source;
@@ -318,25 +318,6 @@ private :
     typedef typename model::referring_segment<point1_type const> segment1_type;
     typedef typename model::referring_segment<point2_type const> segment2_type;
 
-
-    template <size_t Dim, typename Point, typename Box, typename RobustPolicy>
-    static inline bool preceding(int dir, Point const& point, Box const& box, RobustPolicy const& robust_policy)
-    {
-        typename robust_point_type<Point, RobustPolicy>::type robust_point;
-        geometry::recalculate(robust_point, point, robust_policy);
-        return (dir == 1  && get<Dim>(robust_point) < get<min_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(robust_point) > get<max_corner, Dim>(box));
-    }
-
-    template <size_t Dim, typename Point, typename Box, typename RobustPolicy>
-    static inline bool exceeding(int dir, Point const& point, Box const& box, RobustPolicy const& robust_policy)
-    {
-        typename robust_point_type<Point, RobustPolicy>::type robust_point;
-        geometry::recalculate(robust_point, point, robust_policy);
-        return (dir == 1  && get<Dim>(robust_point) > get<max_corner, Dim>(box))
-            || (dir == -1 && get<Dim>(robust_point) < get<min_corner, Dim>(box));
-    }
-
     template <typename Iterator, typename RangeIterator, typename Section, typename RobustPolicy>
     static inline void advance_to_non_duplicate_next(Iterator& next,
             RangeIterator const& it, Section const& section, RobustPolicy const& robust_policy)
@@ -387,29 +368,11 @@ private :
         // Mimic section-iterator:
         // Skip to point such that section interects other box
         prev = it++;
-        for(; it != end && preceding<0>(dir, *it, other_bounding_box, robust_policy);
+        for(; it != end && detail::section::preceding<0>(dir, *it, other_bounding_box, robust_policy);
             prev = it++, index++, ndi++)
         {}
         // Go back one step because we want to start completely preceding
         it = prev;
-    }
-};
-
-struct get_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline void apply(Box& total, InputItem const& item)
-    {
-        geometry::expand(total, item.bounding_box);
-    }
-};
-
-struct ovelaps_section_box
-{
-    template <typename Box, typename InputItem>
-    static inline bool apply(Box const& box, InputItem const& item)
-    {
-        return ! detail::disjoint::disjoint_box_box(box, item.bounding_box);
     }
 };
 
@@ -516,7 +479,9 @@ public:
 
         geometry::partition
             <
-                box_type, get_section_box, ovelaps_section_box
+                box_type,
+                detail::section::get_section_box,
+                detail::section::overlaps_section_box
             >::apply(sec1, sec2, visitor);
     }
 };

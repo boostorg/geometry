@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -194,11 +194,11 @@ void test_distance_linestring_multilinestring(Strategy const& strategy)
 
     tester::apply("linestring(1 1,2 2,3 3)",
                   "multilinestring((2 1,1 2,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 
     tester::apply("linestring(1 1,2 2,3 3)",
                   "multilinestring((1 -10,2 0,2.1 -10,4 0),(1 -10,2 1.9,2.1 -10,4 0))",
-                  sqrt(0.005), 0.005, strategy, true);
+                  sqrt(0.005), 0.005, strategy);
 
     tester::apply("linestring(1 1,2 2)",
                   "multilinestring((2.5 0,4 0,5 0),(3 3,3 3))",

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -22,7 +22,7 @@
 
 #include "../test_set_ops_pl_pl.hpp"
 
-#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
 typedef bg::model::multi_point<point_type>  multi_point_type;

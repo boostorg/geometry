@@ -36,6 +36,7 @@
 #include <boost/geometry/strategies/within.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
 namespace boost { namespace geometry {
@@ -197,11 +198,11 @@ struct point_in_geometry<Linestring, linestring_tag>
                 return -1; // exterior
 
             // if the linestring doesn't have a boundary
-            if ( detail::equals::equals_point_point(*boost::begin(linestring), *(--boost::end(linestring))) )
+            if (detail::equals::equals_point_point(range::front(linestring), range::back(linestring)))
                 return 1; // interior
             // else if the point is equal to the one of the terminal points
-            else if ( detail::equals::equals_point_point(point, *boost::begin(linestring))
-                   || detail::equals::equals_point_point(point, *(--boost::end(linestring))) )
+            else if (detail::equals::equals_point_point(point, range::front(linestring))
+                || detail::equals::equals_point_point(point, range::back(linestring)))
                 return 0; // boundary
             else
                 return 1; // interior
@@ -210,7 +211,7 @@ struct point_in_geometry<Linestring, linestring_tag>
 //       throw an exception here?
         /*else if ( count == 1 )
         {
-            if ( detail::equals::equals_point_point(point, *boost::begin(linestring)) )
+            if ( detail::equals::equals_point_point(point, range::front(linestring)) )
                 return 1;
         }*/
 
@@ -336,8 +337,8 @@ struct point_in_geometry<Geometry, multi_linestring_tag>
             if ( boost::size(*it) < 2 )
                 continue;
 
-            point_type const& front = *boost::begin(*it);
-            point_type const& back = *(--boost::end(*it));
+            point_type const& front = range::front(*it);
+            point_type const& back = range::back(*it);
 
             // is closed_ring - no boundary
             if ( detail::equals::equals_point_point(front, back) )

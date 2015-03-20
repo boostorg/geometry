@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -23,6 +23,9 @@ static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60
 // Grid, U-form, generates error for square point at 0.54 (top cells to control rescale)
 static std::string const grid_a = "MULTIPOINT(5 0,6 0,7 0,  5 1,7 1,  0 13,8 13)";
 
+static std::string const mysql_report_2015_02_25_1 = "MULTIPOINT(-9 19,9 -6,-4 4,16 -14,-3 16,14 9)";
+static std::string const mysql_report_2015_02_25_2 = "MULTIPOINT(-2 11,-15 3,6 4,-14 0,20 -7,-17 -1)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -31,6 +34,11 @@ void test_all()
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::end_flat end_flat;
+    typedef bg::strategy::buffer::distance_symmetric
+    <
+        typename bg::coordinate_type<P>::type
+    > distance_strategy;
+    bg::strategy::buffer::side_straight side_strategy;
 
     double const pi = boost::geometry::math::pi<double>();
 
@@ -53,28 +61,98 @@ void test_all()
     // Grid tests
     {
         bg::strategy::buffer::point_square point_strategy;
-        bg::strategy::buffer::side_straight side_strategy;
 
-        typedef bg::strategy::buffer::distance_symmetric
-        <
-            typename bg::coordinate_type<P>::type
-        > distance_strategy;
 
         test_with_custom_strategies<multi_point_type, polygon>("grid_a50",
                 grid_a, join_miter, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
+
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join_miter, end_flat,
                 distance_strategy(0.54), side_strategy, point_strategy, 99);
 #endif
+
     }
+
+    test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
+            mysql_report_2015_02_25_1, join_miter, end_flat,
+            distance_strategy(6051788), side_strategy,
+            bg::strategy::buffer::point_circle(800), 115057490003226.125, 1.0);
+}
+
+template <typename P>
+void test_many_points_per_circle()
+{
+    // Tests for large distances / many points in circles.
+    // Before Boost 1.58, this would (seem to) hang. It is solved by using monotonic sections in get_turns for buffer
+    // This is more time consuming, only calculate this for counter clockwise
+    // Reported by MySQL 2015-02-25
+    //   SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT(''), 6051788, ST_BUFFER_STRATEGY('point_circle', 83585)));
+    //   SELECT ST_ASTEXT(ST_BUFFER(ST_GEOMFROMTEXT(''), 5666962, ST_BUFFER_STRATEGY('point_circle', 46641))) ;
+
+    typedef bg::model::polygon<P, false> polygon;
+    typedef bg::model::multi_point<P> multi_point_type;
+
+    bg::strategy::buffer::join_miter join_miter;
+    bg::strategy::buffer::end_flat end_flat;
+    typedef bg::strategy::buffer::distance_symmetric
+    <
+        typename bg::coordinate_type<P>::type
+    > distance_strategy;
+    bg::strategy::buffer::side_straight side_strategy;
+
+    using bg::strategy::buffer::point_circle;
+
+    double const tolerance = 1.0;
+
+    // Strategies with many points, which are (very) slow in debug mode
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "mysql_report_2015_02_25_1_8000",
+            mysql_report_2015_02_25_1, join_miter, end_flat,
+            distance_strategy(6051788), side_strategy, point_circle(8000),
+            115058661065242.812, tolerance);
+
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "mysql_report_2015_02_25_1",
+            mysql_report_2015_02_25_1, join_miter, end_flat,
+            distance_strategy(6051788), side_strategy, point_circle(83585),
+            115058672785611.219, tolerance);
+
+    // Takes about 20 seconds in release mode
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "mysql_report_2015_02_25_1_250k",
+            mysql_report_2015_02_25_1, join_miter, end_flat,
+            distance_strategy(6051788), side_strategy, point_circle(250000),
+            115058672880671.531, tolerance);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+    // Takes too long, TODO improve turn_in_piece_visitor
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "mysql_report_2015_02_25_1",
+            mysql_report_2015_02_25_1, join_miter, end_flat,
+            distance_strategy(6051788), side_strategy, point_circle(800000),
+            115058672799999.999, tolerance); // area to be determined
+#endif
+
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "mysql_report_2015_02_25_2",
+            mysql_report_2015_02_25_2, join_miter, end_flat,
+            distance_strategy(5666962), side_strategy, point_circle(46641),
+            100891031341757.344, tolerance);
+
 }
 
 int test_main(int, char* [])
 {
     test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
     test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
+
+#if defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE) && ! defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG)
+    test_many_points_per_circle<bg::model::point<double, 2, bg::cs::cartesian> >();
+#else
+    std::cout << "Skipping some tests in debug or unknown mode" << std::endl;
+#endif
 
     return 0;
 }

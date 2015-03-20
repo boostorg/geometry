@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -8,6 +8,8 @@
 
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_JOIN_ROUND_HPP
+
+#include <algorithm>
 
 #include <boost/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -83,16 +85,24 @@ private :
         {
             angle2 -= two_pi;
         }
+        PromotedType const angle_diff = angle1 - angle2;
 
         // Divide the angle into an integer amount of steps to make it
         // visually correct also for a low number of points / circle
-        int const n = static_cast<int>
-            (
-                m_points_per_circle * (angle1 - angle2) / two_pi
-            );
 
-        PromotedType const diff = (angle1 - angle2) / static_cast<PromotedType>(n);
+        // If a full circle is divided into 3 parts (e.g. angle is 125),
+        // the one point in between must still be generated
+        // The calculation below:
+        // - generates 1 point  in between for an angle of 125 based on 3 points
+        // - generates 0 points in between for an angle of 90  based on 4 points
+
+        int const n = (std::max)(static_cast<int>(
+            ceil(m_points_per_circle * angle_diff / two_pi)), 1);
+
+        PromotedType const diff = angle_diff / static_cast<PromotedType>(n);
         PromotedType a = angle1 - diff;
+
+        // Walk to n - 1 to avoid generating the last point
         for (int i = 0; i < n - 1; i++, a -= diff)
         {
             Point p;

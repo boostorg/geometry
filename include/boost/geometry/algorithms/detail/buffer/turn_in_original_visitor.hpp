@@ -13,7 +13,6 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
@@ -64,11 +63,8 @@ struct turn_in_original_ovelaps_box
             return false;
         }
 
-        return ! dispatch::disjoint
-            <
-                typename Turn::robust_point_type,
-                Box
-            >::apply(turn.robust_point, box);
+        return ! geometry::detail::disjoint::disjoint_point_box(
+                    turn.robust_point, box);
     }
 };
 

@@ -24,8 +24,15 @@ template <typename T1, typename T2, typename ExpectedType>
 void test()
 {
     typedef typename bg::select_most_precise<T1, T2>::type type;
+    bool is_same = boost::is_same<type, ExpectedType>::type::value;
 
-    BOOST_CHECK((boost::is_same<type, ExpectedType>::type::value));
+    BOOST_CHECK_MESSAGE(is_same,
+                        "The most precise of types "
+                        "T1: {" << typeid(T1).name() << " | s: " << sizeof(T1) << "}" <<
+                        " and "
+                        "T2: {" << typeid(T2).name() << " | s: " << sizeof(T2) << "}" <<
+                        " does not match "
+                        "ExpectedType: {" << typeid(ExpectedType).name() << " | s: " << sizeof(ExpectedType) << "}");
 }
 
 int test_main(int, char* [])

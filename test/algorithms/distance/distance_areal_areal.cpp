@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -79,12 +79,12 @@ void test_distance_polygon_multipolygon(Strategy const& strategy)
     tester::apply("polygon((12 0,14 0,19 0,19.9 -1,12 0))",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  0.1, 0.01, strategy, true);
+                  0.1, 0.01, strategy);
 
     tester::apply("polygon((19 0,19.9 -1,12 0,20.5 0.5,19 0))",
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -155,12 +155,12 @@ void test_distance_multipolygon_ring(Strategy const& strategy)
     tester::apply("multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   "polygon((12 0,14 0,19 0,19.9 -1,12 0))",
-                  0.1, 0.01, strategy, true);
+                  0.1, 0.01, strategy);
 
     tester::apply("multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   "polygon((19 0,19.9 -1,12 0,20.5 0.5,19 0))",
-                  0, 0, strategy, true);
+                  0, 0, strategy);
 }
 
 //===========================================================================
