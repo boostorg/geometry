@@ -107,9 +107,10 @@ namespace ttmath
         return two * ATan((sqrt(x * x + y * y) - x) / y);
     }
 
-    // needed in order to work with boost::geometry::math::fmod
+    // needed in order to work with boost::geometry::math::mod
     template <uint Exponent, uint Mantissa>
-    inline Big<Exponent, Mantissa> fmod(Big<Exponent, Mantissa> const& x, Big<Exponent, Mantissa> const& y)
+    inline Big<Exponent, Mantissa> mod(Big<Exponent, Mantissa> const& x,
+                                       Big<Exponent, Mantissa> const& y)
     {
         return Mod(x, y);
     }
