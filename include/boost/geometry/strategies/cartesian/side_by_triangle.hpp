@@ -46,6 +46,24 @@ namespace strategy { namespace side
 template <typename CalculationType = void>
 class side_by_triangle
 {
+    template <typename Policy>
+    struct eps_policy
+    {
+        eps_policy() {}
+        template <typename Type>
+        eps_policy(Type const& a, Type const& b, Type const& c, Type const& d)
+            : policy(a, b, c, d)
+        {}
+        Policy policy;
+    };
+
+    struct eps_empty
+    {
+        eps_empty() {}
+        template <typename Type>
+        eps_empty(Type const&, Type const&, Type const&, Type const&) {}
+    };
+
 public :
 
     // Template member function, because it is not always trivial
@@ -61,10 +79,11 @@ public :
         typename PromotedType,
         typename P1,
         typename P2,
-        typename P
+        typename P,
+        typename EpsPolicy
     >
     static inline
-    PromotedType side_value(P1 const& p1, P2 const& p2, P const& p)
+    PromotedType side_value(P1 const& p1, P2 const& p2, P const& p, EpsPolicy & eps_policy)
     {
         CoordinateType const x = get<0>(p);
         CoordinateType const y = get<1>(p);
@@ -79,12 +98,29 @@ public :
         PromotedType const dpx = x - sx1;
         PromotedType const dpy = y - sy1;
 
+        eps_policy = EpsPolicy(dx, dy, dpx, dpy);
+
         return geometry::detail::determinant<PromotedType>
                 (
                     dx, dy,
                     dpx, dpy
                 );
 
+    }
+
+    template
+    <
+        typename CoordinateType,
+        typename PromotedType,
+        typename P1,
+        typename P2,
+        typename P
+    >
+    static inline
+    PromotedType side_value(P1 const& p1, P2 const& p2, P const& p)
+    {
+        eps_empty dummy;
+        return side_value<CoordinateType, PromotedType>(p1, p2, p, dummy);
     }
 
 
@@ -96,18 +132,18 @@ public :
     >
     struct compute_side_value
     {
-        template <typename P1, typename P2, typename P>
-        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p)
+        template <typename P1, typename P2, typename P, typename EpsPolicy>
+        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p, EpsPolicy & epsp)
         {
-            return side_value<CoordinateType, PromotedType>(p1, p2, p);
+            return side_value<CoordinateType, PromotedType>(p1, p2, p, epsp);
         }
     };
 
     template <typename CoordinateType, typename PromotedType>
     struct compute_side_value<CoordinateType, PromotedType, false>
     {
-        template <typename P1, typename P2, typename P>
-        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p)
+        template <typename P1, typename P2, typename P, typename EpsPolicy>
+        static inline PromotedType apply(P1 const& p1, P2 const& p2, P const& p, EpsPolicy & epsp)
         {
             // For robustness purposes, first check if any two points are
             // the same; in this case simply return that the points are
@@ -135,24 +171,24 @@ public :
                 if (less(p, p2))
                 {
                     // p is the lexicographically smallest
-                    return side_value<CoordinateType, PromotedType>(p, p1, p2);
+                    return side_value<CoordinateType, PromotedType>(p, p1, p2, epsp);
                 }
                 else
                 {
                     // p2 is the lexicographically smallest
-                    return side_value<CoordinateType, PromotedType>(p2, p, p1);
+                    return side_value<CoordinateType, PromotedType>(p2, p, p1, epsp);
                 }
             }
 
             if (less(p1, p2))
             {
                 // p1 is the lexicographically smallest
-                return side_value<CoordinateType, PromotedType>(p1, p2, p);
+                return side_value<CoordinateType, PromotedType>(p1, p2, p, epsp);
             }
             else
             {
                 // p2 is the lexicographically smallest
-                return side_value<CoordinateType, PromotedType>(p2, p, p1);
+                return side_value<CoordinateType, PromotedType>(p2, p, p1, epsp);
             }
         }
     };
@@ -191,13 +227,14 @@ public :
             && boost::is_integral<coordinate_type2>::value
             && boost::is_integral<coordinate_type3>::value;
 
+        eps_policy< math::detail::equals_factor_policy<promoted_type> > epsp;
         promoted_type s = compute_side_value
             <
                 coordinate_type, promoted_type, are_all_integral_coordinates
-            >::apply(p1, p2, p);
+            >::apply(p1, p2, p, epsp);
 
         promoted_type const zero = promoted_type();
-        return math::equals(s, zero) ? 0
+        return math::detail::equals_by_policy(s, zero, epsp.policy) ? 0
             : s > zero ? 1
             : -1;
     }

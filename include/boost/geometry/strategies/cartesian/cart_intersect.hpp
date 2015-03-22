@@ -200,8 +200,11 @@ struct relate_cartesian_segments
                 get<1>(robust_b1) - get<1>(robust_a1),
                 robust_db0, robust_db);
 
+            math::detail::equals_factor_policy<robust_coordinate_type>
+                policy(robust_dx_a, robust_dy_a, robust_dx_b, robust_dy_b);
             robust_coordinate_type const zero = 0;
-            if (math::equals(robust_da0, zero) || math::equals(robust_db0, zero))
+            if (math::detail::equals_by_policy(robust_da0, zero, policy)
+             || math::detail::equals_by_policy(robust_db0, zero, policy))
             {
                 // If this is the case, no rescaling is done for FP precision.
                 // We set it to collinear, but it indicates a robustness issue.
