@@ -23,6 +23,8 @@
 #include <cmath>
 #include <limits>
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/math/constants/constants.hpp>
 #ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -43,11 +45,104 @@ namespace math
 namespace detail
 {
 
+template <typename T>
+inline T const& greatest(T const& v1, T const& v2)
+{
+    return (std::max)(v1, v2);
+}
 
-template <typename Type, bool IsFloatingPoint>
+template <typename T>
+inline T const& greatest(T const& v1, T const& v2, T const& v3)
+{
+    return (std::max)(greatest(v1, v2), v3);
+}
+
+template <typename T>
+inline T const& greatest(T const& v1, T const& v2, T const& v3, T const& v4)
+{
+    return (std::max)(greatest(v1, v2, v3), v4);
+}
+
+template <typename T>
+inline T const& greatest(T const& v1, T const& v2, T const& v3, T const& v4, T const& v5)
+{
+    return (std::max)(greatest(v1, v2, v3, v4), v5);
+}
+
+
+template <typename T,
+          bool IsFloatingPoint = boost::is_floating_point<T>::value>
+struct abs
+{
+    static inline T apply(T const& value)
+    {
+        T const zero = T();
+        return value < zero ? -value : value;
+    }
+};
+
+template <typename T>
+struct abs<T, true>
+{
+    static inline T apply(T const& value)
+    {
+        return fabs(value);
+    }
+};
+
+
+struct equals_default_policy
+{
+    template <typename T>
+    static inline T apply(T const& a, T const& b)
+    {
+        // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17
+        return greatest(abs<T>::apply(a), abs<T>::apply(b), T(1));
+    }
+};
+
+template <typename T,
+          bool IsFloatingPoint = boost::is_floating_point<T>::value>
+struct equals_factor_policy
+{
+    equals_factor_policy()
+        : factor(1) {}
+    explicit equals_factor_policy(T const& v)
+        : factor(greatest(abs<T>::apply(v), T(1)))
+    {}
+    equals_factor_policy(T const& v0, T const& v1, T const& v2, T const& v3)
+        : factor(greatest(abs<T>::apply(v0), abs<T>::apply(v1),
+                          abs<T>::apply(v2), abs<T>::apply(v3),
+                          T(1)))
+    {}
+
+    T const& apply(T const&, T const&) const
+    {
+        return factor;
+    }
+
+    T factor;
+};
+
+template <typename T>
+struct equals_factor_policy<T, false>
+{
+    equals_factor_policy() {}
+    explicit equals_factor_policy(T const&) {}
+    equals_factor_policy(T const& , T const& , T const& , T const& ) {}
+
+    static inline T apply(T const&, T const&)
+    {
+        return T(1);
+    }
+};
+
+template <typename Type,
+          bool IsFloatingPoint = boost::is_floating_point<Type>::value>
 struct equals
 {
-    static inline bool apply(Type const& a, Type const& b)
+    template <typename Policy>
+    static inline bool apply(Type const& a, Type const& b, Policy const&)
     {
         return a == b;
     }
@@ -56,25 +151,31 @@ struct equals
 template <typename Type>
 struct equals<Type, true>
 {
-    static inline Type get_max(Type const& a, Type const& b, Type const& c)
+    template <typename Policy>
+    static inline bool apply(Type const& a, Type const& b, Policy const& policy)
     {
-        return (std::max)((std::max)(a, b), c);
-    }
+        boost::ignore_unused(policy);
 
-    static inline bool apply(Type const& a, Type const& b)
-    {
         if (a == b)
         {
             return true;
         }
 
-        // See http://www.parashift.com/c++-faq-lite/newbie.html#faq-29.17,
-        // FUTURE: replace by some boost tool or boost::test::close_at_tolerance
-        return std::abs(a - b) <= std::numeric_limits<Type>::epsilon() * get_max(std::abs(a), std::abs(b), 1.0);
+        return abs<Type>::apply(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
     }
 };
 
-template <typename Type, bool IsFloatingPoint>
+template <typename T1, typename T2, typename Policy>
+inline bool equals_by_policy(T1 const& a, T2 const& b, Policy const& policy)
+{
+    return detail::equals
+        <
+            typename select_most_precise<T1, T2>::type
+        >::apply(a, b, policy);
+}
+
+template <typename Type,
+          bool IsFloatingPoint = boost::is_floating_point<Type>::value>
 struct smaller
 {
     static inline bool apply(Type const& a, Type const& b)
@@ -88,7 +189,7 @@ struct smaller<Type, true>
 {
     static inline bool apply(Type const& a, Type const& b)
     {
-        if (equals<Type, true>::apply(a, b))
+        if (equals<Type, true>::apply(a, b, equals_default_policy()))
         {
             return false;
         }
@@ -97,8 +198,11 @@ struct smaller<Type, true>
 };
 
 
-template <typename Type, bool IsFloatingPoint>
-struct equals_with_epsilon : public equals<Type, IsFloatingPoint> {};
+template <typename Type,
+          bool IsFloatingPoint = boost::is_floating_point<Type>::value>
+struct equals_with_epsilon
+    : public equals<Type, IsFloatingPoint>
+{};
 
 template
 <
@@ -270,44 +374,36 @@ inline T relaxed_epsilon(T const& factor)
 template <typename T1, typename T2>
 inline bool equals(T1 const& a, T2 const& b)
 {
-    typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::equals
         <
-            select_type,
-            boost::is_floating_point<select_type>::type::value
-        >::apply(a, b);
+            typename select_most_precise<T1, T2>::type
+        >::apply(a, b, detail::equals_default_policy());
 }
 
 template <typename T1, typename T2>
 inline bool equals_with_epsilon(T1 const& a, T2 const& b)
 {
-    typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::equals_with_epsilon
         <
-            select_type,
-            boost::is_floating_point<select_type>::type::value
-        >::apply(a, b);
+            typename select_most_precise<T1, T2>::type
+        >::apply(a, b, detail::equals_default_policy());
 }
 
 template <typename T1, typename T2>
 inline bool smaller(T1 const& a, T2 const& b)
 {
-    typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::smaller
         <
-            select_type,
-            boost::is_floating_point<select_type>::type::value
+            typename select_most_precise<T1, T2>::type
         >::apply(a, b);
 }
 
 template <typename T1, typename T2>
 inline bool larger(T1 const& a, T2 const& b)
 {
-    typedef typename select_most_precise<T1, T2>::type select_type;
     return detail::smaller
         <
-            select_type,
-            boost::is_floating_point<select_type>::type::value
+            typename select_most_precise<T1, T2>::type
         >::apply(b, a);
 }
 
@@ -366,8 +462,7 @@ sqrt(T const& value)
 template<typename T>
 inline T abs(T const& value)
 {
-    T const zero = T();
-    return value < zero ? -value : value;
+    return detail::abs<T>::apply(value);
 }
 
 /*!
@@ -386,12 +481,11 @@ static inline int sign(T const& value)
 \ingroup utility
 \note If the source T is NOT an integral type and Result is an integral type
       the value is rounded towards the closest integral value. Otherwise it's
-      just casted.
+      casted.
 */
 template <typename Result, typename T>
 inline Result round(T const& v)
 {
-    // NOTE: boost::round() could be used instead but it throws in some situations
     return detail::round<Result, T>::apply(v);
 }
 

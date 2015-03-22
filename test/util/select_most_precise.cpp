@@ -27,11 +27,11 @@ void test()
     bool is_same = boost::is_same<type, ExpectedType>::type::value;
 
     BOOST_CHECK_MESSAGE(is_same,
-                        "The most precise of types "
+                        "The most precise of types " <<
                         "T1: {" << typeid(T1).name() << " | s: " << sizeof(T1) << "}" <<
-                        " and "
+                        " and " <<
                         "T2: {" << typeid(T2).name() << " | s: " << sizeof(T2) << "}" <<
-                        " does not match "
+                        " does not match " <<
                         "ExpectedType: {" << typeid(ExpectedType).name() << " | s: " << sizeof(ExpectedType) << "}");
 }
 
@@ -56,11 +56,13 @@ int test_main(int, char* [])
     test<float, int, float>();
     test<int, float, float>();
 
-#ifndef _MSC_VER
-    // This cannot be done for MSVC because double/long double is the same
-    test<double, long double, long double>();
-    test<long double, double, long double>();
-#endif
+    if ( sizeof(long double) > sizeof(double) )
+    {
+        // This cannot be done for MSVC because double/long double is the same
+        // This is also true for Android
+        test<double, long double, long double>();
+        test<long double, double, long double>();
+    }
 
     // with any other non-integer/float class
     test<int, user_defined, user_defined>();
