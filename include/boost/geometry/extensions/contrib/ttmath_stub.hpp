@@ -88,7 +88,6 @@ namespace ttmath
         return ACos(v);
     }
 
-
     template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> atan2(Big<Exponent, Mantissa> const& y, Big<Exponent, Mantissa> const& x)
     {
@@ -108,6 +107,13 @@ namespace ttmath
         return two * ATan((sqrt(x * x + y * y) - x) / y);
     }
 
+    // needed in order to work with boost::geometry::math::mod
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> mod(Big<Exponent, Mantissa> const& x,
+                                       Big<Exponent, Mantissa> const& y)
+    {
+        return Mod(x, y);
+    }
 }
 
 // Specific structure implementing constructor
