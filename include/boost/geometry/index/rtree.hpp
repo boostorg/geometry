@@ -96,12 +96,13 @@ namespace boost { namespace geometry { namespace index {
 /*!
 \brief The R-tree spatial index.
 
-This is self-balancing spatial index capable to store various types of Values and balancing algorithms.
+This is self-balancing spatial index capable to store various types of Values
+and balancing algorithms.
 
 \par Parameters
 The user must pass a type defining the Parameters which will
-be used in rtree creation process. This type is used e.g. to specify balancing algorithm
-with specific parameters like min and max number of elements in node.
+be used in rtree creation process. This type is used e.g. to specify balancing
+algorithm with specific parameters like min and max number of elements in node.
 
 \par
 Predefined algorithms with compile-time parameters are:
@@ -116,24 +117,31 @@ Predefined algorithms with run-time parameters are:
  \li \c boost::geometry::index::dynamic_rstar.
 
 \par IndexableGetter
-The object of IndexableGetter type translates from Value to Indexable each time r-tree requires it. Which means that this
-operation is done for each Value access. Therefore the IndexableGetter should return the Indexable by
-const reference instead of a value. Default one can translate all types adapted to Point, Box or Segment
-concepts (called Indexables). It also handles <tt>std::pair<Indexable, T></tt> and
-<tt>boost::tuple<Indexable, ...></tt>. For example, if <tt>std::pair<Box, int></tt> is stored in the
-container, the default IndexableGetter translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
+The object of IndexableGetter type translates from Value to Indexable each time
+r-tree requires it. This means that this operation is done for each Value
+access. Therefore the IndexableGetter should return the Indexable by
+a reference type. The Indexable should not be calculated since it could harm
+the performance. The default IndexableGetter can translate all types adapted
+to Point, Box or Segment concepts (called Indexables). Furthermore, it can
+handle <tt>std::pair<Indexable, T></tt>, <tt>boost::tuple<Indexable, ...></tt>
+and <tt>std::tuple<Indexable, ...></tt> when possible. For example, for Value
+of type <tt>std::pair<Box, int></tt>, the default IndexableGetter translates
+from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 
 \par EqualTo
-The object of EqualTo type compares Values and returns <tt>true</tt> if they're equal. It's similar to <tt>std::equal_to<></tt>.
-The default EqualTo returns the result of <tt>boost::geometry::equals()</tt> for types adapted to some Geometry concept
-defined in Boost.Geometry and the result of <tt>operator==</tt> for other types.
-Components of Pairs and Tuples are compared left-to-right.
+The object of EqualTo type compares Values and returns <tt>true</tt> if they
+are equal. It's similar to <tt>std::equal_to<></tt>. The default EqualTo
+returns the result of <tt>boost::geometry::equals()</tt> for types adapted to
+some Geometry concept defined in Boost.Geometry and the result of
+<tt>operator==</tt> for other types. Components of Pairs and Tuples are
+compared left-to-right.
 
 \tparam Value           The type of objects stored in the container.
 \tparam Parameters      Compile-time parameters.
 \tparam IndexableGetter The function object extracting Indexable from Value.
 \tparam EqualTo         The function object comparing objects of type Value.
-\tparam Allocator       The allocator used to allocate/deallocate memory, construct/destroy nodes and Values.
+\tparam Allocator       The allocator used to allocate/deallocate memory,
+                        construct/destroy nodes and Values.
 */
 template <
     typename Value,
