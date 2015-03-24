@@ -1097,6 +1097,8 @@ public:
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
     {
+        // the input should be convertible to Value or Indexable type
+
         enum { as_val = 0, as_ind, dont_know };
         typedef boost::mpl::int_
             <
@@ -1122,15 +1124,9 @@ public:
                 indexable_type
             >::type value_or_indexable;
 
-        if ( !m_members.root )
-            return 0;
-
-        detail::rtree::visitors::count<value_or_indexable, value_type, options_type, translator_type, box_type, allocators_type>
-            count_v(vori, m_members.translator());
-
-        detail::rtree::apply_visitor(count_v, *m_members.root);
-
-        return count_v.found_count;
+        // NOTE: If an object of convertible but not the same type is passed
+        // into the function, here a temporary will be created.
+        return this->template raw_count<value_or_indexable>(vori);
     }
 
     /*!
@@ -1501,6 +1497,33 @@ private:
         detail::rtree::apply_visitor(distance_v, *m_members.root);
 
         return distance_v.finish();
+    }
+    
+    /*!
+    \brief Count elements corresponding to value or indexable.
+
+    \par Exception-safety
+    strong
+    */
+    template <typename ValueOrIndexable>
+    size_type raw_count(ValueOrIndexable const& vori) const
+    {
+        if ( !m_members.root )
+            return 0;
+
+        detail::rtree::visitors::count
+            <
+                ValueOrIndexable,
+                value_type,
+                options_type,
+                translator_type,
+                box_type,
+                allocators_type
+            > count_v(vori, m_members.translator());
+
+        detail::rtree::apply_visitor(count_v, *m_members.root);
+
+        return count_v.found_count;
     }
 
     struct members_holder
