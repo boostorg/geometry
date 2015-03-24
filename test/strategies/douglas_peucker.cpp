@@ -197,16 +197,20 @@ struct test_one_case
                           "output: ");
         std::cout << std::endl << std::endl;
 #endif
-        std::stringstream sstr;
-        print_point_range(sstr, boost::begin(expected_result),
+        std::stringstream stream_expected;
+        print_point_range(stream_expected, boost::begin(expected_result),
                           boost::end(expected_result),
+                          "");
+        std::stringstream stream_detected;
+        print_point_range(stream_detected, boost::begin(result),
+                          boost::end(result),
                           "");
 
         BOOST_CHECK_MESSAGE(equals::apply(result, expected_result),
                             "case id: " << case_id << " - " << typeid_name
                             << ", geometry: " << wkt
-                            << ", Expected: " << sstr.str()
-                            << " - Detected: " << bg::wkt(result));
+                            << ", Expected: " << stream_expected.str()
+                            << " - Detected: " << stream_detected.str());
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "---------------" << std::endl;
