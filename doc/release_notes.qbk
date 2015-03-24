@@ -74,6 +74,7 @@
 * Bug in closing_iterator not working properly when the input range is empty
 * Bug in is_simple, not handling properly closed simple linestrings within multilinestrings
 * Bug in rtree constructors taking a pair of Iterators or a Range (packing algorithm), the use of reference to destroyed temporary when Iterator's reference is not true reference, e.g. for some of the Range Adaptors. It also affects distance() and comparable_distance(). This bug may cause unexpected behavior of the rtree or distance() algorithm, e.g. an assertion failure or a SEGFAULT.
+* Bug in rtree count() member function, the use of reference to destroyed temporary when object of type convertible but not the same as value_type or indexable_type is passed. If this happens, wrong result may be returned, in most cases 0.
 * Bugs related to the handling of Ranges, preventing compilation of Geometries using non-Container Ranges in some algorithms (thanks to Samuel Debionne)
 
 [/=================]
