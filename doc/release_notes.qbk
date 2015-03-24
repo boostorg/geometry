@@ -37,8 +37,11 @@
 
 [*Solved tickets]
 
+* [@https://svn.boost.org/trac/boost/ticket/8379 8379] Invalid comparison of the result of determinant
 * [@https://svn.boost.org/trac/boost/ticket/10108 10108] Error in overlay operations in specific cases where geometries touch at one point
+* [@https://svn.boost.org/trac/boost/ticket/10201 10201] Suggestion to use different function to compare coordinates [wontfix]
 * [@https://svn.boost.org/trac/boost/ticket/10467 10467] Template parameter name coliding with B0 macro name defined in termios.h
+* [@https://svn.boost.org/trac/boost/ticket/10640 10640] Invalid result of buffer() for CCW Polygons.
 * [@https://svn.boost.org/trac/boost/ticket/10666 10666] MSVC compiler warning C4127: conditional expression is constant
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
 * [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joins, where concavities where not intersected properly
@@ -48,11 +51,13 @@
 * [@https://svn.boost.org/trac/boost/ticket/10890 10890] Invalid result of disjoint() for Point/Segment.
 * [@https://svn.boost.org/trac/boost/ticket/10904 10904] Invalid calculation of most significant Dimension of a segment in relate_cartesian_segments strategy
 * [@https://svn.boost.org/trac/boost/ticket/10912 10912] Invalid result of within() and relate() for Areal/Areal
+* [@https://svn.boost.org/trac/boost/ticket/10951 10951] Tests failing on windows with intel compiler due to lack of /bigobj flag.
 * [@https://svn.boost.org/trac/boost/ticket/10957 10957] Assertion failure and invalid results of various relational operations.
 * [@https://svn.boost.org/trac/boost/ticket/10958 10958] Invalid results of disjoint() L/L and L/A.
 * [@https://svn.boost.org/trac/boost/ticket/10959 10959] Assertion failure in get_turns() used with no_rescale_policy.
 * [@https://svn.boost.org/trac/boost/ticket/10960 10960] Invalid result of get_turns() for L/A, missing turn.
 * [@https://svn.boost.org/trac/boost/ticket/10961 10961] Invalid result of get_turns() for L/A, invalid turn for a Linear spike.
+* [@https://svn.boost.org/trac/boost/ticket/11112 11112] Compilation failure on Solaris due to a CS name clash (used for a macro on this platform)
 
 [*Bugfixes]
 
@@ -68,6 +73,8 @@
 * Bug in buffers for interior rings with large negative buffer distances
 * Bug in closing_iterator not working properly when the input range is empty
 * Bug in is_simple, not handling properly closed simple linestrings within multilinestrings
+* Bug in rtree constructors taking a pair of Iterators or a Range (packing algorithm), the use of reference to destroyed temporary when Iterator's reference is not true reference, e.g. for some of the Range Adaptors. It also affects distance() and comparable_distance(). This bug may cause unexpected behavior of the rtree or distance() algorithm, e.g. an assertion failure or a SEGFAULT.
+* Bugs related to the handling of Ranges, preventing compilation of Geometries using non-Container Ranges in some algorithms (thanks to Samuel Debionne)
 
 [/=================]
 [heading Boost 1.57]
