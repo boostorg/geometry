@@ -16,16 +16,16 @@
 
 test-suite boost-geometry-algorithms-relational
     :
-    [ run covered_by.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run crosses.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run multi_covered_by.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run multi_equals.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run multi_intersects.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run multi_touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run overlaps.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run touches.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run covered_by.cpp ]
+    [ run crosses.cpp ]
+    [ run equals.cpp ]
+    [ run intersects.cpp ]
+    [ run multi_covered_by.cpp ]
+    [ run multi_equals.cpp ]
+    [ run multi_intersects.cpp ]
+    [ run multi_touches.cpp ]
+    [ run overlaps.cpp ]
+    [ run touches.cpp ]
     ;
 
 build-project disjoint ;

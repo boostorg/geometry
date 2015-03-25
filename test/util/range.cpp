@@ -12,6 +12,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <iterator>
 #include <vector>
 #include <boost/geometry/util/range.hpp>
 
@@ -198,6 +199,22 @@ void test_detail()
 #endif
 }
 
+template <class Iterator>
+void test_pointers()
+{
+    int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    boost::iterator_range<Iterator> r1(arr, arr + 10);
+    std::pair<Iterator, Iterator> r2(arr, arr + 10);
+
+    BOOST_CHECK(bgr::front(r1) == 0);
+    BOOST_CHECK(bgr::front(r2) == 0);
+    BOOST_CHECK(bgr::back(r1) == 9);
+    BOOST_CHECK(bgr::back(r2) == 9);
+    BOOST_CHECK(bgr::at(r1, 5) == 5);
+    BOOST_CHECK(bgr::at(r2, 5) == 5);
+}
+
 int test_main(int, char* [])
 {
     test_all<int, true>();
@@ -211,6 +228,8 @@ int test_main(int, char* [])
     test_all<bgt::CopyableAndMovable, false>();
 
     test_detail();
+    test_pointers<int*>();
+    test_pointers<int const*>();
 
     return 0;
 }

@@ -67,7 +67,7 @@ struct not_equal_to
     template <typename OtherPoint>
     inline bool operator()(OtherPoint const& other) const
     {
-        return !geometry::equals(other, m_point);
+        return ! geometry::equals(other, m_point);
     }
 };
 

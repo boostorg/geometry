@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -44,6 +44,11 @@ void test_distance_point_point(Strategy const& strategy)
     tester::apply("point(1 1)",
                   "point(1 1)",
                   0, 0, strategy);
+
+    // distance overflows
+    tester::apply("point(0 0)",
+                  "point(4.297374e+307 8.433875e+307)",
+                  0, 0, strategy, false);
 }
 
 //===========================================================================

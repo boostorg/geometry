@@ -17,7 +17,7 @@
 
 
 #include <boost/geometry/views/detail/range_type.hpp>
-#include <boost/geometry/util/as_range.hpp>
+#include <boost/geometry/algorithms/detail/as_range.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -47,10 +47,10 @@ void test_geometry(std::string const& wkt, double expected_x, double expected_y)
 
     bg::read_wkt(wkt, geometry);
 
-    double s = sum<0>(bg::as_range<range_type>(geometry));
+    double s = sum<0>(bg::detail::as_range<range_type>(geometry));
     BOOST_CHECK_CLOSE(s, expected_x, 0.001);
 
-    s = sum<1>(bg::as_range<range_type>(geometry));
+    s = sum<1>(bg::detail::as_range<range_type>(geometry));
     BOOST_CHECK_CLOSE(s, expected_y, 0.001);
 }
 
