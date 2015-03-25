@@ -168,11 +168,11 @@ template <typename Geometry>
 struct test_one_case
 {
     template <typename Strategy, typename Range>
-    static inline void apply(std::string const& wkt,
+    static inline void apply(std::string const& case_id,
+                             std::string const& wkt,
                              double max_distance,
                              Strategy const& strategy,
-                             Range const& expected_result,
-                             std::string const& case_id)
+                             Range const& expected_result)
     {
         typedef typename bg::point_type<Geometry>::type point_type;
         std::vector<point_type> result;
@@ -197,16 +197,20 @@ struct test_one_case
                           "output: ");
         std::cout << std::endl << std::endl;
 #endif
-        std::stringstream sstr;
-        print_point_range(sstr, boost::begin(expected_result),
+        std::stringstream stream_expected;
+        print_point_range(stream_expected, boost::begin(expected_result),
                           boost::end(expected_result),
+                          "");
+        std::stringstream stream_detected;
+        print_point_range(stream_detected, boost::begin(result),
+                          boost::end(result),
                           "");
 
         BOOST_CHECK_MESSAGE(equals::apply(result, expected_result),
                             "case id: " << case_id << " - " << typeid_name
                             << ", geometry: " << wkt
-                            << ", Expected: " << sstr.str()
-                            << " - Detected: " << bg::wkt(result));
+                            << ", Expected: " << stream_expected.str()
+                            << " - Detected: " << stream_detected.str());
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "---------------" << std::endl;
@@ -218,7 +222,7 @@ struct test_one_case
 
 
 template <typename CoordinateType, typename Strategy>
-inline void test_with_strategy()
+inline void test_with_strategy(std::string label)
 {
     std::cout.precision(20);
     Strategy strategy;
@@ -228,45 +232,52 @@ inline void test_with_strategy()
     typedef bg::model::segment<point_type> segment_type;
     typedef test_one_case<linestring_type> tester;
 
+    label = " (" + label + ")";
+
     {
         point_type const p1(-6,-13), p2(0,-15);
         segment_type const s(point_type(12,-3), point_type(-12,5));
 
         if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
         {
-            tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
+            tester::apply("l01c1" + label,
+                          "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
                           10,
                           strategy,
-                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5),
-                          "l01");
+                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5)
+                          );
         }
         else
         {
-            tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
+            tester::apply("l01c2" + label,
+                          "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
                           10,
                           strategy,
-                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-9,4)(0,-15)(-12,5),
-                          "l01");
+                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-9,4)(0,-15)(-12,5)
+                          );
         }
     }
 
-    tester::apply("LINESTRING(-6 -13,-9 4,0 -15,-12 5)",
+    tester::apply("l02" + label,
+                  "LINESTRING(-6 -13,-9 4,0 -15,-12 5)",
                   10,
                   strategy,
-                  ba::tuple_list_of(-6,-13)(-12,5),
-                  "l02");
+                  ba::tuple_list_of(-6,-13)(-12,5)
+                  );
 
-    tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
+    tester::apply("l03" + label,
+                  "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
                   10,
                   strategy,
-                  ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5),
-                  "l03");
+                  ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5)
+                  );
 
-    tester::apply("LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
+    tester::apply("l04" + label,
+                  "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
                   14,
                   strategy,
-                  ba::tuple_list_of(12,-3)(-6,-13)(-12,5),
-                  "l04");
+                  ba::tuple_list_of(12,-3)(-6,-13)(-12,5)
+                  );
 
     {
         segment_type const s(point_type(0,-1), point_type(5,-4));
@@ -308,29 +319,33 @@ inline void test_with_strategy()
 
         if (bg::comparable_distance(p1, s) >= bg::comparable_distance(p2, s))
         {
-            tester::apply(wkt,
+            tester::apply("l05c1" + label,
+                          wkt,
                           1,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-3)(5,-4)(0,0),
-                          "l05");
-            tester::apply(wkt,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-3)(5,-4)(0,0)
+                          );
+            tester::apply("l05c1a" + label,
+                          wkt,
                           2,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-4)(0,0),
-                          "l05a");
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-4)(0,0)
+                          );
         }
         else
         {
-            tester::apply(wkt,
+            tester::apply("l05c2" + label,
+                          wkt,
                           1,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-4)(5,-4)(0,0),
-                          "l05");
-            tester::apply(wkt,
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-4)(5,-4)(0,0)
+                          );
+            tester::apply("l05c2a" + label,
+                          wkt,
                           2,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-4)(5,-4)(0,0),
-                          "l05a");
+                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-4)(5,-4)(0,0)
+                          );
         }
     }
 
@@ -346,14 +361,14 @@ inline void test_with_strategy()
 
 BOOST_AUTO_TEST_CASE( test_default_strategy )
 {
-    test_with_strategy<int, default_simplify_strategy<int>::type>();
-    test_with_strategy<float, default_simplify_strategy<float>::type>();
-    test_with_strategy<double, default_simplify_strategy<double>::type>();
+    test_with_strategy<int, default_simplify_strategy<int>::type>("i");
+    test_with_strategy<float, default_simplify_strategy<float>::type>("f");
+    test_with_strategy<double, default_simplify_strategy<double>::type>("d");
     test_with_strategy
         <
             long double,
             default_simplify_strategy<long double>::type
-        >();
+        >("ld");
 }
 
 BOOST_AUTO_TEST_CASE( test_with_regular_distance_strategy )
@@ -362,24 +377,24 @@ BOOST_AUTO_TEST_CASE( test_with_regular_distance_strategy )
         <
             int,
             simplify_regular_distance_strategy<int>::type
-        >();
+        >("i");
 
     test_with_strategy
         <
             float,
             simplify_regular_distance_strategy<float>::type
-        >();
+        >("f");
 
     test_with_strategy
         <
             double,
             simplify_regular_distance_strategy<double>::type
-        >();
+        >("d");
     test_with_strategy
         <
             long double,
             simplify_regular_distance_strategy<long double>::type
-        >();
+        >("ld");
 }
 
 BOOST_AUTO_TEST_CASE( test_with_comparable_distance_strategy )
@@ -388,20 +403,20 @@ BOOST_AUTO_TEST_CASE( test_with_comparable_distance_strategy )
         <
             int,
             simplify_comparable_distance_strategy<int>::type
-        >();
+        >("i");
     test_with_strategy
         <
             float,
             simplify_comparable_distance_strategy<float>::type
-        >();
+        >("f");
     test_with_strategy
         <
             double,
             simplify_comparable_distance_strategy<double>::type
-        >();
+        >("d");
     test_with_strategy
         <
             long double,
             simplify_comparable_distance_strategy<long double>::type
-        >();
+        >("ld");
 }
