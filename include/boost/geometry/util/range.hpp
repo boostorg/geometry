@@ -81,7 +81,7 @@ pos(RandomAccessRange & rng,
 \ingroup utility
 */
 template <typename RandomAccessRange>
-inline typename boost::range_value<RandomAccessRange const>::type const&
+inline typename boost::range_reference<RandomAccessRange const>::type
 at(RandomAccessRange const& rng,
    typename boost::range_size<RandomAccessRange const>::type i)
 {
@@ -94,7 +94,7 @@ at(RandomAccessRange const& rng,
 \ingroup utility
 */
 template <typename RandomAccessRange>
-inline typename boost::range_value<RandomAccessRange>::type &
+inline typename boost::range_reference<RandomAccessRange>::type
 at(RandomAccessRange & rng,
    typename boost::range_size<RandomAccessRange>::type i)
 {
@@ -107,7 +107,7 @@ at(RandomAccessRange & rng,
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_value<Range>::type const&
+inline typename boost::range_reference<Range const>::type
 front(Range const& rng)
 {
     BOOST_ASSERT(!boost::empty(rng));
@@ -119,7 +119,7 @@ front(Range const& rng)
 \ingroup utility
 */
 template <typename Range>
-inline typename boost::range_value<Range>::type &
+inline typename boost::range_reference<Range>::type
 front(Range & rng)
 {
     BOOST_ASSERT(!boost::empty(rng));
@@ -133,7 +133,7 @@ front(Range & rng)
 \ingroup utility
 */
 template <typename BidirectionalRange>
-inline typename boost::range_value<BidirectionalRange>::type const&
+inline typename boost::range_reference<BidirectionalRange const>::type
 back(BidirectionalRange const& rng)
 {
     BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange const> ));
@@ -146,10 +146,10 @@ back(BidirectionalRange const& rng)
 \ingroup utility
 */
 template <typename BidirectionalRange>
-inline typename boost::range_value<BidirectionalRange>::type &
+inline typename boost::range_reference<BidirectionalRange>::type
 back(BidirectionalRange & rng)
 {
-    BOOST_RANGE_CONCEPT_ASSERT(( boost::BidirectionalRangeConcept<BidirectionalRange> ));
+    BOOST_RANGE_CONCEPT_ASSERT((boost::BidirectionalRangeConcept<BidirectionalRange>));
     BOOST_ASSERT(!boost::empty(rng));
     return *(boost::rbegin(rng));
 }

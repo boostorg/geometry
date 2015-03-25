@@ -18,15 +18,6 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-
-#include <boost/geometry/multi/core/topological_dimension.hpp>
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/equals.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
 
 namespace bgm = bg::model;
 

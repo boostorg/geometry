@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_QUERY_ITERATORS_HPP
 
+#include <boost/scoped_ptr.hpp>
+
 //#define BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
@@ -253,7 +255,7 @@ template <typename Value, typename Allocators>
 class query_iterator
 {
     typedef query_iterator_base<Value, Allocators> iterator_base;
-    typedef std::auto_ptr<iterator_base> iterator_ptr;
+    typedef boost::scoped_ptr<iterator_base> iterator_ptr;
 
 public:
     typedef std::input_iterator_tag iterator_category;
@@ -280,21 +282,24 @@ public:
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_QUERY_ITERATORS_USE_MOVE
     query_iterator & operator=(query_iterator const& o)
     {
-        m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        if ( this != boost::addressof(o) )
+        {
+            m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        }
         return *this;
     }
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     query_iterator(query_iterator && o)
-        : m_ptr(o.m_ptr.get())
+        : m_ptr(0)
     {
-        o.m_ptr.release();
+        m_ptr.swap(o.m_ptr);
     }
     query_iterator & operator=(query_iterator && o)
     {
         if ( this != boost::addressof(o) )
         {
-            m_ptr.reset(o.m_ptr.get());
-            o.m_ptr.release();
+            m_ptr.swap(o.m_ptr);
+            o.m_ptr.reset();
         }
         return *this;
     }
@@ -305,20 +310,23 @@ private:
 public:
     query_iterator & operator=(BOOST_COPY_ASSIGN_REF(query_iterator) o)
     {
-        m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        if ( this != boost::addressof(o) )
+        {
+            m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
+        }
         return *this;
     }
     query_iterator(BOOST_RV_REF(query_iterator) o)
-        : m_ptr(o.m_ptr.get())
+        : m_ptr(0)
     {
-        o.m_ptr.release();
+        m_ptr.swap(o.m_ptr);
     }
     query_iterator & operator=(BOOST_RV_REF(query_iterator) o)
     {
         if ( this != boost::addressof(o) )
         {
-            m_ptr.reset(o.m_ptr.get());
-            o.m_ptr.release();
+            m_ptr.swap(o.m_ptr);
+            o.m_ptr.reset();
         }
         return *this;
     }

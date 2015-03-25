@@ -59,7 +59,7 @@ void test_all()
     test_one<multi_linestring_type, polygon>("two_bends", two_bends, join_round, end_flat, 64.6217, 1.5, 1.5);
 
     test_one<multi_linestring_type, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 202.5910, 9.0, 9.0);
-    test_one<multi_linestring_type, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 231.4882, 9.0, 9.0);
+    test_one<multi_linestring_type, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 231.4988, 9.0, 9.0);
 
     // TODO this should be fixed test_one<multi_linestring_type, polygon>("turn_inside", turn_inside, join_round, end_flat, 99, 1.5, 1.5);
     test_one<multi_linestring_type, polygon>("two_bends_asym", two_bends, join_round, end_flat, 52.3793, 1.5, 0.75);
@@ -85,20 +85,20 @@ void test_all()
     // (The expected area for large distances is about R*R*PI where R is distance)
     // Note that for large distances the flat ends (not tested here) still give weird effects
     test_one<multi_linestring_type, polygon>("mikado1_large", mikado1, join_round32, end_round32, 5455052109.518, 41751.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.12, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.337, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_round32, 1057.37, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado1_small", mikado1, join_round32, end_flat, 874.590, 10.0);
 
     test_one<multi_linestring_type, polygon>("mikado2_large", mikado2, join_round32, end_round32, 19878812278.387, 79610.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.344, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.552, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_round32, 1082.470, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado2_small", mikado2, join_round32, end_flat, 711.678, 10.0);
 
     test_one<multi_linestring_type, polygon>("mikado3_large", mikado3, join_round32, end_round32, 29151950703.779, 96375.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2532.945, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2135.627, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_round32, 2533.285, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado3_small", mikado3, join_round32, end_flat, 2136.236, 10.0);
 
     test_one<multi_linestring_type, polygon>("mikado4_large", mikado4, join_round32, end_round32, 11212832197.267, 59772.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.113, 10.0);
-    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.327, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_round32, 2103.686, 10.0);
+    test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
 }
 
 

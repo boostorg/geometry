@@ -542,13 +542,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
+        double const difference = area - expected_area;
         BOOST_CHECK_MESSAGE
             (
-                bg::math::abs(area - expected_area) < tolerance,
+                bg::math::abs(difference) < tolerance,
                 complete.str() << " not as expected. " 
                 << std::setprecision(18)
-                << " Expected: "  << expected_area
-                << " Detected: "  << area
+                << " Expected: " << expected_area
+                << " Detected: " << area
+                << " Diff: " << difference
+                << std::setprecision(3)
+                << " , " << 100.0 * (difference / expected_area) << "%"
             );
 
         if (check_self_intersections)

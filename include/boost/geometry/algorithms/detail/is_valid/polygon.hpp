@@ -129,7 +129,7 @@ protected:
     };
 
 
-    // structs from partition -- start
+    // structs for partition -- start
     struct expand_box
     {
         template <typename Box, typename Iterator>
