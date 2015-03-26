@@ -590,7 +590,7 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
-        0, 0, 0, 0.001); // output is discarded
+        1, 4, 384, 0.001);
 }
 
 
