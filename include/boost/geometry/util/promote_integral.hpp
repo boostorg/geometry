@@ -26,6 +26,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
+#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_integral.hpp>
 
 
@@ -108,8 +109,16 @@ private:
     typedef typename boost::mpl::if_c
         <
             UseCheckedMultiprecisionInteger,
-            boost::multiprecision::checked,
-            boost::multiprecision::unchecked
+            boost::integral_constant
+                <
+                    boost::multiprecision::cpp_int_check_type,
+                    boost::multiprecision::checked
+                >,
+            boost::integral_constant
+                <
+                    boost::multiprecision::cpp_int_check_type,
+                    boost::multiprecision::unchecked
+                >
         >::type checking_policy_type;
 
     typedef boost::multiprecision::number
@@ -119,7 +128,7 @@ private:
                     2 * CHAR_BIT * sizeof(T),
                     2 * CHAR_BIT * sizeof(T),
                     boost::multiprecision::signed_magnitude,
-                    checking_policy_type,
+                    checking_policy_type::value,
                     void
                 >
         > multiprecision_integer_type;
