@@ -17,6 +17,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <climits>
 #include <iostream>
 #include <string>
 
@@ -29,6 +30,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/rational.hpp>
 
 #include "test_intersection.hpp"
@@ -677,6 +679,14 @@ int test_main(int, char* [])
     test_ticket_10868<int64_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 
+    if (BOOST_GEOMETRY_CONDITION(sizeof(long) * CHAR_BIT >= 64))
+    {
+        test_ticket_10868<long>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+    }
+
+#if defined(BOOST_HAS_LONG_LONG)
+    test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
+
     return 0;
 }
-
