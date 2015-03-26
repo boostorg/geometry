@@ -25,6 +25,7 @@
 // Test which would fail then are disabled automatically
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
+#include <boost/config.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -675,7 +676,7 @@ int test_main(int, char* [])
     test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 
-#if defined(BOOST_HAS_INT64_T)
+#if !defined(BOOST_NO_INT64) || defined(BOOST_HAS_INT64_T) || defined(BOOST_HAS_MS_INT64)
     test_ticket_10868<int64_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 
