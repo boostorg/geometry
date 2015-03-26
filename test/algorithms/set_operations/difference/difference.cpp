@@ -604,8 +604,8 @@ int test_main(int, char* [])
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 
     test_ticket_10835<int>
-        ("MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1020 2986))",
-         "MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1460 2895))");
+        ("MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1020 2986))",
+         "MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1460 2895))");
 
     test_ticket_10835<double>
         ("MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1020 2986))",
