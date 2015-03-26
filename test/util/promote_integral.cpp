@@ -19,16 +19,14 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-//#include <boost/config.hpp>
+#include <boost/config.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/util/promote_integral.hpp>
 
-#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
-#endif
 
 #if defined(BOOST_GEOMETRY_TEST_DEBUG) && defined(BOOST_HAS_INT128)
 std::ostream& operator<<(std::ostream& os, boost::int128_type i)
@@ -159,7 +157,6 @@ BOOST_AUTO_TEST_CASE( test_int128 )
 }
 #endif
 
-#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 BOOST_AUTO_TEST_CASE( test_custom_types )
 {
     namespace bm = boost::multiprecision;
@@ -167,8 +164,8 @@ BOOST_AUTO_TEST_CASE( test_custom_types )
         <
             bm::cpp_int_backend
                 <
-                    CHAR_BIT * sizeof(short) + 1,
-                    CHAR_BIT * sizeof(short) + 1,
+                    17,
+                    17,
                     bm::signed_magnitude,
                     bm::unchecked,
                     void
@@ -191,7 +188,6 @@ BOOST_AUTO_TEST_CASE( test_custom_types )
     test_promote_integral<custom_integral_type1, custom_integral_type1>();
     test_promote_integral<custom_integral_type2, custom_integral_type2>();
 }
-#endif
 
 BOOST_AUTO_TEST_CASE( test_floating_point )
 {
