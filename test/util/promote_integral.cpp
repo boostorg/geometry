@@ -15,6 +15,7 @@
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <climits>
 #endif
+#include <cstddef>
 #include <iostream>
 
 #include <boost/test/included/unit_test.hpp>
@@ -126,21 +127,31 @@ void test_promotion()
 BOOST_AUTO_TEST_CASE( test_char )
 {
     test_promotion<char>();
+    test_promotion<signed char>();
+    test_promotion<unsigned char>();
 }
 
 BOOST_AUTO_TEST_CASE( test_short )
 {
     test_promotion<short>();
+    test_promotion<unsigned short>();
 }
 
 BOOST_AUTO_TEST_CASE( test_int )
 {
     test_promotion<int>();
+    test_promotion<unsigned int>();
 }
 
 BOOST_AUTO_TEST_CASE( test_long )
 {
     test_promotion<long>();
+    test_promotion<unsigned long>();
+}
+
+BOOST_AUTO_TEST_CASE( test_std_size_t )
+{
+    test_promotion<std::size_t>();
 }
 
 #ifdef BOOST_HAS_LONG_LONG
