@@ -71,10 +71,14 @@ struct segments_intersection_points
         promoted_type dx_promoted = boost::numeric_cast<promoted_type>(dx);
         promoted_type dy_promoted = boost::numeric_cast<promoted_type>(dy);
 
-        set<0>(point, boost::numeric_cast<coordinate_type>(
-                get<0, 0>(segment) + numerator * dx_promoted / denominator));
-        set<1>(point, boost::numeric_cast<coordinate_type>(
-                get<0, 1>(segment) + numerator * dy_promoted / denominator));
+        set<0>(point, get<0, 0>(segment) + boost::numeric_cast
+            <
+                coordinate_type
+            >(numerator * dx_promoted / denominator));
+        set<1>(point, get<0, 1>(segment) + boost::numeric_cast
+            <
+                coordinate_type
+            >(numerator * dy_promoted / denominator));
     }
 
 
