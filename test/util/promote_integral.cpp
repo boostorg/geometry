@@ -12,9 +12,7 @@
 #define BOOST_TEST_MODULE test_promote_integral
 #endif
 
-#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <climits>
-#endif
 #include <cstddef>
 #include <algorithm>
 #include <limits>
@@ -114,9 +112,18 @@ struct test_max_values
 {
     static inline void apply()
     {
+        Promoted min_value = std::numeric_limits<Integral>::min();
+        min_value *= min_value;
+        BOOST_CHECK(absolute_value<Promoted>::apply(min_value) == min_value);
         Promoted max_value = std::numeric_limits<Integral>::max();
         max_value *= max_value;
         BOOST_CHECK(absolute_value<Promoted>::apply(max_value) == max_value);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "integral min_value^2: " << min_value << std::endl;
+        std::cout << "promoted max_value:   "
+                  << std::numeric_limits<Promoted>::max() << std::endl;
+#endif
     }
 };
 
@@ -130,8 +137,22 @@ struct test_max_values<Integral, Promoted, false>
         BOOST_CHECK(max_value_sqr < std::numeric_limits<Promoted>::max()
                     &&
                     max_value_sqr > max_value);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "integral max_value^2: " << max_value_sqr << std::endl;
+        std::cout << "promoted max_value:   "
+                  << std::numeric_limits<Promoted>::max() << std::endl;
+#endif
     }
 };
+
+
+// helper function that returns the bit size of a type
+template <typename T>
+std::size_t bit_size()
+{
+    return bg::detail::promote_integral::bit_size<T>::type::value;
+}
 
 template <bool PromoteUnsignedToUnsigned>
 struct test_promote_integral
@@ -168,19 +189,25 @@ struct test_promote_integral
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "case ID: " << case_id << std::endl
                   << "type : " << typeid(Type).name()
-                  << ", sizeof: " << sizeof(Type)
+                  << ", sizeof (bits): " << bit_size<Type>()
+                  << ", min value: "
+                  << std::numeric_limits<Type>::min()
                   << ", max value: "
                   << std::numeric_limits<Type>::max()
                   << std::endl;
         std::cout << "detected promoted type : "
                   << typeid(promoted_integral_type).name()
-                  << ", sizeof: " << sizeof(promoted_integral_type)
+                  << ", sizeof (bits): " << bit_size<promoted_integral_type>()
+                  << ", min value: "
+                  << std::numeric_limits<promoted_integral_type>::min()
                   << ", max value: "
                   << std::numeric_limits<promoted_integral_type>::max()
                   << std::endl;
         std::cout << "expected promoted type : "
                   << typeid(ExpectedPromotedType).name()
-                  << ", sizeof: " << sizeof(ExpectedPromotedType)
+                  << ", sizeof (bits): " << bit_size<ExpectedPromotedType>()
+                  << ", min value: "
+                  << std::numeric_limits<ExpectedPromotedType>::min()
                   << ", max value: "
                   << std::numeric_limits<ExpectedPromotedType>::max()
                   << std::endl;
@@ -209,7 +236,7 @@ struct test_promotion
 
         case_id += (PromoteUnsignedToUnsigned ? "-t" : "-f");
 
-        std::size_t min_size = 2 * sizeof(T) - 1;
+        std::size_t min_size = 2 * bit_size<T>() - 1;
         if (BOOST_GEOMETRY_CONDITION(! IsSigned))
         {
             min_size += 2;
@@ -219,28 +246,26 @@ struct test_promotion
         std::cout << "min size: " << min_size << std::endl;
 #endif
 
-        if (BOOST_GEOMETRY_CONDITION(sizeof(short) >= min_size))
+        if (bit_size<short>() >= min_size)
         {
             tester::template apply<T, short>(case_id);
         }
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(int) >= min_size))
+        else if (bit_size<int>() >= min_size)
         {
             tester::template apply<T, int>(case_id);
         }
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(long) >= min_size))
+        else if (bit_size<long>() >= min_size)
         {
             tester::template apply<T, long>(case_id);
         }
 #if defined(BOOST_HAS_LONG_LONG)
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::long_long_type)
-                                          >= min_size))
+        else if (bit_size<boost::long_long_type>() >= min_size)
         {
             tester::template apply<T, boost::long_long_type>(case_id);
         }
 #endif
 #if defined(BOOST_HAS_INT128)
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::int128_type)
-                                          >= min_size))
+        else if (bit_size<boost::int128_type>() >= min_size)
         {
             tester::template apply<T, boost::int128_type>(case_id);
         }
@@ -281,38 +306,36 @@ struct test_promotion<T, true, false>
 
         typedef test_promote_integral<true> tester;
 
-        std::size_t const min_size = 2 * sizeof(T);
+        std::size_t min_size = 2 * bit_size<T>();
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "min size: " << min_size << std::endl;
 #endif
 
-        if (BOOST_GEOMETRY_CONDITION(sizeof(unsigned short) >= min_size))
+        if (bit_size<unsigned short>() >= min_size)
         {
             tester::apply<T, unsigned short>(case_id);
         }
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(unsigned int) >= min_size))
+        else if (bit_size<unsigned int>() >= min_size)
         {
             tester::apply<T, unsigned int>(case_id);
         }
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(unsigned long) >= min_size))
+        else if (bit_size<unsigned long>() >= min_size)
         {
             tester::apply<T, unsigned long>(case_id);
         }
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(std::size_t) >= min_size))
+        else if (bit_size<std::size_t>() >= min_size)
         {
             tester::apply<T, std::size_t>(case_id);
         }
 #if defined(BOOST_HAS_LONG_LONG)
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::ulong_long_type)
-                                          >= min_size))
+        else if (bit_size<boost::ulong_long_type>() >= min_size)
         {
             tester::template apply<T, boost::ulong_long_type>(case_id);
         }
 #endif
 #if defined(BOOST_HAS_INT128)
-        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::uint128_type)
-                                          >= min_size))
+        else if (bit_size<boost::uint128_type>() >= min_size)
         {
             tester::template apply<T, boost::uint128_type>(case_id);
         }
@@ -325,8 +348,8 @@ struct test_promotion<T, true, false>
                 <
                     bm::cpp_int_backend
                     <
-                        CHAR_BIT * min_size,
-                        CHAR_BIT * min_size,
+                        2 * CHAR_BIT * sizeof(T),
+                        2 * CHAR_BIT * sizeof(T),
                         bm::unsigned_magnitude,
                         bm::unchecked,
                         void
