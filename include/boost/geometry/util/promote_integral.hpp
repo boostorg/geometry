@@ -15,12 +15,14 @@
 #define BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
 
 #include <climits>
+#include <cstddef>
 
-#include <boost/mpl/empty.hpp>
-#include <boost/mpl/front.hpp>
+#include <boost/mpl/begin.hpp>
+#include <boost/mpl/deref.hpp>
+#include <boost/mpl/end.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/list.hpp>
-#include <boost/mpl/pop_front.hpp>
+#include <boost/mpl/next.hpp>
 
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
@@ -28,6 +30,7 @@
 
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_unsigned.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,31 +40,34 @@ namespace boost { namespace geometry
 namespace detail { namespace promote_integral
 {
 
+
 template
 <
     typename T,
-    typename List,
-    bool IsEmpty = boost::mpl::empty<List>::type::value
+    typename Iterator,
+    typename EndIterator,
+    std::size_t MinSize
 >
 struct promote_to_larger
 {
     typedef typename boost::mpl::if_c
         <
-            (sizeof(typename boost::mpl::front<List>::type) >= 2 * sizeof(T)),
-            typename boost::mpl::front<List>::type,
+            (sizeof(typename boost::mpl::deref<Iterator>::type) >= MinSize),
+            typename boost::mpl::deref<Iterator>::type,
             typename promote_to_larger
                 <
-                    T, typename boost::mpl::pop_front<List>::type
+                    T,
+                    typename boost::mpl::next<Iterator>::type,
+                    EndIterator,
+                    MinSize
                 >::type
         >::type type;
 };
 
 // The following specialization is required to finish the loop over
-// all list elements: the empty MPL list does not support
-// boost::mpl::front and boost::mpl::pop_front, and thus without this
-// specialization we get a compilation error
-template <typename T, typename TypeList>
-struct promote_to_larger<T, TypeList, true>
+// all list elements
+template <typename T, typename EndIterator, std::size_t MinSize>
+struct promote_to_larger<T, EndIterator, EndIterator, MinSize>
 {
     // if promotion fails, keep the number T
     // (and cross fingers that overflow will not occur)
@@ -101,11 +107,19 @@ struct promote_to_larger<T, TypeList, true>
     \note boost::int128_type is considered only if the macro
     BOOST_HAS_INT128 is defined
 */
-template <typename T, bool UseCheckedMultiprecisionInteger = false>
+template
+<
+    typename T,
+    bool PromoteUnsignedToUnsigned = false,
+    bool UseCheckedMultiprecisionInteger = false
+>
 class promote_integral
 {
 private:
+    static bool const is_unsigned = boost::is_unsigned<T>::type::value;
+
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
+    // Define the proper check policy for the multiprecision integer
     typedef typename boost::mpl::if_c
         <
             UseCheckedMultiprecisionInteger,
@@ -119,21 +133,88 @@ private:
                     boost::multiprecision::cpp_int_check_type,
                     boost::multiprecision::unchecked
                 >
-        >::type checking_policy_type;
+        >::type check_policy_type;
 
-    typedef boost::multiprecision::number
+    // Meta-function to get the multiprecision integer type for the
+    // given size and type (signed/unsigned)
+    template
+    <
+        unsigned int Size,
+        boost::multiprecision::cpp_integer_type IntegerType
+    >
+    struct multiprecision_integer_type
+    {
+        typedef boost::multiprecision::number
+            <
+                boost::multiprecision::cpp_int_backend
+                    <
+                        Size,
+                        Size,
+                        IntegerType,
+                        check_policy_type::value,
+                        void
+                    >
+            > type;
+    };
+
+    // Meta-function to get the multiprecision signed integer type for
+    // the given size
+    template <unsigned int Size>
+    struct multiprecision_signed_integer_type
+    {
+        typedef typename multiprecision_integer_type
+            <
+                Size, boost::multiprecision::signed_magnitude
+            >::type type;
+    };
+
+    // Meta-function to get the multiprecision unsigned integer type for
+    // the given size
+    template <unsigned int Size>
+    struct multiprecision_unsigned_integer_type
+    {
+        typedef typename multiprecision_integer_type
+            <
+                Size, boost::multiprecision::unsigned_magnitude
+            >::type type;
+    };
+
+    // Define the minimum (and maximum) bit size for the
+    // multiprecision integer needed
+    // If T is the input type and P the promoted type, then the
+    // minimum number of bits for P are (below b stands for the number
+    // of bits of T):
+    // * if T is unsigned and P is unsigned: 2 * b
+    // * if T is signed and P is signed: 2 * b - 1
+    // * if T is unsigned and P is signed: 2 * b + 1
+    typedef typename boost::mpl::if_c
         <
-            boost::multiprecision::cpp_int_backend
+            (PromoteUnsignedToUnsigned && is_unsigned),
+            boost::integral_constant
                 <
-                    2 * CHAR_BIT * sizeof(T),
-                    2 * CHAR_BIT * sizeof(T),
-                    boost::multiprecision::signed_magnitude,
-                    checking_policy_type::value,
-                    void
+                    unsigned int, (2 * CHAR_BIT * sizeof(T))
+                >,
+            boost::integral_constant
+                <
+                    unsigned int,
+                    (2 * CHAR_BIT * sizeof(T) + (is_unsigned ? 1 : -1))
                 >
-        > multiprecision_integer_type;
+        >::type multiprecision_integer_min_bit_size_type;
 #endif
 
+    // Define the minimum size (in bytes) for the promoted type
+    typedef typename boost::mpl::if_c
+        <
+            (PromoteUnsignedToUnsigned && is_unsigned),
+            boost::integral_constant<std::size_t, (2 * sizeof(T))>,
+            boost::integral_constant
+                <
+                    std::size_t, (2 * sizeof(T) + (is_unsigned ? 1 : -1))
+                >
+        >::type min_size_type;
+
+    // Define the list of signed integral types we are goind to use
+    // for promotion
     typedef boost::mpl::list
         <
             short, int, long
@@ -144,9 +225,35 @@ private:
             , boost::int128_type
 #endif
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
-            , multiprecision_integer_type
+            , typename multiprecision_signed_integer_type
+                <
+                    multiprecision_integer_min_bit_size_type::value
+                >::type
 #endif
-        > integral_types;
+        > signed_integral_types;
+
+    // Define the list of unsigned integral types we are goind to use
+    // for promotion
+    typedef boost::mpl::list
+        <
+            unsigned short, unsigned int, unsigned long, std::size_t
+#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
+            , typename multiprecision_unsigned_integer_type
+                <
+                    multiprecision_integer_min_bit_size_type::value
+                >::type
+#endif
+        > unsigned_integral_types;
+
+    // Define the list of integral types that will be used for
+    // promotion (depending in whether we was to promote unsigned to
+    // unsigned or not)
+    typedef typename boost::mpl::if_c
+        <
+            (is_unsigned && PromoteUnsignedToUnsigned),
+            unsigned_integral_types,
+            signed_integral_types
+        >::type integral_types;
 
 public:
     typedef typename boost::mpl::if_c
@@ -154,11 +261,15 @@ public:
             boost::is_integral<T>::type::value,
             typename detail::promote_integral::promote_to_larger
                 <
-                    T, integral_types
+                    T,
+                    typename boost::mpl::begin<integral_types>::type,
+                    typename boost::mpl::end<integral_types>::type,
+                    min_size_type::value
                 >::type,
             T
         >::type type;
 };
+
 
 }} // namespace boost::geometry
 
