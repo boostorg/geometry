@@ -1,9 +1,14 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -12,6 +17,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <climits>
 #include <iostream>
 #include <string>
 
@@ -19,11 +25,13 @@
 // Test which would fail then are disabled automatically
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
+#include <boost/config.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/rational.hpp>
 
 #include "test_intersection.hpp"
@@ -34,6 +42,7 @@
 #include <test_common/test_point.hpp>
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/custom_segment.hpp>
+
 
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
@@ -613,6 +622,32 @@ void test_boxes_nd()
     test_boxes_per_d(p3(0,0,0), p3(5,5,5), p3(3,3,3), p3(6,6,6), true);
 }
 
+template <typename CoordinateType>
+void test_ticket_10868(std::string const& wkt_out)
+{
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::polygon
+        <
+            point_type, /*ClockWise*/false, /*Closed*/false
+        > polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
+
+    polygon_type polygon1;
+    bg::read_wkt(ticket_10868[0], polygon1);
+    polygon_type polygon2;
+    bg::read_wkt(ticket_10868[1], polygon2);
+
+    multipolygon_type multipolygon_out;
+    bg::intersection(polygon1, polygon2, multipolygon_out);
+    std::stringstream stream;
+    stream << bg::wkt(multipolygon_out);
+
+    BOOST_CHECK_EQUAL(stream.str(), wkt_out);
+
+    test_one<polygon_type, polygon_type, polygon_type>("ticket_10868",
+        ticket_10868[0], ticket_10868[1],
+        1, 7, 20266195244586);
+}
 
 int test_main(int, char* [])
 {
@@ -636,6 +671,23 @@ int test_main(int, char* [])
 
     test_boxes_nd<double>();
 
+#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    // ticket #10868 still fails for 32-bit integers
+    test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
+
+#if !defined(BOOST_NO_INT64) || defined(BOOST_HAS_INT64_T) || defined(BOOST_HAS_MS_INT64)
+    test_ticket_10868<int64_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
+
+    if (BOOST_GEOMETRY_CONDITION(sizeof(long) * CHAR_BIT >= 64))
+    {
+        test_ticket_10868<long>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+    }
+
+#if defined(BOOST_HAS_LONG_LONG)
+    test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
+
     return 0;
 }
-
