@@ -23,6 +23,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/next.hpp>
+#include <boost/mpl/size_t.hpp>
 
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
@@ -206,11 +207,8 @@ private:
     typedef typename boost::mpl::if_c
         <
             (PromoteUnsignedToUnsigned && is_unsigned),
-            boost::integral_constant<std::size_t, (2 * sizeof(T))>,
-            boost::integral_constant
-                <
-                    std::size_t, (2 * sizeof(T) + (is_unsigned ? 1 : -1))
-                >
+            boost::mpl::size_t<(2 * sizeof(T))>,
+            boost::mpl::size_t<(2 * sizeof(T) + (is_unsigned ? 1 : -1))>
         >::type min_size_type;
 
     // Define the list of signed integral types we are goind to use
