@@ -235,6 +235,12 @@ private:
     typedef boost::mpl::list
         <
             unsigned short, unsigned int, unsigned long, std::size_t
+#if defined(BOOST_HAS_LONG_LONG)
+            , boost::ulong_long_type
+#endif
+#if defined(BOOST_HAS_INT128)
+            , boost::uint128_type
+#endif
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
             , typename multiprecision_unsigned_integer_type
                 <
