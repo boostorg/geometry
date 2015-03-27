@@ -36,18 +36,14 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 #if defined(BOOST_GEOMETRY_TEST_DEBUG) && defined(BOOST_HAS_INT128)
-std::ostream& operator<<(std::ostream& os, boost::int128_type i)
+void print_uint128_t(std::ostream& os, boost::uint128_type i)
 {
     if (i == 0)
     {
         os << "0";
-        return os;
+        return;
     }
-    if (i < 0)
-    {
-        i = -i;
-        os << "-";
-    }
+
     std::stringstream stream;
     while (i > 0)
     {
@@ -57,6 +53,25 @@ std::ostream& operator<<(std::ostream& os, boost::int128_type i)
     std::string str = stream.str();
     std::reverse(str.begin(), str.end());
     os << str;
+}
+
+std::ostream& operator<<(std::ostream& os, boost::int128_type i)
+{
+    if (i < 0)
+    {
+        os << "-";
+        print_uint128_t(os, static_cast<boost::uint128_type>(-i));
+    }
+    else
+    {
+        print_uint128_t(os, static_cast<boost::uint128_type>(i));
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, boost::uint128_type i)
+{
+    print_uint128_t(os, i);
     return os;
 }
 #endif
@@ -200,6 +215,10 @@ struct test_promotion
             min_size += 2;
         }
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "min size: " << min_size << std::endl;
+#endif
+
         if (BOOST_GEOMETRY_CONDITION(sizeof(short) >= min_size))
         {
             tester::template apply<T, short>(case_id);
@@ -264,6 +283,10 @@ struct test_promotion<T, true, false>
 
         std::size_t const min_size = 2 * sizeof(T);
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+        std::cout << "min size: " << min_size << std::endl;
+#endif
+
         if (BOOST_GEOMETRY_CONDITION(sizeof(unsigned short) >= min_size))
         {
             tester::apply<T, unsigned short>(case_id);
@@ -280,6 +303,20 @@ struct test_promotion<T, true, false>
         {
             tester::apply<T, std::size_t>(case_id);
         }
+#if defined(BOOST_HAS_LONG_LONG)
+        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::ulong_long_type)
+                                          >= min_size))
+        {
+            tester::template apply<T, boost::ulong_long_type>(case_id);
+        }
+#endif
+#if defined(BOOST_HAS_INT128)
+        else if (BOOST_GEOMETRY_CONDITION(sizeof(boost::uint128_type)
+                                          >= min_size))
+        {
+            tester::template apply<T, boost::uint128_type>(case_id);
+        }
+#endif
         else
         {
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
@@ -351,6 +388,8 @@ BOOST_AUTO_TEST_CASE( test_long_long )
 {
     test_promotion<boost::long_long_type>::apply("long long");
     test_promotion<boost::long_long_type, true>::apply("long long");
+    test_promotion<boost::ulong_long_type>::apply("ulong long");
+    test_promotion<boost::ulong_long_type, true>::apply("ulong long");
 }
 #endif
 
@@ -359,6 +398,8 @@ BOOST_AUTO_TEST_CASE( test_int128 )
 {
     test_promotion<boost::int128_type>::apply("int128_t");
     test_promotion<boost::int128_type, true>::apply("int128_t");
+    test_promotion<boost::uint128_type>::apply("uint128_t");
+    test_promotion<boost::uint128_type, true>::apply("uint128_t");
 }
 #endif
 
