@@ -148,10 +148,40 @@ struct test_max_values<Integral, Promoted, false>
 
 
 // helper function that returns the bit size of a type
+template
+<
+    typename T,
+    bool IsFundamental = boost::is_fundamental<T>::type::value
+>
+struct bit_size_impl : boost::mpl::size_t<0>
+{};
+
+template <typename T>
+struct bit_size_impl<T, true> : bg::detail::promote_integral::bit_size<T>::type
+{};
+
+#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
+template
+<
+    typename Backend,
+    boost::multiprecision::expression_template_option ExpressionTemplates
+>
+struct bit_size_impl
+    <
+        boost::multiprecision::number<Backend, ExpressionTemplates>,
+        false
+    > : bg::detail::promote_integral::bit_size
+        <
+            boost::multiprecision::number<Backend, ExpressionTemplates>
+        >
+{};
+#endif
+
+
 template <typename T>
 std::size_t bit_size()
 {
-    return bg::detail::promote_integral::bit_size<T>::type::value;
+    return bit_size_impl<T>::type::value;
 }
 
 template <bool PromoteUnsignedToUnsigned>
