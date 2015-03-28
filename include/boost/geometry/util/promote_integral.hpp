@@ -30,6 +30,7 @@
 #endif
 
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
 
@@ -42,13 +43,19 @@ namespace detail { namespace promote_integral
 {
 
 // meta-function that returns the bit size of a type
-// for fundamental integral types, just return CHAR_BIT * sizeof(T)
 template
 <
     typename T,
-    bool IsIntegral = boost::is_integral<T>::type::value
+    bool IsFundamental = boost::is_fundamental<T>::type::value
 >
-struct bit_size : boost::mpl::size_t<(CHAR_BIT * sizeof(T))>
+struct bit_size
+{};
+
+
+// for fundamental types, just return CHAR_BIT * sizeof(T)
+template <typename T>
+struct bit_size<T, true>
+    : boost::mpl::size_t<(CHAR_BIT * sizeof(T))>
 {};
 
 
@@ -60,7 +67,8 @@ template
     unsigned MaxSize,
     boost::multiprecision::cpp_integer_type SignType,
     boost::multiprecision::cpp_int_check_type Checked,
-    typename Allocator
+    typename Allocator,
+    boost::multiprecision::expression_template_option ExpressionTemplates
 >
 struct bit_size
     <
@@ -69,12 +77,13 @@ struct bit_size
                 boost::multiprecision::cpp_int_backend
                     <
                         MinSize, MaxSize, SignType, Checked, Allocator
-                    >
+                    >,
+                ExpressionTemplates
             >,
         false
     > : boost::mpl::size_t<MaxSize>
 {};
-#endif
+#endif // BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
 
 
 template
@@ -86,15 +95,12 @@ template
 >
 struct promote_to_larger
 {
-    typedef typename bit_size
-        <
-            typename boost::mpl::deref<Iterator>::type
-        >::type bit_size_type;
+    typedef typename boost::mpl::deref<Iterator>::type current_type;
 
     typedef typename boost::mpl::if_c
         <
-            (bit_size_type::value >= MinSize),
-            typename boost::mpl::deref<Iterator>::type,
+            (bit_size<current_type>::type::value >= MinSize),
+            current_type,
             typename promote_to_larger
                 <
                     T,
@@ -165,7 +171,8 @@ template
 <
     typename T,
     bool PromoteUnsignedToUnsigned = false,
-    bool UseCheckedMultiprecisionInteger = false
+    bool UseCheckedInteger = false,
+    bool IsIntegral = boost::is_integral<T>::type::value
 >
 class promote_integral
 {
@@ -178,7 +185,7 @@ private:
     // Define the proper check policy for the multiprecision integer
     typedef typename boost::mpl::if_c
         <
-            UseCheckedMultiprecisionInteger,
+            UseCheckedInteger,
             boost::integral_constant
                 <
                     boost::multiprecision::cpp_int_check_type,
@@ -282,18 +289,24 @@ private:
         >::type integral_types;
 
 public:
-    typedef typename boost::mpl::if_c
+    typedef typename detail::promote_integral::promote_to_larger
         <
-            boost::is_integral<T>::type::value,
-            typename detail::promote_integral::promote_to_larger
-                <
-                    T,
-                    typename boost::mpl::begin<integral_types>::type,
-                    typename boost::mpl::end<integral_types>::type,
-                    min_bit_size_type::value
-                >::type,
-            T
+            T,
+            typename boost::mpl::begin<integral_types>::type,
+            typename boost::mpl::end<integral_types>::type,
+            min_bit_size_type::value
         >::type type;
+};
+
+
+template <typename T, bool PromoteUnsignedToUnsigned, bool UseCheckedInteger>
+class promote_integral
+    <
+        T, PromoteUnsignedToUnsigned, UseCheckedInteger, false
+    >
+{
+public:
+    typedef T type;
 };
 
 
