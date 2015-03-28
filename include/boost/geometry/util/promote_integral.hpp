@@ -240,7 +240,7 @@ private:
                 >::type
         >::type min_bit_size_type;
 
-    // Define the list of signed integral types we are goind to use
+    // Define the list of signed integral types we are going to use
     // for promotion
     typedef boost::mpl::list
         <
@@ -260,7 +260,7 @@ private:
 #endif
         > signed_integral_types;
 
-    // Define the list of unsigned integral types we are goind to use
+    // Define the list of unsigned integral types we are going to use
     // for promotion
     typedef boost::mpl::list
         <
