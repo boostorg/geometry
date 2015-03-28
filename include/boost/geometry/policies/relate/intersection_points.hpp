@@ -64,12 +64,12 @@ struct segments_intersection_points
 
         typedef typename promote_integral<coordinate_type>::type promoted_type;
 
-        promoted_type numerator
+        promoted_type const numerator
             = boost::numeric_cast<promoted_type>(ratio.numerator());
-        promoted_type denominator
+        promoted_type const denominator
             = boost::numeric_cast<promoted_type>(ratio.denominator());
-        promoted_type dx_promoted = boost::numeric_cast<promoted_type>(dx);
-        promoted_type dy_promoted = boost::numeric_cast<promoted_type>(dy);
+        promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
+        promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
 
         set<0>(point, get<0, 0>(segment) + boost::numeric_cast
             <
