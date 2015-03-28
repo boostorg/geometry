@@ -31,7 +31,9 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/promote_integral.hpp>
 
+#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
+#endif
 
 #if defined(BOOST_GEOMETRY_TEST_DEBUG) && defined(BOOST_HAS_INT128)
 void print_uint128_t(std::ostream& os, boost::uint128_type i)
@@ -456,6 +458,7 @@ BOOST_AUTO_TEST_CASE( test_int128 )
 }
 #endif
 
+#if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 BOOST_AUTO_TEST_CASE( test_user_types )
 {
     namespace bm = boost::multiprecision;
@@ -520,6 +523,7 @@ BOOST_AUTO_TEST_CASE( test_user_types )
     tester2::apply<user_unsigned_type1, user_unsigned_type1>("u1u");
     tester2::apply<user_unsigned_type2, user_unsigned_type2>("u1u");
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( test_floating_point )
 {
