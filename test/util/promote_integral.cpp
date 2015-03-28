@@ -112,17 +112,17 @@ struct test_max_values
 {
     static inline void apply()
     {
-        Promoted min_value = std::numeric_limits<Integral>::min();
+        Promoted min_value = (std::numeric_limits<Integral>::min)();
         min_value *= min_value;
         BOOST_CHECK(absolute_value<Promoted>::apply(min_value) == min_value);
-        Promoted max_value = std::numeric_limits<Integral>::max();
+        Promoted max_value = (std::numeric_limits<Integral>::max)();
         max_value *= max_value;
         BOOST_CHECK(absolute_value<Promoted>::apply(max_value) == max_value);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "integral min_value^2: " << min_value << std::endl;
         std::cout << "promoted max_value:   "
-                  << std::numeric_limits<Promoted>::max() << std::endl;
+                  << (std::numeric_limits<Promoted>::max)() << std::endl;
 #endif
     }
 };
@@ -132,16 +132,16 @@ struct test_max_values<Integral, Promoted, false>
 {
     static inline void apply()
     {
-        Promoted max_value = std::numeric_limits<Integral>::max();
+        Promoted max_value = (std::numeric_limits<Integral>::max)();
         Promoted max_value_sqr = max_value * max_value;
-        BOOST_CHECK(max_value_sqr < std::numeric_limits<Promoted>::max()
+        BOOST_CHECK(max_value_sqr < (std::numeric_limits<Promoted>::max)()
                     &&
                     max_value_sqr > max_value);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "integral max_value^2: " << max_value_sqr << std::endl;
         std::cout << "promoted max_value:   "
-                  << std::numeric_limits<Promoted>::max() << std::endl;
+                  << (std::numeric_limits<Promoted>::max)() << std::endl;
 #endif
     }
 };
@@ -221,25 +221,25 @@ struct test_promote_integral
                   << "type : " << typeid(Type).name()
                   << ", sizeof (bits): " << bit_size<Type>()
                   << ", min value: "
-                  << std::numeric_limits<Type>::min()
+                  << (std::numeric_limits<Type>::min)()
                   << ", max value: "
-                  << std::numeric_limits<Type>::max()
+                  << (std::numeric_limits<Type>::max)()
                   << std::endl;
         std::cout << "detected promoted type : "
                   << typeid(promoted_integral_type).name()
                   << ", sizeof (bits): " << bit_size<promoted_integral_type>()
                   << ", min value: "
-                  << std::numeric_limits<promoted_integral_type>::min()
+                  << (std::numeric_limits<promoted_integral_type>::min)()
                   << ", max value: "
-                  << std::numeric_limits<promoted_integral_type>::max()
+                  << (std::numeric_limits<promoted_integral_type>::max)()
                   << std::endl;
         std::cout << "expected promoted type : "
                   << typeid(ExpectedPromotedType).name()
                   << ", sizeof (bits): " << bit_size<ExpectedPromotedType>()
                   << ", min value: "
-                  << std::numeric_limits<ExpectedPromotedType>::min()
+                  << (std::numeric_limits<ExpectedPromotedType>::min)()
                   << ", max value: "
-                  << std::numeric_limits<ExpectedPromotedType>::max()
+                  << (std::numeric_limits<ExpectedPromotedType>::max)()
                   << std::endl;
         std::cout << std::endl;
 #endif
