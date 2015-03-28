@@ -232,10 +232,12 @@ private:
         <
             (PromoteUnsignedToUnsigned && is_unsigned),
             boost::mpl::size_t<(2 * bit_size_type::value)>,
-            boost::mpl::size_t
+            typename boost::mpl::if_c
                 <
-                    (2 * bit_size_type::value + (is_unsigned ? 1 : -1))
-                >
+                    is_unsigned,
+                    boost::mpl::size_t<(2 * bit_size_type::value + 1)>,
+                    boost::mpl::size_t<(2 * bit_size_type::value - 1)>
+                >::type
         >::type min_bit_size_type;
 
     // Define the list of signed integral types we are goind to use
