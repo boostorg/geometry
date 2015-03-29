@@ -45,6 +45,8 @@
 * [@https://svn.boost.org/trac/boost/ticket/10666 10666] MSVC compiler warning C4127: conditional expression is constant
 * [@https://svn.boost.org/trac/boost/ticket/10747 10747] Error in rescaling causing errors in areal/areal set operations
 * [@https://svn.boost.org/trac/boost/ticket/10770 10770] Buffer fails for large distances, or rough round joins, where concavities where not intersected properly
+* [@https://svn.boost.org/trac/boost/ticket/10658 10658] sym_difference yields bad result for int polygons
+* [@https://svn.boost.org/trac/boost/ticket/10835 10835] Difference of multilinestring and polygon yields wrong result
 * [@https://svn.boost.org/trac/boost/ticket/10861 10861] Rtree failing to compile for Value being a pair or a tuple containing pointer to Geometry and the default equal_to<> used
 * [@https://svn.boost.org/trac/boost/ticket/10863 10863] Template parameter name coliding with B0 macro name defined in termios.h (duplicate of 10467)
 * [@https://svn.boost.org/trac/boost/ticket/10887 10887] Invalid result of within() and relate() for Linear/MultiPolygon
@@ -58,6 +60,7 @@
 * [@https://svn.boost.org/trac/boost/ticket/10960 10960] Invalid result of get_turns() for L/A, missing turn.
 * [@https://svn.boost.org/trac/boost/ticket/10961 10961] Invalid result of get_turns() for L/A, invalid turn for a Linear spike.
 * [@https://svn.boost.org/trac/boost/ticket/11112 11112] Compilation failure on Solaris due to a CS name clash (used for a macro on this platform)
+* [@https://svn.boost.org/trac/boost/ticket/11121 11121] Invalid result of difference() for integral coordinates
 
 [*Bugfixes]
 

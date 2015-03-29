@@ -1,7 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 //
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -833,7 +839,29 @@ static std::string ticket_10747_e[2] =
         "POLYGON((0.00000025165824 0.00000025165824,0.00000041943040 0.00000025165824,0.00000041943040 0.00000041943040,0.00000025165824 0.00000041943040,0.00000025165824 0.00000025165824))"
     };
 
+static std::string ticket_10658[2] =
+    {
+        "POLYGON((516 1608,1308 1932,2094 2466,2094 32767,516 32767,516 1608))",
+        "POLYGON((516 2484,1308 3066,2094 3150,2094 32767,516 32767,516 2484))"
+    };
 
+static std::string ticket_10835[3] =
+    {
+        "MULTILINESTRING((5239 2113,1020 2986))",
+        "POLYGON((5233 2113,5200 2205,1020 2205,1020 2022,5200 2022))",
+        "POLYGON((5233 2986,5200 3078,1020 3078,1020 2895,5200 2895))"
+    };
 
+static std::string ticket_10868[2] =
+    {
+        "POLYGON((42817136 -3774506,43029074 -3929862,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575,35332375 2413654,35725796 2024148))",
+        "POLYGON((-33386239 -33721784,33721785 -33386239,33386240 33721785,-33721784 33386240))"
+    };
+
+static std::string ticket_11121[2] =
+    {
+        "POLYGON((-8042 -1485,-8042 250,-8042 250,15943 254,15943 -1485,-8042 -1485))",
+        "POLYGON((-7901 -1485,-7901 529,-7901 529,15802 544,15802 -1485,-7901 -1485))"
+    };
 
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP
