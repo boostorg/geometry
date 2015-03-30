@@ -35,7 +35,8 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #endif
 
-#if defined(BOOST_GEOMETRY_TEST_DEBUG) && defined(BOOST_HAS_INT128)
+#if defined(BOOST_GEOMETRY_TEST_DEBUG)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
 void print_uint128_t(std::ostream& os, boost::uint128_type i)
 {
     if (i == 0)
@@ -74,8 +75,8 @@ std::ostream& operator<<(std::ostream& os, boost::uint128_type i)
     print_uint128_t(os, i);
     return os;
 }
-#endif
-
+#endif // BOOST_HAS_INT128 && BOOST_GEOMETRY_ENABLE_INT128
+#endif // BOOST_GEOMETRY_TEST_DEBUG
 
 namespace bg = boost::geometry;
 
@@ -296,7 +297,7 @@ struct test_promotion
             tester::template apply<T, boost::long_long_type>(case_id);
         }
 #endif
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
         else if (bit_size<boost::int128_type>() >= min_size)
         {
             tester::template apply<T, boost::int128_type>(case_id);
@@ -366,7 +367,7 @@ struct test_promotion<T, true, false>
             tester::template apply<T, boost::ulong_long_type>(case_id);
         }
 #endif
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
         else if (bit_size<boost::uint128_type>() >= min_size)
         {
             tester::template apply<T, boost::uint128_type>(case_id);
@@ -448,7 +449,7 @@ BOOST_AUTO_TEST_CASE( test_long_long )
 }
 #endif
 
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
 BOOST_AUTO_TEST_CASE( test_int128 )
 {
     test_promotion<boost::int128_type>::apply("int128_t");
