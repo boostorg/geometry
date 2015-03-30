@@ -165,7 +165,8 @@ struct promote_to_larger<T, EndIterator, EndIterator, MinSize>
     considered only if the macro BOOST_HAS_LONG_LONG is defined
 
     \note boost::int128_type and boost::uint128_type are considered
-    only if the macro BOOST_HAS_INT128 is defined
+    only if the macros BOOST_HAS_INT128 and BOOST_GEOMETRY_ENABLE_INT128
+    are defined
 */
 template
 <
@@ -248,7 +249,7 @@ private:
 #if defined(BOOST_HAS_LONG_LONG)
             , boost::long_long_type
 #endif
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
             , boost::int128_type
 #endif
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
@@ -268,7 +269,7 @@ private:
 #if defined(BOOST_HAS_LONG_LONG)
             , boost::ulong_long_type
 #endif
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
             , boost::uint128_type
 #endif
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
