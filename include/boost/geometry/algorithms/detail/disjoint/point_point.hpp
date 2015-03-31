@@ -52,24 +52,6 @@ namespace detail { namespace disjoint
 class point_point_on_spheroid
 {
 private:
-    template <typename Units, typename CoordinateType>
-    static inline bool is_north_pole(CoordinateType const& latitude)
-    {
-        static CoordinateType const max_latitude
-            = math::max_latitude<Units, CoordinateType>();
-
-        return math::equals(latitude, max_latitude);
-    }
-
-    template <typename Units, typename CoordinateType>
-    static inline bool is_south_pole(CoordinateType const& latitude)
-    {
-        static CoordinateType const min_latitude
-            = math::min_latitude<Units, CoordinateType>();
-
-        return math::equals(latitude, min_latitude);
-    }
-
     template
     <
         typename Units,
@@ -83,16 +65,6 @@ private:
     {
         math::normalize_spheroidal_coordinates<Units>(lon1, lat1);
         math::normalize_spheroidal_coordinates<Units>(lon2, lat2);
-
-        if (is_north_pole<Units>(lat1))
-        {
-            return ! is_north_pole<Units>(lat2);
-        }
-
-        if (is_south_pole<Units>(lat1))
-        {
-            return ! is_south_pole<Units>(lat2);
-        }
 
         return ! math::equals(lat1, lat2) || ! math::equals(lon1, lon2);
     }
