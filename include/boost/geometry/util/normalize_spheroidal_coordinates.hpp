@@ -125,7 +125,8 @@ protected:
 
 public:
     static inline void apply(CoordinateType& longitude,
-                             CoordinateType& latitude)
+                             CoordinateType& latitude,
+                             bool normalize_poles = true)
     {
 
         // first normalize latitude
@@ -167,6 +168,17 @@ public:
         else if (longitude < -constants::half_period())
         {
             longitude = normalize_down(longitude);
+        }
+
+        // finally normalize poles
+        if (normalize_poles)
+        {
+            if (math::equals(math::abs(latitude), constants::max_latitude()))
+            {
+                // for the north and south pole we set the longitude to 0
+                // (works for both radians and degrees)
+                longitude = CoordinateType(0);
+            }
         }
 
         BOOST_ASSERT(!math::larger(constants::min_latitude(), latitude));
