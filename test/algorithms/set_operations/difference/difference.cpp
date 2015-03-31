@@ -1,21 +1,28 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
-#include <string>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 // If defined, tests are run without rescaling-to-integer or robustness policy
 // Test which would fail then are disabled automatically
 // #define BOOST_GEOMETRY_NO_ROBUSTNESS
 
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/multi/algorithms/correct.hpp>
@@ -84,6 +91,88 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case25", "LINESTRING(4 0,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case26", "LINESTRING(4 0,4 3,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case27", "LINESTRING(4 4,4 5,5 5)", poly_9, 1, 3, 2.0);
+}
+
+template <typename CoordinateType>
+void test_ticket_10658(std::string const& wkt_out)
+{
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::polygon
+        <
+            point_type, /*ClockWise*/false, /*Closed*/false
+        > polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
+
+    polygon_type polygon1;
+    bg::read_wkt(ticket_10658[0], polygon1);
+    polygon_type polygon2;
+    bg::read_wkt(ticket_10658[1], polygon2);
+
+    multipolygon_type multipolygon_out;
+    bg::sym_difference(polygon1, polygon2, multipolygon_out);
+    std::stringstream stream;
+    stream << bg::wkt(multipolygon_out);
+
+    BOOST_CHECK_EQUAL(stream.str(), wkt_out);
+}
+
+template <typename CoordinateType>
+void test_ticket_10835(std::string const& wkt_out1, std::string const& wkt_out2)
+{
+    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::linestring<point_type> linestring_type;
+    typedef bg::model::multi_linestring<linestring_type> multilinestring_type;
+    typedef bg::model::polygon
+        <
+            point_type, /*ClockWise*/false, /*Closed*/false
+        > polygon_type;
+
+    multilinestring_type multilinestring;
+    bg::read_wkt(ticket_10835[0], multilinestring);
+    polygon_type polygon1;
+    bg::read_wkt(ticket_10835[1], polygon1);
+    polygon_type polygon2;
+    bg::read_wkt(ticket_10835[2], polygon2);
+
+    multilinestring_type multilinestringOut1;
+    bg::difference(multilinestring, polygon1, multilinestringOut1);
+    std::stringstream stream;
+    stream << bg::wkt(multilinestringOut1);
+
+    BOOST_CHECK_EQUAL(stream.str(), wkt_out1);
+
+    multilinestring_type multilinestringOut2;
+    bg::difference(multilinestringOut1, polygon2, multilinestringOut2);
+    stream.str("");
+    stream.clear();
+    stream << bg::wkt(multilinestringOut2);
+
+    BOOST_CHECK_EQUAL(stream.str(), wkt_out2);
+}
+
+template <typename CoordinateType>
+void test_ticket_11121()
+{
+    typedef bg::model::point<CoordinateType,2,bg::cs::cartesian> point_type;
+    typedef bg::model::polygon
+        <
+            point_type, /*ClockWise*/false, /*Closed*/false
+        > polygon_type;
+    typedef bg::model::multi_polygon<polygon_type> multipolygon_type;
+
+    polygon_type polygon1;
+    bg::read_wkt(ticket_11121[0], polygon1);
+    polygon_type polygon2;
+    bg::read_wkt(ticket_11121[1], polygon2);
+
+    multipolygon_type diff12, diff21, sym_diff;
+    bg::difference(polygon1, polygon2, diff12);
+    bg::difference(polygon2, polygon1, diff21);
+    bg::sym_difference(polygon1, polygon2, sym_diff);
+
+    BOOST_CHECK(bg::is_valid(diff12));
+    BOOST_CHECK(bg::is_valid(diff21));
+    BOOST_CHECK(bg::is_valid(sym_diff));
 }
 
 template <typename P>
@@ -553,7 +642,17 @@ void test_specific()
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
         1, 11, 3371540,
-        0, 0, 0, 0.001); // output is discarded
+        1, 4, 384, 0.001);
+
+    test_one<polygon, polygon, polygon>("ticket_10658",
+        ticket_10658[0], ticket_10658[1],
+        1, 6, 1510434,
+        0, 0, 0);
+
+    test_one<polygon, polygon, polygon>("ticket_11121",
+        ticket_11121[0], ticket_11121[1],
+        2, 8, 489763.5,
+        1, 4, 6743503.5);
 }
 
 
@@ -565,6 +664,22 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
+
+    test_ticket_10658<int>
+        ("MULTIPOLYGON(((516 2484,516 1608,1308 1932,2094 2466,2094 3150,1308 3066,516 2484)))");
+
+    test_ticket_10658<double>
+        ("MULTIPOLYGON(((516 2484,516 1608,1308 1932,2094 2466,2094 3150,1308 3066,516 2484)))");
+
+    test_ticket_10835<int>
+        ("MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1020 2986))",
+         "MULTILINESTRING((5239 2113,5233 2114),(4795 2205,1460 2895))");
+
+    test_ticket_10835<double>
+        ("MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1020 2986))",
+         "MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1459.78 2895))");
+
+    test_ticket_11121<int>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

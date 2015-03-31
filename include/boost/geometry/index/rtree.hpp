@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -96,12 +96,13 @@ namespace boost { namespace geometry { namespace index {
 /*!
 \brief The R-tree spatial index.
 
-This is self-balancing spatial index capable to store various types of Values and balancing algorithms.
+This is self-balancing spatial index capable to store various types of Values
+and balancing algorithms.
 
 \par Parameters
 The user must pass a type defining the Parameters which will
-be used in rtree creation process. This type is used e.g. to specify balancing algorithm
-with specific parameters like min and max number of elements in node.
+be used in rtree creation process. This type is used e.g. to specify balancing
+algorithm with specific parameters like min and max number of elements in node.
 
 \par
 Predefined algorithms with compile-time parameters are:
@@ -116,23 +117,31 @@ Predefined algorithms with run-time parameters are:
  \li \c boost::geometry::index::dynamic_rstar.
 
 \par IndexableGetter
-The object of IndexableGetter type translates from Value to Indexable each time r-tree requires it. Which means that this
-operation is done for each Value access. Therefore the IndexableGetter should return the Indexable by
-const reference instead of a value. Default one can translate all types adapted to Point, Box or Segment
-concepts (called Indexables). It also handles <tt>std::pair<Indexable, T></tt> and
-<tt>boost::tuple<Indexable, ...></tt>. For example, if <tt>std::pair<Box, int></tt> is stored in the
-container, the default IndexableGetter translates from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
+The object of IndexableGetter type translates from Value to Indexable each time
+r-tree requires it. This means that this operation is done for each Value
+access. Therefore the IndexableGetter should return the Indexable by
+a reference type. The Indexable should not be calculated since it could harm
+the performance. The default IndexableGetter can translate all types adapted
+to Point, Box or Segment concepts (called Indexables). Furthermore, it can
+handle <tt>std::pair<Indexable, T></tt>, <tt>boost::tuple<Indexable, ...></tt>
+and <tt>std::tuple<Indexable, ...></tt> when possible. For example, for Value
+of type <tt>std::pair<Box, int></tt>, the default IndexableGetter translates
+from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 
 \par EqualTo
-The object of EqualTo type compares Values and returns <tt>true</tt> if they're equal. It's similar to <tt>std::equal_to<></tt>.
-The default EqualTo returns the result of <tt>boost::geometry::equals()</tt> for types adapted to some Geometry concept
-defined in Boost.Geometry and the result of operator= for other types. Components of Pairs and Tuples are compared left-to-right.
+The object of EqualTo type compares Values and returns <tt>true</tt> if they
+are equal. It's similar to <tt>std::equal_to<></tt>. The default EqualTo
+returns the result of <tt>boost::geometry::equals()</tt> for types adapted to
+some Geometry concept defined in Boost.Geometry and the result of
+<tt>operator==</tt> for other types. Components of Pairs and Tuples are
+compared left-to-right.
 
 \tparam Value           The type of objects stored in the container.
 \tparam Parameters      Compile-time parameters.
 \tparam IndexableGetter The function object extracting Indexable from Value.
 \tparam EqualTo         The function object comparing objects of type Value.
-\tparam Allocator       The allocator used to allocate/deallocate memory, construct/destroy nodes and Values.
+\tparam Allocator       The allocator used to allocate/deallocate memory,
+                        construct/destroy nodes and Values.
 */
 template <
     typename Value,
@@ -188,7 +197,7 @@ private:
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
-    typedef detail::rtree::node_auto_ptr<value_type, options_type, translator_type, box_type, allocators_type> node_auto_ptr;
+    typedef detail::rtree::subtree_destroyer<value_type, options_type, translator_type, box_type, allocators_type> subtree_destroyer;
 
     friend class detail::rtree::utilities::view<rtree>;
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -1088,6 +1097,8 @@ public:
     template <typename ValueOrIndexable>
     size_type count(ValueOrIndexable const& vori) const
     {
+        // the input should be convertible to Value or Indexable type
+
         enum { as_val = 0, as_ind, dont_know };
         typedef boost::mpl::int_
             <
@@ -1113,15 +1124,9 @@ public:
                 indexable_type
             >::type value_or_indexable;
 
-        if ( !m_members.root )
-            return 0;
-
-        detail::rtree::visitors::count<value_or_indexable, value_type, options_type, translator_type, box_type, allocators_type>
-            count_v(vori, m_members.translator());
-
-        detail::rtree::apply_visitor(count_v, *m_members.root);
-
-        return count_v.found_count;
+        // NOTE: If an object of convertible but not the same type is passed
+        // into the function, here a temporary will be created.
+        return this->template raw_count<value_or_indexable>(vori);
     }
 
     /*!
@@ -1357,7 +1362,7 @@ private:
             dst.m_members.parameters() = src.m_members.parameters();
         }
 
-        // TODO use node_auto_ptr
+        // TODO use subtree_destroyer
         if ( dst.m_members.root )
         {
             detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
@@ -1492,6 +1497,33 @@ private:
         detail::rtree::apply_visitor(distance_v, *m_members.root);
 
         return distance_v.finish();
+    }
+    
+    /*!
+    \brief Count elements corresponding to value or indexable.
+
+    \par Exception-safety
+    strong
+    */
+    template <typename ValueOrIndexable>
+    size_type raw_count(ValueOrIndexable const& vori) const
+    {
+        if ( !m_members.root )
+            return 0;
+
+        detail::rtree::visitors::count
+            <
+                ValueOrIndexable,
+                value_type,
+                options_type,
+                translator_type,
+                box_type,
+                allocators_type
+            > count_v(vori, m_members.translator());
+
+        detail::rtree::apply_visitor(count_v, *m_members.root);
+
+        return count_v.found_count;
     }
 
     struct members_holder

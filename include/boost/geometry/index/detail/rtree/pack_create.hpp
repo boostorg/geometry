@@ -2,7 +2,7 @@
 //
 // R-tree initial packing
 //
-// Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -122,7 +122,7 @@ class pack
     typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
     typedef typename Allocators::node_pointer node_pointer;
-    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
     typedef typename Allocators::size_type size_type;
 
     typedef typename geometry::point_type<Box>::type point_type;
@@ -161,7 +161,12 @@ public:
         geometry::assign_inverse(hint_box);
         for ( ; first != last ; ++first )
         {
-            typename Translator::result_type indexable = translator(*first);
+            // NOTE: support for iterators not returning true references adapted
+            // to Geometry concept and default translator returning true reference
+            // An alternative would be to dereference the iterator and translate
+            // in one expression each time the indexable was needed.
+            typename std::iterator_traits<InIt>::reference in_ref = *first;
+            typename Translator::result_type indexable = translator(in_ref);
 
             // NOTE: added for consistency with insert()
             // CONSIDER: alternative - ignore invalid indexable or throw an exception
@@ -205,7 +210,7 @@ private:
 
             // create new leaf node
             node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
-            node_auto_ptr auto_remover(n, allocators);
+            subtree_destroyer auto_remover(n, allocators);
             leaf & l = rtree::get<leaf>(*n);
 
             // reserve space for values
@@ -215,8 +220,11 @@ private:
             geometry::assign_inverse(elements_box);
             for ( ; first != last ; ++first )
             {
-                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
+                // NOTE: push_back() must be called at the end in order to support move_iterator.
+                //       The iterator is dereferenced 2x (no temporary reference) to support
+                //       non-true reference types and move_iterator without boost::forward<>.
                 geometry::expand(elements_box, translator(*(first->second)));
+                rtree::elements(l).push_back(*(first->second));                                             // MAY THROW (A?,C)
             }
 
             auto_remover.release();
@@ -230,7 +238,7 @@ private:
 
         // create new internal node
         node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);                  // MAY THROW (A)
-        node_auto_ptr auto_remover(n, allocators);
+        subtree_destroyer auto_remover(n, allocators);
         internal_node & in = rtree::get<internal_node>(*n);
 
         // reserve space for values
@@ -272,7 +280,7 @@ private:
             // in case if push_back() do throw here
             // and even if this is not probable (previously reserved memory, nonthrowing pairs copy)
             // this case is also tested by exceptions test.
-            node_auto_ptr auto_remover(el.second, allocators);
+            subtree_destroyer auto_remover(el.second, allocators);
             // this container should have memory allocated, reserve() called outside
             elements.push_back(el);                                                 // MAY THROW (A?,C) - however in normal conditions shouldn't
             auto_remover.release();
