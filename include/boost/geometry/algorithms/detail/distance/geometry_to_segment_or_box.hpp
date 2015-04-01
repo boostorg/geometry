@@ -220,7 +220,8 @@ public:
         comparable_return_type cd_min1(0);
         point_iterator_type pit_min;
         seg_or_box_iterator_type it_min1 = seg_or_box_points.begin();
-        seg_or_box_iterator_type it_min2 = ++seg_or_box_points.begin();
+        seg_or_box_iterator_type it_min2 = it_min1;
+        ++it_min2;
         bool first = true;
 
         for (point_iterator_type pit = points_begin(geometry);

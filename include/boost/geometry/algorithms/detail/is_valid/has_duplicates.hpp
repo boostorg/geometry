@@ -48,7 +48,8 @@ struct has_duplicates
         geometry::equal_to<typename boost::range_value<Range>::type> equal;
 
         iterator it = boost::begin(view);
-        iterator next = ++boost::begin(view);
+        iterator next = it;
+        ++next;
         for (; next != boost::end(view); ++it, ++next)
         {
             if ( equal(*it, *next) )

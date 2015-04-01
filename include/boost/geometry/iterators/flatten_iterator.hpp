@@ -215,7 +215,8 @@ private:
                 --m_outer_it;
             }
             while ( empty(m_outer_it) );
-            m_inner_it = --AccessInnerEnd::apply(*m_outer_it);
+            m_inner_it = AccessInnerEnd::apply(*m_outer_it);
+            --m_inner_it;
         }
         else
         {
