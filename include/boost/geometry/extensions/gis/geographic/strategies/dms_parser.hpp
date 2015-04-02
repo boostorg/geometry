@@ -254,15 +254,15 @@ namespace strategy
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-template <template<typename> class CS>
-struct strategy_parse<geographic_tag, CS<degree> >
+template <template<typename> class CoordinateSystem>
+struct strategy_parse<geographic_tag, CoordinateSystem<degree> >
 {
     typedef strategy::dms_parser<false> type;
 };
 
 
-template <template<typename> class CS>
-struct strategy_parse<geographic_tag, CS<radian> >
+template <template<typename> class CoordinateSystem>
+struct strategy_parse<geographic_tag, CoordinateSystem<radian> >
 {
     typedef strategy::dms_parser<true> type;
 };
