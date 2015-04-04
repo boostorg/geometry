@@ -59,6 +59,7 @@
 #include <boost/geometry/index/detail/algorithms/is_valid.hpp>
 
 #include <boost/geometry/index/detail/rtree/visitors/insert.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/iterator.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/remove.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/copy.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
@@ -78,6 +79,7 @@
 
 #include <boost/geometry/index/detail/rtree/utilities/view.hpp>
 
+#include <boost/geometry/index/detail/rtree/iterators.hpp>
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -220,8 +222,17 @@ public:
     /*! \brief Unsigned integral type used by the container. */
     typedef typename allocators_type::size_type size_type;
 
+    /*! \brief Type of const iterator. */
+    typedef index::detail::rtree::iterators::iterator
+        <
+            value_type, options_type, translator_type, box_type, allocators_type
+        > const_iterator;
+
     /*! \brief Type of const query iterator. */
-    typedef index::detail::rtree::iterators::query_iterator<value_type, allocators_type> const_query_iterator;
+    typedef index::detail::rtree::iterators::query_iterator
+        <
+            value_type, allocators_type
+        > const_query_iterator;
 
 public:
 
@@ -814,6 +825,9 @@ public:
     If predicates copy throws.
     If allocation throws.
 
+    \warning
+    The modification of the rtree may invalidate the iterators.
+
     \param predicates   Predicates.
     
     \return             The iterator pointing at the begin of the query range.
@@ -842,6 +856,9 @@ public:
 
     \par Throws
     Nothing
+
+    \warning
+    The modification of the rtree may invalidate the iterators.
     
     \return             The iterator pointing at the end of the query range.
     */
@@ -1015,6 +1032,63 @@ private:
     }
 
 public:
+
+    /*!
+    \brief Returns the iterator pointing at the begin of the rtree values range.
+
+    This method returns the iterator which may be used to iterate over all values
+    stored in the rtree.
+
+    \par Example
+    \verbatim
+    for ( Rtree::const_iterator it = tree.begin() ; it != tree.end() ; ++it )
+    {
+        // do something with value
+    }
+    \endverbatim
+
+    \par Throws
+    If allocation throws.
+
+    \warning
+    The modification of the rtree may invalidate the iterators.
+
+    \return             The iterator pointing at the begin of the range.
+    */
+    const_iterator begin() const
+    {
+        if ( !m_members.root )
+            return const_iterator();
+
+        return const_iterator(m_members.root);
+    }
+
+    /*!
+    \brief Returns the iterator pointing at the end of the rtree values range.
+
+    This method returns the iterator which may be compared with the iterator returned by begin()
+    in order to check if the iteration has ended.
+
+    \par Example
+    \verbatim
+    for ( Rtree::const_iterator it = tree.begin() ; it != tree.end() ; ++it )
+    {
+        // do something with value
+    }
+    \endverbatim
+
+    \par Throws
+    Nothing.
+
+    \warning
+    The modification of the rtree may invalidate the iterators.
+
+    \return             The iterator pointing at the end of the range.
+    */
+    const_iterator end() const
+    {
+        return const_iterator();
+    }
 
     /*!
     \brief Returns the number of stored values.
@@ -1797,14 +1871,7 @@ about the predicates which may be passed to this method see query().
     
 \par Example
 \verbatim
-    
-for ( Rtree::const_query_iterator it = qbegin(tree, bgi::nearest(pt, 10000)) ;
-        it != qend(tree) ; ++it )
-{
-    // do something with value
-    if ( has_enough_nearest_values() )
-        break;
-}
+std::for_each(bgi::qbegin(tree, bgi::nearest(pt, 3)), bgi::qend(tree), do_something());
 \endverbatim
 
 \par Throws
@@ -1834,14 +1901,7 @@ This method returns the iterator which may be used to check if the query has end
     
 \par Example
 \verbatim
-    
-for ( Rtree::const_query_iterator it = qbegin(tree, bgi::nearest(pt, 10000)) ;
-      it != qend(tree) ; ++it )
-{
-    // do something with value
-    if ( has_enough_nearest_values() )
-        break;
-}
+std::for_each(bgi::qbegin(tree, bgi::nearest(pt, 3)), bgi::qend(tree), do_something());
 \endverbatim
 
 \par Throws
@@ -1856,6 +1916,62 @@ typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_qu
 qend(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
 {
     return tree.qend();
+}
+
+/*!
+\brief Returns the iterator pointing at the begin of the rtree values range.
+
+This method returns the iterator which may be used to iterate over all values
+stored in the rtree.
+
+\par Example
+\verbatim
+std::for_each(bgi::begin(tree), bgi::end(tree), do_something());
+// the same as
+std::for_each(boost::begin(tree), boost::end(tree), do_something());
+\endverbatim
+
+\par Throws
+If allocation throws.
+
+\warning
+The modification of the rtree may invalidate the iterators.
+
+\return             The iterator pointing at the begin of the range.
+*/
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_iterator
+begin(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+{
+    return tree.begin();
+}
+
+/*!
+\brief Returns the iterator pointing at the end of the rtree values range.
+
+This method returns the iterator which may be compared with the iterator returned by begin()
+in order to check if the iteration has ended.
+
+\par Example
+\verbatim
+std::for_each(bgi::begin(tree), bgi::end(tree), do_something());
+// the same as
+std::for_each(boost::begin(tree), boost::end(tree), do_something());
+\endverbatim
+
+\par Throws
+Nothing.
+
+\warning
+The modification of the rtree may invalidate the iterators.
+
+\return             The iterator pointing at the end of the range.
+*/
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator> inline
+typename rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>::const_iterator
+end(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> const& tree)
+{
+    return tree.end();
 }
 
 /*!
@@ -1943,6 +2059,23 @@ inline void swap(rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator> &
 }
 
 }}} // namespace boost::geometry::index
+
+// Boost.Range adaptation
+namespace boost {
+
+template <typename Value, typename Parameters, typename IndexableGetter, typename EqualTo, typename Allocator>
+struct range_mutable_iterator
+    <
+        boost::geometry::index::rtree<Value, Parameters, IndexableGetter, EqualTo, Allocator>
+    >
+{
+    typedef typename boost::geometry::index::rtree
+        <
+            Value, Parameters, IndexableGetter, EqualTo, Allocator
+        >::const_iterator type;
+};
+
+} // namespace boost
 
 // TODO: don't include the implementation at the end of the file
 #include <boost/geometry/algorithms/detail/comparable_distance/implementation.hpp>
