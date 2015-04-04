@@ -32,6 +32,7 @@
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
+#include <boost/type_traits/is_integral.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -295,6 +296,63 @@ struct square_root<T, true>
 };
 
 
+
+template
+<
+    typename T,
+    bool IsFundemantal = boost::is_fundamental<T>::value /* false */
+>
+struct modulo
+{
+    typedef T return_type;
+
+    static inline T apply(T const& value1, T const& value2)
+    {
+        // for non-fundamental number types assume that a free
+        // function mod() is defined either:
+        // 1) at T's scope, or
+        // 2) at global scope
+        return mod(value1, value2);
+    }
+};
+
+template
+<
+    typename Fundamental,
+    bool IsIntegral = boost::is_integral<Fundamental>::value
+>
+struct modulo_for_fundamental
+{
+    typedef Fundamental return_type;
+
+    static inline Fundamental apply(Fundamental const& value1,
+                                    Fundamental const& value2)
+    {
+        return value1 % value2;
+    }
+};
+
+// specialization for floating-point numbers
+template <typename Fundamental>
+struct modulo_for_fundamental<Fundamental, false>
+{
+    typedef Fundamental return_type;
+
+    static inline Fundamental apply(Fundamental const& value1,
+                                    Fundamental const& value2)
+    {
+        return std::fmod(value1, value2);
+    }
+};
+
+// specialization for fundamental number type
+template <typename Fundamental>
+struct modulo<Fundamental, true>
+    : modulo_for_fundamental<Fundamental>
+{};
+
+
+
 /*!
 \brief Short construct to enable partial specialization for PI, currently not possible in Math.
 */
@@ -452,6 +510,24 @@ sqrt(T const& value)
         <
             T, boost::is_fundamental<T>::value
         >::apply(value);
+}
+
+/*!
+\brief Short utility to return the modulo of two values
+\ingroup utility
+\param value1 First value
+\param value2 Second value
+\return The result of the modulo operation on the (ordered) pair
+(value1, value2)
+*/
+template <typename T>
+inline typename detail::modulo<T>::return_type
+mod(T const& value1, T const& value2)
+{
+    return detail::modulo
+        <
+            T, boost::is_fundamental<T>::value
+        >::apply(value1, value2);
 }
 
 /*!
