@@ -200,13 +200,6 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/iterators \
 			../../../../boost/geometry/io/wkt \
 			../../../../boost/geometry/io/svg \
-			../../../../boost/geometry/multi/algorithms \
-			../../../../boost/geometry/multi/algorithms/detail \
-			../../../../boost/geometry/multi/core \
-			../../../../boost/geometry/multi/geometries \
-			../../../../boost/geometry/multi/geometries/register \
-			../../../../boost/geometry/multi/geometries/concepts \
-			../../../../boost/geometry/multi/strategies/cartesian \
 			../../../../boost/geometry/policies \
 			../../../../boost/geometry/policies/relate \
 			../../../../boost/geometry/strategies \

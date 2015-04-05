@@ -23,7 +23,7 @@
 #include "test_difference_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
