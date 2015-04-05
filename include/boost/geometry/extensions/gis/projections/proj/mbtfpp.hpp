@@ -46,7 +46,7 @@ namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace mbtfpp{ 
-            static const double CS = .95257934441568037152;
+            static const double CS_ = .95257934441568037152;
             static const double FXC = .92582009977255146156;
             static const double FYC = 3.40168025708304504493;
             static const double C23 = .66666666666666666666;
@@ -70,7 +70,7 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    lp_lat = asin(CS * sin(lp_lat));
+                    lp_lat = asin(CS_ * sin(lp_lat));
                     xy_x = FXC * lp_lon * (2. * cos(C23 * lp_lat) - 1.);
                     xy_y = FYC * sin(C13 * lp_lat);
                 }
@@ -84,7 +84,7 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lat = asin(lp_lat);
                     lp_lon = xy_x / ( FXC * (2. * cos(C23 * (lp_lat *= 3.)) - 1.) );
-                    if (fabs(lp_lat = sin(lp_lat) / CS) >= 1.) {
+                    if (fabs(lp_lat = sin(lp_lat) / CS_) >= 1.) {
                         if (fabs(lp_lat) > ONEEPS)    throw proj_exception();
                         else    lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
                     } else
