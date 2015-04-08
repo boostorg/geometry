@@ -446,6 +446,7 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
+#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
             if (it->count_within_near_offsetted > 0)
             {
                 // Within can have in rare cases a rounding issue. We don't discard this
@@ -453,6 +454,7 @@ struct buffered_piece_collection
                 // will never start a new ring from this type of points.
                 it->selectable_start = false;
             }
+#endif
         }
     }
 
@@ -546,6 +548,7 @@ struct buffered_piece_collection
             }
         }
 
+#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         // Insert all rescaled turn-points into these rings, to form a
         // reliable integer-based ring. All turns can be compared (inside) to this
         // rings to see if they are inside.
@@ -585,6 +588,7 @@ struct buffered_piece_collection
         }
 
         BOOST_ASSERT(assert_indices_in_robust_rings());
+#endif
     }
 
     template <std::size_t Dimension>

@@ -25,6 +25,10 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+#include <boost/geometry/strategies/cartesian/side_of_intersection.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -89,8 +93,10 @@ enum analyse_result
     analyse_disjoint,
     analyse_within,
     analyse_on_original_boundary,
-    analyse_on_offsetted,
-    analyse_near_offsetted
+    analyse_on_offsetted
+#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+    , analyse_near_offsetted
+#endif
 };
 
 template <typename Point>
@@ -112,6 +118,31 @@ inline analyse_result check_segment(Point const& previous,
         Point const& current, Turn const& turn,
         bool from_monotonic)
 {
+
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+    typedef geometry::model::referring_segment<Point const> segment_type;
+    segment_type const p(turn.rob_pi, turn.rob_pj);
+    segment_type const q(turn.rob_qi, turn.rob_qj);
+    segment_type const r(previous, current);
+    int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                turn.robust_point);
+
+    if (side == 0)
+    {
+        return analyse_on_offsetted;
+    }
+    if (side == -1 && from_monotonic)
+    {
+        return analyse_within;
+    }
+    if (side == 1 && from_monotonic)
+    {
+        return analyse_disjoint;
+    }
+    return analyse_continue;
+
+#else
+
     typedef typename strategy::side::services::default_strategy
         <
             typename cs_tag<Point>::type
@@ -156,6 +187,7 @@ inline analyse_result check_segment(Point const& previous,
 
     // Not monotonic, on left or right side: continue analysing
     return analyse_continue;
+#endif
 }
 
 
@@ -228,6 +260,48 @@ class analyse_turn_wrt_piece
                 bool is_original,
                 Point const& offsetted)
     {
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        typedef geometry::model::referring_segment<Point const> segment_type;
+        segment_type const p(turn.rob_pi, turn.rob_pj);
+        segment_type const q(turn.rob_qi, turn.rob_qj);
+        segment_type const r(s1, s2);
+        int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                    turn.robust_point);
+
+        if (side == 1)
+        {
+            // left of segment
+            return analyse_disjoint;
+        }
+        else if (side == 0)
+        {
+            // If is collinear, either on segment or before/after
+            typedef geometry::model::box<Point> box_type;
+
+            box_type box;
+            geometry::assign_inverse(box);
+            geometry::expand(box, s1);
+            geometry::expand(box, s2);
+
+            if (geometry::covered_by(turn.robust_point, box))
+            {
+                // Points on helper-segments are considered as within
+                // Points on original boundary are processed differently
+                return is_original
+                    ? analyse_on_original_boundary
+                    : analyse_within;
+            }
+
+            // It is collinear but not on the segment. Because these
+            // segments are convex, it is outside
+            // Unless the offsetted ring is collinear or concave w.r.t.
+            // helper-segment but that scenario is not yet supported
+            return analyse_disjoint;
+        }
+
+        // right of segment
+        return analyse_continue;
+#else
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Point>::type
@@ -276,6 +350,7 @@ class analyse_turn_wrt_piece
 
         // right of segment
         return analyse_continue;
+#endif
     }
 
     template <typename Turn, typename Piece>
@@ -492,6 +567,60 @@ class turn_in_piece_visitor
         return false;
     }
 
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+    template <typename Turn, typename Piece>
+    static inline int turn_in_convex_piece(Turn const& turn,
+            Piece const& piece)
+    {
+        typedef typename Turn::robust_point_type point_type;
+        typedef typename Piece::piece_robust_ring_type ring_type;
+        typedef geometry::model::referring_segment<point_type const> segment;
+
+        segment const p(turn.rob_pi, turn.rob_pj);
+        segment const q(turn.rob_qi, turn.rob_qj);
+
+        typedef typename boost::range_iterator<ring_type const>::type iterator_type;
+        iterator_type it = boost::begin(piece.robust_ring);
+        iterator_type end = boost::end(piece.robust_ring);
+
+        // A robust ring is always closed, and always clockwise
+        for (iterator_type previous = it++; it != end; ++previous, ++it)
+        {
+            geometry::equal_to<point_type> comparator;
+            if (comparator(*previous, *it))
+            {
+                // Points are the same
+                continue;
+            }
+
+            segment r(*previous, *it);
+
+            int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                        turn.robust_point);
+
+            if (side == 1)
+            {
+                // IP is left of segment, so it is outside
+                return -1; // outside
+            }
+            else if (side == 0)
+            {
+                // IP is collinear with segment. TODO: we should analyze this further
+                // For now we use the fallback point
+                if (in_box(*previous, *it, turn.robust_point))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1; // outside
+                }
+            }
+        }
+        return 1; // inside
+    }
+#endif
+
 
 public:
 
@@ -549,16 +678,32 @@ public:
             case analyse_within :
                 mutable_turn.count_within++;
                 return;
+#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
             case analyse_near_offsetted :
                 mutable_turn.count_within_near_offsetted++;
                 return;
+#endif
             default :
                 break;
         }
 
-        // TODO: this point_in_geometry is a performance-bottleneck here and
-        // will be replaced completely by extending analyse_piece functionality
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        // We don't know (yet)
+        int geometry_code = 0;
+        if (piece.is_convex)
+        {
+            geometry_code = turn_in_convex_piece(turn, piece);
+        }
+        else
+        {
+
+            // TODO: this point_in_geometry is a performance-bottleneck here and
+            // will be replaced completely by extending analyse_piece functionality
+            geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+        }
+#else
         int geometry_code = detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+#endif
 
         if (geometry_code == 1)
         {
