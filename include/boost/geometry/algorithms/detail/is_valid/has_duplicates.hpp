@@ -36,7 +36,10 @@ struct has_duplicates
     static inline bool apply(Range const& range, VisitPolicy& visitor)
     {
         typedef typename closeable_view<Range const, Closure>::type view_type;
-        typedef typename boost::range_iterator<view_type const>::type iterator;
+        typedef typename boost::range_const_iterator
+            <
+                view_type const
+            >::type const_iterator;
 
         view_type view(range);
 
@@ -47,10 +50,10 @@ struct has_duplicates
 
         geometry::equal_to<typename boost::range_value<Range>::type> equal;
 
-        iterator it = boost::begin(view);
-        iterator next = it;
+        const_iterator it = boost::const_begin(view);
+        const_iterator next = it;
         ++next;
-        for (; next != boost::end(view); ++it, ++next)
+        for (; next != boost::const_end(view); ++it, ++next)
         {
             if ( equal(*it, *next) )
             {
