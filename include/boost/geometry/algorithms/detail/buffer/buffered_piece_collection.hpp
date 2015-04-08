@@ -21,6 +21,7 @@
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/is_convex.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 
@@ -191,6 +192,7 @@ struct buffered_piece_collection
         std::vector<point_type> helper_points; // 4 points for side, 3 points for join - 0 points for flat-end
 #endif
 
+        bool is_convex;
         bool is_monotonic_increasing[2]; // 0=x, 1=y
         bool is_monotonic_decreasing[2]; // 0=x, 1=y
 
@@ -606,6 +608,8 @@ struct buffered_piece_collection
         pc.is_monotonic_increasing[1] = true;
         pc.is_monotonic_decreasing[0] = true;
         pc.is_monotonic_decreasing[1] = true;
+
+        pc.is_convex = geometry::is_convex(pc.robust_ring);
 
         if (pc.offsetted_count < 2)
         {
