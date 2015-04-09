@@ -108,7 +108,7 @@ private:
 
 public:
 
-    /// @brief Default constructor, no initialization
+    /// \constructor_default_no_init
     inline point()
     {
         BOOST_STATIC_ASSERT(DimensionCount >= 1);

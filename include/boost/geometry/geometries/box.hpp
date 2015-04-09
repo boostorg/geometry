@@ -50,6 +50,7 @@ class box
 
 public:
 
+    /// \constructor_default_no_init
     inline box() {}
 
     /*!

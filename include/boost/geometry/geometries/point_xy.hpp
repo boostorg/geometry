@@ -45,7 +45,7 @@ class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>
 {
 public:
 
-    /// Default constructor, does not initialize anything
+    /// \constructor_default_no_init
     inline point_xy()
         : model::point<CoordinateType, 2, CoordinateSystem>()
     {}
