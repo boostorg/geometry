@@ -17,6 +17,7 @@
 #include <cstddef>
 
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
@@ -50,8 +51,14 @@ class box
 
 public:
 
+#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
     /// \constructor_default_no_init
-    inline box() {}
+    box() = default;
+#else
+    /// \constructor_default_no_init
+    inline box()
+    {}
+#endif
 
     /*!
         \brief Constructor taking the minimum corner point and the maximum corner point

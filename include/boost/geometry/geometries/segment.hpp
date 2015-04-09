@@ -42,9 +42,15 @@ class segment : public std::pair<Point, Point>
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
 public :
+
+#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+    /// \constructor_default_no_init
+    segment() = default;
+#else
     /// \constructor_default_no_init
     inline segment()
     {}
+#endif
 
     /*!
         \brief Constructor taking the first and the second point

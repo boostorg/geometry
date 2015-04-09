@@ -22,6 +22,7 @@
 
 #include <cstddef>
 
+#include <boost/config.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/int.hpp>
 
@@ -111,9 +112,14 @@ class point
 
 public:
 
+#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+    /// \constructor_default_no_init
+    point() = default;
+#else
     /// \constructor_default_no_init
     inline point()
     {}
+#endif
 
     /// @brief Constructor to set one value
     explicit inline point(CoordinateType const& v0)
