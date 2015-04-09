@@ -22,10 +22,10 @@ int main()
     bg::model::d2::point_xy<double> point2(1.0, 2.0); /*< Construct, assigning coordinates. >*/
 
     bg::set<0>(point1, 1.0); /*< Set a coordinate, generic. >*/
-    point1.y(2.0); /*< Set a coordinate, class-specific ([*Note]: prefer `bg::set();`). >*/
+    point1.y(2.0); /*< Set a coordinate, class-specific ([*Note]: prefer `bg::set()`). >*/
 
     double x = bg::get<0>(point1); /*< Get a coordinate, generic. >*/
-    double y = point1.y(); /*< Get a coordinate, class-specific ([*Note]: prefer `bg::get();`). >*/
+    double y = point1.y(); /*< Get a coordinate, class-specific ([*Note]: prefer `bg::get()`). >*/
 
     std::cout << x << ", " << y << std::endl;
     return 0;
