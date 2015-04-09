@@ -55,6 +55,7 @@ namespace model
 \note The container collecting the points in the rings can be different
     from the container collecting the inner rings. They all default to vector.
 
+\qbk{[include reference/geometries/polygon.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_polygon Polygon Concept]

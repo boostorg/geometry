@@ -48,6 +48,7 @@ namespace model
 \tparam Container container type, for example std::vector, std::deque
 \tparam Allocator container-allocator-type
 
+\qbk{[include reference/geometries/ring.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_ring Ring Concept]

@@ -43,6 +43,8 @@ namespace model
 \tparam Allocator \tparam_allocator
 \details Multipoint can be used to group points belonging to each other,
         e.g. a constellation, or the result set of an intersection
+
+\qbk{[include reference/geometries/multi_point.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_multi_point MultiPoint Concept]

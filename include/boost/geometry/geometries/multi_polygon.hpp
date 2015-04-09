@@ -40,6 +40,7 @@ namespace model
         e.g. Hawaii
 \ingroup geometries
 
+\qbk{[include reference/geometries/multi_polygon.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_multi_polygon MultiPolygon Concept]

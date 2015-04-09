@@ -44,6 +44,7 @@ namespace model
 \tparam Container \tparam_container
 \tparam Allocator \tparam_allocator
 
+\qbk{[include reference/geometries/linestring.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_linestring Linestring Concept]
