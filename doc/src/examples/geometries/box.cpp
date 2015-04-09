@@ -21,10 +21,10 @@ int main()
     typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
     typedef bg::model::box<point_t> box_t;
 
-    box_t box1; /*< Default-construct a box >*/
-    box_t box2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning min and max corner point >*/
+    box_t box1; /*< Default-construct a box. >*/
+    box_t box2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning min and max corner point. >*/
 #ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
-    box_t box3{{0.0, 0.0}, {5.0, 5.0}}; /*< Construct, using C++11 unified initialization syntax >*/
+    box_t box3{{0.0, 0.0}, {5.0, 5.0}}; /*< Construct, using C++11 unified initialization syntax. >*/
 #endif
 
     bg::set<bg::min_corner, 0>(box1, 1.0); /*< Set a coordinate, generic. >*/
@@ -32,12 +32,12 @@ int main()
     box1.max_corner().set<0>(3.0); /*< Set a coordinate, class-specific ([*Note]: prefer `bg::set();`). >*/
     box1.max_corner().set<1>(4.0);
 
-    double x0 = bg::get<bg::min_corner, 0>(box1); /*< Get a coordinate. >*/
-    double y0 = bg::get<bg::min_corner, 1>(box1);
-    double x1 = box1.max_corner().get<0>(); /*< Get a coordinate, class-specific ([*Note]: prefer `bg::get();`). >*/
-    double y1 = box1.max_corner().get<1>();
+    double min_x = bg::get<bg::min_corner, 0>(box1); /*< Get a coordinate, generic. >*/
+    double min_y = bg::get<bg::min_corner, 1>(box1);
+    double max_x = box1.max_corner().get<0>(); /*< Get a coordinate, class-specific ([*Note]: prefer `bg::get();`). >*/
+    double max_y = box1.max_corner().get<1>();
 
-    std::cout << x0 << ", " << y0 << ", " << x1 << ", " << y1 << std::endl;
+    std::cout << min_x << ", " << min_y << ", " << max_x << ", " << max_y << std::endl;
 
     return 0;
 }
