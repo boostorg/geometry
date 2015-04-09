@@ -14,6 +14,7 @@ project boost-geometry-doc-src-example-geometries
     ;
 
 exe point : point.cpp ;
+exe box : box.cpp ;
 
 build-project adapted ;
 build-project register ;

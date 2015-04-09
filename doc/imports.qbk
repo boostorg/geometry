@@ -83,6 +83,8 @@
 [import src/examples/core/tag_cast.cpp]
 
 [import src/examples/geometries/point.cpp]
+[import src/examples/geometries/box.cpp]
+
 [import src/examples/geometries/adapted/c_array.cpp]
 [import src/examples/geometries/adapted/boost_array.cpp]
 [import src/examples/geometries/adapted/boost_fusion.cpp]
