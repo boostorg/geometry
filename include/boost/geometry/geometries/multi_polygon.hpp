@@ -23,11 +23,9 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif
 #endif
 
 namespace boost { namespace geometry
@@ -57,7 +55,10 @@ class multi_polygon : public Container<Polygon, Allocator<Polygon> >
 {
     BOOST_CONCEPT_ASSERT( (concept::Polygon<Polygon>) );
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+
+    // default constructor and base_type definitions are required only
+    // if the constructor taking std::initializer_list is defined
 
     typedef Container<Polygon, Allocator<Polygon> > base_type;
 
@@ -66,8 +67,6 @@ public:
     multi_polygon()
         : base_type()
     {}
-
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{multi_polygon}
     inline multi_polygon(std::initializer_list<Polygon> l)
@@ -87,7 +86,6 @@ public:
 //    }
 //#endif
 
-#endif
 #endif
 };
 
