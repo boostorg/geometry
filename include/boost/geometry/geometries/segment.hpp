@@ -39,6 +39,8 @@ namespace model
 template<typename Point>
 class segment : public std::pair<Point, Point>
 {
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+
 public :
     /// \constructor_default_no_init
     inline segment()

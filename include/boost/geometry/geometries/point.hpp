@@ -22,8 +22,8 @@
 
 #include <cstddef>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/int.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -100,7 +100,10 @@ template
 >
 class point
 {
-private:
+    BOOST_MPL_ASSERT_MSG((DimensionCount >= 1),
+                         DIMENSION_GREATER_THAN_ZERO_EXPECTED,
+                         (boost::mpl::int_<DimensionCount>));
+
     // The following enum is used to fully instantiate the
     // CoordinateSystem class and check the correctness of the units
     // passed for non-Cartesian coordinate systems.
@@ -110,9 +113,7 @@ public:
 
     /// \constructor_default_no_init
     inline point()
-    {
-        BOOST_STATIC_ASSERT(DimensionCount >= 1);
-    }
+    {}
 
     /// @brief Constructor to set one value
     explicit inline point(CoordinateType const& v0)
