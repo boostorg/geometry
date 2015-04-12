@@ -19,6 +19,22 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.59]
+[/=================]
+
+[*Additional functionality]
+
+* Added rtree const_iterator, begin(), end() and the support for Boost.Range.
+
+[*Improvements]
+
+* Upgraded rtree const_query_iterator category to ForwardIterator.
+
+[*Solved tickets]
+
+* [@https://svn.boost.org/trac/boost/ticket/11113 11113] Support easy enumeration of all elements with BOOST_FOREACH
+
+[/=================]
 [heading Boost 1.58]
 [/=================]
 

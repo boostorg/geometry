@@ -23,12 +23,8 @@
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
-#include <boost/geometry/algorithms/perimeter.hpp>
 
-#include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/intersection.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 
@@ -36,7 +32,6 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
 
 
 #ifdef HAVE_TTMATH

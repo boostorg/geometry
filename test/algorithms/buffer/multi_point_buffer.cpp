@@ -9,8 +9,6 @@
 
 #include <test_buffer.hpp>
 
-#include <boost/geometry/multi/geometries/multi_geometries.hpp>
-
 static std::string const simplex = "MULTIPOINT((5 5),(7 7))";
 static std::string const three = "MULTIPOINT((5 8),(9 8),(7 11))";
 

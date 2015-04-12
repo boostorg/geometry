@@ -553,9 +553,8 @@ struct buffered_piece_collection
         // reliable integer-based ring. All turns can be compared (inside) to this
         // rings to see if they are inside.
 
-        for (typename piece_vector_type::iterator it = boost::begin(m_pieces);
-            it != boost::end(m_pieces);
-            ++it)
+        for (typename boost::range_iterator<piece_vector_type>::type
+                it = boost::begin(m_pieces); it != boost::end(m_pieces); ++it)
         {
             piece& pc = *it;
             int piece_segment_index = pc.first_seg_id.segment_index;
@@ -567,9 +566,9 @@ struct buffered_piece_collection
                 }
                 // Walk through them, in reverse to insert at right index
                 int index_offset = pc.robust_turns.size() - 1;
-                for (typename std::vector<robust_turn>::const_reverse_iterator
-                        rit = pc.robust_turns.rbegin();
-                    rit != pc.robust_turns.rend();
+                for (typename boost::range_reverse_iterator<const std::vector<robust_turn> >::type
+                        rit = boost::const_rbegin(pc.robust_turns);
+                    rit != boost::const_rend(pc.robust_turns);
                     ++rit, --index_offset)
                 {
                     int const index_in_vector = 1 + rit->seg_id.segment_index - piece_segment_index;
