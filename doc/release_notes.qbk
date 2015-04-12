@@ -25,6 +25,7 @@
 [*Additional functionality]
 
 * Added rtree const_iterator, begin(), end() and the support for Boost.Range.
+* The support for C++11 `std::initializer_list` in geometries models.
 
 [*Improvements]
 
