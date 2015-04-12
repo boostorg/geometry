@@ -16,6 +16,7 @@
 
 #include <cstddef>
 
+#include <boost/config.hpp>
 #include <boost/mpl/int.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -45,10 +46,14 @@ class point_xy : public model::point<CoordinateType, 2, CoordinateSystem>
 {
 public:
 
-    /// Default constructor, does not initialize anything
+#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+    /// \constructor_default_no_init
+    point_xy() = default;
+#else
+    /// \constructor_default_no_init
     inline point_xy()
-        : model::point<CoordinateType, 2, CoordinateSystem>()
     {}
+#endif
 
     /// Constructor with x/y values
     inline point_xy(CoordinateType const& x, CoordinateType const& y)

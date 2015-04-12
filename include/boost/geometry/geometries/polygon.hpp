@@ -27,11 +27,9 @@
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif
 #endif
 
 namespace boost { namespace geometry
@@ -91,7 +89,10 @@ public:
     inline ring_type& outer() { return m_outer; }
     inline inner_container_type & inners() { return m_inners; }
 
-#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
+#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+
+    // default constructor definition is required only
+    // if the constructor taking std::initializer_list is defined
 
     /// \constructor_default{polygon}
     inline polygon()
@@ -99,7 +100,6 @@ public:
         , m_inners()
     {}
 
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     /// \constructor_initializer_list{polygon}
     inline polygon(std::initializer_list<ring_type> l)
         : m_outer(l.size() > 0 ? *l.begin() : ring_type())
@@ -128,7 +128,6 @@ public:
 //    }
 //#endif
 
-#endif
 #endif
 
     /// Utility method, clears outer and inner rings

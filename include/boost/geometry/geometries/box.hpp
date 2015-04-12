@@ -17,6 +17,7 @@
 #include <cstddef>
 
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
@@ -29,18 +30,21 @@ namespace boost { namespace geometry
 namespace model
 {
 
-
 /*!
-    \brief Class box: defines a box made of two describing points
-    \ingroup geometries
-    \details Box is always described by a min_corner() and a max_corner() point. If another
-        rectangle is used, use linear_ring or polygon.
-    \note Boxes are for selections and for calculating the envelope of geometries. Not all algorithms
-    are implemented for box. Boxes are also used in Spatial Indexes.
-    \tparam Point point type. The box takes a point type as template parameter.
-    The point type can be any point type.
-    It can be 2D but can also be 3D or more dimensional.
-    The box can also take a latlong point type as template parameter.
+\brief Class box: defines a box made of two describing points
+\ingroup geometries
+\details Box is always described by a min_corner() and a max_corner() point. If another
+    rectangle is used, use linear_ring or polygon.
+\note Boxes are for selections and for calculating the envelope of geometries. Not all algorithms
+are implemented for box. Boxes are also used in Spatial Indexes.
+\tparam Point point type. The box takes a point type as template parameter.
+The point type can be any point type.
+It can be 2D but can also be 3D or more dimensional.
+The box can also take a latlong point type as template parameter.
+
+\qbk{[include reference/geometries/box.qbk]}
+\qbk{before.synopsis, [heading Model of]}
+\qbk{before.synopsis, [link geometry.reference.concepts.concept_box Box Concept]}
  */
 
 template<typename Point>
@@ -50,7 +54,14 @@ class box
 
 public:
 
-    inline box() {}
+#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+    /// \constructor_default_no_init
+    box() = default;
+#else
+    /// \constructor_default_no_init
+    inline box()
+    {}
+#endif
 
     /*!
         \brief Constructor taking the minimum corner point and the maximum corner point
