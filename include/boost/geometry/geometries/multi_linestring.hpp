@@ -41,6 +41,7 @@ namespace model
         e.g. a highway (with interruptions)
 \ingroup geometries
 
+\qbk{[include reference/geometries/multi_linestring.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_multi_linestring MultiLineString Concept]

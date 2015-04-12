@@ -35,6 +35,12 @@ namespace model
  by two distinct end points, and contains every point on the line between its end points.
 \note There is also a point-referring-segment, class referring_segment,
    containing point references, where points are NOT copied
+
+\qbk{[include reference/geometries/segment.qbk]}
+\qbk{before.synopsis,
+[heading Model of]
+[link geometry.reference.concepts.concept_segment Segment Concept]
+}
 */
 template<typename Point>
 class segment : public std::pair<Point, Point>

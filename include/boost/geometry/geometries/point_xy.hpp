@@ -33,6 +33,7 @@ namespace model { namespace d2
 \tparam CoordinateType numeric type, for example, double, float, int
 \tparam CoordinateSystem coordinate system, defaults to cs::cartesian
 
+\qbk{[include reference/geometries/point_xy.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_point Point Concept]
