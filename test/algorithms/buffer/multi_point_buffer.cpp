@@ -60,15 +60,14 @@ void test_all()
     {
         bg::strategy::buffer::point_square point_strategy;
 
-
         test_with_custom_strategies<multi_point_type, polygon>("grid_a50",
                 grid_a, join_miter, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join_miter, end_flat,
-                distance_strategy(0.54), side_strategy, point_strategy, 99);
+                distance_strategy(0.54), side_strategy, point_strategy, 7.819);
 #endif
 
     }
