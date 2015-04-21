@@ -22,6 +22,9 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+#include <boost/assert.hpp>
+#endif
 
 
 namespace boost { namespace geometry
@@ -54,13 +57,24 @@ class box
 
 public:
 
-#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#if !defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+#if !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)
     /// \constructor_default_no_init
     box() = default;
 #else
     /// \constructor_default_no_init
     inline box()
     {}
+#endif
+#else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    inline box()
+    {
+        m_magic = 1;
+    }
+    ~box()
+    {
+        m_magic = 0;
+    }
 #endif
 
     /*!
@@ -70,18 +84,50 @@ public:
     {
         geometry::convert(min_corner, m_min_corner);
         geometry::convert(max_corner, m_max_corner);
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        m_magic = 1;
+#endif
     }
 
-    inline Point const& min_corner() const { return m_min_corner; }
-    inline Point const& max_corner() const { return m_max_corner; }
+    inline Point const& min_corner() const
+    {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_magic == 1);
+#endif
+        return m_min_corner;
+    }
+    inline Point const& max_corner() const
+    {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_magic == 1);
+#endif
+        return m_max_corner;
+    }
 
-    inline Point& min_corner() { return m_min_corner; }
-    inline Point& max_corner() { return m_max_corner; }
+    inline Point& min_corner()
+    {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_magic == 1);
+#endif
+        return m_min_corner;
+    }
+    inline Point& max_corner()
+    {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_magic == 1);
+#endif
+        return m_max_corner;
+    }
 
 private:
 
     Point m_min_corner;
     Point m_max_corner;
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    int m_magic;
+#endif
 };
 
 
