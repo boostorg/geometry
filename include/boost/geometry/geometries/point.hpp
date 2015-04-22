@@ -31,6 +31,11 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+#include <algorithm>
+#include <boost/assert.hpp>
+#endif
+
 namespace boost { namespace geometry
 {
 
@@ -112,13 +117,26 @@ class point
 
 public:
 
-#ifndef BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#if !defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+#if !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)
     /// \constructor_default_no_init
     point() = default;
 #else
     /// \constructor_default_no_init
     inline point()
     {}
+#endif
+#else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    point()
+    {
+        m_created = 1;
+        std::fill_n(m_values_initialized, DimensionCount, 0);
+    }
+    ~point()
+    {
+        m_created = 0;
+        std::fill_n(m_values_initialized, DimensionCount, 0);
+    }
 #endif
 
     /// @brief Constructor to set one value
@@ -127,6 +145,11 @@ public:
         detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
         detail::array_assign<DimensionCount, 1>::apply(m_values, CoordinateType());
         detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+#endif
     }
 
     /// @brief Constructor to set two values
@@ -135,6 +158,11 @@ public:
         detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
         detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
         detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+#endif
     }
 
     /// @brief Constructor to set three values
@@ -144,6 +172,11 @@ public:
         detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
         detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
         detail::array_assign<DimensionCount, 2>::apply(m_values, v2);
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+#endif
     }
 
     /// @brief Get a coordinate
@@ -152,6 +185,10 @@ public:
     template <std::size_t K>
     inline CoordinateType const& get() const
     {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_created == 1);
+        BOOST_ASSERT(m_values_initialized[K] == 1);
+#endif
         BOOST_STATIC_ASSERT(K < DimensionCount);
         return m_values[K];
     }
@@ -162,6 +199,10 @@ public:
     template <std::size_t K>
     inline void set(CoordinateType const& value)
     {
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+        BOOST_ASSERT(m_created == 1);
+        m_values_initialized[K] = 1;
+#endif
         BOOST_STATIC_ASSERT(K < DimensionCount);
         m_values[K] = value;
     }
@@ -169,6 +210,11 @@ public:
 private:
 
     CoordinateType m_values[DimensionCount];
+
+#if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    int m_created;
+    int m_values_initialized[DimensionCount];
+#endif
 };
 
 
