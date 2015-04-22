@@ -69,11 +69,11 @@ public:
 #else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     inline box()
     {
-        m_magic = 1;
+        m_created = 1;
     }
     ~box()
     {
-        m_magic = 0;
+        m_created = 0;
     }
 #endif
 
@@ -86,21 +86,21 @@ public:
         geometry::convert(max_corner, m_max_corner);
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        m_magic = 1;
+        m_created = 1;
 #endif
     }
 
     inline Point const& min_corner() const
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
+        BOOST_ASSERT(m_created == 1);
 #endif
         return m_min_corner;
     }
     inline Point const& max_corner() const
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
+        BOOST_ASSERT(m_created == 1);
 #endif
         return m_max_corner;
     }
@@ -108,14 +108,14 @@ public:
     inline Point& min_corner()
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
+        BOOST_ASSERT(m_created == 1);
 #endif
         return m_min_corner;
     }
     inline Point& max_corner()
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
+        BOOST_ASSERT(m_created == 1);
 #endif
         return m_max_corner;
     }
@@ -126,7 +126,7 @@ private:
     Point m_max_corner;
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-    int m_magic;
+    int m_created;
 #endif
 };
 

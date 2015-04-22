@@ -129,13 +129,13 @@ public:
 #else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     point()
     {
-        m_magic = 1;
-        std::fill_n(m_magic_values, DimensionCount, 0);
+        m_created = 1;
+        std::fill_n(m_values_initialized, DimensionCount, 0);
     }
     ~point()
     {
-        m_magic = 0;
-        std::fill_n(m_magic_values, DimensionCount, 0);
+        m_created = 0;
+        std::fill_n(m_values_initialized, DimensionCount, 0);
     }
 #endif
 
@@ -147,8 +147,8 @@ public:
         detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        m_magic = 1;
-        std::fill_n(m_magic_values, (std::min)(std::size_t(3), DimensionCount), 1);
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
 #endif
     }
 
@@ -160,8 +160,8 @@ public:
         detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        m_magic = 1;
-        std::fill_n(m_magic_values, (std::min)(std::size_t(3), DimensionCount), 1);
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
 #endif
     }
 
@@ -174,8 +174,8 @@ public:
         detail::array_assign<DimensionCount, 2>::apply(m_values, v2);
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        m_magic = 1;
-        std::fill_n(m_magic_values, (std::min)(std::size_t(3), DimensionCount), 1);
+        m_created = 1;
+        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
 #endif
     }
 
@@ -186,8 +186,8 @@ public:
     inline CoordinateType const& get() const
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
-        BOOST_ASSERT(m_magic_values[K] == 1);
+        BOOST_ASSERT(m_created == 1);
+        BOOST_ASSERT(m_values_initialized[K] == 1);
 #endif
         BOOST_STATIC_ASSERT(K < DimensionCount);
         return m_values[K];
@@ -200,8 +200,8 @@ public:
     inline void set(CoordinateType const& value)
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-        BOOST_ASSERT(m_magic == 1);
-        m_magic_values[K] = 1;
+        BOOST_ASSERT(m_created == 1);
+        m_values_initialized[K] = 1;
 #endif
         BOOST_STATIC_ASSERT(K < DimensionCount);
         m_values[K] = value;
@@ -212,8 +212,8 @@ private:
     CoordinateType m_values[DimensionCount];
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-    int m_magic;
-    int m_magic_values[DimensionCount];
+    int m_created;
+    int m_values_initialized[DimensionCount];
 #endif
 };
 
