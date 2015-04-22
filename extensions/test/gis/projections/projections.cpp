@@ -202,7 +202,7 @@ void test_all()
     test_forward<P>("putp6", 4.897000, 52.371000, 324931.055842, 5842588.644796, "+proj=putp6 +ellps=WGS84 +units=m");
     test_forward<P>("putp6p", 4.897000, 52.371000, 338623.512107, 6396742.919679, "+proj=putp6p +ellps=WGS84 +units=m");
     test_forward<P>("qua_aut", 4.897000, 52.371000, 370892.621714, 5629072.862494, "+proj=qua_aut +ellps=WGS84 +units=m");
-    test_forward<P>("robin", 4.897000, 52.371000, 394576.507489, 5571243.439235, "+proj=robin +ellps=WGS84 +units=m");
+    test_forward<P>("robin", 4.897000, 52.371000, 394576.507489, 5570940.631371, "+proj=robin +ellps=WGS84 +units=m");
     test_forward<P>("rouss", 4.897000, 52.371000, 412826.227669, 6248368.849775, "+proj=rouss +ellps=WGS84 +units=m");
     test_forward<P>("rpoly", 4.897000, 52.371000, 332447.130797, 5841164.662431, "+proj=rpoly +ellps=WGS84 +units=m");
     test_forward<P>("sinu", 4.897000, 52.371000, 333528.909809, 5804625.044313, "+proj=sinu +ellps=WGS84 +units=m");
@@ -317,7 +317,7 @@ void test_all()
     test_inverse<P>("putp6", 324931.055842, 5842588.644796, 4.897000, 52.371000, "+proj=putp6 +ellps=WGS84 +units=m");
     test_inverse<P>("putp6p", 338623.512107, 6396742.919679, 4.897000, 52.371000, "+proj=putp6p +ellps=WGS84 +units=m");
     test_inverse<P>("qua_aut", 370892.621714, 5629072.862494, 4.897000, 52.371000, "+proj=qua_aut +ellps=WGS84 +units=m");
-    test_inverse<P>("robin", 394576.507489, 5571243.439235, 4.897000, 52.371000, "+proj=robin +ellps=WGS84 +units=m");
+    test_inverse<P>("robin", 394576.507489, 5570940.631371, 4.897000, 52.371000, "+proj=robin +ellps=WGS84 +units=m");
     test_inverse<P>("rouss", 412826.227669, 6248368.849775, 4.959853, 52.433747, "+proj=rouss +ellps=WGS84 +units=m"); // F/I: 8188.459174
     test_inverse<P>("sinu", 333528.909809, 5804625.044313, 4.897000, 52.371000, "+proj=sinu +ellps=WGS84 +units=m");
     test_inverse<P>("somerc", 545131.546415, 6833623.829215, 4.897000, 52.371000, "+proj=somerc +ellps=WGS84 +units=m");
