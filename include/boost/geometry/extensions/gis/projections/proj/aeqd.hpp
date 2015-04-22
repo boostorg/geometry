@@ -115,7 +115,7 @@ namespace boost { namespace geometry { namespace projections
                         ct = cos(t); st = sin(t);
                         Az = atan2(sin(lp_lon) * ct, this->m_proj_parm.cosph0 * st - this->m_proj_parm.sinph0 * coslam * ct);
                         cA = cos(Az); sA = sin(Az);
-                        s = aasin( fabs(sA) < TOL ?
+                        s = aasin(fabs(sA) < TOL ?
                             (this->m_proj_parm.cosph0 * st - this->m_proj_parm.sinph0 * coslam * ct) / cA :
                             sin(lp_lon) * ct / sA );
                         H = this->m_proj_parm.He * cA;

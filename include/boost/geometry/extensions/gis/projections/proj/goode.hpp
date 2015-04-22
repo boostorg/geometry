@@ -41,7 +41,6 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-
 #include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
 
