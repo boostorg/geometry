@@ -75,7 +75,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double p, r, V;
                     int i;
-                
+
                     p = this->m_proj_parm.B * sin(lp_lat);
                     lp_lat *=  1.10265779;
                     for (i = NITER; i ; --i) {
@@ -94,7 +94,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double r;
-                
+
                     lp_lat = xy_y / this->m_proj_parm.C_y;
                     r = sqrt(1. + lp_lat * lp_lat);
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.D - r));

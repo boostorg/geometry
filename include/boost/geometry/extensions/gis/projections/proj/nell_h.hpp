@@ -74,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double V, c, p;
                     int i;
-                
+
                     p = 0.5 * xy_y;
                     for (i = NITER; i ; --i) {
                         c = cos(0.5 * lp_lat);

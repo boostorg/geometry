@@ -53,10 +53,10 @@ namespace boost { namespace geometry { namespace projections
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
 
-            
-            
-            
-            
+
+
+
+
                 static COMPLEX
             bf[] = {
                 {.7557853228,    0.0},
@@ -90,7 +90,7 @@ namespace boost { namespace geometry { namespace projections
                     COMPLEX p;
                     double *C;
                     int i;
-                
+
                     lp_lat = (lp_lat - this->m_par.phi0) * RAD_TO_SEC5;
                     for (p.r = *(C = tpsi + (i = Ntpsi)); i ; --i)
                         p.r = *--C + lp_lat * p.r;
@@ -106,7 +106,7 @@ namespace boost { namespace geometry { namespace projections
                     int nn, i;
                     COMPLEX p, f, fp, dp;
                     double den, *C;
-                
+
                     p.r = xy_y;
                     p.i = xy_x;
                     for (nn = 20; nn ;--nn) {

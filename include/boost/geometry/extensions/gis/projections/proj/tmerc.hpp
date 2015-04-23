@@ -86,12 +86,12 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double al, als, n, cosphi, sinphi, t;
-                
+
                         /*
-                         * Fail if our longitude is more than 90 degrees from the 
-                         * central meridian since the results are essentially garbage. 
+                         * Fail if our longitude is more than 90 degrees from the
+                         * central meridian since the results are essentially garbage.
                          * Is error -20 really an appropriate return value?
-                         * 
+                         *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
                         if( lp_lon < -HALFPI || lp_lon > HALFPI )
@@ -101,7 +101,7 @@ namespace boost { namespace geometry { namespace projections
                             throw proj_exception(-14 );
                             return;
                         }
-                
+
                     sinphi = sin(lp_lat); cosphi = cos(lp_lat);
                     t = fabs(cosphi) > 1e-10 ? sinphi/cosphi : 0.;
                     t *= t;
@@ -125,7 +125,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double n, con, cosphi, d, ds, sinphi, t;
-                
+
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
                     if (fabs(lp_lat) >= HALFPI) {
                         lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
@@ -172,12 +172,12 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double b, cosphi;
-                
+
                         /*
-                         * Fail if our longitude is more than 90 degrees from the 
-                         * central meridian since the results are essentially garbage. 
+                         * Fail if our longitude is more than 90 degrees from the
+                         * central meridian since the results are essentially garbage.
                          * Is error -20 really an appropriate return value?
-                         * 
+                         *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
                         if( lp_lon < -HALFPI || lp_lon > HALFPI )
@@ -187,7 +187,7 @@ namespace boost { namespace geometry { namespace projections
                             throw proj_exception(-14 );
                             return;
                         }
-                
+
                     b = (cosphi = cos(lp_lat)) * sin(lp_lon);
                     if (fabs(fabs(b) - 1.) <= EPS10) throw proj_exception();;
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
@@ -203,7 +203,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double h, g;
-                
+
                     h = exp(xy_x / this->m_proj_parm.esp);
                     g = .5 * (h - 1. / h);
                     h = cos(this->m_par.phi0 + xy_y / this->m_proj_parm.esp);

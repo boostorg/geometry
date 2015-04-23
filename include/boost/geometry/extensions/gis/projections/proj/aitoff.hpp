@@ -53,10 +53,10 @@ namespace boost { namespace geometry { namespace projections
                 double    cosphi1;
                 int        mode;
             };
-            
-            
-            
-            
+
+
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -76,7 +76,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double c, d;
-                
+
                     if((d = acos(cos(lp_lat) * cos(c = 0.5 * lp_lon)))) {/* basic Aitoff */
                         xy_x = 2. * d * cos(lp_lat) * sin(c) * (xy_y = 1. / sin(d));
                         xy_y *= d * sin(lp_lat);

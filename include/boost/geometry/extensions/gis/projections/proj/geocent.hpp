@@ -47,10 +47,10 @@ namespace boost { namespace geometry { namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace geocent{ 
 
-            
-            
-            
-            
+
+
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -84,7 +84,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_geocent(Parameters& par)
             {
                 par.is_geocent = 1;
-             
                 par.x0 = 0.0;
                 par.y0 = 0.0;
                 // par.inv = inverse;

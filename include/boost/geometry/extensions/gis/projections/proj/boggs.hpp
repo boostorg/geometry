@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double theta, th1, c;
                     int i;
-                
+
                     theta = lp_lat;
                     if (fabs(fabs(lp_lat) - HALFPI) < EPS)
                         xy_x = 0.;

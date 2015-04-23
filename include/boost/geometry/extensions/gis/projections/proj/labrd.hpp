@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double V1, V2, ps, sinps, cosps, sinps2, cosps2, I1, I2, I3, I4, I5, I6,
                         x2, y2, t;
-                
+
                     V1 = this->m_proj_parm.A * log( tan(FORTPI + .5 * lp_lat) );
                     t = this->m_par.e * sin(lp_lat);
                     V2 = .5 * this->m_par.e * this->m_proj_parm.A * log ((1. + t)/(1. - t));
@@ -104,7 +104,7 @@ namespace boost { namespace geometry { namespace projections
                     double x2, y2, V1, V2, V3, V4, t, t2, ps, pe, tpe, s,
                         I7, I8, I9, I10, I11, d, Re;
                     int i;
-                
+
                     x2 = xy_x * xy_x;
                     y2 = xy_y * xy_y;
                     V1 = 3. * xy_x * y2 - xy_x * x2;

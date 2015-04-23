@@ -71,7 +71,7 @@ namespace boost { namespace geometry { namespace projections
             vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
                 VECT v;
                 double cdl, dp, dl;
-            
+
                 cdl = cos(dlam);
                 if (fabs(dphi) > 1. || fabs(dlam) > 1.)
                     v.r = aacos(s1 * s2 + c1 * c2 * cdl);
@@ -111,7 +111,7 @@ namespace boost { namespace geometry { namespace projections
                     double sinphi, cosphi, a;
                     VECT v[3];
                     int i, j;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     for (i = 0; i < 3; ++i) { /* dist/azimiths from control */

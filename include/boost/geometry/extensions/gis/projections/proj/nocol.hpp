@@ -79,7 +79,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = lp_lat;
                     } else {
                         double tb, c, d, m, n, r2, sp;
-                
+
                         tb = HALFPI / lp_lon - lp_lon / HALFPI;
                         c = lp_lat / HALFPI;
                         d = (1 - c * c)/((sp = sin(lp_lat)) - c);

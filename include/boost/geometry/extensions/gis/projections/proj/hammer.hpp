@@ -71,7 +71,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosphi, d;
-                
+
                     d = sqrt(2./(1. + (cosphi = cos(lp_lat)) * cos(lp_lon *= this->m_proj_parm.w)));
                     xy_x = this->m_proj_parm.m * d * cosphi * sin(lp_lon);
                     xy_y = this->m_proj_parm.rm * d * sin(lp_lat);

@@ -74,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double k, V, t;
                     int i;
-                
+
                     k = C3 * sin(lp_lat);
                     for (i = MAX_ITER; i ; --i) {
                         t = lp_lat / C2;
@@ -91,7 +91,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
-                
+
                     lp_lat = C2 * (t = aasin(xy_y / C_y));
                     lp_lon = xy_x / (C_x * (1. + 3. * cos(lp_lat)/cos(t)));
                     lp_lat = aasin((C1 * sin(t) + sin(lp_lat)) / C3);

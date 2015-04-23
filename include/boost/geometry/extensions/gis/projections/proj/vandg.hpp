@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  al, al2, g, g2, p2;
-                
+
                     p2 = fabs(lp_lat / HALFPI);
                     if ((p2 - TOL) > 1.) throw proj_exception();;
                     if (p2 > 1.)
@@ -107,7 +107,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t, c0, c1, c2, c3, al, r2, r, m, d, ay, x2, y2;
-                
+
                     x2 = xy_x * xy_x;
                     if ((ay = fabs(xy_y)) < TOL) {
                         lp_lat = 0.;

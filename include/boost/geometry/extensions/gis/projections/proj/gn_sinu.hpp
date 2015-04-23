@@ -77,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double s, c;
-                
+
                     xy_y = pj_mlfn(lp_lat, s = sin(lp_lat), c = cos(lp_lat), this->m_proj_parm.en);
                     xy_x = lp_lon * c / sqrt(1. - this->m_par.es * s * s);
                 }
@@ -85,7 +85,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s;
-                
+
                     if ((s = fabs(lp_lat = pj_inv_mlfn(xy_y, this->m_par.es, this->m_proj_parm.en))) < HALFPI) {
                         s = sin(lp_lat);
                         lp_lon = xy_x * sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
@@ -119,7 +119,7 @@ namespace boost { namespace geometry { namespace projections
                     else {
                         double k, V;
                         int i;
-                
+
                         k = this->m_proj_parm.n * sin(lp_lat);
                         for (i = MAX_ITER; i ; --i) {
                             lp_lat -= V = (this->m_proj_parm.m * lp_lat + sin(lp_lat) - k) /
@@ -172,7 +172,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_sinu(Parameters& par, par_gn_sinu& proj_parm)
             {
                     pj_enfn(par.es, proj_parm.en);
-            
+
                 if (par.es) {
                 // par.inv = e_inverse;
                 // par.fwd = e_forward;

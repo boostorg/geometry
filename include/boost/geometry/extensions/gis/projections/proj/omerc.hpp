@@ -61,8 +61,8 @@ namespace boost { namespace geometry { namespace projections
                 double  v_pole_n, v_pole_s, u_0;
                 int no_rot;
             };
-            
-            
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -82,7 +82,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  Q, S, T, U, V, temp, u, v;
-                
+
                     if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
                         Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / Q;
@@ -95,7 +95,7 @@ namespace boost { namespace geometry { namespace projections
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
                         u = (fabs(temp) < TOL) ? this->m_proj_parm.AB * lp_lon :
-                            this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam) , temp); 
+                            this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam) , temp);
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;
                         u = this->m_proj_parm.ArB * lp_lat;
@@ -113,7 +113,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  u, v, Qp, Sp, Tp, Vp, Up;
-                
+
                     if (this->m_proj_parm.no_rot) {
                         v = xy_y;
                         u = xy_x;
@@ -153,7 +153,7 @@ namespace boost { namespace geometry { namespace projections
                     gamma = pj_param(par.params, "rgamma").f;
                 if (alp || gam) {
                     lamc    = pj_param(par.params, "rlonc").f;
-                    no_off = 
+                    no_off =
                                 /* For libproj4 compatability */
                                 pj_param(par.params, "tno_off").i
                                 /* for backward compatibility */

@@ -59,8 +59,8 @@ namespace boost { namespace geometry { namespace projections
                 std::string  sweep_axis;
                 int     flip_axis;
             };
-            
-            
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -80,7 +80,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double r, Vx, Vy, Vz, tmp;
-                
+
                 /* Calculation of geocentric latitude. */
                     lp_lat = atan (this->m_proj_parm.radius_p2 * tan (lp_lat));
                 /* Calculation of the three components of the vector from satellite to
@@ -109,7 +109,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double Vx, Vy, Vz, a, b, det, k;
-                
+
                 /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
                         if(this->m_proj_parm.flip_axis)
@@ -157,7 +157,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double Vx, Vy, Vz, tmp;
-                
+
                 /* Calculation of the three components of the vector from satellite to
                 ** position on earth surface (lon,lat).*/
                     tmp = cos(lp_lat);
@@ -183,7 +183,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double Vx, Vy, Vz, a, b, det, k;
-                
+
                 /* Setting three components of vector from satellite to position.*/
                     Vx = -1.0;
                     if(this->m_proj_parm.flip_axis)

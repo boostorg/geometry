@@ -78,9 +78,9 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinphi, cosphi;
-                
-                
-                
+
+
+
                     coslam = cos(lp_lon);
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -93,7 +93,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double coslam, sinphi, cosphi;
-                
+
                     m_proj_parm.link->inv(xy_x, xy_y, lp_lon, lp_lat);
                     if (lp_lon != HUGE_VAL) {
                         coslam = cos(lp_lon -= this->m_proj_parm.lamp);
@@ -124,9 +124,9 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosphi, coslam;
-                
-                
-                
+
+
+
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     lp_lon = adjlon(aatan2(cosphi * sin(lp_lon), sin(lp_lat)) + this->m_proj_parm.lamp);
@@ -137,7 +137,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosphi, t;
-                
+
                     m_proj_parm.link->inv(xy_x, xy_y, lp_lon, lp_lat);
                     if (lp_lon != HUGE_VAL) {
                         cosphi = cos(lp_lat);
@@ -154,8 +154,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 int i;
                 double phip;
-            
-            
+
+
                 Parameters pj;
                 /* copy existing header into new */
                 par.es = 0.;
@@ -175,7 +175,7 @@ namespace boost { namespace geometry { namespace projections
                 pj.one_es = pj.rone_es = 1.;
                 pj.es = pj.e = 0.;
                 pj.name = pj_param(par.params, "so_proj").s;
-            
+
                 factory<Geographic, Cartesian, Parameters> fac;
                 if (create)
                 {

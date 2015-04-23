@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double p, c, s, V;
                     int i;
-                
+
                     p = C_p * sin(lp_lat);
                     s = lp_lat * lp_lat;
                     lp_lat *= 0.615709 + s * ( 0.00909953 + s * 0.0046292 );
@@ -93,7 +93,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double c;
-                
+
                     lp_lat = aasin(xy_y / C_y);
                     lp_lon = xy_x / (C_x * ((c = cos(lp_lat)) - 0.5));
                     lp_lat = aasin((lp_lat + sin(lp_lat) * (c - 1.)) / C_p);

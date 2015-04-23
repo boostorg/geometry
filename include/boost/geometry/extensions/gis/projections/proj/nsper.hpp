@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -126,7 +126,7 @@ namespace boost { namespace geometry { namespace projections
                     }
                     if (this->m_proj_parm.tilt) {
                         double yt, ba;
-                
+
                         yt = xy_y * this->m_proj_parm.cg + xy_x * this->m_proj_parm.sg;
                         ba = 1. / (yt * this->m_proj_parm.sw * this->m_proj_parm.h + this->m_proj_parm.cw);
                         xy_x = (xy_x * this->m_proj_parm.cg - xy_y * this->m_proj_parm.sg) * this->m_proj_parm.cw * ba;
@@ -137,10 +137,10 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  rh, cosz, sinz;
-                
+
                     if (this->m_proj_parm.tilt) {
                         double bm, bq, yt;
-                
+
                         yt = 1./(this->m_proj_parm.pn1 - xy_y * this->m_proj_parm.sw);
                         bm = this->m_proj_parm.pn1 * xy_x * yt;
                         bq = this->m_proj_parm.pn1 * xy_y * this->m_proj_parm.cw * yt;

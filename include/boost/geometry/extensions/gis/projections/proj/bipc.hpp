@@ -90,7 +90,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
                     int tag;
-                
+
                     cphi = cos(lp_lat);
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
@@ -140,8 +140,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y += (tag ? -r : r) * cos(t);
                     if (this->m_proj_parm.noskew) {
                         t = xy_x;
-                        xy_x = -xy_x * cAzc - xy_y * sAzc; 
-                        xy_y = -xy_y * cAzc + t * sAzc; 
+                        xy_x = -xy_x * cAzc - xy_y * sAzc;
+                        xy_y = -xy_y * cAzc + t * sAzc;
                     }
                 }
 
@@ -149,11 +149,11 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double t, r, rp, rl, al, z, fAz, Az, s, c, Av;
                     int neg, i;
-                
+
                     if (this->m_proj_parm.noskew) {
                         t = xy_x;
-                        xy_x = -xy_x * cAzc + xy_y * sAzc; 
-                        xy_y = -xy_y * cAzc - t * sAzc; 
+                        xy_x = -xy_x * cAzc + xy_y * sAzc;
+                        xy_y = -xy_y * cAzc - t * sAzc;
                     }
                     if( (neg = (xy_x < 0.)) ) {
                         xy_y = rhoc - xy_y;

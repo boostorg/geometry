@@ -60,14 +60,14 @@ namespace boost { namespace geometry { namespace projections
                 inline void
             seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
                 double sdsq, h, s, fc, sd, sq, d__1;
-            
+
                 lam *= DEG_TO_RAD;
                 sd = sin(lam);
                 sdsq = sd * sd;
                 s = proj_parm.p22 * proj_parm.sa * cos(lam) * sqrt((1. + proj_parm.t * sdsq) / ((
                     1. + proj_parm.w * sdsq) * (1. + proj_parm.q * sdsq)));
                 d__1 = 1. + proj_parm.q * sdsq;
-                h = sqrt((1. + proj_parm.q * sdsq) / (1. + proj_parm.w * sdsq)) * ((1. + 
+                h = sqrt((1. + proj_parm.q * sdsq) / (1. + proj_parm.w * sdsq)) * ((1. +
                     proj_parm.w * sdsq) / (d__1 * d__1) - proj_parm.p22 * proj_parm.ca);
                 sq = sqrt(proj_parm.xj * proj_parm.xj + s * s);
                 proj_parm.b += fc = mult * (h * proj_parm.xj - s * s) / sq;
@@ -98,7 +98,7 @@ namespace boost { namespace geometry { namespace projections
                     int l, nn;
                     double lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
                         lamtp, cl, sd, sp, fac, sav, tanphi;
-                
+
                     if (lp_lat > HALFPI)
                         lp_lat = HALFPI;
                     else if (lp_lat < -HALFPI)
@@ -131,7 +131,7 @@ namespace boost { namespace geometry { namespace projections
                     }
                     if (l) {
                         sp = sin(lp_lat);
-                        phidp = aasin((this->m_par.one_es * this->m_proj_parm.ca * sp - this->m_proj_parm.sa * cos(lp_lat) * 
+                        phidp = aasin((this->m_par.one_es * this->m_proj_parm.ca * sp - this->m_proj_parm.sa * cos(lp_lat) *
                             sin(lamt)) / sqrt(1. - this->m_par.es * sp * sp));
                         tanph = log(tan(FORTPI + .5 * phidp));
                         sd = sin(lamdp);
@@ -150,7 +150,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     int nn;
                     double lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
-                
+
                     lamdp = xy_x / this->m_proj_parm.b;
                     nn = 50;
                     do {
@@ -165,7 +165,7 @@ namespace boost { namespace geometry { namespace projections
                         lamdp /= this->m_proj_parm.b;
                     } while (fabs(lamdp - sav) >= TOL && --nn);
                     sl = sin(lamdp);
-                    fac = exp(sqrt(1. + s * s / this->m_proj_parm.xj / this->m_proj_parm.xj) * (xy_y - 
+                    fac = exp(sqrt(1. + s * s / this->m_proj_parm.xj / this->m_proj_parm.xj) * (xy_y -
                         this->m_proj_parm.c1 * sl - this->m_proj_parm.c3 * sin(lamdp * 3.)));
                     phidp = 2. * (atan(fac) - FORTPI);
                     dd = sl * sl;
@@ -173,9 +173,9 @@ namespace boost { namespace geometry { namespace projections
                         lamdp -= TOL;
                     spp = sin(phidp);
                     sppsq = spp * spp;
-                    lamt = atan(((1. - sppsq * this->m_par.rone_es) * tan(lamdp) * 
+                    lamt = atan(((1. - sppsq * this->m_par.rone_es) * tan(lamdp) *
                         this->m_proj_parm.ca - spp * this->m_proj_parm.sa * sqrt((1. + this->m_proj_parm.q * dd) * (
-                        1. - sppsq) - sppsq * this->m_proj_parm.u) / cos(lamdp)) / (1. - sppsq 
+                        1. - sppsq) - sppsq * this->m_proj_parm.u) / cos(lamdp)) / (1. - sppsq
                         * (1. + this->m_proj_parm.u)));
                     sl = lamt >= 0. ? 1. : -1.;
                     scl = cos(lamdp) >= 0. ? 1. : -1;

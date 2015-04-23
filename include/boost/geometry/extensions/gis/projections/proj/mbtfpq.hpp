@@ -75,7 +75,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double th1, c;
                     int i;
-                
+
                     c = C * sin(lp_lat);
                     for (i = NITER; i; --i) {
                         lp_lat -= th1 = (sin(.5*lp_lat) + sin(lp_lat) - c) /
@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
-                
+
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
                         if (fabs(lp_lat) > ONETOL)    throw proj_exception();

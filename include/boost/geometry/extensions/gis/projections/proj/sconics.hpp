@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
             phi12(Parameters& par, par_sconics& proj_parm, double *del) {
                 double p1, p2;
                 int err = 0;
-            
+
                 if (!pj_param(par.params, "tlat_1").i ||
                     !pj_param(par.params, "tlat_2").i) {
                     err = -41;
@@ -105,7 +105,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double rho;
-                
+
                     switch (this->m_proj_parm.type) {
                     case MURD2:
                         rho = this->m_proj_parm.rho_c + tan(this->m_proj_parm.sig - lp_lat);
@@ -124,7 +124,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho;
-                
+
                     rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho_0 - xy_y);
                     if (this->m_proj_parm.n < 0.) {
                         rho = - rho;
@@ -180,7 +180,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.n = sin(proj_parm.sig) * sin(del) / del;
                     del *= 0.5;
                     proj_parm.rho_c = del / (tan(del) * tan(proj_parm.sig)) + proj_parm.sig;
-                
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     break;
                 case PCONIC:

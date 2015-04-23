@@ -78,7 +78,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  ms, sp, cp;
-                
+
                     if (fabs(lp_lat) <= TOL) { xy_x = lp_lon; xy_y = -this->m_proj_parm.ml0; }
                     else {
                         sp = sin(lp_lat);
@@ -95,7 +95,7 @@ namespace boost { namespace geometry { namespace projections
                     else {
                         double r, c, sp, cp, s2ph, ml, mlb, mlp, dPhi;
                         int i;
-                
+
                         r = xy_y * xy_y + xy_x * xy_x;
                         for (lp_lat = xy_y, i = I_ITER; i ; --i) {
                             sp = sin(lp_lat);
@@ -139,7 +139,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  cot, E;
-                
+
                     if (fabs(lp_lat) <= TOL) { xy_x = lp_lon; xy_y = this->m_proj_parm.ml0; }
                     else {
                         cot = 1. / tan(lp_lat);
@@ -152,7 +152,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double B, dphi, tp;
                     int i;
-                
+
                     if (fabs(xy_y = this->m_par.phi0 + xy_y) <= TOL) { lp_lon = xy_x; lp_lat = 0.; }
                     else {
                         lp_lat = xy_y;

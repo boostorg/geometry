@@ -77,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
-                
+
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     switch (this->m_proj_parm.mode) {
@@ -100,12 +100,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = cosphi * sin(lp_lon);
                             return;
                 }
-                
+
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  rh, cosc, sinc;
-                
+
                     if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
                         if ((sinc - 1.) > EPS10) throw proj_exception();;
                         sinc = 1.;
@@ -145,7 +145,7 @@ namespace boost { namespace geometry { namespace projections
                     }
                             return;
                 }
-                
+
             };
 
             // Orthographic

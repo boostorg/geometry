@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double phip, lamp, phipp, lampp, sp, cp;
-                
+
                     sp = this->m_par.e * sin(lp_lat);
                     phip = 2.* atan( exp( this->m_proj_parm.c * (
                         log(tan(FORTPI + 0.5 * lp_lat)) - this->m_proj_parm.hlf_e * log((1. + sp)/(1. - sp)))
@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double phip, lamp, phipp, lampp, cp, esp, con, delp;
                     int i;
-                
+
                     phipp = 2. * (atan(exp(xy_y / this->m_proj_parm.kR)) - FORTPI);
                     lampp = xy_x / this->m_proj_parm.kR;
                     cp = cos(phipp);

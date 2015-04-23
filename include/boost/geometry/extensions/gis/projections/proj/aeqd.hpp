@@ -68,11 +68,11 @@ namespace boost { namespace geometry { namespace projections
                 double    G;
                 int        mode;
             };
-            
-            
-            
-            
-            
+
+
+
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -92,7 +92,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
-                
+
                     coslam = cos(lp_lon);
                     cosphi = cos(lp_lat);
                     sinphi = sin(lp_lat);
@@ -133,7 +133,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double c, Az, cosAz, A, B, D, E, F, psi, t;
-                
+
                     if ((c = boost::math::hypot(xy_x, xy_y)) < EPS10) {
                         lp_lat = this->m_par.phi0;
                         lp_lon = 0.;
@@ -183,7 +183,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  cosphi, sinphi, t;
-                
+
                     cosphi = cos(lp_lat);
                     sinphi = sin(lp_lat);
                     t = 1. / sqrt(1. - this->m_par.es * sinphi * sinphi);
@@ -196,7 +196,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double x2, t;
                     int i;
-                
+
                     x2 = 0.5 * xy_x * xy_x;
                     lp_lat = this->m_par.phi0;
                     for (i = 0; i < 3; ++i) {
@@ -226,7 +226,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -239,7 +239,7 @@ namespace boost { namespace geometry { namespace projections
                 oblcon:
                         if (fabs(fabs(xy_y) - 1.) < TOL)
                             if (xy_y < 0.)
-                                throw proj_exception(); 
+                                throw proj_exception();
                             else
                                 xy_x = xy_y = 0.;
                         else {
@@ -264,7 +264,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosc, c_rh, sinc;
-                
+
                     if ((c_rh = boost::math::hypot(xy_x, xy_y)) > PI) {
                         if (c_rh - EPS10 > PI) throw proj_exception();;
                         c_rh = PI;

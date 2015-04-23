@@ -68,7 +68,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double k, V;
                     int i;
-                
+
                     k = 2. * sin(lp_lat);
                     V = lp_lat * lp_lat;
                     lp_lat *= 1.00371 + V * (-0.0935382 + V * -0.011412);

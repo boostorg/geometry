@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double ax, f;
-                
+
                     xy_y = this->m_proj_parm.bacn ? HALFPI * sin(lp_lat) : lp_lat;
                     if ((ax = fabs(lp_lon)) >= EPS) {
                         if (this->m_proj_parm.ortl && ax >= HALFPI)

@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double c;
-                
+
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
                     xy_y = this->m_proj_parm.C_y;
                     lp_lat *= this->m_proj_parm.C_p;
@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double c;
-                    
+
                     xy_y /= this->m_proj_parm.C_y;
                     c = cos(lp_lat = this->m_proj_parm.tan_mode ? atan(xy_y) : aasin(xy_y));
                     lp_lat /= this->m_proj_parm.C_p;

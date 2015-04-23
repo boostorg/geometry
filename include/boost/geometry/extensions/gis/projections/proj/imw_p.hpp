@@ -63,7 +63,7 @@ namespace boost { namespace geometry { namespace projections
                 inline int
             phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {
                 int err = 0;
-            
+
                 if (!pj_param(par.params, "tlat_1").i ||
                     !pj_param(par.params, "tlat_2").i) {
                     err = -41;
@@ -80,13 +80,13 @@ namespace boost { namespace geometry { namespace projections
                 inline PXY
             loc_for(double const& lp_lam, double const& lp_phi, const Parameters& par, par_imw_p const& proj_parm, double *yc) {
                 PXY xy;
-            
+
                 if (! lp_phi) {
                     xy.x = lp_lam;
                     xy.y = 0.;
                 } else {
                     double xa, ya, xb, yb, xc, D, B, m, sp, t, R, C;
-            
+
                     sp = sin(lp_phi);
                     m = pj_mlfn(lp_phi, sp, cos(lp_phi), proj_parm.en);
                     xa = proj_parm.Pp + proj_parm.Qp * m;
@@ -124,19 +124,19 @@ namespace boost { namespace geometry { namespace projections
                 }
                 return (xy);
             }
-            
+
             template <typename Parameters>
             inline void
             xy(Parameters& par, par_imw_p& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
                 double F;
-            
+
                 *sp = sin(phi);
                 *R = 1./(tan(phi) * sqrt(1. - par.es * *sp * *sp ));
                 F = proj_parm.lam_1 * *sp;
                 *y = *R * (1 - cos(F));
                 *x = *R * sin(F);
             }
-            
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -164,7 +164,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     PXY t;
                     double yc = 0;
-                
+
                     lp_lat = this->m_proj_parm.phi_2;
                     lp_lon = xy_x / cos(lp_lat);
                     do {

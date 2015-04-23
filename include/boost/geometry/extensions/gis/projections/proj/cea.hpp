@@ -108,7 +108,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
-                
+
                     if ((t = fabs(xy_y *= this->m_par.k0)) - EPS <= 1.) {
                         if (t >= 1.)
                             lp_lat = xy_y < 0. ? -HALFPI : HALFPI;

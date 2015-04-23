@@ -59,7 +59,7 @@ namespace boost { namespace geometry { namespace projections
                 double XS;
                 double YS;
             };
-            
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>

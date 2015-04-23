@@ -68,7 +68,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t = lp_lat * lp_lat;
-                
+
                     xy_y = lp_lat * (1. + t * C12);
                     xy_x = lp_lon * (1. - Cp * t);
                     t = lp_lon * lp_lon;

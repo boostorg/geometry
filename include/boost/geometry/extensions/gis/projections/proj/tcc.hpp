@@ -71,7 +71,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double b, bt;
-                
+
                     b = cos(lp_lat) * sin(lp_lon);
                     if ((bt = 1. - b * b) < EPS10) throw proj_exception();;
                     xy_x = b / sqrt(bt);

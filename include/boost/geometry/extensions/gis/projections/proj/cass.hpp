@@ -103,7 +103,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double ph1;
-                
+
                     ph1 = pj_inv_mlfn(this->m_proj_parm.m0 + xy_y, this->m_par.es, this->m_proj_parm.en);
                     this->m_proj_parm.tn = tan(ph1); this->m_proj_parm.t = this->m_proj_parm.tn * this->m_proj_parm.tn;
                     this->m_proj_parm.n = sin(ph1);

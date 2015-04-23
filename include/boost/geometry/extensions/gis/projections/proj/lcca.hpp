@@ -56,8 +56,8 @@ namespace boost { namespace geometry { namespace projections
                 double    r0, l, M0;
                 double    C;
             };
-            
-            
+
+
                 inline double /* func to compute dr */
             fS(double S, double C) {
                     return(S * ( 1. + S * S * C));
@@ -85,7 +85,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double S, r, dr;
-                    
+
                     S = pj_mlfn(lp_lat, sin(lp_lat), cos(lp_lat), this->m_proj_parm.en) - this->m_proj_parm.M0;
                     dr = fS(S, this->m_proj_parm.C);
                     r = this->m_proj_parm.r0 - dr;
@@ -97,7 +97,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double theta, dr, S, dif;
                     int i;
-                
+
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
                     theta = atan2(xy_x , this->m_proj_parm.r0 - xy_y);

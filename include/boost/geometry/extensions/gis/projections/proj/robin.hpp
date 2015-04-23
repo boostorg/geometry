@@ -55,12 +55,12 @@ namespace boost { namespace geometry { namespace projections
             static const double ONEEPS = 1.000001;
             static const double EPS = 1e-8;
 
-            
-            
+
+
             struct COEFS {
                 double c0, c1, c2, c3;
             };
-            
+
             static const struct COEFS X[] = {
                 {1, 2.2199e-17, -7.15515e-05, 3.1103e-06},
                 {0.9986, -0.000482243, -2.4897e-05, -1.3309e-06},
@@ -127,7 +127,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     int i;
                     double dphi;
-                
+
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i >= NODES) i = NODES - 1;
                     dphi = RAD_TO_DEG * (dphi - RC1 * i);
@@ -141,7 +141,7 @@ namespace boost { namespace geometry { namespace projections
                     int i;
                     double t, t1;
                     struct COEFS T;
-                
+
                     lp_lon = xy_x / FXC;
                     lp_lat = fabs(xy_y / FYC);
                     if (lp_lat >= 1.) { /* simple pathologic cases */

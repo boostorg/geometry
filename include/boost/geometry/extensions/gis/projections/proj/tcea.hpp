@@ -76,7 +76,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
-                
+
                     xy_y = xy_y * this->m_proj_parm.rk0 + this->m_par.phi0;
                     xy_x *= this->m_par.k0;
                     t = sqrt(1. - xy_x * xy_x);

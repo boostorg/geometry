@@ -76,7 +76,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double rh, E, c;
-                
+
                     rh = this->m_proj_parm.am1 + this->m_proj_parm.m1 - pj_mlfn(lp_lat, E = sin(lp_lat), c = cos(lp_lat), this->m_proj_parm.en);
                     E = c * lp_lon / (rh * sqrt(1. - this->m_par.es * E * E));
                     xy_x = rh * sin(E);
@@ -86,7 +86,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s, rh;
-                
+
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, this->m_par.es, this->m_proj_parm.en);
                     if ((s = fabs(lp_lat)) < HALFPI) {
@@ -117,7 +117,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double E, rh;
-                
+
                     rh = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - lp_lat;
                     if (fabs(rh) > EPS10) {
                         xy_x = rh * sin(E = lp_lon * cos(lp_lat) / rh);
@@ -129,7 +129,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rh;
-                
+
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
                     if (fabs(lp_lat) > HALFPI) throw proj_exception();;

@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double x1, at, bt, ct;
-                
+
                     bt = fabs(TWORPI * lp_lat);
                     if ((ct = 1. - bt * bt) < 0.)
                         ct = 0.;

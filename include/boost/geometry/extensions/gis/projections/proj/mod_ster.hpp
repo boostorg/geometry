@@ -57,7 +57,7 @@ namespace boost { namespace geometry { namespace projections
                 int        n;
             };
             /* based upon Snyder and Linck, USGS-NMD */
-            
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -78,7 +78,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double sinlon, coslon, esphi, chi, schi, cchi, s;
                     COMPLEX p;
-                
+
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
@@ -99,7 +99,7 @@ namespace boost { namespace geometry { namespace projections
                     int nn;
                     COMPLEX p, fxy, fpxy, dp;
                     double den, rh = 0, z, sinz = 0, cosz = 0, chi, phi = 0, dphi, esphi;
-                
+
                     p.r = xy_x;
                     p.i = xy_y;
                     for (nn = 20; nn ;--nn) {
@@ -137,7 +137,7 @@ namespace boost { namespace geometry { namespace projections
                     }
                     if (nn) {
                         lp_lat = phi;
-                        lp_lon = atan2(p.r * sinz, rh * this->m_proj_parm.cchio * cosz - p.i * 
+                        lp_lon = atan2(p.r * sinz, rh * this->m_proj_parm.cchio * cosz - p.i *
                             this->m_proj_parm.schio * sinz);
                     } else
                         lp_lon = lp_lat = HUGE_VAL;

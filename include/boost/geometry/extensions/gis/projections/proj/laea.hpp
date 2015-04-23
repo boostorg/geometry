@@ -88,7 +88,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinlam, sinphi, q, sinb=0.0, cosb=0.0, b=0.0;
-                
+
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
@@ -121,7 +121,7 @@ namespace boost { namespace geometry { namespace projections
                         goto eqcon;
                         break;
                     case EQUIT:
-                        xy_y = (b = sqrt(2. / (1. + cosb * coslam))) * sinb * this->m_proj_parm.ymf; 
+                        xy_y = (b = sqrt(2. / (1. + cosb * coslam))) * sinb * this->m_proj_parm.ymf;
                 eqcon:
                         xy_x = this->m_proj_parm.xmf * b * cosb * sinlam;
                         break;
@@ -139,7 +139,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cCe, sCe, q, rho, ab=0.0;
-                
+
                     switch (this->m_proj_parm.mode) {
                     case EQUIT:
                     case OBLIQ:
@@ -197,7 +197,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -228,7 +228,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  cosz=0.0, rh, sinz=0.0;
-                
+
                     rh = boost::math::hypot(xy_x, xy_y);
                     if ((lp_lat = rh * .5 ) > 1.) throw proj_exception();;
                     lp_lat = 2. * asin(lp_lat);

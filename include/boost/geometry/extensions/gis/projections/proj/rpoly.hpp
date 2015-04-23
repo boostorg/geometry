@@ -74,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double fa;
-                
+
                     if (this->m_proj_parm.mode)
                         fa = tan(lp_lon * this->m_proj_parm.fxb) * this->m_proj_parm.fxa;
                     else

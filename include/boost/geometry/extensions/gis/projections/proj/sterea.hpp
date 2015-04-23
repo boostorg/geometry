@@ -59,9 +59,9 @@ namespace boost { namespace geometry { namespace projections
                 double R2;
                 gauss::GAUSS en;
             };
-            
-            
-            
+
+
+
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -81,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosc, sinc, cosl_, k;
-                
+
                     detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
                     cosc = cos(lp_lat);
@@ -94,7 +94,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho, c, sinc, cosc;
-                
+
                     xy_x /= this->m_par.k0;
                     xy_y /= this->m_par.k0;
                     if((rho = boost::math::hypot(xy_x, xy_y))) {
@@ -116,7 +116,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_sterea(Parameters& par, par_sterea& proj_parm)
             {
-             
                 double R;
                 proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);

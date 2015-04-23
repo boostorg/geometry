@@ -76,7 +76,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double s, al, cp, sp, al2, s2;
-                    
+
                     cp = cos(lp_lat);
                     sp = sin(lp_lat);
                     s = proj_mdist(lp_lat, sp, cp,  this->m_proj_parm.en) - this->m_proj_parm.s0;
@@ -93,7 +93,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s, al, x = xy_x / this->m_par.k0, y = xy_y / this->m_par.k0, x2, y2;;
-                
+
                     x2 = x * x;
                     y2 = y * y;
                     al = x*(1.-this->m_proj_parm.C1*y2+x2*(this->m_proj_parm.C2+this->m_proj_parm.C3*y-this->m_proj_parm.C4*x2+this->m_proj_parm.C5*y2-this->m_proj_parm.C7*x2*y)
@@ -113,7 +113,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double N0, es2, t, t2, R_R0_2, R_R0_4;
                 proj_mdist_ini(par.es, proj_parm.en);
-            
+
                 es2 = sin(par.phi0);
                 proj_parm.s0 = proj_mdist(par.phi0, es2, cos(par.phi0), proj_parm.en);
                 t = 1. - (es2 = par.es * es2 * es2);

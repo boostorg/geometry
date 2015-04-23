@@ -90,7 +90,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinlam, sinX=0.0, cosX=0.0, X, A, sinphi;
-                
+
                     coslam = cos(lp_lon);
                     sinlam = sin(lp_lon);
                     sinphi = sin(lp_lat);
@@ -126,7 +126,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double cosphi, sinphi, tp=0.0, phi_l=0.0, rho, halfe=0.0, halfpi=0.0;
                     int i;
-                
+
                     rho = boost::math::hypot(xy_x, xy_y);
                     switch (this->m_proj_parm.mode) {
                     case OBLIQ:
@@ -137,7 +137,7 @@ namespace boost { namespace geometry { namespace projections
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1);
                                 else
                             phi_l = asin(cosphi * this->m_proj_parm.sinX1 + (xy_y * sinphi * this->m_proj_parm.cosX1 / rho));
-                
+
                         tp = tan(.5 * (HALFPI + phi_l));
                         xy_x *= sinphi;
                         xy_y = rho * this->m_proj_parm.cosX1 * cosphi - xy_y * this->m_proj_parm.sinX1* sinphi;
@@ -185,7 +185,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  sinphi, cosphi, coslam, sinlam;
-                
+
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
@@ -216,7 +216,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double  c, rh, sinc, cosc;
-                
+
                     sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
                     cosc = cos(c);
                     lp_lon = 0.;
