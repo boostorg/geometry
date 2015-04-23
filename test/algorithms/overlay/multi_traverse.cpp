@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -15,27 +15,19 @@
 #define BOOST_GEOMETRY_TEST_MULTI
 #include <algorithms/overlay/traverse.cpp>
 
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/geometry_id.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 
+#include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/core/geometry_id.hpp>
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/ring_type.hpp>
-
-#include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/envelope.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/copy_segment_point.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
-
-#include <boost/geometry/multi/views/detail/range_type.hpp>
-
-#include <boost/geometry/multi/io/wkt/read.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
 
 #include "multi_overlay_cases.hpp"

@@ -22,6 +22,30 @@ struct point
 
 BOOST_GEOMETRY_REGISTER_POINT_2D(point, double, bg::cs::cartesian, x, y)
 
+template <typename Rtree, typename Convertible>
+void check_convertible_to_value(Rtree const& rt, Convertible const& conv)
+{
+    static const bool
+        is_conv_to_indexable
+            = boost::is_convertible<Convertible, typename Rtree::indexable_type>::value;
+    static const bool
+        is_conv_to_value
+            = boost::is_convertible<Convertible, typename Rtree::value_type>::value;
+    static const bool
+        is_same_as_indexable
+            = boost::is_same<Convertible, typename Rtree::indexable_type>::value;
+    static const bool
+        is_same_as_value
+            = boost::is_same<Convertible, typename Rtree::value_type>::value;
+
+    BOOST_CHECK_EQUAL(is_same_as_indexable, false);
+    BOOST_CHECK_EQUAL(is_same_as_value, false);
+    BOOST_CHECK_EQUAL(is_conv_to_indexable, false);
+    BOOST_CHECK_EQUAL(is_conv_to_value, true);
+
+    typename Rtree::value_type const& val = conv;
+    BOOST_CHECK(rt.value_eq()(val, conv));
+}
 
 template <typename Box, typename Params>
 void test_pair()
@@ -44,6 +68,11 @@ void test_pair()
     rt.insert(std::make_pair(box, 0));
     rt.insert(std::make_pair(box, (unsigned short)0));
     BOOST_CHECK_EQUAL(rt.size(), 3u);
+
+    check_convertible_to_value(rt, std::make_pair(box, 0));
+    check_convertible_to_value(rt, std::make_pair(box, (unsigned short)0));
+    BOOST_CHECK(bg::covered_by(rt.indexable_get()(std::make_pair(box, 0)), rt.bounds()));
+    BOOST_CHECK(bg::covered_by(rt.indexable_get()(std::make_pair(box, (unsigned short)0)), rt.bounds()));
 
     BOOST_CHECK_EQUAL(rt.count(val), 3u);
     BOOST_CHECK_EQUAL(rt.count(std::make_pair(box, 0)), 3u);

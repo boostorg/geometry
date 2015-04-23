@@ -112,7 +112,6 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     case PCONIC:
                         rho = this->m_proj_parm.c2 * (this->m_proj_parm.c1 - tan(lp_lat - this->m_proj_parm.sig));
-                        // rho = this->m_proj_parm.c2 * (this->m_proj_parm.c1 - tan(lp_lat)); BUG STILL IN proj (reported 2012-03-03)
                         break;
                     default:
                         rho = this->m_proj_parm.rho_c - lp_lat;

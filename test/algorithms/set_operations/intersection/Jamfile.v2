@@ -16,9 +16,9 @@
 
 test-suite boost-geometry-algorithms-intersection
     :
-    [ run intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
     [ run intersection_linear_linear.cpp ]
     [ run intersection_pl_l.cpp ]
     [ run intersection_pl_pl.cpp ]
-    [ run multi_intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <toolset>msvc:<cxxflags>/bigobj ]
+    [ run multi_intersection.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE ]
     ;

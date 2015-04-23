@@ -236,11 +236,11 @@ struct interrupt_dispatch<Mask, true>
     static inline bool apply(Mask const& mask)
     {
         char m = mask.template get<F1, F2>();
-        return check<V>(m);            
+        return check_element<V>(m);
     }
 
     template <char V>
-    static inline bool check(char m)
+    static inline bool check_element(char m)
     {
         if ( BOOST_GEOMETRY_CONDITION(V >= '0' && V <= '9') )
         {
@@ -395,7 +395,7 @@ inline bool may_update(Mask const& mask, Matrix const& matrix)
                 ::template apply<F1, F2, D>(mask, matrix);
 }
 
-// check()
+// check_matrix()
 
 template <typename Mask>
 struct check_dispatch
@@ -486,7 +486,7 @@ struct check_dispatch< boost::tuples::cons<Head, Tail> >
 };
 
 template <typename Mask, typename Matrix>
-inline bool check(Mask const& mask, Matrix const& matrix)
+inline bool check_matrix(Mask const& mask, Matrix const& matrix)
 {
     return check_dispatch<Mask>::apply(mask, matrix);
 }
@@ -547,7 +547,7 @@ public:
     result_type result() const
     {
         return !interrupt
-            && check(m_mask, static_cast<base_t const&>(*this));
+            && check_matrix(m_mask, static_cast<base_t const&>(*this));
     }
 
     template <field F1, field F2, char D>
@@ -965,7 +965,7 @@ struct static_check_dispatch<StaticMask, true>
 };
 
 template <typename StaticMask>
-struct static_check
+struct static_check_matrix
 {
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)
@@ -998,7 +998,7 @@ public:
     result_type result() const
     {
         return (!Interrupt || !interrupt)
-            && static_check<StaticMask>::
+            && static_check_matrix<StaticMask>::
                     apply(static_cast<base_t const&>(*this));
     }
 

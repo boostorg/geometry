@@ -117,7 +117,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_lcca(Parameters& par, par_lcca& proj_parm)
             {
-                double s2p0, N0, R0, tan0/*, tan20*/;
+                double s2p0, N0, R0, tan0, tan20;
+                boost::ignore_unused(tan20);
                     pj_enfn(par.es, proj_parm.en);
                 if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);
                 if (par.phi0 == 0.) throw proj_exception(51);
@@ -128,7 +129,7 @@ namespace boost { namespace geometry { namespace projections
                 N0 = sqrt(R0);
                 R0 *= par.one_es * N0;
                 tan0 = tan(par.phi0);
-                //tan20 = tan0 * tan0;
+                tan20 = tan0 * tan0;
                 proj_parm.r0 = N0 / tan0;
                 proj_parm.C = 1. / (6. * R0 * N0);
                 // par.inv = e_inverse;

@@ -106,7 +106,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
-         - n= q= alphi=
+         - no inverse
+         - n= q= alpha=
         \par Example
         \image html ex_urm5.gif
     */

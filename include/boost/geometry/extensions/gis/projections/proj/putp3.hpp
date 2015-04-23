@@ -142,7 +142,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
-         - no inverse
          - Spheroid
         \par Example
         \image html ex_putp3p.gif

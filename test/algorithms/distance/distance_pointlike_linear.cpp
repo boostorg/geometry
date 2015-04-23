@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -49,6 +49,11 @@ void test_distance_point_segment(Strategy const& strategy)
     tester::apply("point(2 0)", "segment(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(3 0)", "segment(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(2.5 0)", "segment(2 0,3 0)", 0, 0, strategy);
+
+    // distance is a NaN
+    tester::apply("POINT(4.297374e+307 8.433875e+307)",
+                  "SEGMENT(26 87,13 95)",
+                  0, 0, strategy, false);
 }
 
 //===========================================================================
@@ -70,6 +75,11 @@ void test_distance_point_linestring(Strategy const& strategy)
 
     // linestring with a single point
     tester::apply("point(0 0)", "linestring(2 0)", 2, 4, strategy);
+
+    // distance is a NaN
+    tester::apply("POINT(4.297374e+307 8.433875e+307)",
+                  "LINESTRING(26 87,13 95)",
+                  0, 0, strategy, false);
 }
 
 //===========================================================================
