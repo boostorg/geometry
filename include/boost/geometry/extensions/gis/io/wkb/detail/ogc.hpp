@@ -62,7 +62,7 @@ struct byte_order_type
     };
 };
 
-struct geometry_type
+struct geometry_type_ogc
 {
     enum enum_t
     {
@@ -78,9 +78,131 @@ struct geometry_type
     };
 };
 
-}} // namespace detail::endian
+struct geometry_type_ewkt
+{
+    enum enum_t
+    {
+        point      = 1,
+        linestring = 2,
+        polygon    = 3,
+
+        // TODO: Not implemented
+        //multipoint = 4,
+        //multilinestring = 5,
+        //multipolygon = 6,
+        //collection = 7
+
+
+        pointz      = 1001,
+        linestringz = 1002,
+        polygonz    = 1003
+    };
+};
+
+struct ogc_policy
+{
+};
+
+struct ewkt_policy
+{
+};
+
+template
+<
+    typename Geometry, 
+    typename CheckPolicy = ogc_policy, 
+    typename Tag = typename tag<Geometry>::type
+>
+struct geometry_type : not_implemented<Tag>
+{
+};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, point_tag>
+{
+    static bool check(boost::uint32_t value) 
+    { 
+        return value == get_impl<dimension<Geometry>::value>(); 
+    }
+
+    static boost::uint32_t get() 
+    { 
+        return get_impl<dimension<Geometry>::value>(); 
+    }
+
+private:
+
+    template <int dimension>
+    static boost::uint32_t get_impl() 
+    {
+        return geometry_type_ogc::point;
+    }
+
+    template <>
+    static boost::uint32_t get_impl<3>()
+    {
+        return 1000 + geometry_type_ogc::point;
+    }
+};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, linestring_tag>
+{
+    static bool check(boost::uint32_t value) 
+    { 
+        return value == get_impl<dimension<Geometry>::value>(); 
+    }
+
+    static boost::uint32_t get() 
+    { 
+        return get_impl<dimension<Geometry>::value>(); 
+    }
+
+private:
+
+    template <int dimension>
+    static boost::uint32_t get_impl() 
+    {
+        return geometry_type_ogc::linestring;
+    }
+
+    template <>
+    static boost::uint32_t get_impl<3>()
+    {
+        return 1000 + geometry_type_ogc::linestring;
+    }
+};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, polygon_tag>
+{
+    static bool check(boost::uint32_t value) 
+    { 
+        return value == get_impl<dimension<Geometry>::value>(); 
+    }
+
+    static boost::uint32_t get() 
+    { 
+        return get_impl<dimension<Geometry>::value>(); 
+    }
+
+private:
+
+    template <int dimension>
+    static boost::uint32_t get_impl() 
+    {
+        return geometry_type_ogc::polygon;
+    }
+
+    template <>
+    static boost::uint32_t get_impl<3>()
+    {
+        return 1000 + geometry_type_ogc::polygon;
+    }
+};
+
+}} // namespace detail::wkb
 #endif // DOXYGEN_NO_IMPL
 
 }} // namespace boost::geometry
-
 #endif // BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP
