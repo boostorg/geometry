@@ -293,7 +293,7 @@ struct pointlike_linear_point
     > : detail::overlay::point_linear_point
         <
             Point, Segment, PointOut, OverlayType,
-            detail::not_<detail::disjoint::disjoint_point_segment>
+            detail::not_<detail::disjoint::reverse_covered_by>
         >
 {};
 
@@ -311,7 +311,7 @@ struct pointlike_linear_point
     > : detail::overlay::multipoint_linear_point
         <
             MultiPoint, Linear, PointOut, OverlayType,
-            detail::not_<detail::disjoint::disjoint_point_segment>
+            detail::not_<detail::disjoint::reverse_covered_by>
         >
 {};
 
@@ -329,7 +329,7 @@ struct pointlike_linear_point
     > : detail::overlay::multipoint_segment_point
         <
             MultiPoint, Segment, PointOut, OverlayType,
-            detail::not_<detail::disjoint::disjoint_point_segment>
+            detail::not_<detail::disjoint::reverse_covered_by>
         >
 {};
 
