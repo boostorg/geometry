@@ -126,7 +126,8 @@ namespace detail { namespace wkb
 
             typedef typename point_type<L>::type point_type;
 
-            for(boost::range_iterator<const L>::type point_iter = boost::begin(linestring);
+            for(typename boost::range_iterator<const L>::type
+                    point_iter = boost::begin(linestring);
                 point_iter != boost::end(linestring);
                 ++point_iter)
             {
@@ -165,7 +166,8 @@ namespace detail { namespace wkb
             uint32_t num_exterior_ring_points = boost::geometry::num_points(exterior_ring);
             value_writer<uint32_t>::write(num_exterior_ring_points, iter, byte_order);
 
-            for(boost::range_iterator<const ring_type>::type point_iter = boost::begin(exterior_ring); 
+            for(typename boost::range_iterator<const ring_type>::type
+                    point_iter = boost::begin(exterior_ring);
                 point_iter != boost::end(exterior_ring);
                 ++point_iter)
             {
@@ -178,14 +180,16 @@ namespace detail { namespace wkb
 
             interior_rings_type interior_rings = boost::geometry::interior_rings(polygon);
 
-            for(boost::range_iterator<const interior_rings_type>::type interior_ring_iter = boost::begin(interior_rings); 
+            for(typename boost::range_iterator<const interior_rings_type>::type
+                    interior_ring_iter = boost::begin(interior_rings);
                 interior_ring_iter != boost::end(interior_rings);
                 ++interior_ring_iter)
             {
                 uint32_t num_interior_ring_points = boost::geometry::num_points(*interior_ring_iter);
                 value_writer<uint32_t>::write(num_interior_ring_points, iter, byte_order);
 
-                for(boost::range_iterator<const ring_type>::type point_iter = boost::begin(*interior_ring_iter); 
+                for(typename boost::range_iterator<const ring_type>::type
+                        point_iter = boost::begin(*interior_ring_iter);
                     point_iter != boost::end(*interior_ring_iter); 
                     ++point_iter)
                 {

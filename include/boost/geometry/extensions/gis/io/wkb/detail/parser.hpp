@@ -234,8 +234,6 @@ struct linestring_parser
     static bool parse(Iterator& it, Iterator end, L& linestring, 
                 byte_order_type::enum_t order)
     {
-        typedef typename point_type<L>::type point_type;
-
         if (!geometry_type_parser<L>::parse(it, end, order))
         {
             return false;
