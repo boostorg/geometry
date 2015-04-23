@@ -158,23 +158,52 @@ inline void test_point_segment()
                   false);
 
     tester::apply("p-s-02",
-                  from_wkt<P>("POINT(1 0)"),
+                  from_wkt<P>("POINT(2 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
     tester::apply("p-s-03",
+                  from_wkt<P>("POINT(1 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  false);
+
+    tester::apply("p-s-04",
                   from_wkt<P>("POINT(1 1)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 
-    tester::apply("p-s-04",
+    tester::apply("p-s-05",
                   from_wkt<P>("POINT(3 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 
-    tester::apply("p-s-05",
+    tester::apply("p-s-06",
                   from_wkt<P>("POINT(-1 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-07",
+                  from_wkt<P>("POINT(-1 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-08",
+                  from_wkt<P>("POINT(2 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  false);
+
+    // degenerate segment
+    tester::apply("p-s-09",
+                  from_wkt<P>("POINT(3 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-10",
+                  from_wkt<P>("POINT(1 1)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
                   true);
 }
 
