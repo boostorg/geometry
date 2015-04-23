@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-#include <iostream>
-
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -41,7 +39,7 @@ void test_geometry_wrong_wkb(std::string const& wkbhex, std::string const& wkt)
     byte_vector wkb;
     BOOST_CHECK( bg::hex2wkb(wkbhex, std::back_inserter(wkb)) );
     Geometry g_wkb;
-    std::cout << bg::read_wkb(wkb.begin(), wkb.end(), g_wkb) << std::endl;
+    BOOST_MESSAGE("read_wkb: " << bg::read_wkb(wkb.begin(), wkb.end(), g_wkb));
 }
 
 template <typename Geometry, bool IsEqual>
@@ -67,13 +65,10 @@ void test_geometry_equals(Geometry const& g_expected, std::string const& wkbhex)
     Geometry g_wkb;
     bg::read_wkb(wkb.begin(), wkb.end(), g_wkb);
 
-    BOOST_CHECK( bg::equals(g_wkb, g_expected) == IsEqual );
-
-    if(bg::equals(g_wkb, g_expected) != IsEqual)
-    {
-        std::cout << "EXPECTED: " << bg::wkt(g_expected) << std::endl;
-        std::cout << "ACTUAL  : " << bg::wkt(g_wkb) << std::endl;
-    }
+    BOOST_CHECK_MESSAGE( bg::equals(g_wkb, g_expected) == IsEqual,
+        "{bg::equals(g_wkb, g_expected) == IsEqual} failed for" <<
+        " EXPECTED: " << bg::wkt(g_expected) <<
+        ", ACTUAL  : " << bg::wkt(g_wkb) );
 }
 
 //template <typename P, bool Result>
