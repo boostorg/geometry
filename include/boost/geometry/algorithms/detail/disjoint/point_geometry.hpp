@@ -21,8 +21,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_POINT_GEOMETRY_HPP
 
-#include <boost/geometry/geometries/segment.hpp>
-
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
@@ -39,29 +37,13 @@ namespace detail { namespace disjoint
 {
 
 
-struct disjoint_point_segment
-{
-    template <typename Point, typename Segment>
-    static inline bool apply(Point const& point, Segment const& segment)
-    {
-        typedef geometry::model::referring_segment<Point const> other_segment;
-
-        other_segment other(point, point);
-        return disjoint_segment
-            <
-                Segment, other_segment
-            >::apply(segment, other);
-    }
-};
-
-
 struct reverse_covered_by
 {
     template <typename Geometry1, typename Geometry2>
     static inline
     bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        return !geometry::covered_by(geometry1, geometry2);
+        return ! geometry::covered_by(geometry1, geometry2);
     }
 };
 
@@ -91,7 +73,7 @@ struct disjoint<Point, Areal, DimensionCount, point_tag, areal_tag, false>
 
 template<typename Point, typename Segment, std::size_t DimensionCount>
 struct disjoint<Point, Segment, DimensionCount, point_tag, segment_tag, false>
-    : detail::disjoint::disjoint_point_segment
+    : detail::disjoint::reverse_covered_by
 {};
 
 
