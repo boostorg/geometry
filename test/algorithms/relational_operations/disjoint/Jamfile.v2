@@ -16,7 +16,7 @@
 
 test-suite boost-geometry-algorithms-disjoint
     :
-    [ run disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run disjoint_coverage.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run multi_disjoint.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run disjoint.cpp ]
+    [ run disjoint_coverage.cpp ]
+    [ run multi_disjoint.cpp ]
     ;

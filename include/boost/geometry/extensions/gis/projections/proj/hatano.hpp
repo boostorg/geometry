@@ -49,8 +49,8 @@ namespace boost { namespace geometry { namespace projections
             static const int NITER = 20;
             static const double EPS = 1e-7;
             static const double ONETOL = 1.000001;
-            static const double CN = 2.67595;
-            static const double CS = 2.43763;
+            static const double CN_ = 2.67595;
+            static const double CS_ = 2.43763;
             static const double RCN = 0.37369906014686373063;
             static const double RCS = 0.41023453108141924738;
             static const double FYCN = 1.75859;
@@ -80,7 +80,7 @@ namespace boost { namespace geometry { namespace projections
                     double th1, c;
                     int i;
                 
-                    c = sin(lp_lat) * (lp_lat < 0. ? CS : CN);
+                    c = sin(lp_lat) * (lp_lat < 0. ? CS_ : CN_);
                     for (i = NITER; i; --i) {
                         lp_lat -= th1 = (lp_lat + sin(lp_lat) - c) / (1. + cos(lp_lat));
                         if (fabs(th1) < EPS) break;

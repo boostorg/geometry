@@ -90,10 +90,6 @@
 #include <boost/geometry/algorithms/unique.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-// Include multi a.o. because it can give weird effects
-// if you don't (e.g. area=0 of a multipolygon)
-#include <boost/geometry/multi/multi.hpp>
-
 // check includes all concepts
 #include <boost/geometry/geometries/concepts/check.hpp>
 

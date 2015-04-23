@@ -63,6 +63,8 @@ static std::string const mysql_report_2015_03_02a = "LINESTRING(0 0,0 5,5 5,5 0,
 static std::string const mysql_report_2015_03_02b = "LINESTRING(0 1,0 5,5 5,5 0,1 0)"; // not closed, 1 difference
 static std::string const mysql_report_2015_03_02c = "LINESTRING(0 2,0 5,5 5,5 0,2 0)"; // not closed, 2 difference
 
+static std::string const mysql_report_2015_04_01 = "LINESTRING(103 5,107 2,111 4,116 -1,115 0,112 4)";
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -201,6 +203,10 @@ void test_all()
         double const d15 = 1.5;
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.714, d10, d15);
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 46.116, d15, d10);
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+        double const d100 = 10;
+        test_one<linestring, polygon>("mysql_report_2015_04_01", mysql_report_2015_04_01, join_round(32), end_round(32), 1.0/*NON ZERO*/, d100);
+#endif
     }
 
 

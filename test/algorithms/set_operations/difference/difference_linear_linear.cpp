@@ -23,7 +23,7 @@
 #include "test_difference_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
@@ -548,7 +548,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          "lldf31s"
          );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     tester::apply
         (from_wkt<L>("LINESTRING(8 1, 4 .4,2 8)"),
          from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
@@ -586,9 +585,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          "lldf31y+",
          1e-10
          );
-#endif
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     tester::apply
         (from_wkt<L>("LINESTRING(10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .4, 2 8)"),
          from_wkt<L>("LINESTRING(0 -.2, 8 1, -.5 7, 6 +.2)"),
@@ -611,7 +608,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((0 0,4 .5),(8 1,-.5 7))"),
          "lldf32"
          );
-#endif
 }
 
 
@@ -1157,7 +1153,6 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          "mlmldf19"
          );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     tester::apply
         (from_wkt<ML>("MULTILINESTRING((1 5, -4.3 -.1), (0 6, 8.6 6, 189.7654 5, 1 3, 6 3, 3 5, 6 2.232432, 0 4), (-6 5, 1 2.232432), (3 -1032.34324, 9 0, 189.7654 1, -1.4 3, 3 189.7654, +.3 10.0002, 1 5, 6 3, 5 1, 9 1, 10.0002 -1032.34324, -0.7654 0, 5 3, 3 4), (2.232432 2.232432, 8.6 +.4, 0.0 2.232432, 4 0, -8.8 10.0002), (1 0, 6 6, 7 2, -0 8.4), (-0.7654 3, +.6 8, 4 -1032.34324, 1 6, 0 4), (0 7, 2 1, 8 -7, 7 -.7, -1032.34324 9), (5 0, 10.0002 4, 8 7, 3 3, -8.1 5))"),
          from_wkt<ML>("MULTILINESTRING((5 10.0002, 2 7, -0.7654 0, 5 3), (0 -0.7654, 4 10.0002, 4 +.1, -.8 3, -.1 8, 10.0002 2, +.9 -1032.34324))"),
@@ -1189,7 +1184,6 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
          "mlmldf25-r",
          1e-10
          );
-#endif
 }
 
 

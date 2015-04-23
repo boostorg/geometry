@@ -12,7 +12,6 @@
 
 #include <limits>
 
-#include <boost/geometry/multi/geometries/multi_point.hpp>
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>

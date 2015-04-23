@@ -19,6 +19,7 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
+#include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -60,12 +61,24 @@ struct segments_intersection_points
         // denominator. In case of integer this results in an integer
         // division.
         BOOST_ASSERT(ratio.denominator() != 0);
-        set<0>(point, boost::numeric_cast<coordinate_type>(
-                get<0, 0>(segment)
-                    + ratio.numerator() * dx / ratio.denominator()));
-        set<1>(point, boost::numeric_cast<coordinate_type>(
-                get<0, 1>(segment)
-                    + ratio.numerator() * dy / ratio.denominator()));
+
+        typedef typename promote_integral<coordinate_type>::type promoted_type;
+
+        promoted_type const numerator
+            = boost::numeric_cast<promoted_type>(ratio.numerator());
+        promoted_type const denominator
+            = boost::numeric_cast<promoted_type>(ratio.denominator());
+        promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
+        promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
+
+        set<0>(point, get<0, 0>(segment) + boost::numeric_cast
+            <
+                coordinate_type
+            >(numerator * dx_promoted / denominator));
+        set<1>(point, get<0, 1>(segment) + boost::numeric_cast
+            <
+                coordinate_type
+            >(numerator * dy_promoted / denominator));
     }
 
 

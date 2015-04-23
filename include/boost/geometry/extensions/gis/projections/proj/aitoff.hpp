@@ -135,6 +135,7 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
+         - no inverse
         \par Example
         \image html ex_aitoff.gif
     */
@@ -156,6 +157,7 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
+         - no inverse
          - lat_1
         \par Example
         \image html ex_wintri.gif

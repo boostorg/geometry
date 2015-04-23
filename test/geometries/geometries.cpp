@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,7 +18,6 @@
 #include <boost/geometry/geometries/register/point.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 
 typedef std::pair<float, float> pt_pair_t;

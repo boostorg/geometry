@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,16 +20,16 @@
 #include <algorithms/test_overlay.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
 
-#include <boost/geometry/multi/algorithms/correct.hpp>
-#include <boost/geometry/multi/algorithms/intersection.hpp>
-#include <boost/geometry/multi/algorithms/within.hpp> // only for testing #77
+#include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/within.hpp> // only for testing #77
 
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
-#include <boost/geometry/multi/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()

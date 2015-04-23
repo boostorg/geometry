@@ -973,7 +973,11 @@ void quickbook_template_parameter_list_alt(std::vector<parameter> const& paramet
             if ( !p.default_value.empty() )
             {
                 out << " = ";
-                inline_str_with_links(p.default_value, out);
+                // don't display default values from details
+                if ( p.default_value.find("detail") != std::string::npos )
+                    out << "/default/";
+                else
+                    inline_str_with_links(p.default_value, out);
             }
 
             first = false;
@@ -996,13 +1000,20 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
             offset += f.name.size();
             break;
         case function_member :
-            inline_str_with_links(f.return_type, out);
-            out << " `" << f.name << "`";
-            offset += f.return_type_without_links.size() + 1 + f.name.size();
-            break;
         case function_free :
-            inline_str_with_links(f.definition, out);
-            offset += f.definition.size();
+            // don't display return types from details
+            if ( f.return_type.find("detail") != std::string::npos )
+            {
+                out << "/unspecified/";
+                offset += 11;
+            }
+            else
+            {
+                inline_str_with_links(f.return_type, out);
+                offset += f.return_type_without_links.size();
+            }
+            out << " `" << f.name << "`";
+            offset += 1 + f.name.size();
             break;
         case function_define :
             out << "`#define " << f.name << "`";
@@ -1036,7 +1047,11 @@ void quickbook_synopsis_alt(function const& f, std::ostream& out)
                 if ( !p.default_value.empty() )
                 {
                     out << " = ";
-                    inline_str_with_links(p.default_value, out);
+                    // don't display default values from details
+                    if ( p.default_value.find("detail") != std::string::npos )
+                        out << "/default/";
+                    else
+                        inline_str_with_links(p.default_value, out);
                 }
                 first = false;
             }
@@ -1076,20 +1091,24 @@ void quickbook_synopsis_alt(class_or_struct const& cos, configuration const& con
 
     if (! cos.base_classes.empty())
     {
-        out << "`      : ";
         bool first = true;
         BOOST_FOREACH(base_class const& bc, cos.base_classes)
         {
-            if (! first)
-            {
+            // don't display base classes from details
+            if ( bc.name.find("detail") != std::string::npos )
+                continue;
+
+            if (first)
+                out << "`      : ";
+            else
                 out << std::endl << "      , ";
-            }
             out << output_if_different(bc.derivation, "private")
                 << output_if_different(bc.virtuality, "non-virtual")
                 << namespace_skipped(bc.name, config);
             first = false;
         }
-        out << "`" << std::endl;
+        if (!first)
+            out << "`" << std::endl;
     }
 
     out << "`{`" << std::endl

@@ -242,7 +242,7 @@ struct segments_direction
     static inline return_type segments_collinear(
         Segment1 const& , Segment2 const& , bool opposite,
         int a1_wrt_b, int a2_wrt_b, int b1_wrt_a, int b2_wrt_a,
-        Ratio const& ra_from_wrt_b, Ratio const& ra_to_wrt_b,
+        Ratio const& /*ra_from_wrt_b*/, Ratio const& /*ra_to_wrt_b*/,
         Ratio const& /*rb_from_wrt_a*/, Ratio const& /*rb_to_wrt_a*/)
     {
         return_type r('c', opposite);

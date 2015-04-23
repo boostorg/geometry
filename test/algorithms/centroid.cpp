@@ -145,6 +145,7 @@ void test_large_integers()
     bg::centroid(double_poly, double_centroid);
 
     int_point_type double_centroid_as_int;
+    bg::assign_zero(double_centroid_as_int);
     bg::assign(int_centroid, double_centroid_as_int);
 
     BOOST_CHECK_EQUAL(bg::get<0>(int_centroid), bg::get<0>(double_centroid_as_int));
