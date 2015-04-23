@@ -38,7 +38,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -91,8 +91,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_urmfps& proj_parm) 
             {
-                boost::ignore_unused_variable_warning(par);
-                boost::ignore_unused_variable_warning(proj_parm);
+                boost::ignore_unused(par);
+                boost::ignore_unused(proj_parm);
                 proj_parm.C_y = Cy / proj_parm.n;
                 par.es = 0.;
                 // par.inv = s_inverse;

@@ -227,7 +227,7 @@ namespace boost { namespace geometry { namespace projections
                 // par.fwd = t_forward;
                 // par.inv = pj.inv ? t_inverse : 0;
                 }
-                boost::ignore_unused_variable_warning(i);
+                boost::ignore_unused(i);
                 // return phip to choose model
                 return phip;
             }
