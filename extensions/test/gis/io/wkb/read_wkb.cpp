@@ -136,10 +136,10 @@ int test_main(int, char* [])
         typedef bg::model::point<double, 3, bg::cs::cartesian> point3d_type;
 
         typedef bg::model::linestring<point_type> linestring_type;
-        typedef bg::model::linestring<point3d_type> linestring3d_type;
+        //typedef bg::model::linestring<point3d_type> linestring3d_type;
 
         typedef bg::model::polygon<point_type> polygon_type;
-        typedef bg::model::polygon<point3d_type> polygon3d_type;
+        //typedef bg::model::polygon<point3d_type> polygon3d_type;
 
         //
         // POINT
