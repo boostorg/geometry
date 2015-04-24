@@ -22,6 +22,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 
 namespace boost { namespace geometry
@@ -51,17 +52,24 @@ struct value_operation
         : m_value(value)
     {}
 
-    template <typename P, int I>
-    inline void apply(P& point) const
+    template <typename PointDst, int I>
+    inline void apply(PointDst& dest_point) const
     {
-        set<I>(point, Function<C>()(get<I>(point), m_value));
+        set<I>(dest_point,
+               Function
+                <
+                    typename geometry::select_most_precise
+                        <
+                            C,
+                            typename geometry::coordinate_type<PointDst>::type
+                        >::type
+                >()(get<I>(dest_point), m_value));
     }
 };
 
 template <typename PointSrc, template <typename> class Function>
 struct point_operation
 {
-    typedef typename coordinate_type<PointSrc>::type coordinate_type;
     PointSrc const& m_source_point;
 
     inline point_operation(PointSrc const& point)
@@ -72,7 +80,14 @@ struct point_operation
     inline void apply(PointDst& dest_point) const
     {
         set<I>(dest_point,
-            Function<coordinate_type>()(get<I>(dest_point), get<I>(m_source_point)));
+               Function
+                <
+                    typename geometry::select_most_precise
+                        <
+                            typename geometry::coordinate_type<PointSrc>::type,
+                            typename geometry::coordinate_type<PointDst>::type
+                        >::type
+                >()(get<I>(dest_point), get<I>(m_source_point)));
     }
 };
 
