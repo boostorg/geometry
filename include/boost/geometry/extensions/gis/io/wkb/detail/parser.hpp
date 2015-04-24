@@ -9,14 +9,15 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_DETAIL_PARSER_HPP
 #define BOOST_GEOMETRY_IO_WKB_DETAIL_PARSER_HPP
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <algorithm>
 #include <iterator>
 #include <limits>
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -117,7 +118,9 @@ struct geometry_type_parser
     }
 };
 
-template <typename P, int I, int N>
+template <typename P,
+          std::size_t I = 0,
+          std::size_t N = dimension<P>::value>
 struct parsing_assigner
 {
     template <typename Iterator>
@@ -145,7 +148,7 @@ struct parsing_assigner
     }
 };
 
-template <typename P, int N>
+template <typename P, std::size_t N>
 struct parsing_assigner<P, N, N>
 {
     template <typename Iterator>
@@ -153,10 +156,7 @@ struct parsing_assigner<P, N, N>
                 byte_order_type::enum_t order)
     {
         // terminate
-        boost::ignore_unused_variable_warning(it);
-        boost::ignore_unused_variable_warning(end);
-        boost::ignore_unused_variable_warning(point);
-        boost::ignore_unused_variable_warning(order);
+        boost::ignore_unused(it, end, point, order);
     }
 };
 
@@ -171,7 +171,7 @@ struct point_parser
         {
             if (it != end)
             {
-                parsing_assigner<P, 0, dimension<P>::value>::run(it, end, point, order);
+                parsing_assigner<P>::run(it, end, point, order);
             }
             return true;
         }
@@ -208,7 +208,7 @@ struct point_container_parser
             size_type points_parsed = 0;
             while (points_parsed < container_size && it != end)
             {
-                parsing_assigner<point_type, 0, dimension<point_type>::value>::run(it, end, point_buffer, order);
+                parsing_assigner<point_type>::run(it, end, point_buffer, order);
                 boost::geometry::append(container, point_buffer);
                 ++points_parsed;
             }
