@@ -107,6 +107,37 @@ struct ewkt_policy
 {
 };
 
+template <typename Geometry,
+          geometry_type_ogc::enum_t OgcType,
+          std::size_t Dim = dimension<Geometry>::value>
+struct geometry_type_impl
+{
+    static bool check(boost::uint32_t value)
+    {
+        return value == get();
+    }
+
+    static boost::uint32_t get()
+    {
+        return OgcType;
+    }
+};
+
+template <typename Geometry,
+          geometry_type_ogc::enum_t OgcType>
+struct geometry_type_impl<Geometry, OgcType, 3>
+{
+    static bool check(boost::uint32_t value)
+    {
+        return value == get();
+    }
+
+    static boost::uint32_t get()
+    {
+        return 1000 + OgcType;
+    }
+};
+
 template
 <
     typename Geometry, 
@@ -119,87 +150,18 @@ struct geometry_type : not_implemented<Tag>
 
 template <typename Geometry, typename CheckPolicy>
 struct geometry_type<Geometry, CheckPolicy, point_tag>
-{
-    static bool check(boost::uint32_t value) 
-    { 
-        return value == get_impl<dimension<Geometry>::value>(); 
-    }
-
-    static boost::uint32_t get() 
-    { 
-        return get_impl<dimension<Geometry>::value>(); 
-    }
-
-private:
-
-    template <int dimension>
-    static boost::uint32_t get_impl() 
-    {
-        return geometry_type_ogc::point;
-    }
-
-    template <>
-    static boost::uint32_t get_impl<3>()
-    {
-        return 1000 + geometry_type_ogc::point;
-    }
-};
+    : geometry_type_impl<Geometry, geometry_type_ogc::point>
+{};
 
 template <typename Geometry, typename CheckPolicy>
 struct geometry_type<Geometry, CheckPolicy, linestring_tag>
-{
-    static bool check(boost::uint32_t value) 
-    { 
-        return value == get_impl<dimension<Geometry>::value>(); 
-    }
-
-    static boost::uint32_t get() 
-    { 
-        return get_impl<dimension<Geometry>::value>(); 
-    }
-
-private:
-
-    template <int dimension>
-    static boost::uint32_t get_impl() 
-    {
-        return geometry_type_ogc::linestring;
-    }
-
-    template <>
-    static boost::uint32_t get_impl<3>()
-    {
-        return 1000 + geometry_type_ogc::linestring;
-    }
-};
+    : geometry_type_impl<Geometry, geometry_type_ogc::linestring>
+{};
 
 template <typename Geometry, typename CheckPolicy>
 struct geometry_type<Geometry, CheckPolicy, polygon_tag>
-{
-    static bool check(boost::uint32_t value) 
-    { 
-        return value == get_impl<dimension<Geometry>::value>(); 
-    }
-
-    static boost::uint32_t get() 
-    { 
-        return get_impl<dimension<Geometry>::value>(); 
-    }
-
-private:
-
-    template <int dimension>
-    static boost::uint32_t get_impl() 
-    {
-        return geometry_type_ogc::polygon;
-    }
-
-    template <>
-    static boost::uint32_t get_impl<3>()
-    {
-        return 1000 + geometry_type_ogc::polygon;
-    }
-};
+    : geometry_type_impl<Geometry, geometry_type_ogc::polygon>
+{};
 
 }} // namespace detail::wkb
 #endif // DOXYGEN_NO_IMPL

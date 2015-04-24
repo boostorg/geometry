@@ -1,3 +1,11 @@
+// Boost.Geometry
+//
+// Copyright (c) 2015 Mats Taraldsvik.
+//
+// Use, modification and distribution is subject to the Boost Software License,
+// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef BOOST_GEOMETRY_IO_WKB_WRITE_WKB_HPP
 #define BOOST_GEOMETRY_IO_WKB_WRITE_WKB_HPP
 
@@ -25,7 +33,7 @@ template <typename G>
 struct write_wkb<point_tag, G>
 {
     template <typename OutputIterator>
-    static inline bool write(const G& geometry, OutputIterator& iter, 
+    static inline bool write(const G& geometry, OutputIterator iter,
                        detail::wkb::byte_order_type::enum_t byte_order)
     {
         return detail::wkb::point_writer<G>::write(geometry, iter, byte_order);
@@ -36,7 +44,7 @@ template <typename G>
 struct write_wkb<linestring_tag, G>
 {
     template <typename OutputIterator>
-    static inline bool write(const G& geometry, OutputIterator& iter, 
+    static inline bool write(const G& geometry, OutputIterator iter,
                        detail::wkb::byte_order_type::enum_t byte_order)
     {
         return detail::wkb::linestring_writer<G>::write(geometry, iter, byte_order);
@@ -47,7 +55,7 @@ template <typename G>
 struct write_wkb<polygon_tag, G>
 {
     template <typename OutputIterator>
-    static inline bool write(const G& geometry, OutputIterator& iter, 
+    static inline bool write(const G& geometry, OutputIterator iter,
                        detail::wkb::byte_order_type::enum_t byte_order)
     {
         return detail::wkb::polygon_writer<G>::write(geometry, iter, byte_order);
@@ -58,7 +66,7 @@ struct write_wkb<polygon_tag, G>
 #endif // DOXYGEN_NO_DISPATCH
 
 template <typename G, typename OutputIterator>
-inline bool write_wkb(const G& geometry, OutputIterator& iter)
+inline bool write_wkb(const G& geometry, OutputIterator iter)
 {
     // The WKB is written to an OutputIterator.
     BOOST_STATIC_ASSERT((
