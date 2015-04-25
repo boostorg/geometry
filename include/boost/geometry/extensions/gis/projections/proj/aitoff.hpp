@@ -90,9 +90,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
                     }
-                            return;
                 }
-
                 /***********************************************************************************
                 *
                 * Inverse functions added by Drazen Tutic and Lovro Gradiser based on paper:
@@ -113,7 +111,6 @@ namespace boost { namespace geometry { namespace projections
                 * Date: 2015-02-16
                 *
                 ************************************************************************************/
-
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
@@ -171,10 +168,7 @@ namespace boost { namespace geometry { namespace projections
                     } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
 
                     if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
-
-                            return;
                 }
-
             };
 
             template <typename Parameters>

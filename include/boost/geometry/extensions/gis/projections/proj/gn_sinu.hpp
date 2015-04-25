@@ -95,7 +95,6 @@ namespace boost { namespace geometry { namespace projections
                     } else if ((s - EPS10) < HALFPI)
                         lp_lon = 0.;
                     else throw proj_exception();;
-                            return;
                 }
                 /* General spherical sinusoidals */
             };

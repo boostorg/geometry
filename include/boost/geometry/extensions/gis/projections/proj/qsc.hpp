@@ -238,9 +238,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = t * cos(mu);
                         xy_y = t * sin(mu);
                         boost::ignore_unused(nu);
-                            return;
                 }
-
                 /* Inverse projection, ellipsoid */
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const

@@ -161,12 +161,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_y *= -1.0;
                         xy_x *= -1.0;
                       }
-
-                            return;
                 }
-
-
-
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
@@ -247,10 +242,7 @@ namespace boost { namespace geometry { namespace projections
                    while (ok==0);
 
                    lp_lon -= this->m_par.lam0;
-
-                            return;
                 }
-
             };
 
             // Krovak
