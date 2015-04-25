@@ -53,7 +53,7 @@ namespace boost { namespace geometry { namespace projections
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 
-            struct PXY { double x, y; }; // x/y projection specific
+            struct XY { double x, y; }; // specific for IMW_P
 
             struct par_imw_p
             {
@@ -80,9 +80,9 @@ namespace boost { namespace geometry { namespace projections
                 return err;
             }
             template <typename Parameters>
-                inline PXY
-            loc_for(double const& lp_lam, double const& lp_phi, const Parameters& par, par_imw_p const& proj_parm, double *yc) {
-                PXY xy;
+                inline XY
+            loc_for(double const& lp_lam, double const& lp_phi, Parameters& par, par_imw_p& proj_parm, double *yc) {
+                XY xy;
 
                 if (! lp_phi) {
                     xy.x = lp_lam;
@@ -159,13 +159,13 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double yc = 0;
-                    PXY xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    XY xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    PXY t;
+                    XY t;
                     double yc = 0;
 
                     lp_lat = this->m_proj_parm.phi_2;
