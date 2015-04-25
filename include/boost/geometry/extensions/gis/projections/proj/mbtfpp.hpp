@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbtfpp{ 
+    namespace detail { namespace mbtfpp{
             static const double CS_ = .95257934441568037152;
             static const double FXC = .92582009977255146156;
             static const double FYC = 3.40168025708304504493;
@@ -105,7 +105,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::mbtfpp
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief McBride-Thomas Flat-Polar Parabolic projection
@@ -149,7 +149,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("mbtfpp", new mbtfpp_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

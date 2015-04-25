@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wink2{ 
+    namespace detail { namespace wink2{
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
             static const double TWO_D_PI = 0.636619772367581343;
@@ -107,7 +107,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::wink2
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Winkel II projection
@@ -153,7 +153,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("wink2", new wink2_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

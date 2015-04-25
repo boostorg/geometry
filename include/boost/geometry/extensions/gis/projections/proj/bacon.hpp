@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bacon{ 
+    namespace detail { namespace bacon{
             static const double HLFPI2 = 2.46740110027233965467;
             static const double EPS = 1e-10;
 
@@ -121,7 +121,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::bacon
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Apian Globular I projection
@@ -232,7 +232,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("bacon", new bacon_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fouc_s{ 
+    namespace detail { namespace fouc_s{
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -117,7 +117,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::fouc_s
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Foucaut Sinusoidal projection
@@ -161,7 +161,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("fouc_s", new fouc_s_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

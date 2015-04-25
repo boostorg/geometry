@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ocea{ 
+    namespace detail { namespace ocea{
 
             struct par_ocea
             {
@@ -138,7 +138,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::ocea
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Oblique Cylindrical Equal Area projection
@@ -183,7 +183,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("ocea", new ocea_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

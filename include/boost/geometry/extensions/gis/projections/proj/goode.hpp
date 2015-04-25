@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -50,7 +50,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace goode{ 
+    namespace detail { namespace goode{
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
 
@@ -109,7 +109,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::goode
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Goode Homolosine projection
@@ -153,7 +153,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("goode", new goode_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

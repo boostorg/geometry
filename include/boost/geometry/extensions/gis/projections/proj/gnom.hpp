@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gnom{ 
+    namespace detail { namespace gnom{
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
             static const int S_POLE = 1;
@@ -177,7 +177,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::gnom
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Gnomonic projection
@@ -221,7 +221,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("gnom", new gnom_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

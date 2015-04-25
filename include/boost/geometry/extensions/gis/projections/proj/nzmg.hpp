@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nzmg{ 
+    namespace detail { namespace nzmg{
             static const double EPSLN = 1e-10;
             static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
             static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
@@ -147,7 +147,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::nzmg
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief New Zealand Map Grid projection
@@ -190,7 +190,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("nzmg", new nzmg_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

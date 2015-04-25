@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace august{ 
+    namespace detail { namespace august{
             static const double M = 1.333333333333333;
 
 
@@ -90,7 +90,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::august
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief August Epicycloidal projection
@@ -135,7 +135,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("august", new august_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

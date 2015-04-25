@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -50,7 +50,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace moll{ 
+    namespace detail { namespace moll{
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -147,7 +147,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::moll
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Mollweide projection
@@ -255,7 +255,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("wag5", new wag5_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

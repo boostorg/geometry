@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gall{ 
+    namespace detail { namespace gall{
             static const double YF = 1.70710678118654752440;
             static const double XF = 0.70710678118654752440;
             static const double RYF = 0.58578643762690495119;
@@ -92,7 +92,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::gall
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Gall (Gall Stereographic) projection
@@ -136,7 +136,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("gall", new gall_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

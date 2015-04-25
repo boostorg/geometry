@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg4{ 
+    namespace detail { namespace vandg4{
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
 
@@ -112,7 +112,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::vandg4
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief van der Grinten IV projection
@@ -157,7 +157,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("vandg4", new vandg4_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

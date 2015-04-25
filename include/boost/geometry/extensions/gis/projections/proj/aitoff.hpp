@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aitoff{ 
+    namespace detail { namespace aitoff{
 
             struct par_aitoff
             {
@@ -212,7 +212,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::aitoff
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Aitoff projection
@@ -289,7 +289,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("wintri", new wintri_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

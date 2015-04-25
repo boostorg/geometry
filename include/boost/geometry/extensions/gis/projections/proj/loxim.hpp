@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace loxim{ 
+    namespace detail { namespace loxim{
             static const double EPS = 1e-8;
 
             struct par_loxim
@@ -114,7 +114,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::loxim
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Loximuthal projection
@@ -158,7 +158,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("loxim", new loxim_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

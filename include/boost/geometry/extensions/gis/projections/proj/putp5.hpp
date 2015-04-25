@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp5{ 
+    namespace detail { namespace putp5{
             static const double C = 1.01346;
             static const double D = 1.2158542;
 
@@ -116,7 +116,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::putp5
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Putnins P5 projection
@@ -192,7 +192,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("putp5p", new putp5p_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace crast{ 
+    namespace detail { namespace crast{
             static const double XM = 0.97720502380583984317;
             static const double RXM = 1.02332670794648848847;
             static const double YM = 3.06998012383946546542;
@@ -94,7 +94,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::crast
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Craster Parabolic (Putnins P4) projection
@@ -138,7 +138,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("crast", new crast_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

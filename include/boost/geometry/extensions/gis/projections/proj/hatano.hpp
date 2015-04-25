@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace hatano{ 
+    namespace detail { namespace hatano{
             static const int NITER = 20;
             static const double EPS = 1e-7;
             static const double ONETOL = 1.000001;
@@ -123,7 +123,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::hatano
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Hatano Asymmetrical Equal Area projection
@@ -167,7 +167,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("hatano", new hatano_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mill{ 
+    namespace detail { namespace mill{
 
 
             // template class, using CRTP to implement forward/inverse
@@ -88,7 +88,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::mill
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Miller Cylindrical projection
@@ -132,7 +132,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("mill", new mill_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

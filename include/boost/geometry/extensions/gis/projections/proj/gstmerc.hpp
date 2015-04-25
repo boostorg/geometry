@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -50,7 +50,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gstmerc{ 
+    namespace detail { namespace gstmerc{
 
             struct par_gstmerc
             {
@@ -124,7 +124,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::gstmerc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion) projection
@@ -170,7 +170,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("gstmerc", new gstmerc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

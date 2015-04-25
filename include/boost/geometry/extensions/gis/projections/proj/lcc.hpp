@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -53,7 +53,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcc{ 
+    namespace detail { namespace lcc{
             static const double EPS10 = 1.e-10;
 
             struct par_lcc
@@ -183,7 +183,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::lcc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Lambert Conformal Conic projection
@@ -229,7 +229,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("lcc", new lcc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     // Create EPSG specializations
     // (Proof of Concept, only for some)
 

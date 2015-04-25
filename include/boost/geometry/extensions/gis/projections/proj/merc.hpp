@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -51,7 +51,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace merc{ 
+    namespace detail { namespace merc{
             static const double EPS10 = 1.e-10;
 
 
@@ -135,7 +135,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::merc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Mercator projection
@@ -207,7 +207,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("merc", new merc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

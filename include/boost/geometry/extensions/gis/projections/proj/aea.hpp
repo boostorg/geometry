@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -54,7 +54,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aea{ 
+    namespace detail { namespace aea{
             static const double EPS10 = 1.e-10;
             static const double TOL7 = 1.e-7;
             static const int N_ITER = 15;
@@ -216,7 +216,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::aea
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Albers Equal Area projection
@@ -296,7 +296,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("leac", new leac_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     // Create EPSG specializations
     // (Proof of Concept, only for some)
 

@@ -50,11 +50,11 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace omerc{ 
+    namespace detail { namespace omerc{
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
-                inline double TSFN0(double x) 
+                inline double TSFN0(double x)
                     {return tan(.5 * (HALFPI - (x))); }
 
 
@@ -255,7 +255,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::omerc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Oblique Mercator projection
@@ -302,7 +302,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("omerc", new omerc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

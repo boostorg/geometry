@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag2{ 
+    namespace detail { namespace wag2{
             static const double C_x = 0.92483;
             static const double C_y = 1.38725;
             static const double C_p1 = 0.88022;
@@ -94,7 +94,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::wag2
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Wagner II projection
@@ -138,7 +138,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("wag2", new wag2_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

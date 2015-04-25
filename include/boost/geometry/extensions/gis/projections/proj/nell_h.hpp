@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nell_h{ 
+    namespace detail { namespace nell_h{
             static const int NITER = 9;
             static const double EPS = 1e-7;
 
@@ -103,7 +103,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::nell_h
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Nell-Hammer projection
@@ -147,7 +147,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("nell_h", new nell_h_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

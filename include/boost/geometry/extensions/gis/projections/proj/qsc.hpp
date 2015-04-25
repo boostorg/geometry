@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace qsc{ 
+    namespace detail { namespace qsc{
             static const double EPS10 = 1.e-10;
             static const int FACE_FRONT = 0;
             static const int FACE_RIGHT = 1;
@@ -411,7 +411,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::qsc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Quadrilateralized Spherical Cube projection
@@ -455,7 +455,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("qsc", new qsc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

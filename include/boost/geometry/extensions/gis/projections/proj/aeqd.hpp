@@ -51,7 +51,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aeqd{ 
+    namespace detail { namespace aeqd{
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
             static const int N_POLE = 0;
@@ -351,7 +351,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::aeqd
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Azimuthal Equidistant projection
@@ -448,7 +448,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("aeqd", new aeqd_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

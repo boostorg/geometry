@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bipc{ 
+    namespace detail { namespace bipc{
             static const double EPS = 1e-10;
             static const double EPS10 = 1e-10;
             static const double ONEEPS = 1.000000001;
@@ -203,7 +203,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::bipc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Bipolar conic of western hemisphere projection
@@ -247,7 +247,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("bipc", new bipc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eqc{ 
+    namespace detail { namespace eqc{
 
             struct par_eqc
             {
@@ -94,7 +94,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::eqc
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Equidistant Cylindrical (Plate Caree) projection
@@ -140,7 +140,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("eqc", new eqc_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

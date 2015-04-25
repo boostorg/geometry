@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -51,7 +51,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cass{ 
+    namespace detail { namespace cass{
             static const double EPS10 = 1e-10;
             static const double C1 = .16666666666666666666;
             static const double C2 = .00833333333333333333;
@@ -166,7 +166,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::cass
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Cassini projection
@@ -236,7 +236,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("cass", new cass_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     // Create EPSG specializations
     // (Proof of Concept, only for some)
 

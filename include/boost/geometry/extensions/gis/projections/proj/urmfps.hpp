@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urmfps{ 
+    namespace detail { namespace urmfps{
             static const double C_x = 0.8773826753;
             static const double Cy = 1.139753528477;
 
@@ -122,7 +122,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::urmfps
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Urmaev Flat-Polar Sinusoidal projection
@@ -199,7 +199,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("wag1", new wag1_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

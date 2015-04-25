@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck5{ 
+    namespace detail { namespace eck5{
             static const double XF = 0.44101277172455148219;
             static const double RXF = 2.26750802723822639137;
             static const double YF = 0.88202554344910296438;
@@ -91,7 +91,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::eck5
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Eckert V projection
@@ -135,7 +135,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("eck5", new eck5_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urm5{ 
+    namespace detail { namespace urm5{
 
             struct par_urm5
             {
@@ -98,7 +98,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::urm5
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Urmaev V projection
@@ -144,7 +144,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("urm5", new urm5_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

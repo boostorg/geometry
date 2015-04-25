@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gins8{ 
+    namespace detail { namespace gins8{
             static const double Cl = 0.000952426;
             static const double Cp = 0.162388;
             static const double C12 = 0.08333333333333333;
@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::gins8
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Ginsburg VIII (TsNIIGAiK) projection
@@ -134,7 +134,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("gins8", new gins8_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

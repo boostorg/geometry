@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lask{ 
+    namespace detail { namespace lask{
             static const double a10 = 0.975534;
             static const double a12 = -0.119161;
             static const double a32 = -0.0143059;
@@ -97,7 +97,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::lask
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Laskowski projection
@@ -142,7 +142,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("lask", new lask_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

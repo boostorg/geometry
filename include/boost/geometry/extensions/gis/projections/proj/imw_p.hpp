@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace imw_p{ 
+    namespace detail { namespace imw_p{
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 
@@ -230,7 +230,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::imw_p
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief International Map of the World Polyconic projection
@@ -275,7 +275,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("imw_p", new imw_p_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

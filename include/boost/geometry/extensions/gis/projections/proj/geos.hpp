@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace geos{ 
+    namespace detail { namespace geos{
 
             struct par_geos
             {
@@ -251,7 +251,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::geos
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Geostationary Satellite View projection
@@ -323,7 +323,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("geos", new geos_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -49,7 +49,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nsper{ 
+    namespace detail { namespace nsper{
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
             static const int S_POLE = 1;
@@ -233,7 +233,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::nsper
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Near-sided perspective projection
@@ -311,7 +311,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("tpers", new tpers_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections

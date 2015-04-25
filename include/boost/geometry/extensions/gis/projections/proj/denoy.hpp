@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -48,7 +48,7 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace denoy{ 
+    namespace detail { namespace denoy{
             static const double C0 = 0.95;
             static const double C1 = -.08333333333333333333;
             static const double C3 = .00166666666666666666;
@@ -89,7 +89,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
         }} // namespace detail::denoy
-    #endif // doxygen 
+    #endif // doxygen
 
     /*!
         \brief Denoyer Semi-Elliptical projection
@@ -134,7 +134,7 @@ namespace boost { namespace geometry { namespace projections
             factory.add_to_factory("denoy", new denoy_entry<Geographic, Cartesian, Parameters>);
         }
 
-    } // namespace detail 
+    } // namespace detail
     #endif // doxygen
 
 }}} // namespace boost::geometry::projections
