@@ -33,53 +33,53 @@ namespace detail
 {
 
 
-template <typename P>
+template <typename Point>
 struct param
 {
     typedef typename boost::call_traits
         <
-            typename coordinate_type<P>::type
+            typename coordinate_type<Point>::type
         >::param_type type;
 };
 
 
-template <typename C, template <typename> class Function>
+template <typename Value, template <typename> class Function>
 struct value_operation
 {
-    C m_value;
+    Value m_value;
 
-    inline value_operation(C const &value)
+    inline value_operation(Value const &value)
         : m_value(value)
     {}
 
-    template <typename PointDst, int I>
-    inline void apply(PointDst& dest_point) const
+    template <typename PointDst, std::size_t Index>
+    inline void apply(PointDst& point_dst) const
     {
-        set<I>(dest_point,
+        set<Index>(point_dst,
                Function
                 <
                     typename geometry::select_most_precise
                         <
-                            C,
+                            Value,
                             typename geometry::coordinate_type<PointDst>::type
                         >::type
-                >()(get<I>(dest_point), m_value));
+                >()(get<Index>(point_dst), m_value));
     }
 };
 
 template <typename PointSrc, template <typename> class Function>
 struct point_operation
 {
-    PointSrc const& m_source_point;
+    PointSrc const& m_point_src;
 
     inline point_operation(PointSrc const& point)
-        : m_source_point(point)
+        : m_point_src(point)
     {}
 
-    template <typename PointDst, int I>
-    inline void apply(PointDst& dest_point) const
+    template <typename PointDst, std::size_t Index>
+    inline void apply(PointDst& point_dst) const
     {
-        set<I>(dest_point,
+        set<Index>(point_dst,
                Function
                 <
                     typename geometry::select_most_precise
@@ -87,40 +87,40 @@ struct point_operation
                             typename geometry::coordinate_type<PointSrc>::type,
                             typename geometry::coordinate_type<PointDst>::type
                         >::type
-                >()(get<I>(dest_point), get<I>(m_source_point)));
+                >()(get<Index>(point_dst), get<Index>(m_point_src)));
     }
 };
 
 
-template <typename C>
+template <typename Value>
 struct value_assignment
 {
-    C m_value;
+    Value m_value;
 
-    inline value_assignment(C const &value)
+    inline value_assignment(Value const &value)
         : m_value(value)
     {}
 
-    template <typename P, int I>
-    inline void apply(P& point) const
+    template <typename PointDst, std::size_t Index>
+    inline void apply(PointDst& point_dst) const
     {
-        set<I>(point, m_value);
+        set<Index>(point_dst, m_value);
     }
 };
 
 template <typename PointSrc>
 struct point_assignment
 {
-    PointSrc const& m_source_point;
+    PointSrc const& m_point_src;
 
     inline point_assignment(PointSrc const& point)
-        : m_source_point(point)
+        : m_point_src(point)
     {}
 
-    template <typename PointDst, int I>
-    inline void apply(PointDst& dest_point) const
+    template <typename PointDst, std::size_t Index>
+    inline void apply(PointDst& point_dst) const
     {
-        set<I>(dest_point, get<I>(m_source_point));
+        set<Index>(point_dst, get<Index>(m_point_src));
     }
 };
 
@@ -141,7 +141,12 @@ inline void add_value(Point& p, typename detail::param<Point>::type value)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
-    for_each_coordinate(p, detail::value_operation<typename coordinate_type<Point>::type, std::plus>(value));
+    for_each_coordinate(p,
+                        detail::value_operation
+                            <
+                                typename coordinate_type<Point>::type,
+                                std::plus
+                            >(value));
 }
 
 /*!
@@ -176,7 +181,12 @@ inline void subtract_value(Point& p, typename detail::param<Point>::type value)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
-    for_each_coordinate(p, detail::value_operation<typename coordinate_type<Point>::type, std::minus>(value));
+    for_each_coordinate(p,
+                        detail::value_operation
+                            <
+                                typename coordinate_type<Point>::type,
+                                std::minus
+                            >(value));
 }
 
 /*!
@@ -211,7 +221,12 @@ inline void multiply_value(Point& p, typename detail::param<Point>::type value)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
-    for_each_coordinate(p, detail::value_operation<typename coordinate_type<Point>::type, std::multiplies>(value));
+    for_each_coordinate(p,
+                        detail::value_operation
+                            <
+                                typename coordinate_type<Point>::type,
+                                std::multiplies
+                            >(value));
 }
 
 /*!
@@ -247,7 +262,12 @@ inline void divide_value(Point& p, typename detail::param<Point>::type value)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
-    for_each_coordinate(p, detail::value_operation<typename coordinate_type<Point>::type, std::divides>(value));
+    for_each_coordinate(p,
+                        detail::value_operation
+                            <
+                                typename coordinate_type<Point>::type,
+                                std::divides
+                            >(value));
 }
 
 /*!
@@ -282,7 +302,11 @@ inline void assign_value(Point& p, typename detail::param<Point>::type value)
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
-    for_each_coordinate(p, detail::value_assignment<typename coordinate_type<Point>::type>(value));
+    for_each_coordinate(p,
+                        detail::value_assignment
+                            <
+                                typename coordinate_type<Point>::type
+                            >(value));
 }
 
 /*!
