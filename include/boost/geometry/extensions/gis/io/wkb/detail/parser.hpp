@@ -17,7 +17,6 @@
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -152,11 +151,10 @@ template <typename P, std::size_t N>
 struct parsing_assigner<P, N, N>
 {
     template <typename Iterator>
-    static void run(Iterator& it, Iterator end, P& point, 
-                byte_order_type::enum_t order)
+    static void run(Iterator& /*it*/, Iterator /*end*/, P& /*point*/,
+                byte_order_type::enum_t /*order*/)
     {
         // terminate
-        boost::ignore_unused(it, end, point, order);
     }
 };
 

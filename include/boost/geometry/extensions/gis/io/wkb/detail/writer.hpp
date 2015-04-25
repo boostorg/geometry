@@ -16,7 +16,6 @@
 #include <limits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/range.hpp>
 #include <boost/static_assert.hpp>
@@ -67,13 +66,16 @@ namespace detail { namespace wkb
         }
     };
 
-    template <typename P,
-              std::size_t I = 0,
-              std::size_t N = dimension<P>::value>
+    template
+    <
+        typename Point,
+        std::size_t I = 0,
+        std::size_t N = dimension<Point>::value
+    >
     struct writer_assigner
     {
         template <typename OutputIterator>
-        static void run(P const& point,
+        static void run(Point const& point,
                         OutputIterator& iter,
                         byte_order_type::enum_t byte_order)
         {
@@ -83,28 +85,27 @@ namespace detail { namespace wkb
                                         iter,
                                         byte_order);
 
-            writer_assigner<P, I+1, N>::run(point, iter, byte_order);
+            writer_assigner<Point, I+1, N>::run(point, iter, byte_order);
         }
     };
 
-    template <typename P, std::size_t N>
-    struct writer_assigner<P, N, N>
+    template <typename Point, std::size_t N>
+    struct writer_assigner<Point, N, N>
     {
         template <typename OutputIterator>
-        static void run(P const& point,
-                        OutputIterator& iter,
-                        byte_order_type::enum_t byte_order)
+        static void run(Point const& /*point*/,
+                        OutputIterator& /*iter*/,
+                        byte_order_type::enum_t /*byte_order*/)
         {
             // terminate
-            boost::ignore_unused(point, iter, byte_order);
         }
     };
 
-    template <typename P>
+    template <typename Point>
     struct point_writer
     {
         template <typename OutputIterator>
-        static bool write(P const& point,
+        static bool write(Point const& point,
                           OutputIterator& iter,
                           byte_order_type::enum_t byte_order)
         {
@@ -112,21 +113,21 @@ namespace detail { namespace wkb
             value_writer<uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<P>::get();
+            uint32_t type = geometry_type<Point>::get();
             value_writer<uint32_t>::write(type, iter, byte_order);
 
             // write point's x, y, z
-            writer_assigner<P>::run(point, iter, byte_order);
+            writer_assigner<Point>::run(point, iter, byte_order);
 
             return true;
         }
     };
 
-    template <typename L>
+    template <typename Linestring>
     struct linestring_writer
     {
         template <typename OutputIterator>
-        static bool write(L const& linestring,
+        static bool write(Linestring const& linestring,
                           OutputIterator& iter,
                           byte_order_type::enum_t byte_order)
         {
@@ -134,20 +135,20 @@ namespace detail { namespace wkb
             value_writer<uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<L>::get();
+            uint32_t type = geometry_type<Linestring>::get();
             value_writer<uint32_t>::write(type, iter, byte_order);
 
             // write num points
             uint32_t num_points = boost::size(linestring);
             value_writer<uint32_t>::write(num_points, iter, byte_order);
 
-            for(typename boost::range_iterator<L const>::type
+            for(typename boost::range_iterator<Linestring const>::type
                     point_iter = boost::begin(linestring);
                 point_iter != boost::end(linestring);
                 ++point_iter)
             {
                 // write point's x, y, z
-                writer_assigner<typename point_type<L>::type>
+                writer_assigner<typename point_type<Linestring>::type>
                     ::run(*point_iter, iter, byte_order);
             }
 
@@ -155,11 +156,11 @@ namespace detail { namespace wkb
         }
     };
 
-    template <typename P>
+    template <typename Polygon>
     struct polygon_writer
     {
         template <typename OutputIterator>
-        static bool write(P const& polygon,
+        static bool write(Polygon const& polygon,
                           OutputIterator& iter,
                           byte_order_type::enum_t byte_order)
         {
@@ -167,7 +168,7 @@ namespace detail { namespace wkb
             value_writer<uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<P>::get();
+            uint32_t type = geometry_type<Polygon>::get();
             value_writer<uint32_t>::write(type, iter, byte_order);
 
             // write num rings
@@ -175,10 +176,10 @@ namespace detail { namespace wkb
             value_writer<uint32_t>::write(num_rings, iter, byte_order);
 
             // write exterior ring
-            typedef typename geometry::ring_type<P const>::type
+            typedef typename geometry::ring_type<Polygon const>::type
                 ring_type;
 
-            typename geometry::ring_return_type<P const>::type
+            typename geometry::ring_return_type<Polygon const>::type
                 exterior_ring = geometry::exterior_ring(polygon);
 
             value_writer<uint32_t>::write(geometry::num_points(exterior_ring),
@@ -191,15 +192,15 @@ namespace detail { namespace wkb
                 ++point_iter)
             {
                 // write point's x, y, z
-                writer_assigner<typename point_type<P>::type>
+                writer_assigner<typename point_type<Polygon>::type>
                     ::run(*point_iter, iter, byte_order);
             }
 
             // write interor rings
-            typedef typename geometry::interior_type<P const>::type
+            typedef typename geometry::interior_type<Polygon const>::type
                 interior_rings_type;
 
-            typename geometry::interior_return_type<P const>::type
+            typename geometry::interior_return_type<Polygon const>::type
                 interior_rings = geometry::interior_rings(polygon);
 
             for(typename boost::range_iterator<interior_rings_type const>::type
@@ -217,7 +218,7 @@ namespace detail { namespace wkb
                     ++point_iter)
                 {
                     // write point's x, y, z
-                    writer_assigner<typename point_type<P>::type>
+                    writer_assigner<typename point_type<Polygon>::type>
                         ::run(*point_iter, iter, byte_order);
                 }
             }

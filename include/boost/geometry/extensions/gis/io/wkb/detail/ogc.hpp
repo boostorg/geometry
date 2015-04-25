@@ -107,9 +107,12 @@ struct ewkt_policy
 {
 };
 
-template <typename Geometry,
-          geometry_type_ogc::enum_t OgcType,
-          std::size_t Dim = dimension<Geometry>::value>
+template
+<
+    typename Geometry,
+    geometry_type_ogc::enum_t OgcType,
+    std::size_t Dim = dimension<Geometry>::value
+>
 struct geometry_type_impl
 {
     static bool check(boost::uint32_t value)
@@ -123,8 +126,11 @@ struct geometry_type_impl
     }
 };
 
-template <typename Geometry,
-          geometry_type_ogc::enum_t OgcType>
+template
+<
+    typename Geometry,
+    geometry_type_ogc::enum_t OgcType
+>
 struct geometry_type_impl<Geometry, OgcType, 3>
 {
     static bool check(boost::uint32_t value)
