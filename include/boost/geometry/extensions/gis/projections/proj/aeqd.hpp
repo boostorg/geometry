@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -289,7 +289,7 @@ namespace boost { namespace geometry { namespace projections
                             xy_y = (cosc - this->m_proj_parm.sinph0 * sin(lp_lat)) * c_rh;
                             xy_x *= sinc * this->m_proj_parm.cosph0;
                         }
-                        lp_lon = xy_y == 0. ? 0. : atan2(xy_x, xy_y);
+                        lp_lon = atan2(xy_x, xy_y);
                     } else if (this->m_proj_parm.mode == N_POLE) {
                         lp_lat = HALFPI - c_rh;
                         lp_lon = atan2(xy_x, -xy_y);

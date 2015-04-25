@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -97,8 +97,11 @@ namespace boost { namespace geometry { namespace projections
                             throw proj_exception();;
                         v = 0.5 * this->m_proj_parm.ArB * log((1. - U)/(1. + U));
                         temp = cos(this->m_proj_parm.B * lp_lon);
-                        u = (fabs(temp) < TOL) ? this->m_proj_parm.AB * lp_lon :
-                            this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam) , temp);
+                                if(fabs(temp) < TOL) {
+                                    u = this->m_proj_parm.A * lp_lon;
+                                } else {
+                                    u = this->m_proj_parm.ArB * atan2((S * this->m_proj_parm.cosgam + V * this->m_proj_parm.singam), temp);
+                                }
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;
                         u = this->m_proj_parm.ArB * lp_lat;
@@ -146,8 +149,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_omerc(Parameters& par, par_omerc& proj_parm)
             {
-                double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma,
-                    gamma0, lamc, lam1, lam2, phi1, phi2, alpha_c;
+                double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
+                    gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c;
                 int alp, gam, no_off = 0;
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
                     if ((alp = pj_param(par.params, "talpha").i) != 0)
@@ -161,6 +164,12 @@ namespace boost { namespace geometry { namespace projections
                                 pj_param(par.params, "tno_off").i
                                 /* for backward compatibility */
                                 || pj_param(par.params, "tno_uoff").i;
+                    if( no_off )
+                    {
+                        /* Mark the parameter as used, so that the pj_get_def() return them */
+                        pj_param(par.params, "sno_uoff");
+                        pj_param(par.params, "sno_off");
+                    }
                 } else {
                     lam1 = pj_param(par.params, "rlon_1").f;
                     phi1 = pj_param(par.params, "rlat_1").f;

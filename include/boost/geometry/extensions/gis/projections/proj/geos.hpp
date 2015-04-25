@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -229,7 +229,7 @@ namespace boost { namespace geometry { namespace projections
                             (proj_parm.sweep_axis[0] != 'x' &&
                              proj_parm.sweep_axis[0] != 'y'))
                           throw proj_exception(-49);
-                        if (proj_parm.sweep_axis[0] == 'y')
+                        if (proj_parm.sweep_axis[0] == 'x')
                           proj_parm.flip_axis = 1;
                         else
                           proj_parm.flip_axis = 0;
