@@ -15,7 +15,7 @@
 // PROJ4 is maintained by Frank Warmerdam
 // PROJ4 is converted to Boost.Geometry by Barend Gehrels
 
-// Last updated version of proj: 4.8.0
+// Last updated version of proj: 4.9.1
 
 // Original copyright notice:
  
@@ -61,9 +61,10 @@ namespace boost { namespace geometry { namespace projections
 
 
 
+
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
-            struct base_aitoff_spheroid : public base_t_f<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
+            struct base_aitoff_spheroid : public base_t_fi<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>
             {
 
@@ -73,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                 par_aitoff m_proj_parm;
 
                 inline base_aitoff_spheroid(const Parameters& par)
-                    : base_t_f<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
+                    : base_t_fi<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
@@ -89,7 +90,91 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
                     }
+                            return;
                 }
+
+                /***********************************************************************************
+                *
+                * Inverse functions added by Drazen Tutic and Lovro Gradiser based on paper:
+                *
+                * I.Özbug Biklirici and Cengizhan Ipbüker. A General Algorithm for the Inverse
+                * Transformation of Map Projections Using Jacobian Matrices. In Proceedings of the
+                * Third International Symposium Mathematical & Computational Applications,
+                * pages 175{182, Turkey, September 2002.
+                *
+                * Expected accuracy is defined by EPSILON = 1e-12. Should be appropriate for
+                * most applications of Aitoff and Winkel Tripel projections.
+                *
+                * Longitudes of 180W and 180E can be mixed in solution obtained.
+                *
+                * Inverse for Aitoff projection in poles is undefined, longitude value of 0 is assumed.
+                *
+                * Contact : dtutic@geof.hr
+                * Date: 2015-02-16
+                *
+                ************************************************************************************/
+
+
+                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                {
+                        int iter, MAXITER = 10, round = 0, MAXROUND = 20;
+                    double EPSILON = 1e-12, D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
+
+                    if ((fabs(xy_x) < EPSILON) && (fabs(xy_y) < EPSILON )) { lp_lat = 0.; lp_lon = 0.; return; }
+
+                    /* intial values for Newton-Raphson method */
+                    lp_lat = xy_y; lp_lon = xy_x;
+                    do {
+                        iter = 0;
+                        do {
+                            sl = sin(lp_lon * 0.5); cl = cos(lp_lon * 0.5);
+                            sp = sin(lp_lat); cp = cos(lp_lat);
+                            D = cp * cl;
+                                   C = 1. - D * D;
+                            D = acos(D) / pow(C, 1.5);
+                                   f1 = 2. * D * C * cp * sl;
+                                   f2 = D * C * sp;
+                                   f1p = 2.* (sl * cl * sp * cp / C - D * sp * sl);
+                                   f1l = cp * cp * sl * sl / C + D * cp * cl * sp * sp;
+                                f2p = sp * sp * cl / C + D * sl * sl * cp;
+                                  f2l = 0.5 * (sp * cp * sl / C - D * sp * cp * cp * sl * cl);
+                                  if (this->m_proj_parm.mode) { /* Winkel Tripel */
+                                f1 = 0.5 * (f1 + lp_lon * this->m_proj_parm.cosphi1);
+                                f2 = 0.5 * (f2 + lp_lat);
+                                f1p *= 0.5;
+                                f1l = 0.5 * (f1l + this->m_proj_parm.cosphi1);
+                                f2p = 0.5 * (f2p + 1.);
+                                f2l *= 0.5;
+                            }
+                            f1 -= xy_x; f2 -= xy_y;
+                            dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
+                            dp = (f1 * f2l - f2 * f1l) / dp;
+                            while (dl > boost::math::constants::pi<double>()) dl -= boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
+                            while (dl < -boost::math::constants::pi<double>()) dl += boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
+                            lp_lat -= dp;    lp_lon -= dl;
+                        } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
+                        if (lp_lat > (2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat-(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -(2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat+(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - (2.0 * boost::math::constants::pi<double>())) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+
+                        /* calculate x,y coordinates with solution obtained */
+                        if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon)))) {/* Aitoff */
+                            x = 2. * D * cos(lp_lat) * sin(C) * (y = 1. / sin(D));
+                            y *= D * sin(lp_lat);
+                        } else
+                            x = y = 0.;
+                        if (this->m_proj_parm.mode) { /* Winkel Tripel */
+                            x = (x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
+                            y = (y + lp_lat) * 0.5;
+                        }
+                    /* if too far from given values of x,y, repeat with better approximation of phi,lam */
+                    } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
+
+                    if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
+
+                            return;
+                }
+
             };
 
             template <typename Parameters>
@@ -97,7 +182,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 boost::ignore_unused(par);
                 boost::ignore_unused(proj_parm);
-                // par.inv = 0;
+                // par.inv = s_inverse;
                 // par.fwd = s_forward;
                 par.es = 0.;
             }
@@ -138,7 +223,6 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - no inverse
         \par Example
         \image html ex_aitoff.gif
     */
@@ -160,7 +244,6 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - no inverse
          - lat_1
         \par Example
         \image html ex_wintri.gif
@@ -185,7 +268,7 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<aitoff_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<aitoff_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 
@@ -195,7 +278,7 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    return new base_v_f<wintri_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    return new base_v_fi<wintri_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 

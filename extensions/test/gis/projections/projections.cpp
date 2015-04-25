@@ -238,6 +238,7 @@ void test_all()
 
     test_inverse<P>("aea", 334609.583974, 5218502.503686, 4.897000, 52.371000, "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
     test_inverse<P>("aeqd", 384923.723428, 5809986.497118, 4.898398, 52.378890, "+proj=aeqd +ellps=WGS84 +units=m"); // F/I: 883.080918
+    test_inverse<P>("aitoff", 384096.182830, 5831239.274680, 4.897000, 52.371000, "+proj=aitoff +ellps=WGS84 +units=m");
     test_inverse<P>("alsk", 7002185.416415, -3700467.546545, -84.389819, 33.754911, "+proj=alsk +ellps=WGS84 +units=m +lon_0=-150W"); // F/I: 19.398478
     test_inverse<P>("bipc", 3693973.674143, -8459972.647559, 4.897000, 52.371000, "+proj=bipc +ellps=WGS84 +units=m");
     test_inverse<P>("bonne", 333291.091896, 274683.016972, 4.897000, 52.371000, "+proj=bonne +ellps=WGS84 +units=m +lat_1=50");
