@@ -81,6 +81,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/oea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/omerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/ortho.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/qsc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/poly.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/putp2.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/putp3.hpp>
@@ -202,6 +203,7 @@ public:
         detail::oea_init(*this);
         detail::omerc_init(*this);
         detail::ortho_init(*this);
+        detail::qsc_init(*this);
         detail::poly_init(*this);
         detail::putp2_init(*this);
         detail::putp3_init(*this);
