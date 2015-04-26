@@ -53,8 +53,9 @@ namespace boost { namespace geometry { namespace projections
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
 
+            // specific for 'chamb'
             struct VECT { double r, Az; };
-            struct CXY { double x, y; }; // x/y for chamb
+            struct XY { double x, y; };
 
             struct par_chamb
             {
@@ -62,10 +63,10 @@ namespace boost { namespace geometry { namespace projections
                 double phi, lam;
                 double cosphi, sinphi;
                 VECT v;
-                CXY    p;
+                XY    p;
                 double Az;
                 } c[3];
-                CXY p;
+                XY p;
                 double beta_0, beta_1, beta_2;
             };
                 inline VECT /* distance and azimuth from point 1 to point 2 */
