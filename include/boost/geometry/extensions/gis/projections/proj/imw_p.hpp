@@ -81,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
             }
             template <typename Parameters>
                 inline XY
-            loc_for(double const& lp_lam, double const& lp_phi, Parameters& par, par_imw_p& proj_parm, double *yc) {
+            loc_for(double const& lp_lam, double const& lp_phi, Parameters const& par, par_imw_p const& proj_parm, double *yc) {
                 XY xy;
 
                 if (! lp_phi) {
@@ -127,10 +127,9 @@ namespace boost { namespace geometry { namespace projections
                 }
                 return (xy);
             }
-
             template <typename Parameters>
-            inline void
-            xy(Parameters& par, par_imw_p& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
+                inline void
+            xy(Parameters const& par, par_imw_p const& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
                 double F;
 
                 *sp = sin(phi);
@@ -139,7 +138,6 @@ namespace boost { namespace geometry { namespace projections
                 *y = *R * (1 - cos(F));
                 *x = *R * sin(F);
             }
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
