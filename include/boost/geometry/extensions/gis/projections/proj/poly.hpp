@@ -178,7 +178,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_poly(Parameters& par, par_poly& proj_parm)
             {
                 if (par.es) {
-                    pj_enfn(par.es, proj_parm.en);
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                 // par.inv = e_inverse;
                 // par.fwd = e_forward;

@@ -45,8 +45,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/proj_mdist.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -317,7 +317,7 @@ namespace boost { namespace geometry { namespace projections
                 // par.inv = s_inverse;
                 // par.fwd = s_forward;
                 } else {
-                    pj_enfn(par.es, proj_parm.en);
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     if (pj_param(par.params, "bguam").i) {
                         proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
                 // par.inv = e_guam_inv;

@@ -65,7 +65,7 @@ static const double EPS = 1e-11;
 static const int MAX_ITER = 10;
 static const int EN_SIZE = 5;
 
-inline void pj_enfn(double es, double* en)
+inline bool pj_enfn(double es, double* en)
 {
     double t; //, *en;
 
@@ -78,6 +78,7 @@ inline void pj_enfn(double es, double* en)
         en[4] = t * es * C88;
     }
     // return en;
+    return true;
 }
 
 inline double pj_mlfn(double phi, double sphi, double cphi, const double *en)

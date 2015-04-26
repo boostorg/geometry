@@ -173,8 +173,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_sinu(Parameters& par, par_gn_sinu& proj_parm)
             {
-                    pj_enfn(par.es, proj_parm.en);
-
+                if (!pj_enfn(par.es, proj_parm.en))
+                    throw proj_exception(0);
                 if (par.es) {
                 // par.inv = e_inverse;
                 // par.fwd = e_forward;

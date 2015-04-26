@@ -222,8 +222,8 @@ namespace boost { namespace geometry { namespace projections
                 boost::ignore_unused(par);
                 boost::ignore_unused(proj_parm);
                 if (par.es) {
-                    pj_enfn(par.es, proj_parm.en);
-            
+                    if (!pj_enfn(par.es, proj_parm.en))
+                        throw proj_exception(0);
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                     proj_parm.esp = par.es / (1. - par.es);
                 // par.inv = e_inverse;

@@ -120,7 +120,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double s2p0, N0, R0, tan0, tan20;
                 boost::ignore_unused(tan20);
-                    pj_enfn(par.es, proj_parm.en);
+                if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);
                 if (par.phi0 == 0.) throw proj_exception(51);
                 proj_parm.l = sin(par.phi0);

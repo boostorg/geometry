@@ -163,7 +163,7 @@ namespace boost { namespace geometry { namespace projections
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.))) {
                     double ml1, m1;
-                    pj_enfn(par.es, proj_parm.en);
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_qsfn(sinphi, par.e, par.one_es);
                     if (secant) { /* secant cone */
