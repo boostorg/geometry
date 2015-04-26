@@ -83,7 +83,6 @@ namespace boost { namespace geometry { namespace projections
                     double coslam, sinphi, cosphi;
 
 
-
                     coslam = cos(lp_lon);
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
@@ -129,7 +128,6 @@ namespace boost { namespace geometry { namespace projections
                     double cosphi, coslam;
 
 
-
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     lp_lon = adjlon(aatan2(cosphi * sin(lp_lon), sin(lp_lat)) + this->m_proj_parm.lamp);
@@ -155,11 +153,10 @@ namespace boost { namespace geometry { namespace projections
             template <typename Geographic, typename Cartesian, typename Parameters>
             double setup_ob_tran(Parameters& par, par_ob_tran<Geographic, Cartesian>& proj_parm, bool create = true)
             {
-                int i;
                 double phip;
-
-
                 Parameters pj;
+                /* get name of projection to be translated */
+                pj.name = pj_param(par.params, "so_proj").s;
                 /* copy existing header into new */
                 par.es = 0.;
              /* force to spherical */
@@ -177,11 +174,10 @@ namespace boost { namespace geometry { namespace projections
                 /* force spherical earth */
                 pj.one_es = pj.rone_es = 1.;
                 pj.es = pj.e = 0.;
-                pj.name = pj_param(par.params, "so_proj").s;
 
-                factory<Geographic, Cartesian, Parameters> fac;
                 if (create)
                 {
+                    factory<Geographic, Cartesian, Parameters> fac;
                     proj_parm.link.reset(fac.create_new(pj));
                     if (! proj_parm.link.get()) throw proj_exception(-26);
                 }
@@ -227,7 +223,6 @@ namespace boost { namespace geometry { namespace projections
                 // par.fwd = t_forward;
                 // par.inv = pj.inv ? t_inverse : 0;
                 }
-                boost::ignore_unused(i);
                 // return phip to choose model
                 return phip;
             }
