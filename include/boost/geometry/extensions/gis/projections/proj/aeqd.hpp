@@ -45,7 +45,6 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/proj_mdist.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
