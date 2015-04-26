@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -185,8 +184,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_nsper& proj_parm) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
                 if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;

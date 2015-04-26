@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -106,8 +105,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_sts& proj_parm, double p, double q, int mode) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 par.es = 0.;
                 // par.inv = s_inverse;
                 // par.fwd = s_forward;
