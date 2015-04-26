@@ -45,8 +45,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 

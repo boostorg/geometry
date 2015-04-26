@@ -38,14 +38,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
