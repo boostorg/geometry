@@ -63,9 +63,6 @@ namespace boost { namespace geometry { namespace projections
                 gauss::GAUSS en;
             };
 
-
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_sterea_ellipsoid : public base_t_fi<base_sterea_ellipsoid<Geographic, Cartesian, Parameters>,

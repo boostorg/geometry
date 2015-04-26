@@ -65,10 +65,6 @@ namespace boost { namespace geometry { namespace projections
                 int        no_cut;    /* do not cut at hemisphere limit */
             };
 
-
-
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_airy_spheroid : public base_t_f<base_airy_spheroid<Geographic, Cartesian, Parameters>,

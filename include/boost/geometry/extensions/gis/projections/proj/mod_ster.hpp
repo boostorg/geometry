@@ -61,7 +61,6 @@ namespace boost { namespace geometry { namespace projections
             };
             /* based upon Snyder and Linck, USGS-NMD */
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_mod_ster_ellipsoid : public base_t_fi<base_mod_ster_ellipsoid<Geographic, Cartesian, Parameters>,

@@ -56,10 +56,6 @@ namespace boost { namespace geometry { namespace projections
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
 
-
-
-
-
                 static COMPLEX
             bf[] = {
                 {.7557853228,    0.0},

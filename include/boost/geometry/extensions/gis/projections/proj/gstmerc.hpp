@@ -63,7 +63,6 @@ namespace boost { namespace geometry { namespace projections
                 double YS;
             };
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_gstmerc_spheroid : public base_t_fi<base_gstmerc_spheroid<Geographic, Cartesian, Parameters>,

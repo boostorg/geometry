@@ -52,9 +52,7 @@ namespace boost { namespace geometry { namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace latlong{
 
-
             /* very loosely based upon DMA code by Bradford W. Drew */
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>

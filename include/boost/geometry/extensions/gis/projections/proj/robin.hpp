@@ -58,8 +58,6 @@ namespace boost { namespace geometry { namespace projections
             static const double ONEEPS = 1.000001;
             static const double EPS = 1e-8;
 
-
-
             struct COEFS {
                 double c0, c1, c2, c3;
             };

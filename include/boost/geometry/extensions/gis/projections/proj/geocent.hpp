@@ -51,10 +51,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace geocent{
 
 
-
-
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_geocent_other : public base_t_fi<base_geocent_other<Geographic, Cartesian, Parameters>,

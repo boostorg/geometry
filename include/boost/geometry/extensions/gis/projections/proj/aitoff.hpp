@@ -57,11 +57,6 @@ namespace boost { namespace geometry { namespace projections
                 int        mode;
             };
 
-
-
-
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_aitoff_spheroid : public base_t_fi<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,

@@ -70,8 +70,6 @@ namespace boost { namespace geometry { namespace projections
                 double one_minus_f;
                 double one_minus_f_squared;
             };
-
-
             /* The six cube faces. */
 
             /* The four areas on a cube face. AREA_0 is the area of definition,

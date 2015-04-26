@@ -54,11 +54,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 double    C_x;
             };
-
-
-
-
-
             /**
                NOTES: According to EPSG the full Krovak projection method should have
                       the following parameters.  Within PROJ.4 the azimuth, and pseudo
@@ -81,9 +76,6 @@ namespace boost { namespace geometry { namespace projections
               y_0 = False Northing of the centre of the projection at the apex of the cone
 
              **/
-
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>

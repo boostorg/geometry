@@ -65,8 +65,6 @@ namespace boost { namespace geometry { namespace projections
                 int no_rot;
             };
 
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_omerc_ellipsoid : public base_t_fi<base_omerc_ellipsoid<Geographic, Cartesian, Parameters>,
