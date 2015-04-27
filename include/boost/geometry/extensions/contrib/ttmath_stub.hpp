@@ -190,15 +190,49 @@ namespace detail
     {
         static inline ttmath::Big<Exponent, Mantissa> apply()
         {
+            static ttmath::Big<Exponent, Mantissa> const half_pi(
+                "1.57079632679489661923132169163975144209858469968755291048747229615390820314310449931401741267105853399107404325664115332354692230477529111586267970406424055872514205135096926055277982231147447746519098");
+            return half_pi;
+        }
+    };
+
+    // Partial specialization for ttmath
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct define_half_pi<ttmath::Big<Exponent, Mantissa> >
+    {
+        static inline ttmath::Big<Exponent, Mantissa> apply()
+        {
             static ttmath::Big<Exponent, Mantissa> const the_pi(
                 "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196");
             return the_pi;
         }
     };
 
+    // Partial specialization for ttmath
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct define_two_pi<ttmath::Big<Exponent, Mantissa> >
+    {
+        static inline ttmath::Big<Exponent, Mantissa> apply()
+        {
+            static ttmath::Big<Exponent, Mantissa> const two_pi(
+                "6.28318530717958647692528676655900576839433879875021164194988918461563281257241799725606965068423413596429617302656461329418768921910116446345071881625696223490056820540387704221111928924589790986076392");
+            return two_pi;
+        }
+    };
+
+    template <>
+    struct define_half_pi<ttmath_big>
+            : public define_half_pi<ttmath::Big<1,4> >
+    {};
+
     template <>
     struct define_pi<ttmath_big>
             : public define_pi<ttmath::Big<1,4> >
+    {};
+
+    template <>
+    struct define_two_pi<ttmath_big>
+            : public define_two_pi<ttmath::Big<1,4> >
     {};
 
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
