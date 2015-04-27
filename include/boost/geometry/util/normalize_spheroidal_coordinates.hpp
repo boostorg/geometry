@@ -32,9 +32,7 @@ struct constants_on_spheroid
 {
     static inline CoordinateType period()
     {
-        static CoordinateType const two_pi
-            = math::pi<CoordinateType>() * CoordinateType(2.0);
-        return two_pi;
+        return math::two_pi<CoordinateType>();
     }
 
     static inline CoordinateType half_period()
@@ -56,15 +54,13 @@ struct constants_on_spheroid
     static inline CoordinateType min_latitude()
     {
         static CoordinateType const minus_half_pi
-            = math::pi<CoordinateType>() / CoordinateType(-2.0);
+            = -math::half_pi<CoordinateType>();
         return minus_half_pi;
     }
 
     static inline CoordinateType max_latitude()
     {
-        static CoordinateType const half_pi
-            = math::pi<CoordinateType>() / CoordinateType(2.0);
-        return half_pi;
+        return math::half_pi<CoordinateType>();
     }
 };
 
