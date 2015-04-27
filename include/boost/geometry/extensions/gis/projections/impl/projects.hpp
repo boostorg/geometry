@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/math/constants/constants.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -177,7 +177,7 @@ public:
 
     proj_exception(int code = 0)
     {
-        boost::ignore_unused_variable_warning(code);
+        boost::ignore_unused(code);
     }
 };
 

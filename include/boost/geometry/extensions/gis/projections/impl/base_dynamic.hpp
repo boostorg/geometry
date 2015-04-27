@@ -11,7 +11,6 @@
 
 #include <string>
 
-#include <boost/concept_check.hpp>
 
 #include <boost/geometry/extensions/gis/projections/projection.hpp>
 
@@ -47,20 +46,13 @@ public:
         m_proj.fwd(lp_lon, lp_lat, xy_x, xy_y);
     }
 
-    virtual bool inverse(XY const& xy, LL& ll) const
+    virtual bool inverse(XY const& , LL& ) const
     {
-        boost::ignore_unused_variable_warning(xy);
-        boost::ignore_unused_variable_warning(ll);
-
         // exception?
         return false;
     }
-    virtual void inv(XY_T& xy_x, XY_T& xy_y, LL_T& lp_lon, LL_T& lp_lat) const
+    virtual void inv(XY_T& , XY_T& , LL_T& , LL_T& ) const
     {
-        boost::ignore_unused_variable_warning(xy_x);
-        boost::ignore_unused_variable_warning(xy_y);
-        boost::ignore_unused_variable_warning(lp_lon);
-        boost::ignore_unused_variable_warning(lp_lat);
         // exception?
     }
 
