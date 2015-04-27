@@ -186,7 +186,7 @@ namespace detail
 
     // Partial specialization for ttmath
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
-    struct define_pi<ttmath::Big<Exponent, Mantissa> >
+    struct define_half_pi<ttmath::Big<Exponent, Mantissa> >
     {
         static inline ttmath::Big<Exponent, Mantissa> apply()
         {
@@ -198,7 +198,7 @@ namespace detail
 
     // Partial specialization for ttmath
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
-    struct define_half_pi<ttmath::Big<Exponent, Mantissa> >
+    struct define_pi<ttmath::Big<Exponent, Mantissa> >
     {
         static inline ttmath::Big<Exponent, Mantissa> apply()
         {
