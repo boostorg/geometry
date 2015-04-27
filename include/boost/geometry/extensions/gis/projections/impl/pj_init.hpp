@@ -71,7 +71,7 @@ namespace detail
 /*      large enough to hold projection specific parameters.            */
 /************************************************************************/
 template <typename R>
-parameters pj_init(R const& arguments, bool use_defaults = true)
+inline parameters pj_init(R const& arguments, bool use_defaults = true)
 {
     parameters pin;
     for (std::vector<std::string>::const_iterator it = boost::begin(arguments);
