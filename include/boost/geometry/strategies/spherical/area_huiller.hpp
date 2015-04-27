@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -113,8 +118,10 @@ public :
             calculation_type const half = 0.5;
             calculation_type const two = 2.0;
             calculation_type const four = 4.0;
-            calculation_type const two_pi = two * geometry::math::pi<calculation_type>();
-            calculation_type const half_pi = half * geometry::math::pi<calculation_type>();
+            calculation_type const two_pi
+                = geometry::math::two_pi<calculation_type>();
+            calculation_type const half_pi
+                = geometry::math::half_pi<calculation_type>();
 
             // Distance p1 p2
             calculation_type a = state.distance_over_unit_sphere.apply(p1, p2);
