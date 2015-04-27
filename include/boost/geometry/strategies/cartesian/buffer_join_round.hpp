@@ -2,6 +2,11 @@
 
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -76,8 +81,7 @@ private :
         PromotedType const dx2 = get<0>(perp2) - get<0>(vertex);
         PromotedType const dy2 = get<1>(perp2) - get<1>(vertex);
 
-        PromotedType const two = 2.0;
-        PromotedType const two_pi = two * geometry::math::pi<PromotedType>();
+        PromotedType const two_pi = geometry::math::two_pi<PromotedType>();
 
         PromotedType const angle1 = atan2(dy1, dx1);
         PromotedType angle2 = atan2(dy2, dx2);
