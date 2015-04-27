@@ -39,10 +39,9 @@ crossing polygons and for polygons with holes. However, some cases (especially
 180 meridian cases) must still be checked.
 \note The version which sums angles, which is often seen, doesn't handle non-convex
 polygons correctly.
-\note The version which sums longitudes, see
-http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
-and works well in most cases but not in 180 meridian crossing cases. This probably
-could be solved.
+\note The version which sums longitudes, see http://hdl.handle.net/2014/40409,
+is simple and works well in most cases but not in 180 meridian crossing cases.
+This probably could be solved.
 
 \note This version is made for spherical equatorial coordinate systems
 
