@@ -177,11 +177,11 @@ public:
             }
         }
 
-        BOOST_ASSERT(!math::larger(constants::min_latitude(), latitude));
-        BOOST_ASSERT(!math::larger(latitude, constants::max_latitude()));
+        BOOST_ASSERT(! math::larger(constants::min_latitude(), latitude));
+        BOOST_ASSERT(! math::larger(latitude, constants::max_latitude()));
 
         BOOST_ASSERT(math::smaller(constants::min_longitude(), longitude));
-        BOOST_ASSERT(!math::larger(longitude, constants::max_longitude()));
+        BOOST_ASSERT(! math::larger(longitude, constants::max_longitude()));
     }
 };
 
