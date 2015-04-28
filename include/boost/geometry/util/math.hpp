@@ -354,7 +354,8 @@ struct modulo<Fundamental, true>
 
 
 /*!
-\brief Short construct to enable partial specialization for PI, currently not possible in Math.
+\brief Short constructs to enable partial specialization for PI, 2*PI
+       and PI/2, currently not possible in Math.
 */
 template <typename T>
 struct define_pi
@@ -363,6 +364,26 @@ struct define_pi
     {
         // Default calls Boost.Math
         return boost::math::constants::pi<T>();
+    }
+};
+
+template <typename T>
+struct define_two_pi
+{
+    static inline T apply()
+    {
+        // Default calls Boost.Math
+        return boost::math::constants::two_pi<T>();
+    }
+};
+
+template <typename T>
+struct define_half_pi
+{
+    static inline T apply()
+    {
+        // Default calls Boost.Math
+        return boost::math::constants::half_pi<T>();
     }
 };
 
@@ -406,6 +427,12 @@ struct round<Result, Source, true, false>
 
 template <typename T>
 inline T pi() { return detail::define_pi<T>::apply(); }
+
+template <typename T>
+inline T two_pi() { return detail::define_two_pi<T>::apply(); }
+
+template <typename T>
+inline T half_pi() { return detail::define_half_pi<T>::apply(); }
 
 template <typename T>
 inline T relaxed_epsilon(T const& factor)
