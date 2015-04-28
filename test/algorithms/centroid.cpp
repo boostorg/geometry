@@ -56,6 +56,15 @@ void test_polygon()
     // should (1.5 1) be returned?
     // if yes, then all other Polygons degenerated to Linestrings should be handled
     test_centroid<Polygon>("POLYGON((1 1,2 1,1 1,1 1))", 1.0, 1.0);
+
+    // reported 2015.04.24
+    // input INT, result FP
+    test_centroid
+        <
+            bg::model::polygon<bg::model::d2::point_xy<int> >,
+            typename bg::point_type<Polygon>::type,
+            typename bg::coordinate_type<Polygon>::type
+        >("POLYGON((1 1, 1 2, 2 2, 2 1, 1 1))", 1.5, 1.5);
 }
 
 
@@ -97,6 +106,23 @@ void test_2d()
 
     test_centroid<bg::model::box<P> >("POLYGON((1 2,3 4))", 2, 3);
     test_centroid<P>("POINT(3 3)", 3, 3);
+
+    // INT -> FP
+    test_centroid
+        <
+            bg::model::ring<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("POLYGON((1 1, 1 2, 2 2, 2 1, 1 1))", 1.5, 1.5);
+    test_centroid
+        <
+            bg::model::linestring<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("LINESTRING(1 1, 2 2)", 1.5, 1.5);
+    test_centroid
+        <
+            bg::model::box<bg::model::d2::point_xy<int> >,
+            P, typename bg::coordinate_type<P>::type
+        >("BOX(1 1, 2 2)", 1.5, 1.5);
 }
 
 

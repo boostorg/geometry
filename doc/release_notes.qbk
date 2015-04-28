@@ -35,6 +35,7 @@
 [*Solved tickets]
 
 * [@https://svn.boost.org/trac/boost/ticket/11113 11113] Support easy enumeration of all elements with BOOST_FOREACH
+* [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
 
 [/=================]
 [heading Boost 1.58]
