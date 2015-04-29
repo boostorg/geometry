@@ -150,6 +150,10 @@ public :
 
             excess = geometry::math::abs(excess);
 
+            // In right direction: positive, add area. In left direction: negative, subtract area.
+            // Longitude comparisons are not so obvious. If one is negative and other is positive,
+            // we have to take the dateline into account.
+
             calculation_type lon_diff = geometry::get_as_radian<0>(p2)
                                       - geometry::get_as_radian<0>(p1);
             if (lon_diff <= 0)
