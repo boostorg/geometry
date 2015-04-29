@@ -323,7 +323,7 @@ namespace boost { namespace geometry { namespace projections
                     break;
                 default:
                     /* should be impossible */
-                    exit(EXIT_FAILURE);
+                    throw proj_exception();
                 };
                 c.x *= Rprime;
                 c.y *= Rprime;
@@ -484,7 +484,7 @@ namespace boost { namespace geometry { namespace projections
                 fprintf(stderr, "impossible transform: %f %f is not on any triangle\n",
                     ll->lon * RAD2DEG, ll->lat * RAD2DEG);
 
-                exit(EXIT_FAILURE);
+                throw proj_exception();
 
                 /* not reached */
                 return 0;        /* supresses a warning */
