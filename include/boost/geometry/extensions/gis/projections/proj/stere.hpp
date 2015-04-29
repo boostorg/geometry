@@ -407,6 +407,29 @@ namespace boost { namespace geometry { namespace projections
         }
     };
 
+    /*!
+        \brief Universal Polar Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+         - south
+        \par Example
+        \image html ex_ups.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct ups_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
+    {
+        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
+        }
+    };
+
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail
     {
