@@ -142,27 +142,27 @@ public :
 
             // E: spherical excess, using l'Huiller's formula
             // [tg(e / 4)]2   =   tg[s / 2]  tg[(s-a) / 2]  tg[(s-b) / 2]  tg[(s-c) / 2]
-            calculation_type E = four
+            calculation_type excess = four
                 * atan(geometry::math::sqrt(geometry::math::abs(tan(s / two)
                     * tan((s - a) / two)
                     * tan((s - b) / two)
                     * tan((s - c) / two))));
 
-            E = geometry::math::abs(E);
+            excess = geometry::math::abs(excess);
 
-            calculation_type lon = geometry::get_as_radian<0>(p2)
-                                 - geometry::get_as_radian<0>(p1);
-            if ( lon <= 0 )
+            calculation_type lon_diff = geometry::get_as_radian<0>(p2)
+                                      - geometry::get_as_radian<0>(p1);
+            if (lon_diff <= 0)
             {
-                lon += two_pi;
+                lon_diff += two_pi;
             }
 
-            if ( lon > pi )
+            if (lon_diff > pi)
             {
-                E = -E;
+                excess = -excess;
             }
 
-            state.sum += E;
+            state.sum += excess;
         }
     }
 
