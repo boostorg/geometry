@@ -53,6 +53,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp> // xy functions after inverse
+#include <boost/geometry/extensions/gis/projections/proj/isea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/laea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/labrd.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/lagrng.hpp>
@@ -175,6 +176,7 @@ public:
         detail::hatano_init(*this);
         detail::krovak_init(*this);
         detail::imw_p_init(*this);
+        detail::isea_init(*this);
         detail::labrd_init(*this);
         detail::laea_init(*this);
         detail::lagrng_init(*this);

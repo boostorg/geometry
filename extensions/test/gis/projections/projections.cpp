@@ -149,6 +149,7 @@ void test_all()
     test_forward<P>("hammer", 4.897000, 52.371000, 370843.923425, 5630047.232233, "+proj=hammer +ellps=WGS84 +units=m");
     test_forward<P>("hatano", 4.897000, 52.371000, 383644.128560, 6290117.704632, "+proj=hatano +ellps=WGS84 +units=m");
     test_forward<P>("imw_p", 4.897000, 52.371000, 318784.808056, 3594184.939568, "+proj=imw_p +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
+    test_forward<P>("isea", 4.897000, 52.371000, -413613.639976, 9218173.701546, "+proj=isea +ellps=WGS84 +units=m");
     test_forward<P>("kav5", 4.897000, 52.371000, 383646.088858, 5997047.888175, "+proj=kav5 +ellps=WGS84 +units=m");
     test_forward<P>("kav7", 4.897000, 52.371000, 407769.043907, 5829913.052335, "+proj=kav7 +ellps=WGS84 +units=m");
     test_forward<P>("krovak", 14.416667, 50.083333, -743286.779768, -1043498.912060, "+proj=krovak +ellps=WGS84 +units=m");
