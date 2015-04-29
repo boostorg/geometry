@@ -12,5 +12,6 @@ test-suite boost-geometry-extensions-gis-projections
     :
     [ run projection.cpp ]
     [ run projections.cpp ]
+    [ run projections_static.cpp ]
     [ run projection_epsg.cpp ]
     ;
