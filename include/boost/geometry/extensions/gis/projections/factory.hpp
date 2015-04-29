@@ -39,6 +39,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/eck5.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqdc.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/etmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fahey.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fouc_s.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gall.hpp>
@@ -162,6 +163,7 @@ public:
         detail::eck5_init(*this);
         detail::eqc_init(*this);
         detail::eqdc_init(*this);
+        detail::etmerc_init(*this);
         detail::fahey_init(*this);
         detail::fouc_s_init(*this);
         detail::gall_init(*this);

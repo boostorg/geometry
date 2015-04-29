@@ -132,6 +132,7 @@ void test_all()
     test_forward<P>("eck6", 4.897000, 52.371000, 342737.885307, 6363364.830847, "+proj=eck6 +ellps=WGS84 +units=m");
     test_forward<P>("eqc", 4.897000, 52.371000, 545131.546415, 5829913.052335, "+proj=eqc +ellps=WGS84 +units=m");
     test_forward<P>("eqdc", 4.897000, 52.371000, 307874.536263, 5810915.646438, "+proj=eqdc +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
+    test_forward<P>("etmerc", 4.897000, 52.371000, 333425.492123, 5815921.814393, "+proj=etmerc +ellps=WGS84 +units=m");
     test_forward<P>("euler", 4.897000, 52.371000, 338753.024859, 5836825.984893, "+proj=euler +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
     test_forward<P>("fahey", 4.897000, 52.371000, 388824.354103, 5705638.873094, "+proj=fahey +ellps=WGS84 +units=m");
     test_forward<P>("fouc", 4.897000, 52.371000, 268017.369817, 6272855.564674, "+proj=fouc +ellps=WGS84 +units=m");
@@ -257,6 +258,7 @@ void test_all()
     test_inverse<P>("eck6", 342737.885307, 6363364.830847, 4.897000, 52.371000, "+proj=eck6 +ellps=WGS84 +units=m");
     test_inverse<P>("eqc", 545131.546415, 5829913.052335, 4.897000, 52.371000, "+proj=eqc +ellps=WGS84 +units=m");
     test_inverse<P>("eqdc", 307874.536263, 5810915.646438, 4.897000, 52.371000, "+proj=eqdc +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
+    test_inverse<P>("etmerc", 333425.492123, 5815921.814393, 4.897000, 52.371000, "+proj=etmerc +ellps=WGS84 +units=m");
     test_inverse<P>("euler", 338753.024859, 5836825.984893, 4.897000, 52.371000, "+proj=euler +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
     test_inverse<P>("fahey", 388824.354103, 5705638.873094, 4.897000, 52.371000, "+proj=fahey +ellps=WGS84 +units=m");
     test_inverse<P>("fouc", 268017.369817, 6272855.564674, 4.897000, 52.371000, "+proj=fouc +ellps=WGS84 +units=m");

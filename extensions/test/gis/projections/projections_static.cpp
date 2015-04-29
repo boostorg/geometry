@@ -40,6 +40,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/eck5.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqdc.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/etmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fahey.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fouc_s.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gall.hpp>
@@ -227,6 +228,7 @@ void test_all()
 
     test_forward<bg::projections::eqc_spheroid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m", 5);
     test_forward<bg::projections::eqdc_ellipsoid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
+    test_forward<bg::projections::etmerc_ellipsoid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m");
     test_forward<bg::projections::euler_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
 
     test_forward<bg::projections::fahey_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 5);
