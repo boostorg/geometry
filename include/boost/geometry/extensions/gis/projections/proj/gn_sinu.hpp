@@ -58,6 +58,7 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 double    m, n, C_x, C_y;
             };
+
             /* Ellipsoidal Sinusoidal only */
 
             // template class, using CRTP to implement forward/inverse

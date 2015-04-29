@@ -57,6 +57,7 @@ namespace boost { namespace geometry { namespace projections
                 double a2, a4, b, c1, c3;
                 double q, t, u, w, p22, sa, ca, xj, rlm, rlm2;
             };
+
             /* based upon Snyder and Linck, USGS-NMD */
             template <typename Parameters>
                 inline void

@@ -59,6 +59,7 @@ namespace boost { namespace geometry { namespace projections
                 double    r0, l, M0;
                 double    C;
             };
+
                 inline double /* func to compute dr */
             fS(double S, double C) {
                     return(S * ( 1. + S * S * C));

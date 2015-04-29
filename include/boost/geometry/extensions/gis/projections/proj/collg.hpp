@@ -51,7 +51,6 @@ namespace boost { namespace geometry { namespace projections
             static const double FYC = 1.77245385090551602729;
             static const double ONEEPS = 1.0000001;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_collg_spheroid : public base_t_fi<base_collg_spheroid<Geographic, Cartesian, Parameters>,

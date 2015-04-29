@@ -67,6 +67,7 @@ namespace boost { namespace geometry { namespace projections
                 double akm1;
                 int    mode;
             };
+
                 inline double
             ssfn_(double phit, double sinphi, double eccen) {
                 sinphi *= eccen;

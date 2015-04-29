@@ -59,6 +59,7 @@ namespace boost { namespace geometry { namespace projections
                 double    cchio, schio;
                 int        n;
             };
+
             /* based upon Snyder and Linck, USGS-NMD */
 
             // template class, using CRTP to implement forward/inverse

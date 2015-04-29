@@ -48,7 +48,6 @@ namespace boost { namespace geometry { namespace projections
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace mill{
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_mill_spheroid : public base_t_fi<base_mill_spheroid<Geographic, Cartesian, Parameters>,

@@ -61,7 +61,6 @@ namespace boost { namespace geometry { namespace projections
             static const double FXC = 0.85;
             static const double RXC = 1.17647058823529411764;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_hatano_spheroid : public base_t_fi<base_hatano_spheroid<Geographic, Cartesian, Parameters>,

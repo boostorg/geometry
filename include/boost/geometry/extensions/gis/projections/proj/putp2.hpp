@@ -55,7 +55,6 @@ namespace boost { namespace geometry { namespace projections
             static const int NITER = 10;
             static const double PI_DIV_3 = 1.0471975511965977;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_putp2_spheroid : public base_t_fi<base_putp2_spheroid<Geographic, Cartesian, Parameters>,

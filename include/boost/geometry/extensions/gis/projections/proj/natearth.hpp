@@ -65,7 +65,6 @@ namespace boost { namespace geometry { namespace projections
             static const double EPS = 1e-11;
             static const double MAX_Y = (0.8707 * 0.52 * PI);
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_natearth_spheroid : public base_t_fi<base_natearth_spheroid<Geographic, Cartesian, Parameters>,

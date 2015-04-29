@@ -69,6 +69,7 @@ namespace boost { namespace geometry { namespace projections
                 XY p;
                 double beta_0, beta_1, beta_2;
             };
+
                 inline VECT /* distance and azimuth from point 1 to point 2 */
             vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
                 VECT v;

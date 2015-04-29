@@ -56,7 +56,6 @@ namespace boost { namespace geometry { namespace projections
             static const double TPISQ = 19.73920880217871723738;
             static const double HPISQ = 4.93480220054467930934;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_vandg_spheroid : public base_t_fi<base_vandg_spheroid<Geographic, Cartesian, Parameters>,

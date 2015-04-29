@@ -52,6 +52,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double    C_x;
             };
+
             /**
                NOTES: According to EPSG the full Krovak projection method should have
                       the following parameters.  Within PROJ.4 the azimuth, and pseudo

@@ -74,6 +74,7 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 int        ellips;
             };
+
             /* determine latitude angle phi-1 */
                 inline double
             phi1_(double qs, double Te, double Tone_es) {

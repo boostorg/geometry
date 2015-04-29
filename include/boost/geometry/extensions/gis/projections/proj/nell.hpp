@@ -51,7 +51,6 @@ namespace boost { namespace geometry { namespace projections
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_nell_spheroid : public base_t_fi<base_nell_spheroid<Geographic, Cartesian, Parameters>,

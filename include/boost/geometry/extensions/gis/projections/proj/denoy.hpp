@@ -53,7 +53,6 @@ namespace boost { namespace geometry { namespace projections
             static const double D1 = 0.9;
             static const double D5 = 0.03;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_denoy_spheroid : public base_t_f<base_denoy_spheroid<Geographic, Cartesian, Parameters>,

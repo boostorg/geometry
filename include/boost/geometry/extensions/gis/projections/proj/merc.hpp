@@ -52,7 +52,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace merc{
             static const double EPS10 = 1.e-10;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_merc_ellipsoid : public base_t_fi<base_merc_ellipsoid<Geographic, Cartesian, Parameters>,

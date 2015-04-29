@@ -50,7 +50,6 @@ namespace boost { namespace geometry { namespace projections
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_vandg4_spheroid : public base_t_f<base_vandg4_spheroid<Geographic, Cartesian, Parameters>,

@@ -58,7 +58,6 @@ namespace boost { namespace geometry { namespace projections
             static const double b23 = -0.0285500;
             static const double b05 = -0.0491032;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_lask_spheroid : public base_t_f<base_lask_spheroid<Geographic, Cartesian, Parameters>,

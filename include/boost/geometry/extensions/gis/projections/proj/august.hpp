@@ -49,7 +49,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace august{
             static const double M = 1.333333333333333;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_august_spheroid : public base_t_f<base_august_spheroid<Geographic, Cartesian, Parameters>,

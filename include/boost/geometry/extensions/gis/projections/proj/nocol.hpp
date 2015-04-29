@@ -49,7 +49,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace nocol{
             static const double EPS = 1e-10;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_nocol_spheroid : public base_t_f<base_nocol_spheroid<Geographic, Cartesian, Parameters>,

@@ -49,7 +49,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace fahey{
             static const double TOL = 1e-6;
 
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_fahey_spheroid : public base_t_fi<base_fahey_spheroid<Geographic, Cartesian, Parameters>,

@@ -60,6 +60,7 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 int    mode; /* = 0, phi_1 and phi_2 != 0, = 1, phi_1 = 0, = -1 phi_2 = 0 */
             };
+
             template <typename Parameters>
                 inline int
             phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {

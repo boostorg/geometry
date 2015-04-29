@@ -68,6 +68,7 @@ namespace boost { namespace geometry { namespace projections
                 double    c1, c2;
                 int        type;
             };
+
             /* get common factors for simple conics */
             template <typename Parameters>
                 inline int
