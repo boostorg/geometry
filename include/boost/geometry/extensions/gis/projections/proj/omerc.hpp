@@ -52,10 +52,6 @@ namespace boost { namespace geometry { namespace projections
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
-                inline double TSFN0(double x)
-                    {return tan(.5 * (HALFPI - (x))); }
-
-
             struct par_omerc
             {
                 double    A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
