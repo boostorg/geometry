@@ -17,7 +17,8 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/relation.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>

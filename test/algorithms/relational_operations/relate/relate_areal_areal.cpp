@@ -238,6 +238,10 @@ void test_polygon_polygon()
                                     || bg::de9im::mask("F***T****"))); // touches()
         BOOST_CHECK(bg::relate(p1, p3, bg::de9im::mask("T*****FF*"))); // contains()
         BOOST_CHECK(bg::relate(p2, p3, bg::de9im::mask("FF*FF****"))); // disjoint()
+
+        BOOST_CHECK(bg::relate(p1, p2, bg::de9im::static_mask<'F','T'>()
+                                    || bg::de9im::static_mask<'F','*','*','T'>()
+                                    || bg::de9im::static_mask<'F','*','*','*','T'>()));
     }
 
     // CCW
