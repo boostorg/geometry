@@ -2,14 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_RELATE_HPP
 #define BOOST_GEOMETRY_TEST_RELATE_HPP
@@ -76,7 +76,7 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& expected2 = std::string())
 {
     {
-        std::string res_str = bgdr::relate<bgdr::matrix9>(geometry1, geometry2);
+        std::string res_str = bg::relation(geometry1, geometry2).str();
         bool ok = matrix_compare(res_str, expected1, expected2);
         BOOST_CHECK_MESSAGE(ok,
             "relate: " << wkt1
@@ -87,7 +87,7 @@ void check_geometry(Geometry1 const& geometry1,
 
     // changed sequence of geometries - transposed result
     {
-        std::string res_str = bgdr::relate(geometry2, geometry1, bgdr::matrix9());
+        std::string res_str = bg::relation(geometry2, geometry1).str();
         std::string expected1_tr = transposed(expected1);
         std::string expected2_tr = transposed(expected2);
         bool ok = matrix_compare(res_str, expected1_tr, expected2_tr);
@@ -101,7 +101,7 @@ void check_geometry(Geometry1 const& geometry1,
     if ( expected2.empty() )
     {
         {
-            bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected1));
+            bool result = bg::relate(geometry1, geometry2, bg::de9im::mask(expected1));
             // TODO: SHOULD BE !interrupted - CHECK THIS!
             BOOST_CHECK_MESSAGE(result, 
                 "relate: " << wkt1
@@ -130,7 +130,7 @@ void check_geometry(Geometry1 const& geometry1,
 
             if ( changed )
             {
-                bool result = bgdr::relate(geometry1, geometry2, bgdr::mask9(expected_interrupt));
+                bool result = bg::relate(geometry1, geometry2, bg::de9im::mask(expected_interrupt));
                 // TODO: SHOULD BE interrupted - CHECK THIS!
                 BOOST_CHECK_MESSAGE(!result,
                     "relate: " << wkt1
