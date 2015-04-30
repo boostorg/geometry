@@ -2,14 +2,14 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_HPP
@@ -104,9 +104,10 @@ struct is_generic<Point1, Point2, point_tag, point_tag>
 
 
 }} // namespace detail::relate
+#endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace detail_dispatch { namespace relate {
+namespace dispatch {
 
 
 template <typename Geometry1,
@@ -185,17 +186,17 @@ struct relate<Areal1, Areal2, Tag1, Tag2, 2, 2, true>
     : detail::relate::areal_areal<Areal1, Areal2>
 {};
 
-
-}} // namespace detail_dispatch::relate
+} // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+#ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
 template <typename Geometry1, typename Geometry2>
 struct interruption_enabled
 {
     static const bool value =
-        detail_dispatch::relate::relate<Geometry1, Geometry2>::interruption_enabled;
+        dispatch::relate<Geometry1, Geometry2>::interruption_enabled;
 };
 
 template <typename Geometry1,
@@ -207,17 +208,17 @@ struct result_handler_type
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, matrix9, false>
+struct result_handler_type<Geometry1, Geometry2, de9im::matrix, false>
 {
-    typedef matrix_handler<matrix9> type;
+    typedef matrix_handler<de9im::matrix> type;
 };
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, mask9, false>
+struct result_handler_type<Geometry1, Geometry2, de9im::mask, false>
 {
     typedef mask_handler
         <
-            mask9,
+            de9im::mask,
             interruption_enabled
                 <
                     Geometry1,
@@ -244,11 +245,17 @@ template <typename Geometry1, typename Geometry2,
           char II, char IB, char IE,
           char BI, char BB, char BE,
           char EI, char EB, char EE>
-struct result_handler_type<Geometry1, Geometry2, static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>, false>
+struct result_handler_type
+    <
+        Geometry1,
+        Geometry2,
+        de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+        false
+    >
 {
     typedef static_mask_handler
         <
-            static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+            de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
             interruption_enabled
                 <
                     Geometry1,
@@ -271,29 +278,68 @@ struct result_handler_type<Geometry1, Geometry2, StaticSequence, true>
         > type;
 };
 
-template <typename MatrixOrMask, typename Geometry1, typename Geometry2>
-inline
-typename result_handler_type
-    <
-        Geometry1,
-        Geometry2,
-        MatrixOrMask
-    >::type::result_type
-relate(Geometry1 const& geometry1,
-       Geometry2 const& geometry2,
-       MatrixOrMask const& matrix_or_mask = MatrixOrMask())
+}} // namespace detail::relate
+#endif // DOXYGEN_NO_DETAIL
+
+/*!
+\brief Calculates the relation between a pair of geometries as defined in DE-9IM.
+\ingroup relate
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\return The DE-9IM matrix expressing the relation between geometries.
+
+\qbk{[include reference/algorithms/relation.qbk]}
+ */
+template <typename Geometry1, typename Geometry2>
+inline de9im::matrix relation(Geometry1 const& geometry1,
+                              Geometry2 const& geometry2)
 {
-    typedef typename result_handler_type
+    typedef typename detail::relate::result_handler_type
         <
             Geometry1,
             Geometry2,
-            MatrixOrMask
+            de9im::matrix
         >::type handler_type;
 
-    handler_type handler(matrix_or_mask);
-    detail_dispatch::relate::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
+    handler_type handler;
+    dispatch::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
     return handler.result();
 }
+
+/*!
+\brief Checks relation between a pair of geometries defined by a mask.
+\ingroup relate
+\tparam Mask An intersection model Mask type.
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param mask An intersection model mask object.
+\return true if the relation is compatible with the mask, false otherwise.
+
+\qbk{[include reference/algorithms/relate.qbk]}
+ */
+template <typename Mask, typename Geometry1, typename Geometry2>
+inline bool relate(Geometry1 const& geometry1,
+                   Geometry2 const& geometry2,
+                   Mask const& mask = Mask())
+{
+    typedef typename detail::relate::result_handler_type
+        <
+            Geometry1,
+            Geometry2,
+            Mask
+        >::type handler_type;
+
+    handler_type handler(mask);
+    dispatch::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
+    return handler.result();
+}
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace relate {
 
 struct implemented_tag {};
 
@@ -313,7 +359,7 @@ struct relate_base
                     boost::is_base_of
                         <
                             nyi::not_implemented_tag,
-                            detail_dispatch::relate::relate<Geometry1, Geometry2>
+                            dispatch::relate<Geometry1, Geometry2>
                         >
                 >,
             not_implemented
@@ -326,8 +372,16 @@ struct relate_base
 {
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2)
     {
-        typedef typename StaticMaskTrait<Geometry1, Geometry2>::type static_mask;
-        return detail::relate::relate<static_mask>(g1, g2);
+        typedef typename detail::relate::result_handler_type
+            <
+                Geometry1,
+                Geometry2,
+                typename StaticMaskTrait<Geometry1, Geometry2>::type
+            >::type handler_type;
+
+        handler_type handler;
+        dispatch::relate<Geometry1, Geometry2>::apply(g1, g2, handler);
+        return handler.result();
     }
 };
 

@@ -1,12 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014 Oracle and/or its affiliates.
+// Copyright (c) 2014-2015 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_STRATEGY_AGNOSTIC_RELATE_HPP
 #define BOOST_GEOMETRY_STRATEGY_AGNOSTIC_RELATE_HPP
@@ -25,7 +25,7 @@ struct relate
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        return detail::relate::relate<StaticMask>(geometry1, geometry2);
+        return geometry::relate<StaticMask>(geometry1, geometry2);
     }
 };
 
