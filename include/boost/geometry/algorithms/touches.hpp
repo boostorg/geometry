@@ -37,7 +37,8 @@
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate_base.hpp>
 
 namespace boost { namespace geometry
 {

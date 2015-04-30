@@ -17,9 +17,12 @@
 #include <algorithm>
 #include <vector>
 
+#include <boost/range/empty.hpp>
+
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
 
 namespace boost { namespace geometry
 {

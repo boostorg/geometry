@@ -14,7 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
+#include <algorithm>
+
 #include <boost/core/ignore_unused.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -23,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/single_geometry.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>

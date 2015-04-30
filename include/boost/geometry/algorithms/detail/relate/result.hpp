@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RESULT_HPP
 
+#include <cstddef>
+
 #include <boost/assert.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/begin.hpp>
@@ -23,7 +25,9 @@
 #include <boost/mpl/next.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry {

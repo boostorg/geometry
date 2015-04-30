@@ -22,6 +22,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 
@@ -194,6 +195,7 @@ operator||(Seq const& ,
 
 } // namespace de9im
 
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace de9im {
 
@@ -344,6 +346,7 @@ struct static_mask_overlaps_type
 
 }} // namespace detail::de9im
 #endif // DOXYGEN_NO_DETAIL
+
 
 }} // namespace boost::geometry
 
