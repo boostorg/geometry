@@ -46,6 +46,7 @@
 #include <boost/geometry/views/reversible_view.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
+#include <boost/geometry/algorithms/detail/relate/de9im.hpp>
 
 #include <boost/geometry/algorithms/detail/relate/point_point.hpp>
 #include <boost/geometry/algorithms/detail/relate/point_geometry.hpp>
@@ -208,17 +209,17 @@ struct result_handler_type
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, de9im::matrix, false>
+struct result_handler_type<Geometry1, Geometry2, geometry::de9im::matrix, false>
 {
-    typedef matrix_handler<de9im::matrix> type;
+    typedef matrix_handler<geometry::de9im::matrix> type;
 };
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, de9im::mask, false>
+struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask, false>
 {
     typedef mask_handler
         <
-            de9im::mask,
+            geometry::de9im::mask,
             interruption_enabled
                 <
                     Geometry1,
@@ -249,13 +250,13 @@ struct result_handler_type
     <
         Geometry1,
         Geometry2,
-        de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+        geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
         false
     >
 {
     typedef static_mask_handler
         <
-            de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
+            geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
             interruption_enabled
                 <
                     Geometry1,

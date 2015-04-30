@@ -21,17 +21,10 @@
 #include <boost/mpl/end.hpp>
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/next.hpp>
-#include <boost/mpl/push_back.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/vector_c.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/util/condition.hpp>
-
-// TEMP - move this header to geometry/detail
-#include <boost/geometry/index/detail/tuples.hpp>
 
 namespace boost { namespace geometry {
 
@@ -46,14 +39,13 @@ enum field { interior = 0, boundary = 1, exterior = 2 };
 // but for safety reasons (STATIC_ASSERT) we should check if parameter D is valid and set() doesn't do that
 // so some additional function could be added, e.g. set_dim()
 
+// --------------- MATRIX ----------------
+
 // matrix
 
 template <std::size_t Height, std::size_t Width = Height>
 class matrix
 {
-    BOOST_STATIC_ASSERT((Width == 2 || Width == 3)
-                      &&(Height == 2 || Height == 3));
-
 public:
     typedef char value_type;
     typedef std::size_t size_type;
@@ -131,26 +123,6 @@ public:
 private:
     char m_array[static_size];
 };
-
-}} // namespace detail::relate
-#endif // DOXYGEN_NO_DETAIL
-
-namespace de9im {
-
-/*!
-\brief DE-9IM model intersection matrix.
-\ingroup relate
-\details This matrix can be used to express spatial relations as defined in
-         Dimensionally Extended 9-Intersection Model.
- */
-class matrix
-    : public detail::relate::matrix<3, 3>
-{};
-
-} // namespace de9im
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
 
 // matrix_handler
 
@@ -240,6 +212,8 @@ private:
     Matrix m_matrix;
 };
 
+// --------------- RUN-TIME MASK ----------------
+
 // run-time mask
 
 template <std::size_t Height, std::size_t Width = Height>
@@ -271,33 +245,6 @@ public:
 private:
     char m_array[static_size];
 };
-
-}} // namespace detail::relate
-#endif // DOXYGEN_NO_DETAIL
-
-namespace de9im {
-
-/*!
-\brief DE-9IM model intersection mask.
-\ingroup relate
-\details This mask can be used to check spatial relations as defined in
-         Dimensionally Extended 9-Intersection Model.
- */
-class mask
-    : public detail::relate::mask<3, 3>
-{
-    typedef detail::relate::mask<3, 3> base_t;
-
-public:
-    inline explicit mask(std::string const& code)
-        : base_t(code.c_str(), code.size())
-    {}
-};
-
-} // namespace de9im
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
 
 // interrupt()
 
@@ -614,12 +561,12 @@ template <typename Mask, bool Interrupt>
 class mask_handler
     : private matrix_handler
         <
-            matrix<matrix_width<Mask>::value>
+            relate::matrix<matrix_width<Mask>::value>
         >
 {
     typedef matrix_handler
         <
-            matrix<matrix_width<Mask>::value>
+            relate::matrix<matrix_width<Mask>::value>
         > base_t;
 
 public:
@@ -680,52 +627,41 @@ private:
     Mask const& m_mask;
 };
 
-}} // namespace detail::relate
-#endif // DOXYGEN_NO_DETAIL
-
-namespace de9im {
+// --------------- COMPILE-TIME MASK ----------------
 
 // static_mask
 
-/*!
-\brief DE-9IM model intersection mask (static version).
-\ingroup relate
-\details This mask can be used to check spatial relations as defined in
-         Dimensionally Extended 9-Intersection Model.
- */
-template <char II = '*', char IB = '*', char IE = '*',
-          char BI = '*', char BB = '*', char BE = '*',
-          char EI = '*', char EB = '*', char EE = '*'>
-class static_mask
+template
+<
+    typename Seq,
+    std::size_t Height,
+    std::size_t Width = Height
+>
+struct static_mask
 {
-    typedef boost::mpl::vector_c
-                <
-                    char, II, IB, IE, BI, BB, BE, EI, EB, EE
-                > vector_type;
+    static const std::size_t static_width = Width;
+    static const std::size_t static_height = Height;
+    static const std::size_t static_size = Width * Height;
 
-public:
+    BOOST_STATIC_ASSERT(boost::mpl::size<Seq>::type::value == static_size);
+    
     template <detail::relate::field F1, detail::relate::field F2>
-    struct get
+    struct static_get
     {
-        BOOST_STATIC_ASSERT(F1 < 3);
-        BOOST_STATIC_ASSERT(F2 < 3);
+        BOOST_STATIC_ASSERT(std::size_t(F1) < static_height);
+        BOOST_STATIC_ASSERT(std::size_t(F2) < static_width);
 
         static const char value
-            = boost::mpl::at_c<vector_type, F1 * 3 + F2>::type::value;
+            = boost::mpl::at_c<Seq, F1 * static_width + F2>::type::value;
     };
 };
-
-} // namespace de9im
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
 
 // static_should_handle_element
 
 template <typename StaticMask, field F1, field F2, bool IsSequence>
 struct static_should_handle_element_dispatch
 {
-    static const char mask_el = StaticMask::template get<F1, F2>::value;
+    static const char mask_el = StaticMask::template static_get<F1, F2>::value;
     static const bool value = mask_el == 'F'
                            || mask_el == 'T'
                            || ( mask_el >= '0' && mask_el <= '9' );
@@ -792,7 +728,7 @@ struct static_interrupt_dispatch
 template <typename StaticMask, char V, field F1, field F2, bool IsSequence>
 struct static_interrupt_dispatch<StaticMask, V, F1, F2, true, IsSequence>
 {
-    static const char mask_el = StaticMask::template get<F1, F2>::value;
+    static const char mask_el = StaticMask::template static_get<F1, F2>::value;
 
     static const bool value
         = ( V >= '0' && V <= '9' ) ? 
@@ -857,7 +793,7 @@ struct static_interrupt
 template <typename StaticMask, char D, field F1, field F2, bool IsSequence>
 struct static_may_update_dispatch
 {
-    static const char mask_el = StaticMask::template get<F1, F2>::value;
+    static const char mask_el = StaticMask::template static_get<F1, F2>::value;
     static const int version
                         = mask_el == 'F' ? 0
                         : mask_el == 'T' ? 1
@@ -983,7 +919,7 @@ struct static_check_dispatch
     template <field F1, field F2>
     struct per_one
     {
-        static const char mask_el = StaticMask::template get<F1, F2>::value;
+        static const char mask_el = StaticMask::template static_get<F1, F2>::value;
         static const int version
                             = mask_el == 'F' ? 0
                             : mask_el == 'T' ? 1
@@ -1179,219 +1115,7 @@ private:
     {}
 };
 
-}} // namespace detail::relate
-#endif // DOXYGEN_NO_DETAIL
-
-// OPERATORS
-
-namespace de9im {
-
-boost::tuples::cons<
-    mask,
-    boost::tuples::cons<mask, boost::tuples::null_type>
->
-operator||(mask const& m1, mask const& m2)
-{
-    namespace bt = boost::tuples;
-
-    return
-    bt::cons<mask, bt::cons<mask, bt::null_type> >
-        ( m1, bt::cons<mask, bt::null_type>(m2, bt::null_type()) );
-}
-
-template <typename Tail> inline
-typename index::detail::tuples::push_back<
-    boost::tuples::cons<mask, Tail>, mask
->::type
-operator||(boost::tuples::cons<mask, Tail> const& t, mask const& m)
-{
-    namespace bt = boost::tuples;
-
-    return
-    index::detail::tuples::push_back<
-        bt::cons<mask, Tail>, mask
-    >::apply(t, m);
-}
-
-template <char II1, char IB1, char IE1, char BI1, char BB1, char BE1, char EI1, char EB1, char EE1,
-          char II2, char IB2, char IE2, char BI2, char BB2, char BE2, char EI2, char EB2, char EE2>
-inline
-boost::mpl::vector<
-    static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1>,
-    static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2>
->
-operator||(static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1> const& ,
-           static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2> const& )
-{
-    return boost::mpl::vector
-            <
-                static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1>,
-                static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2>
-            >();
-}
-
-template <typename Seq, typename T, bool IsSeq = boost::mpl::is_sequence<Seq>::value>
-struct push_back
-{
-    typedef typename boost::mpl::push_back
-                        <
-                            Seq,
-                            T
-                        >::type type;
-};
-
-template <typename Seq, typename T>
-struct push_back<Seq, T, false>
-{};
-
-template <typename Seq, char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE>
-inline typename push_back
-    <
-        Seq,
-        static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
-    >::type
-operator||(Seq const& ,
-           static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE> const& )
-{
-    return typename push_back
-            <
-                Seq,
-                static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
-            >::type();
-}
-
-} // namespace de9im
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
-
-// PREDEFINED MASKS
-
-// TODO:
-// 1. specialize for simplified masks if available
-// e.g. for TOUCHES use 1 mask for A/A
-// 2. Think about dimensions > 2 e.g. should TOUCHES be true
-// if the interior of the Areal overlaps the boundary of the Volumetric
-// like it's true for Linear/Areal
-
-// EQUALS
-template <typename Geometry1, typename Geometry2>
-struct static_mask_equals_type
-{
-    typedef de9im::static_mask<'T', '*', 'F', '*', '*', 'F', 'F', 'F', '*'> type; // wikipedia
-    //typedef de9im::static_mask<'T', 'F', 'F', 'F', 'T', 'F', 'F', 'F', 'T'> type; // OGC
-};
-
-// DISJOINT
-typedef de9im::static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_disjoint;
-
-// TOUCHES - NOT P/P
-template <typename Geometry1,
-          typename Geometry2,
-          std::size_t Dim1 = topological_dimension<Geometry1>::value,
-          std::size_t Dim2 = topological_dimension<Geometry2>::value>
-struct static_mask_touches_impl
-{
-    typedef boost::mpl::vector<
-                de9im::static_mask<'F', 'T', '*', '*', '*', '*', '*', '*', '*'>,
-                de9im::static_mask<'F', '*', '*', 'T', '*', '*', '*', '*', '*'>,
-                de9im::static_mask<'F', '*', '*', '*', 'T', '*', '*', '*', '*'>
-        > type;
-};
-// According to OGC, doesn't apply to P/P
-// Using the above mask the result would be always false
-template <typename Geometry1, typename Geometry2>
-struct static_mask_touches_impl<Geometry1, Geometry2, 0, 0>
-    : not_implemented<typename geometry::tag<Geometry1>::type,
-                      typename geometry::tag<Geometry2>::type>
-{};
-
-template <typename Geometry1, typename Geometry2>
-struct static_mask_touches_type
-    : static_mask_touches_impl<Geometry1, Geometry2>
-{};
-
-// WITHIN
-typedef de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'> static_mask_within;
-
-// COVERED_BY (non OGC)
-typedef boost::mpl::vector<
-            de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'>,
-            de9im::static_mask<'*', 'T', 'F', '*', '*', 'F', '*', '*', '*'>,
-            de9im::static_mask<'*', '*', 'F', 'T', '*', 'F', '*', '*', '*'>,
-            de9im::static_mask<'*', '*', 'F', '*', 'T', 'F', '*', '*', '*'>
-        > static_mask_covered_by;
-
-// CROSSES
-// dim(G1) < dim(G2) - P/L P/A L/A
-template <typename Geometry1,
-          typename Geometry2,
-          std::size_t Dim1 = topological_dimension<Geometry1>::value,
-          std::size_t Dim2 = topological_dimension<Geometry2>::value,
-          bool D1LessD2 = (Dim1 < Dim2)
->
-struct static_mask_crosses_impl
-{
-    typedef de9im::static_mask<'T', '*', 'T', '*', '*', '*', '*', '*', '*'> type;
-};
-// TODO: I'm not sure if this one below should be available!
-// dim(G1) > dim(G2) - L/P A/P A/L
-template <typename Geometry1, typename Geometry2,
-          std::size_t Dim1, std::size_t Dim2
->
-struct static_mask_crosses_impl<Geometry1, Geometry2, Dim1, Dim2, false>
-{
-    typedef de9im::static_mask<'T', '*', '*', '*', '*', '*', 'T', '*', '*'> type;
-};
-// dim(G1) == dim(G2) - P/P A/A
-template <typename Geometry1, typename Geometry2,
-          std::size_t Dim
->
-struct static_mask_crosses_impl<Geometry1, Geometry2, Dim, Dim, false>
-    : not_implemented<typename geometry::tag<Geometry1>::type,
-                      typename geometry::tag<Geometry2>::type>
-{};
-// dim(G1) == 1 && dim(G2) == 1 - L/L
-template <typename Geometry1, typename Geometry2>
-struct static_mask_crosses_impl<Geometry1, Geometry2, 1, 1, false>
-{
-    typedef de9im::static_mask<'0', '*', '*', '*', '*', '*', '*', '*', '*'> type;
-};
-
-template <typename Geometry1, typename Geometry2>
-struct static_mask_crosses_type
-    : static_mask_crosses_impl<Geometry1, Geometry2>
-{};
-
-// OVERLAPS
-
-// dim(G1) != dim(G2) - NOT P/P, L/L, A/A
-template <typename Geometry1,
-          typename Geometry2,
-          std::size_t Dim1 = topological_dimension<Geometry1>::value,
-          std::size_t Dim2 = topological_dimension<Geometry2>::value
->
-struct static_mask_overlaps_impl
-    : not_implemented<typename geometry::tag<Geometry1>::type,
-                      typename geometry::tag<Geometry2>::type>
-{};
-// dim(G1) == D && dim(G2) == D - P/P A/A
-template <typename Geometry1, typename Geometry2, std::size_t Dim>
-struct static_mask_overlaps_impl<Geometry1, Geometry2, Dim, Dim>
-{
-    typedef de9im::static_mask<'T', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
-};
-// dim(G1) == 1 && dim(G2) == 1 - L/L
-template <typename Geometry1, typename Geometry2>
-struct static_mask_overlaps_impl<Geometry1, Geometry2, 1, 1>
-{
-    typedef de9im::static_mask<'1', '*', 'T', '*', '*', '*', 'T', '*', '*'> type;
-};
-
-template <typename Geometry1, typename Geometry2>
-struct static_mask_overlaps_type
-    : static_mask_overlaps_impl<Geometry1, Geometry2>
-{};
+// --------------- UTIL FUNCTIONS ----------------
 
 // set
 
@@ -1426,34 +1150,6 @@ inline void set(Result & res)
 {
     set_dispatch<F1, F2, V, Transpose>::apply(res);
 }
-
-//template <char V, typename Result>
-//inline void set(Result & res)
-//{
-//    res.template set<interior, interior, V>();
-//    res.template set<interior, boundary, V>();
-//    res.template set<interior, exterior, V>();
-//    res.template set<boundary, interior, V>();
-//    res.template set<boundary, boundary, V>();
-//    res.template set<boundary, exterior, V>();
-//    res.template set<exterior, interior, V>();
-//    res.template set<exterior, boundary, V>();
-//    res.template set<exterior, exterior, V>();
-//}
-
-//template <char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE, typename Result>
-//inline void set(Result & res)
-//{
-//    res.template set<interior, interior, II>();
-//    res.template set<interior, boundary, IB>();
-//    res.template set<interior, exterior, IE>();
-//    res.template set<boundary, interior, BI>();
-//    res.template set<boundary, boundary, BB>();
-//    res.template set<boundary, exterior, BE>();
-//    res.template set<exterior, interior, EI>();
-//    res.template set<exterior, boundary, EB>();
-//    res.template set<exterior, exterior, EE>();
-//}
 
 // update
 
@@ -1523,13 +1219,7 @@ inline bool may_update(Result const& res)
     return may_update_result_dispatch<F1, F2, D, Transpose>::apply(res);
 }
 
-//template <typename Result, char II, char IB, char IE, char BI, char BB, char BE, char EI, char EB, char EE>
-//inline Result return_result()
-//{
-//    Result res;
-//    set<II, IB, IE, BI, BB, BE, EI, EB, EE>(res);
-//    return res;
-//}
+// result_dimension
 
 template <typename Geometry>
 struct result_dimension

@@ -151,7 +151,7 @@ template
 struct overlaps
     : detail::relate::relate_base
         <
-            detail::relate::static_mask_overlaps_type,
+            detail::de9im::static_mask_overlaps_type,
             Geometry1,
             Geometry2
         >

@@ -183,7 +183,7 @@ template<typename Geometry1, typename Geometry2>
 struct equals_by_relate
     : detail::relate::relate_base
         <
-            detail::relate::static_mask_equals_type,
+            detail::de9im::static_mask_equals_type,
             Geometry1,
             Geometry2
         >

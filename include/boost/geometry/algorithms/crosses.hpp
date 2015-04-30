@@ -50,7 +50,7 @@ template
 struct crosses
     : detail::relate::relate_base
         <
-            detail::relate::static_mask_crosses_type,
+            detail::de9im::static_mask_crosses_type,
             Geometry1,
             Geometry2
         >

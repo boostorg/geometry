@@ -351,7 +351,7 @@ template <typename Linear1, typename Linear2, typename Tag1, typename Tag2>
 struct touches<Linear1, Linear2, Tag1, Tag2, linear_tag, linear_tag, false>
     : detail::relate::relate_base
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Linear1,
         Linear2
     >
@@ -363,7 +363,7 @@ template <typename Linear, typename Areal, typename Tag1, typename Tag2>
 struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, false>
     : detail::relate::relate_base
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Linear,
         Areal
     >
@@ -374,7 +374,7 @@ template <typename Linear, typename Areal, typename Tag1, typename Tag2>
 struct touches<Linear, Areal, Tag1, Tag2, linear_tag, areal_tag, true>
     : detail::relate::relate_base
     <
-        detail::relate::static_mask_touches_type,
+        detail::de9im::static_mask_touches_type,
         Areal,
         Linear
     >
