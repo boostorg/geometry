@@ -157,7 +157,7 @@ struct relation<
 
 /*!
 \brief Calculates the relation between a pair of geometries as defined in DE-9IM.
-\ingroup relate
+\ingroup relation
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
 \param geometry1 \param_geometry

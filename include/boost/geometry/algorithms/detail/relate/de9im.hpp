@@ -35,7 +35,7 @@ namespace de9im {
 
 /*!
 \brief DE-9IM model intersection matrix.
-\ingroup relate
+\ingroup relation
 \details This matrix can be used to express spatial relations as defined in
          Dimensionally Extended 9-Intersection Model.
  */
