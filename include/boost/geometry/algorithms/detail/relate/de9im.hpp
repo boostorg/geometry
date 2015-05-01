@@ -35,19 +35,64 @@ namespace de9im {
 
 /*!
 \brief DE-9IM model intersection matrix.
-\ingroup relation
+\ingroup de9im
 \details This matrix can be used to express spatial relations as defined in
          Dimensionally Extended 9-Intersection Model.
+
+\qbk{[heading See also]}
+\qbk{* [link geometry.reference.algorithms.relation relation]}
  */
 class matrix
     : public detail::relate::matrix<3, 3>
-{};
+{
+#ifdef DOXYGEN_INVOKED
+public:
+    /*!
+    \brief Initializes all of the matrix elements to F
+     */
+    matrix();
+    /*!
+    \brief Subscript operator
+    \param index The index of the element
+    \return The element
+     */
+    char operator[](std::size_t index) const;
+    /*!
+    \brief Returns the iterator to the first element
+    \return const RandomAccessIterator
+     */
+    const_iterator begin() const;
+    /*!
+    \brief Returns the iterator past the last element
+    \return const RandomAccessIterator
+     */
+    const_iterator end() const;
+    /*!
+    \brief Returns the number of elements
+    \return 9
+     */
+    static std::size_t size();
+    /*!
+    \brief Returns raw pointer to elements
+    \return const pointer to array of elements
+     */
+    inline const char * data() const;
+    /*!
+    \brief Returns std::string containing elements
+    \return string containing elements
+     */
+    inline std::string str() const;
+#endif
+};
 
 /*!
 \brief DE-9IM model intersection mask.
-\ingroup relate
+\ingroup de9im
 \details This mask can be used to check spatial relations as defined in
          Dimensionally Extended 9-Intersection Model.
+
+\qbk{[heading See also]}
+\qbk{* [link geometry.reference.algorithms.relate relate]}
  */
 class mask
     : public detail::relate::mask<3, 3>
@@ -55,6 +100,18 @@ class mask
     typedef detail::relate::mask<3, 3> base_t;
 
 public:
+    /*!
+    \brief The constructor.
+    \param code The mask pattern.
+    */
+    inline explicit mask(const char* code)
+        : base_t(code)
+    {}
+    
+    /*!
+    \brief The constructor.
+    \param code The mask pattern.
+    */
     inline explicit mask(std::string const& code)
         : base_t(code.c_str(), code.size())
     {}
@@ -64,9 +121,21 @@ public:
 
 /*!
 \brief DE-9IM model intersection mask (static version).
-\ingroup relate
+\ingroup de9im
 \details This mask can be used to check spatial relations as defined in
          Dimensionally Extended 9-Intersection Model.
+\tparam II Interior/Interior intersection mask element
+\tparam IB Interior/Boundary intersection mask element
+\tparam IE Interior/Exterior intersection mask element
+\tparam BI Boundary/Interior intersection mask element
+\tparam BB Boundary/Boundary intersection mask element
+\tparam BE Boundary/Exterior intersection mask element
+\tparam EI Exterior/Interior intersection mask element
+\tparam EB Exterior/Boundary intersection mask element
+\tparam EE Exterior/Exterior intersection mask element
+
+\qbk{[heading See also]}
+\qbk{* [link geometry.reference.algorithms.relate relate]}
  */
 template
 <

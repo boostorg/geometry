@@ -53,8 +53,8 @@ class matrix
 public:
     typedef char value_type;
     typedef std::size_t size_type;
-    typedef char * iterator;
     typedef const char * const_iterator;
+    typedef const_iterator iterator;
 
     static const std::size_t static_width = Width;
     static const std::size_t static_height = Height;
@@ -94,17 +94,7 @@ public:
         return m_array;
     }
 
-    inline iterator begin()
-    {
-        return m_array;
-    }
-
     inline const_iterator end() const
-    {
-        return m_array + static_size;
-    }
-
-    inline iterator end()
     {
         return m_array + static_size;
     }
@@ -228,13 +218,24 @@ public:
     static const std::size_t static_height = Height;
     static const std::size_t static_size = Width * Height;
 
+    inline mask(const char * s)
+    {
+        char * it = m_array;
+        char * const last = m_array + static_size;
+        for ( ; it != last && *s != '\0' ; ++it, ++s )
+            *it = *s;
+        if ( it != last )
+            ::memset(it, '*', last - it);
+    }
+
     inline mask(const char * s, std::size_t count)
     {
+        if ( count > static_size )
+            count = static_size;
         if ( count > 0 )
             ::memcpy(m_array, s, count);
-        std::size_t rest = static_size > count ? static_size - count : 0;
-        if ( rest > 0 )
-            ::memset(m_array + count, '*', rest);
+        if ( count < static_size )
+            ::memset(m_array + count, '*', static_size - count);
     }
 
     template <field F1, field F2>

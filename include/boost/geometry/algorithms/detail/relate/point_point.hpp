@@ -168,7 +168,7 @@ struct multipoint_multipoint
         // NlogN + MlogN
         bool all_handled = search<false>(multi_point1, multi_point2, result);
         
-        if ( all_handled || result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(all_handled || result.interrupt) )
             return;
 
         // MlogM + NlogM
