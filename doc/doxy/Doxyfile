@@ -190,6 +190,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
 			../../../../boost/geometry/algorithms/detail/is_valid \
 			../../../../boost/geometry/algorithms/detail/overlay \
 			../../../../boost/geometry/algorithms/detail/relate \
+            ../../../../boost/geometry/algorithms/detail/relation \
 			../../../../boost/geometry/algorithms/detail/sections \
 			../../../../boost/geometry/algorithms/detail/turns \
 			../../../../boost/geometry/algorithms/detail/within \
@@ -315,7 +316,8 @@ PREDEFINED             = BOOST_CONCEPT_REQUIRES(x)= \
                          DOXYGEN_NO_CONCEPT_MEMBERS \
                          DOXYGEN_NO_TRAITS_SPECIALIZATIONS \
                          DOXYGEN_NO_STRATEGY_SPECIALIZATIONS \
-                         DOXYGEN_NO_SPECIALIZATIONS
+                         DOXYGEN_NO_SPECIALIZATIONS \
+                         DOXYGEN_INVOKED
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 

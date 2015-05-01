@@ -55,6 +55,8 @@
 \defgroup projections projections: Projections
 \defgroup ranges ranges: ranges
 \defgroup register register: Macros for registration
+\defgroup relate relate: check spatial relation between two geometries
+\defgroup relation relation: calculate spatial relation between two geometries
 \defgroup reverse reverse: reverse a geometry
 \defgroup selected selection: check if a geometry is "selected" by a point
 \defgroup set set: set geometries
