@@ -70,6 +70,44 @@ std::string matrix_format(std::string const& matrix1, std::string const& matrix2
          + ( !matrix2.empty() ? " || " : "" ) + matrix2;
 }
 
+template <typename M>
+char get_ii(M const& m)
+{
+    using bg::detail::relate::interior;
+    return m.template get<interior, interior>();
+}
+
+template <typename M>
+char get_ee(M const& m)
+{
+    using bg::detail::relate::exterior;
+    return m.template get<exterior, exterior>();
+}
+
+void check_mask()
+{
+    bg::de9im::mask m1("");
+    bg::de9im::mask m2("TTT");
+    bg::de9im::mask m3("000111222");
+    bg::de9im::mask m4("000111222FFFF");
+    bg::de9im::mask m5(std::string(""));
+    bg::de9im::mask m6(std::string("TTT"));
+    bg::de9im::mask m7(std::string("000111222"));
+    bg::de9im::mask m8(std::string("000111222FFFF"));
+
+    using bg::detail::relate::interior;
+    using bg::detail::relate::exterior;
+
+    BOOST_CHECK(get_ii(m1) == '*' && get_ee(m1) == '*');
+    BOOST_CHECK(get_ii(m2) == 'T' && get_ee(m2) == '*');
+    BOOST_CHECK(get_ii(m3) == '0' && get_ee(m3) == '2');
+    BOOST_CHECK(get_ii(m4) == '0' && get_ee(m4) == '2');
+    BOOST_CHECK(get_ii(m5) == '*' && get_ee(m5) == '*');
+    BOOST_CHECK(get_ii(m6) == 'T' && get_ee(m6) == '*');
+    BOOST_CHECK(get_ii(m7) == '0' && get_ee(m7) == '2');
+    BOOST_CHECK(get_ii(m8) == '0' && get_ee(m8) == '2');
+}
+
 template <typename Geometry1, typename Geometry2>
 void check_geometry(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,

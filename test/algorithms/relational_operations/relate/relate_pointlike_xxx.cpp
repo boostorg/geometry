@@ -92,6 +92,8 @@ void test_all()
 
 int test_main( int , char* [] )
 {
+    check_mask();
+
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
 
