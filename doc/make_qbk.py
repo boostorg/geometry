@@ -86,7 +86,7 @@ algorithms = ["append", "assign", "make", "clear"
     , "envelope", "equals", "expand", "for_each", "is_simple", "is_valid"
     , "intersection", "intersects", "length", "num_geometries"
     , "num_interior_rings", "num_points", "num_segments", "overlaps"
-    , "perimeter", "reverse", "simplify", "sym_difference", "touches"
+    , "perimeter", "relate", "relation", "reverse", "simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"

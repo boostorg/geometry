@@ -148,6 +148,10 @@
 [include generated/perimeter.qbk]
 [endsect]
 
+[include generated/relate.qbk]
+
+[include generated/relation.qbk]
+
 [include generated/reverse.qbk]
 
 [section:simplify simplify]
