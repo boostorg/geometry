@@ -16,6 +16,9 @@
 
 
 #include <boost/type_traits/is_same.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -186,6 +189,134 @@ struct result_handler_type<Geometry1, Geometry2, StaticSequence, true>
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
 
+namespace resolve_variant {
+
+template <typename Geometry1, typename Geometry2>
+struct relate
+{
+    template <typename Mask>
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Mask const& mask)
+    {
+        concept::check<Geometry1 const>();
+        concept::check<Geometry2 const>();
+        assert_dimension_equal<Geometry1, Geometry2>();
+
+        typename detail::relate::result_handler_type
+            <
+                Geometry1,
+                Geometry2,
+                Mask
+            >::type handler(mask);
+
+        dispatch::relate
+            <
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, handler);
+
+        return handler.result();
+    }
+};
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct relate<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+{
+    template <typename Mask>
+    struct visitor : boost::static_visitor<bool>
+    {
+        Geometry2 const& m_geometry2;
+        Mask const& m_mask;
+
+        visitor(Geometry2 const& geometry2, Mask const& mask)
+            : m_geometry2(geometry2), m_mask(mask) {}
+
+        template <typename Geometry1>
+        bool operator()(Geometry1 const& geometry1) const
+        {
+            return relate<Geometry1, Geometry2>
+                   ::apply(geometry1, m_geometry2, m_mask);
+        }
+    };
+
+    template <typename Mask>
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2,
+          Mask const& mask)
+    {
+        return boost::apply_visitor(visitor<Mask>(geometry2, mask), geometry1);
+    }
+};
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct relate<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Mask>
+    struct visitor : boost::static_visitor<bool>
+    {
+        Geometry1 const& m_geometry1;
+        Mask const& m_mask;
+
+        visitor(Geometry1 const& geometry1, Mask const& mask)
+            : m_geometry1(geometry1), m_mask(mask) {}
+
+        template <typename Geometry2>
+        bool operator()(Geometry2 const& geometry2) const
+        {
+            return relate<Geometry1, Geometry2>
+                   ::apply(m_geometry1, geometry2, m_mask);
+        }
+    };
+
+    template <typename Mask>
+    static inline bool
+    apply(Geometry1 const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2,
+          Mask const& mask)
+    {
+        return boost::apply_visitor(visitor<Mask>(geometry1, mask), geometry2);
+    }
+};
+
+template <
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct relate<
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+>
+{
+    template <typename Mask>
+    struct visitor : boost::static_visitor<bool>
+    {
+        Mask const& m_mask;
+
+        visitor(Mask const& mask)
+            : m_mask(mask) {}
+
+        template <typename Geometry1, typename Geometry2>
+        bool operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            return relate<Geometry1, Geometry2>
+                   ::apply(geometry1, geometry2, m_mask);
+        }
+    };
+
+    template <typename Mask>
+    static inline bool
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
+          Mask const& mask)
+    {
+        return boost::apply_visitor(visitor<Mask>(mask), geometry1, geometry2);
+    }
+};
+
+} // namespace resolve_variant
 
 /*!
 \brief Checks relation between a pair of geometries defined by a mask.
@@ -205,20 +336,11 @@ inline bool relate(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
                    Mask const& mask = Mask())
 {
-    concept::check<Geometry1 const>();
-    concept::check<Geometry2 const>();
-    assert_dimension_equal<Geometry1, Geometry2>();
-
-    typename detail::relate::result_handler_type
-        <
-            Geometry1,
-            Geometry2,
-            Mask
-        >::type handler(mask);
-
-    dispatch::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler);
-
-    return handler.result();
+    return resolve_variant::relate
+            <
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, mask);
 }
 
 }} // namespace boost::geometry
