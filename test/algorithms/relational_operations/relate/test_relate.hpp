@@ -16,6 +16,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/variant.hpp>
+
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
 #include <boost/geometry/algorithms/relation.hpp>
@@ -76,6 +78,9 @@ void check_geometry(Geometry1 const& geometry1,
                     std::string const& expected1,
                     std::string const& expected2 = std::string())
 {
+    boost::variant<Geometry1> variant1 = geometry1;
+    boost::variant<Geometry2> variant2 = geometry2;
+
     {
         std::string res_str = bg::relation(geometry1, geometry2).str();
         bool ok = matrix_compare(res_str, expected1, expected2);
@@ -84,6 +89,16 @@ void check_geometry(Geometry1 const& geometry1,
             << " and " << wkt2
             << " -> Expected: " << matrix_format(expected1, expected2)
             << " detected: " << res_str);
+
+        // test variants
+        boost::variant<Geometry1> v1 = geometry1;
+        boost::variant<Geometry2> v2 = geometry2;
+        std::string res_str1 = bg::relation(geometry1, variant2).str();
+        std::string res_str2 = bg::relation(variant1, geometry2).str();
+        std::string res_str3 = bg::relation(variant1, variant2).str();
+        BOOST_CHECK(res_str == res_str1);
+        BOOST_CHECK(res_str == res_str2);
+        BOOST_CHECK(res_str == res_str3);
     }
 
     // changed sequence of geometries - transposed result
@@ -108,6 +123,14 @@ void check_geometry(Geometry1 const& geometry1,
                 "relate: " << wkt1
                 << " and " << wkt2
                 << " -> Expected: " << expected1);
+
+            // test variants
+            bool result1 = bg::relate(geometry1, variant2, bg::de9im::mask(expected1));
+            bool result2 = bg::relate(variant1, geometry2, bg::de9im::mask(expected1));
+            bool result3 = bg::relate(variant1, variant2, bg::de9im::mask(expected1));
+            BOOST_CHECK(result == result1);
+            BOOST_CHECK(result == result2);
+            BOOST_CHECK(result == result3);
         }
 
         if ( BOOST_GEOMETRY_CONDITION((
