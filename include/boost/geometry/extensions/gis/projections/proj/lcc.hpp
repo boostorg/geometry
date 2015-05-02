@@ -177,9 +177,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.rho0 = (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
                         proj_parm.c * pow(tan(FORTPI + .5 * par.phi0), -proj_parm.n);
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
-                // par.spc = fac;
             }
 
         }} // namespace detail::lcc

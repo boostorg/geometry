@@ -121,13 +121,9 @@ namespace boost { namespace geometry { namespace projections
                 if (par.es) { /* ellipsoid */
                     if (is_phits)
                         par.k0 = pj_msfn(sin(phits), cos(phits), par.es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else { /* sphere */
                     if (is_phits)
                         par.k0 = cos(phits);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

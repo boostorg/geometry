@@ -100,7 +100,6 @@ namespace boost { namespace geometry { namespace projections
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL) throw proj_exception(-22);
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::lagrng

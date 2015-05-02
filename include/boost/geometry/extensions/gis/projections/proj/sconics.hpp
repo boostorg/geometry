@@ -197,8 +197,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     break;
                 }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0;
             }
 

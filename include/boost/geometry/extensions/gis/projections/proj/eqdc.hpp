@@ -154,9 +154,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.c = proj_parm.phi1 + cos(proj_parm.phi1) / proj_parm.n;
                     proj_parm.rho0 = proj_parm.c - par.phi0;
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
-                // par.spc = fac;
             }
 
         }} // namespace detail::eqdc

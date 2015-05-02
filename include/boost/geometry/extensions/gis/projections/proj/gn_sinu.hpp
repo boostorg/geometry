@@ -149,8 +149,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 par.es = 0;
                 proj_parm.C_x = (proj_parm.C_y = sqrt((proj_parm.m + 1.) / proj_parm.n))/(proj_parm.m + 1.);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 
@@ -173,8 +171,6 @@ namespace boost { namespace geometry { namespace projections
                 if (!pj_enfn(par.es, proj_parm.en))
                     throw proj_exception(0);
                 if (par.es) {
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.n = 1.;
                     proj_parm.m = 0.;

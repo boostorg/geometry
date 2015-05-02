@@ -297,8 +297,6 @@ namespace boost { namespace geometry { namespace projections
                 /* Origin northing minus true northing at the origin latitude */
                 /* i.e. true northing = N - proj_parm.Zb                         */
                 proj_parm.Zb  = - proj_parm.Qn*(Z + clens(proj_parm.gtu, PROJ_ETMERC_ORDER, 2*Z));
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::etmerc

@@ -183,7 +183,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);
                 proj_parm.p.x = proj_parm.c[2].p.x = proj_parm.c[0].p.x + proj_parm.c[2].v.r * cos(proj_parm.beta_0);
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::chamb

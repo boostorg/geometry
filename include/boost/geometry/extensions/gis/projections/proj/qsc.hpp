@@ -382,8 +382,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_qsc(Parameters& par, par_qsc& proj_parm)
             {
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                     /* Determine the cube face from the center of projection. */
                     if (par.phi0 >= HALFPI - FORTPI / 2.0) {
                         proj_parm.face = FACE_TOP;

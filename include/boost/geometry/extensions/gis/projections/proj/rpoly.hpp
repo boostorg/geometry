@@ -100,7 +100,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::rpoly

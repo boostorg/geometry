@@ -131,8 +131,6 @@ namespace boost { namespace geometry { namespace projections
                     log(tan(FORTPI + 0.5 * par.phi0)) - proj_parm.hlf_e *
                     log((1. + sp) / (1. - sp)));
                 proj_parm.kR = par.k0 * sqrt(par.one_es) / (1. - sp * sp);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::somerc

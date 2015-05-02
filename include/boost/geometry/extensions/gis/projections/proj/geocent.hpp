@@ -82,8 +82,6 @@ namespace boost { namespace geometry { namespace projections
                 par.is_geocent = 1;
                 par.x0 = 0.0;
                 par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
         }} // namespace detail::geocent

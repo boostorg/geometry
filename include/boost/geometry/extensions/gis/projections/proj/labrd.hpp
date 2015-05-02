@@ -173,8 +173,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.Cb *= sin(t);
                 proj_parm.Cc = 3. * (proj_parm.Ca * proj_parm.Ca - proj_parm.Cb * proj_parm.Cb);
                 proj_parm.Cd = 6. * proj_parm.Ca * proj_parm.Cb;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::labrd

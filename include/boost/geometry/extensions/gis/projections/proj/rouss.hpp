@@ -154,8 +154,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.D9 = R_R0_4 * t * (-21. + t2 * (178. - t2 * 26.))/720.;
                 proj_parm.D10 = R_R0_4 * t * (29. + t2 * (86. + t2 * 48.))/(96. * N0);
                 proj_parm.D11 = R_R0_4 * t * (37. + t2 * 44.)/(96. * N0);
-                // par.fwd = e_forward;
-                // par.inv = e_inverse;
             }
 
         }} // namespace detail::rouss

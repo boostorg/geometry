@@ -92,8 +92,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);
                 par.es = 0.;
-                // par.inv = 0;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::urm5

@@ -111,8 +111,6 @@ namespace boost { namespace geometry { namespace projections
                     throw proj_exception(-99);
                 proj_parm.n1 = 1. - proj_parm.n;
                 par.es = 0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::fouc_s

@@ -121,8 +121,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.sinc0 = sin(proj_parm.phic0);
                 proj_parm.cosc0 = cos(proj_parm.phic0);
                 proj_parm.R2 = 2. * R;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::sterea

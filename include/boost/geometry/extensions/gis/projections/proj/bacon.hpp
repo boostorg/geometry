@@ -95,7 +95,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 proj_parm.bacn = proj_parm.ortl = 0;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
             // Ortelius Oval
@@ -105,7 +104,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.bacn = 0;
                 proj_parm.ortl = 1;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
             // Bacon Globular
@@ -115,7 +113,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.bacn = 1;
                 proj_parm.ortl = 0;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::bacon

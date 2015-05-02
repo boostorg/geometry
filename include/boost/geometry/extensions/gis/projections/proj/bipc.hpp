@@ -197,8 +197,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_bipc(Parameters& par, par_bipc& proj_parm)
             {
                 proj_parm.noskew = pj_param(par.params, "bns").i;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

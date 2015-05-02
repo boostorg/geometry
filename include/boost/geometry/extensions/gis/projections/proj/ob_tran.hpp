@@ -216,11 +216,7 @@ namespace boost { namespace geometry { namespace projections
                 if (fabs(phip) > TOL) { /* oblique */
                     proj_parm.cphip = cos(phip);
                     proj_parm.sphip = sin(phip);
-                // par.fwd = o_forward;
-                // par.inv = pj.inv ? o_inverse : 0;
                 } else { /* transverse */
-                // par.fwd = t_forward;
-                // par.inv = pj.inv ? t_inverse : 0;
                 }
                 // return phip to choose model
                 return phip;

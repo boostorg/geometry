@@ -87,8 +87,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_ts").f);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::wink1

@@ -85,7 +85,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_tcc(Parameters& par, par_tcc& proj_parm)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::tcc

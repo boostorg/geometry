@@ -199,8 +199,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rp = 1. / proj_parm.p;
                 proj_parm.h = 1. / proj_parm.pn1;
                 proj_parm.pfact = (proj_parm.p + 1.) * proj_parm.h;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

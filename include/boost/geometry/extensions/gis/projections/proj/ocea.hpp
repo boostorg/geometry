@@ -130,8 +130,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);
                 proj_parm.singam = sin(proj_parm.singam);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

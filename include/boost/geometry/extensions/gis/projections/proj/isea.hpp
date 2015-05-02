@@ -1033,7 +1033,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_isea(Parameters& par, par_isea& proj_parm)
             {
                 std::string opt;
-                // par.fwd = s_forward;
+
                     isea_grid_init(&proj_parm.dgg);
                     proj_parm.dgg.output = ISEA_PLANE;
             /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */

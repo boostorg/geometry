@@ -289,8 +289,6 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.cosX1 = cos(X);
                         break;
                     }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     switch (proj_parm.mode) {
                     case OBLIQ:
@@ -306,8 +304,6 @@ namespace boost { namespace geometry { namespace projections
                            2. * par.k0 ;
                         break;
                     }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

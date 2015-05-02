@@ -105,8 +105,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_vandg2(Parameters& par, par_vandg2& proj_parm)
             {
                 proj_parm.vdg3 = 0;
-                // par.inv = 0;
-                // par.fwd = s_forward;
             }
 
             // van der Grinten III
@@ -115,7 +113,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 proj_parm.vdg3 = 1;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::vandg2

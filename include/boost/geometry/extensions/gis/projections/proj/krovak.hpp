@@ -260,8 +260,6 @@ namespace boost { namespace geometry { namespace projections
                 if (!pj_param(par.params, "tk").i)
                         par.k0 = 0.9999;
                 /* always the same */
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::krovak

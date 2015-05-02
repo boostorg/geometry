@@ -142,8 +142,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rhshz0 = .5 / sin(proj_parm.hz0);
                 proj_parm.r2z0 = 0.5 / proj_parm.z02;
                 proj_parm.z02 *= proj_parm.z02;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

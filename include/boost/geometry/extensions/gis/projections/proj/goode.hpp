@@ -102,8 +102,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_goode(Parameters& par, par_goode<Geographic, Cartesian, Parameters>& proj_parm)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
-                // par.inv = s_inverse;
             }
 
         }} // namespace detail::goode

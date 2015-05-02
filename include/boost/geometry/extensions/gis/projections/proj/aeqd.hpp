@@ -313,14 +313,10 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.cosph0 = cos(par.phi0);
                 }
                 if (! par.es) {
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 } else {
                     if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     if (pj_param(par.params, "bguam").i) {
                         proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
-                // par.inv = e_guam_inv;
-                // par.fwd = e_guam_fwd;
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
@@ -331,15 +327,11 @@ namespace boost { namespace geometry { namespace projections
                             break;
                         case EQUIT:
                         case OBLIQ:
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                             proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
                             proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
                             proj_parm.He *= proj_parm.cosph0;
                             break;
                         }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                     }
                 }
             }

@@ -238,8 +238,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.b /= 30.;
                 proj_parm.c1 /= 15.;
                 proj_parm.c3 /= 45.;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::lsat

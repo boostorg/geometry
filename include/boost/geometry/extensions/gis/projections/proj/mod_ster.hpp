@@ -159,8 +159,6 @@ namespace boost { namespace geometry { namespace projections
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);
                 proj_parm.cchio = cos(chio);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
 

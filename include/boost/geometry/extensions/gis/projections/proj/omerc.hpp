@@ -242,8 +242,6 @@ namespace boost { namespace geometry { namespace projections
                 F = 0.5 * gamma0;
                 proj_parm.v_pole_n = proj_parm.ArB * log(tan(FORTPI - F));
                 proj_parm.v_pole_s = proj_parm.ArB * log(tan(FORTPI + F));
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::omerc

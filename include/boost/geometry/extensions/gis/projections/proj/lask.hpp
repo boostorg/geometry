@@ -88,8 +88,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_lask(Parameters& par)
             {
-                // par.fwd = s_forward;
-                // par.inv = 0;
                 par.es = 0.;
             }
 

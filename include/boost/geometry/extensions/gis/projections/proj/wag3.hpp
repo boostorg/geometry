@@ -90,8 +90,6 @@ namespace boost { namespace geometry { namespace projections
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::wag3

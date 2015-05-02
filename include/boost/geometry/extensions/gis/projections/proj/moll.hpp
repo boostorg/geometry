@@ -110,8 +110,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.C_x = 2. * r / PI;
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 
@@ -137,8 +135,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.C_x = 0.90977;
                 proj_parm.C_y = 1.65014;
                 proj_parm.C_p = 3.00896;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::moll

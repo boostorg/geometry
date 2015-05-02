@@ -221,13 +221,9 @@ namespace boost { namespace geometry { namespace projections
                         throw proj_exception(0);
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                     proj_parm.esp = par.es / (1. - par.es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.esp = par.k0;
                     proj_parm.ml0 = .5 * proj_parm.esp;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

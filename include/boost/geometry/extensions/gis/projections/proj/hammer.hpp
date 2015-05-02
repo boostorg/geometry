@@ -94,7 +94,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rm = 1. / proj_parm.m;
                 proj_parm.m /= proj_parm.w;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::hammer

@@ -91,8 +91,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 proj_parm.C_y = Cy / proj_parm.n;
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 

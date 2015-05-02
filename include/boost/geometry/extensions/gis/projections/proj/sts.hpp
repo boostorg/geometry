@@ -106,8 +106,6 @@ namespace boost { namespace geometry { namespace projections
             void setup(Parameters& par, par_sts& proj_parm, double p, double q, int mode) 
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 proj_parm.C_x = q / p;
                 proj_parm.C_y = p;
                 proj_parm.C_p = 1/ q;

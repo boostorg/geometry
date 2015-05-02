@@ -134,11 +134,7 @@ namespace boost { namespace geometry { namespace projections
                     par.e = sqrt(par.es);
                     if (!pj_authset(par.es, proj_parm.apa)) throw proj_exception(0);
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

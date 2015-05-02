@@ -137,8 +137,6 @@ namespace boost { namespace geometry { namespace projections
                 par.phi0 = DEG_TO_RAD * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::nzmg

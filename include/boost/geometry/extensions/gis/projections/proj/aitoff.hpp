@@ -169,8 +169,6 @@ namespace boost { namespace geometry { namespace projections
             void setup(Parameters& par, par_aitoff& proj_parm) 
             {
                 boost::ignore_unused(proj_parm);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

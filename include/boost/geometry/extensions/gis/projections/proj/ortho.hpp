@@ -159,8 +159,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.cosph0 = cos(par.phi0);
                 } else
                     proj_parm.mode = EQUIT;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

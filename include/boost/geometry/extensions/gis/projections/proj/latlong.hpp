@@ -86,8 +86,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -97,8 +95,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -108,8 +104,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -119,8 +113,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
         }} // namespace detail::latlong

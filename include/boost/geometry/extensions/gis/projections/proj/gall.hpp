@@ -84,8 +84,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_gall(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::gall

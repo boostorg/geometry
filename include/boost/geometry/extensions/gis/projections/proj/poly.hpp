@@ -178,12 +178,8 @@ namespace boost { namespace geometry { namespace projections
                 if (par.es) {
                     if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.ml0 = -par.phi0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

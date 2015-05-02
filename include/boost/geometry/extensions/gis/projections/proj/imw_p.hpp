@@ -222,8 +222,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.Q = (y2 - y1) * t;
                 proj_parm.Pp = (m2 * x1 - m1 * x2) * t;
                 proj_parm.Qp = (x2 - x1) * t;
-                // par.fwd = e_forward;
-                // par.inv = e_inverse;
             }
 
         }} // namespace detail::imw_p

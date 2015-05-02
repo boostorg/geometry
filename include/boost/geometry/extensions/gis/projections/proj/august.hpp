@@ -81,8 +81,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_august(Parameters& par)
             {
-                // par.inv = 0;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

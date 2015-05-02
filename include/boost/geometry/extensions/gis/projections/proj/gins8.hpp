@@ -81,8 +81,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_gins8(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = 0;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::gins8

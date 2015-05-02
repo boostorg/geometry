@@ -91,8 +91,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_tcea(Parameters& par, par_tcea& proj_parm)
             {
                 proj_parm.rk0 = 1 / par.k0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

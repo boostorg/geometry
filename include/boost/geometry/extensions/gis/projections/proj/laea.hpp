@@ -302,15 +302,11 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.xmf *= proj_parm.dd;
                         break;
                     }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     if (proj_parm.mode == OBLIQ) {
                         proj_parm.sinb1 = sin(par.phi0);
                         proj_parm.cosb1 = cos(par.phi0);
                     }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

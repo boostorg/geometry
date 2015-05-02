@@ -74,8 +74,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_larr(Parameters& par)
             {
-                // par.fwd = s_forward;
-                // par.inv = 0;
                 par.es = 0.;
             }
 

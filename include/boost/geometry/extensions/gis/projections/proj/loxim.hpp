@@ -106,8 +106,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if ((proj_parm.cosphi1 = cos(proj_parm.phi1)) < EPS) throw proj_exception(-22);
                 proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

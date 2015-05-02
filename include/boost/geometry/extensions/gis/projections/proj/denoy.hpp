@@ -82,7 +82,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_denoy(Parameters& par)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::denoy

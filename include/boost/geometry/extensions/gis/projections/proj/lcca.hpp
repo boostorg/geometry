@@ -133,8 +133,6 @@ namespace boost { namespace geometry { namespace projections
                 tan20 = tan0 * tan0;
                 proj_parm.r0 = N0 / tan0;
                 proj_parm.C = 1. / (6. * R0 * N0);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 boost::ignore_unused(tan20);
             }
 

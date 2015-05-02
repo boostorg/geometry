@@ -105,7 +105,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_vandg4(Parameters& par)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::vandg4
