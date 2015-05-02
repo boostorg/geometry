@@ -72,8 +72,6 @@ namespace boost { namespace geometry { namespace projections
 
             #define DOWNTRI(tri) (((tri - 1) / 5) % 2 == 1)
 
-
-
             struct hex {
                     int iso;
                     int x, y, z;
@@ -1025,7 +1023,6 @@ namespace boost { namespace geometry { namespace projections
 
                     xy_x = out.x;
                     xy_y = out.y;
-
                 }
             };
 

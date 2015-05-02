@@ -116,7 +116,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_sterea(Parameters& par, par_sterea& proj_parm)
             {
-
                 double R;
 
                 proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
