@@ -148,6 +148,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_bonne(Parameters& par, par_bonne& proj_parm)
             {
                 double c;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if (fabs(proj_parm.phi1) < EPS10) throw proj_exception(-23);
                 if (par.es) {

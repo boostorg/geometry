@@ -155,6 +155,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_labrd(Parameters& par, par_labrd& proj_parm)
             {
                 double Az, sinp, R, N, t;
+
                 proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
                 Az = pj_param(par.params, "razi").f;
                 sinp = sin(par.phi0);

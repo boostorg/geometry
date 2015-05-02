@@ -144,6 +144,7 @@ namespace boost { namespace geometry { namespace projections
                 double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
                     gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c;
                 int alp, gam, no_off = 0;
+
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
                     if ((alp = pj_param(par.params, "talpha").i) != 0)
                     alpha_c = pj_param(par.params, "ralpha").f;

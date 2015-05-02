@@ -107,6 +107,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_ocea(Parameters& par, par_ocea& proj_parm)
             {
                 double phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
+
                 proj_parm.rok = par.a / par.k0;
                 proj_parm.rtk = par.a * par.k0;
                 if ( pj_param(par.params, "talpha").i) {

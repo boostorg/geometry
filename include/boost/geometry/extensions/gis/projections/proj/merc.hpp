@@ -114,6 +114,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double phits=0.0;
                 int is_phits;
+
                 if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
                     phits = fabs(pj_param(par.params, "rlat_ts").f);
                     if (phits >= HALFPI) throw proj_exception(-24);

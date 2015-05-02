@@ -155,6 +155,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double phip;
                 Parameters pj;
+
                 /* get name of projection to be translated */
                 pj.name = pj_param(par.params, "so_proj").s;
                 /* copy existing header into new */
@@ -182,6 +183,7 @@ namespace boost { namespace geometry { namespace projections
                 }
                 if (pj_param(par.params, "to_alpha").i) {
                     double lamc, phic, alpha;
+
                     lamc    = pj_param(par.params, "ro_lon_c").f;
                     phic    = pj_param(par.params, "ro_lat_c").f;
                     alpha    = pj_param(par.params, "ro_alpha").f;
@@ -199,6 +201,7 @@ namespace boost { namespace geometry { namespace projections
                     phip = pj_param(par.params, "ro_lat_p").f;
                 } else { /* specified new "equator" points */
                     double lam1, lam2, phi1, phi2, con;
+
                     lam1 = pj_param(par.params, "ro_lon_1").f;
                     phi1 = pj_param(par.params, "ro_lat_1").f;
                     lam2 = pj_param(par.params, "ro_lon_2").f;

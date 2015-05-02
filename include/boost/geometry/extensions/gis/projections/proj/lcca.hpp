@@ -120,6 +120,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_lcca(Parameters& par, par_lcca& proj_parm)
             {
                 double s2p0, N0, R0, tan0, tan20;
+
                 if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);
                 if (par.phi0 == 0.) throw proj_exception(51);

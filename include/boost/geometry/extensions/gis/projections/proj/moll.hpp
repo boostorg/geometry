@@ -104,6 +104,7 @@ namespace boost { namespace geometry { namespace projections
             void setup(Parameters& par, par_moll& proj_parm, double p) 
             {
                 double r, sp, p2 = p + p;
+
                 par.es = 0;
                 sp = sin(p);
                 r = sqrt(TWOPI * sp / (p2 + sin(p2)));

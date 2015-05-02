@@ -257,6 +257,7 @@ namespace boost { namespace geometry { namespace projections
             void setup(Parameters& par, par_stere& proj_parm)  /* general initialization */
             {
                 double t;
+
                 if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else
@@ -264,6 +265,7 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.phits = fabs(proj_parm.phits);
                 if (par.es) {
                     double X;
+
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:

@@ -198,6 +198,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 int land, path;
                 double lam, alf, esc, ess;
+
                 land = pj_param(par.params, "ilsat").i;
                 if (land <= 0 || land > 5) throw proj_exception(-28);
                 path = pj_param(par.params, "ipath").i;

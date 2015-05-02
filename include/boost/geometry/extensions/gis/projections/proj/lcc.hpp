@@ -143,6 +143,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double cosphi, sinphi;
                 int secant;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if (pj_param(par.params, "tlat_2").i)
                     proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
@@ -157,6 +158,7 @@ namespace boost { namespace geometry { namespace projections
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es != 0.)) ) {
                     double ml1, m1;
+
                     par.e = sqrt(par.es);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_tsfn(proj_parm.phi1, sinphi, par.e);

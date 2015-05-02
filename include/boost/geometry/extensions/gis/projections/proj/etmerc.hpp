@@ -262,6 +262,7 @@ namespace boost { namespace geometry { namespace projections
                 np     *= n;
                 proj_parm.cgb[5] = np*(601676/22275.0 );
                 proj_parm.cbg[5] = np*(444337/155925.0);
+
                 /* Constants of the projections */
                 /* Transverse Mercator (UTM, ITM, etc) */
                 np = n*n;

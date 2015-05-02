@@ -94,6 +94,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_lagrng(Parameters& par, par_lagrng& proj_parm)
             {
                 double phi1;
+
                 if ((proj_parm.rw = pj_param(par.params, "dW").f) <= 0) throw proj_exception(-27);
                 proj_parm.hrw = 0.5 * (proj_parm.rw = 1. / proj_parm.rw);
                 phi1 = pj_param(par.params, "rlat_1").f;

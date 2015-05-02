@@ -181,6 +181,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int i;
+
                 if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if( (i = phi12(par, proj_parm, &del, &sig)) != 0)
                     throw proj_exception(i);

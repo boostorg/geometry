@@ -152,6 +152,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_y *= -1.0;
                         xy_x *= -1.0;
                       }
+
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
@@ -233,6 +234,7 @@ namespace boost { namespace geometry { namespace projections
                    while (ok==0);
 
                    lp_lon -= this->m_par.lam0;
+
                 }
             };
 
@@ -243,22 +245,28 @@ namespace boost { namespace geometry { namespace projections
                 double ts;
                 /* read some Parameters,
                  * here Latitude Truescale */
+
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = ts;
+
                 /* we want Bessel as fixed ellipsoid */
                 par.a = 6377397.155;
                 par.e = sqrt(par.es = 0.006674372230614);
+
                     /* if latitude of projection center is not set, use 49d30'N */
                 if (!pj_param(par.params, "tlat_0").i)
                         par.phi0 = 0.863937979737193;
+
                     /* if center long is not set use 42d30'E of Ferro - 17d40' for Ferro */
                     /* that will correspond to using longitudes relative to greenwich    */
                     /* as input and output, instead of lat/long relative to Ferro */
                 if (!pj_param(par.params, "tlon_0").i)
                         par.lam0 = 0.7417649320975901 - 0.308341501185665;
+
                     /* if scale not set default to 0.9999 */
                 if (!pj_param(par.params, "tk").i)
                         par.k0 = 0.9999;
+
                 /* always the same */
             }
 

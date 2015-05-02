@@ -129,6 +129,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_airy(Parameters& par, par_airy& proj_parm)
             {
                 double beta;
+
                 proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
                 beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
                 if (fabs(beta) < EPS)

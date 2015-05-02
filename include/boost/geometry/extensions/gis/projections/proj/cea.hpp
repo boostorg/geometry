@@ -125,6 +125,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_cea(Parameters& par, par_cea& proj_parm)
             {
                 double t = 0;
+
                 if (pj_param(par.params, "tlat_ts").i &&
                     (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.)
                   throw proj_exception(-24);

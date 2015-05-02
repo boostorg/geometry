@@ -216,6 +216,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_tpers(Parameters& par, par_nsper& proj_parm)
             {
                 double omega, gamma;
+
                 omega = pj_param(par.params, "dtilt").f * DEG_TO_RAD;
                 gamma = pj_param(par.params, "dazi").f * DEG_TO_RAD;
                 proj_parm.tilt = 1;

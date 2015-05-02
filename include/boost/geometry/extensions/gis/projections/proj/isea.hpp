@@ -1025,6 +1025,7 @@ namespace boost { namespace geometry { namespace projections
 
                     xy_x = out.x;
                     xy_y = out.y;
+
                 }
             };
 
@@ -1035,6 +1036,7 @@ namespace boost { namespace geometry { namespace projections
                 std::string opt;
 
                     isea_grid_init(&proj_parm.dgg);
+
                     proj_parm.dgg.output = ISEA_PLANE;
             /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
                 /* calling library will scale, I think */
@@ -1049,21 +1051,27 @@ namespace boost { namespace geometry { namespace projections
                         throw proj_exception(-34);
                     }
                 }
+
                 if (pj_param(par.params, "tazi").i) {
                     proj_parm.dgg.o_az = pj_param(par.params, "razi").f;
                 }
+
                 if (pj_param(par.params, "tlon_0").i) {
                     proj_parm.dgg.o_lon = pj_param(par.params, "rlon_0").f;
                 }
+
                 if (pj_param(par.params, "tlat_0").i) {
                     proj_parm.dgg.o_lat = pj_param(par.params, "rlat_0").f;
                 }
+
                 if (pj_param(par.params, "taperture").i) {
                     proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
                 }
+
                 if (pj_param(par.params, "tresolution").i) {
                     proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
                 }
+
                 opt = pj_param(par.params, "smode").s;
                 if (! opt.empty()) {
                     if (opt == std::string("plane")) {
@@ -1082,14 +1090,17 @@ namespace boost { namespace geometry { namespace projections
                         throw proj_exception(-34);
                     }
                 }
+
                 if (pj_param(par.params, "trescale").i) {
                     proj_parm.dgg.radius = ISEA_SCALE;
                 }
+
                 if (pj_param(par.params, "tresolution").i) {
                     proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
                 } else {
                     proj_parm.dgg.resolution = 4;
                 }
+
                 if (pj_param(par.params, "taperture").i) {
                     proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
                 } else {

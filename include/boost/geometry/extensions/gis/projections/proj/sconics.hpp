@@ -153,6 +153,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double del, cs;
                 int i;
+
                 if( (i = phi12(par, proj_parm, &del)) )
                     throw proj_exception(i);
                 switch (proj_parm.type) {

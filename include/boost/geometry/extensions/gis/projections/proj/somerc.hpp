@@ -120,6 +120,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_somerc(Parameters& par, par_somerc& proj_parm)
             {
                 double cp, phip0, sp;
+
                 proj_parm.hlf_e = 0.5 * par.e;
                 cp = cos(par.phi0);
                 cp *= cp;

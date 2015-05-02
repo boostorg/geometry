@@ -87,6 +87,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_wag3(Parameters& par, par_wag3& proj_parm)
             {
                 double ts;
+
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;

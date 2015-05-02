@@ -114,6 +114,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_tpeqd(Parameters& par, par_tpeqd& proj_parm)
             {
                 double lam_1, lam_2, phi_1, phi_2, A12, pp;
+
                 /* get control point locations */
                 phi_1 = pj_param(par.params, "rlat_1").f;
                 lam_1 = pj_param(par.params, "rlon_1").f;

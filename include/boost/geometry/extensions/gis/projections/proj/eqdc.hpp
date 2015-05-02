@@ -127,6 +127,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double cosphi, sinphi;
                 int secant;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
@@ -137,6 +138,7 @@ namespace boost { namespace geometry { namespace projections
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.)) ) {
                     double ml1, m1;
+
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_mlfn(proj_parm.phi1, sinphi, cosphi, proj_parm.en);
                     if (secant) { /* secant cone */

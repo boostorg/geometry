@@ -240,6 +240,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_utm(Parameters& par, par_tmerc& proj_parm)
             {
                 int zone;
+
                 par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
                 par.x0 = 500000.;
                 if (pj_param(par.params, "tzone").i) /* zone input ? */

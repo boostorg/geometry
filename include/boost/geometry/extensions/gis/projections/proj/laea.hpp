@@ -269,6 +269,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_laea(Parameters& par, par_laea& proj_parm)
             {
                 double t;
+
                 if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(t) < EPS10)
@@ -277,6 +278,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.mode = OBLIQ;
                 if (par.es) {
                     double sinphi;
+
                     par.e = sqrt(par.es);
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
                     proj_parm.mmf = .5 / (1. - par.es);

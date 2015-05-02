@@ -85,6 +85,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_urm5(Parameters& par, par_urm5& proj_parm)
             {
                 double alpha, t;
+
                 proj_parm.n = pj_param(par.params, "dn").f;
                 proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
                 alpha = pj_param(par.params, "ralpha").f;
