@@ -194,8 +194,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
-                proj_parm.pn1 = proj_parm.height / par.a;
-             /* normalize by radius */
+                proj_parm.pn1 = proj_parm.height / par.a; /* normalize by radius */
                 proj_parm.p = 1. + proj_parm.pn1;
                 proj_parm.rp = 1. / proj_parm.p;
                 proj_parm.h = 1. / proj_parm.pn1;
@@ -222,10 +221,8 @@ namespace boost { namespace geometry { namespace projections
                 omega = pj_param(par.params, "dtilt").f * DEG_TO_RAD;
                 gamma = pj_param(par.params, "dazi").f * DEG_TO_RAD;
                 proj_parm.tilt = 1;
-                proj_parm.cg = cos(gamma);
-             proj_parm.sg = sin(gamma);
-                proj_parm.cw = cos(omega);
-             proj_parm.sw = sin(omega);
+                proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
+                proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);
                 setup(par, proj_parm);
             }
 

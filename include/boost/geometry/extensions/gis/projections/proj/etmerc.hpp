@@ -227,12 +227,12 @@ namespace boost { namespace geometry { namespace projections
             void setup_etmerc(Parameters& par, par_etmerc& proj_parm)
             {
                 double f, n, np, Z;
+
                 if (par.es <= 0) throw proj_exception(-34);
-                f = par.es / (1 + sqrt(1 -  par.es));
-             /* Replaces: f = 1 - sqrt(1-par.es);
-             */
+                f = par.es / (1 + sqrt(1 -  par.es)); /* Replaces: f = 1 - sqrt(1-par.es); */
                 /* third flattening */
                 np = n = f/(2 - f);
+
                 /* COEF. OF TRIG SERIES GEO <-> GAUSS */
                 /* cgb := Gaussian -> Geodetic, KW p190 - 191 (61) - (62) */
                 /* cbg := Geodetic -> Gaussian, KW p186 - 187 (51) - (52) */

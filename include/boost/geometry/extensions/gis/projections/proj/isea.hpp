@@ -1036,9 +1036,9 @@ namespace boost { namespace geometry { namespace projections
                 // par.fwd = s_forward;
                     isea_grid_init(&proj_parm.dgg);
                     proj_parm.dgg.output = ISEA_PLANE;
-            /*        proj_parm.dgg.radius = par.a;
-             / * otherwise defaults to 1 */
+            /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
                 /* calling library will scale, I think */
+
                 opt = pj_param(par.params, "sorient").s;
                 if (! opt.empty()) {
                     if (opt == std::string("isea")) {

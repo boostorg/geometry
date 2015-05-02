@@ -158,8 +158,7 @@ namespace boost { namespace geometry { namespace projections
                 /* get name of projection to be translated */
                 pj.name = pj_param(par.params, "so_proj").s;
                 /* copy existing header into new */
-                par.es = 0.;
-             /* force to spherical */
+                par.es = 0.; /* force to spherical */
                 pj.params = par.params;
                 pj.over = par.over;
                 pj.geoc = par.geoc;

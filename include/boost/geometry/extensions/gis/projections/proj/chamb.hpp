@@ -158,9 +158,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 int i, j;
                 char line[10];
-                for (i = 0;
-             i < 3;
-             ++i) { /* get control point locations */
+
+                for (i = 0; i < 3; ++i) { /* get control point locations */
                     (void)sprintf(line, "rlat_%d", i+1);
                     proj_parm.c[i].phi = pj_param(par.params, line).f;
                     (void)sprintf(line, "rlon_%d", i+1);
@@ -169,9 +168,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);
                 }
-                for (i = 0;
-             i < 3;
-             ++i) { /* inter ctl pt. distances and azimuths */
+                for (i = 0; i < 3; ++i) { /* inter ctl pt. distances and azimuths */
                     j = i == 2 ? 0 : i + 1;
                     proj_parm.c[i].v = vect(proj_parm.c[j].phi - proj_parm.c[i].phi, proj_parm.c[i].cosphi, proj_parm.c[i].sinphi,
                         proj_parm.c[j].cosphi, proj_parm.c[j].sinphi, proj_parm.c[j].lam - proj_parm.c[i].lam);
