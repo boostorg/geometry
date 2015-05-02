@@ -34,7 +34,9 @@ public:
 
     base_v_f(P const& params) : m_proj(params) {}
 
-    virtual P params() const {return m_proj.params();}
+    virtual P const& params() const { return m_proj.params(); }
+
+    virtual P& mutable_params() { return m_proj.mutable_params(); }
 
     virtual bool forward(LL const& ll, XY& xy) const
     {

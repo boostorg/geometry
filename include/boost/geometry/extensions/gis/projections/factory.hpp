@@ -53,6 +53,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/igh.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/isea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/laea.hpp>
@@ -177,6 +178,7 @@ public:
         detail::hammer_init(*this);
         detail::hatano_init(*this);
         detail::krovak_init(*this);
+        detail::igh_init(*this);
         detail::imw_p_init(*this);
         detail::isea_init(*this);
         detail::labrd_init(*this);

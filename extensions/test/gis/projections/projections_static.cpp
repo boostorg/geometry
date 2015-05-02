@@ -54,6 +54,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
+//#include <boost/geometry/extensions/gis/projections/proj/igh.hpp> -> in combined
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/isea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/laea.hpp>
@@ -79,7 +80,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/nocol.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/nsper.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/nzmg.hpp>
-//#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp>
+//#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp> -> in combined
 #include <boost/geometry/extensions/gis/projections/proj/ocea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/oea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/omerc.hpp>
