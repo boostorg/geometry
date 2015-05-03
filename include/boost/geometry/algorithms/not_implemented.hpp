@@ -20,6 +20,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_NOT_IMPLEMENTED_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_NOT_IMPLEMENTED_HPP
 
+#include <boost/geometry/core/exception.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/identity.hpp>
@@ -96,7 +97,7 @@ template <> struct tag_to_term<geometry_collection_tag>     { typedef info::GEOM
 template <int D> struct tag_to_term<boost::mpl::int_<D> >   { typedef info::DIMENSION<D> type; };
 
 
-}
+} // namespace nyi
 
 
 template
@@ -124,6 +125,63 @@ struct not_implemented
       >
 {};
 
+
+template
+<
+    typename Result,
+    typename Term1 = void,
+    typename Term2 = void,
+    typename Term3 = void
+>
+struct lazy_not_implemented
+    : nyi::not_implemented_tag
+{
+#ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
+    template <typename... T1>
+    static inline Result apply(T1 const&...)
+    {
+        not_implemented<Term1, Term2, Term3>();
+        return Result();
+    }
+#else
+    static inline Result apply()
+    {
+        not_implemented<Term1, Term2, Term3>();
+        return Result();
+    }
+
+    template <typename T1, typename T2>
+    static inline Result apply(T1 const&, T2 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+        return Result();
+    }
+
+    template <typename T1, typename T2, typename T3>
+    static inline Result apply(T1 const&, T2 const&, T3 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+        return Result();
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    static inline Result apply(T1 const&, T2 const&, T3 const&, T4 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+        return Result();
+    }
+#endif
+};
+
+
+struct not_implemented_exception
+    : boost::geometry::exception
+{
+    const char * what() const
+    {
+        return "THIS_OPERATION_IS_NOT_OR_NOT_YET_IMPLEMENTED for passed input types";
+    }    
+};
 
 }} // namespace boost::geometry
 
