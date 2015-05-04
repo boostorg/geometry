@@ -17,10 +17,11 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_IMPLEMENTATION_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_IMPLEMENTATION_HPP
 
-#include <boost/geometry/algorithms/detail/expand/interface.hpp>
-#include <boost/geometry/algorithms/detail/expand/implementation.hpp>
+#include <boost/geometry/algorithms/detail/expand/point.hpp>
+#include <boost/geometry/algorithms/detail/expand/segment.hpp>
+#include <boost/geometry/algorithms/detail/expand/box.hpp>
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_EXPAND_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_IMPLEMENTATION_HPP
