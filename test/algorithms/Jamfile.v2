@@ -35,6 +35,7 @@ test-suite boost-geometry-algorithms
     [ run is_valid_failure.cpp ]
     [ run length.cpp ]
     [ run make.cpp ]
+    [ run maximum_gap.cpp ]
     [ run multi_area.cpp ]
     [ run multi_centroid.cpp ]
     [ run multi_convert.cpp ]
