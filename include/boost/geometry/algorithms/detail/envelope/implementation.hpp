@@ -30,7 +30,6 @@
 #include <boost/geometry/algorithms/detail/envelope/multipoint.hpp>
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
-#include <boost/geometry/algorithms/detail/envelope/ring.hpp>
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -74,6 +73,12 @@ struct envelope_polygon
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
+
+
+template <typename Ring>
+struct envelope<Ring, ring_tag>
+    : detail::envelope::envelope_ring<typename cs_tag<Ring>::type>
+{};
 
 
 template <typename Polygon>
