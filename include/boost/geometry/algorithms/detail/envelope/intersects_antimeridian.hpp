@@ -43,7 +43,7 @@ struct intersects_antimeridian
             ||
             math::equals(math::abs(lat2), constants::max_latitude())
             ||
-            ! math::smaller(math::abs(lon1 - lon2), constants::half_period());
+            math::larger(math::abs(lon1 - lon2), constants::half_period());
     }
 
     template <typename Segment>
