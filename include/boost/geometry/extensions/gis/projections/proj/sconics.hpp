@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -69,6 +68,7 @@ namespace boost { namespace geometry { namespace projections
                 double    c1, c2;
                 int        type;
             };
+
             /* get common factors for simple conics */
             template <typename Parameters>
                 inline int
@@ -151,10 +151,9 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_sconics& proj_parm) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double del, cs;
                 int i;
+
                 if( (i = phi12(par, proj_parm, &del)) )
                     throw proj_exception(i);
                 switch (proj_parm.type) {
@@ -199,8 +198,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.rho_0 = proj_parm.rho_c - par.phi0;
                     break;
                 }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0;
             }
 

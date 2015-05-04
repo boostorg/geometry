@@ -38,13 +38,13 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_zpoly1.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -59,8 +59,8 @@ namespace boost { namespace geometry { namespace projections
                 double    cchio, schio;
                 int        n;
             };
-            /* based upon Snyder and Linck, USGS-NMD */
 
+            /* based upon Snyder and Linck, USGS-NMD */
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -150,9 +150,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_mod_ster& proj_parm)  /* general initialization */
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double esphi, chio;
+
                 if (par.es) {
                     esphi = par.e * sin(par.phi0);
                     chio = 2. * atan(tan((HALFPI + par.phi0) * .5) *
@@ -161,8 +160,6 @@ namespace boost { namespace geometry { namespace projections
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);
                 proj_parm.cchio = cos(chio);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
 
@@ -176,6 +173,7 @@ namespace boost { namespace geometry { namespace projections
                 {0.,            0.},
                 {0.019430,    0.}
             };
+
                 proj_parm.n = 2;
                 par.lam0 = DEG_TO_RAD * 20.;
                 par.phi0 = DEG_TO_RAD * 18.;
@@ -194,6 +192,7 @@ namespace boost { namespace geometry { namespace projections
                 {0.,            0.},
                     {-0.0088162,     -0.00617325}
             };
+
                 proj_parm.n = 2;
                 par.lam0 = DEG_TO_RAD * -165.;
                 par.phi0 = DEG_TO_RAD * -10.;
@@ -214,6 +213,7 @@ namespace boost { namespace geometry { namespace projections
                 {0.,        0.},
                     {0.075528,    0.}
             };
+
                 proj_parm.n = 4;
                 par.lam0 = DEG_TO_RAD * -96.;
                 par.phi0 = DEG_TO_RAD * -39.;
@@ -243,6 +243,7 @@ namespace boost { namespace geometry { namespace projections
                 {.0636871,    -.1408027},
                     {.3660976,    -.2937382}
             };
+
                 proj_parm.n = 5;
                 par.lam0 = DEG_TO_RAD * -152.;
                 par.phi0 = DEG_TO_RAD * 64.;
@@ -286,6 +287,7 @@ namespace boost { namespace geometry { namespace projections
                 {-.0216473,    .0776645},
                     {-.0225161,    .0853673}
             };
+
                 proj_parm.n = 9;
                 par.lam0 = DEG_TO_RAD * -120.;
                 par.phi0 = DEG_TO_RAD * 45.;

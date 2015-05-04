@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -96,7 +94,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rm = 1. / proj_parm.m;
                 proj_parm.m /= proj_parm.w;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::hammer

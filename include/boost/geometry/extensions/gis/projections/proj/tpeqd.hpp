@@ -44,6 +44,7 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -113,6 +114,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_tpeqd(Parameters& par, par_tpeqd& proj_parm)
             {
                 double lam_1, lam_2, phi_1, phi_2, A12, pp;
+
                 /* get control point locations */
                 phi_1 = pj_param(par.params, "rlat_1").f;
                 lam_1 = pj_param(par.params, "rlon_1").f;
@@ -141,8 +143,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rhshz0 = .5 / sin(proj_parm.hz0);
                 proj_parm.r2z0 = 0.5 / proj_parm.z02;
                 proj_parm.z02 *= proj_parm.z02;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

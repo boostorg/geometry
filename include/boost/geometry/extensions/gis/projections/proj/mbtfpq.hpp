@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -58,7 +56,6 @@ namespace boost { namespace geometry { namespace projections
             static const double RYC = 0.53340209679417701685;
             static const double FXC = 0.31245971410378249250;
             static const double RXC = 3.20041258076506210122;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -115,8 +112,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_mbtfpq(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::mbtfpq

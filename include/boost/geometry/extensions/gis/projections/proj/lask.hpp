@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -59,7 +57,6 @@ namespace boost { namespace geometry { namespace projections
             static const double b41 = 0.000199025;
             static const double b23 = -0.0285500;
             static const double b05 = -0.0491032;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -91,8 +88,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_lask(Parameters& par)
             {
-                // par.fwd = s_forward;
-                // par.inv = 0;
                 par.es = 0.;
             }
 

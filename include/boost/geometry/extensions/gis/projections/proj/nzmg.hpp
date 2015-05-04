@@ -38,12 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_zpoly1.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -55,10 +54,6 @@ namespace boost { namespace geometry { namespace projections
             static const int Nbf = 5;
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
-
-
-
-
 
                 static COMPLEX
             bf[] = {
@@ -142,8 +137,6 @@ namespace boost { namespace geometry { namespace projections
                 par.phi0 = DEG_TO_RAD * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::nzmg

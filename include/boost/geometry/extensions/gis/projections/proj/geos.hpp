@@ -63,8 +63,6 @@ namespace boost { namespace geometry { namespace projections
                 int     flip_axis;
             };
 
-
-
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
             struct base_geos_ellipsoid : public base_t_fi<base_geos_ellipsoid<Geographic, Cartesian, Parameters>,
@@ -241,12 +239,8 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.radius_p      = sqrt (par.one_es);
                     proj_parm.radius_p2     = par.one_es;
                     proj_parm.radius_p_inv2 = par.rone_es;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.radius_p = proj_parm.radius_p2 = proj_parm.radius_p_inv2 = 1.0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

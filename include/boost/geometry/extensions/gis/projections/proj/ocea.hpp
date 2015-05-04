@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -109,6 +107,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_ocea(Parameters& par, par_ocea& proj_parm)
             {
                 double phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
+
                 proj_parm.rok = par.a / par.k0;
                 proj_parm.rtk = par.a * par.k0;
                 if ( pj_param(par.params, "talpha").i) {
@@ -132,8 +131,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);
                 proj_parm.singam = sin(proj_parm.singam);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

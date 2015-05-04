@@ -44,8 +44,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -127,16 +127,18 @@ namespace boost { namespace geometry { namespace projections
             {
                 double cosphi, sinphi;
                 int secant;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
-                    pj_enfn(par.es, proj_parm.en);
-
+                if (!pj_enfn(par.es, proj_parm.en))
+                    throw proj_exception(0);
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.)) ) {
                     double ml1, m1;
+
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_mlfn(proj_parm.phi1, sinphi, cosphi, proj_parm.en);
                     if (secant) { /* secant cone */
@@ -154,9 +156,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.c = proj_parm.phi1 + cos(proj_parm.phi1) / proj_parm.n;
                     proj_parm.rho0 = proj_parm.c - par.phi0;
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
-                // par.spc = fac;
             }
 
         }} // namespace detail::eqdc

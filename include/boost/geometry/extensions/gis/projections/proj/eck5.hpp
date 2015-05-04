@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -53,7 +51,6 @@ namespace boost { namespace geometry { namespace projections
             static const double RXF = 2.26750802723822639137;
             static const double YF = 0.88202554344910296438;
             static const double RYF = 1.13375401361911319568;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -86,8 +83,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_eck5(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::eck5

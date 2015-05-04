@@ -38,12 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -51,7 +50,6 @@ namespace boost { namespace geometry { namespace projections
     namespace detail { namespace nell{
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -97,8 +95,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_nell(Parameters& par)
             {
                 par.es = 0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::nell

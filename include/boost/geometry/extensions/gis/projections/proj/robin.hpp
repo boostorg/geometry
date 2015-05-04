@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -57,8 +55,6 @@ namespace boost { namespace geometry { namespace projections
             static const int NODES = 18;
             static const double ONEEPS = 1.000001;
             static const double EPS = 1e-8;
-
-
 
             struct COEFS {
                 double c0, c1, c2, c3;
@@ -182,8 +178,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_robin(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::robin

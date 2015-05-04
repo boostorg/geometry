@@ -38,9 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -219,20 +216,14 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_tmerc& proj_parm)  /* general initialization */
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 if (par.es) {
-                    pj_enfn(par.es, proj_parm.en);
-            
+                    if (!pj_enfn(par.es, proj_parm.en))
+                        throw proj_exception(0);
                     proj_parm.ml0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
                     proj_parm.esp = par.es / (1. - par.es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.esp = par.k0;
                     proj_parm.ml0 = .5 * proj_parm.esp;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -249,7 +240,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_utm(Parameters& par, par_tmerc& proj_parm)
             {
                 int zone;
-                if (!par.es) throw proj_exception(-34);
+
                 par.y0 = pj_param(par.params, "bsouth").i ? 10000000. : 0.;
                 par.x0 = 500000.;
                 if (pj_param(par.params, "tzone").i) /* zone input ? */
@@ -334,6 +325,28 @@ namespace boost { namespace geometry { namespace projections
         inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Universal Transverse Mercator (UTM) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Cylindrical
+         - Spheroid
+         - zone= south
+        \par Example
+        \image html ex_utm.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct utm_spheroid : public detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>
+    {
+        inline utm_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
         }
     };
 

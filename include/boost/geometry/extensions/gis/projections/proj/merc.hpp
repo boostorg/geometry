@@ -38,22 +38,19 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace merc{
             static const double EPS10 = 1.e-10;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -117,6 +114,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double phits=0.0;
                 int is_phits;
+
                 if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
                     phits = fabs(pj_param(par.params, "rlat_ts").f);
                     if (phits >= HALFPI) throw proj_exception(-24);
@@ -124,13 +122,9 @@ namespace boost { namespace geometry { namespace projections
                 if (par.es) { /* ellipsoid */
                     if (is_phits)
                         par.k0 = pj_msfn(sin(phits), cos(phits), par.es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else { /* sphere */
                     if (is_phits)
                         par.k0 = cos(phits);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

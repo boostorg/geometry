@@ -44,8 +44,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_qsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_auth.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_qsfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -269,6 +269,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_laea(Parameters& par, par_laea& proj_parm)
             {
                 double t;
+
                 if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(t) < EPS10)
@@ -277,6 +278,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.mode = OBLIQ;
                 if (par.es) {
                     double sinphi;
+
                     par.e = sqrt(par.es);
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
                     proj_parm.mmf = .5 / (1. - par.es);
@@ -302,15 +304,11 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.xmf *= proj_parm.dd;
                         break;
                     }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     if (proj_parm.mode == OBLIQ) {
                         proj_parm.sinb1 = sin(par.phi0);
                         proj_parm.cosb1 = cos(par.phi0);
                     }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

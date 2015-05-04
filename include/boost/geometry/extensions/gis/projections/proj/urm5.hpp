@@ -38,12 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -86,6 +85,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_urm5(Parameters& par, par_urm5& proj_parm)
             {
                 double alpha, t;
+
                 proj_parm.n = pj_param(par.params, "dn").f;
                 proj_parm.q3 = pj_param(par.params, "dq").f / 3.;
                 alpha = pj_param(par.params, "ralpha").f;
@@ -93,8 +93,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.m = cos(alpha) / sqrt(1. - t * t);
                 proj_parm.rmn = 1. / (proj_parm.m * proj_parm.n);
                 par.es = 0.;
-                // par.inv = 0;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::urm5

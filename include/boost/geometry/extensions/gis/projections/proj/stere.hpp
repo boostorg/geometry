@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -68,6 +67,7 @@ namespace boost { namespace geometry { namespace projections
                 double akm1;
                 int    mode;
             };
+
                 inline double
             ssfn_(double phit, double sinphi, double eccen) {
                 sinphi *= eccen;
@@ -256,9 +256,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_stere& proj_parm)  /* general initialization */
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double t;
+
                 if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else
@@ -266,6 +265,7 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.phits = fabs(proj_parm.phits);
                 if (par.es) {
                     double X;
+
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:
@@ -291,8 +291,6 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.cosX1 = cos(X);
                         break;
                     }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     switch (proj_parm.mode) {
                     case OBLIQ:
@@ -308,8 +306,6 @@ namespace boost { namespace geometry { namespace projections
                            2. * par.k0 ;
                         break;
                     }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -407,6 +403,29 @@ namespace boost { namespace geometry { namespace projections
         inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Universal Polar Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+         - south
+        \par Example
+        \image html ex_ups.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct ups_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
+    {
+        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
         }
     };
 

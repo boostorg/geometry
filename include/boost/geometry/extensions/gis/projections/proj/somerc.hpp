@@ -38,12 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -121,6 +120,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_somerc(Parameters& par, par_somerc& proj_parm)
             {
                 double cp, phip0, sp;
+
                 proj_parm.hlf_e = 0.5 * par.e;
                 cp = cos(par.phi0);
                 cp *= cp;
@@ -132,8 +132,6 @@ namespace boost { namespace geometry { namespace projections
                     log(tan(FORTPI + 0.5 * par.phi0)) - proj_parm.hlf_e *
                     log((1. + sp) / (1. - sp)));
                 proj_parm.kR = par.k0 * sqrt(par.one_es) / (1. - sp * sp);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::somerc

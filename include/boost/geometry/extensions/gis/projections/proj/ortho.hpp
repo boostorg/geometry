@@ -101,9 +101,7 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     }
                     xy_x = cosphi * sin(lp_lon);
-                            return;
                 }
-
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
@@ -146,9 +144,7 @@ namespace boost { namespace geometry { namespace projections
                              ? (xy_x == 0. ? 0. : xy_x < 0. ? -HALFPI : HALFPI)
                                            : atan2(xy_x, xy_y);
                     }
-                            return;
                 }
-
             };
 
             // Orthographic
@@ -163,8 +159,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.cosph0 = cos(par.phi0);
                 } else
                     proj_parm.mode = EQUIT;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

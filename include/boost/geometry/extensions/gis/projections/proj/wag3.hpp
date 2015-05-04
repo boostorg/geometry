@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -89,11 +87,10 @@ namespace boost { namespace geometry { namespace projections
             void setup_wag3(Parameters& par, par_wag3& proj_parm)
             {
                 double ts;
+
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::wag3

@@ -38,14 +38,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -54,18 +52,12 @@ namespace boost { namespace geometry { namespace projections
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
-                inline double TSFN0(double x)
-                    {return tan(.5 * (HALFPI - (x))); }
-
-
             struct par_omerc
             {
                 double    A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
                 double  v_pole_n, v_pole_s, u_0;
                 int no_rot;
             };
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -152,6 +144,7 @@ namespace boost { namespace geometry { namespace projections
                 double con, com, cosph0, D, F, H, L, sinph0, p, J, gamma=0,
                     gamma0, lamc=0, lam1=0, lam2=0, phi1=0, phi2=0, alpha_c;
                 int alp, gam, no_off = 0;
+
                 proj_parm.no_rot = pj_param(par.params, "tno_rot").i;
                     if ((alp = pj_param(par.params, "talpha").i) != 0)
                     alpha_c = pj_param(par.params, "ralpha").f;
@@ -250,8 +243,6 @@ namespace boost { namespace geometry { namespace projections
                 F = 0.5 * gamma0;
                 proj_parm.v_pole_n = proj_parm.ArB * log(tan(FORTPI - F));
                 proj_parm.v_pole_s = proj_parm.ArB * log(tan(FORTPI + F));
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::omerc

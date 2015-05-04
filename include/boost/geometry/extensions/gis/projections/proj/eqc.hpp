@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -88,8 +86,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_eqc(Parameters& par, par_eqc& proj_parm)
             {
                 if ((proj_parm.rc = cos(pj_param(par.params, "rlat_ts").f)) <= 0.) throw proj_exception(-24);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

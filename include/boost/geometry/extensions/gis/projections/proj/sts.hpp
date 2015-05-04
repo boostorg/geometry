@@ -38,13 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -107,11 +105,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_sts& proj_parm, double p, double q, int mode) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 proj_parm.C_x = q / p;
                 proj_parm.C_y = p;
                 proj_parm.C_p = 1/ q;

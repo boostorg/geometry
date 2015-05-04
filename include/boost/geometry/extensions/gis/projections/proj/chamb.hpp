@@ -40,8 +40,6 @@
 
 #include <cstdio>
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -55,8 +53,9 @@ namespace boost { namespace geometry { namespace projections
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
 
+            // specific for 'chamb'
             struct VECT { double r, Az; };
-            struct CXY { double x, y; }; // x/y for chamb
+            struct XY { double x, y; };
 
             struct par_chamb
             {
@@ -64,12 +63,13 @@ namespace boost { namespace geometry { namespace projections
                 double phi, lam;
                 double cosphi, sinphi;
                 VECT v;
-                CXY    p;
+                XY    p;
                 double Az;
                 } c[3];
-                CXY p;
+                XY p;
                 double beta_0, beta_1, beta_2;
             };
+
                 inline VECT /* distance and azimuth from point 1 to point 2 */
             vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
                 VECT v;
@@ -158,9 +158,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 int i, j;
                 char line[10];
-                for (i = 0;
-             i < 3;
-             ++i) { /* get control point locations */
+
+                for (i = 0; i < 3; ++i) { /* get control point locations */
                     (void)sprintf(line, "rlat_%d", i+1);
                     proj_parm.c[i].phi = pj_param(par.params, line).f;
                     (void)sprintf(line, "rlon_%d", i+1);
@@ -169,9 +168,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);
                 }
-                for (i = 0;
-             i < 3;
-             ++i) { /* inter ctl pt. distances and azimuths */
+                for (i = 0; i < 3; ++i) { /* inter ctl pt. distances and azimuths */
                     j = i == 2 ? 0 : i + 1;
                     proj_parm.c[i].v = vect(proj_parm.c[j].phi - proj_parm.c[i].phi, proj_parm.c[i].cosphi, proj_parm.c[i].sinphi,
                         proj_parm.c[j].cosphi, proj_parm.c[j].sinphi, proj_parm.c[j].lam - proj_parm.c[i].lam);
@@ -186,7 +183,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);
                 proj_parm.p.x = proj_parm.c[2].p.x = proj_parm.c[0].p.x + proj_parm.c[2].v.r * cos(proj_parm.beta_0);
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::chamb

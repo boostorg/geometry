@@ -38,14 +38,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -62,7 +60,6 @@ namespace boost { namespace geometry { namespace projections
                 double XS;
                 double YS;
             };
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -113,14 +110,9 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.c=       log(pj_tsfn(-1.0*proj_parm.phic,0.0,0.0))
                      -proj_parm.n1*log(pj_tsfn(-1.0*par.phi0,-1.0*sin(par.phi0),par.e));
                 proj_parm.n2= par.k0*par.a*sqrt(1.0-par.es)/(1.0-par.es*sin(par.phi0)*sin(par.phi0));
-                proj_parm.XS= 0;
-            /* -par.x0 */
-                proj_parm.YS= -1.0*proj_parm.n2*proj_parm.phic;
-            /* -par.y0 */
-                // par.inv= s_inverse;
-                // par.fwd= s_forward;
-                /*fprintf(stderr,"a  (m) =%16.4f\ne      =%16.13f\nl0(rad)=%16.13f\np0(rad)=%16.13f\nk0     =%16.4f\nX0  (m)=%16.4f\nY0  (m)=%16.4f\n\nlC(rad)=%16.13f\npC(rad)=%16.13f\nc      =%16.13f\nn1     =%16.13f\nn2 (m) =%16.4f\nXS (m) =%16.4f\nYS (m) =%16.4f\n", par.a, par.e, par.lam0, par.phi0, par.k0, par.x0, par.y0, proj_parm.lamc, proj_parm.phic, proj_parm.c, proj_parm.n1, proj_parm.n2, proj_parm.XS +par.x0, proj_parm.YS + par.y0);
-            */
+                proj_parm.XS= 0;/* -par.x0 */
+                proj_parm.YS= -1.0*proj_parm.n2*proj_parm.phic;/* -par.y0 */
+                /*fprintf(stderr,"a  (m) =%16.4f\ne      =%16.13f\nl0(rad)=%16.13f\np0(rad)=%16.13f\nk0     =%16.4f\nX0  (m)=%16.4f\nY0  (m)=%16.4f\n\nlC(rad)=%16.13f\npC(rad)=%16.13f\nc      =%16.13f\nn1     =%16.13f\nn2 (m) =%16.4f\nXS (m) =%16.4f\nYS (m) =%16.4f\n", par.a, par.e, par.lam0, par.phi0, par.k0, par.x0, par.y0, proj_parm.lamc, proj_parm.phic, proj_parm.c, proj_parm.n1, proj_parm.n2, proj_parm.XS +par.x0, proj_parm.YS + par.y0);*/
             }
 
         }} // namespace detail::gstmerc

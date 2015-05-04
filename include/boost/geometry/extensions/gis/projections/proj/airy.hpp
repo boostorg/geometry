@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -64,10 +62,6 @@ namespace boost { namespace geometry { namespace projections
                 int        mode;
                 int        no_cut;    /* do not cut at hemisphere limit */
             };
-
-
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -135,6 +129,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_airy(Parameters& par, par_airy& proj_parm)
             {
                 double beta;
+
                 proj_parm.no_cut = pj_param(par.params, "bno_cut").i;
                 beta = 0.5 * (HALFPI - pj_param(par.params, "rlat_b").f);
                 if (fabs(beta) < EPS)
@@ -160,7 +155,6 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.cosph0 = cos(par.phi0);
                     }
                 }
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 

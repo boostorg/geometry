@@ -38,12 +38,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -58,6 +57,7 @@ namespace boost { namespace geometry { namespace projections
                 double a2, a4, b, c1, c3;
                 double q, t, u, w, p22, sa, ca, xj, rlm, rlm2;
             };
+
             /* based upon Snyder and Linck, USGS-NMD */
             template <typename Parameters>
                 inline void
@@ -198,6 +198,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 int land, path;
                 double lam, alf, esc, ess;
+
                 land = pj_param(par.params, "ilsat").i;
                 if (land <= 0 || land > 5) throw proj_exception(-28);
                 path = pj_param(par.params, "ipath").i;
@@ -228,13 +229,9 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rlm2 = proj_parm.rlm + TWOPI;
                 proj_parm.a2 = proj_parm.a4 = proj_parm.b = proj_parm.c1 = proj_parm.c3 = 0.;
                 seraz0(0., 1., par, proj_parm);
-                for (lam = 9.;
-             lam <= 81.0001;
-             lam += 18.)
+                for (lam = 9.; lam <= 81.0001; lam += 18.)
                     seraz0(lam, 4., par, proj_parm);
-                for (lam = 18;
-             lam <= 72.0001;
-             lam += 18.)
+                for (lam = 18; lam <= 72.0001; lam += 18.)
                     seraz0(lam, 2., par, proj_parm);
                 seraz0(90., 1., par, proj_parm);
                 proj_parm.a2 /= 30.;
@@ -242,8 +239,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.b /= 30.;
                 proj_parm.c1 /= 15.;
                 proj_parm.c3 /= 45.;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::lsat

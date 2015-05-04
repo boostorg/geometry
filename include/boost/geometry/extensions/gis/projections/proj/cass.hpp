@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -155,13 +153,9 @@ namespace boost { namespace geometry { namespace projections
             void setup_cass(Parameters& par, par_cass& proj_parm)
             {
                 if (par.es) {
-                    pj_enfn(par.es, proj_parm.en);
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     proj_parm.m0 = pj_mlfn(par.phi0, sin(par.phi0), cos(par.phi0), proj_parm.en);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 

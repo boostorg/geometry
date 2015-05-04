@@ -38,16 +38,15 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_qsfn.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 
@@ -75,10 +74,6 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 int        ellips;
             };
-
-
-
-
 
             /* determine latitude angle phi-1 */
                 inline double
@@ -158,21 +153,22 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_aea& proj_parm) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double cosphi, sinphi;
                 int secant;
+
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.))) {
                     double ml1, m1;
-                    pj_enfn(par.es, proj_parm.en);
+
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_qsfn(sinphi, par.e, par.one_es);
                     if (secant) { /* secant cone */
                         double ml2, m2;
+
                         sinphi = sin(proj_parm.phi2);
                         cosphi = cos(proj_parm.phi2);
                         m2 = pj_msfn(sinphi, cosphi, par.es);
@@ -192,8 +188,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.dd = 1. / proj_parm.n;
                     proj_parm.rho0 = proj_parm.dd * sqrt(proj_parm.c - proj_parm.n2 * sin(par.phi0));
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
 

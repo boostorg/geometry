@@ -45,8 +45,8 @@
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_phi2.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_tsfn.hpp>
 
 #include <boost/geometry/extensions/gis/projections/epsg_traits.hpp>
 
@@ -143,6 +143,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double cosphi, sinphi;
                 int secant;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if (pj_param(par.params, "tlat_2").i)
                     proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
@@ -157,6 +158,7 @@ namespace boost { namespace geometry { namespace projections
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es != 0.)) ) {
                     double ml1, m1;
+
                     par.e = sqrt(par.es);
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_tsfn(proj_parm.phi1, sinphi, par.e);
@@ -177,9 +179,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.rho0 = (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
                         proj_parm.c * pow(tan(FORTPI + .5 * par.phi0), -proj_parm.n);
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
-                // par.spc = fac;
             }
 
         }} // namespace detail::lcc

@@ -28,7 +28,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/cass.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/cc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/cea.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/chamb.hpp>  // control points XY
+#include <boost/geometry/extensions/gis/projections/proj/chamb.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/collg.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/crast.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/denoy.hpp>
@@ -39,6 +39,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/eck5.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/eqdc.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/etmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fahey.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/fouc_s.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gall.hpp>
@@ -47,12 +48,14 @@
 #include <boost/geometry/extensions/gis/projections/proj/gins8.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gnom.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/goode.hpp> // includes two other projections
+#include <boost/geometry/extensions/gis/projections/proj/goode.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gstmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp> // xy functions after inverse
+#include <boost/geometry/extensions/gis/projections/proj/igh.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/isea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/laea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/labrd.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/lagrng.hpp>
@@ -76,7 +79,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/nocol.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/nsper.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/nzmg.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp> // includes other projection
+#include <boost/geometry/extensions/gis/projections/proj/ob_tran.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/ocea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/oea.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/omerc.hpp>
@@ -161,6 +164,7 @@ public:
         detail::eck5_init(*this);
         detail::eqc_init(*this);
         detail::eqdc_init(*this);
+        detail::etmerc_init(*this);
         detail::fahey_init(*this);
         detail::fouc_s_init(*this);
         detail::gall_init(*this);
@@ -174,7 +178,9 @@ public:
         detail::hammer_init(*this);
         detail::hatano_init(*this);
         detail::krovak_init(*this);
+        detail::igh_init(*this);
         detail::imw_p_init(*this);
+        detail::isea_init(*this);
         detail::labrd_init(*this);
         detail::laea_init(*this);
         detail::lagrng_init(*this);
