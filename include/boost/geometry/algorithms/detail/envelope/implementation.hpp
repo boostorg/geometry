@@ -77,7 +77,7 @@ namespace dispatch
 
 template <typename Ring>
 struct envelope<Ring, ring_tag>
-    : detail::envelope::envelope_ring<typename cs_tag<Ring>::type>
+    : detail::envelope::envelope_range<>
 {};
 
 
