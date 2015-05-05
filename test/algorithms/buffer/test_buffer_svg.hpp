@@ -66,7 +66,7 @@ public :
         if(phase == 0)
         {
             map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
-            map_turns(collection.m_turns, true, true);
+            map_turns(collection.m_turns, true, false);
         }
         if (phase == 1 && ! m_zoom)
         {
