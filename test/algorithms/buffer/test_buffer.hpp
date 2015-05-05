@@ -47,6 +47,7 @@
 
 #if defined(TEST_WITH_SVG)
 #  include <test_buffer_svg.hpp>
+#  include <test_buffer_svg_per_turn.hpp>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -172,16 +173,19 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     //std::cout << complete.str() << std::endl;
 
-#if defined(TEST_WITH_SVG)
-    buffer_svg_mapper<point_type> buffer_mapper;
+#if defined(TEST_WITH_SVG_PER_TURN)
+    save_turns_visitor<point_type> visitor;
+#elif defined(TEST_WITH_SVG)
+
+    buffer_svg_mapper<point_type> buffer_mapper(complete.str());
 
     std::ostringstream filename;
     filename << "buffer_" << complete.str() << ".svg";
     std::ofstream svg(filename.str().c_str());
     typedef bg::svg_mapper<point_type> mapper_type;
-    mapper_type mapper(svg, 1000, 1000);
+    mapper_type mapper(svg, 1000, 800);
 
-    svg_visitor<mapper_type, bg::model::box<point_type>, tag> visitor(mapper);
+    svg_visitor<mapper_type, bg::model::box<point_type> > visitor(mapper);
 
     buffer_mapper.prepare(mapper, visitor, envelope,
             distance_strategy.negative()
@@ -239,14 +243,22 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
         if (check_self_intersections)
         {
-            // Be sure resulting polygon does not contain
-            // self-intersections
-            BOOST_CHECK_MESSAGE
-                (
-                    ! bg::detail::overlay::has_self_intersections(buffered,
-                            rescale_policy, false),
-                    complete.str() << " output is self-intersecting. "
-                );
+            try
+            {
+                bool has_self_ips = bg::detail::overlay::has_self_intersections(buffered,
+                rescale_policy, false);
+                // Be sure resulting polygon does not contain
+                // self-intersections
+                BOOST_CHECK_MESSAGE
+                    (
+                        ! has_self_ips,
+                        complete.str() << " output is self-intersecting. "
+                    );
+            }
+            catch(...)
+            {
+                BOOST_MESSAGE("Exception in checking self-intersections");
+            }
         }
     }
 
@@ -261,7 +273,23 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 //    BOOST_CHECK_MESSAGE(bg::intersects(buffered) == false, complete.str() <<  " intersects");
 #endif
 
-#if defined(TEST_WITH_SVG)
+#if defined(TEST_WITH_SVG_PER_TURN)
+    {
+        // Create a per turn visitor to map per turn, and buffer again with it
+        per_turn_visitor<point_type> ptv(complete.str(), visitor.get_points());
+        bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
+                            std::back_inserter(buffered),
+                            distance_strategy,
+                            side_strategy,
+                            join_strategy,
+                            end_strategy,
+                            point_strategy,
+                            rescale_policy,
+                            ptv);
+        ptv.map_input_output(geometry, buffered, distance_strategy.negative());
+        // self_ips NYI here
+    }
+#elif defined(TEST_WITH_SVG)
     buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
     buffer_mapper.map_self_ips(mapper, buffered, rescale_policy);
 #endif

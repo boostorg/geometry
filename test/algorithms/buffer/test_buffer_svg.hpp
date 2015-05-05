@@ -42,13 +42,40 @@ inline char piece_type_char(bg::strategy::buffer::piece_type const& type)
     }
 }
 
-template <typename SvgMapper, typename Box, typename Tag>
-struct svg_visitor
+template <typename SvgMapper, typename Box>
+class svg_visitor
 {
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
-    Box m_alternate_box;
-#endif
+public :
+    svg_visitor(SvgMapper& mapper)
+        : m_mapper(mapper)
+        , m_zoom(false)
+    {}
 
+    void set_alternate_box(Box const& box)
+    {
+        m_alternate_box = box;
+        m_zoom = true;
+    }
+
+    template <typename PieceCollection>
+    inline void apply(PieceCollection const& collection, int phase)
+    {
+        // Comment next return if you want to see pieces, turns, etc.
+        return;
+
+        if(phase == 0)
+        {
+            map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
+            map_turns(collection.m_turns, true, true);
+        }
+        if (phase == 1 && ! m_zoom)
+        {
+//        map_traversed_rings(collection.traversed_rings);
+//        map_offsetted_rings(collection.offsetted_rings);
+        }
+    }
+
+private :
     class si
     {
     private :
@@ -69,13 +96,6 @@ struct svg_visitor
         }
     };
 
-
-    SvgMapper& m_mapper;
-
-    svg_visitor(SvgMapper& mapper)
-        : m_mapper(mapper)
-    {}
-
     template <typename Turns>
     inline void map_turns(Turns const& turns, bool label_good_turns, bool label_wrong_turns)
     {
@@ -89,12 +109,10 @@ struct svg_visitor
         for (typename boost::range_iterator<Turns const>::type it =
             boost::begin(turns); it != boost::end(turns); ++it)
         {
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
-            if (bg::disjoint(it->point, m_alternate_box))
+            if (m_zoom && bg::disjoint(it->point, m_alternate_box))
             {
                 continue;
             }
-#endif
 
             bool is_good = true;
             char color = 'g';
@@ -206,14 +224,30 @@ struct svg_visitor
             {
                 continue;
             }
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
-            if (bg::disjoint(corner, m_alternate_box))
+            if (m_zoom && bg::disjoint(corner, m_alternate_box))
             {
                 continue;
             }
-#endif
 
-            if (do_pieces)
+            if (m_zoom && do_pieces)
+            {
+                try
+                {
+                    std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
+                    typedef typename bg::point_type<Box>::type point_type;
+                    bg::model::multi_polygon<bg::model::polygon<point_type> > clipped;
+                    bg::intersection(ring, m_alternate_box, clipped);
+                    m_mapper.map(clipped,
+                        piece.type == bg::strategy::buffer::buffered_segment
+                        ? style + "fill:rgb(255,128,0);"
+                        : style + "fill:rgb(255,0,0);");
+                }
+                catch (...)
+                {
+                    std::cout << "Error for piece " << piece.index << std::endl;
+                }
+            }
+            else if (do_pieces)
             {
                 std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
                 m_mapper.map(corner,
@@ -270,31 +304,96 @@ struct svg_visitor
         }
     }
 
-    template <typename PieceCollection>
-    inline void apply(PieceCollection const& collection, int phase)
-    {
-        // Comment next return if you want to see pieces, turns, etc.
-        return;
 
-        if(phase == 0)
-        {
-            map_pieces(collection.m_pieces, collection.offsetted_rings, true, true);
-            map_turns(collection.m_turns, true, false);
-        }
-#if !defined(BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX)
-        if (phase == 1)
-        {
-//        map_traversed_rings(collection.traversed_rings);
-//        map_offsetted_rings(collection.offsetted_rings);
-        }
-#endif
-    }
+    SvgMapper& m_mapper;
+    Box m_alternate_box;
+    bool m_zoom;
+
 };
 
 template <typename Point>
 class buffer_svg_mapper
 {
-    bg::model::box<Point> alternate_box;
+public :
+
+    buffer_svg_mapper(std::string const& casename)
+        : m_casename(casename)
+        , m_zoom(false)
+    {}
+
+    template <typename Mapper, typename Visitor, typename Envelope>
+    void prepare(Mapper& mapper, Visitor& visitor, Envelope const& envelope, double box_buffer_distance)
+    {
+#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
+        // Create a zoomed-in view
+        bg::read_wkt(BOOST_GEOMETRY_BUFFER_TEST_SVG_ALTERNATE_BOX, alternate_box);
+        mapper.add(alternate_box);
+
+        // Take care non-visible elements are skipped
+        visitor.m_alternate_box = alternate_box;
+        m_zoom = true;
+#else
+        bg::model::box<Point> box = envelope;
+        bg::buffer(box, box, box_buffer_distance);
+        mapper.add(box);
+#endif
+
+        boost::ignore_unused(visitor);
+    }
+
+    void set_alternate_box(bg::model::box<Point> const& box)
+    {
+        m_alternate_box = box;
+        m_zoom = true;
+    }
+
+    template <typename Mapper, typename Geometry, typename GeometryBuffer>
+    void map_input_output(Mapper& mapper, Geometry const& geometry,
+            GeometryBuffer const& buffered, bool negative)
+    {
+        bool const areal = boost::is_same
+            <
+                typename bg::tag_cast
+                    <
+                        typename bg::tag<Geometry>::type,
+                        bg::areal_tag
+                    >::type, bg::areal_tag
+            >::type::value;
+
+        if (m_zoom)
+        {
+            map_io_zoomed(mapper, geometry, buffered, negative, areal);
+        }
+        else
+        {
+            map_io(mapper, geometry, buffered, negative, areal);
+        }
+    }
+
+    template <typename Mapper, typename Geometry, typename RescalePolicy>
+    void map_self_ips(Mapper& mapper, Geometry const& geometry, RescalePolicy const& rescale_policy)
+    {
+        typedef bg::detail::overlay::turn_info
+        <
+            Point,
+            typename bg::segment_ratio_type<Point, RescalePolicy>::type
+        > turn_info;
+
+        std::vector<turn_info> turns;
+
+        bg::detail::self_get_turn_points::no_interrupt_policy policy;
+        bg::self_turns
+            <
+                bg::detail::overlay::assign_null_policy
+            >(geometry, rescale_policy, turns, policy);
+
+        BOOST_FOREACH(turn_info const& turn, turns)
+        {
+            mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
+        }
+    }
+
+private :
 
     template <typename Mapper, typename Geometry, typename GeometryBuffer>
     void map_io(Mapper& mapper, Geometry const& geometry,
@@ -330,7 +429,8 @@ class buffer_svg_mapper
         {
             // Assuming input is areal
             GeometryBuffer clipped;
-            bg::intersection(geometry, alternate_box, clipped);
+// TODO: the next line does NOT compile for multi-point, TODO: implement that line
+//            bg::intersection(geometry, m_alternate_box, clipped);
             mapper.map(clipped, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,64,0);stroke-width:2");
         }
         else
@@ -345,75 +445,23 @@ class buffer_svg_mapper
                 ? "opacity:0.4;fill:rgb(255,255,192);stroke:rgb(255,128,0);stroke-width:3"
                 : "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3";
 
-            // Clip output multi-polygon with box
-            GeometryBuffer clipped;
-            bg::intersection(buffered, alternate_box, clipped);
-            mapper.map(clipped, style);
+            try
+            {
+                // Clip output multi-polygon with box
+                GeometryBuffer clipped;
+                bg::intersection(buffered, m_alternate_box, clipped);
+                mapper.map(clipped, style);
+            }
+            catch (...)
+            {
+                std::cout << "Error for buffered output " << m_casename << std::endl;
+            }
         }
     }
-public :
 
-    template <typename Mapper, typename Visitor, typename Envelope>
-    void prepare(Mapper& mapper, Visitor& visitor, Envelope const& envelope, double box_buffer_distance)
-    {
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
-        // Create a zoomed-in view
-        bg::read_wkt(BOOST_GEOMETRY_BUFFER_TEST_SVG_ALTERNATE_BOX, alternate_box);
-        mapper.add(alternate_box);
-
-        // Take care non-visible elements are skipped
-        visitor.m_alternate_box = alternate_box;
-#else
-        bg::model::box<Point> box = envelope;
-        bg::buffer(box, box, box_buffer_distance);
-        mapper.add(box);
-#endif
-
-        boost::ignore_unused(visitor);
-    }
-
-    template <typename Mapper, typename Geometry, typename GeometryBuffer>
-    void map_input_output(Mapper& mapper, Geometry const& geometry,
-            GeometryBuffer const& buffered, bool negative)
-    {
-        bool const areal = boost::is_same
-            <
-                typename bg::tag_cast
-                    <
-                        typename bg::tag<Geometry>::type,
-                        bg::areal_tag
-                    >::type, bg::areal_tag
-            >::type::value;
-
-#ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
-        map_io_zoomed(mapper, geometry, buffered, negative, areal);
-#else
-        map_io(mapper, geometry, buffered, negative, areal);
-#endif
-    }
-
-    template <typename Mapper, typename Geometry, typename RescalePolicy>
-    void map_self_ips(Mapper& mapper, Geometry const& geometry, RescalePolicy const& rescale_policy)
-    {
-        typedef bg::detail::overlay::turn_info
-        <
-            Point,
-            typename bg::segment_ratio_type<Point, RescalePolicy>::type
-        > turn_info;
-
-        std::vector<turn_info> turns;
-
-        bg::detail::self_get_turn_points::no_interrupt_policy policy;
-        bg::self_turns
-            <
-                bg::detail::overlay::assign_null_policy
-            >(geometry, rescale_policy, turns, policy);
-
-        BOOST_FOREACH(turn_info const& turn, turns)
-        {
-            mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 3);
-        }
-    }
+    bg::model::box<Point> m_alternate_box;
+    bool m_zoom;
+    std::string m_casename;
 };
 
 
