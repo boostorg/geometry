@@ -21,5 +21,6 @@ test-suite boost-geometry-algorithms-within
     [ run within_areal_areal.cpp ]
     [ run within_linear_areal.cpp ]
     [ run within_linear_linear.cpp ]
+    [ run within_not_implemented.cpp ]
     [ run within_pointlike_xxx.cpp ]
     ;
