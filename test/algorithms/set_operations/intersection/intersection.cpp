@@ -358,6 +358,7 @@ void test_boxes(std::string const& wkt1, std::string const& wkt2, double expecte
     bg::read_wkt(wkt2, box2);
 
     Box box_out;
+    bg::assign_zero(box_out);
     bool detected = bg::intersection(box1, box2, box_out);
     typename bg::default_area_result<Box>::type area = bg::area(box_out);
 

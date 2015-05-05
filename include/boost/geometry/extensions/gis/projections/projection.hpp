@@ -55,7 +55,10 @@ class projection
         virtual std::string name() const = 0;
 
         /// Returns parameters of projection
-        virtual parameters params() const = 0;
+        virtual parameters const& params() const = 0;
+
+        /// Returns mutable parameters of projection
+        virtual parameters& mutable_params() = 0;
 
         virtual ~projection() {}
 

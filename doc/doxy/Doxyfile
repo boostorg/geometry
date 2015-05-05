@@ -89,6 +89,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
 			param_x="First coordinate (usually x-coordinate)" \
 			param_y="Second coordinate (usually y-coordinate)" \
 			param_z="Third coordinate (usually z-coordinate)" \
+                        constructor_default_no_init="Default constructor, no initialization" \
 			constructor_default{1}="Default constructor, creating an empty \1" \
 			constructor_begin_end{1}="Constructor with begin and end,  filling the \1" \
 			constructor_initializer_list{1}="Constructor taking std::initializer_list, filling the \1" \

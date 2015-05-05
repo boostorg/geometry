@@ -62,7 +62,7 @@ struct byte_order_type
     };
 };
 
-struct geometry_type
+struct geometry_type_ogc
 {
     enum enum_t
     {
@@ -78,9 +78,99 @@ struct geometry_type
     };
 };
 
-}} // namespace detail::endian
+struct geometry_type_ewkt
+{
+    enum enum_t
+    {
+        point      = 1,
+        linestring = 2,
+        polygon    = 3,
+
+        // TODO: Not implemented
+        //multipoint = 4,
+        //multilinestring = 5,
+        //multipolygon = 6,
+        //collection = 7
+
+
+        pointz      = 1001,
+        linestringz = 1002,
+        polygonz    = 1003
+    };
+};
+
+struct ogc_policy
+{
+};
+
+struct ewkt_policy
+{
+};
+
+template
+<
+    typename Geometry,
+    geometry_type_ogc::enum_t OgcType,
+    std::size_t Dim = dimension<Geometry>::value
+>
+struct geometry_type_impl
+{
+    static bool check(boost::uint32_t value)
+    {
+        return value == get();
+    }
+
+    static boost::uint32_t get()
+    {
+        return OgcType;
+    }
+};
+
+template
+<
+    typename Geometry,
+    geometry_type_ogc::enum_t OgcType
+>
+struct geometry_type_impl<Geometry, OgcType, 3>
+{
+    static bool check(boost::uint32_t value)
+    {
+        return value == get();
+    }
+
+    static boost::uint32_t get()
+    {
+        return 1000 + OgcType;
+    }
+};
+
+template
+<
+    typename Geometry, 
+    typename CheckPolicy = ogc_policy, 
+    typename Tag = typename tag<Geometry>::type
+>
+struct geometry_type : not_implemented<Tag>
+{
+};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, point_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::point>
+{};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, linestring_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::linestring>
+{};
+
+template <typename Geometry, typename CheckPolicy>
+struct geometry_type<Geometry, CheckPolicy, polygon_tag>
+    : geometry_type_impl<Geometry, geometry_type_ogc::polygon>
+{};
+
+}} // namespace detail::wkb
 #endif // DOXYGEN_NO_IMPL
 
 }} // namespace boost::geometry
-
 #endif // BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP

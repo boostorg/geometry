@@ -56,7 +56,7 @@ namespace inv
 
  /* inverse projection entry */
 template <typename PRJ, typename LL, typename XY, typename PAR>
-void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
+inline void pj_inv(PRJ const& prj, PAR const& par, XY const& xy, LL& ll)
 {
     /* can't do as much preliminary checking as with forward */
     /* descale and de-offset */

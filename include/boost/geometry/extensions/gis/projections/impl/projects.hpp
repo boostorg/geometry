@@ -39,7 +39,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/concept_check.hpp>
 #include <boost/math/constants/constants.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -176,9 +175,12 @@ class proj_exception
 public:
 
     proj_exception(int code = 0)
+        : m_code(code)
     {
-        boost::ignore_unused_variable_warning(code);
     }
+    int code() const { return m_code; }
+private :
+    int m_code;
 };
 
 }}} // namespace boost::geometry::projections

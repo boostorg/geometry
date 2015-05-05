@@ -42,16 +42,8 @@
 
 inline void check(double v, double ve, std::string const& name, std::string const& axis)
 {
-    //BOOST_CHECK_CLOSE(v, ve, 0.001);
-    // Instead of (non-existing) BOOST_CHECK_CLOSE_MESSAGE(v, ve, 0.001, bla bla)
-
-    if (! boost::test_tools::check_is_close(v, ve, boost::test_tools::fpc::percent_tolerance(0.001)))
-    {
-        std::ostringstream out;
-        out << "\n" << name << " " << axis << " -> " << v << " != " << ve;
-        BOOST_ERROR(out.str());
-    }
-
+    // (non-existing) BOOST_CHECK_CLOSE_MESSAGE(v, ve, 0.001, "\n" << name << " " << axis << " -> " << v << " != " << ve);
+    BOOST_CHECK_CLOSE(v, ve, 0.001);
 }
 
 template <typename P>
@@ -140,6 +132,7 @@ void test_all()
     test_forward<P>("eck6", 4.897000, 52.371000, 342737.885307, 6363364.830847, "+proj=eck6 +ellps=WGS84 +units=m");
     test_forward<P>("eqc", 4.897000, 52.371000, 545131.546415, 5829913.052335, "+proj=eqc +ellps=WGS84 +units=m");
     test_forward<P>("eqdc", 4.897000, 52.371000, 307874.536263, 5810915.646438, "+proj=eqdc +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
+    test_forward<P>("etmerc", 4.897000, 52.371000, 333425.492123, 5815921.814393, "+proj=etmerc +ellps=WGS84 +units=m");
     test_forward<P>("euler", 4.897000, 52.371000, 338753.024859, 5836825.984893, "+proj=euler +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
     test_forward<P>("fahey", 4.897000, 52.371000, 388824.354103, 5705638.873094, "+proj=fahey +ellps=WGS84 +units=m");
     test_forward<P>("fouc", 4.897000, 52.371000, 268017.369817, 6272855.564674, "+proj=fouc +ellps=WGS84 +units=m");
@@ -157,6 +150,7 @@ void test_all()
     test_forward<P>("hammer", 4.897000, 52.371000, 370843.923425, 5630047.232233, "+proj=hammer +ellps=WGS84 +units=m");
     test_forward<P>("hatano", 4.897000, 52.371000, 383644.128560, 6290117.704632, "+proj=hatano +ellps=WGS84 +units=m");
     test_forward<P>("imw_p", 4.897000, 52.371000, 318784.808056, 3594184.939568, "+proj=imw_p +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
+    test_forward<P>("isea", 4.897000, 52.371000, -413613.639976, 9218173.701546, "+proj=isea +ellps=WGS84 +units=m");
     test_forward<P>("kav5", 4.897000, 52.371000, 383646.088858, 5997047.888175, "+proj=kav5 +ellps=WGS84 +units=m");
     test_forward<P>("kav7", 4.897000, 52.371000, 407769.043907, 5829913.052335, "+proj=kav7 +ellps=WGS84 +units=m");
     test_forward<P>("krovak", 14.416667, 50.083333, -743286.779768, -1043498.912060, "+proj=krovak +ellps=WGS84 +units=m");
@@ -199,6 +193,7 @@ void test_all()
     test_forward<P>("ortel", 4.897000, 52.371000, 360906.947408, 5829913.052335, "+proj=ortel +ellps=WGS84 +units=m");
     test_forward<P>("ortho", 4.897000, 52.371000, 332422.874291, 5051361.531375, "+proj=ortho +ellps=WGS84 +units=m");
     test_forward<P>("pconic", -70.400000, -23.650000, -2240096.398139, -6940342.146955, "+proj=pconic +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_0=60W");
+    test_forward<P>("qsc", 4.897000, 52.371000, 543871.545186, 7341888.620371, "+proj=qsc +ellps=WGS84 +units=m");
     test_forward<P>("poly", 4.897000, 52.371000, 333274.269648, 5815908.957562, "+proj=poly +ellps=WGS84 +units=m");
     test_forward<P>("putp1", 4.897000, 52.371000, 375730.931178, 5523551.121434, "+proj=putp1 +ellps=WGS84 +units=m");
     test_forward<P>("putp2", 4.897000, 52.371000, 351480.997939, 5942668.547355, "+proj=putp2 +ellps=WGS84 +units=m");
@@ -210,7 +205,7 @@ void test_all()
     test_forward<P>("putp6", 4.897000, 52.371000, 324931.055842, 5842588.644796, "+proj=putp6 +ellps=WGS84 +units=m");
     test_forward<P>("putp6p", 4.897000, 52.371000, 338623.512107, 6396742.919679, "+proj=putp6p +ellps=WGS84 +units=m");
     test_forward<P>("qua_aut", 4.897000, 52.371000, 370892.621714, 5629072.862494, "+proj=qua_aut +ellps=WGS84 +units=m");
-    test_forward<P>("robin", 4.897000, 52.371000, 394576.507489, 5571243.439235, "+proj=robin +ellps=WGS84 +units=m");
+    test_forward<P>("robin", 4.897000, 52.371000, 394576.507489, 5570940.631371, "+proj=robin +ellps=WGS84 +units=m");
     test_forward<P>("rouss", 4.897000, 52.371000, 412826.227669, 6248368.849775, "+proj=rouss +ellps=WGS84 +units=m");
     test_forward<P>("rpoly", 4.897000, 52.371000, 332447.130797, 5841164.662431, "+proj=rpoly +ellps=WGS84 +units=m");
     test_forward<P>("sinu", 4.897000, 52.371000, 333528.909809, 5804625.044313, "+proj=sinu +ellps=WGS84 +units=m");
@@ -246,6 +241,7 @@ void test_all()
 
     test_inverse<P>("aea", 334609.583974, 5218502.503686, 4.897000, 52.371000, "+proj=aea +ellps=WGS84 +units=m +lat_1=55 +lat_2=65");
     test_inverse<P>("aeqd", 384923.723428, 5809986.497118, 4.898398, 52.378890, "+proj=aeqd +ellps=WGS84 +units=m"); // F/I: 883.080918
+    test_inverse<P>("aitoff", 384096.182830, 5831239.274680, 4.897000, 52.371000, "+proj=aitoff +ellps=WGS84 +units=m");
     test_inverse<P>("alsk", 7002185.416415, -3700467.546545, -84.389819, 33.754911, "+proj=alsk +ellps=WGS84 +units=m +lon_0=-150W"); // F/I: 19.398478
     test_inverse<P>("bipc", 3693973.674143, -8459972.647559, 4.897000, 52.371000, "+proj=bipc +ellps=WGS84 +units=m");
     test_inverse<P>("bonne", 333291.091896, 274683.016972, 4.897000, 52.371000, "+proj=bonne +ellps=WGS84 +units=m +lat_1=50");
@@ -262,6 +258,7 @@ void test_all()
     test_inverse<P>("eck6", 342737.885307, 6363364.830847, 4.897000, 52.371000, "+proj=eck6 +ellps=WGS84 +units=m");
     test_inverse<P>("eqc", 545131.546415, 5829913.052335, 4.897000, 52.371000, "+proj=eqc +ellps=WGS84 +units=m");
     test_inverse<P>("eqdc", 307874.536263, 5810915.646438, 4.897000, 52.371000, "+proj=eqdc +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
+    test_inverse<P>("etmerc", 333425.492123, 5815921.814393, 4.897000, 52.371000, "+proj=etmerc +ellps=WGS84 +units=m");
     test_inverse<P>("euler", 338753.024859, 5836825.984893, 4.897000, 52.371000, "+proj=euler +ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
     test_inverse<P>("fahey", 388824.354103, 5705638.873094, 4.897000, 52.371000, "+proj=fahey +ellps=WGS84 +units=m");
     test_inverse<P>("fouc", 268017.369817, 6272855.564674, 4.897000, 52.371000, "+proj=fouc +ellps=WGS84 +units=m");
@@ -314,6 +311,7 @@ void test_all()
     test_inverse<P>("omerc", 1009705.329154, 5829437.254923, 4.897000, 52.371000, "+proj=omerc +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n  +lon_1=1e +lon_2=30e");
     test_inverse<P>("ortho", 332422.874291, 5051361.531375, 4.897000, 52.371000, "+proj=ortho +ellps=WGS84 +units=m");
     test_inverse<P>("pconic", -2240096.398139, -6940342.146955, -70.400000, -23.650000, "+proj=pconic +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_0=60W"); // F/I: 4424863.377843
+    test_inverse<P>("qsc", 543871.545186, 7341888.620371, 4.897000, 52.371000, "+proj=qsc +ellps=WGS84 +units=m");
     test_inverse<P>("poly", 333274.269648, 5815908.957562, 4.897000, 52.371000, "+proj=poly +ellps=WGS84 +units=m");
     test_inverse<P>("putp1", 375730.931178, 5523551.121434, 4.897000, 52.371000, "+proj=putp1 +ellps=WGS84 +units=m");
     test_inverse<P>("putp2", 351480.997939, 5942668.547355, 4.897000, 52.371000, "+proj=putp2 +ellps=WGS84 +units=m");
@@ -325,7 +323,7 @@ void test_all()
     test_inverse<P>("putp6", 324931.055842, 5842588.644796, 4.897000, 52.371000, "+proj=putp6 +ellps=WGS84 +units=m");
     test_inverse<P>("putp6p", 338623.512107, 6396742.919679, 4.897000, 52.371000, "+proj=putp6p +ellps=WGS84 +units=m");
     test_inverse<P>("qua_aut", 370892.621714, 5629072.862494, 4.897000, 52.371000, "+proj=qua_aut +ellps=WGS84 +units=m");
-    test_inverse<P>("robin", 394576.507489, 5571243.439235, 4.897000, 52.371000, "+proj=robin +ellps=WGS84 +units=m");
+    test_inverse<P>("robin", 394576.507489, 5570940.631371, 4.897000, 52.371000, "+proj=robin +ellps=WGS84 +units=m");
     test_inverse<P>("rouss", 412826.227669, 6248368.849775, 4.959853, 52.433747, "+proj=rouss +ellps=WGS84 +units=m"); // F/I: 8188.459174
     test_inverse<P>("sinu", 333528.909809, 5804625.044313, 4.897000, 52.371000, "+proj=sinu +ellps=WGS84 +units=m");
     test_inverse<P>("somerc", 545131.546415, 6833623.829215, 4.897000, 52.371000, "+proj=somerc +ellps=WGS84 +units=m");
