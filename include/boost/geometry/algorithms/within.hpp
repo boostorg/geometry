@@ -31,6 +31,7 @@
 
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/algorithms/is_not_implemented.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -350,14 +351,29 @@ struct within
     }
 };
 
+
+struct within_metapolicy
+{
+    template <typename Geometry1, typename Geometry2>
+    struct apply
+        : boost::is_base_of
+            <
+                nyi::not_implemented_tag,
+                dispatch::within<Geometry1, Geometry2>
+            >
+    {};
+};
+
+
 template
 <
     typename Geometry1,
     typename Geometry2,
-    bool NotImplemented = boost::is_base_of
+    bool NotImplemented = is_not_implemented
                             <
-                                nyi::not_implemented_tag,
-                                dispatch::within<Geometry1, Geometry2>
+                                Geometry1,
+                                Geometry2,
+                                within_metapolicy
                             >::value
 >
 struct within_variant
