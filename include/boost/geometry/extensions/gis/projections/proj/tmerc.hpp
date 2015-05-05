@@ -285,28 +285,6 @@ namespace boost { namespace geometry { namespace projections
     };
 
     /*!
-        \brief Universal Transverse Mercator (UTM) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Cylindrical
-         - Spheroid
-         - zone= south
-        \par Example
-        \image html ex_utm.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct utm_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline utm_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
         \brief Transverse Mercator projection
         \ingroup projections
         \tparam Geographic latlong point type
@@ -325,6 +303,28 @@ namespace boost { namespace geometry { namespace projections
         inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::tmerc::setup_tmerc(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Universal Transverse Mercator (UTM) projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Cylindrical
+         - Spheroid
+         - zone= south
+        \par Example
+        \image html ex_utm.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct utm_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>
+    {
+        inline utm_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::tmerc::setup_utm(this->m_par, this->m_proj_parm);
         }
     };
 
