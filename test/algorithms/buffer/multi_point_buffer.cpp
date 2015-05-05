@@ -80,10 +80,6 @@ void test_all()
 template <typename P>
 void test_many_points_per_circle()
 {
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-    // These tests still fail for the new approach
-    return;
-#endif
     // Tests for large distances / many points in circles.
     // Before Boost 1.58, this would (seem to) hang. It is solved by using monotonic sections in get_turns for buffer
     // This is more time consuming, only calculate this for counter clockwise

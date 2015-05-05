@@ -26,6 +26,7 @@
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
 #include <boost/geometry/strategies/cartesian/side_of_intersection.hpp>
 #endif
@@ -201,14 +202,20 @@ public :
         typedef typename Turn::robust_point_type point_type;
         typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
 
-        coordinate_type const point_y = geometry::get<1>(turn.robust_point);
-
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        typedef geometry::model::referring_segment<point_type const> segment_type;
+        segment_type const p(turn.rob_pi, turn.rob_pj);
+        segment_type const q(turn.rob_qi, turn.rob_qj);
+#else
         typedef strategy::within::winding<point_type> strategy_type;
 
         typename strategy_type::state_type state;
         strategy_type strategy;
         boost::ignore_unused(strategy);
-        
+#endif
+
+        coordinate_type const point_y = geometry::get<1>(turn.robust_point);
+
         for (std::size_t s = 0; s < piece.sections.size(); s++)
         {
             section_type const& section = piece.sections[s];
@@ -223,6 +230,23 @@ public :
                     point_type const& previous = piece.robust_ring[i - 1];
                     point_type const& current = piece.robust_ring[i];
 
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+                    segment_type const r(previous, current);
+                    int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                                turn.robust_point);
+
+                    // Sections are monotonic in y-dimension
+                    if (side == 1)
+                    {
+                        // Left on segment
+                        return analyse_disjoint;
+                    }
+                    else if (side == 0)
+                    {
+                        // On segment
+                        return analyse_on_offsetted;
+                    }
+#else
                     analyse_result code = check_segment(previous, current, turn, false);
                     if (code != analyse_continue)
                     {
@@ -232,10 +256,15 @@ public :
                     // Get the state (to determine it is within), we don't have
                     // to cover the on-segment case (covered above)
                     strategy.apply(turn.robust_point, previous, current, state);
+#endif
                 }
             }
         }
 
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+        // It is nowhere outside, and not on segment, so it is within
+        return analyse_within;
+#else
         int const code = strategy.result(state);
         if (code == 1)
         {
@@ -248,6 +277,7 @@ public :
 
         // Should normally not occur - on-segment is covered
         return analyse_unknown;
+#endif
     }
 
 };
