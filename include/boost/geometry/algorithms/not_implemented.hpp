@@ -8,6 +8,7 @@
 // Modifications copyright (c) 2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -128,7 +129,7 @@ struct not_implemented
 
 template
 <
-    typename Result,
+    typename Result = void,
     typename Term1 = void,
     typename Term2 = void,
     typename Term3 = void
@@ -173,11 +174,47 @@ struct lazy_not_implemented
 #endif
 };
 
+template <typename Term1, typename Term2, typename Term3>
+struct lazy_not_implemented<void, Term1, Term2, Term3>
+    : nyi::not_implemented_tag
+{
+#ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
+    template <typename... T1>
+    static inline void apply(T1 const&...)
+    {
+        not_implemented<Term1, Term2, Term3>();
+    }
+#else
+    static inline void apply()
+    {
+        not_implemented<Term1, Term2, Term3>();
+    }
+
+    template <typename T1, typename T2>
+    static inline void apply(T1 const&, T2 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+    }
+
+    template <typename T1, typename T2, typename T3>
+    static inline void apply(T1 const&, T2 const&, T3 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+    }
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    static inline void apply(T1 const&, T2 const&, T3 const&, T4 const&)
+    {
+        not_implemented<Term1, Term2, Term3>();
+    }
+#endif
+};
+
 
 struct not_implemented_exception
     : boost::geometry::exception
 {
-    const char * what() const
+    const char * what() const throw()
     {
         return "THIS_OPERATION_IS_NOT_OR_NOT_YET_IMPLEMENTED for passed input types";
     }    
