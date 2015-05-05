@@ -92,6 +92,13 @@ int test_main(int, char* [])
     }
 
 
+    {
+        point fb(27671131, 30809240);
+        segment col1(point(27671116, 30809247), point(27675474, 30807351));
+        segment col2(point(27666779, 30811130), point(27671139, 30809237));
+        segment col3(point(27671122, 30809244), point(27675480, 30807348));
+        BOOST_CHECK_EQUAL(1, side::apply(col1, col2, col3, fb)); // Left of segment...
+    }
 
     // TODO: we might add a check calculating the IP, determining the side
     // with the normal side strategy, and verify the results are equal
