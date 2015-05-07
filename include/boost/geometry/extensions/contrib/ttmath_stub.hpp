@@ -175,6 +175,39 @@ inline ttmath_big operator/(ttmath_big const& x, ttmath_big const& y)
 }
 
 
+// math functions for ttmath_big
+
+#define TTMATH_BIG_UNARY_MATH_FUNCTION(FCT) \
+    ttmath_big FCT(ttmath_big const& x) \
+    { \
+        return ttmath::FCT(static_cast<ttmath::Big<1,4> const&>(x)); \
+    }
+
+#define TTMATH_BIG_BINARY_MATH_FUNCTION(FCT) \
+    ttmath_big FCT(ttmath_big const& x, ttmath_big const& y) \
+    { \
+        return ttmath::FCT(static_cast<ttmath::Big<1,4> const&>(x), \
+                           static_cast<ttmath::Big<1,4> const&>(y)); \
+    }
+
+TTMATH_BIG_UNARY_MATH_FUNCTION(sqrt)
+TTMATH_BIG_UNARY_MATH_FUNCTION(abs)
+TTMATH_BIG_UNARY_MATH_FUNCTION(ceil)
+TTMATH_BIG_UNARY_MATH_FUNCTION(floor)
+TTMATH_BIG_UNARY_MATH_FUNCTION(asin)
+TTMATH_BIG_UNARY_MATH_FUNCTION(acos)
+TTMATH_BIG_UNARY_MATH_FUNCTION(atan)
+TTMATH_BIG_UNARY_MATH_FUNCTION(sin)
+TTMATH_BIG_UNARY_MATH_FUNCTION(cos)
+TTMATH_BIG_UNARY_MATH_FUNCTION(tan)
+
+TTMATH_BIG_BINARY_MATH_FUNCTION(atan2)
+TTMATH_BIG_BINARY_MATH_FUNCTION(mod)
+
+#undef TTMATH_BIG_UNARY_MATH_FUNCTION
+#undef TTMATH_BIG_BINARY_MATH_FUNCTION
+
+
 namespace boost{ namespace geometry { namespace math
 {
 
@@ -235,6 +268,7 @@ namespace detail
             : public define_two_pi<ttmath::Big<1,4> >
     {};
 
+
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
     struct equals_with_epsilon<ttmath::Big<Exponent, Mantissa>, false>
     {
@@ -251,6 +285,33 @@ namespace detail
     struct equals_with_epsilon<ttmath_big, false>
             : public equals_with_epsilon<ttmath::Big<1, 4>, false>
     {};
+
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct equals<ttmath::Big<Exponent, Mantissa>, false>
+    {
+        template <typename Policy>
+        static inline bool apply(ttmath::Big<Exponent, Mantissa> const& a,
+                                 ttmath::Big<Exponent, Mantissa> const& b,
+                                 Policy const&)
+        {
+            return equals_with_epsilon
+                <
+                    ttmath::Big<Exponent, Mantissa>
+                >::apply(a, b);
+        }
+    };
+
+    template <>
+    struct equals<ttmath_big, false>
+    {
+        template <typename Policy>
+        static inline bool apply(ttmath_big const& a,
+                                 ttmath_big const& b,
+                                 Policy const&)
+        {
+            return equals_with_epsilon<ttmath_big>::apply(a, b);
+        }
+    };
 
 } // detail
 
