@@ -49,24 +49,19 @@ struct degree_radian_converter
 
     static inline coordinate_type get(Geometry const& geometry)
     {
-        static coordinate_type const d2r
-            = math::pi<coordinate_type>() / coordinate_type(180.0);
-
         return boost::numeric_cast
             <
                 coordinate_type
-            >(geometry::get<Dimension>(geometry) * d2r);
+            >(geometry::get<Dimension>(geometry)
+              * math::d2r<coordinate_type>());
     }
 
     static inline void set(Geometry& geometry, coordinate_type const& radians)
     {
-        static coordinate_type const r2d
-            = coordinate_type(180.0) / math::pi<coordinate_type>();
-
         geometry::set<Dimension>(geometry, boost::numeric_cast
             <
                 coordinate_type
-            >(radians * r2d));
+            >(radians * math::r2d<coordinate_type>()));
     }
 
 };
