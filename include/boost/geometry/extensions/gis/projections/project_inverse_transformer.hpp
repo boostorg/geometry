@@ -60,8 +60,8 @@ struct project_inverse_transformer
     {
         // Latlong (LL -> XY) will be projected, rest will be copied.
         // So first copy third or higher dimensions
-        geometry::detail::convert::point_to_point<Cartesian, LatLong, 2,
-                geometry::dimension<Cartesian>::value> ::copy(p1, p2);
+        geometry::detail::conversion::point_to_point<Cartesian, LatLong, 2,
+                geometry::dimension<Cartesian>::value> ::apply(p1, p2);
         return m_prj->inverse(p1, p2);
     }
 
