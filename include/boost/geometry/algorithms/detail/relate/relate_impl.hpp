@@ -11,8 +11,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_BASE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_BASE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_IMPL_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_IMPL_HPP
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/or.hpp>
@@ -33,7 +33,7 @@ struct implemented_tag {};
 template <template <typename, typename> class StaticMaskTrait,
           typename Geometry1,
           typename Geometry2>
-struct relate_base
+struct relate_impl
     : boost::mpl::if_
         <
             boost::mpl::or_
@@ -77,4 +77,4 @@ struct relate_base
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_BASE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_RELATE_IMPL_HPP

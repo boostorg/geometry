@@ -47,7 +47,10 @@ struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geomet
         <
             Geometry1,
             Geometry2,
-            detail::de9im::static_mask_within
+            typename detail::de9im::static_mask_within_type
+                <
+                    Geometry1, Geometry2
+                >::type
         > type;
 };
 
@@ -58,7 +61,10 @@ struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geom
         <
             Geometry1,
             Geometry2,
-            detail::de9im::static_mask_within
+            typename detail::de9im::static_mask_within_type
+                <
+                    Geometry1, Geometry2
+                >::type
         > type;
 };
 
@@ -84,7 +90,10 @@ struct default_strategy<AnyTag1, AnyTag2, AnyTag1, AnyTag2, AnyCS, AnyCS, Geomet
         <
             Geometry1,
             Geometry2,
-            detail::de9im::static_mask_covered_by
+            typename detail::de9im::static_mask_covered_by_type
+                <
+                    Geometry1, Geometry2
+                >::type
         > type;
 };
 
@@ -95,7 +104,10 @@ struct default_strategy<AnyTag1, AnyTag2, AnyTag1, areal_tag, AnyCS, AnyCS, Geom
         <
             Geometry1,
             Geometry2,
-            detail::de9im::static_mask_covered_by
+            typename detail::de9im::static_mask_covered_by_type
+                <
+                    Geometry1, Geometry2
+                >::type
         > type;
 };
 

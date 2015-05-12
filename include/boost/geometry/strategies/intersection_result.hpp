@@ -25,6 +25,10 @@
 namespace boost { namespace geometry
 {
 
+// TODO - This struct is not used in the library. For now commented out because
+//        it interferes with the newly added de9im namespace/functionality.
+//        Remove it later if not needed.
+
 /*!
     \brief Dimensionally Extended 9 Intersection Matrix
     \details

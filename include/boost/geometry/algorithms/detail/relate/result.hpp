@@ -1026,7 +1026,7 @@ template <typename StaticMask, bool Interrupt>
 class static_mask_handler
     : private matrix_handler< matrix<3> >
 {
-    typedef matrix_handler< relate::matrix<3> > base_t;
+    typedef matrix_handler< relate::matrix<3> > base_type;
 
 public:
     typedef bool result_type;
@@ -1044,14 +1044,14 @@ public:
     result_type result() const
     {
         return (!Interrupt || !interrupt)
-            && static_check_matrix<StaticMask>::apply(base_t::matrix());
+            && static_check_matrix<StaticMask>::apply(base_type::matrix());
     }
 
     template <field F1, field F2, char D>
     inline bool may_update() const
     {
         return static_may_update<StaticMask, D, F1, F2>::
-                    apply(base_t::matrix());
+                    apply(base_type::matrix());
     }
 
     template <field F1, field F2>
@@ -1095,7 +1095,7 @@ private:
     template <field F1, field F2, char V>
     inline void set_dispatch(integral_constant<int, 1>)
     {
-        base_t::template set<F1, F2, V>();
+        base_type::template set<F1, F2, V>();
     }
     // else
     template <field F1, field F2, char V>
@@ -1112,7 +1112,7 @@ private:
     template <field F1, field F2, char V>
     inline void update_dispatch(integral_constant<int, 1>)
     {
-        base_t::template update<F1, F2, V>();
+        base_type::template update<F1, F2, V>();
     }
     // else
     template <field F1, field F2, char V>

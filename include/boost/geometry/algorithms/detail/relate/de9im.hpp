@@ -97,7 +97,7 @@ public:
 class mask
     : public detail::relate::mask<3, 3>
 {
-    typedef detail::relate::mask<3, 3> base_t;
+    typedef detail::relate::mask<3, 3> base_type;
 
 public:
     /*!
@@ -105,7 +105,7 @@ public:
     \param code The mask pattern.
     */
     inline explicit mask(const char* code)
-        : base_t(code)
+        : base_type(code)
     {}
     
     /*!
@@ -113,7 +113,7 @@ public:
     \param code The mask pattern.
     */
     inline explicit mask(std::string const& code)
-        : base_t(code.c_str(), code.size())
+        : base_type(code.c_str(), code.size())
     {}
 };
 
@@ -286,7 +286,11 @@ struct static_mask_equals_type
 };
 
 // DISJOINT
-typedef geometry::de9im::static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> static_mask_disjoint;
+template <typename Geometry1, typename Geometry2>
+struct static_mask_disjoint_type
+{
+    typedef geometry::de9im::static_mask<'F', 'F', '*', 'F', 'F', '*', '*', '*', '*'> type;
+};
 
 // TOUCHES - NOT P/P
 template
@@ -319,16 +323,24 @@ struct static_mask_touches_type
 {};
 
 // WITHIN
-typedef geometry::de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'> static_mask_within;
+template <typename Geometry1, typename Geometry2>
+struct static_mask_within_type
+{
+    typedef geometry::de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'> type;
+};
 
 // COVERED_BY (non OGC)
-typedef boost::mpl::vector
-    <
-        geometry::de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'>,
-        geometry::de9im::static_mask<'*', 'T', 'F', '*', '*', 'F', '*', '*', '*'>,
-        geometry::de9im::static_mask<'*', '*', 'F', 'T', '*', 'F', '*', '*', '*'>,
-        geometry::de9im::static_mask<'*', '*', 'F', '*', 'T', 'F', '*', '*', '*'>
-    > static_mask_covered_by;
+template <typename Geometry1, typename Geometry2>
+struct static_mask_covered_by_type
+{
+    typedef boost::mpl::vector
+        <
+            geometry::de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'>,
+            geometry::de9im::static_mask<'*', 'T', 'F', '*', '*', 'F', '*', '*', '*'>,
+            geometry::de9im::static_mask<'*', '*', 'F', 'T', '*', 'F', '*', '*', '*'>,
+            geometry::de9im::static_mask<'*', '*', 'F', '*', 'T', 'F', '*', '*', '*'>
+        > type;
+};
 
 // CROSSES
 // dim(G1) < dim(G2) - P/L P/A L/A

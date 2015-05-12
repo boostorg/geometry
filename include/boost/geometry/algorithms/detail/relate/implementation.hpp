@@ -52,6 +52,11 @@ struct relate<MultiPoint1, MultiPoint2, multi_point_tag, multi_point_tag, 0, 0, 
     : detail::relate::multipoint_multipoint<MultiPoint1, MultiPoint2>
 {};
 
+// TODO - for now commented out because before implementing it we must consider:
+// 1. how the Box degenerated to a Point should be treated
+// 2. what should be the definition of a Box degenerated to a Point
+// 3. what fields should the matrix/mask contain for dimension > 2 and dimension > 9
+//
 //template <typename Point, typename Box, int TopDim2>
 //struct relate<Point, Box, point_tag, box_tag, 0, TopDim2, false>
 //    : detail::relate::point_box<Point, Box>
