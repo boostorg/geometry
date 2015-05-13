@@ -121,24 +121,27 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
 
     // formula
     {
-        bg::detail::vincenty_inverse<calc_t> vi(lon1 * bg::math::d2r,
-                                                lat1 * bg::math::d2r,
-                                                lon2 * bg::math::d2r,
-                                                lat2 * bg::math::d2r,
+        double const d2r = bg::math::d2r<double>();
+        double const r2d = bg::math::r2d<double>();
+
+        bg::detail::vincenty_inverse<calc_t> vi(lon1 * d2r,
+                                                lat1 * d2r,
+                                                lon2 * d2r,
+                                                lat2 * d2r,
                                                 spheroid);
         calc_t dist = vi.distance();
         calc_t az12 = vi.azimuth12();
         calc_t az21 = vi.azimuth21();
 
-        calc_t az12_deg = az12 * bg::math::r2d;
-        calc_t az21_deg = az21 * bg::math::r2d;
+        calc_t az12_deg = az12 * r2d;
+        calc_t az21_deg = az21 * r2d;
         
         BOOST_CHECK_CLOSE(dist, calc_t(expected_distance), tolerance);
         check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
         check_deg("az21_deg", az21_deg, calc_t(expected_azimuth_21), tolerance, error);
 
-        bg::detail::vincenty_direct<calc_t> vd(lon1 * bg::math::d2r,
-                                               lat1 * bg::math::d2r,
+        bg::detail::vincenty_direct<calc_t> vd(lon1 * d2r,
+                                               lat1 * d2r,
                                                dist,
                                                az12,
                                                spheroid);
@@ -146,9 +149,9 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         calc_t direct_lat2 = vd.lat2();
         calc_t direct_az21 = vd.azimuth21();
 
-        calc_t direct_lon2_deg = direct_lon2 * bg::math::r2d;
-        calc_t direct_lat2_deg = direct_lat2 * bg::math::r2d;
-        calc_t direct_az21_deg = direct_az21 * bg::math::r2d;
+        calc_t direct_lon2_deg = direct_lon2 * r2d;
+        calc_t direct_lat2_deg = direct_lat2 * r2d;
+        calc_t direct_az21_deg = direct_az21 * r2d;
         
         check_deg("direct_lon2_deg", direct_lon2_deg, calc_t(lon2), tolerance, error);
         check_deg("direct_lat2_deg", direct_lat2_deg, calc_t(lat2), tolerance, error);

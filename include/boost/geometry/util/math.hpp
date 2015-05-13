@@ -493,9 +493,20 @@ inline bool larger(T1 const& a, T2 const& b)
 }
 
 
+template <typename T>
+T d2r()
+{
+    static T const conversion_coefficient = geometry::math::pi<T>() / T(180.0);
+    return conversion_coefficient;
+}
 
-double const d2r = geometry::math::pi<double>() / 180.0;
-double const r2d = 1.0 / d2r;
+template <typename T>
+T r2d()
+{
+    static T const conversion_coefficient = T(180.0) / geometry::math::pi<T>();
+    return conversion_coefficient;
+}
+
 
 /*!
     \brief Calculates the haversine of an angle
