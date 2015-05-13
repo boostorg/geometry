@@ -66,7 +66,8 @@ enum piece_type
     buffered_round_end,
     buffered_flat_end,
     buffered_point,
-    buffered_concave   // always on the inside
+    buffered_concave,   // always on the inside
+    piece_type_unknown
 };
 
 

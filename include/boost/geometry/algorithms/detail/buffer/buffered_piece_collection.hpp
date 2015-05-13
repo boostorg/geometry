@@ -19,6 +19,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/is_convex.hpp>
@@ -127,6 +128,11 @@ struct buffered_piece_collection
     typedef geometry::model::ring<robust_point_type> robust_ring_type;
     typedef geometry::model::box<robust_point_type> robust_box_type;
 
+    typedef typename default_comparable_distance_result
+        <
+            robust_point_type
+        >::type robust_comparable_radius_type;
+
     typedef typename strategy::side::services::default_strategy
         <
             typename cs_tag<point_type>::type
@@ -199,7 +205,6 @@ struct buffered_piece_collection
         // Monotonic sections of pieces around points
         std::vector<section_type> sections;
 
-
         // Robust representations
         // 3: complete ring
         robust_ring_type robust_ring;
@@ -208,6 +213,27 @@ struct buffered_piece_collection
         robust_box_type robust_offsetted_envelope;
 
         std::vector<robust_turn> robust_turns; // Used only in insert_rescaled_piece_turns - we might use a map instead
+
+        robust_point_type robust_center;
+        robust_comparable_radius_type robust_min_comparable_radius;
+        robust_comparable_radius_type robust_max_comparable_radius;
+
+        piece()
+            : type(strategy::buffer::piece_type_unknown)
+            , index(-1)
+            , left_index(-1)
+            , right_index(-1)
+            , last_segment_index(-1)
+            , offsetted_count(-1)
+            , is_convex(false)
+            , robust_min_comparable_radius(0)
+            , robust_max_comparable_radius(0)
+        {
+            is_monotonic_increasing[0] = false;
+            is_monotonic_increasing[1] = false;
+            is_monotonic_decreasing[0] = false;
+            is_monotonic_decreasing[1] = false;
+        }
     };
 
     struct robust_original
@@ -629,7 +655,6 @@ struct buffered_piece_collection
             current = next;
             ++next;
         }
-
     }
 
     void determine_properties()
@@ -666,7 +691,31 @@ struct buffered_piece_collection
         geometry::sectionalize<false, dimensions>(pc.robust_ring,
                 detail::no_rescale_policy(), pc.sections);
 
-        // TODO (next phase) determine min/max radius
+        // Determine min/max radius
+        typedef geometry::model::referring_segment<robust_point_type const>
+            robust_segment_type;
+
+        typename robust_ring_type::const_iterator current = pc.robust_ring.begin();
+        typename robust_ring_type::const_iterator next = current + 1;
+
+        for (int i = 1; i < pc.offsetted_count; i++)
+        {
+            robust_segment_type s(*current, *next);
+            robust_comparable_radius_type const d
+                = geometry::comparable_distance(pc.robust_center, s);
+
+            if (i == 1 || d < pc.robust_min_comparable_radius)
+            {
+                pc.robust_min_comparable_radius = d;
+            }
+            if (i == 1 || d > pc.robust_max_comparable_radius)
+            {
+                pc.robust_max_comparable_radius = d;
+            }
+
+            current = next;
+            ++next;
+        }
     }
 
     inline void prepare_buffered_point_pieces()
@@ -778,6 +827,13 @@ struct buffered_piece_collection
         {
             ring.back() = p;
         }
+    }
+
+    inline void set_piece_center(point_type const& center)
+    {
+        BOOST_ASSERT(! m_pieces.empty());
+        geometry::recalculate(m_pieces.back().robust_center, center,
+                m_robust_policy);
     }
 
     inline void finish_ring(bool is_interior = false, bool has_interiors = false)

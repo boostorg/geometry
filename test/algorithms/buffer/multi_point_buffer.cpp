@@ -102,6 +102,9 @@ void test_many_points_per_circle()
 
     double const tolerance = 1.0;
 
+    // Area should be somewhat larger (~>) than pi*distance^2
+    // 6051788: area ~> 115058122875258
+
     // Strategies with many points, which are (very) slow in debug mode
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_1_8000",
@@ -131,12 +134,30 @@ void test_many_points_per_circle()
             115058672871849.219, tolerance);
 #endif
 
+    // 5666962: area ~> 100890546298964
     test_with_custom_strategies<multi_point_type, polygon>(
             "mysql_report_2015_02_25_2",
             mysql_report_2015_02_25_2, join, end_flat,
             distance_strategy(5666962), side_strategy, point_circle(46641),
             100891031341757.344, tolerance);
 
+    // Multipoint b with large distances/many points
+    // Area ~> pi * 10x
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "multipoint_b_50k",
+            multipoint_b, join, end_flat,
+            distance_strategy(1000000), side_strategy, point_circle(50000),
+            3141871558215.26465, tolerance);
+
+#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_SLOW_TESTS)
+    // Tests optimization min/max radius
+    // Takes about 55 seconds in release mode
+    test_with_custom_strategies<multi_point_type, polygon>(
+            "multipoint_b_500k",
+            multipoint_b, join, end_flat,
+            distance_strategy(10000000), side_strategy, point_circle(500000),
+            314162054419515.562, tolerance);
+#endif
 }
 
 int test_main(int, char* [])

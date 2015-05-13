@@ -214,6 +214,8 @@ public :
         boost::ignore_unused(strategy);
 #endif
 
+        BOOST_ASSERT(! piece.sections.empty());
+
         coordinate_type const point_y = geometry::get<1>(turn.robust_point);
 
         for (std::size_t s = 0; s < piece.sections.size(); s++)
@@ -704,12 +706,37 @@ public:
         }
 
         // TODO: mutable_piece to make some on-demand preparations in analyse
+        Turn& mutable_turn = m_turns[turn.turn_index];
+
+        if (piece.type == geometry::strategy::buffer::buffered_point)
+        {
+            // Optimization for buffer around points: if distance from center
+            // is not between min/max radius, the result is clear
+            typedef typename default_comparable_distance_result
+                <
+                    typename Turn::robust_point_type
+                >::type distance_type;
+
+            distance_type const cd
+                = geometry::comparable_distance(piece.robust_center,
+                        turn.robust_point);
+
+            if (cd < piece.robust_min_comparable_radius)
+            {
+                mutable_turn.count_within++;
+                return;
+            }
+            if (cd > piece.robust_max_comparable_radius)
+            {
+                return;
+            }
+        }
+
         analyse_result analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
                 ? analyse_turn_wrt_point_piece::apply(turn, piece)
                 : analyse_turn_wrt_piece::apply(turn, piece);
 
-        Turn& mutable_turn = m_turns[turn.turn_index];
         switch(analyse_code)
         {
             case analyse_disjoint :
