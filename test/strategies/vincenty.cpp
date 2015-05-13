@@ -135,7 +135,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
         //calc_t az21 = vi.azimuth21();
 
         calc_t az12_deg = az12 * r2d;
-        calc_t az21_deg = az21 * r2d;
+        //calc_t az21_deg = az21 * r2d;
         
         BOOST_CHECK_CLOSE(dist, calc_t(expected_distance), tolerance);
         check_deg("az12_deg", az12_deg, calc_t(expected_azimuth_12), tolerance, error);
@@ -152,7 +152,7 @@ void test_vincenty(double lon1, double lat1, double lon2, double lat2,
 
         calc_t direct_lon2_deg = direct_lon2 * r2d;
         calc_t direct_lat2_deg = direct_lat2 * r2d;
-        calc_t direct_az21_deg = direct_az21 * r2d;
+        //calc_t direct_az21_deg = direct_az21 * r2d;
         
         check_deg("direct_lon2_deg", direct_lon2_deg, calc_t(lon2), tolerance, error);
         check_deg("direct_lat2_deg", direct_lat2_deg, calc_t(lat2), tolerance, error);
