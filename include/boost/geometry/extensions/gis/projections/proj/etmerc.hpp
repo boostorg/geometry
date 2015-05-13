@@ -93,7 +93,7 @@ namespace boost { namespace geometry { namespace projections
                 inline double
             asinhy(double x) {              /* Compute asinh(x) accurately */
                 double y = fabs(x);         /* Enforce odd parity */
-                y = log1py(y * (1 + y/(hypot(1.0, y) + 1)));
+                y = log1py(y * (1 + y/(boost::math::hypot(1.0, y) + 1)));
                 return x < 0 ? -y : y;
             }
 
