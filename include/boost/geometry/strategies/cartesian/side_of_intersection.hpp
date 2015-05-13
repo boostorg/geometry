@@ -13,8 +13,13 @@
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/math/common_factor_ct.hpp>
+#include <boost/math/common_factor_rt.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 namespace boost { namespace geometry
 {
@@ -29,15 +34,74 @@ namespace strategy { namespace side
 // It can be used for either integer (rescaled) points, and also for FP
 class side_of_intersection
 {
+private :
+    template <typename T, typename U>
+    static inline
+    int sign_of_product(T const& a, U const& b)
+    {
+        return a == 0 || b == 0 ? 0
+            : a > 0 && b > 0 ? 1
+            : a < 0 && b < 0 ? 1
+            : -1;
+    }
+
+    template <typename T>
+    static inline
+    int sign_of_compare(T const& a, T const& b, T const& c, T const& d)
+    {
+        // Both a*b and c*d are positive
+        // We have to judge if a*b > c*d
+
+        using namespace boost::multiprecision;
+        cpp_int const lab = cpp_int(a) * cpp_int(b);
+        cpp_int const lcd = cpp_int(c) * cpp_int(d);
+
+        return lab > lcd ? 1
+            :  lab < lcd ? -1
+            :  0
+            ;
+    }
+
+    template <typename T>
+    static inline
+    int sign_of_addition_of_two_products(T const& a, T const& b, T const& c, T const& d)
+    {
+        // sign of a*b+c*d, 1 if positive, -1 if negative, else 0
+        int const ab = sign_of_product(a, b);
+        int const cd = sign_of_product(c, d);
+        if (ab == 0)
+        {
+            return cd;
+        }
+        if (cd == 0)
+        {
+            return ab;
+        }
+
+        if (ab == cd)
+        {
+            // Both positive or both negative
+            return ab;
+        }
+
+        // One is positive, one is negative, both are non zero
+        // If ab is positive, we have to judge if a*b > -c*d (then 1 because sum is positive)
+        // If ab is negative, we have to judge if c*d > -a*b (idem)
+        return ab == 1
+            ? sign_of_compare(a, b, -c, d)
+            : sign_of_compare(c, d, -a, b);
+    }
+
+
 public :
 
     // Calculates the side of the intersection-point (if any) of
     // of segment a//b w.r.t. segment c
     // This is calculated without (re)calculating the IP itself again and fully
     // based on integer mathematics
-    template <typename T, typename Segment>
+    template <typename T, typename Segment, typename Point>
     static inline T side_value(Segment const& a, Segment const& b,
-                Segment const& c)
+                Segment const& c, Point const& fallback_point)
     {
         // The first point of the three segments is reused several times
         T const ax = get<0, 0>(a);
@@ -67,9 +131,15 @@ public :
         if (d == zero)
         {
             // There is no IP of a//b, they are collinear or parallel
-            // We don't have to divide but we can already conclude the side-value
-            // is meaningless and the resulting determinant will be 0
-            return zero;
+            // Assuming they intersect (this method should be called for
+            // segments known to intersect), they are collinear and overlap.
+            // They have one or two intersection points - we don't know and
+            // have to rely on the fallback intersection point
+
+            Point c1, c2;
+            geometry::detail::assign_point_from_index<0>(c, c1);
+            geometry::detail::assign_point_from_index<1>(c, c2);
+            return side_by_triangle<>::apply(c1, c2, fallback_point);
         }
 
         // Cramer's rule: da (see cart_intersect.hpp)
@@ -82,7 +152,9 @@ public :
         // IP is at (ax + (da/d) * dx_a, ay + (da/d) * dy_a)
         // Side of IP is w.r.t. c is: determinant(dx_c, dy_c, ipx-cx, ipy-cy)
         // We replace ipx by expression above and multiply each term by d
-        T const result = geometry::detail::determinant<T>
+
+#ifdef BOOST_GEOMETRY_SIDE_OF_INTERSECTION_DEBUG
+        T const result1 = geometry::detail::determinant<T>
                     (
                         dx_c * d,                   dy_c * d,
                         d * (ax - cx) + dx_a * da,  d * (ay - cy) + dy_a * da
@@ -93,15 +165,51 @@ public :
         // Therefore, the sign is always the same as that result, and the
         // resulting side (left,right,collinear) is the same
 
+        // The first row we divide again by d because of determinant multiply rule
+        T const result2 = d * geometry::detail::determinant<T>
+                    (
+                        dx_c,                   dy_c,
+                        d * (ax - cx) + dx_a * da,  d * (ay - cy) + dy_a * da
+                    );
+        // Write out:
+        T const result3 = d * (dx_c * (d * (ay - cy) + dy_a * da)
+                             - dy_c * (d * (ax - cx) + dx_a * da));
+        // Write out in braces:
+        T const result4 = d * (dx_c * d * (ay - cy) + dx_c * dy_a * da
+                             - dy_c * d * (ax - cx) - dy_c * dx_a * da);
+        // Write in terms of d * XX + da * YY
+        T const result5 = d * (d * (dx_c * (ay - cy) - dy_c * (ax - cx))
+                             + da * (dx_c * dy_a - dy_c * dx_a));
+
+        //return result;
+#endif
+
+        // We consider the results separately
+        // (in the end we only have to return the side-value 1,0 or -1)
+
+        // To avoid multiplications we judge the product (easy, avoids *d)
+        // and the sign of p*q+r*s (more elaborate)
+        T const result = sign_of_product
+            (
+                d,
+                sign_of_addition_of_two_products
+                    (
+                        d, dx_c * (ay - cy) - dy_c * (ax - cx),
+                        da, dx_c * dy_a - dy_c * dx_a
+                    )
+                );
         return result;
+
 
     }
 
-    template <typename Segment>
-    static inline int apply(Segment const& a, Segment const& b, Segment const& c)
+    template <typename Segment, typename Point>
+    static inline int apply(Segment const& a, Segment const& b,
+            Segment const& c,
+            Point const& fallback_point)
     {
         typedef typename geometry::coordinate_type<Segment>::type coordinate_type;
-        coordinate_type const s = side_value<coordinate_type>(a, b, c);
+        coordinate_type const s = side_value<coordinate_type>(a, b, c, fallback_point);
         coordinate_type const zero = coordinate_type();
         return math::equals(s, zero) ? 0
             : s > zero ? 1

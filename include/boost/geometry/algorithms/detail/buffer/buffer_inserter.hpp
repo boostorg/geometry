@@ -383,6 +383,7 @@ inline void buffer_point(Point const& point, Collection& collection,
     std::vector<OutputPointType> range_out;
     point_strategy.apply(point, distance_strategy, range_out);
     collection.add_piece(strategy::buffer::buffered_point, range_out, false);
+    collection.set_piece_center(point);
     collection.finish_ring();
 }
 
