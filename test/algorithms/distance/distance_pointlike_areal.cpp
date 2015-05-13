@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -63,6 +63,15 @@ void test_distance_point_polygon(Strategy const& strategy)
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),\
                    (-5 -5,-5 5,5 5,5 -5,-5 -5))",
                   5, 25, strategy);
+
+    // polygons with single-point rings
+    tester::apply("point(0 0)",
+                  "polygon((-5 5))",
+                  sqrt(50.0), 50, strategy);
+
+    tester::apply("point(0 0)",
+                  "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10),(-5 5))",
+                  0, 0, strategy);
 }
 
 //===========================================================================
@@ -87,6 +96,11 @@ void test_distance_point_ring(Strategy const& strategy)
     tester::apply("point(0 0)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
+
+    // single-point rings
+    tester::apply("point(0 0)",
+                  "polygon((-10 -10))",
+                  sqrt(200.0), 200, strategy);
 }
 
 //===========================================================================
@@ -177,6 +191,11 @@ void test_distance_multipoint_ring(Strategy const& strategy)
     tester::apply("multipoint(0 0,5 5,4 4)",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
+
+    // single-point ring
+    tester::apply("multipoint(0 0,5 5,4 4)",
+                  "polygon((10 10))",
+                  sqrt(50.0), 50, strategy);
 }
 
 //===========================================================================

@@ -18,15 +18,6 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-
-#include <boost/geometry/multi/core/topological_dimension.hpp>
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/closure.hpp>
-#include <boost/geometry/multi/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/multi/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/multi/algorithms/equals.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
 
 namespace bgm = bg::model;
 
@@ -71,7 +62,8 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("ls2d_overl_ring2", "LINESTRING(0 0,5 0,5 5,0 5,0 0)", "LINESTRING(5 5,5 0,0 0,0 5,5 5,5 0)", true);
 
     // https://svn.boost.org/trac/boost/ticket/10904
-    if ( boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value )
+    if ( BOOST_GEOMETRY_CONDITION(
+            boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value ) )
     {
         test_geometry<ls, ls>("ls2d_small1",
                               "LINESTRING(5.6956521739130430148634331999347 -0.60869565217391330413931882503675,5.5 -0.50000000000000066613381477509392)",

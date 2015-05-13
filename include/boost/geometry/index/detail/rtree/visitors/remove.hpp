@@ -30,7 +30,7 @@ class remove
     typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
     typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
 
-    typedef rtree::node_auto_ptr<Value, Options, Translator, Box, Allocators> node_auto_ptr;
+    typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
     typedef typename Allocators::node_pointer node_pointer;
     typedef typename Allocators::size_type size_type;
 
@@ -264,7 +264,7 @@ private:
             // destroy current and remaining nodes
             for ( ; it != m_underflowed_nodes.rend() ; ++it )
             {
-                node_auto_ptr dummy(it->second, m_allocators);
+                subtree_destroyer dummy(it->second, m_allocators);
             }
 
             //m_underflowed_nodes.clear();

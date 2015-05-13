@@ -242,8 +242,8 @@ void test_all()
     test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2,3 3)", "box should have 2");
     test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2) )", "too much tokens");
 
-    if (boost::is_floating_point<T>::type::value
-        || ! boost::is_fundamental<T>::type::value)
+    if ( BOOST_GEOMETRY_CONDITION(boost::is_floating_point<T>::type::value
+                               || ! boost::is_fundamental<T>::type::value ) )
     {
         test_wkt<P>("POINT(1.1 2.1)", 1);
     }

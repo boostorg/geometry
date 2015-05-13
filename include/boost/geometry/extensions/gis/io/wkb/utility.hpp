@@ -83,7 +83,10 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
 
     // Poor-man validation, no performance penalty expected
     // because begin/end always are random access iterators.
-    return hex.size() == (2 * std::distance(begin, end));
+    typename std::iterator_traits<Iterator>::difference_type
+        diff = std::distance(begin, end);
+    BOOST_ASSERT(diff > 0);
+    return hex.size() == 2 * std::string::size_type(diff);
 }
 
 

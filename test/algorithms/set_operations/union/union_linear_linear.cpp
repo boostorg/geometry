@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -23,7 +23,7 @@
 #include "test_union_linear_linear.hpp"
 
 #include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
 typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
@@ -460,6 +460,19 @@ BOOST_AUTO_TEST_CASE( test_union_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((0 0,18 0,19 0,30 0),\
                       (2 2,5 -1,15 2,18 0))"),
          "llu21a"
+         );
+
+    tester::apply
+        (from_wkt<L>("LINESTRING(-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0,\
+                     4 -1,-7 10,-4 10)"),
+         from_wkt<L>("LINESTRING(-5 -4,3 0,4 -1,7 -4,2 -1,-4 -1,-2 6)"),
+         from_wkt<ML>("MULTILINESTRING((-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0,\
+                     4 -1,-7 10,-4 10),(-5 -4,3 0),\
+                     (4 -1,7 -4,2 -1,-4 -1,-2 6))"),
+         from_wkt<ML>("MULTILINESTRING((-5 -4,3 0,4 -1,7 -4,2 -1,-4 -1,-2 6),\
+                      (-2 -2,-4 0,1 -8,-2 6,8 5,-7 -8,3 0),\
+                      (3 0,-7 10,-4 10))"),
+         "llu22"
          );
 }
 

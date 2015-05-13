@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -49,6 +49,11 @@ void test_distance_point_segment(Strategy const& strategy)
     tester::apply("point(2 0)", "segment(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(3 0)", "segment(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(2.5 0)", "segment(2 0,3 0)", 0, 0, strategy);
+
+    // distance is a NaN
+    tester::apply("POINT(4.297374e+307 8.433875e+307)",
+                  "SEGMENT(26 87,13 95)",
+                  0, 0, strategy, false);
 }
 
 //===========================================================================
@@ -62,12 +67,19 @@ void test_distance_point_linestring(Strategy const& strategy)
 #endif
     typedef test_distance_of_geometries<point_type, linestring_type> tester;
 
-    tester::apply("point(0 0)", "linestring(2 0)", 2, 4, strategy);
     tester::apply("point(0 0)", "linestring(2 0,3 0)", 2, 4, strategy);
     tester::apply("point(2.5 3)", "linestring(2 0,3 0)", 3, 9, strategy);
     tester::apply("point(2 0)", "linestring(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(3 0)", "linestring(2 0,3 0)", 0, 0, strategy);
     tester::apply("point(2.5 0)", "linestring(2 0,3 0)", 0, 0, strategy);
+
+    // linestring with a single point
+    tester::apply("point(0 0)", "linestring(2 0)", 2, 4, strategy);
+
+    // distance is a NaN
+    tester::apply("POINT(4.297374e+307 8.433875e+307)",
+                  "LINESTRING(26 87,13 95)",
+                  0, 0, strategy, false);
 }
 
 //===========================================================================
@@ -111,6 +123,27 @@ void test_distance_point_multilinestring(Strategy const& strategy)
     tester::apply("POINT(0 0)",
                   "MULTILINESTRING((10 10,10 0),(20 20,20 20))",
                   10, 100, strategy);
+
+    // multilinestrings containing an empty linestring
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((),(10 0),(20 20,20 20))",
+                  10, 100, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((),(10 0),(),(20 20,20 20))",
+                  10, 100, strategy);
+
+    // multilinestrings containing a linestring with a single point
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((10 0),(20 20,20 20))",
+                  10, 100, strategy);
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((20 20,20 20),(10 0))",
+                  10, 100, strategy);
+
+    // multilinestring with a single-point linestring and empty linestrings
+    tester::apply("POINT(0 0)",
+                  "MULTILINESTRING((),(20 20,20 20),(),(10 0))",
+                  10, 100, strategy);
 }
 
 //===========================================================================
@@ -139,6 +172,11 @@ void test_distance_linestring_multipoint(Strategy const& strategy)
     tester::apply("linestring(3 3,4 4,100 100)",
                   "multipoint(0 0,1 0,0 1,1 1)",
                   sqrt(8.0), 8, strategy);
+
+    // linestring with a single point
+    tester::apply("linestring(1 8)",
+                  "multipoint(0 0,3 0,4 -7,10 100)",
+                  sqrt(65.0), 65, strategy);
 }
 
 //===========================================================================
@@ -166,6 +204,27 @@ void test_distance_multipoint_multilinestring(Strategy const& strategy)
                   0, 0, strategy);
     tester::apply("multipoint(0 0,1 0,0 1,1 1)",
                   "multilinestring((3 3,4 4),(4 4,5 5))",
+                  sqrt(8.0), 8, strategy);
+
+    // multilinestring with empty linestring
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multilinestring((),(3 3,4 4),(4 4,5 5))",
+                  sqrt(8.0), 8, strategy);
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multilinestring((3 3,4 4),(),(4 4,5 5))",
+                  sqrt(8.0), 8, strategy);
+
+    // multilinestrings with a single-point linestrings
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multilinestring((3 3),(4 4,5 5))",
+                  sqrt(8.0), 8, strategy);
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multilinestring((4 4,5 5),(3 3))",
+                  sqrt(8.0), 8, strategy);
+
+    // multilinestring with a single-point linestring and empty linestring
+    tester::apply("multipoint(0 0,1 0,0 1,1 1)",
+                  "multilinestring((4 4,5 5),(),(3 3))",
                   sqrt(8.0), 8, strategy);
 }
 

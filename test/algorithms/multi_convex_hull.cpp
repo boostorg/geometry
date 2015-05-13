@@ -1,12 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -26,22 +26,16 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/multi/core/point_order.hpp>
-#include <boost/geometry/multi/core/point_type.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
-#include <boost/geometry/multi/views/detail/range_type.hpp>
+#include <boost/geometry/algorithms/detail/for_each_range.hpp>
 
-#include <boost/geometry/multi/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/detail/for_each_range.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/multi/io/wkt/wkt.hpp>
-
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
 
 
 
@@ -54,22 +48,22 @@ void test_all()
     typedef bg::model::multi_polygon<bg::model::polygon<P> > mpoly;
 
     // All points below in upper-points and lower-points
-    test_geometry<mp>("MULTIPOINT((0 0),(5 0),(1 1),(4 1))", -1, 5, 4.0);
-    test_geometry<mp>("MULTIPOINT((0 1),(5 1),(1 0),(4 0))", -1, 5, 4.0);
+    test_geometry<mp>("MULTIPOINT((0 0),(5 0),(1 1),(4 1))", 0, 5, 4.0);
+    test_geometry<mp>("MULTIPOINT((0 1),(5 1),(1 0),(4 0))", 0, 5, 4.0);
 
     // All points in vertical line (this delivers an empty polygon with 3 points and closing point for closed)
-    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", -1, 4, 0.0);
+    test_geometry<mp>("MULTIPOINT((1 0),(5 0),(3 0),(4 0),(2 0))", 0, 4, 0.0);
 
     // One point only
-    test_geometry<mp>("MULTIPOINT((1 0))", -1, 4, 0.0);
+    test_geometry<mp>("MULTIPOINT((1 0))", 0, 4, 0.0);
 
     // Problem of 6019, reproduced by the convex hull robustness test:
     test_geometry<mp>("MULTIPOINT((2 9),(1 3),(9 4),(1 1),(1 0),(7 9),(2 5),(3 7),(3 6),(2 4))",
-            -1, 6, 48.0);
+            0, 6, 48.0);
 
     // Ticket 6019:
     test_geometry<mp>("MULTIPOINT((0 53),(0 103),(0 53),(0 3),(0 3),(0 0),(1 0),(1 1),(2 1),(2 0),(2 0),(2 0),(3 0),(3 1),(4 1),(4 0),(5 0),(0 3),(10 3),(10 2),(10 2),(10 2),(5 2),(5 0),(5 0),(55 0),(105 0))",
-            -1, 4, 5407.5);
+            0, 4, 5407.5);
     // Ticket 6021:
     test_geometry<mp>("multipoint((0 53), (0 103), (1 53))", 3, 4, 25);
 

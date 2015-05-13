@@ -1,8 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2014, 2015.
+// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -83,7 +88,6 @@ namespace ttmath
         return ACos(v);
     }
 
-
     template <uint Exponent, uint Mantissa>
     inline Big<Exponent, Mantissa> atan2(Big<Exponent, Mantissa> const& y, Big<Exponent, Mantissa> const& x)
     {
@@ -103,6 +107,13 @@ namespace ttmath
         return two * ATan((sqrt(x * x + y * y) - x) / y);
     }
 
+    // needed in order to work with boost::geometry::math::mod
+    template <uint Exponent, uint Mantissa>
+    inline Big<Exponent, Mantissa> mod(Big<Exponent, Mantissa> const& x,
+                                       Big<Exponent, Mantissa> const& y)
+    {
+        return Mod(x, y);
+    }
 }
 
 // Specific structure implementing constructor
@@ -116,16 +127,16 @@ struct ttmath_big : ttmath::Big<1,4>
         : ttmath::Big<1,4>(v)
     {}
 
+    // unary operator+() is implemented for completeness
+    inline ttmath_big const& operator+() const
+    {
+        return *this;
+    }
+
     // needed in order to work with boost::geometry::math::abs
     inline ttmath_big operator-() const
     {
         return ttmath::Big<1,4>::operator-();
-    }
-
-    // needed because unary operator-() is defined (above)
-    inline ttmath_big operator-(ttmath_big const& other) const
-    {
-        return ttmath::Big<1,4>::operator-(other);
     }
 
     /*
@@ -141,6 +152,29 @@ struct ttmath_big : ttmath::Big<1,4>
     */
 };
 
+
+// arithmetic operators for ttmath_big objects, defined as free functions
+inline ttmath_big operator+(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator+(y);
+}
+
+inline ttmath_big operator-(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator-(y);
+}
+
+inline ttmath_big operator*(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator*(y);
+}
+
+inline ttmath_big operator/(ttmath_big const& x, ttmath_big const& y)
+{
+    return static_cast<ttmath::Big<1,4> const&>(x).operator/(y);
+}
+
+
 namespace boost{ namespace geometry { namespace math
 {
 
@@ -149,6 +183,18 @@ namespace detail
     // Workaround for boost::math::constants::pi:
     // 1) lexical cast -> stack overflow and
     // 2) because it is implemented as a function, generic implementation not possible
+
+    // Partial specialization for ttmath
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct define_half_pi<ttmath::Big<Exponent, Mantissa> >
+    {
+        static inline ttmath::Big<Exponent, Mantissa> apply()
+        {
+            static ttmath::Big<Exponent, Mantissa> const half_pi(
+                "1.57079632679489661923132169163975144209858469968755291048747229615390820314310449931401741267105853399107404325664115332354692230477529111586267970406424055872514205135096926055277982231147447746519098");
+            return half_pi;
+        }
+    };
 
     // Partial specialization for ttmath
     template <ttmath::uint Exponent, ttmath::uint Mantissa>
@@ -162,9 +208,31 @@ namespace detail
         }
     };
 
+    // Partial specialization for ttmath
+    template <ttmath::uint Exponent, ttmath::uint Mantissa>
+    struct define_two_pi<ttmath::Big<Exponent, Mantissa> >
+    {
+        static inline ttmath::Big<Exponent, Mantissa> apply()
+        {
+            static ttmath::Big<Exponent, Mantissa> const two_pi(
+                "6.28318530717958647692528676655900576839433879875021164194988918461563281257241799725606965068423413596429617302656461329418768921910116446345071881625696223490056820540387704221111928924589790986076392");
+            return two_pi;
+        }
+    };
+
+    template <>
+    struct define_half_pi<ttmath_big>
+            : public define_half_pi<ttmath::Big<1,4> >
+    {};
+
     template <>
     struct define_pi<ttmath_big>
             : public define_pi<ttmath::Big<1,4> >
+    {};
+
+    template <>
+    struct define_two_pi<ttmath_big>
+            : public define_two_pi<ttmath::Big<1,4> >
     {};
 
     template <ttmath::uint Exponent, ttmath::uint Mantissa>

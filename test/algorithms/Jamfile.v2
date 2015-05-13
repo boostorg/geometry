@@ -1,11 +1,11 @@
 # Boost.Geometry (aka GGL, Generic Geometry Library)
 #
-# Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
-# Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
-# Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+# Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+# Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+# Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 #
-# This file was modified by Oracle on 2014.
-# Modifications copyright (c) 2014, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014, 2015.
+# Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -16,20 +16,21 @@
 
 test-suite boost-geometry-algorithms
     :
-    [ run append.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run area.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run append.cpp ]
+    [ run area.cpp ]
     [ run assign.cpp ]
     [ run buffer.cpp ]
-    [ run centroid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run comparable_distance.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run convex_hull.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run correct.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run convert.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run envelope.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run centroid.cpp ]
+    [ run comparable_distance.cpp ]
+    [ run convex_hull.cpp ]
+    [ run correct.cpp ]
+    [ run convert.cpp ]
+    [ run envelope.cpp ]
     [ run expand.cpp ]
     [ run for_each.cpp ]
-    [ run is_simple.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
-    [ run is_valid.cpp : : : <toolset>msvc:<cxxflags>/bigobj ]
+    [ run is_simple.cpp ]
+    [ run is_valid.cpp ]
+    [ run is_valid_failure.cpp ]
     [ run length.cpp ]
     [ run make.cpp ]
     [ run multi_area.cpp ]

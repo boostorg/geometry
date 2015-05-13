@@ -207,6 +207,15 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(7 8, 6 10, 11 0)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             expected("miu+")("iuu+"));
+
+    // 25.01.2015
+    test_geometry<ls, poly>("LINESTRING(2 3, 4 5, 0 6, 5 6)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))",
+                            expected("miu+")("miu+")("mcu+")("mxc="));
+    test_geometry<ls, poly>("LINESTRING(0 6, 5 6)",
+                            "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))",
+                            expected("miu+")("mcu+")("mxc="));
+    
 }
 
 int test_main(int, char* [])

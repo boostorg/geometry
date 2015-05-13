@@ -60,12 +60,11 @@ void test_sectionalize_part()
     bg::detail::no_rescale_policy rescale_policy;
 
     bg::ring_identifier ring_id;
-    sectionalize_part::apply(sections, geometry, rescale_policy, ring_id, 10);
+    sectionalize_part::apply(sections, geometry.begin(), geometry.end(), rescale_policy, ring_id, 10);
     // There should not yet be anything generated, because it is only ONE point
 
     geometry.push_back(bg::make<point_type>(2, 2));
-    sectionalize_part::apply(sections, geometry, rescale_policy, ring_id, 10);
-
+    sectionalize_part::apply(sections, geometry.begin(), geometry.end(), rescale_policy, ring_id, 10);
 }
 
 

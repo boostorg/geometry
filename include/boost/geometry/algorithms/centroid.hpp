@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
@@ -56,7 +56,6 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/multi/algorithms/num_points.hpp>
 
 #include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
 
@@ -335,6 +334,7 @@ struct centroid_multi_point_state
                              Strategy const& strategy,
                              typename Strategy::state_type& state)
     {
+        boost::ignore_unused(strategy);
         strategy.apply(static_cast<Point const&>(transformer.apply(point)),
                        state);
     }

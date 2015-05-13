@@ -53,7 +53,7 @@ static const double P20 = .01641501294219154443;
 static const int APA_SIZE = 3;
 
 /* determine latitude from authalic latitude */
-inline void pj_authset(double es, double* APA)
+inline bool pj_authset(double es, double* APA)
 {
     BOOST_ASSERT(0 != APA);
 
@@ -70,6 +70,7 @@ inline void pj_authset(double es, double* APA)
         APA[1] += t * P11;
         APA[2] = t * P20;
     }
+    return true;
 }
 
 inline double pj_authlat(double beta, const double* APA)

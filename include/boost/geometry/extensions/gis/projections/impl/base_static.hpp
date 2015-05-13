@@ -41,7 +41,9 @@ public:
         : m_par(params), m_prj(prj)
     {}
 
-    inline P params() const {return m_par;}
+    inline P const& params() const { return m_par; }
+
+    inline P& mutable_params() { return m_par; }
 
     inline bool forward(LL const& lp, XY& xy) const
     {

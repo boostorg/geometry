@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -39,10 +44,9 @@ crossing polygons and for polygons with holes. However, some cases (especially
 180 meridian cases) must still be checked.
 \note The version which sums angles, which is often seen, doesn't handle non-convex
 polygons correctly.
-\note The version which sums longitudes, see
-http://trs-new.jpl.nasa.gov/dspace/bitstream/2014/40409/1/07-03.pdf, is simple
-and works well in most cases but not in 180 meridian crossing cases. This probably
-could be solved.
+\note The version which sums longitudes, see http://hdl.handle.net/2014/40409,
+is simple and works well in most cases but not in 180 meridian crossing cases.
+This probably could be solved.
 
 \note This version is made for spherical equatorial coordinate systems
 
@@ -113,8 +117,10 @@ public :
             calculation_type const half = 0.5;
             calculation_type const two = 2.0;
             calculation_type const four = 4.0;
-            calculation_type const two_pi = two * geometry::math::pi<calculation_type>();
-            calculation_type const half_pi = half * geometry::math::pi<calculation_type>();
+            calculation_type const two_pi
+                = geometry::math::two_pi<calculation_type>();
+            calculation_type const half_pi
+                = geometry::math::half_pi<calculation_type>();
 
             // Distance p1 p2
             calculation_type a = state.distance_over_unit_sphere.apply(p1, p2);

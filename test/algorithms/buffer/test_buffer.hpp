@@ -53,6 +53,8 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 
 #if defined(TEST_WITH_SVG)
 
@@ -449,8 +451,9 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
-    if (boost::is_same<tag, bg::point_tag>::value 
-        || boost::is_same<tag, bg::multi_point_tag>::value)
+    if ( BOOST_GEOMETRY_CONDITION((
+            boost::is_same<tag, bg::point_tag>::value 
+         || boost::is_same<tag, bg::multi_point_tag>::value )) )
     {
         join_name.clear();
     }
@@ -539,13 +542,17 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     if (expected_area > -0.1)
     {
+        double const difference = area - expected_area;
         BOOST_CHECK_MESSAGE
             (
-                bg::math::abs(area - expected_area) < tolerance,
+                bg::math::abs(difference) < tolerance,
                 complete.str() << " not as expected. " 
                 << std::setprecision(18)
-                << " Expected: "  << expected_area
-                << " Detected: "  << area
+                << " Expected: " << expected_area
+                << " Detected: " << area
+                << " Diff: " << difference
+                << std::setprecision(3)
+                << " , " << 100.0 * (difference / expected_area) << "%"
             );
 
         if (check_self_intersections)
@@ -685,7 +692,10 @@ void test_one(std::string const& caseid, std::string const& wkt,
             check_self_intersections, expected_area,
             tolerance, NULL);
 
+#if !defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)
+
     // Also test symmetric distance strategy if right-distance is not specified
+    // (only in release mode)
     if (bg::math::equals(distance_right, -999))
     {
         bg::strategy::buffer::distance_symmetric
@@ -701,6 +711,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
                 tolerance, NULL);
 
     }
+#endif
 }
 
 // Version (currently for the Aimes test) counting self-ip's instead of checking

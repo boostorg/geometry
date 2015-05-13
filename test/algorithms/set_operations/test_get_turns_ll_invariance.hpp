@@ -14,6 +14,8 @@
 
 #include <boost/geometry/algorithms/reverse.hpp>
 
+#include <boost/geometry/algorithms/detail/signed_index_type.hpp>
+
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
@@ -21,7 +23,10 @@
 #include <boost/geometry/algorithms/detail/turns/filter_continue_turns.hpp>
 #include <boost/geometry/algorithms/detail/turns/remove_duplicate_turns.hpp>
 
+#include <boost/geometry/io/wkt/write.hpp>
 
+
+namespace bg = ::boost::geometry;
 namespace bg_detail = ::boost::geometry::detail;
 namespace bg_turns = bg_detail::turns;
 
@@ -44,11 +49,10 @@ private:
             typename Info,
             typename Point1,
             typename Point2,
-            typename IntersectionInfo,
-            typename DirInfo
+            typename IntersectionInfo
         >
         static inline void apply(Info& , Point1 const& , Point2 const& ,
-                                 IntersectionInfo const& , DirInfo const& )
+                                 IntersectionInfo const&)
         {
         }
     };
@@ -154,7 +158,11 @@ public:
         std::cout << std::endl << std::endl;
 #endif
 
-        BOOST_ASSERT(boost::size(turns_wo_cont) == boost::size(rturns_wo_cont));
+        BOOST_CHECK_MESSAGE(boost::size(turns_wo_cont) == boost::size(rturns_wo_cont),
+                            "Incompatible turns count: " << boost::size(turns_wo_cont) <<
+                            " and " << boost::size(rturns_wo_cont) <<
+                            " for L1: " << bg::wkt(lineargeometry1) <<
+                            ", L2: " << bg::wkt(lineargeometry2));
     }
 };
 

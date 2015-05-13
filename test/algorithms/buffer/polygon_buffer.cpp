@@ -71,6 +71,9 @@ static std::string const triangle
 static std::string const sharp_triangle
     = "POLYGON((2 0,3 8,4 0,2 0))";
 
+static std::string const right_triangle
+    = "POLYGON((0 1,20 0,0 0,0 1))";
+
 
 static std::string const degenerate0
     = "POLYGON(())";
@@ -135,6 +138,14 @@ static std::string const mysql_report_2014_10_28_2
     = "POLYGON((1 1,10 10,0 8,1 1))";
 static std::string const mysql_report_2014_10_28_3
     = "POLYGON((2 2,8 2,8 8,2 8,2 2))";
+
+// Polygons having problems with negative distances in 1.57
+static std::string const mysql_report_2015_02_17_1
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))";
+static std::string const mysql_report_2015_02_17_2
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0))";
+static std::string const mysql_report_2015_02_17_3
+    = "POLYGON((10 10,10 20,20 20,20 10,10 10))";
 
 
 class buffer_custom_side_strategy
@@ -217,17 +228,17 @@ void test_all()
     test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_miter, end_flat, 36318.1642, 75.0);
     test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_miter, end_flat, 63879.5140, 100.0);
 
-    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2763, 10.0);
-    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.7577, 25.0);
-    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_round, end_flat, 8872.6784, 50.0);
-    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_round, end_flat, 19186.8841, 75.0);
-    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_round, end_flat, 33425.4379, 100.0);
+    test_one<polygon_type, polygon_type>("concave_b10", concave_b, join_round, end_flat, 532.2875, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b25", concave_b, join_round, end_flat, 2482.8329, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b50", concave_b, join_round, end_flat, 8872.9719, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b75", concave_b, join_round, end_flat, 19187.5490, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b100", concave_b, join_round, end_flat, 33426.6139, 100.0);
 
-    test_one<polygon_type, polygon_type>("concave_b_rough_10", concave_b, join_round_rough, end_flat, 512.8457, 10.0);
-    test_one<polygon_type, polygon_type>("concave_b_rough_25", concave_b, join_round_rough, end_flat, 2364.5658, 25.0);
-    test_one<polygon_type, polygon_type>("concave_b_rough_50", concave_b, join_round_rough, end_flat, 8410.399996, 50.0);
-    test_one<polygon_type, polygon_type>("concave_b_rough_75", concave_b, join_round_rough, end_flat, 18153.9268, 75.0);
-    test_one<polygon_type, polygon_type>("concave_b_rough_100", concave_b, join_round_rough, end_flat, 31595.1463, 100.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_10", concave_b, join_round_rough, end_flat, 520.312, 10.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_25", concave_b, join_round_rough, end_flat, 2409.384, 25.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_50", concave_b, join_round_rough, end_flat, 8586.812, 50.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_75", concave_b, join_round_rough, end_flat, 18549.018, 75.0);
+    test_one<polygon_type, polygon_type>("concave_b_rough_100", concave_b, join_round_rough, end_flat, 32295.917, 100.0);
 
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_round, end_round, 50.3633, 1.5);
     test_one<polygon_type, polygon_type>("spike_simplex15", spike_simplex, join_miter, end_flat, 51.5509, 1.5);
@@ -236,7 +247,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("spike_simplex30", spike_simplex, join_round, end_round, 100.9199, 3.0);
     test_one<polygon_type, polygon_type>("spike_simplex30", spike_simplex, join_miter, end_flat, 120.9859, 3.0);
 #endif
-    test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_round, end_round, 998.9530, 15.0);
+    test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_round, end_round, 998.9821, 15.0);
 #if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
     test_one<polygon_type, polygon_type>("spike_simplex150", spike_simplex, join_miter, end_flat, 1532.6543, 15.0);
 #endif
@@ -269,10 +280,10 @@ void test_all()
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 45.0537, 1.2);
 
     // Indentation - deflated
-    test_one<polygon_type, polygon_type>("indentation4", indentation, join_miter, end_flat, 6.99098413022335, -0.4);
-    test_one<polygon_type, polygon_type>("indentation4", indentation, join_round, end_flat, 7.25523322189147, -0.4);
-    test_one<polygon_type, polygon_type>("indentation8", indentation, join_miter, end_flat, 1.36941992048731, -0.8);
-    test_one<polygon_type, polygon_type>("indentation8", indentation, join_round, end_flat, 1.37375487490664, -0.8);
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_miter, end_flat, 6.991, -0.4);
+    test_one<polygon_type, polygon_type>("indentation4", indentation, join_round, end_flat, 7.255, -0.4);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_miter, end_flat, 1.369, -0.8);
+    test_one<polygon_type, polygon_type>("indentation8", indentation, join_round, end_flat, 1.374, -0.8);
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_miter, end_flat, 0, -1.2);
     test_one<polygon_type, polygon_type>("indentation12", indentation, join_round, end_flat, 0, -1.2);
 
@@ -343,13 +354,13 @@ void test_all()
     test_one<polygon_type, polygon_type>("flower1", flower, join_miter, end_flat, 67.614, 0.1);
     test_one<polygon_type, polygon_type>("flower20", flower, join_miter, end_flat, 74.894, 0.20);
     test_one<polygon_type, polygon_type>("flower25", flower, join_miter, end_flat, 78.226, 0.25);
-    test_one<polygon_type, polygon_type>("flower30", flower, join_miter, end_flat, 81.492494146177947, 0.30);
-    test_one<polygon_type, polygon_type>("flower35", flower, join_miter, end_flat, 84.694183819917185, 0.35);
-    test_one<polygon_type, polygon_type>("flower40", flower, join_miter, end_flat, 87.8306529577, 0.40);
-    test_one<polygon_type, polygon_type>("flower45", flower, join_miter, end_flat, 90.901901559536029, 0.45);
-    test_one<polygon_type, polygon_type>("flower50", flower, join_miter, end_flat, 93.907929625415662, 0.50);
-    test_one<polygon_type, polygon_type>("flower55", flower, join_miter, end_flat, 96.848737155342079, 0.55);
-    test_one<polygon_type, polygon_type>("flower60", flower, join_miter, end_flat, 99.724324149315279, 0.60);
+    test_one<polygon_type, polygon_type>("flower30", flower, join_miter, end_flat, 81.492, 0.30);
+    test_one<polygon_type, polygon_type>("flower35", flower, join_miter, end_flat, 84.694, 0.35);
+    test_one<polygon_type, polygon_type>("flower40", flower, join_miter, end_flat, 87.831, 0.40);
+    test_one<polygon_type, polygon_type>("flower45", flower, join_miter, end_flat, 90.902, 0.45);
+    test_one<polygon_type, polygon_type>("flower50", flower, join_miter, end_flat, 93.908, 0.50);
+    test_one<polygon_type, polygon_type>("flower55", flower, join_miter, end_flat, 96.849, 0.55);
+    test_one<polygon_type, polygon_type>("flower60", flower, join_miter, end_flat, 99.724, 0.60);
 
     test_one<polygon_type, polygon_type>("flower10", flower, join_round, end_flat, 67.486, 0.10);
     test_one<polygon_type, polygon_type>("flower20", flower, join_round, end_flat, 74.702, 0.20);
@@ -422,33 +433,33 @@ void test_all()
     test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, -0.01);
     test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, -0.01);
 
-    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.39121246337891, 10.0);
-    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.45314788818359, 10.0);
-    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 11648.0537185668945, 20.0);
-    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 14184.0223083496094, 20.0);
-    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_round, end_flat, 16350.3611068725586, 30.0);
-    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_miter, end_flat, 22417.8007659912109, 30.0);
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.405, 10.0);
+    test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_miter, end_flat, 8207.453, 10.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 11648.111, 20.0);
+    test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 14184.022, 20.0);
+    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_round, end_flat, 16350.488, 30.0);
+    test_one<polygon_type, polygon_type>("parcel1_30", parcel1, join_miter, end_flat, 22417.799, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_round, end_flat, 5000.85063171386719, 10.0);
-    test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_miter, end_flat, 5091.12226867675781, 10.0);
-    test_one<polygon_type, polygon_type>("parcel2_20", parcel2, join_round, end_flat, 9049.60844421386719, 20.0);
-    test_one<polygon_type, polygon_type>("parcel2_20", parcel2, join_miter, end_flat, 9410.69154357910156, 20.0);
-    test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_round, end_flat, 13726.3790588378906, 30.0);
-    test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_miter, end_flat, 14535.2319564819336, 30.0);
+    test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_round, end_flat, 5000.867, 10.0);
+    test_one<polygon_type, polygon_type>("parcel2_10", parcel2, join_miter, end_flat, 5091.122, 10.0);
+    test_one<polygon_type, polygon_type>("parcel2_20", parcel2, join_round, end_flat, 9049.673, 20.0);
+    test_one<polygon_type, polygon_type>("parcel2_20", parcel2, join_miter, end_flat, 9410.691, 20.0);
+    test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_round, end_flat, 13726.528, 30.0);
+    test_one<polygon_type, polygon_type>("parcel2_30", parcel2, join_miter, end_flat, 14535.232, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19992.6824035644531, 10.0);
-    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.5579376220703, 10.0, 10.0, true, 0.05); // MSVC 14 reports 20024.51456, so we increase the tolerance
-    test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_round, end_flat, 34505.0746192932129, 20.0);
-    test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_miter, end_flat, 34633.2606201171875, 20.0);
-    test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45261.4196014404297, 30.0);
-    test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_miter, end_flat, 45567.3875694274902, 30.0);
+    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_round, end_flat, 19993.007, 10.0);
+    test_one<polygon_type, polygon_type>("parcel3_10", parcel3, join_miter, end_flat, 20024.558, 10.0, 10.0, true, 0.05); // MSVC 14 reports 20024.51456, so we increase the tolerance
+    test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_round, end_flat, 34505.837, 20.0);
+    test_one<polygon_type, polygon_type>("parcel3_20", parcel3, join_miter, end_flat, 34633.261, 20.0);
+    test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_round, end_flat, 45262.452, 30.0);
+    test_one<polygon_type, polygon_type>("parcel3_30", parcel3, join_miter, end_flat, 45567.388, 30.0);
 
-    test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.6188, 5.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.4187, 10.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_5", parcel3_bend, join_round, end_flat, 155.634, 5.0);
+    test_one<polygon_type, polygon_type>("parcel3_bend_10", parcel3_bend, join_round, end_flat, 458.454, 10.0);
 
-    // These cases differ a bit based on point order (TODO: find out / describe why)
-    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, Clockwise ? 917.9747 : 917.996, 15.0);
-    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, Clockwise ? 1534.4795 : 1534.508, 20.0);
+    // These cases differ a bit based on point order, because piece generation is different in one corner. Tolerance is increased
+    test_one<polygon_type, polygon_type>("parcel3_bend_15", parcel3_bend, join_round, end_flat, 918.06, 15.0, 15.0, true, 0.25);
+    test_one<polygon_type, polygon_type>("parcel3_bend_20", parcel3_bend, join_round, end_flat, 1534.64, 20.0, 20.0, true, 0.25);
 
     // Parcel - deflated
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 1571.9024, -10.0);
@@ -456,12 +467,12 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737386.1343, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775954035.2947, -0.5 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737355.633, -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953844.678, -0.5 * 1000.0);
 
-    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015307172.18164, 30.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11362317400.63281, 50.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15478123348.53125, 60.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638830.339, 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180030.278, 50.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
 
     // Tickets
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, -999, false);
@@ -497,22 +508,111 @@ void test_all()
             join_round32, end_round32, 69.117, 1.0);
         test_one<polygon_type, polygon_type>("mysql_report_2014_10_28_3", mysql_report_2014_10_28_3,
             join_round32, end_round32, 63.121, 1.0);
+
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d1",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 48.879, -1);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d5",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 0, -5);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d6",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 0, -6);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_1_d10",
+            mysql_report_2015_02_17_1,
+            join_round32, end_round32, 0, -10);
+
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_2_d1",
+            mysql_report_2015_02_17_2,
+            join_round32, end_round32, 64, -1);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_2_d10",
+            mysql_report_2015_02_17_2,
+            join_round32, end_round32, 0, -10);
+        test_one<polygon_type, polygon_type>("mysql_report_2015_02_17_3_d1",
+            mysql_report_2015_02_17_3,
+            join_round32, end_round32, 64, -1);
     }
 
 
     {
-        bg::strategy::buffer::join_round join_round12(12);
-        buffer_custom_side_strategy side_strategy;
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::join_miter;
+        bg::strategy::buffer::side_straight side_strategy;
         bg::strategy::buffer::point_circle point_strategy;
-        bg::strategy::buffer::distance_symmetric
+        typedef bg::strategy::buffer::distance_symmetric
         <
             typename bg::coordinate_type<P>::type
-        > distance_strategy(1.0);
+        > distance;
 
-        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle",
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j12",
                 sharp_triangle,
-                join_round12, end_flat, distance_strategy, side_strategy, point_strategy,
-                31.0721);
+                join_round(12), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.1604);
+        // Test very various number of points (min is 3)
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j2",
+                sharp_triangle,
+                join_round(2), end_flat, distance(1.0), side_strategy, point_strategy,
+                27.2399);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j5",
+                sharp_triangle,
+                join_round(5), end_flat, distance(1.0), side_strategy, point_strategy,
+                28.8563);
+
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j36",
+                sharp_triangle,
+                join_round(36), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.2482);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j360",
+                sharp_triangle,
+                join_round(360), end_flat, distance(1.0), side_strategy, point_strategy,
+                29.2659);
+
+        // Test with various miter limits
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m2",
+                sharp_triangle,
+                join_miter(2), end_flat, distance(4.0), side_strategy, point_strategy,
+                148.500);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m3",
+                sharp_triangle,
+                join_miter(3), end_flat, distance(4.0), side_strategy, point_strategy,
+                164.376);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m4",
+                sharp_triangle,
+                join_miter(4), end_flat, distance(4.0), side_strategy, point_strategy,
+                180.2529);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m5",
+                sharp_triangle,
+                join_miter(5), end_flat, distance(4.0), side_strategy, point_strategy,
+                196.1293);
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_m25",
+                sharp_triangle,
+                join_miter(25), end_flat, distance(4.0), side_strategy, point_strategy,
+                244.7471);
+
+        // Right triangles, testing both points around sharp corner as well as points
+        // around right corners in join_round strategy
+        test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j3",
+                right_triangle,
+                join_round(3), end_flat, distance(1.0), side_strategy, point_strategy,
+                53.0240);
+        test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j4",
+                right_triangle,
+                join_round(4), end_flat, distance(1.0), side_strategy, point_strategy,
+                53.2492);
+        test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j5",
+                right_triangle,
+                join_round(5), end_flat, distance(1.0), side_strategy, point_strategy,
+                53.7430);
+        test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j6",
+                right_triangle,
+                join_round(6), end_flat, distance(1.0), side_strategy, point_strategy,
+                53.7430);
+
+        buffer_custom_side_strategy custom_side_strategy;
+        test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_custom_side",
+                sharp_triangle,
+                join_round(49), end_flat, distance(1.0), custom_side_strategy, point_strategy,
+                31.1087);
     }
 
 }

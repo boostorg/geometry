@@ -268,7 +268,7 @@ struct stateful_range_appender<Geometry, open>
     {
         bool should_append = true;
 
-        if ( pt_index == 0 )
+        if (pt_index == 0)
         {
             first_point = point;
             //should_append = true;
@@ -283,7 +283,7 @@ struct stateful_range_appender<Geometry, open>
         }
         ++pt_index;
 
-        if ( should_append )
+        if (should_append)
         {
             geometry::append(geom, point);
         }
@@ -318,7 +318,7 @@ struct container_appender
 
             appender.append(out, point, is_next_expected);
 
-            if ( is_next_expected )
+            if (is_next_expected)
             {
                 ++it;
             }
@@ -680,7 +680,7 @@ struct box_parser
         }
         check_end(it, end, wkt);
 
-        int index = 0;
+        unsigned int index = 0;
         std::size_t n = boost::size(points);
         if (n == 2)
         {

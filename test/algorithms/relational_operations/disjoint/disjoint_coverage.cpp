@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -19,25 +19,13 @@
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/multi/core/tags.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
-#include <boost/geometry/io/wkt/read.hpp>
-#include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/multi/io/wkt/read.hpp>
-#include <boost/geometry/multi/io/wkt/write.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-
-#include <boost/geometry/multi/geometries/multi_point.hpp>
-#include <boost/geometry/multi/geometries/multi_linestring.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 
@@ -170,23 +158,52 @@ inline void test_point_segment()
                   false);
 
     tester::apply("p-s-02",
-                  from_wkt<P>("POINT(1 0)"),
+                  from_wkt<P>("POINT(2 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   false);
 
     tester::apply("p-s-03",
+                  from_wkt<P>("POINT(1 0)"),
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  false);
+
+    tester::apply("p-s-04",
                   from_wkt<P>("POINT(1 1)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 
-    tester::apply("p-s-04",
+    tester::apply("p-s-05",
                   from_wkt<P>("POINT(3 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   true);
 
-    tester::apply("p-s-05",
+    tester::apply("p-s-06",
                   from_wkt<P>("POINT(-1 0)"),
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-07",
+                  from_wkt<P>("POINT(-1 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-08",
+                  from_wkt<P>("POINT(2 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  false);
+
+    // degenerate segment
+    tester::apply("p-s-09",
+                  from_wkt<P>("POINT(3 0)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
+                  true);
+
+    // degenerate segment
+    tester::apply("p-s-10",
+                  from_wkt<P>("POINT(1 1)"),
+                  from_wkt<S>("SEGMENT(2 0,2 0)"),
                   true);
 }
 
@@ -360,9 +377,19 @@ inline void test_multipoint_linestring()
                   false);
 
     tester::apply("mp-l-07",
-                  from_wkt<MP>("MULTIPOINT(-1 -1,2 0)"),
+                  from_wkt<MP>("MULTIPOINT(-1 -1,2 0,-1 -1,2 0)"),
                   from_wkt<L>("LINESTRING(1 0,3 0)"),
                   false);
+
+    tester::apply("mp-l-08",
+                  from_wkt<MP>("MULTIPOINT(2 0)"),
+                  from_wkt<L>("LINESTRING(1 0)"),
+                  true);
+
+    tester::apply("mp-l-09",
+                  from_wkt<MP>("MULTIPOINT(3 0,0 0,3 0)"),
+                  from_wkt<L>("LINESTRING(1 0,2 0)"),
+                  true);
 }
 
 template <typename P>
@@ -391,6 +418,16 @@ inline void test_multipoint_multilinestring()
 
     tester::apply("mp-ml-04",
                   from_wkt<MP>("MULTIPOINT(0 1,1 0)"),
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
+                  false);
+
+    tester::apply("mp-ml-05",
+                  from_wkt<MP>("MULTIPOINT(0 0,10 0)"),
+                  from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
+                  false);
+
+    tester::apply("mp-ml-06",
+                  from_wkt<MP>("MULTIPOINT(-1 0,3 0)"),
                   from_wkt<ML>("MULTILINESTRING((0 0,2 2,4 4),(0 0,2 0,4 0))"),
                   false);
 }
@@ -1587,9 +1624,8 @@ inline void test_pointlike_linear()
     test_point_multilinestring<point_type>();
     test_point_segment<point_type>();
 
-    // not implemented yet
-    //    test_multipoint_linestring<point_type>();
-    //    test_multipoint_multilinestring<point_type>();
+    test_multipoint_linestring<point_type>();
+    test_multipoint_multilinestring<point_type>();
     test_multipoint_segment<point_type>();
 }
 

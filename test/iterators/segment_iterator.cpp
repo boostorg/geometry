@@ -161,7 +161,8 @@ struct test_segment_iterator_of_geometry
     template <typename G>
     static inline void base_test(G const& geometry,
                                  SegmentRange const& segment_range,
-                                 std::string const& header)
+                                 std::string const& header,
+                                 bool check_num_segments)
     {
         typedef bg::segment_iterator<G const> segment_iterator;
 
@@ -170,9 +171,12 @@ struct test_segment_iterator_of_geometry
         segment_iterator begin = bg::segments_begin(geometry);
         segment_iterator end = bg::segments_end(geometry);
 
-        BOOST_CHECK( std::size_t(std::distance(begin, end))
-                     ==
-                     bg::num_segments(geometry) );
+        if (check_num_segments)
+        {
+            BOOST_CHECK( std::size_t(std::distance(begin, end))
+                         ==
+                         bg::num_segments(geometry) );
+        }
 
         BOOST_CHECK( equals::apply(begin, end,
                                    bg::segments_begin(segment_range),
@@ -209,17 +213,20 @@ struct test_segment_iterator_of_geometry
                 segment_iterator
             >::value_type value_type;
 
-        value_type first_segment = *bg::segments_begin(geometry);
+        if (bg::segments_begin(geometry) != bg::segments_end(geometry))
+        {
+            value_type first_segment = *bg::segments_begin(geometry);
 
-        boost::ignore_unused(first_segment);
+            boost::ignore_unused(first_segment);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::cout << "first segment in geometry: "
-                  << bg::wkt(first_segment)
-                  << std::endl;
+            std::cout << "first segment in geometry: "
+                      << bg::wkt(first_segment)
+                      << std::endl;
 
-        std::cout << std::endl << std::endl;
+            std::cout << std::endl << std::endl;
 #endif
+        }
 
         // test copying all segments to a vector
         std::vector<value_type> segments;
@@ -234,9 +241,11 @@ struct test_segment_iterator_of_geometry
     }
 
     static inline void apply(Geometry geometry,
-                             SegmentRange const& segment_range)
+                             SegmentRange const& segment_range,
+                             bool check_num_segments = true)
     {
-        base_test<Geometry>(geometry, segment_range, "const");
+        base_test<Geometry>(geometry, segment_range, "const",
+                            check_num_segments);
     }
 };
 
@@ -248,7 +257,8 @@ struct dual_tester
 {
     template <typename OpenGeometry>
     static inline void apply(OpenGeometry const& open_g,
-                             ExpectedResult expected)
+                             ExpectedResult expected,
+                             bool check_num_segments = true)
     {
         typedef test_segment_iterator_of_geometry
             <
@@ -260,7 +270,7 @@ struct dual_tester
                 ClosedGeometry, ExpectedResult
             > ctester;
 
-        otester::apply(open_g, expected);
+        otester::apply(open_g, expected, check_num_segments);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl;
@@ -270,7 +280,7 @@ struct dual_tester
 
         bg::convert(open_g, closed_g);
 
-        ctester::apply(closed_g, expected);
+        ctester::apply(closed_g, expected, check_num_segments);
     }
 };
 
@@ -294,6 +304,18 @@ BOOST_AUTO_TEST_CASE( test_linestring_segment_iterator )
                   ( ba::tuple_list_of(1,1)(2,2) )
                   ( ba::tuple_list_of(2,2)(3,3) )
                   ( ba::tuple_list_of(3,3)(4,4) )
+                  );
+
+    // linestring with no points
+    tester::apply(from_wkt<G>("LINESTRING()"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // linestring with a single point
+    tester::apply(from_wkt<G>("LINESTRING(1 0)"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(1,0)(1,0) ),
+                  false
                   );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -322,6 +344,74 @@ BOOST_AUTO_TEST_CASE( test_ring_segment_iterator )
                   ( ba::tuple_list_of(0,10)(10,10) )
                   ( ba::tuple_list_of(10,10)(10,0) )
                   ( ba::tuple_list_of(10,0)(0,0) )
+                  );
+
+    // open ring with no points
+    tester::apply(from_wkt<OG>("POLYGON(())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // open ring with a single point (one segment)
+    tester::apply(from_wkt<OG>("POLYGON((0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,0) ),
+                  false
+                  );
+
+    // open ring with a two points (two segments)
+    tester::apply(from_wkt<OG>("POLYGON((0 0,0 10))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(0,0) )
+                  );
+
+    // open ring with a three points (three segments)
+    tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(0,0) )
+                  );
+
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(10,0) )
+                  ( ba::tuple_list_of(10,0)(0,0) )
+                  );
+
+    // closed ring with no points
+    tester::apply(from_wkt<CG>("POLYGON(())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // closed ring with a single point (one segment)
+    tester::apply(from_wkt<CG>("POLYGON((0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,0) ),
+                  false
+                  );
+
+    // closed ring with two points (one segment)
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,0) )
+                  );
+
+    // closed ring with three points (two segments)
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(0,0) )
+                  );
+
+    // closed ring with four points (three segments)
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,0 0))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(0,0) )
                   );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -356,6 +446,77 @@ BOOST_AUTO_TEST_CASE( test_polygon_segment_iterator )
                   ( ba::tuple_list_of(1,9)(1,1) )
                   );
 
+    // open polygon with no points
+    tester::apply(from_wkt<OG>("POLYGON(())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // open polygons with single-point rings
+    tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10,10 0),(1 1))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(10,0) )
+                  ( ba::tuple_list_of(10,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(1,1) ),
+                  false
+                  );
+
+    tester::apply(from_wkt<OG>("POLYGON((0 0),(1 1,9 1,9 9,1 9))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(9,1) )
+                  ( ba::tuple_list_of(9,1)(9,9) )
+                  ( ba::tuple_list_of(9,9)(1,9) )
+                  ( ba::tuple_list_of(1,9)(1,1) ),
+                  false
+                  );
+
+
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(10,0) )
+                  ( ba::tuple_list_of(10,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(9,1) )
+                  ( ba::tuple_list_of(9,1)(9,9) )
+                  ( ba::tuple_list_of(9,9)(1,9) )
+                  ( ba::tuple_list_of(1,9)(1,1) )
+                  );
+
+    // closed polygons with no points
+    tester::apply(from_wkt<CG>("POLYGON(())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("POLYGON((),())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("POLYGON((),(),())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // closed polygons with single-point rings
+    tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(10,0) )
+                  ( ba::tuple_list_of(10,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(1,1) ),
+                  false
+                  );
+
+    tester::apply(from_wkt<CG>("POLYGON((0 0),(1 1,9 1,9 9,1 9,1 1))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(9,1) )
+                  ( ba::tuple_list_of(9,1)(9,9) )
+                  ( ba::tuple_list_of(9,9)(1,9) )
+                  ( ba::tuple_list_of(1,9)(1,1) ),
+                  false
+                  );
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
 #endif
@@ -385,6 +546,29 @@ BOOST_AUTO_TEST_CASE( test_multi_linestring_segment_iterator )
                   ( ba::tuple_list_of(6,6)(7,7) )
                   ( ba::tuple_list_of(7,7)(8,8) )
                   ( ba::tuple_list_of(9,9)(10,10) )
+                  );
+
+    // empty multi-linestrings
+    tester::apply(from_wkt<G>("MULTILINESTRING()"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<G>("MULTILINESTRING(())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<G>("MULTILINESTRING((),())"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+
+    // multi-linestring with a linestring with one point
+    tester::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2,3 3,4 4),(5 5),(9 9,10 10))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(1,1) )
+                  ( ba::tuple_list_of(1,1)(2,2) )
+                  ( ba::tuple_list_of(2,2)(3,3) )
+                  ( ba::tuple_list_of(3,3)(4,4) )
+                  ( ba::tuple_list_of(5,5)(5,5) )
+                  ( ba::tuple_list_of(9,9)(10,10) ),
+                  false
                   );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -425,6 +609,46 @@ BOOST_AUTO_TEST_CASE( test_multi_polygon_segment_iterator )
                   ( ba::tuple_list_of(29,1)(29,9) )
                   ( ba::tuple_list_of(29,9)(21,9) )
                   ( ba::tuple_list_of(21,9)(21,1) )
+                  );
+
+    tester::apply(from_wkt<CG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1)),((20 0,20 10,30 10,30 0,20 0),(21 1,29 1,29 9,21 9,21 1)))"),
+                  ba::list_of<tuple_linestring_type>
+                  ( ba::tuple_list_of(0,0)(0,10) )
+                  ( ba::tuple_list_of(0,10)(10,10) )
+                  ( ba::tuple_list_of(10,10)(10,0) )
+                  ( ba::tuple_list_of(10,0)(0,0) )
+                  ( ba::tuple_list_of(1,1)(9,1) )
+                  ( ba::tuple_list_of(9,1)(9,9) )
+                  ( ba::tuple_list_of(9,9)(1,9) )
+                  ( ba::tuple_list_of(1,9)(1,1) )
+                  ( ba::tuple_list_of(20,0)(20,10) )
+                  ( ba::tuple_list_of(20,10)(30,10) )
+                  ( ba::tuple_list_of(30,10)(30,0) )
+                  ( ba::tuple_list_of(30,0)(20,0) )
+                  ( ba::tuple_list_of(21,1)(29,1) )
+                  ( ba::tuple_list_of(29,1)(29,9) )
+                  ( ba::tuple_list_of(29,9)(21,9) )
+                  ( ba::tuple_list_of(21,9)(21,1) )
+                  );
+
+    // test empty closed multi-polygons
+    tester::apply(from_wkt<CG>("MULTIPOLYGON()"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("MULTIPOLYGON((()))"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("MULTIPOLYGON(((),()))"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()))"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()),(()))"),
+                  ba::list_of<tuple_linestring_type>()
+                  );
+    tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()),((),()))"),
+                  ba::list_of<tuple_linestring_type>()
                   );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
