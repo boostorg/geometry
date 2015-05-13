@@ -292,6 +292,7 @@ namespace boost { namespace geometry { namespace projections
                     detail::ob_tran::par_ob_tran<Geographic, Cartesian> proj_parm;
                     Parameters p = par;
                     double phip = setup_ob_tran(p, proj_parm, false);
+
                     if (fabs(phip) > detail::ob_tran::TOL)
                         return new base_v_fi<ob_tran_oblique<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                     else

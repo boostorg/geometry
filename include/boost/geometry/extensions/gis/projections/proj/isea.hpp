@@ -56,11 +56,11 @@ namespace boost { namespace geometry { namespace projections
             static const double DEG144 = 2.51327412287183459075;
             static const double DEG36 = 0.62831853071795864768;
             static const double DEG108 = 1.88495559215387594306;
-            static const double DEG180 = M_PI;
+            static const double DEG180 = boost::math::constants::pi<double>();
             static const double ISEA_SCALE = 0.8301572857837594396028083;
             static const double V_LAT = 0.46364760899944494524;
-            static const double RAD2DEG = (180.0/M_PI);
-            static const double DEG2RAD = (M_PI/180.0);
+            static const double RAD2DEG = (180.0/boost::math::constants::pi<double>());
+            static const double DEG2RAD = (boost::math::constants::pi<double>()/180.0);
             static const double E_RAD = 0.91843818702186776133;
             static const double F_RAD = 0.18871053072122403508;
             static const double TABLE_G = 0.6615845383;
@@ -116,7 +116,7 @@ namespace boost { namespace geometry { namespace projections
                 int ix, iy, iz, s;
                 struct hex h;
 
-                x = x / cos(30 * M_PI / 180.0); /* rotated X coord */
+                x = x / cos(30 * boost::math::constants::pi<double>() / 180.0); /* rotated X coord */
                 y = y - x / 2.0; /* adjustment for rotated X */
 
                 /* adjust for actual hexwidth */
@@ -215,7 +215,7 @@ namespace boost { namespace geometry { namespace projections
             };
 
 
-            /* sqrt(5)/M_PI */
+            /* sqrt(5)/boost::math::constants::pi<double>() */
 
             /* 26.565051177 degrees */
 
@@ -409,7 +409,7 @@ namespace boost { namespace geometry { namespace projections
                     /* TODO I don't know why we do this.  It's not in snyder */
                     /* maybe because we should have picked a better vertex */
                     if (Az < 0.0) {
-                        Az += 2.0 * M_PI;
+                        Az += 2.0 * boost::math::constants::pi<double>();
                     }
 
                     Az_adjust_multiples = 0;
@@ -447,7 +447,7 @@ namespace boost { namespace geometry { namespace projections
                     H = acos(sin(Az) * sin(G) * cos(g) - cos(Az) * cos(G));
 
                     /* eq 7 */
-                    /* Ag = (Az + G + H - DEG180) * M_PI * R * R / DEG180; */
+                    /* Ag = (Az + G + H - DEG180) * boost::math::constants::pi<double>() * R * R / DEG180; */
                     Ag = Az + G + H - DEG180;
 
                     /* eq 8 */
@@ -523,11 +523,11 @@ namespace boost { namespace geometry { namespace projections
 
                 /* normalize longitude */
                 /* TODO can we just do a modulus ? */
-                lambdap = fmod(lambdap, 2 * M_PI);
-                while (lambdap > M_PI)
-                    lambdap -= 2 * M_PI;
-                while (lambdap < -M_PI)
-                    lambdap += 2 * M_PI;
+                lambdap = fmod(lambdap, 2 * boost::math::constants::pi<double>());
+                while (lambdap > boost::math::constants::pi<double>())
+                    lambdap -= 2 * boost::math::constants::pi<double>();
+                while (lambdap < -boost::math::constants::pi<double>())
+                    lambdap += 2 * boost::math::constants::pi<double>();
 
                 phip = asin(sin_phip);
 
@@ -543,19 +543,19 @@ namespace boost { namespace geometry { namespace projections
             {
                 struct isea_geo npt;
 
-                np->lon += M_PI;
+                np->lon += boost::math::constants::pi<double>();
                 npt = snyder_ctran(np, pt);
-                np->lon -= M_PI;
+                np->lon -= boost::math::constants::pi<double>();
 
-                npt.lon -= (M_PI - lon0 + np->lon);
+                npt.lon -= (boost::math::constants::pi<double>() - lon0 + np->lon);
 
-                npt.lon += M_PI;
+                npt.lon += boost::math::constants::pi<double>();
                 /* normalize longitude */
-                npt.lon = fmod(npt.lon, 2 * M_PI);
-                while (npt.lon > M_PI)
-                    npt.lon -= 2 * M_PI;
-                while (npt.lon < -M_PI)
-                    npt.lon += 2 * M_PI;
+                npt.lon = fmod(npt.lon, 2 * boost::math::constants::pi<double>());
+                while (npt.lon > boost::math::constants::pi<double>())
+                    npt.lon -= 2 * boost::math::constants::pi<double>();
+                while (npt.lon < -boost::math::constants::pi<double>())
+                    npt.lon += 2 * boost::math::constants::pi<double>();
 
                 return npt;
             }
@@ -601,7 +601,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 if (!g)
                     return 0;
-                g->o_lat = M_PI / 2.0;
+                g->o_lat = boost::math::constants::pi<double>() / 2.0;
                 g->o_lon = 0.0;
                 g->o_az = 0;
                 return 1;
@@ -637,9 +637,9 @@ namespace boost { namespace geometry { namespace projections
 
                 double          x, y;
 
-                rad = -degrees * M_PI / 180.0;
-                while (rad >= 2.0 * M_PI) rad -= 2.0 * M_PI;
-                while (rad <= -2.0 * M_PI) rad += 2.0 * M_PI;
+                rad = -degrees * boost::math::constants::pi<double>() / 180.0;
+                while (rad >= 2.0 * boost::math::constants::pi<double>()) rad -= 2.0 * boost::math::constants::pi<double>();
+                while (rad <= -2.0 * boost::math::constants::pi<double>()) rad += 2.0 * boost::math::constants::pi<double>();
 
                 x = pt->x * cos(rad) + pt->y * sin(rad);
                 y = -pt->x * sin(rad) + pt->y * cos(rad);
@@ -676,7 +676,7 @@ namespace boost { namespace geometry { namespace projections
                 isea_rotate(pt, downtri ? 240.0 : 60.0);
                 if (downtri) {
                     pt->x += 0.5;
-                    /* pt->y += cos(30.0 * M_PI / 180.0); */
+                    /* pt->y += cos(30.0 * boost::math::constants::pi<double>() / 180.0); */
                     pt->y += .86602540378443864672;
                 }
                 return quad;
@@ -697,7 +697,7 @@ namespace boost { namespace geometry { namespace projections
                 sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
 
                 /* apex to base is cos(30deg) */
-                hexwidth = cos(M_PI / 6.0) / sidelength;
+                hexwidth = cos(boost::math::constants::pi<double>() / 6.0) / sidelength;
 
                 /* TODO I think sidelength is always x.5, so
                  * (int)sidelength * 2 + 1 might be just as good
