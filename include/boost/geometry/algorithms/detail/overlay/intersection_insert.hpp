@@ -410,13 +410,13 @@ struct intersection_insert
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Linestring const& linestring,
             Box const& box,
-            RobustPolicy const& ,
+            RobustPolicy const& robust_policy,
             OutputIterator out, Strategy const& )
     {
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
         return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, linestring, out, lb_strategy);
+            <GeometryOut>(box, linestring, robust_policy, out, lb_strategy);
     }
 };
 
@@ -488,7 +488,7 @@ struct intersection_insert
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Segment const& segment,
             Box const& box,
-            RobustPolicy const& ,// TODO: propagate to clip_range_with_box
+            RobustPolicy const& robust_policy,
             OutputIterator out, Strategy const& )
     {
         geometry::segment_view<Segment> range(segment);
@@ -496,7 +496,7 @@ struct intersection_insert
         typedef typename point_type<GeometryOut>::type point_type;
         strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
         return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, range, out, lb_strategy);
+            <GeometryOut>(box, range, robust_policy, out, lb_strategy);
     }
 };
 
