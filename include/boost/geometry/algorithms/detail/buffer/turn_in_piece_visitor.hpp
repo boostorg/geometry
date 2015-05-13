@@ -231,20 +231,35 @@ public :
                     point_type const& current = piece.robust_ring[i];
 
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-                    segment_type const r(previous, current);
-                    int const side = strategy::side::side_of_intersection::apply(p, q, r,
-                                turn.robust_point);
 
-                    // Sections are monotonic in y-dimension
-                    if (side == 1)
+                    // First check if it is in range - if it is not, the
+                    // expensive side_of_intersection does not need to be
+                    // applied
+                    coordinate_type y1 = geometry::get<1>(previous);
+                    coordinate_type y2 = geometry::get<1>(current);
+
+                    if (y1 > y2)
                     {
-                        // Left on segment
-                        return analyse_disjoint;
+                        std::swap(y1, y2);
                     }
-                    else if (side == 0)
+
+                    if (point_y >= y1 - 1 && point_y <= y2 + 1)
                     {
-                        // On segment
-                        return analyse_on_offsetted;
+                        segment_type const r(previous, current);
+                        int const side = strategy::side::side_of_intersection::apply(p, q, r,
+                                    turn.robust_point);
+
+                        // Sections are monotonic in y-dimension
+                        if (side == 1)
+                        {
+                            // Left on segment
+                            return analyse_disjoint;
+                        }
+                        else if (side == 0)
+                        {
+                            // Collinear - TODO: check if really on segment
+                            return analyse_on_offsetted;
+                        }
                     }
 #else
                     analyse_result code = check_segment(previous, current, turn, false);
