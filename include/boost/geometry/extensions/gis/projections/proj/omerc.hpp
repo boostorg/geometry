@@ -257,7 +257,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - Ell no_rot
+         - Ellipsoid
+         - parameter: no_rot
          - alpha= [gamma=] [no_off] lonc= or
          - lon_1= lat_1= lon_2= lat_2=
         \par Example

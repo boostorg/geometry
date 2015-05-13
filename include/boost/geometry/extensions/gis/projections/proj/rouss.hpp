@@ -168,7 +168,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal
-         - Ellps
+         - Ellipsoid
         \par Example
         \image html ex_rouss.gif
     */
