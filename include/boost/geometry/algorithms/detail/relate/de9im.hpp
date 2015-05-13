@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
@@ -29,9 +29,11 @@
 // TEMP - move this header to geometry/detail
 #include <boost/geometry/index/detail/tuples.hpp>
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
     
-namespace de9im {
+namespace de9im
+{
 
 /*!
 \brief DE-9IM model intersection matrix.
@@ -156,7 +158,8 @@ class static_mask
 
 } // namespace de9im
 
-namespace detail { namespace de9im {
+namespace detail { namespace de9im
+{
 
 // a small helper util for ORing static masks
 
@@ -181,7 +184,8 @@ struct push_back<Seq, T, false>
 
 }} // namespace detail::de9im
 
-namespace de9im {
+namespace de9im
+{
 
 inline
 boost::tuples::cons
@@ -266,7 +270,8 @@ operator||(Seq const& ,
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace de9im {
+namespace detail { namespace de9im
+{
 
 // PREDEFINED MASKS
 

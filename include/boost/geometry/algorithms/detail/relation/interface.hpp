@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
@@ -18,12 +18,12 @@
 #include <boost/geometry/algorithms/detail/relate/interface.hpp>
 
 
-namespace boost { namespace geometry {
-
+namespace boost { namespace geometry
+{
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace relate {
-
+namespace detail { namespace relate
+{
 
 template <typename Geometry1, typename Geometry2>
 struct result_handler_type<Geometry1, Geometry2, geometry::de9im::matrix, false>
@@ -36,7 +36,8 @@ struct result_handler_type<Geometry1, Geometry2, geometry::de9im::matrix, false>
 #endif // DOXYGEN_NO_DETAIL
 
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry1, typename Geometry2>
 struct relation
@@ -122,14 +123,16 @@ struct relation<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     }
 };
 
-template <
+template
+<
     BOOST_VARIANT_ENUM_PARAMS(typename T1),
     BOOST_VARIANT_ENUM_PARAMS(typename T2)
 >
-struct relation<
-    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
->
+struct relation
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+    >
 {
     template <typename Matrix>
     struct visitor : boost::static_visitor<Matrix>
