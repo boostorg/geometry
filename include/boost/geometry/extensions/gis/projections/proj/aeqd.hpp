@@ -419,12 +419,14 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    if (! par.es)
-                        return new base_v_fi<aeqd_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
-                    else if (pj_param(par.params, "bguam").i)
+                    bool const guam = pj_param(par.params, "bguam").i;
+
+                    if (par.es && ! guam)
+                        return new base_v_fi<aeqd_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    else if (par.es && guam)
                         return new base_v_fi<aeqd_guam<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                     else
-                        return new base_v_fi<aeqd_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<aeqd_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 

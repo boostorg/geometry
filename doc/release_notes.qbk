@@ -27,6 +27,8 @@
 * Added rtree const_iterator, begin(), end() and the support for Boost.Range.
 * The support for C++11 `std::initializer_list` in geometries models.
 * Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring
+* Intersection has been implemented for combinations of pointlike and linear geometries
+* Added implementation for difference(pointlike, linear)
 
 [*Improvements]
 

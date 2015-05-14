@@ -213,9 +213,9 @@ namespace boost { namespace geometry { namespace projections
         \image html ex_gn_sinu.gif
     */
     template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gn_sinu_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>
+    struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>
     {
-        inline gn_sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
         }
@@ -240,70 +240,6 @@ namespace boost { namespace geometry { namespace projections
         inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>(par)
         {
             detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
-        \brief Eckert VI projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_eck6.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct eck6_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline eck6_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::gn_sinu::setup_eck6(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
-        \brief McBryde-Thomas Flat-Polar Sinusoidal projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-        \par Example
-        \image html ex_mbtfps.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct mbtfps_ellipsoid : public detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline mbtfps_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::gn_sinu::setup_mbtfps(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
-        \brief General Sinusoidal Series projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-         - m= n=
-        \par Example
-        \image html ex_gn_sinu.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
         }
     };
 

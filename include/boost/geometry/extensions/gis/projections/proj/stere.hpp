@@ -361,29 +361,6 @@ namespace boost { namespace geometry { namespace projections
     };
 
     /*!
-        \brief Universal Polar Stereographic projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Azimuthal
-         - Spheroid
-         - Ellipsoid
-         - south
-        \par Example
-        \image html ex_ups.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
-    {
-        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
         \brief Stereographic projection
         \ingroup projections
         \tparam Geographic latlong point type
@@ -403,6 +380,29 @@ namespace boost { namespace geometry { namespace projections
         inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Universal Polar Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+         - south
+        \par Example
+        \image html ex_ups.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct ups_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
+    {
+        inline ups_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
         }
     };
 
@@ -453,7 +453,10 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<ups_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    if (par.es)
+                        return new base_v_fi<ups_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    else
+                        return new base_v_fi<ups_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 

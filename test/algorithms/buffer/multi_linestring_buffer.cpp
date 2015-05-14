@@ -100,7 +100,9 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
 
 #ifdef BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS
-    test_one<multi_linestring_type, polygon>("mysql_15_04_10", mysql_15_04_10, join_round32, end_round32, 29151950703.779/*something big*/, 0x98);
+    // Cause of failure: coordinates vary so much that
+    // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
+    test_one<multi_linestring_type, polygon>("mysql_15_04_10", mysql_15_04_10, join_round32, end_round32, 99999.999, 0.98);
 #endif
 }
 

@@ -225,7 +225,6 @@ void test_all()
     test_forward<bg::projections::eck5_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
 
     test_forward<bg::projections::eck6_spheroid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m");
-    test_forward<bg::projections::eck6_ellipsoid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m", 18);
 
     test_forward<bg::projections::eqc_spheroid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m", 5);
     test_forward<bg::projections::eqdc_ellipsoid>(amsterdam, utrecht,  "+ellps=WGS84 +units=m +lat_1=60 +lat_2=0");
@@ -241,7 +240,6 @@ void test_all()
     test_forward<bg::projections::gins8_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 7);
 
     test_forward<bg::projections::gn_sinu_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +m=0.5 +n=1.785");
-    test_forward<bg::projections::gn_sinu_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +m=0.5 +n=1.785", 18);
 
     test_forward<bg::projections::gnom_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 50);
     test_forward<bg::projections::goode_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
@@ -267,7 +265,6 @@ void test_all()
     test_forward<bg::projections::mbtfpp_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
     test_forward<bg::projections::mbtfpq_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
 
-    test_forward<bg::projections::mbtfps_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 18);
     test_forward<bg::projections::mbtfps_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
 
     test_forward<bg::projections::merc_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 22);

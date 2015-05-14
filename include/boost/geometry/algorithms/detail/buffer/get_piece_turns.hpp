@@ -17,6 +17,7 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 
 
 namespace boost { namespace geometry
@@ -27,6 +28,31 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
+
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+struct buffer_assign_turn
+{
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+    static bool const include_opposite = false;
+
+    template
+    <
+        typename Info,
+        typename Point1,
+        typename Point2,
+        typename IntersectionInfo
+    >
+    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2, IntersectionInfo const& iinfo)
+    {
+        info.rob_pi = iinfo.rpi();
+        info.rob_pj = iinfo.rpj();
+        info.rob_qi = iinfo.rqi();
+        info.rob_qj = iinfo.rqj();
+    }
+
+};
+#endif
 
 template
 <
@@ -204,7 +230,11 @@ class piece_turn_visitor
                 // and iterating in sync with them...
                 typedef detail::overlay::get_turn_info
                     <
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
+                        buffer_assign_turn
+#else
                         detail::overlay::assign_null_policy
+#endif
                     > turn_policy;
 
                 turn_policy::apply(*prev1, *it1, *next1,
