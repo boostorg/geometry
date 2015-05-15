@@ -245,8 +245,8 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         {
             try
             {
-                bool has_self_ips = bg::detail::overlay::has_self_intersections(buffered,
-                rescale_policy, false);
+                bool has_self_ips = bg::detail::overlay::has_self_intersections(
+                                        buffered, rescale_policy, false);
                 // Be sure resulting polygon does not contain
                 // self-intersections
                 BOOST_CHECK_MESSAGE
@@ -257,7 +257,11 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
             }
             catch(...)
             {
-                BOOST_MESSAGE("Exception in checking self-intersections");
+                BOOST_CHECK_MESSAGE
+                    (
+                        false,
+                        "Exception in checking self-intersections"
+                    );
             }
         }
     }
