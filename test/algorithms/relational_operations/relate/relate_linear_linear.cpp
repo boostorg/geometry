@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
@@ -225,6 +225,11 @@ void test_linestring_linestring()
         BOOST_CHECK(bg::relate(ls1, ls2, bg::de9im::static_mask<'F','T'>()
                                       || bg::de9im::static_mask<'F','*','*','T'>()
                                       || bg::de9im::static_mask<'F','*','*','*','T'>()));
+        BOOST_CHECK(bg::relate(ls1, ls2, bg::de9im::mask("FT")
+                                      || bg::de9im::mask("F**T")
+                                      || bg::de9im::mask("F***T**************")));
+
+        BOOST_CHECK_THROW(bg::relate(ls1, ls2, bg::de9im::mask("A")), bg::invalid_input_exception);
     }
 
     // spike - boundary and interior on the same point
