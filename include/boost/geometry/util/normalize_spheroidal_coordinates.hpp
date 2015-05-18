@@ -190,43 +190,6 @@ public:
 #endif // DOXYGEN_NO_DETAIL
 
 
-template <typename Units, typename CoordinateType>
-inline CoordinateType min_longitude()
-{
-    return detail::constants_on_spheroid
-        <
-            CoordinateType, Units
-        >::min_longitude();
-}
-
-template <typename Units, typename CoordinateType>
-inline CoordinateType max_longitude()
-{
-    return detail::constants_on_spheroid
-        <
-            CoordinateType, Units
-        >::max_longitude();
-}
-
-template <typename Units, typename CoordinateType>
-inline CoordinateType min_latitude()
-{
-    return detail::constants_on_spheroid
-        <
-            CoordinateType, Units
-        >::min_latitude();
-}
-
-template <typename Units, typename CoordinateType>
-inline CoordinateType max_latitude()
-{
-    return detail::constants_on_spheroid
-        <
-            CoordinateType, Units
-        >::max_latitude();
-}
-
-
 /*!
 \brief Short utility to normalize the coordinates on a spheroid
 \tparam Units The units of the coordindate system in the spheroid
