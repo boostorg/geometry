@@ -307,6 +307,7 @@ class analyse_turn_wrt_piece
                 bool is_original,
                 Point const& offsetted)
     {
+        boost::ignore_unused(offsetted);
 #if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         typedef geometry::model::referring_segment<Point const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
