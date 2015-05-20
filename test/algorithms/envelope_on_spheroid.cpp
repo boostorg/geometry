@@ -94,7 +94,7 @@ struct other_system_info
     template <typename T>
     static inline T convert(T const& value)
     {
-        return bg::math::rad2deg<T>(value);
+        return value * bg::math::r2d<T>();
     }
 };
 
@@ -107,7 +107,7 @@ struct other_system_info<bg::degree>
     template <typename T>
     static inline T convert(T const& value)
     {
-        return bg::math::deg2rad<T>(value);
+        return value * bg::math::d2r<T>();
     }
 };
 
@@ -432,9 +432,11 @@ BOOST_AUTO_TEST_CASE( envelope_point )
                   from_wkt<G>("POINT(370 10)"),
                   10, 10, 10, 10);
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
     tester::apply("p03",
                   from_wkt<G>("POINT(370 -350)"),
                   10, 10, 10, 10);
+#endif
 
     // north and south poles
     tester::apply("p04",
@@ -449,16 +451,18 @@ BOOST_AUTO_TEST_CASE( envelope_point )
                   from_wkt<G>("POINT(270 90)"),
                   0, 90, 0, 90);
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
     tester::apply("p04c",
                   from_wkt<G>("POINT(270 450)"),
                   0, 90, 0, 90);
+#endif
 
     tester::apply("p04d",
-                  from_wkt<G>("POINT(190 450)"),
+                  from_wkt<G>("POINT(190 90)"),
                   0, 90, 0, 90);
 
     tester::apply("p04e",
-                  from_wkt<G>("POINT(-100 450)"),
+                  from_wkt<G>("POINT(-100 90)"),
                   0, 90, 0, 90);
 
     tester::apply("p05",
@@ -473,20 +477,22 @@ BOOST_AUTO_TEST_CASE( envelope_point )
                   from_wkt<G>("POINT(270 -90)"),
                   0, -90, 0, -90);
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
     tester::apply("p05c",
                   from_wkt<G>("POINT(270 -450)"),
                   0, -90, 0, -90);
+#endif
 
     tester::apply("p05d",
-                  from_wkt<G>("POINT(190 -450)"),
+                  from_wkt<G>("POINT(190 -90)"),
                   0, -90, 0, -90);
 
     tester::apply("p05e",
-                  from_wkt<G>("POINT(-100 -450)"),
+                  from_wkt<G>("POINT(-100 -90)"),
                   0, -90, 0, -90);
 
     tester::apply("p05f",
-                  from_wkt<G>("POINT(-100 270)"),
+                  from_wkt<G>("POINT(-100 -90)"),
                   0, -90, 0, -90);
 }
 
@@ -564,12 +570,12 @@ BOOST_AUTO_TEST_CASE( envelope_segment )
 
     tester::apply("s09a",
                   from_wkt<G>("SEGMENT(2 -45,181 30)"),
-                  2, -87.63659983704838, 181, 30);
+                  2, -87.63659983704828, 181, 30);
 
     // very long segment
     tester::apply("s10",
                   from_wkt<G>("SEGMENT(0 -45,181 30)"),
-                  -179, -88.07047433509479, 0, 30,
+                  -179, -88.07047433509489, 0, 30,
                   2.0 * std::numeric_limits<double>::epsilon());
 
     tester::apply("s11",
@@ -755,12 +761,24 @@ BOOST_AUTO_TEST_CASE( envelope_multipoint )
                   179, -80, -90+360, 80);
 
     tester::apply("mp18",
-                  from_wkt<G>("MULTIPOINT(10 135,20 25,40 40)"),
+                  from_wkt<G>("MULTIPOINT(-170 45,20 25,40 40)"),
                   20, 25, 190, 45);
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
+    tester::apply("mp18a",
+                  from_wkt<G>("MULTIPOINT(10 135,20 25,40 40)"),
+                  20, 25, 190, 45);
+#endif
+
     tester::apply("mp19",
+                  from_wkt<G>("MULTIPOINT(350 45,20 25,40 40)"),
+                  -10, 25, 40, 45);
+
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
+    tester::apply("mp19a",
                   from_wkt<G>("MULTIPOINT(170 135,20 25,40 40)"),
                   -10, 25, 40, 45);
+#endif
 }
 
 
@@ -773,9 +791,11 @@ BOOST_AUTO_TEST_CASE( envelope_box )
                   from_wkt<G>("BOX(10 10,20 20)"),
                   10, 10, 20, 20);
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
     tester::apply("b02",
                   from_wkt<G>("BOX(10 370,20 20)"),
                   10, 10, 20, 20);
+#endif
 
     // box crosses anti-meridian
     tester::apply("b02a",

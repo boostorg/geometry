@@ -67,7 +67,7 @@ struct other_system_info
     template <typename T>
     static inline T convert(T const& value)
     {
-        return bg::math::rad2deg<T>(value);
+        return value * bg::math::r2d<T>();
     }
 };
 
@@ -80,7 +80,7 @@ struct other_system_info<bg::degree>
     template <typename T>
     static inline T convert(T const& value)
     {
-        return bg::math::deg2rad<T>(value);
+        return value * bg::math::d2r<T>();
     }
 };
 
@@ -363,11 +363,15 @@ BOOST_AUTO_TEST_CASE( expand_point )
                   from_wkt<G>("POINT(10 20)"),
                   10, 10, 10, 20);
 
+    // there are two possible valid longitude ranges:
+    //   [10, 190] and [-170, 10]
     tester::apply("p05",
                   from_wkt<B>("BOX(10 10,10 10)"),
                   from_wkt<G>("POINT(190 20)"),
                   10, 10, 190, 20);
 
+    // there are two possible valid longitude ranges:
+    //   [10, 190] and [-170, 10]
     tester::apply("p05a",
                   from_wkt<B>("BOX(10 10,10 10)"),
                   from_wkt<G>("POINT(-170 20)"),
