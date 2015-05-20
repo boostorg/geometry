@@ -79,7 +79,7 @@ namespace boost { namespace geometry { namespace projections
 
             /* Helper function for forward projection: compute the theta angle
              * and determine the area number. */
-            inline double
+            static double
             qsc_fwd_equat_face_theta(double phi, double y, double x, int *area) {
                     double theta;
                     if (phi < EPS10) {
@@ -104,7 +104,7 @@ namespace boost { namespace geometry { namespace projections
             }
 
             /* Helper function: shift the longitude. */
-            inline double
+            static double
             qsc_shift_lon_origin(double lon, double offset) {
                     double slon = lon + offset;
                     if (slon < -PI) {

@@ -62,7 +62,7 @@ namespace boost { namespace geometry { namespace projections
 
             /* based upon Snyder and Linck, USGS-NMD */
             template <typename Parameters>
-                inline void
+                static void
             seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
                 double sdsq, h, s, fc, sd, sq, d__1;
 

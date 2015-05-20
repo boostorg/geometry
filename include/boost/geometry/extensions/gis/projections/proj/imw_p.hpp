@@ -64,7 +64,7 @@ namespace boost { namespace geometry { namespace projections
             };
 
             template <typename Parameters>
-                inline int
+                static int
             phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {
                 int err = 0;
 
@@ -81,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
                 return err;
             }
             template <typename Parameters>
-                inline XY
+                static XY
             loc_for(double const& lp_lam, double const& lp_phi, Parameters const& par, par_imw_p const& proj_parm, double *yc) {
                 XY xy;
 
@@ -129,7 +129,7 @@ namespace boost { namespace geometry { namespace projections
                 return (xy);
             }
             template <typename Parameters>
-                inline void
+                static void
             xy(Parameters const& par, par_imw_p const& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
                 double F;
 

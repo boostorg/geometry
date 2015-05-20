@@ -73,7 +73,7 @@ namespace boost { namespace geometry { namespace projections
 
             /* get common factors for simple conics */
             template <typename Parameters>
-                inline int
+                static int
             phi12(Parameters& par, par_sconics& proj_parm, double *del) {
                 double p1, p2;
                 int err = 0;

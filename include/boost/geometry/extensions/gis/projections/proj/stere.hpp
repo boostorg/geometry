@@ -70,7 +70,7 @@ namespace boost { namespace geometry { namespace projections
                 int    mode;
             };
 
-                inline double
+                static double
             ssfn_(double phit, double sinphi, double eccen) {
                 sinphi *= eccen;
                 return (tan (.5 * (HALFPI + phit)) *

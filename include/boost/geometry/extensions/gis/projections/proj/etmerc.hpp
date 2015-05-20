@@ -80,7 +80,7 @@ namespace boost { namespace geometry { namespace projections
 
 
 
-                inline double
+                static double
             log1py(double x) {              /* Compute log(1+x) accurately */
                 volatile double
                   y = 1 + x,
@@ -92,14 +92,14 @@ namespace boost { namespace geometry { namespace projections
                 return z == 0 ? x : x * log(y) / z;
             }
 
-                inline double
+                static double
             asinhy(double x) {              /* Compute asinh(x) accurately */
                 double y = fabs(x);         /* Enforce odd parity */
                 y = log1py(y * (1 + y/(boost::math::hypot(1.0, y) + 1)));
                 return x < 0 ? -y : y;
             }
 
-                inline double
+                static double
             gatg(const double *p1, int len_p1, double B) {
                 const double *p;
                 double h = 0, h1, h2 = 0, cos_2B;
@@ -110,7 +110,7 @@ namespace boost { namespace geometry { namespace projections
                 return (B + h*sin(2*B));
             }
 
-                inline double
+                static double
             clenS(const double *a, int size, double arg_r, double arg_i, double *R, double *I) {
                 double      r, i, hr, hr1, hr2, hi, hi1, hi2;
                 double      sin_arg_r, cos_arg_r, sinh_arg_i, cosh_arg_i;
@@ -138,7 +138,7 @@ namespace boost { namespace geometry { namespace projections
                 *I  = r*hi + i*hr;
                 return(*R);
             }
-                inline double
+                static double
             clens(const double *a, int size, double arg_r) {
                 double      r, hr, hr1, hr2, cos_arg_r;
 

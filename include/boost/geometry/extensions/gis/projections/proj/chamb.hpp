@@ -72,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 double beta_0, beta_1, beta_2;
             };
 
-                inline VECT /* distance and azimuth from point 1 to point 2 */
+                static VECT /* distance and azimuth from point 1 to point 2 */
             vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
                 VECT v;
                 double cdl, dp, dl;
@@ -91,7 +91,7 @@ namespace boost { namespace geometry { namespace projections
                     v.r = v.Az = 0.;
                 return v;
             }
-                inline double /* law of cosines */
+                static double /* law of cosines */
             lc(double b,double c,double a) {
                 return aacos(.5 * (b * b + c * c - a * a) / (b * c));
             }
