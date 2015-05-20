@@ -2,6 +2,11 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -38,18 +43,6 @@ namespace strategy { namespace side
 namespace detail
 {
 
-template <typename T, T N, std::size_t P>
-struct integral_pow
-{
-    static const T value = N * integral_pow<T, N, P-1>::value;
-};
-
-template <typename T, T N>
-struct integral_pow<T, N, 0>
-{
-    static const T value = 1;
-};
-
 // A tool for multiplication of integers avoiding overflow
 // It's a temporary workaround until we can use Multiprecision
 // The algorithm is based on Karatsuba algorithm
@@ -57,16 +50,16 @@ struct integral_pow<T, N, 0>
 template <typename T>
 struct multiplicable_integral
 {
-    // This tool can't be used for non-integral coordinate types
-    // also sign_of_product and sign_of_compare functions must be modified
-    // (comparsons and multiplication)
+    // Currently this tool can't be used with non-integral coordinate types.
+    // Also side_of_intersection strategy sign_of_product() and sign_of_compare()
+    // functions would have to be modified to properly support floating-point
+    // types (comparisons and multiplication).
     BOOST_STATIC_ASSERT(boost::is_integral<T>::value);
 
     static const std::size_t bits = CHAR_BIT * sizeof(T);
     static const std::size_t half_bits = bits / 2;
     typedef typename boost::make_unsigned<T>::type unsigned_type;
-    static const unsigned_type base
-        = integral_pow<unsigned_type, 2, half_bits>::value;
+    static const unsigned_type base = unsigned_type(1) << half_bits; // 2^half_bits
 
     int m_sign;
     unsigned_type m_ms;
@@ -85,7 +78,7 @@ struct multiplicable_integral
                                 : unsigned_type(-val);
         // MMLL -> S 00MM 00LL
         m_sign = math::sign(val);
-        m_ms = val_u / base;
+        m_ms = val_u >> half_bits; // val_u / base
         m_ls = val_u - m_ms * base;
     }
     
@@ -97,7 +90,7 @@ struct multiplicable_integral
         unsigned_type z0 = a.m_ls * b.m_ls;
         unsigned_type z1 = (a.m_ms + a.m_ls) * (b.m_ms + b.m_ls) - z2 - z0;
         // z0 may be >= base so it must be normalized to allow comparison
-        unsigned_type z0_ms = z0 / base;
+        unsigned_type z0_ms = z0 >> half_bits; // z0 / base
         return multiplicable_integral(a.m_sign * b.m_sign,
                                       z2 * base + z1 + z0_ms,
                                       z0 - base * z0_ms);
