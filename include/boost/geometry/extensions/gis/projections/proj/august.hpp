@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace august{
+    namespace detail { namespace august
+    {
+
             static const double M = 1.333333333333333;
 
             // template class, using CRTP to implement forward/inverse

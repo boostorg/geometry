@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace isea{
+    namespace detail { namespace isea
+    {
+
             static const double E = 52.62263186;
             static const double F = 10.81231696;
             static const double DEG60 = 1.04719755119659774614;

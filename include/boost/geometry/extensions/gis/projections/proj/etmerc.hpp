@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace etmerc{
+    namespace detail { namespace etmerc
+    {
+
             static const int PROJ_ETMERC_ORDER = 6;
 
             struct par_etmerc

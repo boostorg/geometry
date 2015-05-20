@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rpoly{
+    namespace detail { namespace rpoly
+    {
+
             static const double EPS = 1e-9;
 
             struct par_rpoly

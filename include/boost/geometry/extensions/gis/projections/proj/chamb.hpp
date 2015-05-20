@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace chamb{
+    namespace detail { namespace chamb
+    {
+
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
 

@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gstmerc{
+    namespace detail { namespace gstmerc
+    {
 
             struct par_gstmerc
             {

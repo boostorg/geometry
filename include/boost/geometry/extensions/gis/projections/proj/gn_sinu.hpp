@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gn_sinu{
+    namespace detail { namespace gn_sinu
+    {
+
             static const double EPS10 = 1e-10;
             static const int MAX_ITER = 8;
             static const double LOOP_TOL = 1e-7;

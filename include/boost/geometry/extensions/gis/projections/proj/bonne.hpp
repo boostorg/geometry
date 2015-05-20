@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bonne{
+    namespace detail { namespace bonne
+    {
+
             static const double EPS10 = 1e-10;
 
             struct par_bonne

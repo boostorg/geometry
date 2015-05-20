@@ -49,7 +49,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tpeqd{
+    namespace detail { namespace tpeqd
+    {
 
             struct par_tpeqd
             {

@@ -47,7 +47,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urm5{
+    namespace detail { namespace urm5
+    {
 
             struct par_urm5
             {

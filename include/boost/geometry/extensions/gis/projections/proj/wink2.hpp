@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wink2{
+    namespace detail { namespace wink2
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
             static const double TWO_D_PI = 0.636619772367581343;

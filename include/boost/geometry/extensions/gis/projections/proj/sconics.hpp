@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace sconics{
+    namespace detail { namespace sconics
+    {
+
             static const int EULER = 0;
             static const int MURD1 = 1;
             static const int MURD2 = 2;

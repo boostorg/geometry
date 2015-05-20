@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace latlong{
+    namespace detail { namespace latlong
+    {
 
             /* very loosely based upon DMA code by Bradford W. Drew */
 

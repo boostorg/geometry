@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bacon{
+    namespace detail { namespace bacon
+    {
+
             static const double HLFPI2 = 2.46740110027233965467;
             static const double EPS = 1e-10;
 

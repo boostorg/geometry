@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace qsc{
+    namespace detail { namespace qsc
+    {
+
             static const double EPS10 = 1.e-10;
             static const int FACE_FRONT = 0;
             static const int FACE_RIGHT = 1;

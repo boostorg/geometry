@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lagrng{
+    namespace detail { namespace lagrng
+    {
+
             static const double TOL = 1e-10;
 
             struct par_lagrng

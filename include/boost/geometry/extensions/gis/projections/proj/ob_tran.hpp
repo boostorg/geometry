@@ -52,7 +52,9 @@ namespace boost { namespace geometry { namespace projections
     template <typename Geographic, typename Cartesian, typename Parameters> class factory;
 
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ob_tran{
+    namespace detail { namespace ob_tran
+    {
+
             static const double TOL = 1e-10;
 
             template <typename Geographic, typename Cartesian>

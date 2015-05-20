@@ -53,7 +53,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aea{
+    namespace detail { namespace aea
+    {
+
             static const double EPS10 = 1.e-10;
             static const double TOL7 = 1.e-7;
             static const int N_ITER = 15;

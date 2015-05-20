@@ -50,7 +50,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace igh{
+    namespace detail { namespace igh
+    {
 
             template <typename Geographic, typename Cartesian>
             struct par_igh

@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcca{
+    namespace detail { namespace lcca
+    {
+
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
 

@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace stere{
+    namespace detail { namespace stere
+    {
+
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
             static const int NITER = 8;

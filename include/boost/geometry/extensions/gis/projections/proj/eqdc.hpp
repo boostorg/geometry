@@ -50,7 +50,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eqdc{
+    namespace detail { namespace eqdc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_eqdc

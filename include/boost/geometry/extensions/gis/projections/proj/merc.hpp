@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace merc{
+    namespace detail { namespace merc
+    {
+
             static const double EPS10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse

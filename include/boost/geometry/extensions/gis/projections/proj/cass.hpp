@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cass{
+    namespace detail { namespace cass
+    {
+
             static const double EPS10 = 1e-10;
             static const double C1 = .16666666666666666666;
             static const double C2 = .00833333333333333333;

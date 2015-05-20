@@ -50,7 +50,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tmerc{
+    namespace detail { namespace tmerc
+    {
+
             static const double EPS10 = 1.e-10;
             static const double FC1 = 1.;
             static const double FC2 = .5;

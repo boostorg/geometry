@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck1{
+    namespace detail { namespace eck1
+    {
+
             static const double FC = .92131773192356127802;
             static const double RP = .31830988618379067154;
 

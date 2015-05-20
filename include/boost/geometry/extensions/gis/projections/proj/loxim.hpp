@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace loxim{
+    namespace detail { namespace loxim
+    {
+
             static const double EPS = 1e-8;
 
             struct par_loxim

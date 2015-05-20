@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace labrd{
+    namespace detail { namespace labrd
+    {
+
             static const double EPS = 1.e-10;
 
             struct par_labrd

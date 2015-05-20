@@ -50,7 +50,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mod_ster{
+    namespace detail { namespace mod_ster
+    {
+
             static const double EPSLN = 1e-10;
 
             struct par_mod_ster

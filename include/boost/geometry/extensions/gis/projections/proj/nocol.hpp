@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nocol{
+    namespace detail { namespace nocol
+    {
+
             static const double EPS = 1e-10;
 
             // template class, using CRTP to implement forward/inverse

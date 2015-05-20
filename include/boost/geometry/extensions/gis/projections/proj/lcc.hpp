@@ -53,7 +53,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcc{
+    namespace detail { namespace lcc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_lcc

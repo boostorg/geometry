@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace krovak{
+    namespace detail { namespace krovak
+    {
 
             struct par_krovak
             {

@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace imw_p{
+    namespace detail { namespace imw_p
+    {
+
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 

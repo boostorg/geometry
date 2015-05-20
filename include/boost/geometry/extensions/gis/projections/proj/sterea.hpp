@@ -51,7 +51,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace sterea{
+    namespace detail { namespace sterea
+    {
+
             static const double DEL_TOL = 1.e-14;
             static const int MAX_ITER = 10;
 

@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag3{
+    namespace detail { namespace wag3
+    {
+
             static const double TWOTHIRD = 0.6666666666666666666667;
 
             struct par_wag3
