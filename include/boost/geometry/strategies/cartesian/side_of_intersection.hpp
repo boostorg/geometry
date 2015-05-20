@@ -109,7 +109,7 @@ struct multiplicable_integral
         if ( a.m_sign == b.m_sign )
         {
             bool u_less = a.m_ms < b.m_ms
-                      || (a.m_ms == b.m_ms && b.m_ls < b.m_ls);
+                      || (a.m_ms == b.m_ms && a.m_ls < b.m_ls);
             return a.m_sign > 0 ? u_less : (! u_less);
         }
         else
