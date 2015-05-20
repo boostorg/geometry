@@ -100,7 +100,7 @@ namespace boost { namespace geometry { namespace projections
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
-                            throw proj_exception(-14 );
+                            throw proj_exception( -14 );
                             return;
                         }
 
@@ -186,7 +186,7 @@ namespace boost { namespace geometry { namespace projections
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
-                            throw proj_exception(-14 );
+                            throw proj_exception( -14 );
                             return;
                         }
 

@@ -187,7 +187,7 @@ namespace boost { namespace geometry { namespace projections
 
                           z = (!ok? 0: z); // projectable?
                         }
-                     // if (!z) throw proj_exception(  -15); // invalid x or y
+                     // if (!z) pj_errno = -15; // invalid x or y
                         if (!z) lp_lon = HUGE_VAL;
                         if (!z) lp_lat = HUGE_VAL;
                 }
