@@ -12,10 +12,10 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
+
+#include <boost/geometry/algorithms/detail/normalize.hpp>
 
 
 namespace boost { namespace geometry                  
@@ -49,49 +49,23 @@ struct intersects_antimeridian
     template <typename Segment>
     static inline bool apply(Segment const& segment)
     {
-        typedef typename coordinate_type<Segment>::type coordinate_type;
-        typedef typename coordinate_system<Segment>::type::units units_type;
-
-        coordinate_type lon1 = geometry::get<0, 0>(segment);
-        coordinate_type lat1 = geometry::get<0, 1>(segment);
-        coordinate_type lon2 = geometry::get<1, 0>(segment);
-        coordinate_type lat2 = geometry::get<1, 1>(segment);
-
-        math::normalize_spheroidal_coordinates
-            <
-                units_type, coordinate_type
-            >(lon1, lat1);
-
-        math::normalize_spheroidal_coordinates
-            <
-                units_type, coordinate_type
-            >(lon2, lat2);
-
-        return apply<units_type>(lon1, lat1, lon2, lat2);
+        return apply(detail::indexed_point_view<Segment, 0>(segment),
+                     detail::indexed_point_view<Segment, 1>(segment));
     }
 
     template <typename Point>
     static inline bool apply(Point const& p1, Point const& p2)
     {
-        typedef typename coordinate_type<Point>::type coordinate_type;
-        typedef typename coordinate_system<Point>::type::units units_type;
+        Point p1_normalized = detail::return_normalized<Point>(p1);
+        Point p2_normalized = detail::return_normalized<Point>(p2);
 
-        coordinate_type lon1 = geometry::get<0>(p1);
-        coordinate_type lat1 = geometry::get<1>(p1);
-        coordinate_type lon2 = geometry::get<0>(p2);
-        coordinate_type lat2 = geometry::get<1>(p2);
-
-        math::normalize_spheroidal_coordinates
+        return apply
             <
-                units_type, coordinate_type
-            >(lon1, lat1);
-
-        math::normalize_spheroidal_coordinates
-            <
-                units_type, coordinate_type
-            >(lon2, lat2);
-
-        return apply<units_type>(lon1, lat1, lon2, lat2);
+                typename coordinate_system<Point>::type::units
+            >(geometry::get<0>(p1_normalized),
+              geometry::get<1>(p1_normalized),
+              geometry::get<0>(p2_normalized),
+              geometry::get<1>(p2_normalized));
     }
 };
 

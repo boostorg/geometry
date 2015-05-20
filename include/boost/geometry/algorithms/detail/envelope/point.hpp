@@ -19,17 +19,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_POINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_POINT_HPP
 
-#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/convert_on_spheroid.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-
-#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+
+#include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/algorithms/detail/convert_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -46,20 +43,15 @@ struct envelope_point_on_spheroid
     template<typename Point, typename Box>
     static inline void apply(Point const& point, Box& mbr)
     {
-        typedef typename point_type<Box>::type box_point_type;
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
+        Point normalized_point = detail::return_normalized<Point>(point);
 
-        box_point_type box_point = math::convert_point<box_point_type>(point);
+        geometry::convert(normalized_point, mbr);
 
-        box_coordinate_type lon = geometry::get<0>(box_point);
-        box_coordinate_type lat = geometry::get<1>(box_point);
-
-        math::normalize_spheroidal_coordinates
+        detail::convert_units
             <
+                typename coordinate_system<Point>::type::units,
                 typename coordinate_system<Box>::type::units
-            >(lon, lat);
-
-        assign_values(mbr, lon, lat, lon, lat);
+            >(mbr);
     }
 };
 

@@ -32,15 +32,16 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/condition.hpp>
-#include <boost/geometry/util/convert_on_spheroid.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/algorithms/detail/convert_units.hpp>
+
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
+
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
 
@@ -178,7 +179,6 @@ private:
         }
     }
 
-public:
     template <typename CalculationType>
     static inline void apply(CalculationType& lon1,
                              CalculationType& lat1,
@@ -236,10 +236,34 @@ public:
             swap(lon1, lat1, lon2, lat2);
         }
 
-        CalculationType a1(0), a2(0);
+        CalculationType a1 = 0, a2 = 0;
         azimuths(lon1, lat1, lon2, lat2, a1, a2);
 
         compute_box_corners(lon1, lat1, lon2, lat2, a1, a2);
+    }
+
+public:
+    template <typename CalculationType, typename Box>
+    static inline void apply(CalculationType lon1,
+                             CalculationType lat1,
+                             CalculationType lon2,
+                             CalculationType lat2,
+                             Box& mbr)
+    {
+        typedef typename coordinate_type<Box>::type box_coordinate_type;
+
+        apply(lon1, lat1, lon2, lat2);
+
+        assign_values(mbr,
+                      boost::numeric_cast<box_coordinate_type>(lon1),
+                      boost::numeric_cast<box_coordinate_type>(lat1),
+                      boost::numeric_cast<box_coordinate_type>(lon2),
+                      boost::numeric_cast<box_coordinate_type>(lat2));
+
+        detail::convert_units
+            <
+                radian, typename coordinate_system<Box>::type::units
+            >(mbr);
     }
 };
 
@@ -249,34 +273,14 @@ struct envelope_segment_on_spheroid
     template <typename Point, typename Box>
     static inline void apply(Point const& p1, Point const& p2, Box& mbr)
     {
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
-        typedef typename fp_coordinate_type<Point>::type calculation_type;
+        Point p1_normalized = detail::return_normalized<Point>(p1);
+        Point p2_normalized = detail::return_normalized<Point>(p2);
 
-        calculation_type lon1 = geometry::get_as_radian<0>(p1);
-        calculation_type lat1 = geometry::get_as_radian<1>(p1);
-        calculation_type lon2 = geometry::get_as_radian<0>(p2);
-        calculation_type lat2 = geometry::get_as_radian<1>(p2);
-
-        math::normalize_spheroidal_coordinates<radian>(lon1, lat1);
-        math::normalize_spheroidal_coordinates<radian>(lon2, lat2);
-
-        compute_mbr_of_segment::apply(lon1, lat1, lon2, lat2);
-
-        math::convert_coordinates
-            <
-                radian, typename coordinate_system<Box>::type::units
-            >(lon1, lat1);
-
-        math::convert_coordinates
-            <
-                radian, typename coordinate_system<Box>::type::units
-            >(lon2, lat2);
-
-        assign_values(mbr,
-                      boost::numeric_cast<box_coordinate_type>(lon1),
-                      boost::numeric_cast<box_coordinate_type>(lat1),
-                      boost::numeric_cast<box_coordinate_type>(lon2),
-                      boost::numeric_cast<box_coordinate_type>(lat2));
+        compute_mbr_of_segment::apply(geometry::get_as_radian<0>(p1_normalized),
+                                      geometry::get_as_radian<1>(p1_normalized),
+                                      geometry::get_as_radian<0>(p2_normalized),
+                                      geometry::get_as_radian<1>(p2_normalized),
+                                      mbr);
     }
 };
 

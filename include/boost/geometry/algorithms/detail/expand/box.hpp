@@ -25,9 +25,6 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-
 #include <boost/geometry/algorithms/detail/envelope/box.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range_of_boxes.hpp>
 #include <boost/geometry/algorithms/detail/expand/indexed.hpp>

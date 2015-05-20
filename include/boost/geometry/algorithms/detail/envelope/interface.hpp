@@ -31,7 +31,8 @@
 namespace boost { namespace geometry
 {
 
-namespace resolve_variant {
+namespace resolve_variant
+{
 
 template <typename Geometry>
 struct envelope

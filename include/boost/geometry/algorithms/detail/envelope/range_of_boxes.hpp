@@ -156,6 +156,8 @@ struct envelope_range_of_boxes
     template <typename RangeOfBoxes, typename Box>
     static inline void apply(RangeOfBoxes const& range_of_boxes, Box& mbr)
     {
+        // boxes in the range are assumed to be normalized already
+
         typedef typename boost::range_value<RangeOfBoxes>::type box_type;
         typedef typename coordinate_type<box_type>::type coordinate_type;
         typedef typename coordinate_system<box_type>::type::units units_type;
@@ -173,8 +175,6 @@ struct envelope_range_of_boxes
         typedef std::vector<interval_type> interval_range_type;
 
         BOOST_ASSERT(! boost::empty(range_of_boxes));
-
-        // TODO(?): normalize boxes
 
         iterator_type it_min = std::min_element(boost::begin(range_of_boxes),
                                                 boost::end(range_of_boxes),
@@ -223,7 +223,8 @@ struct envelope_range_of_boxes
                 units_type
             >::apply(intervals, lon_min, lon_max);
 
-        // TODO(?): convert units?
+        // do not convert units; conversion will be performed at a
+        // higher level
         assign_values(mbr,
                       lon_min,
                       geometry::get<min_corner, 1>(*it_min),

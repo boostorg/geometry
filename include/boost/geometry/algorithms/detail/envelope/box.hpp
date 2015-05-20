@@ -19,18 +19,13 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_BOX_HPP
 
-#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-#include <boost/geometry/util/convert_on_spheroid.hpp>
-
-#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/algorithms/detail/convert_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -45,42 +40,18 @@ namespace detail { namespace envelope
 
 struct envelope_box_on_spheroid
 {
-    template <typename Box>
-    static inline bool is_band(Box const& box)
-    {
-        typedef typename coordinate_type<Box>::type coordinate_type;
-        coordinate_type const period = math::detail::constants_on_spheroid
-            <
-                coordinate_type,
-                typename coordinate_system<Box>::type::units
-            >::period();
-
-        coordinate_type longitude_diff = geometry::get<max_corner, 0>(box)
-            - geometry::get<min_corner, 0>(box);
-
-        return ! math::smaller(math::abs(longitude_diff), period);
-    }
-
     template<typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
-        typedef typename coordinate_type<BoxOut>::type box_out_coordinate_type;
-        typedef typename coordinate_system<BoxOut>::type::units mbr_units_type;
+        geometry::convert(box_in, mbr);
 
-        bool const band = is_band(box_in);
-
-        mbr = math::convert_box<BoxOut>(box_in);
-        box_out_coordinate_type lon1 = geometry::get<min_corner, 0>(mbr);
-        box_out_coordinate_type lat1 = geometry::get<min_corner, 1>(mbr);
-        box_out_coordinate_type lon2 = geometry::get<max_corner, 0>(mbr);
-        box_out_coordinate_type lat2 = geometry::get<max_corner, 1>(mbr);
-
-        math::normalize_spheroidal_box_coordinates
+        detail::convert_units
             <
-                mbr_units_type
-            >(lon1, lat1, lon2, lat2, band);
+                typename coordinate_system<BoxIn>::type::units,
+                typename coordinate_system<BoxOut>::type::units
+            >(mbr);
 
-        assign_values(mbr, lon1, lat1, lon2, lat2);
+        detail::normalize(mbr, mbr);
     }
 };
 
