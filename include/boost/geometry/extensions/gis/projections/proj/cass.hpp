@@ -62,15 +62,6 @@ namespace boost { namespace geometry { namespace projections
             struct par_cass
             {
                 double m0;
-                double n;
-                double t;
-                double a1;
-                double c;
-                double r;
-                double dd;
-                double d2;
-                double a2;
-                double tn;
                 double en[EN_SIZE];
             };
 
@@ -83,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_cass m_proj_parm;
+                par_cass m_proj_parm;
 
                 inline base_cass_ellipsoid(const Parameters& par)
                     : base_t_fi<base_cass_ellipsoid<Geographic, Cartesian, Parameters>,
@@ -91,16 +82,18 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    xy_y = pj_mlfn(lp_lat, this->m_proj_parm.n = sin(lp_lat), this->m_proj_parm.c = cos(lp_lat), this->m_proj_parm.en);
-                    this->m_proj_parm.n = 1./sqrt(1. - this->m_par.es * this->m_proj_parm.n * this->m_proj_parm.n);
-                    this->m_proj_parm.tn = tan(lp_lat); this->m_proj_parm.t = this->m_proj_parm.tn * this->m_proj_parm.tn;
-                    this->m_proj_parm.a1 = lp_lon * this->m_proj_parm.c;
-                    this->m_proj_parm.c *= this->m_par.es * this->m_proj_parm.c / (1 - this->m_par.es);
-                    this->m_proj_parm.a2 = this->m_proj_parm.a1 * this->m_proj_parm.a1;
-                    xy_x = this->m_proj_parm.n * this->m_proj_parm.a1 * (1. - this->m_proj_parm.a2 * this->m_proj_parm.t *
-                        (C1 - (8. - this->m_proj_parm.t + 8. * this->m_proj_parm.c) * this->m_proj_parm.a2 * C2));
-                    xy_y -= this->m_proj_parm.m0 - this->m_proj_parm.n * this->m_proj_parm.tn * this->m_proj_parm.a2 *
-                        (.5 + (5. - this->m_proj_parm.t + 6. * this->m_proj_parm.c) * this->m_proj_parm.a2 * C3);
+                    double n = sin(lp_lat);
+                    double c = cos(lp_lat);
+                    xy_y = pj_mlfn(lp_lat, n, c, this->m_proj_parm.en);
+                    n = 1./sqrt(1. - this->m_par.es * n * n);
+                    double tn = tan(lp_lat); double t = tn * tn;
+                    double a1 = lp_lon * c;
+                    c *= this->m_par.es * c / (1 - this->m_par.es);
+                    double a2 = a1 * a1;
+                    xy_x = n * a1 * (1. - a2 * t *
+                        (C1 - (8. - t + 8. * c) * a2 * C2));
+                    xy_y -= this->m_proj_parm.m0 - n * tn * a2 *
+                        (.5 + (5. - t + 6. * c) * a2 * C3);
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
@@ -108,17 +101,17 @@ namespace boost { namespace geometry { namespace projections
                     double ph1;
 
                     ph1 = pj_inv_mlfn(this->m_proj_parm.m0 + xy_y, this->m_par.es, this->m_proj_parm.en);
-                    this->m_proj_parm.tn = tan(ph1); this->m_proj_parm.t = this->m_proj_parm.tn * this->m_proj_parm.tn;
-                    this->m_proj_parm.n = sin(ph1);
-                    this->m_proj_parm.r = 1. / (1. - this->m_par.es * this->m_proj_parm.n * this->m_proj_parm.n);
-                    this->m_proj_parm.n = sqrt(this->m_proj_parm.r);
-                    this->m_proj_parm.r *= (1. - this->m_par.es) * this->m_proj_parm.n;
-                    this->m_proj_parm.dd = xy_x / this->m_proj_parm.n;
-                    this->m_proj_parm.d2 = this->m_proj_parm.dd * this->m_proj_parm.dd;
-                    lp_lat = ph1 - (this->m_proj_parm.n * this->m_proj_parm.tn / this->m_proj_parm.r) * this->m_proj_parm.d2 *
-                        (.5 - (1. + 3. * this->m_proj_parm.t) * this->m_proj_parm.d2 * C3);
-                    lp_lon = this->m_proj_parm.dd * (1. + this->m_proj_parm.t * this->m_proj_parm.d2 *
-                        (-C4 + (1. + 3. * this->m_proj_parm.t) * this->m_proj_parm.d2 * C5)) / cos(ph1);
+                    double tn = tan(ph1); double t = tn * tn;
+                    double n = sin(ph1);
+                    double r = 1. / (1. - this->m_par.es * n * n);
+                    n = sqrt(r);
+                    r *= (1. - this->m_par.es) * n;
+                    double dd = xy_x / n;
+                    double d2 = dd * dd;
+                    lp_lat = ph1 - (n * tn / r) * d2 *
+                        (.5 - (1. + 3. * t) * d2 * C3);
+                    lp_lon = dd * (1. + t * d2 *
+                        (-C4 + (1. + 3. * t) * d2 * C5)) / cos(ph1);
                 }
             };
 
@@ -131,7 +124,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_cass m_proj_parm;
+                par_cass m_proj_parm;
 
                 inline base_cass_spheroid(const Parameters& par)
                     : base_t_fi<base_cass_spheroid<Geographic, Cartesian, Parameters>,
@@ -145,8 +138,9 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    lp_lat = asin(sin(this->m_proj_parm.dd = xy_y + this->m_par.phi0) * cos(xy_x));
-                    lp_lon = atan2(tan(xy_x), cos(this->m_proj_parm.dd));
+                    double dd = xy_y + this->m_par.phi0;
+                    lp_lat = asin(sin(dd) * cos(xy_x));
+                    lp_lon = atan2(tan(xy_x), cos(dd));
                 }
             };
 

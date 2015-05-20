@@ -70,7 +70,6 @@ namespace boost { namespace geometry { namespace projections
                 double    dd;
                 double    n2;
                 double    rho0;
-                double    rho;
                 double    phi1;
                 double    phi2;
                 double    en[EN_SIZE];
@@ -109,7 +108,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_aea m_proj_parm;
+                par_aea m_proj_parm;
 
                 inline base_aea_ellipsoid(const Parameters& par)
                     : base_t_fi<base_aea_ellipsoid<Geographic, Cartesian, Parameters>,
@@ -117,22 +116,24 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if ((this->m_proj_parm.rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat),
+                    double rho = 0.0;
+                    if ((rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat),
                         this->m_par.e, this->m_par.one_es) : this->m_proj_parm.n2 * sin(lp_lat))) < 0.) throw proj_exception();
-                    this->m_proj_parm.rho = this->m_proj_parm.dd * sqrt(this->m_proj_parm.rho);
-                    xy_x = this->m_proj_parm.rho * sin( lp_lon *= this->m_proj_parm.n );
-                    xy_y = this->m_proj_parm.rho0 - this->m_proj_parm.rho * cos(lp_lon);
+                    rho = this->m_proj_parm.dd * sqrt(rho);
+                    xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
+                    xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    if( (this->m_proj_parm.rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
+                    double rho = 0.0;
+                    if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
-                            this->m_proj_parm.rho = -this->m_proj_parm.rho;
+                            rho = -rho;
                             xy_x = -xy_x;
                             xy_y = -xy_y;
                         }
-                        lp_lat =  this->m_proj_parm.rho / this->m_proj_parm.dd;
+                        lp_lat =  rho / this->m_proj_parm.dd;
                         if (this->m_proj_parm.ellips) {
                             lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n;
                             if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > TOL7) {

@@ -77,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_lcc m_proj_parm;
+                par_lcc m_proj_parm;
 
                 inline base_lcc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_lcc_ellipsoid<Geographic, Cartesian, Parameters>,
