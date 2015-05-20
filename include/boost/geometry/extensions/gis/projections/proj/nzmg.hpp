@@ -149,7 +149,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - fixed Earth
+         - Fixed Earth
         \par Example
         \image html ex_nzmg.gif
     */

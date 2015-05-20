@@ -315,7 +315,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - zone= south
+        \par Projection parameters
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */
@@ -337,7 +339,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - zone= south
+        \par Projection parameters
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */

@@ -125,6 +125,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
+        \par Projection parameters
+         - n (real)
         \par Example
         \image html ex_fouc_s.gif
     */

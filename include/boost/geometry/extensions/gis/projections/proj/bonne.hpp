@@ -177,7 +177,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */
@@ -200,7 +201,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */

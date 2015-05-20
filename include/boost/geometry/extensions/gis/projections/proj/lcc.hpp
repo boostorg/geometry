@@ -194,7 +194,10 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1= and lat_2= or lat_0
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcc.gif
     */

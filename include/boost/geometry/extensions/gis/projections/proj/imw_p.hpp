@@ -235,9 +235,12 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - Mod Polyconic
+         - Mod. Polyconic
          - Ellipsoid
-         - lat_1= and lat_2= [lon_1=]
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
+         - lon_1 (degrees)
         \par Example
         \image html ex_imw_p.gif
     */

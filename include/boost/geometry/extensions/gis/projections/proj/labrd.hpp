@@ -189,6 +189,9 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Special for Madagascar
+        \par Projection parameters
+         - no_rot: No rotation (boolean)
+         - azi: Azimuth (or Gamma) (degrees)
         \par Example
         \image html ex_labrd.gif
     */

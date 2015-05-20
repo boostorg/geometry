@@ -109,7 +109,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W= M=
+        \par Projection parameters
+         - W (real)
+         - M (real)
         \par Example
         \image html ex_hammer.gif
     */

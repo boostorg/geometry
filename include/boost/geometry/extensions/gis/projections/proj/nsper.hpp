@@ -237,7 +237,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - h=
+        \par Projection parameters
+         - h: Height
         \par Example
         \image html ex_nsper.gif
     */
@@ -259,7 +260,10 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - tilt= azi= h=
+        \par Projection parameters
+         - tilt: Tilt, or Omega (real)
+         - azi: Azimuth (or Gamma) (real)
+         - h: Height
         \par Example
         \image html ex_tpers.gif
     */

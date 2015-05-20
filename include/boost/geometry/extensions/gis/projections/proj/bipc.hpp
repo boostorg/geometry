@@ -212,6 +212,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
+        \par Projection parameters
+         - ns (boolean)
         \par Example
         \image html ex_bipc.gif
     */

@@ -116,7 +116,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W=
+        \par Projection parameters
+         - W (real)
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_lagrng.gif
     */

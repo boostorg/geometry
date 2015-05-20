@@ -257,7 +257,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - h=
+        \par Projection parameters
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */
@@ -280,7 +282,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - h=
+        \par Projection parameters
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */

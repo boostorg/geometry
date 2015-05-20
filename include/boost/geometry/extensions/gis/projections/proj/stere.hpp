@@ -347,7 +347,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_stere.gif
     */
@@ -370,7 +371,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_stere.gif
     */
@@ -393,7 +395,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - south
+        \par Projection parameters
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_ups.gif
     */
@@ -416,7 +419,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - south
+        \par Projection parameters
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_ups.gif
     */

@@ -93,7 +93,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_geocent.gif
     */

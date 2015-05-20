@@ -208,7 +208,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
-         - m= n=
+        \par Projection parameters
+         - m (real)
+         - n (real)
         \par Example
         \image html ex_gn_sinu.gif
     */

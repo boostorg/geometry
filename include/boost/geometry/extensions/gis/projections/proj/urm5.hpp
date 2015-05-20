@@ -108,7 +108,10 @@ namespace boost { namespace geometry { namespace projections
          - Pseudocylindrical
          - Spheroid
          - no inverse
-         - n= q= alpha=
+        \par Projection parameters
+         - n (real)
+         - q (real)
+         - alpha: Alpha (degrees)
         \par Example
         \image html ex_urm5.gif
     */

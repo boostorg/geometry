@@ -222,7 +222,9 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1= lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_aea.gif
     */
@@ -245,7 +247,9 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1= south
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_leac.gif
     */

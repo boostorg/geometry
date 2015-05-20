@@ -1116,6 +1116,15 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Spheroid
+        \par Projection parameters
+         - orient (string)
+         - azi: Azimuth (or Gamma) (degrees)
+         - lon_0: Central meridian (degrees)
+         - lat_0: Latitude of origin (degrees)
+         - aperture (integer)
+         - resolution (integer)
+         - mode (string)
+         - rescale
         \par Example
         \image html ex_isea.gif
     */

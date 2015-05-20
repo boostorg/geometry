@@ -141,7 +141,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */
@@ -164,7 +165,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */

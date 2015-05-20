@@ -229,7 +229,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - lat_1
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_wintri.gif
     */

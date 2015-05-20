@@ -115,7 +115,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - no inverse
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_rpoly.gif
     */

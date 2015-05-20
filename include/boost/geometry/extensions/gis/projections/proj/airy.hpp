@@ -171,7 +171,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - no_cut lat_b=
+        \par Projection parameters
+         - no_cut: Do not cut at hemisphere limit (boolean)
+         - lat_b (degrees)
         \par Example
         \image html ex_airy.gif
     */

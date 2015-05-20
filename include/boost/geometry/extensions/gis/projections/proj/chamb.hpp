@@ -198,7 +198,13 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - lat_1= lon_1= lat_2= lon_2= lat_3= lon_3=
+        \par Projection parameters
+         - lat_1: Latitude of control point 1 (degrees)
+         - lon_1: Longitude of control point 1 (degrees)
+         - lat_2: Latitude of control point 2 (degrees)
+         - lon_2: Longitude of control point 2 (degrees)
+         - lat_3: Latitude of control point 3 (degrees)
+         - lon_3: Longitude of control point 3 (degrees)
         \par Example
         \image html ex_chamb.gif
     */

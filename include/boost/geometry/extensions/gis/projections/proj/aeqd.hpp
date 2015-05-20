@@ -349,7 +349,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -372,7 +374,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -395,7 +399,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */

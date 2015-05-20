@@ -312,8 +312,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - lat_ts=(0)
-         - lat_0=(0)
+        \par Projection parameters
+         - lat_ts: Latitude of true scale
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_etmerc.gif
     */

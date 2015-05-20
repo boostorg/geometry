@@ -254,7 +254,9 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lsat= path=
+        \par Projection parameters
+         - lsat (integer)
+         - path (integer)
         \par Example
         \image html ex_lsat.gif
     */

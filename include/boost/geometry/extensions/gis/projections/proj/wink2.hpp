@@ -115,7 +115,8 @@ namespace boost { namespace geometry { namespace projections
          - Pseudocylindrical
          - Spheroid
          - no inverse
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_wink2.gif
     */

@@ -158,7 +158,11 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - lat_1= lon_1= lat_2= lon_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lon_1 (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lon_2 (degrees)
         \par Example
         \image html ex_tpeqd.gif
     */

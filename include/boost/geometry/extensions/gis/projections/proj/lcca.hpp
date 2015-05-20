@@ -150,7 +150,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_0=
+        \par Projection parameters
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcca.gif
     */

@@ -101,8 +101,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - lat_ts=[
-         - lat_0=0]
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_eqc.gif
     */

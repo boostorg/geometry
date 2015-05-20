@@ -270,7 +270,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_tissot.gif
     */
@@ -292,7 +294,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd1.gif
     */
@@ -314,7 +318,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd2.gif
     */
@@ -336,7 +342,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_murd3.gif
     */
@@ -358,7 +366,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_euler.gif
     */
@@ -380,7 +390,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_pconic.gif
     */
@@ -402,7 +414,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
-         - lat_1= and lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
         \par Example
         \image html ex_vitk1.gif
     */
