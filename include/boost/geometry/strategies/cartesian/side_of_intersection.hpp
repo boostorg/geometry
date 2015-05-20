@@ -52,6 +52,8 @@ struct integral_pow<T, N, 0>
 
 // A tool for multiplication of integers avoiding overflow
 // It's a temporary workaround until we can use Multiprecision
+// The algorithm is based on Karatsuba algorithm
+// see: http://en.wikipedia.org/wiki/Karatsuba_algorithm
 template <typename T>
 struct multiplicable_integral
 {
@@ -63,15 +65,15 @@ struct multiplicable_integral
     static const std::size_t bits = CHAR_BIT * sizeof(T);
     static const std::size_t half_bits = bits / 2;
     typedef typename boost::make_unsigned<T>::type unsigned_type;
-    static const unsigned_type half_base
+    static const unsigned_type base
         = integral_pow<unsigned_type, 2, half_bits>::value;
 
-    int sign;
-    unsigned_type ms;
-    unsigned_type ls;
+    int m_sign;
+    unsigned_type m_ms;
+    unsigned_type m_ls;
 
-    multiplicable_integral(int sign_, unsigned_type ms_, unsigned_type ls_)
-        : sign(sign_), ms(ms_), ls(ls_)
+    multiplicable_integral(int sign, unsigned_type ms, unsigned_type ls)
+        : m_sign(sign), m_ms(ms), m_ls(ls)
     {}
 
     explicit multiplicable_integral(T const& val)
@@ -82,37 +84,37 @@ struct multiplicable_integral
                                   unsigned_type((std::numeric_limits<T>::max)()) + 1
                                 : unsigned_type(-val);
         // MMLL -> S 00MM 00LL
-        sign = math::sign(val);
-        ms = val_u / half_base;
-        ls = val_u - ms * half_base;
+        m_sign = math::sign(val);
+        m_ms = val_u / base;
+        m_ls = val_u - m_ms * base;
     }
     
     friend multiplicable_integral operator*(multiplicable_integral const& a,
                                             multiplicable_integral const& b)
     {
         // (S 00MM 00LL) * (S 00MM 00LL) -> (S Z2MM 00LL)
-        unsigned_type z2 = a.ms * b.ms;
-        unsigned_type z0 = a.ls * b.ls;
-        unsigned_type z1 = (a.ms + a.ls) * (b.ms + b.ls) - z2 - z0;
-        // z0 may be >= half_base so it must be normalized to allow comparison
-        unsigned_type z0_ms = z0 / half_base;
-        return multiplicable_integral(a.sign * b.sign,
-                                      z2 * half_base + z1 + z0_ms,
-                                      z0 - half_base * z0_ms);
+        unsigned_type z2 = a.m_ms * b.m_ms;
+        unsigned_type z0 = a.m_ls * b.m_ls;
+        unsigned_type z1 = (a.m_ms + a.m_ls) * (b.m_ms + b.m_ls) - z2 - z0;
+        // z0 may be >= base so it must be normalized to allow comparison
+        unsigned_type z0_ms = z0 / base;
+        return multiplicable_integral(a.m_sign * b.m_sign,
+                                      z2 * base + z1 + z0_ms,
+                                      z0 - base * z0_ms);
     }
 
     friend bool operator<(multiplicable_integral const& a,
                           multiplicable_integral const& b)
     {
-        if ( a.sign == b.sign )
+        if ( a.m_sign == b.m_sign )
         {
-            bool u_less = a.ms < b.ms
-                      || (a.ms == b.ms && b.ls < b.ls);
-            return a.sign > 0 ? u_less : !u_less;
+            bool u_less = a.m_ms < b.m_ms
+                      || (a.m_ms == b.m_ms && b.m_ls < b.m_ls);
+            return a.m_sign > 0 ? u_less : (! u_less);
         }
         else
         {
-            return a.sign < b.sign;
+            return a.m_sign < b.m_sign;
         }
     }
 
@@ -122,12 +124,12 @@ struct multiplicable_integral
         return b < a;
     }
 
-    template <typename Cmp>
-    void check_value(Cmp const& cmp) const
+    template <typename CmpVal>
+    void check_value(CmpVal const& cmp_val) const
     {
-        unsigned_type base = half_base;
-        Cmp val = Cmp(sign) * (Cmp(ms) * Cmp(base) + Cmp(ls));
-        BOOST_ASSERT(cmp == val);
+        unsigned_type b = base; // a workaround for MinGW - undefined reference base
+        CmpVal val = CmpVal(m_sign) * (CmpVal(m_ms) * CmpVal(b) + CmpVal(m_ls));
+        BOOST_ASSERT(cmp_val == val);
     }
 };
 
