@@ -124,8 +124,8 @@ public:
                              CoordinateType& latitude,
                              bool normalize_poles = true)
     {
-
-        // first normalize latitude
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
+        // normalize latitude
         if (math::larger(latitude, constants::half_period()))
         {
             latitude = normalize_up(latitude);
@@ -146,10 +146,10 @@ public:
             latitude = constants::half_period() - latitude;
             longitude -= constants::half_period();
         }
+#endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
-        // now normalize longitude
-        if (math::equals(longitude, -constants::half_period())
-            || math::equals(longitude, constants::half_period()))
+        // normalize longitude
+        if (math::equals(math::abs(longitude), constants::half_period()))
         {
             longitude = constants::half_period();
         }
@@ -177,8 +177,10 @@ public:
             }
         }
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
         BOOST_ASSERT(! math::larger(constants::min_latitude(), latitude));
         BOOST_ASSERT(! math::larger(latitude, constants::max_latitude()));
+#endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
         BOOST_ASSERT(math::smaller(constants::min_longitude(), longitude));
         BOOST_ASSERT(! math::larger(longitude, constants::max_longitude()));

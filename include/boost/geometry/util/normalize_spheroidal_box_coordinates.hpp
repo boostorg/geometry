@@ -77,9 +77,12 @@ public:
             longitude2 += constants::period();
         }
 
+#ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
         BOOST_ASSERT(! math::larger(latitude1, latitude2));
         BOOST_ASSERT(! math::smaller(latitude1, constants::min_latitude()));
         BOOST_ASSERT(! math::larger(latitude2, constants::max_latitude()));
+#endif
+
         BOOST_ASSERT(! math::larger(longitude1, longitude2));
         BOOST_ASSERT(! math::smaller(longitude1, constants::min_longitude()));
         BOOST_ASSERT
