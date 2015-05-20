@@ -151,6 +151,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
                     }
                 }
+
+            private :
+                inline void ignore_unused()
+                {
+                    boost::ignore_unused(phi1_);
+                }
             };
 
             template <typename Parameters>
