@@ -27,15 +27,18 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+
+#include <boost/geometry/algorithms/detail/normalize.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
@@ -49,59 +52,133 @@ namespace detail { namespace disjoint
 {
 
 
+template <std::size_t Dimension, std::size_t DimensionCount>
+struct point_point_generic
+{
+    template <typename Point1, typename Point2>
+    static inline bool apply(Point1 const& p1, Point2 const& p2)
+    {
+        if (! geometry::math::equals(get<Dimension>(p1), get<Dimension>(p2)))
+        {
+            return true;
+        }
+        return
+            point_point_generic<Dimension + 1, DimensionCount>::apply(p1, p2);
+    }
+};
+
+template <std::size_t DimensionCount>
+struct point_point_generic<DimensionCount, DimensionCount>
+{
+    template <typename Point1, typename Point2>
+    static inline bool apply(Point1 const&, Point2 const&)
+    {
+        return false;
+    }
+};
+
+
 class point_point_on_spheroid
 {
 private:
     template
     <
-        typename Units,
-        typename CoordinateType1,
-        typename CoordinateType2
+        typename Point,
+        typename NewCoordinateType = typename coordinate_type<Point>::type,
+        typename NewUnits = typename coordinate_system<Point>::type::units,
+        typename CS_Tag = typename cs_tag<Point>::type
     >
-    static inline bool apply_same_units(CoordinateType1& lon1,
-                                        CoordinateType1& lat1,
-                                        CoordinateType2& lon2,
-                                        CoordinateType2& lat2)
+    struct helper_point
     {
-        math::normalize_spheroidal_coordinates<Units>(lon1, lat1);
-        math::normalize_spheroidal_coordinates<Units>(lon2, lat2);
+        typedef model::point
+            <
+                NewCoordinateType,
+                dimension<Point>::value,
+                cs::spherical_equatorial<NewUnits>
+            > type;
+    };
 
-        return ! math::equals(lat1, lat2) || ! math::equals(lon1, lon2);
-    }
+    template <typename Point, typename NewCoordinateType, typename NewUnits>
+    struct helper_point<Point, NewCoordinateType, NewUnits, geographic_tag>
+    {
+        typedef model::point
+            <
+                NewCoordinateType,
+                dimension<Point>::value,
+                cs::geographic<NewUnits>
+            > type;
+    };
+
+
+    template <typename Point1, typename Point2, bool SameUnits>
+    struct are_same_points
+    {
+        static inline bool apply(Point1 const& point1, Point2 const& point2)
+        {
+            typedef typename helper_point<Point1>::type helper_point_type1;
+            typedef typename helper_point<Point2>::type helper_point_type2;
+
+            helper_point_type1 point1_normalized
+                = return_normalized<helper_point_type1>(point1);
+
+            helper_point_type2 point2_normalized
+                = return_normalized<helper_point_type2>(point2);
+
+            return point_point_generic
+                <
+                    0, dimension<Point1>::value
+                >::apply(point1_normalized, point2_normalized);
+        }
+    };
+
+    template <typename Point1, typename Point2>
+    struct are_same_points<Point1, Point2, false> // points have different units
+    {
+        static inline bool apply(Point1 const& point1, Point2 const& point2)
+        {
+            typedef typename geometry::select_most_precise
+                <
+                    typename fp_coordinate_type<Point1>::type,
+                    typename fp_coordinate_type<Point2>::type
+                >::type calculation_type;
+
+            typedef typename helper_point
+                <
+                    Point1, calculation_type, radian
+                >::type helper_point_type1;
+
+            typedef typename helper_point
+                <
+                    Point2, calculation_type, radian
+                >::type helper_point_type2;
+
+            helper_point_type1 point1_normalized
+                = return_normalized<helper_point_type1>(point1);
+
+            helper_point_type2 point2_normalized
+                = return_normalized<helper_point_type2>(point2);
+
+            return point_point_generic
+                <
+                    0, dimension<Point1>::value
+                >::apply(point1_normalized, point2_normalized);
+        }
+    };
 
 public:
     template <typename Point1, typename Point2>
-    static inline bool apply(Point1 const& p1, Point2 const& p2)
+    static inline bool apply(Point1 const& point1, Point2 const& point2)
     {
-        typedef typename coordinate_type<Point1>::type coordinate_type1;
-        typedef typename coordinate_type<Point2>::type coordinate_type2;
-
-        typedef typename coordinate_system<Point1>::type::units units1;
-        typedef typename coordinate_system<Point2>::type::units units2;
-
-        if (BOOST_GEOMETRY_CONDITION((boost::is_same<units1, units2>::value)))
-        {
-            coordinate_type1 lon1 = geometry::get<0>(p1);
-            coordinate_type1 lat1 = geometry::get<1>(p1);
-            coordinate_type2 lon2 = geometry::get<0>(p2);
-            coordinate_type2 lat2 = geometry::get<1>(p2);
-
-            return apply_same_units<units1>(lon1, lat1, lon2, lat2);
-        }
-
-        typedef typename geometry::select_most_precise
+        return are_same_points
             <
-                typename fp_coordinate_type<Point1>::type,
-                typename fp_coordinate_type<Point2>::type
-            >::type calculation_type;
-
-        calculation_type lon1 = get_as_radian<0>(p1);
-        calculation_type lat1 = get_as_radian<1>(p1);
-
-        calculation_type lon2 = get_as_radian<0>(p2);
-        calculation_type lat2 = get_as_radian<1>(p2);
-
-        return apply_same_units<radian>(lon1, lat1, lon2, lat2);
+                Point1,
+                Point2,
+                boost::is_same
+                    <
+                        typename coordinate_system<Point1>::type::units,
+                        typename coordinate_system<Point2>::type::units
+                    >::value
+            >::apply(point1, point2);
     }
 };
 
@@ -145,32 +222,8 @@ template
     std::size_t Dimension, std::size_t DimensionCount
 >
 struct point_point<Point1, Point2, Dimension, DimensionCount, cartesian_tag>
-{
-    static inline bool apply(Point1 const& p1, Point2 const& p2)
-    {
-        if (! geometry::math::equals(get<Dimension>(p1), get<Dimension>(p2)))
-        {
-            return true;
-        }
-        return point_point
-            <
-                Point1, Point2,
-                Dimension + 1, DimensionCount
-            >::apply(p1, p2);
-    }
-};
-
-template <typename Point1, typename Point2, std::size_t DimensionCount>
-struct point_point
-    <
-        Point1, Point2, DimensionCount, DimensionCount, cartesian_tag
-    >
-{
-    static inline bool apply(Point1 const& , Point2 const& )
-    {
-        return false;
-    }
-};
+    : point_point_generic<Dimension, DimensionCount>
+{};
 
 
 /*!
