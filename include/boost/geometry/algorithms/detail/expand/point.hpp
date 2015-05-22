@@ -33,10 +33,13 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/strategies/compare.hpp>
+#include <boost/geometry/strategies/strategy_transform.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
+
 #include <boost/geometry/algorithms/detail/normalize.hpp>
-#include <boost/geometry/algorithms/detail/convert_units.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range_of_boxes.hpp>
 
 #include <boost/geometry/algorithms/dispatch/expand.hpp>
@@ -55,25 +58,24 @@ struct point_on_spheroid
     template <typename Box, typename Point>
     static inline void apply(Box& box, Point const& point)
     {
-        typedef typename coordinate_type<Point>::type point_coordinate_type;
+        typedef typename coordinate_type<Box>::type box_coordinate_type;
 
         typedef math::detail::constants_on_spheroid
             <
-                point_coordinate_type,
+                box_coordinate_type,
                 typename coordinate_system<Box>::type::units
             > constants;
 
+        // normalize input point and input box
         Point p_normalized = detail::return_normalized<Point>(point);
         detail::normalize(box, box);
 
-        detail::convert_units
-            <
-                typename coordinate_system<Point>::type::units, // from
-                typename coordinate_system<Box>::type::units // to
-            >(p_normalized);
+        // transform input point to be the same type as the box point
+        typename point_type<Box>::type box_point;
+        geometry::transform(p_normalized, box_point);
 
-        point_coordinate_type p_lon = geometry::get<0>(p_normalized);
-        point_coordinate_type p_lat = geometry::get<1>(p_normalized);
+        box_coordinate_type p_lon = geometry::get<0>(box_point);
+        box_coordinate_type p_lat = geometry::get<1>(box_point);
 
         typename coordinate_type<Box>::type
             b_lon_min = geometry::get<min_corner, 0>(box),
@@ -117,10 +119,11 @@ struct point_on_spheroid
         // update longitudes
         if (math::smaller(p_lon, b_lon_min))
         {
-            point_coordinate_type p_lon_shifted = p_lon + constants::period();
+            box_coordinate_type p_lon_shifted = p_lon + constants::period();
+
             if (math::larger(p_lon_shifted, b_lon_max))
             {
-                // here we could check suing: ! math::larger(.., ..)
+                // here we could check using: ! math::larger(.., ..)
                 if (math::smaller(b_lon_min - p_lon, p_lon_shifted - b_lon_max))
                 {
                     b_lon_min = p_lon;

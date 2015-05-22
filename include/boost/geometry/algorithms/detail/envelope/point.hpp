@@ -23,10 +23,12 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/strategies/strategy_transform.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/algorithms/detail/normalize.hpp>
-#include <boost/geometry/algorithms/detail/convert_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -45,13 +47,12 @@ struct envelope_point_on_spheroid
     {
         Point normalized_point = detail::return_normalized<Point>(point);
 
-        geometry::convert(normalized_point, mbr);
+        typename point_type<Box>::type box_point;
 
-        detail::convert_units
-            <
-                typename coordinate_system<Point>::type::units,
-                typename coordinate_system<Box>::type::units
-            >(mbr);
+        // transform input point to a point of the same type as box's point
+        geometry::transform(normalized_point, box_point);
+
+        geometry::convert(box_point, mbr);
     }
 };
 

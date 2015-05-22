@@ -25,9 +25,13 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/geometries/helper_geometry.hpp>
 
-#include <boost/geometry/algorithms/detail/convert_units.hpp>
+#include <boost/geometry/strategies/strategy_transform.hpp>
+
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
+
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
@@ -297,13 +301,16 @@ public:
                                              lat_max);
         }
 
-        assign_values(mbr, lon_min, lat_min, lon_max, lat_max);
-
-        detail::convert_units
+        typename helper_geometry
             <
-                typename coordinate_system<MultiPoint>::type::units,
-                typename coordinate_system<Box>::type::units
-            >(mbr);
+                Box,
+                coordinate_type,
+                typename coordinate_system<MultiPoint>::type::units
+            >::type helper_mbr;
+
+        assign_values(helper_mbr, lon_min, lat_min, lon_max, lat_max);
+
+        geometry::transform(helper_mbr, mbr);
     }
 };
 

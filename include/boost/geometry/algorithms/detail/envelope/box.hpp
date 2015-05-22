@@ -23,9 +23,11 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/strategies/strategy_transform.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
-#include <boost/geometry/algorithms/detail/convert_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -43,15 +45,9 @@ struct envelope_box_on_spheroid
     template<typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
-        geometry::convert(box_in, mbr);
+        BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
 
-        detail::convert_units
-            <
-                typename coordinate_system<BoxIn>::type::units,
-                typename coordinate_system<BoxOut>::type::units
-            >(mbr);
-
-        detail::normalize(mbr, mbr);
+        geometry::transform(box_in_normalized, mbr);
     }
 };
 

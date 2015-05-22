@@ -36,7 +36,11 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
-#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/strategies/strategy_transform.hpp>
+
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
+#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
@@ -81,46 +85,16 @@ struct point_point_generic<DimensionCount, DimensionCount>
 class point_point_on_spheroid
 {
 private:
-    template
-    <
-        typename Point,
-        typename NewCoordinateType = typename coordinate_type<Point>::type,
-        typename NewUnits = typename coordinate_system<Point>::type::units,
-        typename CS_Tag = typename cs_tag<Point>::type
-    >
-    struct helper_point
-    {
-        typedef model::point
-            <
-                NewCoordinateType,
-                dimension<Point>::value,
-                cs::spherical_equatorial<NewUnits>
-            > type;
-    };
-
-    template <typename Point, typename NewCoordinateType, typename NewUnits>
-    struct helper_point<Point, NewCoordinateType, NewUnits, geographic_tag>
-    {
-        typedef model::point
-            <
-                NewCoordinateType,
-                dimension<Point>::value,
-                cs::geographic<NewUnits>
-            > type;
-    };
-
-
     template <typename Point1, typename Point2, bool SameUnits>
     struct are_same_points
     {
         static inline bool apply(Point1 const& point1, Point2 const& point2)
         {
-            typedef typename helper_point<Point1>::type helper_point_type1;
-            typedef typename helper_point<Point2>::type helper_point_type2;
+            typedef typename helper_geometry<Point1>::type helper_point_type1;
+            typedef typename helper_geometry<Point2>::type helper_point_type2;
 
             helper_point_type1 point1_normalized
                 = return_normalized<helper_point_type1>(point1);
-
             helper_point_type2 point2_normalized
                 = return_normalized<helper_point_type2>(point2);
 
@@ -142,26 +116,21 @@ private:
                     typename fp_coordinate_type<Point2>::type
                 >::type calculation_type;
 
-            typedef typename helper_point
+            typename helper_geometry
                 <
                     Point1, calculation_type, radian
-                >::type helper_point_type1;
+                >::type helper_point1, helper_point2;
 
-            typedef typename helper_point
-                <
-                    Point2, calculation_type, radian
-                >::type helper_point_type2;
+            Point1 point1_normalized = return_normalized<Point1>(point1);
+            Point2 point2_normalized = return_normalized<Point2>(point2);
 
-            helper_point_type1 point1_normalized
-                = return_normalized<helper_point_type1>(point1);
-
-            helper_point_type2 point2_normalized
-                = return_normalized<helper_point_type2>(point2);
+            geometry::transform(point1_normalized, helper_point1);
+            geometry::transform(point2_normalized, helper_point2);
 
             return point_point_generic
                 <
                     0, dimension<Point1>::value
-                >::apply(point1_normalized, point2_normalized);
+                >::apply(helper_point1, helper_point2);
         }
     };
 

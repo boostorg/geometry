@@ -34,11 +34,15 @@
 
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
+#include <boost/geometry/strategies/strategy_transform.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/algorithms/detail/normalize.hpp>
-#include <boost/geometry/algorithms/detail/convert_units.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
 
@@ -252,18 +256,20 @@ public:
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
 
+        typename helper_geometry
+            <
+                Box, box_coordinate_type, radian
+            >::type radian_mbr;
+
         apply(lon1, lat1, lon2, lat2);
 
-        assign_values(mbr,
+        assign_values(radian_mbr,
                       boost::numeric_cast<box_coordinate_type>(lon1),
                       boost::numeric_cast<box_coordinate_type>(lat1),
                       boost::numeric_cast<box_coordinate_type>(lon2),
                       boost::numeric_cast<box_coordinate_type>(lat2));
 
-        detail::convert_units
-            <
-                radian, typename coordinate_system<Box>::type::units
-            >(mbr);
+        geometry::transform(radian_mbr, mbr);
     }
 };
 
