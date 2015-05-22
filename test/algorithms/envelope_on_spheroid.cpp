@@ -157,15 +157,14 @@ template <typename MBR>
 class envelope_on_spheroid_basic_tester
 {
 private:
-    template <typename Box, typename Geometry>
-    static inline void base_test(std::string const& case_id,
-        Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
-        double tolerance)
+    template <typename Geometry, typename Box>
+    static inline void check_message(bool same_boxes,
+                                     std::string const& case_id,
+                                     std::string const& units_str,
+                                     Geometry const& geometry,
+                                     Box const& expected,
+                                     Box const& detected)
     {
-        typedef typename bg::coordinate_system<Box>::type::units box_units_type;
-
         bool const is_box = boost::is_same
             <
                 typename bg::tag<Geometry>::type, bg::box_tag
@@ -176,6 +175,39 @@ private:
                 typename bg::tag<Geometry>::type, bg::segment_tag
             >::value;
 
+        std::ostringstream stream;
+        stream << "case ID: " << case_id << ", "
+               << "MBR units: " << units_str << "; "
+               << "geometry: ";
+
+        if (BOOST_GEOMETRY_CONDITION(is_box))
+        {
+            stream << "BOX" << bg::dsv(geometry);
+        }
+        else if (BOOST_GEOMETRY_CONDITION(is_segment))
+        {
+            stream << "SEGMENT" << bg::dsv(geometry);
+        }
+        else
+        {
+            stream << bg::wkt(geometry);
+        }
+
+        stream << "; " << "expected: " << bg::dsv(expected)
+               << ", " << "detected: " << bg::dsv(detected);
+
+        BOOST_CHECK_MESSAGE(same_boxes, stream.str());
+    }
+
+    template <typename Box, typename Geometry>
+    static inline void base_test(std::string const& case_id,
+        Geometry const& geometry,
+        double lon_min, double lat_min,
+        double lon_max, double lat_max,
+        double tolerance)
+    {
+        typedef typename bg::coordinate_system<Box>::type::units box_units_type;
+
         std::string const units_str = units2string<box_units_type>();
 
         Box detected;
@@ -185,26 +217,30 @@ private:
         bg::assign_values(expected, lon_min, lat_min, lon_max, lat_max);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-        std::string gname("");
-        bool const is_segment_or_box = is_segment || is_box;
+        bool const is_box = boost::is_same
+            <
+                typename bg::tag<Geometry>::type, bg::box_tag
+            >::value;
+
+        bool const is_segment = boost::is_same
+            <
+                typename bg::tag<Geometry>::type, bg::segment_tag
+            >::value;
+
+        std::cout << "geometry: ";
         if (BOOST_GEOMETRY_CONDITION(is_box))
         {
-            gname = "BOX";
+            std::cout << "BOX" << bg::dsv(geometry);
         }
         else if(BOOST_GEOMETRY_CONDITION(is_segment))
         {
-            gname = "SEGMENT";
-        }
-
-        std::cout << "geometry: ";
-        if (BOOST_GEOMETRY_CONDITION(is_segment_or_box))
-        {
-            std::cout << gname << bg::dsv(geometry);
+            std::cout << "SEGMENT" << bg::dsv(geometry);
         }
         else
         {
             std::cout << bg::wkt(geometry);
         }
+
         std::cout << std::endl
                   << "MBR units: " << units_str
                   << std::endl
@@ -214,35 +250,9 @@ private:
                   << std::endl << std::endl;
 #endif
 
-        if (BOOST_GEOMETRY_CONDITION(is_box))
-        {
-            BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                "case ID: " << case_id << ", "
-                                << "MBR units: " << units_str << "; "
-                                << "geometry: " << "BOX"
-                                << bg::dsv(geometry) << "; "
-                                << "expected: " << bg::dsv(expected) << ", "
-                                << "detected: " << bg::dsv(detected));
-        }
-        else if (BOOST_GEOMETRY_CONDITION(is_segment))
-        {
-            BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                "case ID: " << case_id << ", "
-                                << "MBR units: " << units_str << "; "
-                                << "geometry: " << "SEGMENT"
-                                << bg::dsv(geometry) << "; "
-                                << "expected: " << bg::dsv(expected) << ", "
-                                << "detected: " << bg::dsv(detected));
-        }
-        else
-        {
-            BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                "case ID: " << case_id << ", "
-                                << "MBR units: " << units_str << "; "
-                                << "geometry: " << bg::wkt(geometry) << "; "
-                                << "expected: " << bg::dsv(expected) << ", "
-                                << "detected: " << bg::dsv(detected));
-        }
+        check_message(box_equals(detected, expected, tolerance),
+                      case_id, units_str,
+                      geometry, expected, detected);
     }
 
 public:
