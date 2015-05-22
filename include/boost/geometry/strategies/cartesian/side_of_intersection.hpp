@@ -2,6 +2,11 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,6 +15,12 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SIDE_OF_INTERSECTION_HPP
 
 
+#include <limits>
+
+#include <boost/core/ignore_unused.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
+
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -17,15 +28,105 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#ifdef BOOST_GEOMETRY_SIDE_OF_INTERSECTION_DEBUG
 #include <boost/math/common_factor_ct.hpp>
 #include <boost/math/common_factor_rt.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#endif
 
 namespace boost { namespace geometry
 {
 
 namespace strategy { namespace side
 {
+
+namespace detail
+{
+
+// A tool for multiplication of integers avoiding overflow
+// It's a temporary workaround until we can use Multiprecision
+// The algorithm is based on Karatsuba algorithm
+// see: http://en.wikipedia.org/wiki/Karatsuba_algorithm
+template <typename T>
+struct multiplicable_integral
+{
+    // Currently this tool can't be used with non-integral coordinate types.
+    // Also side_of_intersection strategy sign_of_product() and sign_of_compare()
+    // functions would have to be modified to properly support floating-point
+    // types (comparisons and multiplication).
+    BOOST_STATIC_ASSERT(boost::is_integral<T>::value);
+
+    static const std::size_t bits = CHAR_BIT * sizeof(T);
+    static const std::size_t half_bits = bits / 2;
+    typedef typename boost::make_unsigned<T>::type unsigned_type;
+    static const unsigned_type base = unsigned_type(1) << half_bits; // 2^half_bits
+
+    int m_sign;
+    unsigned_type m_ms;
+    unsigned_type m_ls;
+
+    multiplicable_integral(int sign, unsigned_type ms, unsigned_type ls)
+        : m_sign(sign), m_ms(ms), m_ls(ls)
+    {}
+
+    explicit multiplicable_integral(T const& val)
+    {
+        unsigned_type val_u = val > 0 ?
+                                unsigned_type(val)
+                              : val == (std::numeric_limits<T>::min)() ?
+                                  unsigned_type((std::numeric_limits<T>::max)()) + 1
+                                : unsigned_type(-val);
+        // MMLL -> S 00MM 00LL
+        m_sign = math::sign(val);
+        m_ms = val_u >> half_bits; // val_u / base
+        m_ls = val_u - m_ms * base;
+    }
+    
+    friend multiplicable_integral operator*(multiplicable_integral const& a,
+                                            multiplicable_integral const& b)
+    {
+        // (S 00MM 00LL) * (S 00MM 00LL) -> (S Z2MM 00LL)
+        unsigned_type z2 = a.m_ms * b.m_ms;
+        unsigned_type z0 = a.m_ls * b.m_ls;
+        unsigned_type z1 = (a.m_ms + a.m_ls) * (b.m_ms + b.m_ls) - z2 - z0;
+        // z0 may be >= base so it must be normalized to allow comparison
+        unsigned_type z0_ms = z0 >> half_bits; // z0 / base
+        return multiplicable_integral(a.m_sign * b.m_sign,
+                                      z2 * base + z1 + z0_ms,
+                                      z0 - base * z0_ms);
+    }
+
+    friend bool operator<(multiplicable_integral const& a,
+                          multiplicable_integral const& b)
+    {
+        if ( a.m_sign == b.m_sign )
+        {
+            bool u_less = a.m_ms < b.m_ms
+                      || (a.m_ms == b.m_ms && a.m_ls < b.m_ls);
+            return a.m_sign > 0 ? u_less : (! u_less);
+        }
+        else
+        {
+            return a.m_sign < b.m_sign;
+        }
+    }
+
+    friend bool operator>(multiplicable_integral const& a,
+                          multiplicable_integral const& b)
+    {
+        return b < a;
+    }
+
+    template <typename CmpVal>
+    void check_value(CmpVal const& cmp_val) const
+    {
+        unsigned_type b = base; // a workaround for MinGW - undefined reference base
+        CmpVal val = CmpVal(m_sign) * (CmpVal(m_ms) * CmpVal(b) + CmpVal(m_ls));
+        BOOST_ASSERT(cmp_val == val);
+    }
+};
+
+} // namespace detail
 
 // Calculates the side of the intersection-point (if any) of
 // of segment a//b w.r.t. segment c
@@ -52,14 +153,33 @@ private :
         // Both a*b and c*d are positive
         // We have to judge if a*b > c*d
 
+        using side::detail::multiplicable_integral;
+        multiplicable_integral<T> ab = multiplicable_integral<T>(a)
+                                     * multiplicable_integral<T>(b);
+        multiplicable_integral<T> cd = multiplicable_integral<T>(c)
+                                     * multiplicable_integral<T>(d);
+        
+        int result = ab > cd ? 1
+                   : ab < cd ? -1
+                   : 0
+                   ;
+
+#ifdef BOOST_GEOMETRY_SIDE_OF_INTERSECTION_DEBUG
         using namespace boost::multiprecision;
         cpp_int const lab = cpp_int(a) * cpp_int(b);
         cpp_int const lcd = cpp_int(c) * cpp_int(d);
 
-        return lab > lcd ? 1
-            :  lab < lcd ? -1
-            :  0
-            ;
+        ab.check_value(lab);
+        cd.check_value(lcd);
+
+        int result2 = lab > lcd ? 1
+                    : lab < lcd ? -1
+                    : 0
+                    ;
+        BOOST_ASSERT(result == result2);
+#endif
+
+        return result;
     }
 
     template <typename T>
@@ -181,6 +301,7 @@ public :
         T const result5 = d * (d * (dx_c * (ay - cy) - dy_c * (ax - cx))
                              + da * (dx_c * dy_a - dy_c * dx_a));
 
+        boost::ignore_unused(result1, result2, result3, result4, result5);
         //return result;
 #endif
 

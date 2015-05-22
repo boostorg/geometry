@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace labrd{
+    namespace detail { namespace labrd
+    {
+
             static const double EPS = 1.e-10;
 
             struct par_labrd
@@ -189,6 +191,9 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Special for Madagascar
+        \par Projection parameters
+         - no_rot: No rotation (boolean)
+         - azi: Azimuth (or Gamma) (degrees)
         \par Example
         \image html ex_labrd.gif
     */

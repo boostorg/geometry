@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nell_h{
+    namespace detail { namespace nell_h
+    {
+
             static const int NITER = 9;
             static const double EPS = 1e-7;
 

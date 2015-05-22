@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace goode{
+    namespace detail { namespace goode
+    {
+
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
 

@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace poly{
+    namespace detail { namespace poly
+    {
+
             static const double TOL = 1e-10;
             static const double CONV = 1e-10;
             static const int N_ITER = 10;

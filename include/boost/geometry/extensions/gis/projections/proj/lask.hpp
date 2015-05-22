@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lask{
+    namespace detail { namespace lask
+    {
+
             static const double a10 = 0.975534;
             static const double a12 = -0.119161;
             static const double a32 = -0.0143059;

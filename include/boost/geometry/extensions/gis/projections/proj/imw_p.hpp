@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace imw_p{
+    namespace detail { namespace imw_p
+    {
+
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 
@@ -62,7 +64,7 @@ namespace boost { namespace geometry { namespace projections
             };
 
             template <typename Parameters>
-                inline int
+                static int
             phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {
                 int err = 0;
 
@@ -79,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
                 return err;
             }
             template <typename Parameters>
-                inline XY
+                static XY
             loc_for(double const& lp_lam, double const& lp_phi, Parameters const& par, par_imw_p const& proj_parm, double *yc) {
                 XY xy;
 
@@ -127,7 +129,7 @@ namespace boost { namespace geometry { namespace projections
                 return (xy);
             }
             template <typename Parameters>
-                inline void
+                static void
             xy(Parameters const& par, par_imw_p const& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
                 double F;
 
@@ -235,9 +237,12 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - Mod Polyconic
+         - Mod. Polyconic
          - Ellipsoid
-         - lat_1= and lat_2= [lon_1=]
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
+         - lon_1 (degrees)
         \par Example
         \image html ex_imw_p.gif
     */

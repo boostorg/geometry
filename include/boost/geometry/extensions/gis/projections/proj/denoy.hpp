@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace denoy{
+    namespace detail { namespace denoy
+    {
+
             static const double C0 = 0.95;
             static const double C1 = -.08333333333333333333;
             static const double C3 = .00166666666666666666;

@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcca{
+    namespace detail { namespace lcca
+    {
+
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
 
@@ -60,11 +62,11 @@ namespace boost { namespace geometry { namespace projections
                 double    C;
             };
 
-                inline double /* func to compute dr */
+                static double /* func to compute dr */
             fS(double S, double C) {
                     return(S * ( 1. + S * S * C));
             }
-                inline double /* deriv of fs */
+                static double /* deriv of fs */
             fSp(double S, double C) {
                 return(1. + 3.* S * S * C);
             }
@@ -113,6 +115,13 @@ namespace boost { namespace geometry { namespace projections
                     if (!i) throw proj_exception();
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
+
+            private :
+                inline void ignore_unused()
+                {
+                    boost::ignore_unused(fSp);
+                }
+
             };
 
             // Lambert Conformal Conic Alternative
@@ -150,7 +159,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_0=
+        \par Projection parameters
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcca.gif
     */

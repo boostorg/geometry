@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace isea{
+    namespace detail { namespace isea
+    {
+
             static const double E = 52.62263186;
             static const double F = 10.81231696;
             static const double DEG60 = 1.04719755119659774614;
@@ -1116,6 +1118,15 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Spheroid
+        \par Projection parameters
+         - orient (string)
+         - azi: Azimuth (or Gamma) (degrees)
+         - lon_0: Central meridian (degrees)
+         - lat_0: Latitude of origin (degrees)
+         - aperture (integer)
+         - resolution (integer)
+         - mode (string)
+         - rescale
         \par Example
         \image html ex_isea.gif
     */

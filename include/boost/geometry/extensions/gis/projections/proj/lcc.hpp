@@ -53,7 +53,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcc{
+    namespace detail { namespace lcc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_lcc
@@ -75,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_lcc m_proj_parm;
+                par_lcc m_proj_parm;
 
                 inline base_lcc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_lcc_ellipsoid<Geographic, Cartesian, Parameters>,
@@ -194,7 +196,10 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1= and lat_2= or lat_0
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcc.gif
     */

@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cea{
+    namespace detail { namespace cea
+    {
+
             static const double EPS = 1e-10;
 
             struct par_cea
@@ -152,7 +154,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_cea.gif
     */
@@ -175,7 +178,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_cea.gif
     */

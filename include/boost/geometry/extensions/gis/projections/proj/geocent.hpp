@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace geocent{
+    namespace detail { namespace geocent
+    {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -93,7 +94,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_geocent.gif
     */

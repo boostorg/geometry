@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fahey{
+    namespace detail { namespace fahey
+    {
+
             static const double TOL = 1e-6;
 
             // template class, using CRTP to implement forward/inverse

@@ -47,7 +47,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rouss{
+    namespace detail { namespace rouss
+    {
 
             struct par_rouss
             {
@@ -168,7 +169,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal
-         - Ellps
+         - Ellipsoid
         \par Example
         \image html ex_rouss.gif
     */

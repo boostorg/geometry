@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nell{
+    namespace detail { namespace nell
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 

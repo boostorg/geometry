@@ -43,7 +43,10 @@ struct buffer_assign_turn
         typename Point2,
         typename IntersectionInfo
     >
-    static inline void apply(Info& info, Point1 const& p1, Point2 const& p2, IntersectionInfo const& iinfo)
+    static inline void apply(Info& info,
+                             Point1 const& /*p1*/,
+                             Point2 const& /*p2*/,
+                             IntersectionInfo const& iinfo)
     {
         info.rob_pi = iinfo.rpi();
         info.rob_pj = iinfo.rpj();

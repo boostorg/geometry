@@ -49,7 +49,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp4p{
+    namespace detail { namespace putp4p
+    {
 
             struct par_putp4p
             {

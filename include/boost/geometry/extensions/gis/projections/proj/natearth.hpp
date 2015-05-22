@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace natearth{
+    namespace detail { namespace natearth
+    {
+
             static const double A0 = 0.8707;
             static const double A1 = -0.131979;
             static const double A2 = -0.013791;

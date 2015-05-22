@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck3{
+    namespace detail { namespace eck3
+    {
 
             struct par_eck3
             {

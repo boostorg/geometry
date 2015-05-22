@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gins8{
+    namespace detail { namespace gins8
+    {
+
             static const double Cl = 0.000952426;
             static const double Cp = 0.162388;
             static const double C12 = 0.08333333333333333;

@@ -1350,8 +1350,12 @@ struct buffered_piece_collection
             if (! it->has_intersections()
                 && ! it->is_untouched_outside_original)
             {
-                ring_identifier id(0, index, -1);
-                selected[id] = properties(*it);
+                properties p = properties(*it);
+                if (p.valid)
+                {
+                    ring_identifier id(0, index, -1);
+                    selected[id] = p;
+                }
             }
         }
 
@@ -1362,8 +1366,12 @@ struct buffered_piece_collection
                 it != boost::end(traversed_rings);
                 ++it, ++index)
         {
-            ring_identifier id(2, index, -1);
-            selected[id] = properties(*it);
+            properties p = properties(*it);
+            if (p.valid)
+            {
+                ring_identifier id(2, index, -1);
+                selected[id] = p;
+            }
         }
 
         detail::overlay::assign_parents(offsetted_rings, traversed_rings, selected, true);

@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbt_fps{
+    namespace detail { namespace mbt_fps
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
             static const double C1 = 0.45503;

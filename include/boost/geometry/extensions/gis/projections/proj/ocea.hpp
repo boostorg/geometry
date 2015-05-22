@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ocea{
+    namespace detail { namespace ocea
+    {
 
             struct par_ocea
             {
@@ -145,8 +146,14 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Cylindrical
-         - Sph lonc= alpha= or
-         - lat_1= lat_2= lon_1= lon_2=
+         - Spheroid
+        \par Projection parameters
+         - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+         - alpha: Alpha (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - lon_1 (degrees)
+         - lon_2 (degrees)
         \par Example
         \image html ex_ocea.gif
     */

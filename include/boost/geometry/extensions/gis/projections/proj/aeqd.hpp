@@ -50,7 +50,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aeqd{
+    namespace detail { namespace aeqd
+    {
+
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
             static const int N_POLE = 0;
@@ -349,7 +351,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -372,7 +376,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -395,7 +401,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */

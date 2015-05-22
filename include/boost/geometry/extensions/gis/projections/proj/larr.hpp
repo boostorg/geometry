@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace larr{
+    namespace detail { namespace larr
+    {
+
             static const double SIXTH = .16666666666666666;
 
             // template class, using CRTP to implement forward/inverse

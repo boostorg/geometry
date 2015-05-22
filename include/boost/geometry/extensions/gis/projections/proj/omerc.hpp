@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace omerc{
+    namespace detail { namespace omerc
+    {
+
             static const double TOL = 1.e-7;
             static const double EPS = 1.e-10;
 
@@ -257,9 +259,18 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - Ell no_rot
-         - alpha= [gamma=] [no_off] lonc= or
-         - lon_1= lat_1= lon_2= lat_2=
+         - Ellipsoid
+        \par Projection parameters
+         - no_rot: No rotation
+         - alpha: Alpha (degrees)
+         - gamma: Gamma (degrees)
+         - no_off: Only for compatibility with libproj, proj4 (string)
+         - lonc: Longitude (only used if alpha (or gamma) is specified) (degrees)
+         - lon_1 (degrees)
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lon_2 (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
+         - no_uoff (string)
         \par Example
         \image html ex_omerc.gif
     */

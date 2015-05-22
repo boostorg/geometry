@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg4{
+    namespace detail { namespace vandg4
+    {
+
             static const double TOL = 1e-10;
             static const double TWORPI = 0.63661977236758134308;
 

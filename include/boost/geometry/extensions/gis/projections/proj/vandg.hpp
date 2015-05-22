@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg{
+    namespace detail { namespace vandg
+    {
+
             static const double TOL = 1.e-10;
             static const double THIRD = .33333333333333333333;
             static const double TWO_THRD = .66666666666666666666;
