@@ -129,6 +129,57 @@ inline bool box_equals(Box1 const& box1, Box2 const& box2, double tol)
 class test_expand_on_spheroid
 {
 private:
+    template <typename Box, typename Geometry>
+    static inline void check_message(bool same_boxes,
+                                     std::string const& case_id,
+                                     std::string const& units_str,
+                                     Box const& box,
+                                     Geometry const& geometry,
+                                     bool expected_are_different,
+                                     Box const& expected1,
+                                     Box const& expected2,
+                                     Box const& detected)
+    {
+        bool const is_box = boost::is_same
+            <
+                typename bg::tag<Geometry>::type, bg::box_tag
+            >::value;
+
+        bool const is_segment = boost::is_same
+            <
+                typename bg::tag<Geometry>::type, bg::segment_tag
+            >::value;
+
+        std::ostringstream stream;
+        stream << "case ID: " << case_id << ", "
+               << "MBR units: " << units_str << "; "
+               << "input box: BOX" << bg::dsv(box) << ", "
+               << "geometry: ";
+
+        if (BOOST_GEOMETRY_CONDITION(is_box))
+        {
+            stream << "BOX" << bg::dsv(geometry);
+        }
+        else if (BOOST_GEOMETRY_CONDITION(is_segment))
+        {
+            stream << "SEGMENT" << bg::dsv(geometry);
+        }
+        else
+        {
+            stream << bg::wkt(geometry);
+        }
+        stream << "; " << "expected: " << bg::dsv(expected1);
+
+        if (expected_are_different)
+        {
+            stream << " or: " << bg::dsv(expected2);
+        }
+        stream << ", " << "detected: " << bg::dsv(detected);
+
+        BOOST_CHECK_MESSAGE(same_boxes, stream.str());
+    }
+
+
     template <bool Reverse = false, typename = void>
     struct basic_tester
     {
@@ -136,8 +187,10 @@ private:
         static inline void base_test(std::string const& case_id,
                                      Box const& box,
                                      Geometry const& geometry,
-                                     double lon_min, double lat_min,
-                                     double lon_max, double lat_max,
+                                     double lon_min1, double lat_min1,
+                                     double lon_max1, double lat_max1,
+                                     double lon_min2, double lat_min2,
+                                     double lon_max2, double lat_max2,
                                      double tolerance)
         {
             typedef typename bg::coordinate_system
@@ -145,6 +198,25 @@ private:
                     Box
                 >::type::units box_units_type;
 
+            std::string const units_str = units2string<box_units_type>();
+
+            Box detected;
+            bg::convert(box, detected);
+            bg::expand(detected, geometry);
+
+            bool expected_are_different =
+                (lon_min1 != lon_min2) || (lat_min1 != lat_min2)
+                || (lon_max1 != lon_max2) || (lat_max1 != lat_max2);
+
+            Box expected1;
+            bg::assign_values(expected1,
+                              lon_min1, lat_min1, lon_max1, lat_max1);
+
+            Box expected2;
+            bg::assign_values(expected2,
+                              lon_min2, lat_min2, lon_max2, lat_max2);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
             bool const is_box = boost::is_same
                 <
                     typename bg::tag<Geometry>::type, bg::box_tag
@@ -155,86 +227,56 @@ private:
                     typename bg::tag<Geometry>::type, bg::segment_tag
                 >::value;
 
-            std::string const units_str = units2string<box_units_type>();
+            std::cout << "input box: BOX" << bg::dsv(box) << std::endl;
 
-            Box detected;
-            bg::convert(box, detected);
-            bg::expand(detected, geometry);
-
-            Box expected;
-            bg::assign_values(expected, lon_min, lat_min, lon_max, lat_max);
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::string gname("");
-            bool const is_segment_or_box = is_segment || is_box;
+            std::cout << "geometry: ";
             if (BOOST_GEOMETRY_CONDITION(is_box))
             {
-                gname = "BOX";
+                std::cout << "BOX" << bg::dsv(geometry);
             }
             else if(BOOST_GEOMETRY_CONDITION(is_segment))
             {
-                gname = "SEGMENT";
-            }
-
-            std::cout << "input box: BOX" << bg::dsv(box) << std::endl;
-            std::cout << "geometry: ";
-            if (BOOST_GEOMETRY_CONDITION(is_segment_or_box))
-            {
-                std::cout << gname << bg::dsv(geometry);
+                std::cout << "SEGMENT" << bg::dsv(geometry);
             }
             else
             {
                 std::cout << bg::wkt(geometry);
             }
+
             std::cout << std::endl
                       << "MBR units: " << units_str
                       << std::endl
-                      << "expected: " << bg::dsv(expected)
-                      << std::endl
+                      << "expected: " << bg::dsv(expected1);
+
+            if (expected_are_different)
+            {
+                std::cout << " or: " << bg::dsv(expected2);
+            }
+
+            std::cout << std::endl
                       << "detected: " << bg::dsv(detected)
                       << std::endl << std::endl;
 #endif
+            bool same_boxes = box_equals(detected, expected1, tolerance);
+            if (expected_are_different)
+            {
+                same_boxes = same_boxes
+                    || box_equals(detected, expected2, tolerance);
+            }
 
-            if (BOOST_GEOMETRY_CONDITION(is_box))
-            {
-                BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                    "case ID: " << case_id << ", "
-                                    << "MBR units: " << units_str << "; "
-                                    << "input box: BOX" << bg::dsv(box) << ", "
-                                    << "geometry: " << "BOX"
-                                    << bg::dsv(geometry) << "; "
-                                    << "expected: " << bg::dsv(expected) << ", "
-                                    << "detected: " << bg::dsv(detected));
-            }
-            else if (BOOST_GEOMETRY_CONDITION(is_segment))
-            {
-                BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                    "case ID: " << case_id << ", "
-                                    << "MBR units: " << units_str << "; "
-                                    << "input box: BOX" << bg::dsv(box) << ", "
-                                    << "geometry: " << "SEGMENT"
-                                    << bg::dsv(geometry) << "; "
-                                    << "expected: " << bg::dsv(expected) << ", "
-                                    << "detected: " << bg::dsv(detected));
-            }
-            else
-            {
-                BOOST_CHECK_MESSAGE(box_equals(detected, expected, tolerance),
-                                    "case ID: " << case_id << ", "
-                                    << "MBR units: " << units_str << "; "
-                                    << "input box: BOX" << bg::dsv(box) << ", "
-                                    << "geometry: " << bg::wkt(geometry) << "; "
-                                    << "expected: " << bg::dsv(expected) << ", "
-                                    << "detected: " << bg::dsv(detected));
-            }
+            check_message(same_boxes, case_id, units_str,
+                          box, geometry, expected_are_different,
+                          expected1, expected2, detected);
         }
 
         template <typename Box, typename Geometry>
         static inline void apply(std::string const& case_id,
                                  Box const& box,
                                  Geometry const& geometry,
-                                 double lon_min, double lat_min,
-                                 double lon_max, double lat_max,
+                                 double lon_min1, double lat_min1,
+                                 double lon_max1, double lat_max1,
+                                 double lon_min2, double lat_min2,
+                                 double lon_max2, double lat_max2,
                                  double tolerance)
         {
             typedef other_system_info
@@ -258,7 +300,8 @@ private:
 #endif
 
             base_test(case_id, box, geometry,
-                      lon_min, lat_min, lon_max, lat_max,
+                      lon_min1, lat_min1, lon_max1, lat_max1,
+                      lon_min2, lat_min2, lon_max2, lat_max2,
                       tolerance);
 
             other_mbr_type other_box;
@@ -269,10 +312,14 @@ private:
                               other::convert(bg::get<1, 1>(box)));
 
             base_test(case_id, other_box, geometry,
-                      other::convert(lon_min),
-                      other::convert(lat_min),
-                      other::convert(lon_max),
-                      other::convert(lat_max),
+                      other::convert(lon_min1),
+                      other::convert(lat_min1),
+                      other::convert(lon_max1),
+                      other::convert(lat_max1),
+                      other::convert(lon_min2),
+                      other::convert(lat_min2),
+                      other::convert(lon_max2),
+                      other::convert(lat_max2),
                       tolerance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -289,15 +336,18 @@ private:
         static inline void apply(std::string const& case_id,
                                  Box const& box,
                                  Geometry const& geometry,
-                                 double lon_min, double lat_min,
-                                 double lon_max, double lat_max,
+                                 double lon_min1, double lat_min1,
+                                 double lon_max1, double lat_max1,
+                                 double lon_min2, double lat_min2,
+                                 double lon_max2, double lat_max2,
                                  double tolerance)
         {
             basic_tester
                 <
                     false
                 >::apply(case_id, box, geometry,
-                         lon_min, lat_min, lon_max, lat_max,
+                         lon_min1, lat_min1, lon_max1, lat_max1,
+                         lon_min2, lat_min2, lon_max2, lat_max2,
                          tolerance);
 
             std::string case_id_r = case_id + "[R]";
@@ -306,7 +356,8 @@ private:
                 <
                     false
                 >::apply(case_id_r, geometry, box,
-                         lon_min, lat_min, lon_max, lat_max,
+                         lon_min1, lat_min1, lon_max1, lat_max1,
+                         lon_min2, lat_min2, lon_max2, lat_max2,
                          tolerance);
         }
     };
@@ -317,8 +368,10 @@ public:
     static inline void apply(std::string const& case_id,
         Box const& box,
         Geometry const& geometry,
-        double lon_min, double lat_min,
-        double lon_max, double lat_max,
+        double lon_min1, double lat_min1,
+        double lon_max1, double lat_max1,
+        double lon_min2, double lat_min2,
+        double lon_max2, double lat_max2,
         double tolerance = std::numeric_limits<double>::epsilon())
     {
 
@@ -330,9 +383,23 @@ public:
                         bg::box_tag
                     >::value
             >::apply(case_id, box, geometry,
-                     lon_min, lat_min,
-                     lon_max, lat_max,
+                     lon_min1, lat_min1, lon_max1, lat_max1,
+                     lon_min2, lat_min2, lon_max2, lat_max2,
                      tolerance);
+    }
+
+    template <typename Box, typename Geometry>
+    static inline void apply(std::string const& case_id,
+        Box const& box,
+        Geometry const& geometry,
+        double lon_min, double lat_min,
+        double lon_max, double lat_max,
+        double tolerance = std::numeric_limits<double>::epsilon())
+    {
+        apply(case_id, box, geometry,
+              lon_min, lat_min, lon_max, lat_max,
+              lon_min, lat_min, lon_max, lat_max,
+              tolerance);
     }
 };
 
@@ -375,7 +442,8 @@ BOOST_AUTO_TEST_CASE( expand_point )
     tester::apply("p05a",
                   from_wkt<B>("BOX(10 10,10 10)"),
                   from_wkt<G>("POINT(-170 20)"),
-                  10, 10, 190, 20);
+                  10, 10, 190, 20,
+                  -170, 10, 10, 20);
 
     tester::apply("p06",
                   from_wkt<B>("BOX(170 10,175 20)"),
@@ -673,7 +741,8 @@ BOOST_AUTO_TEST_CASE( expand_box )
     tester::apply("b10",
                   from_wkt<B>("BOX(100 -10,400 60)"),
                   from_wkt<G>("BOX(70 -20,70 55)"),
-                  70, -20, 400, 60);
+                  70, -20, 400, 60,
+                  100, -20, 430, 60);
 
     tester::apply("b10a",
                   from_wkt<B>("BOX(100 -10,400 60)"),
