@@ -35,6 +35,14 @@ struct default_units
     typedef typename coordinate_system<Geometry>::type::units type;
 };
 
+// The Cartesian coordinate system does not define the type units.
+// For that reason the generic implementation for default_units cannot be used
+// and specialization needs to be defined.
+// Moreover, it makes sense to define the units for the Cartesian
+// coordinate system to be radians, as this way a Cartesian point can
+// potentially be used in algorithms taking non-Cartesian strategies
+// and work as if it was as point in the non-Cartesian coordinate
+// system with radian units.
 template <typename Geometry>
 struct default_units<Geometry, cartesian_tag>
 {
