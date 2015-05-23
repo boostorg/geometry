@@ -220,11 +220,10 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
 
     typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered);
 
-    //std::cout << caseid << " " << distance_left << std::endl;
-    //std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
-    //std::cout << "OUTPUT: " << area << std::endl;
-    //std::cout << bg::wkt(buffered) << std::endl;
-
+//    std::cout << caseid << std::endl;
+//    std::cout << "INPUT: " << bg::wkt(geometry) << std::endl;
+//    std::cout << "OUTPUT: " << area << std::endl;
+//    std::cout << bg::wkt(buffered) << std::endl;
 
     if (expected_area > -0.1)
     {
