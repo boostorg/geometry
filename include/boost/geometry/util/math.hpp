@@ -162,6 +162,15 @@ struct equals<Type, true>
             return true;
         }
 
+        bool const a_inf = isinf(a);
+        bool const b_inf = isinf(b);
+        if (a_inf != b_inf)
+        {
+            // If a is INF and b is 0, the expression below returns true, but
+            // the values are obviously not equal
+            return false;
+        }
+
         return abs<Type>::apply(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
     }
 };

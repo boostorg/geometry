@@ -64,6 +64,9 @@ static std::string const mysql_report_2015_03_02b = "LINESTRING(0 1,0 5,5 5,5 0,
 static std::string const mysql_report_2015_03_02c = "LINESTRING(0 2,0 5,5 5,5 0,2 0)"; // not closed, 2 difference
 
 static std::string const mysql_report_2015_04_01 = "LINESTRING(103 5,107 2,111 4,116 -1,115 0,112 4)";
+static std::string const mysql_report_2015_04_10a = "LINESTRING(1.922421e+307 1.520384e+308, 15 42, 89 -93,-89 -22)";
+static std::string const mysql_report_2015_04_10b = "LINESTRING(0 0, 15 42, 89 -93,-89 -22)";
+
 
 
 template <bool Clockwise, typename P>
@@ -236,6 +239,13 @@ void test_all()
     test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.450, 20.0);
 
     test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
+
+    // Though the generated buffer of this linestring, containing extreme differences, is not correct, it resembles
+    // the equivalent (where the coordinates are set to 0). Both SQL Server and POSTGIS do not output anything for this case
+    test_one<linestring, polygon>("mysql_report_2015_04_10a", mysql_report_2015_04_10a, join_round32, end_round32, 86496.5005, 100.0);
+
+    // The equivalent case
+    test_one<linestring, polygon>("mysql_report_2015_04_10b", mysql_report_2015_04_10b, join_round32, end_round32, 86531.4817, 100.0);
 }
 
 
