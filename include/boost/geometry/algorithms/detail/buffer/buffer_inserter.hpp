@@ -614,15 +614,18 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
 
         output_point_type first_p2, last_p1, last_p2;
 
-        detail::buffer::buffer_range<output_ring_type>::iterate(collection,
+        bool result = detail::buffer::buffer_range<output_ring_type>::iterate(collection,
                 begin, end, side,
                 distance_strategy, side_strategy, join_strategy, end_strategy, robust_policy,
                 first_p1, first_p2, last_p1, last_p2);
 
-        std::vector<output_point_type> range_out;
-        end_strategy.apply(penultimate_point, last_p2, ultimate_point, reverse_p1, side, distance_strategy, range_out);
-        collection.add_endcap(end_strategy, range_out, ultimate_point);
-        return true;
+        if (result)
+        {
+            std::vector<output_point_type> range_out;
+            end_strategy.apply(penultimate_point, last_p2, ultimate_point, reverse_p1, side, distance_strategy, range_out);
+            collection.add_endcap(end_strategy, range_out, ultimate_point);
+        }
+        return result;
     }
 
     template
