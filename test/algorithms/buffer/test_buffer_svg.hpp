@@ -326,11 +326,12 @@ public :
     {
 #ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
         // Create a zoomed-in view
+        bg::model::box<Point> alternate_box;
         bg::read_wkt(BOOST_GEOMETRY_BUFFER_TEST_SVG_ALTERNATE_BOX, alternate_box);
         mapper.add(alternate_box);
 
         // Take care non-visible elements are skipped
-        visitor.m_alternate_box = alternate_box;
+        visitor.set_alternate_box(alternate_box);
         m_zoom = true;
 #else
         bg::model::box<Point> box = envelope;
