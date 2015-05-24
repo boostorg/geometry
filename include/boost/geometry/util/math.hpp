@@ -160,16 +160,17 @@ struct equals<Type, true>
             return true;
         }
 
-        bool const a_inf = boost::math::isinf(a);
-        bool const b_inf = boost::math::isinf(b);
-        if (a_inf != b_inf)
+        if (boost::math::isfinite(a) && boost::math::isfinite(b))
         {
-            // If a is INF and b is 0, the expression below returns true, but
-            // the values are obviously not equal
-            return false;
+            // If a is INF and b is e.g. 0, the expression below returns true
+            // but the values are obviously not equal, hence the condition
+            return abs<Type>::apply(a - b)
+                <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
         }
-
-        return abs<Type>::apply(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
+        else
+        {
+            return a == b;
+        }
     }
 };
 
