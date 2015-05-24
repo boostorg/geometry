@@ -73,6 +73,17 @@ public :
         // For normalization [0,1] (=dot product d.d, sqrt)
         promoted_type const length = geometry::math::sqrt(dx * dx + dy * dy);
 
+        if (! boost::math::isfinite(length))
+        {
+            // In case of coordinates differences of e.g. 1e300, length
+            // will overflow and we should not generate output
+#ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
+            std::cout << "Length not calculated for points " << geometry::wkt(input_p1)
+                << " " << geometry::wkt(input_p2) << " " << length << std::endl;
+#endif
+            return;
+        }
+
         if (geometry::math::equals(length, 0))
         {
             // Coordinates are simplified and therefore most often not equal.
