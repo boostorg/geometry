@@ -26,9 +26,7 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/math/constants/constants.hpp>
-#ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/fpclassify.hpp>
-#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -162,8 +160,8 @@ struct equals<Type, true>
             return true;
         }
 
-        bool const a_inf = isinf(a);
-        bool const b_inf = isinf(b);
+        bool const a_inf = boost::math::isinf(a);
+        bool const b_inf = boost::math::isinf(b);
         if (a_inf != b_inf)
         {
             // If a is INF and b is 0, the expression below returns true, but
