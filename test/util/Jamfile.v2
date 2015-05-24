@@ -17,6 +17,7 @@ test-suite boost-geometry-util
     :
     [ run calculation_type.cpp ]
     [ run for_each_coordinate.cpp ]
+    [ run math_equals.cpp ]
     [ run math_sqrt.cpp ]
     [ run promote_integral.cpp ]
     [ run range.cpp ]
