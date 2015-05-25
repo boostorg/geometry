@@ -22,6 +22,7 @@
 
 #include <cstddef>
 
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits.hpp>
@@ -206,11 +207,18 @@ public :
                     Point
                 >::type coordinate_type;
 
-            set<0>(centroid,
-                boost::numeric_cast<coordinate_type>(state.sum_x / a3));
-            set<1>(centroid,
-                boost::numeric_cast<coordinate_type>(state.sum_y / a3));
-            return true;
+            // Prevent NaN centroid coordinates
+            if (boost::math::isfinite(a3))
+            {
+                // NOTE: above calculation_type is checked, not the centroid coordinate_type
+                // which means that the centroid can still be filled with INF
+                // if e.g. calculation_type is double and centroid contains floats
+                set<0>(centroid,
+                    boost::numeric_cast<coordinate_type>(state.sum_x / a3));
+                set<1>(centroid,
+                    boost::numeric_cast<coordinate_type>(state.sum_y / a3));
+                return true;
+            }
         }
 
         return false;

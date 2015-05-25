@@ -13,9 +13,13 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CENTROID_WEIGHTED_LENGTH_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CENTROID_WEIGHTED_LENGTH_HPP
 
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+
 #include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
@@ -91,17 +95,37 @@ public :
     static inline bool result(state_type const& state, Point& centroid)
     {
         distance_type const zero = distance_type();
-        if (! geometry::math::equals(state.length, zero))
+        if (! geometry::math::equals(state.length, zero)
+            && boost::math::isfinite(state.length)) // Prevent NaN centroid coordinates
         {
-            assign_zero(centroid);
-            add_point(centroid, state.average_sum);
-            divide_value(centroid, state.length);
+            // NOTE: above distance_type is checked, not the centroid coordinate_type
+            // which means that the centroid can still be filled with INF
+            // if e.g. distance_type is double and centroid contains floats
+            geometry::for_each_coordinate(centroid, set_sum_div_length(state));
             return true;
         }
 
         return false;
     }
 
+    struct set_sum_div_length
+    {
+        state_type const& m_state;
+        set_sum_div_length(state_type const& state)
+            : m_state(state)
+        {}
+        template <typename Pt, std::size_t Dimension>
+        void apply(Pt & centroid) const
+        {
+            typedef typename geometry::coordinate_type<Pt>::type coordinate_type;
+            geometry::set<Dimension>(
+                centroid,
+                boost::numeric_cast<coordinate_type>(
+                    geometry::get<Dimension>(m_state.average_sum) / m_state.length
+                )
+            );
+        }
+    };
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
