@@ -82,6 +82,31 @@ void test_2d()
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1, 1 1)", 1.0, 1.0);
     test_centroid<bg::model::linestring<P> >("LINESTRING(1 1)", 1.0, 1.0);
 
+    {
+        bg::model::linestring<P> ls;
+        // LINESTRING(1 -1,1e308 -1e308,0.0001 0.000)
+        bg::append(ls, P(1, -1));
+        typedef typename bg::coordinate_type<P>::type coord_type;
+        //double m = 1.0e308;
+        coord_type m = (std::numeric_limits<coord_type>::max)();
+        bg::append(ls, P(coord_type(m), coord_type(-m)));
+        bg::append(ls, P(coord_type(0.0001), coord_type(0.000)));
+        if (BOOST_GEOMETRY_CONDITION((boost::is_same<typename bg::coordinate_type<P>::type, double>::value)))
+        {
+            // for doubles the INF is detected and the calculation stopped
+            // currently for Geometries for which the centroid can't be calculated
+            // the first Point is returned
+            test_centroid<bg::model::linestring<P> >(ls, 1.0, -1.0);
+        }
+        else
+        {
+            // for floats internally the double is used to store intermediate results
+            // this type is capable to store MAX_FLT and "correctly" calculate the centroid
+            // test_centroid<bg::model::linestring<P> >(ls, m/3, -m/3);
+            // the result is around (1.7e38 -1.7e38)
+        }
+    }
+
     test_centroid<bg::model::segment<P> >("LINESTRING(1 1, 3 3)", 2.0, 2.0);
 
     test_centroid<bg::model::ring<P> >(

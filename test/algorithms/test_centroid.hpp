@@ -60,11 +60,8 @@ void test_with_other_calculation_type(Geometry const& geometry, Point& c1)
 }
 
 template <typename Geometry, typename Point, typename T>
-void test_centroid(std::string const& wkt, T const& d1, T const& d2, T const& d3 = T(), T const& d4 = T(), T const& d5 = T())
+void test_centroid(Geometry const& geometry, T const& d1, T const& d2, T const& d3 = T(), T const& d4 = T(), T const& d5 = T())
 {
-    Geometry geometry;
-    bg::read_wkt(wkt, geometry);
-
     Point c1;
 
     bg::centroid(geometry, c1);
@@ -84,6 +81,21 @@ void test_centroid(std::string const& wkt, T const& d1, T const& d2, T const& d3
 #endif
 
 #endif
+}
+
+template <typename Geometry, typename Point, typename T>
+void test_centroid(std::string const& wkt, T const& d1, T const& d2, T const& d3 = T(), T const& d4 = T(), T const& d5 = T())
+{
+    Geometry geometry;
+    bg::read_wkt(wkt, geometry);
+
+    test_centroid<Geometry, Point>(geometry, d1, d2, d3, d4, d5);
+}
+
+template <typename Geometry, typename T>
+void test_centroid(Geometry const& geometry, T const& d1, T const& d2, T const& d3 = T(), T const& d4 = T(), T const& d5 = T())
+{
+    test_centroid<Geometry, typename bg::point_type<Geometry>::type>(geometry, d1, d2, d3, d4, d5);
 }
 
 template <typename Geometry, typename T>
