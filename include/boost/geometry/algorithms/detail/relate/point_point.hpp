@@ -17,9 +17,12 @@
 #include <algorithm>
 #include <vector>
 
+#include <boost/range/empty.hpp>
+
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/less.hpp>
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
 
 namespace boost { namespace geometry
 {
@@ -165,7 +168,7 @@ struct multipoint_multipoint
         // NlogN + MlogN
         bool all_handled = search<false>(multi_point1, multi_point2, result);
         
-        if ( all_handled || result.interrupt )
+        if ( BOOST_GEOMETRY_CONDITION(all_handled || result.interrupt) )
             return;
 
         // MlogM + NlogM

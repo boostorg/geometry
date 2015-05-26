@@ -26,7 +26,8 @@
 
 * Added rtree const_iterator, begin(), end() and the support for Boost.Range.
 * The support for C++11 `std::initializer_list` in geometries models.
-* Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring
+* Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring.
+* Added relate() and relation() algorithms.
 * Intersection has been implemented for combinations of pointlike and linear geometries
 * Added implementation for difference(pointlike, linear)
 
@@ -38,6 +39,7 @@
 
 * [@https://svn.boost.org/trac/boost/ticket/11113 11113] Support easy enumeration of all elements with BOOST_FOREACH
 * [@https://svn.boost.org/trac/boost/ticket/11236 11236] Invalid result of centroid() for integer coordinate type
+* [@https://svn.boost.org/trac/boost/ticket/11232 11232] Feature request - relate()
 
 [/=================]
 [heading Boost 1.58]
