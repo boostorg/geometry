@@ -321,9 +321,9 @@ struct relate<
 /*!
 \brief Checks relation between a pair of geometries defined by a mask.
 \ingroup relate
-\tparam Mask An intersection model Mask type.
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
+\tparam Mask An intersection model Mask type.
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param mask An intersection model mask object.
@@ -331,10 +331,10 @@ struct relate<
 
 \qbk{[include reference/algorithms/relate.qbk]}
  */
-template <typename Mask, typename Geometry1, typename Geometry2>
+template <typename Geometry1, typename Geometry2, typename Mask>
 inline bool relate(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
-                   Mask const& mask = Mask())
+                   Mask const& mask)
 {
     return resolve_variant::relate
             <
