@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -50,11 +48,10 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace latlong{
-
+    namespace detail { namespace latlong
+    {
 
             /* very loosely based upon DMA code by Bradford W. Drew */
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -72,14 +69,12 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-
                         xy_x = lp_lon / this->m_par.a;
                         xy_y = lp_lat / this->m_par.a;
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-
                         lp_lat = xy_y * this->m_par.a;
                         lp_lon = xy_x * this->m_par.a;
                 }
@@ -92,8 +87,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -103,8 +96,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -114,8 +105,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
             // Lat/long (Geodetic alias)
@@ -125,8 +114,6 @@ namespace boost { namespace geometry { namespace projections
                     par.is_latlong = 1;
                     par.x0 = 0.0;
                     par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
         }} // namespace detail::latlong
@@ -138,7 +125,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_lonlat.gif
     */
@@ -157,7 +143,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_latlon.gif
     */
@@ -176,7 +161,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_latlong.gif
     */
@@ -195,7 +179,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_longlat.gif
     */

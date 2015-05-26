@@ -38,7 +38,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lcca{
+    namespace detail { namespace lcca
+    {
+
             static const int MAX_ITER = 10;
             static const double DEL_TOL = 1e-12;
 
@@ -60,12 +62,11 @@ namespace boost { namespace geometry { namespace projections
                 double    C;
             };
 
-
-                inline double /* func to compute dr */
+                static double /* func to compute dr */
             fS(double S, double C) {
                     return(S * ( 1. + S * S * C));
             }
-                inline double /* deriv of fs */
+                static double /* deriv of fs */
             fSp(double S, double C) {
                 return(1. + 3.* S * S * C);
             }
@@ -114,6 +115,13 @@ namespace boost { namespace geometry { namespace projections
                     if (!i) throw proj_exception();
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
+
+            private :
+                inline void ignore_unused()
+                {
+                    boost::ignore_unused(fSp);
+                }
+
             };
 
             // Lambert Conformal Conic Alternative
@@ -121,8 +129,8 @@ namespace boost { namespace geometry { namespace projections
             void setup_lcca(Parameters& par, par_lcca& proj_parm)
             {
                 double s2p0, N0, R0, tan0, tan20;
-                boost::ignore_unused(tan20);
-                    pj_enfn(par.es, proj_parm.en);
+
+                if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if (!pj_param(par.params, "tlat_0").i) throw proj_exception(50);
                 if (par.phi0 == 0.) throw proj_exception(51);
                 proj_parm.l = sin(par.phi0);
@@ -135,8 +143,7 @@ namespace boost { namespace geometry { namespace projections
                 tan20 = tan0 * tan0;
                 proj_parm.r0 = N0 / tan0;
                 proj_parm.C = 1. / (6. * R0 * N0);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
+                boost::ignore_unused(tan20);
             }
 
         }} // namespace detail::lcca
@@ -152,7 +159,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_0=
+        \par Projection parameters
+         - lat_0: Latitude of origin
         \par Example
         \image html ex_lcca.gif
     */

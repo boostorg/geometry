@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tcc{
+    namespace detail { namespace tcc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_tcc
@@ -87,7 +87,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_tcc(Parameters& par, par_tcc& proj_parm)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::tcc

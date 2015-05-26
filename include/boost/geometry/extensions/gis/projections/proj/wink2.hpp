@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wink2{
+    namespace detail { namespace wink2
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
             static const double TWO_D_PI = 0.636619772367581343;
@@ -102,8 +102,6 @@ namespace boost { namespace geometry { namespace projections
             {
                 proj_parm.cosphi1 = cos(pj_param(par.params, "rlat_1").f);
                 par.es = 0.;
-                // par.inv = 0;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::wink2
@@ -119,7 +117,8 @@ namespace boost { namespace geometry { namespace projections
          - Pseudocylindrical
          - Spheroid
          - no inverse
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_wink2.gif
     */

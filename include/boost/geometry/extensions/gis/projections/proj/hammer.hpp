@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace hammer{
+    namespace detail { namespace hammer
+    {
 
             struct par_hammer
             {
@@ -96,7 +95,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.rm = 1. / proj_parm.m;
                 proj_parm.m /= proj_parm.w;
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::hammer
@@ -112,7 +110,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W= M=
+        \par Projection parameters
+         - W (real)
+         - M (real)
         \par Example
         \image html ex_hammer.gif
     */

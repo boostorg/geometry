@@ -39,12 +39,12 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
@@ -52,7 +52,9 @@ namespace boost { namespace geometry { namespace projections
     template <typename Geographic, typename Cartesian, typename Parameters> class factory;
 
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ob_tran{
+    namespace detail { namespace ob_tran
+    {
+
             static const double TOL = 1e-10;
 
             template <typename Geographic, typename Cartesian>
@@ -81,7 +83,6 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinphi, cosphi;
-
 
 
                     coslam = cos(lp_lon);
@@ -129,7 +130,6 @@ namespace boost { namespace geometry { namespace projections
                     double cosphi, coslam;
 
 
-
                     cosphi = cos(lp_lat);
                     coslam = cos(lp_lon);
                     lp_lon = adjlon(aatan2(cosphi * sin(lp_lon), sin(lp_lat)) + this->m_proj_parm.lamp);
@@ -155,14 +155,13 @@ namespace boost { namespace geometry { namespace projections
             template <typename Geographic, typename Cartesian, typename Parameters>
             double setup_ob_tran(Parameters& par, par_ob_tran<Geographic, Cartesian>& proj_parm, bool create = true)
             {
-                int i;
                 double phip;
-
-
                 Parameters pj;
+
+                /* get name of projection to be translated */
+                pj.name = pj_param(par.params, "so_proj").s;
                 /* copy existing header into new */
-                par.es = 0.;
-             /* force to spherical */
+                par.es = 0.; /* force to spherical */
                 pj.params = par.params;
                 pj.over = par.over;
                 pj.geoc = par.geoc;
@@ -177,16 +176,16 @@ namespace boost { namespace geometry { namespace projections
                 /* force spherical earth */
                 pj.one_es = pj.rone_es = 1.;
                 pj.es = pj.e = 0.;
-                pj.name = pj_param(par.params, "so_proj").s;
 
-                factory<Geographic, Cartesian, Parameters> fac;
                 if (create)
                 {
+                    factory<Geographic, Cartesian, Parameters> fac;
                     proj_parm.link.reset(fac.create_new(pj));
                     if (! proj_parm.link.get()) throw proj_exception(-26);
                 }
                 if (pj_param(par.params, "to_alpha").i) {
                     double lamc, phic, alpha;
+
                     lamc    = pj_param(par.params, "ro_lon_c").f;
                     phic    = pj_param(par.params, "ro_lat_c").f;
                     alpha    = pj_param(par.params, "ro_alpha").f;
@@ -204,6 +203,7 @@ namespace boost { namespace geometry { namespace projections
                     phip = pj_param(par.params, "ro_lat_p").f;
                 } else { /* specified new "equator" points */
                     double lam1, lam2, phi1, phi2, con;
+
                     lam1 = pj_param(par.params, "ro_lon_1").f;
                     phi1 = pj_param(par.params, "ro_lat_1").f;
                     lam2 = pj_param(par.params, "ro_lon_2").f;
@@ -221,13 +221,8 @@ namespace boost { namespace geometry { namespace projections
                 if (fabs(phip) > TOL) { /* oblique */
                     proj_parm.cphip = cos(phip);
                     proj_parm.sphip = sin(phip);
-                // par.fwd = o_forward;
-                // par.inv = pj.inv ? o_inverse : 0;
                 } else { /* transverse */
-                // par.fwd = t_forward;
-                // par.inv = pj.inv ? t_inverse : 0;
                 }
-                boost::ignore_unused(i);
                 // return phip to choose model
                 return phip;
             }
@@ -244,10 +239,19 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - o_proj= plus parameters for projection
-         - o_lat_p= o_lon_p= (new pole) or
-         - o_alpha= o_lon_c= o_lat_c= or
-         - o_lon_1= o_lat_1= o_lon_2= o_lat_2=
+        \par Projection parameters
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */
@@ -269,10 +273,19 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - o_proj= plus parameters for projection
-         - o_lat_p= o_lon_p= (new pole) or
-         - o_alpha= o_lon_c= o_lat_c= or
-         - o_lon_1= o_lat_1= o_lon_2= o_lat_2=
+        \par Projection parameters
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */
@@ -299,6 +312,7 @@ namespace boost { namespace geometry { namespace projections
                     detail::ob_tran::par_ob_tran<Geographic, Cartesian> proj_parm;
                     Parameters p = par;
                     double phip = setup_ob_tran(p, proj_parm, false);
+
                     if (fabs(phip) > detail::ob_tran::TOL)
                         return new base_v_fi<ob_tran_oblique<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                     else

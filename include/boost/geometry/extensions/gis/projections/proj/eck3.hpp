@@ -39,7 +39,6 @@
 
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -49,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck3{
+    namespace detail { namespace eck3
+    {
 
             struct par_eck3
             {
@@ -87,11 +87,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_eck3& proj_parm) 
             {
-                boost::ignore_unused(par);
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 

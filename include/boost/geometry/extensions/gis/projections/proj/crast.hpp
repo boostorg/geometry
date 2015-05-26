@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,13 +46,14 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace crast{
+    namespace detail { namespace crast
+    {
+
             static const double XM = 0.97720502380583984317;
             static const double RXM = 1.02332670794648848847;
             static const double YM = 3.06998012383946546542;
             static const double RYM = 0.32573500793527994772;
             static const double THIRD = 0.333333333333333333;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -89,8 +88,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_crast(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::crast

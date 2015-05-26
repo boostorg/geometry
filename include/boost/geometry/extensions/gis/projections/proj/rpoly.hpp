@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rpoly{
+    namespace detail { namespace rpoly
+    {
+
             static const double EPS = 1e-9;
 
             struct par_rpoly
@@ -102,7 +102,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.fxa = 0.5 / proj_parm.fxb;
                 }
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::rpoly
@@ -118,7 +117,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - no inverse
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_rpoly.gif
     */

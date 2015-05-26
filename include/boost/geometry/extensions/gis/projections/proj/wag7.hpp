@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,8 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag7{
-
+    namespace detail { namespace wag7
+    {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -80,8 +78,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_wag7(Parameters& par)
             {
-                // par.fwd = s_forward;
-                // par.inv = 0;
                 par.es = 0.;
             }
 

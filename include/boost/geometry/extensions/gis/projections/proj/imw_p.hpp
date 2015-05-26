@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -49,11 +47,13 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace imw_p{
+    namespace detail { namespace imw_p
+    {
+
             static const double TOL = 1e-10;
             static const double EPS = 1e-10;
 
-            struct PXY { double x, y; }; // x/y projection specific
+            struct XY { double x, y; }; // specific for IMW_P
 
             struct par_imw_p
             {
@@ -62,8 +62,9 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 int    mode; /* = 0, phi_1 and phi_2 != 0, = 1, phi_1 = 0, = -1 phi_2 = 0 */
             };
+
             template <typename Parameters>
-                inline int
+                static int
             phi12(Parameters& par, par_imw_p& proj_parm, double *del, double *sig) {
                 int err = 0;
 
@@ -80,9 +81,9 @@ namespace boost { namespace geometry { namespace projections
                 return err;
             }
             template <typename Parameters>
-                inline PXY
-            loc_for(double const& lp_lam, double const& lp_phi, const Parameters& par, par_imw_p const& proj_parm, double *yc) {
-                PXY xy;
+                static XY
+            loc_for(double const& lp_lam, double const& lp_phi, Parameters const& par, par_imw_p const& proj_parm, double *yc) {
+                XY xy;
 
                 if (! lp_phi) {
                     xy.x = lp_lam;
@@ -127,10 +128,9 @@ namespace boost { namespace geometry { namespace projections
                 }
                 return (xy);
             }
-
             template <typename Parameters>
-            inline void
-            xy(Parameters& par, par_imw_p& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
+                static void
+            xy(Parameters const& par, par_imw_p const& proj_parm, double phi, double *x, double *y, double *sp, double *R) {
                 double F;
 
                 *sp = sin(phi);
@@ -139,7 +139,6 @@ namespace boost { namespace geometry { namespace projections
                 *y = *R * (1 - cos(F));
                 *x = *R * sin(F);
             }
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -159,13 +158,13 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double yc = 0;
-                    PXY xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    XY xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    PXY t;
+                    XY t;
                     double yc = 0;
 
                     lp_lat = this->m_proj_parm.phi_2;
@@ -184,7 +183,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 double del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int i;
-                    pj_enfn(par.es, proj_parm.en);
+
+                if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                 if( (i = phi12(par, proj_parm, &del, &sig)) != 0)
                     throw proj_exception(i);
                 if (proj_parm.phi_2 < proj_parm.phi_1) { /* make sure proj_parm.phi_1 most southerly */
@@ -225,8 +225,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.Q = (y2 - y1) * t;
                 proj_parm.Pp = (m2 * x1 - m1 * x2) * t;
                 proj_parm.Qp = (x2 - x1) * t;
-                // par.fwd = e_forward;
-                // par.inv = e_inverse;
             }
 
         }} // namespace detail::imw_p
@@ -239,9 +237,12 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - Mod Polyconic
+         - Mod. Polyconic
          - Ellipsoid
-         - lat_1= and lat_2= [lon_1=]
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel
+         - lat_2: Latitude of second standard parallel
+         - lon_1 (degrees)
         \par Example
         \image html ex_imw_p.gif
     */

@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bonne{
+    namespace detail { namespace bonne
+    {
+
             static const double EPS10 = 1e-10;
 
             struct par_bonne
@@ -148,6 +150,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_bonne(Parameters& par, par_bonne& proj_parm)
             {
                 double c;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 if (fabs(proj_parm.phi1) < EPS10) throw proj_exception(-23);
                 if (par.es) {
@@ -155,15 +158,11 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.m1 = pj_mlfn(proj_parm.phi1, proj_parm.am1 = sin(proj_parm.phi1),
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     if (fabs(proj_parm.phi1) + EPS10 >= HALFPI)
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -180,7 +179,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */
@@ -203,7 +203,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */

@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace labrd{
+    namespace detail { namespace labrd
+    {
+
             static const double EPS = 1.e-10;
 
             struct par_labrd
@@ -157,6 +157,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_labrd(Parameters& par, par_labrd& proj_parm)
             {
                 double Az, sinp, R, N, t;
+
                 proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
                 Az = pj_param(par.params, "razi").f;
                 sinp = sin(par.phi0);
@@ -175,8 +176,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.Cb *= sin(t);
                 proj_parm.Cc = 3. * (proj_parm.Ca * proj_parm.Ca - proj_parm.Cb * proj_parm.Cb);
                 proj_parm.Cd = 6. * proj_parm.Ca * proj_parm.Cb;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::labrd
@@ -192,6 +191,9 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Special for Madagascar
+        \par Projection parameters
+         - no_rot: No rotation (boolean)
+         - azi: Azimuth (or Gamma) (degrees)
         \par Example
         \image html ex_labrd.gif
     */

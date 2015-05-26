@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace vandg{
+    namespace detail { namespace vandg
+    {
+
             static const double TOL = 1.e-10;
             static const double THIRD = .33333333333333333333;
             static const double TWO_THRD = .66666666666666666666;
@@ -57,7 +57,6 @@ namespace boost { namespace geometry { namespace projections
             static const double PISQ = 9.86960440108935861869;
             static const double TPISQ = 19.73920880217871723738;
             static const double HPISQ = 4.93480220054467930934;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -146,8 +145,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_vandg(Parameters& par)
             {
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::vandg

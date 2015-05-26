@@ -38,9 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -50,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace moll{
+    namespace detail { namespace moll
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -106,17 +105,14 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_moll& proj_parm, double p) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double r, sp, p2 = p + p;
+
                 par.es = 0;
                 sp = sin(p);
                 r = sqrt(TWOPI * sp / (p2 + sin(p2)));
                 proj_parm.C_x = 2. * r / PI;
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 
@@ -142,8 +138,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.C_x = 0.90977;
                 proj_parm.C_y = 1.65014;
                 proj_parm.C_p = 3.00896;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::moll

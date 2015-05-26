@@ -28,6 +28,8 @@
 * The support for C++11 `std::initializer_list` in geometries models.
 * Disjoint and intersects support the following geometry combinations: multipoint/linestring, multipoint/multilinestring.
 * Added relate() and relation() algorithms.
+* Intersection has been implemented for combinations of pointlike and linear geometries
+* Added implementation for difference(pointlike, linear)
 
 [*Improvements]
 

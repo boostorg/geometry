@@ -38,19 +38,19 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/gn_sinu.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/moll.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace goode{
+    namespace detail { namespace goode
+    {
+
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
 
@@ -104,8 +104,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_goode(Parameters& par, par_goode<Geographic, Cartesian, Parameters>& proj_parm)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
-                // par.inv = s_inverse;
             }
 
         }} // namespace detail::goode

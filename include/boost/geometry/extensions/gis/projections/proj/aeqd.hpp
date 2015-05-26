@@ -46,12 +46,13 @@
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/proj_mdist.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aeqd{
+    namespace detail { namespace aeqd
+    {
+
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-14;
             static const int N_POLE = 0;
@@ -71,11 +72,6 @@ namespace boost { namespace geometry { namespace projections
                 double    G;
                 int        mode;
             };
-
-
-
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -319,14 +315,10 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.cosph0 = cos(par.phi0);
                 }
                 if (! par.es) {
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 } else {
-                    pj_enfn(par.es, proj_parm.en);
+                    if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);
                     if (pj_param(par.params, "bguam").i) {
                         proj_parm.M1 = pj_mlfn(par.phi0, proj_parm.sinph0, proj_parm.cosph0, proj_parm.en);
-                // par.inv = e_guam_inv;
-                // par.fwd = e_guam_fwd;
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
@@ -337,15 +329,11 @@ namespace boost { namespace geometry { namespace projections
                             break;
                         case EQUIT:
                         case OBLIQ:
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                             proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
                             proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
                             proj_parm.He *= proj_parm.cosph0;
                             break;
                         }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                     }
                 }
             }
@@ -363,7 +351,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -386,7 +376,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -409,7 +401,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_0 guam
+        \par Projection parameters
+         - lat_0: Latitude of origin (degrees)
+         - guam (boolean)
         \par Example
         \image html ex_aeqd.gif
     */
@@ -433,12 +427,14 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    if (! par.es)
-                        return new base_v_fi<aeqd_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
-                    else if (pj_param(par.params, "bguam").i)
+                    bool const guam = pj_param(par.params, "bguam").i;
+
+                    if (par.es && ! guam)
+                        return new base_v_fi<aeqd_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    else if (par.es && guam)
                         return new base_v_fi<aeqd_guam<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                     else
-                        return new base_v_fi<aeqd_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                        return new base_v_fi<aeqd_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 

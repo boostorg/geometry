@@ -51,7 +51,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace sterea{
+    namespace detail { namespace sterea
+    {
+
             static const double DEL_TOL = 1.e-14;
             static const int MAX_ITER = 10;
 
@@ -62,9 +64,6 @@ namespace boost { namespace geometry { namespace projections
                 double R2;
                 gauss::GAUSS en;
             };
-
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -120,12 +119,11 @@ namespace boost { namespace geometry { namespace projections
             void setup_sterea(Parameters& par, par_sterea& proj_parm)
             {
                 double R;
+
                 proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);
                 proj_parm.cosc0 = cos(proj_parm.phic0);
                 proj_parm.R2 = 2. * R;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::sterea

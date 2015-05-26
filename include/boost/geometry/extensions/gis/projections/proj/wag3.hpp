@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag3{
+    namespace detail { namespace wag3
+    {
+
             static const double TWOTHIRD = 0.6666666666666666666667;
 
             struct par_wag3
@@ -89,11 +89,10 @@ namespace boost { namespace geometry { namespace projections
             void setup_wag3(Parameters& par, par_wag3& proj_parm)
             {
                 double ts;
+
                 ts = pj_param(par.params, "rlat_ts").f;
                 proj_parm.C_x = cos(ts) / cos(2.*ts/3.);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::wag3
@@ -108,7 +107,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_wag3.gif
     */

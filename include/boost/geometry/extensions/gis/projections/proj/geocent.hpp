@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,12 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace geocent{
-
-
-
-
-
+    namespace detail { namespace geocent
+    {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -89,8 +83,6 @@ namespace boost { namespace geometry { namespace projections
                 par.is_geocent = 1;
                 par.x0 = 0.0;
                 par.y0 = 0.0;
-                // par.inv = inverse;
-                // par.fwd = forward;
             }
 
         }} // namespace detail::geocent
@@ -102,7 +94,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_geocent.gif
     */

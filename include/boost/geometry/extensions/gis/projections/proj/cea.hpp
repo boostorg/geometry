@@ -38,19 +38,19 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_qsfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_auth.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_qsfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace cea{
+    namespace detail { namespace cea
+    {
+
             static const double EPS = 1e-10;
 
             struct par_cea
@@ -127,6 +127,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_cea(Parameters& par, par_cea& proj_parm)
             {
                 double t = 0;
+
                 if (pj_param(par.params, "tlat_ts").i &&
                     (par.k0 = cos(t = pj_param(par.params, "rlat_ts").f)) < 0.)
                   throw proj_exception(-24);
@@ -134,13 +135,9 @@ namespace boost { namespace geometry { namespace projections
                     t = sin(t);
                     par.k0 /= sqrt(1. - par.es * t * t);
                     par.e = sqrt(par.es);
-                    pj_authset(par.es, proj_parm.apa);
+                    if (!pj_authset(par.es, proj_parm.apa)) throw proj_exception(0);
                     proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -157,7 +154,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_cea.gif
     */
@@ -180,7 +178,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_cea.gif
     */

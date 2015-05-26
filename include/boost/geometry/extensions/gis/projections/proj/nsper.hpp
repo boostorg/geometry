@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -49,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nsper{
+    namespace detail { namespace nsper
+    {
+
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
             static const int S_POLE = 1;
@@ -185,8 +186,6 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_nsper& proj_parm) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 if ((proj_parm.height = pj_param(par.params, "dh").f) <= 0.) throw proj_exception(-30);
                 if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
@@ -197,14 +196,11 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.sinph0 = sin(par.phi0);
                     proj_parm.cosph0 = cos(par.phi0);
                 }
-                proj_parm.pn1 = proj_parm.height / par.a;
-             /* normalize by radius */
+                proj_parm.pn1 = proj_parm.height / par.a; /* normalize by radius */
                 proj_parm.p = 1. + proj_parm.pn1;
                 proj_parm.rp = 1. / proj_parm.p;
                 proj_parm.h = 1. / proj_parm.pn1;
                 proj_parm.pfact = (proj_parm.p + 1.) * proj_parm.h;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 
@@ -222,13 +218,12 @@ namespace boost { namespace geometry { namespace projections
             void setup_tpers(Parameters& par, par_nsper& proj_parm)
             {
                 double omega, gamma;
+
                 omega = pj_param(par.params, "dtilt").f * DEG_TO_RAD;
                 gamma = pj_param(par.params, "dazi").f * DEG_TO_RAD;
                 proj_parm.tilt = 1;
-                proj_parm.cg = cos(gamma);
-             proj_parm.sg = sin(gamma);
-                proj_parm.cw = cos(omega);
-             proj_parm.sw = sin(omega);
+                proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
+                proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);
                 setup(par, proj_parm);
             }
 
@@ -244,7 +239,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - h=
+        \par Projection parameters
+         - h: Height
         \par Example
         \image html ex_nsper.gif
     */
@@ -266,7 +262,10 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - tilt= azi= h=
+        \par Projection parameters
+         - tilt: Tilt, or Omega (real)
+         - azi: Azimuth (or Gamma) (real)
+         - h: Height
         \par Example
         \image html ex_tpers.gif
     */

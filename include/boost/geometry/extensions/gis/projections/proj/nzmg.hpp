@@ -38,27 +38,24 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_zpoly1.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nzmg{
+    namespace detail { namespace nzmg
+    {
+
             static const double EPSLN = 1e-10;
             static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
             static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
             static const int Nbf = 5;
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
-
-
-
-
 
                 static COMPLEX
             bf[] = {
@@ -142,8 +139,6 @@ namespace boost { namespace geometry { namespace projections
                 par.phi0 = DEG_TO_RAD * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
             }
 
         }} // namespace detail::nzmg
@@ -156,7 +151,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - fixed Earth
+         - Fixed Earth
         \par Example
         \image html ex_nzmg.gif
     */
