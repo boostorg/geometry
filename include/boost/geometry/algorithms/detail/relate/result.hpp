@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2013, 2014, 2015.
 // Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
@@ -17,6 +17,7 @@
 #include <cstddef>
 
 #include <boost/assert.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/begin.hpp>
 #include <boost/mpl/deref.hpp>
@@ -28,6 +29,7 @@
 #include <boost/type_traits/integral_constant.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry {
@@ -223,19 +225,32 @@ public:
         char * it = m_array;
         char * const last = m_array + static_size;
         for ( ; it != last && *s != '\0' ; ++it, ++s )
-            *it = *s;
+        {
+            char c = *s;
+            check_char(c);
+            *it = c;
+        }
         if ( it != last )
+        {
             ::memset(it, '*', last - it);
+        }
     }
 
     inline mask(const char * s, std::size_t count)
     {
         if ( count > static_size )
+        {
             count = static_size;
+        }
         if ( count > 0 )
+        {
+            std::for_each(s, s + count, check_char);
             ::memcpy(m_array, s, count);
+        }
         if ( count < static_size )
+        {
             ::memset(m_array + count, '*', static_size - count);
+        }
     }
 
     template <field F1, field F2>
@@ -248,6 +263,16 @@ public:
     }
 
 private:
+    static inline void check_char(char c)
+    {
+        bool const is_valid = c == '*' || c == 'T' || c == 'F'
+                         || ( c >= '0' && c <= '9' );
+        if ( !is_valid )
+        {
+            throw geometry::invalid_input_exception();
+        }
+    }
+
     char m_array[static_size];
 };
 
@@ -634,6 +659,33 @@ private:
 
 // --------------- COMPILE-TIME MASK ----------------
 
+// static_check_characters
+template
+<
+    typename Seq,
+    typename First = typename boost::mpl::begin<Seq>::type,
+    typename Last = typename boost::mpl::end<Seq>::type
+>
+struct static_check_characters
+    : static_check_characters
+        <
+            Seq,
+            typename boost::mpl::next<First>::type
+        >
+{
+    typedef typename boost::mpl::deref<First>::type type;
+    static const char value = type::value;
+    static const bool is_valid = (value >= '0' && value <= '9')
+                               || value == 'T' || value == 'F' || value == '*';
+    BOOST_MPL_ASSERT_MSG((is_valid),
+                         INVALID_STATIC_MASK_CHARACTER,
+                         (type));
+};
+
+template <typename Seq, typename Last>
+struct static_check_characters<Seq, Last, Last>
+{};
+
 // static_mask
 
 template
@@ -659,6 +711,10 @@ struct static_mask
         static const char value
             = boost::mpl::at_c<Seq, F1 * static_width + F2>::type::value;
     };
+
+private:
+    // check static_mask characters
+    enum { mask_check = sizeof(static_check_characters<Seq>) };
 };
 
 // static_should_handle_element
