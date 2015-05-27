@@ -25,7 +25,7 @@ struct relate
 {
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2)
     {
-        return geometry::relate<StaticMask>(geometry1, geometry2);
+        return geometry::relate(geometry1, geometry2, StaticMask());
     }
 };
 
