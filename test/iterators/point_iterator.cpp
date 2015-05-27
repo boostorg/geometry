@@ -35,6 +35,7 @@
 #include <boost/geometry/geometries/register/multi_point.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
