@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <set>
 
+#include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
 
