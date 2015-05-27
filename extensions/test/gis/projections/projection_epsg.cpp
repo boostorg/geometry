@@ -53,6 +53,8 @@ void test_one(double lon, double lat,
     ll.lat(lat);
 
     P2 xy;
+    bg::set<0>(xy, 0.0);
+    bg::set<1>(xy, 0.0);
     prj.forward(ll, xy);
 
     BOOST_CHECK_CLOSE(bg::get<0>(xy), x, 0.001);
