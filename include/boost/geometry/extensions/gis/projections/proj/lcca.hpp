@@ -115,19 +115,13 @@ namespace boost { namespace geometry { namespace projections
                     if (!i) throw proj_exception();
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
-
-            private :
-                inline void ignore_unused()
-                {
-                    boost::ignore_unused(fSp);
-                }
-
             };
 
             // Lambert Conformal Conic Alternative
             template <typename Parameters>
             void setup_lcca(Parameters& par, par_lcca& proj_parm)
             {
+                boost::ignore_unused(fSp);
                 double s2p0, N0, R0, tan0, tan20;
 
                 if (!pj_enfn(par.es, proj_parm.en)) throw proj_exception(0);

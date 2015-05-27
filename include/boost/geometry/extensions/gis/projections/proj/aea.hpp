@@ -38,6 +38,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -151,12 +152,6 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
                     }
                 }
-
-            private :
-                inline void ignore_unused()
-                {
-                    boost::ignore_unused(phi1_);
-                }
             };
 
             template <typename Parameters>
@@ -204,6 +199,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_aea(Parameters& par, par_aea& proj_parm)
             {
+                boost::ignore_unused(phi1_);
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
                 setup(par, proj_parm);
