@@ -775,7 +775,7 @@ namespace boost { namespace geometry { namespace projections
                 }
                 /* todo might want to do this as an iterated loop */
                 if (g->aperture >0) {
-                    sidelength = (int) (pow(g->aperture, g->resolution / 2.0) + 0.5);
+                    sidelength = (int) (pow(static_cast<double>(g->aperture), g->resolution / 2.0) + 0.5);
                 } else {
                     sidelength = g->resolution;
                 }
@@ -859,19 +859,19 @@ namespace boost { namespace geometry { namespace projections
                     return g->serial;
                 }
                 /* hexes in a quad */
-                hexes = (int) (pow(g->aperture, g->resolution) + 0.5);
+                hexes = (int) (pow(static_cast<double>(g->aperture), g->resolution) + 0.5);
                 if (quad == 11) {
                     g->serial = 1 + 10 * hexes + 1;
                     return g->serial;
                 }
                 if (g->aperture == 3 && g->resolution % 2 == 1) {
-                    height = (int) (pow(g->aperture, (g->resolution - 1) / 2.0));
+                    height = (int) (pow(static_cast<double>(g->aperture), (g->resolution - 1) / 2.0));
                     sn = ((int) di->x) * height;
                     sn += ((int) di->y) / height;
                     sn += (quad - 1) * hexes;
                     sn += 2;
                 } else {
-                    sidelength = (int) (pow(g->aperture, g->resolution / 2.0) + 0.5);
+                    sidelength = (int) (pow(static_cast<double>(g->aperture), g->resolution / 2.0) + 0.5);
                     sn = (quad - 1) * hexes + sidelength * di->x + di->y + 2;
                 }
 
@@ -927,7 +927,7 @@ namespace boost { namespace geometry { namespace projections
                 }
 
                 /* aperture 3 even resolutions and aperture 4 */
-                sidelength = (int) (pow(g->aperture, g->resolution / 2.0) + 0.5);
+                sidelength = (int) (pow(static_cast<double>(g->aperture), g->resolution / 2.0) + 0.5);
                 if (g->quad == 0) {
                     hex->x = 0;
                     hex->y = sidelength;
