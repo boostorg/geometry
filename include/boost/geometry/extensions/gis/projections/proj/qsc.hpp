@@ -137,7 +137,7 @@ namespace boost { namespace geometry { namespace projections
                         double lat, lon;
                         double sinlat, coslat;
                         double sinlon, coslon;
-                        double q, r, s;
+                        double q = 0.0, r = 0.0, s = 0.0;
                         double theta, phi;
                         double t, mu, nu;
                         int area;
