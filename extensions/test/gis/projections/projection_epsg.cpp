@@ -76,7 +76,7 @@ template <typename P>
 void test_all()
 {
     test_deg_rad<bg::degree, P>(1.0);
-    test_deg_rad<bg::radian, P>(bg::math::d2r);
+    test_deg_rad<bg::radian, P>(bg::math::d2r<double>());
 }
 
 int test_main(int, char* [])
