@@ -258,16 +258,13 @@ void test_invalid()
     bg::strategy::buffer::end_round end_round32(32);
     bg::strategy::buffer::join_round join_round32(32);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    // Though the generated buffer of this linestring, containing extreme differences, is not correct, it resembles
-    // the equivalent (where the coordinates are set to 0). Both SQL Server and POSTGIS do not output anything for this case
-    test_one<linestring, polygon>("mysql_report_2015_04_10a", mysql_report_2015_04_10a, join_round32, end_round32, 86496.5005, 100.0);
-    test_one<linestring, polygon>("mysql_report_2015_04_10b", mysql_report_2015_04_10b, join_round32, end_round32, 86496.5005, 100.0);
-    test_one<linestring, polygon>("mysql_report_2015_04_10c", mysql_report_2015_04_10c, join_round32, end_round32, 86496.5005, 100.0);
-    test_one<linestring, polygon>("mysql_report_2015_04_10d", mysql_report_2015_04_10d, join_round32, end_round32, 86496.5005, 100.0);
-    test_one<linestring, polygon>("mysql_report_2015_04_10e", mysql_report_2015_04_10e, join_round32, end_round32, 86496.5005, 100.0);
-    test_one<linestring, polygon>("mysql_report_2015_04_10f", mysql_report_2015_04_10f, join_round32, end_round32, 86496.5005, 100.0);
-#endif
+    // Linestring contains extreme differences causing numeric errors. Empty geometry is returned
+    test_one<linestring, polygon>("mysql_report_2015_04_10a", mysql_report_2015_04_10a, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10b", mysql_report_2015_04_10b, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10c", mysql_report_2015_04_10c, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10d", mysql_report_2015_04_10d, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10e", mysql_report_2015_04_10e, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10f", mysql_report_2015_04_10f, join_round32, end_round32, 0.0, 100.0);
 
     // The equivalent, valid, case
     test_one<linestring, polygon>("mysql_report_2015_04_10g", mysql_report_2015_04_10g, join_round32, end_round32, 86527.871, 100.0);
