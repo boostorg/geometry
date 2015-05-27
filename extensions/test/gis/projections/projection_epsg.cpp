@@ -42,9 +42,6 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    typedef typename bg::coordinate_type<P2>::type coord_type;
-    boost::ignore_unused<coord_type>();
-
     typedef bg::projections::epsg_traits<E, P1, P2> epsg_traits;
     bg::projections::parameters par = bg::projections::detail::pj_init_plus(epsg_traits::par());
 
