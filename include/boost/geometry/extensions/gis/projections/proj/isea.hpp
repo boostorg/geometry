@@ -38,6 +38,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -673,6 +675,7 @@ namespace boost { namespace geometry { namespace projections
                 int             downtri, quad;
 
                 downtri = (((tri - 1) / 5) % 2 == 1);
+                boost::ignore_unused(downtri);
                 quad = ((tri - 1) % 5) + ((tri - 1) / 10) * 5 + 1;
 
                 isea_rotate(pt, downtri ? 240.0 : 60.0);
@@ -950,6 +953,7 @@ namespace boost { namespace geometry { namespace projections
                 tri = isea_transform(g, in, &out);
 
                 downtri = (((tri - 1) / 5) % 2 == 1);
+                boost::ignore_unused(downtri);
 
                 if (g->output == ISEA_PLANE) {
                     isea_tri_plane(tri, &out, g->radius);
