@@ -133,7 +133,7 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        const double y90 = this->m_proj_parm.dy0 + sqrt(2); // lt=90 corresponds to y=y0+sqrt(2)
+                        const double y90 = this->m_proj_parm.dy0 + sqrt(2.0); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
                         if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
