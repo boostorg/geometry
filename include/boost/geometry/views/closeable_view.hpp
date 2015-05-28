@@ -1,8 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,7 +17,7 @@
 #ifndef BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
 
-
+#include <boost/core/ref.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -44,19 +47,23 @@ struct closing_view
 {
     // Keep this explicit, important for nested views/ranges
     explicit inline closing_view(Range& r)
-        : m_range(r)
+        : m_range(boost::ref(r))
     {}
 
     typedef closing_iterator<Range> iterator;
     typedef closing_iterator<Range const> const_iterator;
 
-    inline const_iterator begin() const { return const_iterator(m_range); }
-    inline const_iterator end() const { return const_iterator(m_range, true); }
+    inline const_iterator begin() const { return const_iterator(cref()); }
+    inline const_iterator end() const { return const_iterator(cref(), true); }
 
-    inline iterator begin() { return iterator(m_range); }
-    inline iterator end() { return iterator(m_range, true); }
+    inline iterator begin() { return iterator(ref()); }
+    inline iterator end() { return iterator(ref(), true); }
+
 private :
-    Range& m_range;
+    inline Range& ref() { return m_range; }
+    inline Range const& cref() const { return m_range; }
+
+    boost::reference_wrapper<Range> m_range;
 };
 
 }
