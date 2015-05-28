@@ -16,10 +16,34 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DISPATCH_ENVELOPE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DISPATCH_ENVELOPE_HPP
 
-#include <boost/geometry/algorithms/detail/envelope/interface.hpp>
-#include <boost/geometry/algorithms/detail/envelope/implementation.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/tag.hpp>
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_ENVELOPE_HPP
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
+
+namespace boost { namespace geometry
+{
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+template
+<
+    typename Geometry,
+    typename Tag = typename tag<Geometry>::type,
+    typename CSTag = typename cs_tag<Geometry>::type
+>
+struct envelope : not_implemented<Tag>
+{};
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+}} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DISPATCH_ENVELOPE_HPP
