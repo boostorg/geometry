@@ -39,7 +39,6 @@
 
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -49,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp5{
+    namespace detail { namespace putp5
+    {
+
             static const double C = 1.01346;
             static const double D = 1.2158542;
 
@@ -89,11 +90,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_putp5& proj_parm) 
             {
-                boost::ignore_unused(par);
                 boost::ignore_unused(proj_parm);
                 par.es = 0.;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 

@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bipc{
+    namespace detail { namespace bipc
+    {
+
             static const double EPS = 1e-10;
             static const double EPS10 = 1e-10;
             static const double ONEEPS = 1.000000001;
@@ -197,8 +199,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_bipc(Parameters& par, par_bipc& proj_parm)
             {
                 proj_parm.noskew = pj_param(par.params, "bns").i;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 
@@ -214,6 +214,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Conic
          - Spheroid
+        \par Projection parameters
+         - ns (boolean)
         \par Example
         \image html ex_bipc.gif
     */

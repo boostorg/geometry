@@ -42,9 +42,6 @@ void test_one(double lon, double lat,
               typename bg::coordinate_type<P2>::type x,
               typename bg::coordinate_type<P2>::type y)
 {
-    typedef typename bg::coordinate_type<P2>::type coord_type;
-    boost::ignore_unused<coord_type>();
-
     typedef bg::projections::epsg_traits<E, P1, P2> epsg_traits;
     bg::projections::parameters par = bg::projections::detail::pj_init_plus(epsg_traits::par());
 
@@ -56,6 +53,8 @@ void test_one(double lon, double lat,
     ll.lat(lat);
 
     P2 xy;
+    bg::set<0>(xy, 0.0);
+    bg::set<1>(xy, 0.0);
     prj.forward(ll, xy);
 
     BOOST_CHECK_CLOSE(bg::get<0>(xy), x, 0.001);
@@ -76,7 +75,7 @@ template <typename P>
 void test_all()
 {
     test_deg_rad<bg::degree, P>(1.0);
-    test_deg_rad<bg::radian, P>(bg::math::d2r);
+    test_deg_rad<bg::radian, P>(bg::math::d2r<double>());
 }
 
 int test_main(int, char* [])

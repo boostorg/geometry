@@ -30,7 +30,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 
 namespace boost { namespace geometry
 {
@@ -48,9 +49,9 @@ template
     typename Tag2 = typename tag<Geometry2>::type
 >
 struct crosses
-    : detail::relate::relate_base
+    : detail::relate::relate_impl
         <
-            detail::relate::static_mask_crosses_type,
+            detail::de9im::static_mask_crosses_type,
             Geometry1,
             Geometry2
         >

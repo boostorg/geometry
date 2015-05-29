@@ -16,6 +16,7 @@
 
 #include <vector>
 
+#include <boost/config.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -94,6 +95,11 @@ struct svg_map<box_tag, Box>
                     Box const& box, TransformStrategy const& strategy)
     {
         model::box<detail::svg::svg_point_type> ibox;
+
+        // Fix bug in gcc compiler warning for possible uninitialation
+#if defined(BOOST_GCC)
+        geometry::assign_zero(ibox);
+#endif
         geometry::transform(box, ibox, strategy);
 
         stream << geometry::svg(ibox, style, size) << std::endl;

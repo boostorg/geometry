@@ -53,7 +53,7 @@ namespace detail
         double b[MDIST_MAX_ITER];
     };
 
-    inline void proj_mdist_ini(double es, MDIST& b)
+    inline bool proj_mdist_ini(double es, MDIST& b)
     {
         double numf, numfi, twon1, denf, denfi, ens, T, twon;
         double den, El, Es;
@@ -97,6 +97,7 @@ namespace detail
             numfi += 2.;
             denfi += 2.;
         }
+        return true;
     }
     inline double proj_mdist(double phi, double sphi, double cphi, const MDIST& b)
     {

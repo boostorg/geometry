@@ -44,13 +44,15 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
-#include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/pj_msfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eqdc{
+    namespace detail { namespace eqdc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_eqdc
@@ -58,7 +60,6 @@ namespace boost { namespace geometry { namespace projections
                 double phi1;
                 double phi2;
                 double n;
-                double rho;
                 double rho0;
                 double c;
                 double en[EN_SIZE];
@@ -74,7 +75,7 @@ namespace boost { namespace geometry { namespace projections
                  typedef double geographic_type;
                  typedef double cartesian_type;
 
-                mutable par_eqdc m_proj_parm;
+                par_eqdc m_proj_parm;
 
                 inline base_eqdc_ellipsoid(const Parameters& par)
                     : base_t_fi<base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>,
@@ -82,21 +83,23 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    this->m_proj_parm.rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? pj_mlfn(lp_lat, sin(lp_lat),
+                    double rho = 0.0;
+                    rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? pj_mlfn(lp_lat, sin(lp_lat),
                         cos(lp_lat), this->m_proj_parm.en) : lp_lat);
-                    xy_x = this->m_proj_parm.rho * sin( lp_lon *= this->m_proj_parm.n );
-                    xy_y = this->m_proj_parm.rho0 - this->m_proj_parm.rho * cos(lp_lon);
+                    xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
+                    xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    if ((this->m_proj_parm.rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
+                    double rho = 0.0;
+                    if ((rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
-                            this->m_proj_parm.rho = -this->m_proj_parm.rho;
+                            rho = -rho;
                             xy_x = -xy_x;
                             xy_y = -xy_y;
                         }
-                        lp_lat = this->m_proj_parm.c - this->m_proj_parm.rho;
+                        lp_lat = this->m_proj_parm.c - rho;
                         if (this->m_proj_parm.ellips)
                             lp_lat = pj_inv_mlfn(lp_lat, this->m_par.es, this->m_proj_parm.en);
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
@@ -127,16 +130,18 @@ namespace boost { namespace geometry { namespace projections
             {
                 double cosphi, sinphi;
                 int secant;
+
                 proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
                 proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
                 if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10) throw proj_exception(-21);
-                    pj_enfn(par.es, proj_parm.en);
-
+                if (!pj_enfn(par.es, proj_parm.en))
+                    throw proj_exception(0);
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
                 secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
                 if( (proj_parm.ellips = (par.es > 0.)) ) {
                     double ml1, m1;
+
                     m1 = pj_msfn(sinphi, cosphi, par.es);
                     ml1 = pj_mlfn(proj_parm.phi1, sinphi, cosphi, proj_parm.en);
                     if (secant) { /* secant cone */
@@ -154,9 +159,6 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.c = proj_parm.phi1 + cos(proj_parm.phi1) / proj_parm.n;
                     proj_parm.rho0 = proj_parm.c - par.phi0;
                 }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
-                // par.spc = fac;
             }
 
         }} // namespace detail::eqdc
@@ -172,7 +174,9 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1= lat_2=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
+         - lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_eqdc.gif
     */

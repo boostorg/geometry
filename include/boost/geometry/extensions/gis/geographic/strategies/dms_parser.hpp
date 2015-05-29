@@ -237,13 +237,16 @@ namespace strategy
             // Assign last one, if any
             process(dms, value, has_value);
 
+            double const d2r = math::d2r<double>();
+            double const r2d = math::r2d<double>();
+
             return dms_result(factor *
                 (in_radian && as_radian
                         ? dms.dms[0]
                 : in_radian && ! as_radian
-                        ? dms.dms[0] * math::r2d
+                        ? dms.dms[0] * r2d
                 : ! in_radian && as_radian
-                        ? dms.dms[0] * math::d2r + dms.dms[1] * math::d2r / 60.0 + dms.dms[2] * math::d2r / 3600.0
+                        ? dms.dms[0] * d2r + dms.dms[1] * d2r / 60.0 + dms.dms[2] * d2r / 3600.0
                         : dms.dms[0] + dms.dms[1] / 60.0 + dms.dms[2] / 3600.0)
                 , axis);
         }

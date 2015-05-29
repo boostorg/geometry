@@ -38,7 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -50,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace stere{
+    namespace detail { namespace stere
+    {
+
             static const double EPS10 = 1.e-10;
             static const double TOL = 1.e-8;
             static const int NITER = 8;
@@ -68,7 +69,8 @@ namespace boost { namespace geometry { namespace projections
                 double akm1;
                 int    mode;
             };
-                inline double
+
+                static double
             ssfn_(double phit, double sinphi, double eccen) {
                 sinphi *= eccen;
                 return (tan (.5 * (HALFPI + phit)) *
@@ -256,9 +258,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_stere& proj_parm)  /* general initialization */
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 double t;
+
                 if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else
@@ -266,6 +267,7 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.phits = fabs(proj_parm.phits);
                 if (par.es) {
                     double X;
+
                     switch (proj_parm.mode) {
                     case N_POLE:
                     case S_POLE:
@@ -291,8 +293,6 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.cosX1 = cos(X);
                         break;
                     }
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     switch (proj_parm.mode) {
                     case OBLIQ:
@@ -308,8 +308,6 @@ namespace boost { namespace geometry { namespace projections
                            2. * par.k0 ;
                         break;
                     }
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -351,7 +349,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_stere.gif
     */
@@ -359,6 +358,30 @@ namespace boost { namespace geometry { namespace projections
     struct stere_ellipsoid : public detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>
     {
         inline stere_ellipsoid(const Parameters& par) : detail::stere::base_stere_ellipsoid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
+        \brief Stereographic projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Azimuthal
+         - Spheroid
+         - Ellipsoid
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
+        \par Example
+        \image html ex_stere.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct stere_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
+    {
+        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
         {
             detail::stere::setup_stere(this->m_par, this->m_proj_parm);
         }
@@ -374,7 +397,8 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - south
+        \par Projection parameters
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_ups.gif
     */
@@ -388,7 +412,7 @@ namespace boost { namespace geometry { namespace projections
     };
 
     /*!
-        \brief Stereographic projection
+        \brief Universal Polar Stereographic projection
         \ingroup projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
@@ -397,16 +421,17 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
-        \image html ex_stere.gif
+        \image html ex_ups.gif
     */
     template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct stere_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
+    struct ups_spheroid : public detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>
     {
-        inline stere_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
+        inline ups_spheroid(const Parameters& par) : detail::stere::base_stere_spheroid<Geographic, Cartesian, Parameters>(par)
         {
-            detail::stere::setup_stere(this->m_par, this->m_proj_parm);
+            detail::stere::setup_ups(this->m_par, this->m_proj_parm);
         }
     };
 
@@ -434,7 +459,10 @@ namespace boost { namespace geometry { namespace projections
             public :
                 virtual projection<Geographic, Cartesian>* create_new(const Parameters& par) const
                 {
-                    return new base_v_fi<ups_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    if (par.es)
+                        return new base_v_fi<ups_ellipsoid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
+                    else
+                        return new base_v_fi<ups_spheroid<Geographic, Cartesian, Parameters>, Geographic, Cartesian, Parameters>(par);
                 }
         };
 

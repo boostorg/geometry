@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lagrng{
+    namespace detail { namespace lagrng
+    {
+
             static const double TOL = 1e-10;
 
             struct par_lagrng
@@ -96,13 +96,13 @@ namespace boost { namespace geometry { namespace projections
             void setup_lagrng(Parameters& par, par_lagrng& proj_parm)
             {
                 double phi1;
+
                 if ((proj_parm.rw = pj_param(par.params, "dW").f) <= 0) throw proj_exception(-27);
                 proj_parm.hrw = 0.5 * (proj_parm.rw = 1. / proj_parm.rw);
                 phi1 = pj_param(par.params, "rlat_1").f;
                 if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL) throw proj_exception(-22);
                 proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::lagrng
@@ -118,7 +118,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W=
+        \par Projection parameters
+         - W (real)
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_lagrng.gif
     */

@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace geos{
+    namespace detail { namespace geos
+    {
 
             struct par_geos
             {
@@ -62,8 +63,6 @@ namespace boost { namespace geometry { namespace projections
                 std::string  sweep_axis;
                 int     flip_axis;
             };
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -241,12 +240,8 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.radius_p      = sqrt (par.one_es);
                     proj_parm.radius_p2     = par.one_es;
                     proj_parm.radius_p_inv2 = par.rone_es;
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.radius_p = proj_parm.radius_p2 = proj_parm.radius_p_inv2 = 1.0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 }
             }
 
@@ -263,7 +258,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - h=
+        \par Projection parameters
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */
@@ -286,7 +283,9 @@ namespace boost { namespace geometry { namespace projections
          - Azimuthal
          - Spheroid
          - Ellipsoid
-         - h=
+        \par Projection parameters
+         - h: Height (real)
+         - sweep: Sweep axis ('x' or 'y') (string)
         \par Example
         \image html ex_geos.gif
     */

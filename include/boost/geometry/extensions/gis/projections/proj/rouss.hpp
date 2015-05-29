@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -49,7 +47,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace rouss{
+    namespace detail { namespace rouss
+    {
 
             struct par_rouss
             {
@@ -115,8 +114,9 @@ namespace boost { namespace geometry { namespace projections
             void setup_rouss(Parameters& par, par_rouss& proj_parm)
             {
                 double N0, es2, t, t2, R_R0_2, R_R0_4;
-                proj_mdist_ini(par.es, proj_parm.en);
 
+                if (!proj_mdist_ini(par.es, proj_parm.en))
+                    throw proj_exception(0);
                 es2 = sin(par.phi0);
                 proj_parm.s0 = proj_mdist(par.phi0, es2, cos(par.phi0), proj_parm.en);
                 t = 1. - (es2 = par.es * es2 * es2);
@@ -156,8 +156,6 @@ namespace boost { namespace geometry { namespace projections
                 proj_parm.D9 = R_R0_4 * t * (-21. + t2 * (178. - t2 * 26.))/720.;
                 proj_parm.D10 = R_R0_4 * t * (29. + t2 * (86. + t2 * 48.))/(96. * N0);
                 proj_parm.D11 = R_R0_4 * t * (37. + t2 * 44.)/(96. * N0);
-                // par.fwd = e_forward;
-                // par.inv = e_inverse;
             }
 
         }} // namespace detail::rouss
@@ -171,7 +169,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal
-         - Ellps
+         - Ellipsoid
         \par Example
         \image html ex_rouss.gif
     */

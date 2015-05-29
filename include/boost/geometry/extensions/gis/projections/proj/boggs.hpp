@@ -38,8 +38,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -48,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace boggs{
+    namespace detail { namespace boggs
+    {
+
             static const int NITER = 20;
             static const double EPS = 1e-7;
             static const double ONETOL = 1.000001;
@@ -56,7 +56,6 @@ namespace boost { namespace geometry { namespace projections
             static const double FXC2 = 1.11072;
             static const double FYC = 0.49931;
             static const double FYC2 = 1.41421356237309504880;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -99,7 +98,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_boggs(Parameters& par)
             {
                 par.es = 0.;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::boggs

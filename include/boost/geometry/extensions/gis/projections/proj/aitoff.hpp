@@ -39,7 +39,6 @@
 
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -49,18 +48,14 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aitoff{
+    namespace detail { namespace aitoff
+    {
 
             struct par_aitoff
             {
                 double    cosphi1;
                 int        mode;
             };
-
-
-
-
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -90,9 +85,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
                     }
-                            return;
                 }
-
                 /***********************************************************************************
                 *
                 * Inverse functions added by Drazen Tutic and Lovro Gradiser based on paper:
@@ -113,7 +106,6 @@ namespace boost { namespace geometry { namespace projections
                 * Date: 2015-02-16
                 *
                 ************************************************************************************/
-
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
@@ -171,19 +163,13 @@ namespace boost { namespace geometry { namespace projections
                     } while (((fabs(xy_x-x) > EPSILON) || (fabs(xy_y-y) > EPSILON)) && (round++ < MAXROUND));
 
                     if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
-
-                            return;
                 }
-
             };
 
             template <typename Parameters>
             void setup(Parameters& par, par_aitoff& proj_parm) 
             {
-                boost::ignore_unused(par);
                 boost::ignore_unused(proj_parm);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
                 par.es = 0.;
             }
 
@@ -244,7 +230,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - lat_1
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_wintri.gif
     */

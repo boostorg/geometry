@@ -38,19 +38,19 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/core/ignore_unused.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/pj_mlfn.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gn_sinu{
+    namespace detail { namespace gn_sinu
+    {
+
             static const double EPS10 = 1e-10;
             static const int MAX_ITER = 8;
             static const double LOOP_TOL = 1e-7;
@@ -60,6 +60,7 @@ namespace boost { namespace geometry { namespace projections
                 double    en[EN_SIZE];
                 double    m, n, C_x, C_y;
             };
+
             /* Ellipsoidal Sinusoidal only */
 
             // template class, using CRTP to implement forward/inverse
@@ -95,7 +96,6 @@ namespace boost { namespace geometry { namespace projections
                     } else if ((s - EPS10) < HALFPI)
                         lp_lon = 0.;
                     else throw proj_exception();;
-                            return;
                 }
                 /* General spherical sinusoidals */
             };
@@ -149,12 +149,8 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup(Parameters& par, par_gn_sinu& proj_parm) 
             {
-                boost::ignore_unused(par);
-                boost::ignore_unused(proj_parm);
                 par.es = 0;
                 proj_parm.C_x = (proj_parm.C_y = sqrt((proj_parm.m + 1.) / proj_parm.n))/(proj_parm.m + 1.);
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
 
@@ -174,11 +170,9 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_sinu(Parameters& par, par_gn_sinu& proj_parm)
             {
-                    pj_enfn(par.es, proj_parm.en);
-
+                if (!pj_enfn(par.es, proj_parm.en))
+                    throw proj_exception(0);
                 if (par.es) {
-                // par.inv = e_inverse;
-                // par.fwd = e_forward;
                 } else {
                     proj_parm.n = 1.;
                     proj_parm.m = 0.;
@@ -208,6 +202,30 @@ namespace boost { namespace geometry { namespace projections
     #endif // doxygen
 
     /*!
+        \brief General Sinusoidal Series projection
+        \ingroup projections
+        \tparam Geographic latlong point type
+        \tparam Cartesian xy point type
+        \tparam Parameters parameter type
+        \par Projection characteristics
+         - Pseudocylindrical
+         - Spheroid
+        \par Projection parameters
+         - m (real)
+         - n (real)
+        \par Example
+        \image html ex_gn_sinu.gif
+    */
+    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
+    struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>
+    {
+        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>(par)
+        {
+            detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
+        }
+    };
+
+    /*!
         \brief Sinusoidal (Sanson-Flamsteed) projection
         \ingroup projections
         \tparam Geographic latlong point type
@@ -226,28 +244,6 @@ namespace boost { namespace geometry { namespace projections
         inline sinu_ellipsoid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>(par)
         {
             detail::gn_sinu::setup_sinu(this->m_par, this->m_proj_parm);
-        }
-    };
-
-    /*!
-        \brief General Sinusoidal Series projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Projection characteristics
-         - Pseudocylindrical
-         - Spheroid
-         - m= n=
-        \par Example
-        \image html ex_gn_sinu.gif
-    */
-    template <typename Geographic, typename Cartesian, typename Parameters = parameters>
-    struct gn_sinu_spheroid : public detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>
-    {
-        inline gn_sinu_spheroid(const Parameters& par) : detail::gn_sinu::base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>(par)
-        {
-            detail::gn_sinu::setup_gn_sinu(this->m_par, this->m_proj_parm);
         }
     };
 

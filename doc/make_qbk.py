@@ -66,6 +66,9 @@ def struct_to_quickbook(section):
 def class_to_quickbook(section):
     run_command(cmd % ("classboost_1_1geometry_1_1" + section.replace("_", "__"), section))
 
+def class_to_quickbook2(classname, section):
+    run_command(cmd % ("classboost_1_1geometry_1_1" + classname, section))
+
 def strategy_to_quickbook(section):
     p = section.find("::")
     ns = section[:p]
@@ -86,7 +89,7 @@ algorithms = ["append", "assign", "make", "clear"
     , "envelope", "equals", "expand", "for_each", "is_simple", "is_valid"
     , "intersection", "intersects", "length", "num_geometries"
     , "num_interior_rings", "num_points", "num_segments", "overlaps"
-    , "perimeter", "reverse", "simplify", "sym_difference", "touches"
+    , "perimeter", "relate", "relation", "reverse", "simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
@@ -170,6 +173,10 @@ group_to_quickbook("register")
 group_to_quickbook("svg")
 class_to_quickbook("svg_mapper")
 group_to_quickbook("wkt")
+
+class_to_quickbook2("de9im_1_1matrix", "de9im_matrix")
+class_to_quickbook2("de9im_1_1mask", "de9im_mask")
+class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 
 os.chdir("index")
 execfile("make_qbk.py")

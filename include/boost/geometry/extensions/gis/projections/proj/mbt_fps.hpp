@@ -38,17 +38,18 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbt_fps{
+    namespace detail { namespace mbt_fps
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
             static const double C1 = 0.45503;
@@ -57,7 +58,6 @@ namespace boost { namespace geometry { namespace projections
             static const double C_x = 0.22248;
             static const double C_y = 1.44492;
             static const double C1_2 = 0.33333333333333333333333333;
-
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
@@ -106,8 +106,6 @@ namespace boost { namespace geometry { namespace projections
             void setup_mbt_fps(Parameters& par)
             {
                 par.es = 0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::mbt_fps

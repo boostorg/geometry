@@ -38,17 +38,18 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fouc_s{
+    namespace detail { namespace fouc_s
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -112,8 +113,6 @@ namespace boost { namespace geometry { namespace projections
                     throw proj_exception(-99);
                 proj_parm.n1 = 1. - proj_parm.n;
                 par.es = 0;
-                // par.inv = s_inverse;
-                // par.fwd = s_forward;
             }
 
         }} // namespace detail::fouc_s
@@ -128,6 +127,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
+        \par Projection parameters
+         - n (real)
         \par Example
         \image html ex_fouc_s.gif
     */

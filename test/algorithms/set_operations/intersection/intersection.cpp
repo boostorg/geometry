@@ -434,6 +434,38 @@ void test_areal_linear()
 
 }
 
+
+template <typename Linestring, typename Box>
+void test_linear_box()
+{
+    typedef bg::model::multi_linestring<Linestring> multi_linestring_type;
+
+    test_one_lp<Linestring, Box, Linestring>
+        ("case-l-b-01",
+         "BOX(-10 -10,10 10)",
+         "LINESTRING(-20 -20, 0 0,20 20)",
+         1, 3, 20 * sqrt(2.0));
+
+    test_one_lp<Linestring, Box, Linestring>
+        ("case-l-b-02",
+         "BOX(-10 -10,10 10)",
+         "LINESTRING(-20 -20, 20 20)",
+         1, 2, 20.0 * sqrt(2.0));
+
+    test_one_lp<Linestring, Box, Linestring>
+        ("case-l-b-02",
+         "BOX(-10 -10,10 10)",
+         "LINESTRING(-20 -20, 20 20,15 0,0 -15)",
+         2, 4, 25.0 * sqrt(2.0));
+
+    test_one_lp<Linestring, Box, multi_linestring_type>
+        ("case-ml-b-01",
+         "BOX(-10 -10,10 10)",
+         "MULTILINESTRING((-20 -20, 20 20),(0 -15,15 0))",
+         2, 4, 25.0 * sqrt(2.0));
+}
+
+
 template <typename P>
 void test_all()
 {
@@ -455,6 +487,8 @@ void test_all()
     test_areal_linear<polygon_ccw, linestring>();
     test_areal_linear<polygon_ccw_open, linestring>();
 #endif
+
+    test_linear_box<linestring, box>();
 
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();

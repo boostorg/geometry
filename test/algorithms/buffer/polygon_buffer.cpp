@@ -157,7 +157,7 @@ public :
         typename OutputRange,
         typename DistanceStrategy
     >
-    static inline void apply(
+    static inline bg::strategy::buffer::result_code apply(
                 Point const& input_p1, Point const& input_p2,
                 bg::strategy::buffer::buffer_side_selector side,
                 DistanceStrategy const& distance,
@@ -173,7 +173,7 @@ public :
 
         if (bg::math::equals(length, 0))
         {
-            return;
+            return bg::strategy::buffer::result_no_output;
         }
 
         // Generate the perpendicular p, to the left (ccw), and use an adapted distance
@@ -187,6 +187,8 @@ public :
         bg::set<1>(output_range.front(), bg::get<1>(input_p1) + py);
         bg::set<0>(output_range.back(), bg::get<0>(input_p2) + px);
         bg::set<1>(output_range.back(), bg::get<1>(input_p2) + py);
+
+        return bg::strategy::buffer::result_normal;
     }
 };
 

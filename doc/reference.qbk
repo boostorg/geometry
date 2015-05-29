@@ -148,6 +148,10 @@
 [include generated/perimeter.qbk]
 [endsect]
 
+[include generated/relate.qbk]
+
+[include generated/relation.qbk]
+
 [include generated/reverse.qbk]
 
 [section:simplify simplify]
@@ -222,6 +226,12 @@
 [include generated/tag.qbk]
 [include generated/tag_cast.qbk]
 [endsect] [/core metafunctions]
+
+[section:de9im DE-9IM]
+[include generated/de9im_mask.qbk]
+[include generated/de9im_matrix.qbk]
+[include generated/de9im_static_mask.qbk]
+[endsect] 
 
 [section:enumerations Enumerations]
 [include generated/enum.qbk]
