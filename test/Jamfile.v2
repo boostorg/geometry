@@ -22,7 +22,7 @@ project boost-geometry-test
     ;
 
 build-project core ;
-build-project point_concept ; 
+build-project concepts ; 
 build-project geometries ;
 build-project arithmetic ;
 build-project algorithms ;
