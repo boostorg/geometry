@@ -700,7 +700,8 @@ struct static_mask
     static const std::size_t static_height = Height;
     static const std::size_t static_size = Width * Height;
 
-    BOOST_STATIC_ASSERT(boost::mpl::size<Seq>::type::value == static_size);
+    BOOST_STATIC_ASSERT(
+        std::size_t(boost::mpl::size<Seq>::type::value) == static_size);
     
     template <detail::relate::field F1, detail::relate::field F2>
     struct static_get
