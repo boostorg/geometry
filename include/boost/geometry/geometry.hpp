@@ -80,6 +80,8 @@
 #include <boost/geometry/algorithms/num_segments.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/relation.hpp>
 #include <boost/geometry/algorithms/remove_spikes.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>

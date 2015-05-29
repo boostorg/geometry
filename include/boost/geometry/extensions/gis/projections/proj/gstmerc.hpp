@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace gstmerc{
+    namespace detail { namespace gstmerc
+    {
 
             struct par_gstmerc
             {
@@ -128,7 +129,10 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_0= lon_0= k_0=
+        \par Projection parameters
+         - lat_0: Latitude of origin
+         - lon_0: Central meridian
+         - k_0: Scale factor
         \par Example
         \image html ex_gstmerc.gif
     */

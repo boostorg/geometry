@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace hammer{
+    namespace detail { namespace hammer
+    {
 
             struct par_hammer
             {
@@ -109,7 +110,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W= M=
+        \par Projection parameters
+         - W (real)
+         - M (real)
         \par Example
         \image html ex_hammer.gif
     */

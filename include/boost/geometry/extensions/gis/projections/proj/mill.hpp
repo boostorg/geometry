@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mill{
+    namespace detail { namespace mill
+    {
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>

@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lagrng{
+    namespace detail { namespace lagrng
+    {
+
             static const double TOL = 1e-10;
 
             struct par_lagrng
@@ -116,7 +118,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - W=
+        \par Projection parameters
+         - W (real)
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_lagrng.gif
     */

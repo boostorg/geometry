@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace robin{
+    namespace detail { namespace robin
+    {
+
             static const double FXC = 0.8487;
             static const double FYC = 1.3523;
             static const double C1 = 11.45915590261646417544;

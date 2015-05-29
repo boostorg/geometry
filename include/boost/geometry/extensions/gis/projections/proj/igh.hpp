@@ -50,7 +50,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace igh{
+    namespace detail { namespace igh
+    {
 
             template <typename Geographic, typename Cartesian>
             struct par_igh
@@ -132,7 +133,7 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                        const double y90 = this->m_proj_parm.dy0 + sqrt(2); // lt=90 corresponds to y=y0+sqrt(2)
+                        const double y90 = this->m_proj_parm.dy0 + sqrt(2.0); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
                         if (xy_y > y90+EPSLN || xy_y < -y90+EPSLN) // 0
@@ -186,7 +187,7 @@ namespace boost { namespace geometry { namespace projections
 
                           z = (!ok? 0: z); // projectable?
                         }
-                     // if (!z) throw proj_exception(  -15); // invalid x or y
+                     // if (!z) pj_errno = -15; // invalid x or y
                         if (!z) lp_lon = HUGE_VAL;
                         if (!z) lp_lat = HUGE_VAL;
                 }

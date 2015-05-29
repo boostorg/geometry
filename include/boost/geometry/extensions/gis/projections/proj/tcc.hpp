@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tcc{
+    namespace detail { namespace tcc
+    {
+
             static const double EPS10 = 1.e-10;
 
             struct par_tcc

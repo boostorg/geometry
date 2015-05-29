@@ -48,7 +48,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nsper{
+    namespace detail { namespace nsper
+    {
+
             static const double EPS10 = 1.e-10;
             static const int N_POLE = 0;
             static const int S_POLE = 1;
@@ -237,7 +239,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - h=
+        \par Projection parameters
+         - h: Height
         \par Example
         \image html ex_nsper.gif
     */
@@ -259,7 +262,10 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Azimuthal
          - Spheroid
-         - tilt= azi= h=
+        \par Projection parameters
+         - tilt: Tilt, or Omega (real)
+         - azi: Azimuth (or Gamma) (real)
+         - h: Height
         \par Example
         \image html ex_tpers.gif
     */

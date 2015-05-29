@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace krovak{
+    namespace detail { namespace krovak
+    {
 
             struct par_krovak
             {
@@ -279,7 +280,12 @@ namespace boost { namespace geometry { namespace projections
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
-         - Ellps
+         - Ellipsoid
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
+         - lat_0: Latitude of origin
+         - lon_0: Central meridian
+         - k: Scale factor on the pseudo standard parallel
         \par Example
         \image html ex_krovak.gif
     */

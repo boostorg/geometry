@@ -49,7 +49,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace oea{
+    namespace detail { namespace oea
+    {
 
             struct par_oea
             {
@@ -140,7 +141,10 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - n= m= theta=
+        \par Projection parameters
+         - n (real)
+         - m (real)
+         - theta: Theta (degrees)
         \par Example
         \image html ex_oea.gif
     */

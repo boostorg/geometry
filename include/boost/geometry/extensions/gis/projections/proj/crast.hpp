@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace crast{
+    namespace detail { namespace crast
+    {
+
             static const double XM = 0.97720502380583984317;
             static const double RXM = 1.02332670794648848847;
             static const double YM = 3.06998012383946546542;

@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace fouc_s{
+    namespace detail { namespace fouc_s
+    {
+
             static const int MAX_ITER = 10;
             static const double LOOP_TOL = 1e-7;
 
@@ -125,6 +127,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
+        \par Projection parameters
+         - n (real)
         \par Example
         \image html ex_fouc_s.gif
     */

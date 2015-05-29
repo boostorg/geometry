@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace bonne{
+    namespace detail { namespace bonne
+    {
+
             static const double EPS10 = 1e-10;
 
             struct par_bonne
@@ -177,7 +179,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */
@@ -200,7 +203,8 @@ namespace boost { namespace geometry { namespace projections
          - Conic
          - Spheroid
          - Ellipsoid
-         - lat_1=
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_bonne.gif
     */

@@ -18,6 +18,7 @@
 //#include <boost/geometry/algorithms/within.hpp>
 //#include <boost/geometry/algorithms/covered_by.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 
 #include <boost/geometry/util/condition.hpp>

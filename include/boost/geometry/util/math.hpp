@@ -26,9 +26,7 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/math/constants/constants.hpp>
-#ifdef BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/fpclassify.hpp>
-#endif // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS
 #include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
@@ -162,7 +160,17 @@ struct equals<Type, true>
             return true;
         }
 
-        return abs<Type>::apply(a - b) <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
+        if (boost::math::isfinite(a) && boost::math::isfinite(b))
+        {
+            // If a is INF and b is e.g. 0, the expression below returns true
+            // but the values are obviously not equal, hence the condition
+            return abs<Type>::apply(a - b)
+                <= std::numeric_limits<Type>::epsilon() * policy.apply(a, b);
+        }
+        else
+        {
+            return a == b;
+        }
     }
 };
 
@@ -494,14 +502,14 @@ inline bool larger(T1 const& a, T2 const& b)
 
 
 template <typename T>
-T d2r()
+inline T d2r()
 {
     static T const conversion_coefficient = geometry::math::pi<T>() / T(180.0);
     return conversion_coefficient;
 }
 
 template <typename T>
-T r2d()
+inline T r2d()
 {
     static T const conversion_coefficient = T(180.0) / geometry::math::pi<T>();
     return conversion_coefficient;

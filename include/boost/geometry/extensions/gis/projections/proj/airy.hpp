@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace airy{
+    namespace detail { namespace airy
+    {
+
             static const double EPS = 1.e-10;
             static const int N_POLE = 0;
             static const int S_POLE = 1;
@@ -171,7 +173,9 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - no_cut lat_b=
+        \par Projection parameters
+         - no_cut: Do not cut at hemisphere limit (boolean)
+         - lat_b (degrees)
         \par Example
         \image html ex_airy.gif
     */

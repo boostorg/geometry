@@ -44,11 +44,13 @@
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/factory_entry.hpp>
+#include <boost/geometry/extensions/gis/projections/impl/aasincos.hpp>
 
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace eck3{
+    namespace detail { namespace eck3
+    {
 
             struct par_eck3
             {

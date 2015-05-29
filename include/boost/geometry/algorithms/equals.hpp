@@ -51,7 +51,8 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
-#include <boost/geometry/algorithms/detail/relate/relate.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
@@ -181,9 +182,9 @@ struct equals_by_collection
 
 template<typename Geometry1, typename Geometry2>
 struct equals_by_relate
-    : detail::relate::relate_base
+    : detail::relate::relate_impl
         <
-            detail::relate::static_mask_equals_type,
+            detail::de9im::static_mask_equals_type,
             Geometry1,
             Geometry2
         >

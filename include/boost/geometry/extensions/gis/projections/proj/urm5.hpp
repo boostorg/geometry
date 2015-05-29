@@ -47,7 +47,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urm5{
+    namespace detail { namespace urm5
+    {
 
             struct par_urm5
             {
@@ -108,7 +109,10 @@ namespace boost { namespace geometry { namespace projections
          - Pseudocylindrical
          - Spheroid
          - no inverse
-         - n= q= alpha=
+        \par Projection parameters
+         - n (real)
+         - q (real)
+         - alpha: Alpha (degrees)
         \par Example
         \image html ex_urm5.gif
     */

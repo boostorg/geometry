@@ -46,7 +46,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace mbtfpp{
+    namespace detail { namespace mbtfpp
+    {
+
             static const double CS_ = .95257934441568037152;
             static const double FXC = .92582009977255146156;
             static const double FYC = 3.40168025708304504493;

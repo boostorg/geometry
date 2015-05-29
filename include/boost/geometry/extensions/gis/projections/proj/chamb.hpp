@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace chamb{
+    namespace detail { namespace chamb
+    {
+
             static const double THIRD = 0.333333333333333333;
             static const double TOL = 1e-9;
 
@@ -70,7 +72,7 @@ namespace boost { namespace geometry { namespace projections
                 double beta_0, beta_1, beta_2;
             };
 
-                inline VECT /* distance and azimuth from point 1 to point 2 */
+                static VECT /* distance and azimuth from point 1 to point 2 */
             vect(double dphi, double c1, double s1, double c2, double s2, double dlam) {
                 VECT v;
                 double cdl, dp, dl;
@@ -89,7 +91,7 @@ namespace boost { namespace geometry { namespace projections
                     v.r = v.Az = 0.;
                 return v;
             }
-                inline double /* law of cosines */
+                static double /* law of cosines */
             lc(double b,double c,double a) {
                 return aacos(.5 * (b * b + c * c - a * a) / (b * c));
             }
@@ -198,7 +200,13 @@ namespace boost { namespace geometry { namespace projections
          - Miscellaneous
          - Spheroid
          - no inverse
-         - lat_1= lon_1= lat_2= lon_2= lat_3= lon_3=
+        \par Projection parameters
+         - lat_1: Latitude of control point 1 (degrees)
+         - lon_1: Longitude of control point 1 (degrees)
+         - lat_2: Latitude of control point 2 (degrees)
+         - lon_2: Longitude of control point 2 (degrees)
+         - lat_3: Latitude of control point 3 (degrees)
+         - lon_3: Longitude of control point 3 (degrees)
         \par Example
         \image html ex_chamb.gif
     */

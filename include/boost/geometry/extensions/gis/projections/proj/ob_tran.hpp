@@ -52,7 +52,9 @@ namespace boost { namespace geometry { namespace projections
     template <typename Geographic, typename Cartesian, typename Parameters> class factory;
 
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace ob_tran{
+    namespace detail { namespace ob_tran
+    {
+
             static const double TOL = 1e-10;
 
             template <typename Geographic, typename Cartesian>
@@ -237,10 +239,19 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - o_proj= plus parameters for projection
-         - o_lat_p= o_lon_p= (new pole) or
-         - o_alpha= o_lon_c= o_lat_c= or
-         - o_lon_1= o_lat_1= o_lon_2= o_lat_2=
+        \par Projection parameters
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */
@@ -262,10 +273,19 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - o_proj= plus parameters for projection
-         - o_lat_p= o_lon_p= (new pole) or
-         - o_alpha= o_lon_c= o_lat_c= or
-         - o_lon_1= o_lat_1= o_lon_2= o_lat_2=
+        \par Projection parameters
+         - o_proj (string)
+         - Plus projection parameters
+         - o_lat_p (degrees)
+         - o_lon_p (degrees)
+         - New pole
+         - o_alpha: Alpha (degrees)
+         - o_lon_c (degrees)
+         - o_lat_c (degrees)
+         - o_lon_1 (degrees)
+         - o_lat_1: Latitude of first standard parallel (degrees)
+         - o_lon_2 (degrees)
+         - o_lat_2: Latitude of second standard parallel (degrees)
         \par Example
         \image html ex_ob_tran.gif
     */

@@ -49,7 +49,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace merc{
+    namespace detail { namespace merc
+    {
+
             static const double EPS10 = 1.e-10;
 
             // template class, using CRTP to implement forward/inverse
@@ -141,7 +143,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */
@@ -164,7 +167,8 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_merc.gif
     */

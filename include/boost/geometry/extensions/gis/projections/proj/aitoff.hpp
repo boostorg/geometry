@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace aitoff{
+    namespace detail { namespace aitoff
+    {
 
             struct par_aitoff
             {
@@ -229,7 +230,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Miscellaneous
          - Spheroid
-         - lat_1
+        \par Projection parameters
+         - lat_1: Latitude of first standard parallel (degrees)
         \par Example
         \image html ex_wintri.gif
     */

@@ -48,7 +48,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace latlong{
+    namespace detail { namespace latlong
+    {
 
             /* very loosely based upon DMA code by Bradford W. Drew */
 
@@ -124,7 +125,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_lonlat.gif
     */
@@ -143,7 +143,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_latlon.gif
     */
@@ -162,7 +161,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_latlong.gif
     */
@@ -181,7 +179,6 @@ namespace boost { namespace geometry { namespace projections
         \tparam Geographic latlong point type
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
-        \par Projection characteristics
         \par Example
         \image html ex_longlat.gif
     */

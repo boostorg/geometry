@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace urmfps{
+    namespace detail { namespace urmfps
+    {
+
             static const double C_x = 0.8773826753;
             static const double Cy = 1.139753528477;
 
@@ -127,7 +129,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
-         - n=
+        \par Projection parameters
+         - n (real)
         \par Example
         \image html ex_urmfps.gif
     */

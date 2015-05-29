@@ -65,6 +65,15 @@ static std::string const mysql_report_2015_03_02c = "LINESTRING(0 2,0 5,5 5,5 0,
 
 static std::string const mysql_report_2015_04_01 = "LINESTRING(103 5,107 2,111 4,116 -1,115 0,112 4)";
 
+static std::string const mysql_report_2015_04_10a = "LINESTRING(1.922421e+307 1.520384e+308, 15 42, 89 -93,-89 -22)";
+static std::string const mysql_report_2015_04_10b = "LINESTRING(15 42, 89 -93,-89 -22, 1.922421e+307 1.520384e+308)";
+static std::string const mysql_report_2015_04_10c = "LINESTRING(15 42, 1.922421e+307 1.520384e+308, 89 -93,-89 -22)";
+static std::string const mysql_report_2015_04_10d = "LINESTRING(1.922421e+307 1.520384e+308, 1.923421e+307 1.521384e+308, 15 42, 89 -93,-89 -22)";
+static std::string const mysql_report_2015_04_10e = "LINESTRING(15 42, 89 -93,-89 -22, 1.922421e+307 1.520384e+308, 1.923421e+307 1.521384e+308)";
+static std::string const mysql_report_2015_04_10f = "LINESTRING(15 42, 1.922421e+307 1.520384e+308, 1.923421e+307 1.521384e+308, 89 -93,-89 -22)";
+static std::string const mysql_report_2015_04_10g = "LINESTRING(15 42, 89 -93,-89 -22)";
+
+
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -203,9 +212,10 @@ void test_all()
         double const d15 = 1.5;
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.714, d10, d15);
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 46.116, d15, d10);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+
+#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         double const d100 = 10;
-        test_one<linestring, polygon>("mysql_report_2015_04_01", mysql_report_2015_04_01, join_round(32), end_round(32), 1.0/*NON ZERO*/, d100);
+        test_one<linestring, polygon>("mysql_report_2015_04_01", mysql_report_2015_04_01, join_round(32), end_round(32), 632.234, d100);
 #endif
     }
 
@@ -231,14 +241,35 @@ void test_all()
         test_one<linestring, polygon>("aimes181", aimes181, join_round_by_divide, end_round, 2.57415564419716247e-08, 0.000036, 0.000036, true, tolerance);
     }
 
-    test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.119, 20.0);
-    test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.450, 20.0);
+    // On one compiler 1702.56530051454502 2140.78725663358819
+    // so we increase tolerance
+    test_one<linestring, polygon>("crossing", crossing, join_round32, end_flat, 1702.1, 20.0, 20.0, true, 0.5);
+    test_one<linestring, polygon>("crossing", crossing, join_round32, end_round32, 2140.4, 20.0, 20.0, true, 0.5);
 
     test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
 }
 
+template <bool Clockwise, typename P>
+void test_invalid()
+{
+    typedef bg::model::linestring<P> linestring;
+    typedef bg::model::polygon<P, Clockwise> polygon;
 
-//#define HAVE_TTMATH
+    bg::strategy::buffer::end_round end_round32(32);
+    bg::strategy::buffer::join_round join_round32(32);
+
+    // Linestring contains extreme differences causing numeric errors. Empty geometry is returned
+    test_one<linestring, polygon>("mysql_report_2015_04_10a", mysql_report_2015_04_10a, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10b", mysql_report_2015_04_10b, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10c", mysql_report_2015_04_10c, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10d", mysql_report_2015_04_10d, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10e", mysql_report_2015_04_10e, join_round32, end_round32, 0.0, 100.0);
+    test_one<linestring, polygon>("mysql_report_2015_04_10f", mysql_report_2015_04_10f, join_round32, end_round32, 0.0, 100.0);
+
+    // The equivalent, valid, case
+    test_one<linestring, polygon>("mysql_report_2015_04_10g", mysql_report_2015_04_10g, join_round32, end_round32, 86527.871, 100.0);
+}
+
 #ifdef HAVE_TTMATH
 #include <ttmath_stub.hpp>
 #endif
@@ -249,5 +280,8 @@ int test_main(int, char* [])
     test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
     test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
     //test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
+
+    test_invalid<true, bg::model::point<double, 2, bg::cs::cartesian> >();
+//    test_invalid<true, bg::model::point<long double, 2, bg::cs::cartesian> >();
     return 0;
 }

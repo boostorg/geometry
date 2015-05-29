@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/core/topological_dimension.hpp>
 

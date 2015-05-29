@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace nzmg{
+    namespace detail { namespace nzmg
+    {
+
             static const double EPSLN = 1e-10;
             static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
             static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
@@ -149,7 +151,7 @@ namespace boost { namespace geometry { namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Projection characteristics
-         - fixed Earth
+         - Fixed Earth
         \par Example
         \image html ex_nzmg.gif
     */

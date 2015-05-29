@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wag2{
+    namespace detail { namespace wag2
+    {
+
             static const double C_x = 0.92483;
             static const double C_y = 1.38725;
             static const double C_p1 = 0.88022;

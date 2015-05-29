@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace putp2{
+    namespace detail { namespace putp2
+    {
+
             static const double C_x = 1.89490;
             static const double C_y = 1.71848;
             static const double C_p = 0.6141848493043784;

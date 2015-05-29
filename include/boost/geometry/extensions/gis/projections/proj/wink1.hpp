@@ -46,7 +46,8 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace wink1{
+    namespace detail { namespace wink1
+    {
 
             struct par_wink1
             {
@@ -101,7 +102,8 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Pseudocylindrical
          - Spheroid
-         - lat_ts=
+        \par Projection parameters
+         - lat_ts: Latitude of true scale (degrees)
         \par Example
         \image html ex_wink1.gif
     */

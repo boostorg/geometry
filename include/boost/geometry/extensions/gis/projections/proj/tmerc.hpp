@@ -50,7 +50,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace tmerc{
+    namespace detail { namespace tmerc
+    {
+
             static const double EPS10 = 1.e-10;
             static const double FC1 = 1.;
             static const double FC2 = .5;
@@ -98,7 +100,7 @@ namespace boost { namespace geometry { namespace projections
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
-                            throw proj_exception(-14 );
+                            throw proj_exception( -14 );
                             return;
                         }
 
@@ -184,7 +186,7 @@ namespace boost { namespace geometry { namespace projections
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
-                            throw proj_exception(-14 );
+                            throw proj_exception( -14 );
                             return;
                         }
 
@@ -315,7 +317,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - zone= south
+        \par Projection parameters
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */
@@ -337,7 +341,9 @@ namespace boost { namespace geometry { namespace projections
         \par Projection characteristics
          - Cylindrical
          - Spheroid
-         - zone= south
+        \par Projection parameters
+         - zone: UTM Zone (integer)
+         - south: Denotes southern hemisphere UTM zone (boolean)
         \par Example
         \image html ex_utm.gif
     */

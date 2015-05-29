@@ -47,7 +47,9 @@
 namespace boost { namespace geometry { namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
-    namespace detail { namespace lsat{
+    namespace detail { namespace lsat
+    {
+
             static const double TOL = 1e-7;
             static const double PI_HALFPI = 4.71238898038468985766;
             static const double TWOPI_HALFPI = 7.85398163397448309610;
@@ -60,7 +62,7 @@ namespace boost { namespace geometry { namespace projections
 
             /* based upon Snyder and Linck, USGS-NMD */
             template <typename Parameters>
-                inline void
+                static void
             seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
                 double sdsq, h, s, fc, sd, sq, d__1;
 
@@ -254,7 +256,9 @@ namespace boost { namespace geometry { namespace projections
          - Cylindrical
          - Spheroid
          - Ellipsoid
-         - lsat= path=
+        \par Projection parameters
+         - lsat (integer)
+         - path (integer)
         \par Example
         \image html ex_lsat.gif
     */
