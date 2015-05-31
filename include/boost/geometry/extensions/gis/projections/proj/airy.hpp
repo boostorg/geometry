@@ -19,6 +19,10 @@
 
 // Original copyright notice:
 
+// Purpose:  Implementation of the airy (Airy) projection.
+// Author:   Gerald Evenden
+// Copyright (c) 1995, Gerald Evenden
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

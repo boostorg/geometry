@@ -19,6 +19,19 @@
 
 // Original copyright notice:
 
+// The Natural Earth projection was designed by Tom Patterson, US National Park
+// Service, in 2007, using Flex Projector. The shape of the original projection
+// was defined at every 5 degrees and piece-wise cubic spline interpolation was
+// used to compute the complete graticule.
+// The code here uses polynomial functions instead of cubic splines and
+// is therefore much simpler to program. The polynomial approximation was
+// developed by Bojan Savric, in collaboration with Tom Patterson and Bernhard
+// Jenny, Institute of Cartography, ETH Zurich. It slightly deviates from
+// Patterson's original projection by adding additional curvature to meridians
+// where they meet the horizontal pole line. This improvement is by intention
+// and designed in collaboration with Tom Patterson.
+// Port to PROJ.4 by Bernhard Jenny, 6 June 2011
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

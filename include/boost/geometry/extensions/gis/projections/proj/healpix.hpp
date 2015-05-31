@@ -19,6 +19,14 @@
 
 // Original copyright notice:
 
+// Purpose: Implementation of the HEALPix and rHEALPix projections.
+// For background see <http://code.scenzgrid.org/index.php/p/scenzgrid-py/source/tree/master/docs/rhealpix_dggs.pdf>.
+// Authors: Alex Raichev (raichev@cs.auckland.ac.nz)
+// Michael Speth (spethm@landcareresearch.co.nz)
+// Notes:   Raichev implemented these projections in Python and
+// Speth translated them into C here.
+// Copyright (c) 2001, Thomas Flemming, tf@ttqv.com
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

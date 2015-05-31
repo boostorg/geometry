@@ -19,6 +19,12 @@
 
 // Original copyright notice:
 
+// Purpose:  Stub projection implementation for lat/long coordinates. We
+// don't actually change the coordinates, but we want proj=latlong
+// to act sort of like a projection.
+// Author:   Frank Warmerdam, warmerdam@pobox.com
+// Copyright (c) 2000, Frank Warmerdam
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

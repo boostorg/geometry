@@ -19,6 +19,38 @@
 
 // Original copyright notice:
 
+// This implements the Quadrilateralized Spherical Cube (QSC) projection.
+// Copyright (c) 2011, 2012  Martin Lambers <marlam@marlam.de>
+// The QSC projection was introduced in:
+// [OL76]
+// E.M. O'Neill and R.E. Laubscher, "Extended Studies of a Quadrilateralized
+// Spherical Cube Earth Data Base", Naval Environmental Prediction Research
+// Facility Tech. Report NEPRF 3-76 (CSC), May 1976.
+// The preceding shift from an ellipsoid to a sphere, which allows to apply
+// this projection to ellipsoids as used in the Ellipsoidal Cube Map model,
+// is described in
+// [LK12]
+// M. Lambers and A. Kolb, "Ellipsoidal Cube Maps for Accurate Rendering of
+// Planetary-Scale Terrain Data", Proc. Pacfic Graphics (Short Papers), Sep.
+// 2012
+// You have to choose one of the following projection centers,
+// corresponding to the centers of the six cube faces:
+// phi0 = 0.0, lam0 = 0.0       ("front" face)
+// phi0 = 0.0, lam0 = 90.0      ("right" face)
+// phi0 = 0.0, lam0 = 180.0     ("back" face)
+// phi0 = 0.0, lam0 = -90.0     ("left" face)
+// phi0 = 90.0                  ("top" face)
+// phi0 = -90.0                 ("bottom" face)
+// Other projection centers will not work!
+// In the projection code below, each cube face is handled differently.
+// See the computation of the face parameter in the ENTRY0(qsc) function
+// and the handling of different face values (FACE_*) in the forward and
+// inverse projections.
+// Furthermore, the projection is originally only defined for theta angles
+// between (-1/4 * PI) and (+1/4 * PI) on the current cube face. This area
+// of definition is named AREA_0 in the projection code below. The other
+// three areas of a cube face are handled by rotation of AREA_0.
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

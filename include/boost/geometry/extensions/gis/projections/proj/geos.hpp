@@ -19,6 +19,11 @@
 
 // Original copyright notice:
 
+// Copyright (c) 2004   Gerald I. Evenden
+// Copyright (c) 2012   Martin Raspaud
+// See also (section 4.4.3.2):
+// http://www.eumetsat.int/en/area4/msg/news/us_doc/cgms_03_26.pdf
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation

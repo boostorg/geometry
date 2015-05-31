@@ -19,6 +19,12 @@
 
 // Original copyright notice:
 
+// Purpose:  Stub projection for geocentric.  The transformation isn't
+// really done here since this code is 2D.  The real transformation
+// is handled by pj_transform.c.
+// Author:   Frank Warmerdam, warmerdam@pobox.com
+// Copyright (c) 2002, Frank Warmerdam
+
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
