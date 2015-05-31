@@ -94,7 +94,7 @@ template <typename T>
 inline void gauss(GAUSS const& en, T& lam, T& phi)
 {
     phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + FORTPI), en.C)
-          * srat(en.e * sin(phi), en.ratexp) ) - HALFPI;
+          * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<double>();
 
     lam *= en.C;
 }
@@ -108,7 +108,7 @@ inline void inv_gauss(GAUSS const& en, T& lam, T& phi)
     int i = 0;
     for (i = MAX_ITER; i; --i)
     {
-        const double elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - HALFPI;
+        const double elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - geometry::math::half_pi<double>();
 
         if (geometry::math::abs(elp_phi - phi) < DEL_TOL)
         {

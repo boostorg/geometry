@@ -133,7 +133,7 @@ inline void pj_ell_set(std::vector<pvalue>& parameters, double &a, double &es)
                 double tmp;
 
                 tmp = sin(pj_param(parameters, i ? "rR_lat_a" : "rR_lat_g").f);
-                if (geometry::math::abs(tmp) > HALFPI) {
+                if (geometry::math::abs(tmp) > geometry::math::half_pi<double>()) {
                     throw proj_exception(-11);
                 }
                 tmp = 1. - es * tmp * tmp;

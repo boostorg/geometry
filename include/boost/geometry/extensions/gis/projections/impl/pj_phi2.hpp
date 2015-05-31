@@ -35,9 +35,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_PHI2_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_PHI2_HPP
 
-
 #include <boost/geometry/util/math.hpp>
-
 
 namespace boost { namespace geometry { namespace projections {
 namespace detail {
@@ -54,11 +52,11 @@ inline double pj_phi2(double ts, double e)
     int i;
 
     eccnth = .5 * e;
-    Phi = HALFPI - 2. * atan (ts);
+    Phi = geometry::math::half_pi<double>() - 2. * atan (ts);
     i = phi2::N_ITER;
     do {
         con = e * sin (Phi);
-        dphi = HALFPI - 2. * atan (ts * pow((1. - con) /
+        dphi = geometry::math::half_pi<double>() - 2. * atan (ts * pow((1. - con) /
            (1. + con), eccnth)) - Phi;
         Phi += dphi;
     } while ( geometry::math::abs(dphi) > phi2::TOL && --i);

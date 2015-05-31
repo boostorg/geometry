@@ -64,7 +64,7 @@ inline double aasin(double v)
         {
             throw proj_exception(-19);
         }
-        return (v < 0.0 ? -HALFPI : HALFPI);
+        return (v < 0.0 ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>());
     }
 
     return asin(v);
@@ -80,7 +80,7 @@ inline double aacos(double v)
         {
             throw proj_exception(-19);
         }
-        return (v < 0.0 ? PI : 0.0);
+        return (v < 0.0 ? geometry::math::pi<double>() : 0.0);
     }
 
     return acos(v);

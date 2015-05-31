@@ -62,8 +62,7 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 
     double lp_lon = geometry::get_as_radian<0>(ll);
     double lp_lat = geometry::get_as_radian<1>(ll);
-    const double HALFPI = boost::math::constants::half_pi<double>();
-    const double t = geometry::math::abs(lp_lat) - HALFPI;
+    const double t = geometry::math::abs(lp_lat) - geometry::math::half_pi<double>();
 
     /* check for forward and latitude or longitude overange */
     if (t > forwrd::EPS || geometry::math::abs(lp_lon) > 10.)
@@ -73,7 +72,7 @@ inline void pj_fwd(Prj const& prj, P const& par, LL const& ll, XY& xy)
 
     if (geometry::math::abs(t) <= forwrd::EPS)
     {
-        lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+        lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
     }
     else if (par.geoc)
     {
