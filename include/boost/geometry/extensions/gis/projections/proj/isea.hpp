@@ -78,6 +78,12 @@ namespace boost { namespace geometry { namespace projections
 
             #define DOWNTRI(tri) (((tri - 1) / 5) % 2 == 1)
 
+            /*
+             * Proj 4 provides its own entry points into
+             * the code, so none of the library functions
+             * need to be global
+             */
+
             struct hex {
                     int iso;
                     int x, y, z;
@@ -355,10 +361,22 @@ namespace boost { namespace geometry { namespace projections
             {
                 int             i;
 
+                /*
+                 * spherical distance from center of polygon face to any of its
+                 * vertexes on the globe
+                 */
                 double          g;
 
+                /*
+                 * spherical angle between radius vector to center and adjacent edge
+                 * of spherical polygon on the globe
+                 */
                 double          G;
 
+                /*
+                 * plane angle between radius vector to center and adjacent edge of
+                 * plane polygon
+                 */
                 double          theta;
 
                 /* additional variables from snyder */
@@ -373,6 +391,10 @@ namespace boost { namespace geometry { namespace projections
 
                 struct snyder_constants c;
 
+                /*
+                 * TODO by locality of reference, start by trying the same triangle
+                 * as last time
+                 */
 
                 /* TODO put these constants in as radians to begin with */
                 c = constants[SNYDER_POLY_ICOSAHEDRON];
@@ -417,6 +439,14 @@ namespace boost { namespace geometry { namespace projections
                     if (Az < 0.0) {
                         Az += 2.0 * boost::math::constants::pi<double>();
                     }
+                    /*
+                     * adjust Az for the point to fall within the range of 0 to
+                     * 2(90 - theta) or 60 degrees for the hexagon, by
+                     * and therefore 120 degrees for the triangle
+                     * of the icosahedron
+                     * subtracting or adding multiples of 60 degrees to Az and
+                     * recording the amount of adjustment
+                     */
 
                     Az_adjust_multiples = 0;
                     while (Az < 0.0) {
@@ -469,6 +499,10 @@ namespace boost { namespace geometry { namespace projections
                     /* eq 12 */
                     rho = 2.0 * Rprime * f * sin(z / 2.0);
 
+                    /*
+                     * add back the same 60 degree multiple adjustment from step
+                     * 2 to Azprime
+                     */
 
                     Azprime += DEG120 * Az_adjust_multiples;
 
@@ -477,6 +511,11 @@ namespace boost { namespace geometry { namespace projections
                     x = rho * sin(Azprime);
                     y = rho * cos(Azprime);
 
+                    /*
+                     * TODO
+                     * translate coordinates to the origin for the particular
+                     * hexagon on the flattened polyhedral map plot
+                     */
 
                     out->x = x;
                     out->y = y;
@@ -484,6 +523,10 @@ namespace boost { namespace geometry { namespace projections
                     return i;
                 }
 
+                /*
+                 * should be impossible, this implies that the coordinate is not on
+                 * any triangle
+                 */
 
                 fprintf(stderr, "impossible transform: %f %f is not on any triangle\n",
                     ll->lon * RAD2DEG, ll->lat * RAD2DEG);
@@ -494,9 +537,22 @@ namespace boost { namespace geometry { namespace projections
                 return 0;        /* supresses a warning */
             }
 
+            /*
+             * return the new coordinates of any point in orginal coordinate system.
+             * Define a point (newNPold) in orginal coordinate system as the North Pole in
+             * new coordinate system, and the great circle connect the original and new
+             * North Pole as the lon0 longitude in new coordinate system, given any point
+             * in orginal coordinate system, this function return the new coordinates.
+             */
 
 
             /* formula from Snyder, Map Projections: A working manual, p31 */
+            /*
+             * old north pole at np in new coordinates
+             * could be simplified a bit with fewer intermediates
+             *
+             * TODO take a result pointer
+             */
             static
             struct isea_geo
             snyder_ctran(struct isea_geo * np, struct isea_geo * pt)
@@ -555,6 +611,10 @@ namespace boost { namespace geometry { namespace projections
 
                 npt.lon -= (boost::math::constants::pi<double>() - lon0 + np->lon);
 
+                /*
+                 * snyder is down tri 3, isea is along side of tri1 from vertex 0 to
+                 * vertex 1 these are 180 degrees apart
+                 */
                 npt.lon += boost::math::constants::pi<double>();
                 /* normalize longitude */
                 npt.lon = fmod(npt.lon, 2 * boost::math::constants::pi<double>());
@@ -719,6 +779,10 @@ namespace boost { namespace geometry { namespace projections
                 d = h.x - h.z;
                 i = h.x + h.y + h.y;
 
+                /*
+                 * you want to test for max coords for the next quad in the same
+                 * "row" first to get the case where both are max
+                 */
                 if (quad <= 5) {
                     if (d == 0 && i == maxcoord) {
                         /* north pole */
@@ -997,6 +1061,9 @@ namespace boost { namespace geometry { namespace projections
 
                 return out;
             }
+            /*
+             * Proj 4 integration code follows
+             */
 
             struct par_isea
             {

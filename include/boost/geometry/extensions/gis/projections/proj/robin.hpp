@@ -57,6 +57,15 @@ namespace boost { namespace geometry { namespace projections
             static const double ONEEPS = 1.000001;
             static const double EPS = 1e-8;
 
+            /*
+            note: following terms based upon 5 deg. intervals in degrees.
+
+            Some background on these coefficients is available at:
+
+            http://article.gmane.org/gmane.comp.gis.proj-4.devel/6039
+            http://trac.osgeo.org/proj/ticket/113
+            */
+
             struct COEFS {
                 double c0, c1, c2, c3;
             };
