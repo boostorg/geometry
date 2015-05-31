@@ -42,6 +42,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -139,8 +141,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 /* force to International major axis */
                 par.ra = 1. / (par.a = 6378388.0);
-                par.lam0 = DEG_TO_RAD * 173.;
-                par.phi0 = DEG_TO_RAD * -41.;
+                par.lam0 = geometry::math::d2r<double>() * 173.;
+                par.phi0 = geometry::math::d2r<double>() * -41.;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
             }

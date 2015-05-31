@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -139,7 +141,7 @@ namespace boost { namespace geometry { namespace projections
 
                     i = int_floor((dphi = fabs(lp_lat)) * C1);
                     if (i >= NODES) i = NODES - 1;
-                    dphi = RAD_TO_DEG * (dphi - RC1 * i);
+                    dphi = geometry::math::r2d<double>() * (dphi - RC1 * i);
                     xy_x = V(X[i], dphi) * FXC * lp_lon;
                     xy_y = V(Y[i], dphi) * FYC;
                     if (lp_lat < 0.) xy_y = -xy_y;
@@ -176,7 +178,7 @@ namespace boost { namespace geometry { namespace projections
                             if (fabs(t1) < EPS)
                                 break;
                         }
-                        lp_lat = (5 * i + t) * DEG_TO_RAD;
+                        lp_lat = (5 * i + t) * geometry::math::d2r<double>();
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         lp_lon /= V(X[i], t);
                     }

@@ -41,6 +41,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -65,8 +66,6 @@ namespace boost { namespace geometry { namespace projections
             static const double DEG180 = boost::math::constants::pi<double>();
             static const double ISEA_SCALE = 0.8301572857837594396028083;
             static const double V_LAT = 0.46364760899944494524;
-            static const double RAD2DEG = (180.0/boost::math::constants::pi<double>());
-            static const double DEG2RAD = (boost::math::constants::pi<double>()/180.0);
             static const double E_RAD = 0.91843818702186776133;
             static const double F_RAD = 0.18871053072122403508;
             static const double TABLE_G = 0.6615845383;
@@ -398,9 +397,9 @@ namespace boost { namespace geometry { namespace projections
 
                 /* TODO put these constants in as radians to begin with */
                 c = constants[SNYDER_POLY_ICOSAHEDRON];
-                theta = c.theta * DEG2RAD;
-                g = c.g * DEG2RAD;
-                G = c.G * DEG2RAD;
+                theta = c.theta * geometry::math::d2r<double>();
+                g = c.g * geometry::math::d2r<double>();
+                G = c.G * geometry::math::d2r<double>();
 
                 for (i = 1; i <= 20; i++) {
                     double          z;
@@ -529,7 +528,7 @@ namespace boost { namespace geometry { namespace projections
                  */
 
                 fprintf(stderr, "impossible transform: %f %f is not on any triangle\n",
-                    ll->lon * RAD2DEG, ll->lat * RAD2DEG);
+                    ll->lon * geometry::math::r2d<double>(), ll->lat * geometry::math::r2d<double>());
 
                 throw proj_exception();
 

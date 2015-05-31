@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -194,11 +196,11 @@ namespace boost { namespace geometry { namespace projections
                 if (pj_param(par.params, "tlon_1").i)
                     proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
                 else { /* use predefined based upon latitude */
-                    sig = fabs(sig * RAD_TO_DEG);
+                    sig = fabs(sig * geometry::math::r2d<double>());
                     if (sig <= 60)        sig = 2.;
                     else if (sig <= 76) sig = 4.;
                     else                sig = 8.;
-                    proj_parm.lam_1 = sig * DEG_TO_RAD;
+                    proj_parm.lam_1 = sig * geometry::math::d2r<double>();
                 }
                 proj_parm.mode = 0;
                 if (proj_parm.phi_1) xy(par, proj_parm, proj_parm.phi_1, &x1, &y1, &proj_parm.sphi_1, &proj_parm.R_1);

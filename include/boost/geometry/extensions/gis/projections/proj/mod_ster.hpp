@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -176,8 +177,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = DEG_TO_RAD * 20.;
-                par.phi0 = DEG_TO_RAD * 18.;
+                par.lam0 = geometry::math::d2r<double>() * 20.;
+                par.phi0 = geometry::math::d2r<double>() * 18.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
@@ -195,8 +196,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 2;
-                par.lam0 = DEG_TO_RAD * -165.;
-                par.phi0 = DEG_TO_RAD * -10.;
+                par.lam0 = geometry::math::d2r<double>() * -165.;
+                par.phi0 = geometry::math::d2r<double>() * -10.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 setup(par, proj_parm);
@@ -216,8 +217,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 4;
-                par.lam0 = DEG_TO_RAD * -96.;
-                par.phi0 = DEG_TO_RAD * -39.;
+                par.lam0 = geometry::math::d2r<double>() * -96.;
+                par.phi0 = geometry::math::d2r<double>() * -39.;
                 proj_parm.zcoeff = AB;
                 par.es = 0.;
                 par.a = 6370997.;
@@ -246,8 +247,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 5;
-                par.lam0 = DEG_TO_RAD * -152.;
-                par.phi0 = DEG_TO_RAD * 64.;
+                par.lam0 = geometry::math::d2r<double>() * -152.;
+                par.phi0 = geometry::math::d2r<double>() * 64.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;
@@ -290,8 +291,8 @@ namespace boost { namespace geometry { namespace projections
             };
 
                 proj_parm.n = 9;
-                par.lam0 = DEG_TO_RAD * -120.;
-                par.phi0 = DEG_TO_RAD * 45.;
+                par.lam0 = geometry::math::d2r<double>() * -120.;
+                par.phi0 = geometry::math::d2r<double>() * 45.;
                 if (par.es) { /* fixed ellipsoid/sphere */
                     proj_parm.zcoeff = ABe;
                     par.a = 6378206.4;

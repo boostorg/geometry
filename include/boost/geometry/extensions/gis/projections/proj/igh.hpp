@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -59,20 +60,20 @@ namespace boost { namespace geometry { namespace projections
                 double dy0;
             };
 
-            static const double d4044118 = (40 + 44/60. + 11.8/3600.) * DEG_TO_RAD; // 40d 44' 11.8" [degrees]
+            static const double d4044118 = (40 + 44/60. + 11.8/3600.) * geometry::math::d2r<double>(); // 40d 44' 11.8" [degrees]
 
-            static const double d10  =  10 * DEG_TO_RAD;
-            static const double d20  =  20 * DEG_TO_RAD;
-            static const double d30  =  30 * DEG_TO_RAD;
-            static const double d40  =  40 * DEG_TO_RAD;
-            static const double d50  =  50 * DEG_TO_RAD;
-            static const double d60  =  60 * DEG_TO_RAD;
-            static const double d80  =  80 * DEG_TO_RAD;
-            static const double d90  =  90 * DEG_TO_RAD;
-            static const double d100 = 100 * DEG_TO_RAD;
-            static const double d140 = 140 * DEG_TO_RAD;
-            static const double d160 = 160 * DEG_TO_RAD;
-            static const double d180 = 180 * DEG_TO_RAD;
+            static const double d10  =  10 * geometry::math::d2r<double>();
+            static const double d20  =  20 * geometry::math::d2r<double>();
+            static const double d30  =  30 * geometry::math::d2r<double>();
+            static const double d40  =  40 * geometry::math::d2r<double>();
+            static const double d50  =  50 * geometry::math::d2r<double>();
+            static const double d60  =  60 * geometry::math::d2r<double>();
+            static const double d80  =  80 * geometry::math::d2r<double>();
+            static const double d90  =  90 * geometry::math::d2r<double>();
+            static const double d100 = 100 * geometry::math::d2r<double>();
+            static const double d140 = 140 * geometry::math::d2r<double>();
+            static const double d160 = 160 * geometry::math::d2r<double>();
+            static const double d180 = 180 * geometry::math::d2r<double>();
 
             static const double EPSLN = 1.e-10; // allow a little 'slack' on zone edge positions
 

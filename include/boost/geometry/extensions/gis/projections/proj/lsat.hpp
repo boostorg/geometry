@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -65,7 +67,7 @@ namespace boost { namespace geometry { namespace projections
             seraz0(double lam, double mult, Parameters& par, par_lsat& proj_parm) {
                 double sdsq, h, s, fc, sd, sq, d__1;
 
-                lam *= DEG_TO_RAD;
+                lam *= geometry::math::d2r<double>();
                 sd = sin(lam);
                 sdsq = sd * sd;
                 s = proj_parm.p22 * proj_parm.sa * cos(lam) * sqrt((1. + proj_parm.t * sdsq) / ((
@@ -205,13 +207,13 @@ namespace boost { namespace geometry { namespace projections
                 path = pj_param(par.params, "ipath").i;
                 if (path <= 0 || path > (land <= 3 ? 251 : 233)) throw proj_exception(-29);
                 if (land <= 3) {
-                    par.lam0 = DEG_TO_RAD * 128.87 - TWOPI / 251. * path;
+                    par.lam0 = geometry::math::d2r<double>() * 128.87 - TWOPI / 251. * path;
                     proj_parm.p22 = 103.2669323;
-                    alf = DEG_TO_RAD * 99.092;
+                    alf = geometry::math::d2r<double>() * 99.092;
                 } else {
-                    par.lam0 = DEG_TO_RAD * 129.3 - TWOPI / 233. * path;
+                    par.lam0 = geometry::math::d2r<double>() * 129.3 - TWOPI / 233. * path;
                     proj_parm.p22 = 98.8841202;
-                    alf = DEG_TO_RAD * 98.2;
+                    alf = geometry::math::d2r<double>() * 98.2;
                 }
                 proj_parm.p22 /= 1440.;
                 proj_parm.sa = sin(alf);

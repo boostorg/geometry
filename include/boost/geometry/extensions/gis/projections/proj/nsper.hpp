@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -218,8 +219,8 @@ namespace boost { namespace geometry { namespace projections
             {
                 double omega, gamma;
 
-                omega = pj_param(par.params, "dtilt").f * DEG_TO_RAD;
-                gamma = pj_param(par.params, "dazi").f * DEG_TO_RAD;
+                omega = pj_param(par.params, "dtilt").f * geometry::math::d2r<double>();
+                gamma = pj_param(par.params, "dazi").f * geometry::math::d2r<double>();
                 proj_parm.tilt = 1;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);
