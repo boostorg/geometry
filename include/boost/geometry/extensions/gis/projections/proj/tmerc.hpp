@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -95,7 +97,7 @@ namespace boost { namespace geometry { namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;
@@ -128,8 +130,8 @@ namespace boost { namespace geometry { namespace projections
                     double n, con, cosphi, d, ds, sinphi, t;
 
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
-                    if (fabs(lp_lat) >= HALFPI) {
-                        lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                    if (fabs(lp_lat) >= geometry::math::half_pi<double>()) {
+                        lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         lp_lon = 0.;
                     } else {
                         sinphi = sin(lp_lat);
@@ -181,7 +183,7 @@ namespace boost { namespace geometry { namespace projections
                          *
                          *  http://trac.osgeo.org/proj/ticket/5
                          */
-                        if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                        if( lp_lon < -geometry::math::half_pi<double>() || lp_lon > geometry::math::half_pi<double>() )
                         {
                             xy_x = HUGE_VAL;
                             xy_y = HUGE_VAL;

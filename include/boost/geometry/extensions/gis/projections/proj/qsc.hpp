@@ -70,6 +70,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -120,15 +121,15 @@ namespace boost { namespace geometry { namespace projections
                         theta = atan2(y, x);
                         if (fabs(theta) <= FORTPI) {
                             *area = AREA_0;
-                        } else if (theta > FORTPI && theta <= HALFPI + FORTPI) {
+                        } else if (theta > FORTPI && theta <= geometry::math::half_pi<double>() + FORTPI) {
                             *area = AREA_1;
-                            theta -= HALFPI;
-                        } else if (theta > HALFPI + FORTPI || theta <= -(HALFPI + FORTPI)) {
+                            theta -= geometry::math::half_pi<double>();
+                        } else if (theta > geometry::math::half_pi<double>() + FORTPI || theta <= -(geometry::math::half_pi<double>() + FORTPI)) {
                             *area = AREA_2;
                             theta = (theta >= 0.0 ? theta - PI : theta + PI);
                         } else {
                             *area = AREA_3;
-                            theta += HALFPI;
+                            theta += geometry::math::half_pi<double>();
                         }
                     }
                     return (theta);
@@ -190,11 +191,11 @@ namespace boost { namespace geometry { namespace projections
                         lon = lp_lon;
                         if (this->m_proj_parm.face != FACE_TOP && this->m_proj_parm.face != FACE_BOTTOM) {
                             if (this->m_proj_parm.face == FACE_RIGHT) {
-                                lon = qsc_shift_lon_origin(lon, +HALFPI);
+                                lon = qsc_shift_lon_origin(lon, +geometry::math::half_pi<double>());
                             } else if (this->m_proj_parm.face == FACE_BACK) {
                                 lon = qsc_shift_lon_origin(lon, +PI);
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
-                                lon = qsc_shift_lon_origin(lon, -HALFPI);
+                                lon = qsc_shift_lon_origin(lon, -geometry::math::half_pi<double>());
                             }
                             sinlat = sin(lat);
                             coslat = cos(lat);
@@ -217,31 +218,31 @@ namespace boost { namespace geometry { namespace projections
                             phi = acos(-r);
                             theta = qsc_fwd_equat_face_theta(phi, s, q, &area);
                         } else if (this->m_proj_parm.face == FACE_TOP) {
-                            phi = HALFPI - lat;
-                            if (lon >= FORTPI && lon <= HALFPI + FORTPI) {
+                            phi = geometry::math::half_pi<double>() - lat;
+                            if (lon >= FORTPI && lon <= geometry::math::half_pi<double>() + FORTPI) {
                                 area = AREA_0;
-                                theta = lon - HALFPI;
-                            } else if (lon > HALFPI + FORTPI || lon <= -(HALFPI + FORTPI)) {
+                                theta = lon - geometry::math::half_pi<double>();
+                            } else if (lon > geometry::math::half_pi<double>() + FORTPI || lon <= -(geometry::math::half_pi<double>() + FORTPI)) {
                                 area = AREA_1;
                                 theta = (lon > 0.0 ? lon - PI : lon + PI);
-                            } else if (lon > -(HALFPI + FORTPI) && lon <= -FORTPI) {
+                            } else if (lon > -(geometry::math::half_pi<double>() + FORTPI) && lon <= -FORTPI) {
                                 area = AREA_2;
-                                theta = lon + HALFPI;
+                                theta = lon + geometry::math::half_pi<double>();
                             } else {
                                 area = AREA_3;
                                 theta = lon;
                             }
                         } else /* this->m_proj_parm.face == FACE_BOTTOM */ {
-                            phi = HALFPI + lat;
-                            if (lon >= FORTPI && lon <= HALFPI + FORTPI) {
+                            phi = geometry::math::half_pi<double>() + lat;
+                            if (lon >= FORTPI && lon <= geometry::math::half_pi<double>() + FORTPI) {
                                 area = AREA_0;
-                                theta = -lon + HALFPI;
+                                theta = -lon + geometry::math::half_pi<double>();
                             } else if (lon < FORTPI && lon >= -FORTPI) {
                                 area = AREA_1;
                                 theta = -lon;
-                            } else if (lon < -FORTPI && lon >= -(HALFPI + FORTPI)) {
+                            } else if (lon < -FORTPI && lon >= -(geometry::math::half_pi<double>() + FORTPI)) {
                                 area = AREA_2;
-                                theta = -lon - HALFPI;
+                                theta = -lon - geometry::math::half_pi<double>();
                             } else {
                                 area = AREA_3;
                                 theta = (lon > 0.0 ? -lon + PI : -lon - PI);
@@ -251,17 +252,17 @@ namespace boost { namespace geometry { namespace projections
                         /* Compute mu and nu for the area of definition.
                          * For mu, see Eq. (3-21) in [OL76], but note the typos:
                          * compare with Eq. (3-14). For nu, see Eq. (3-38). */
-                        mu = atan((12.0 / PI) * (theta + acos(sin(theta) * cos(FORTPI)) - HALFPI));
+                        mu = atan((12.0 / PI) * (theta + acos(sin(theta) * cos(FORTPI)) - geometry::math::half_pi<double>()));
                         t = sqrt((1.0 - cos(phi)) / (cos(mu) * cos(mu)) / (1.0 - cos(atan(1.0 / cos(theta)))));
                         /* nu = atan(t);        We don't really need nu, just t, see below. */
 
                         /* Apply the result to the real area. */
                         if (area == AREA_1) {
-                            mu += HALFPI;
+                            mu += geometry::math::half_pi<double>();
                         } else if (area == AREA_2) {
                             mu += PI;
                         } else if (area == AREA_3) {
-                            mu += HALFPI + PI;
+                            mu += geometry::math::half_pi<double>() + PI;
                         }
 
                         /* Now compute x, y from mu and nu */
@@ -287,13 +288,13 @@ namespace boost { namespace geometry { namespace projections
                             area = AREA_0;
                         } else if (xy_y >= 0.0 && xy_y >= fabs(xy_x)) {
                             area = AREA_1;
-                            mu -= HALFPI;
+                            mu -= geometry::math::half_pi<double>();
                         } else if (xy_x < 0.0 && -xy_x >= fabs(xy_y)) {
                             area = AREA_2;
                             mu = (mu < 0.0 ? mu + PI : mu - PI);
                         } else {
                             area = AREA_3;
-                            mu += HALFPI;
+                            mu += geometry::math::half_pi<double>();
                         }
 
                         /* Compute phi and theta for the area of definition.
@@ -319,25 +320,25 @@ namespace boost { namespace geometry { namespace projections
                          * as an intermediate step. */
                         if (this->m_proj_parm.face == FACE_TOP) {
                             phi = acos(cosphi);
-                            lp_lat = HALFPI - phi;
+                            lp_lat = geometry::math::half_pi<double>() - phi;
                             if (area == AREA_0) {
-                                lp_lon = theta + HALFPI;
+                                lp_lon = theta + geometry::math::half_pi<double>();
                             } else if (area == AREA_1) {
                                 lp_lon = (theta < 0.0 ? theta + PI : theta - PI);
                             } else if (area == AREA_2) {
-                                lp_lon = theta - HALFPI;
+                                lp_lon = theta - geometry::math::half_pi<double>();
                             } else /* area == AREA_3 */ {
                                 lp_lon = theta;
                             }
                         } else if (this->m_proj_parm.face == FACE_BOTTOM) {
                             phi = acos(cosphi);
-                            lp_lat = phi - HALFPI;
+                            lp_lat = phi - geometry::math::half_pi<double>();
                             if (area == AREA_0) {
-                                lp_lon = -theta + HALFPI;
+                                lp_lon = -theta + geometry::math::half_pi<double>();
                             } else if (area == AREA_1) {
                                 lp_lon = -theta;
                             } else if (area == AREA_2) {
-                                lp_lon = -theta - HALFPI;
+                                lp_lon = -theta - geometry::math::half_pi<double>();
                             } else /* area == AREA_3 */ {
                                 lp_lon = (theta < 0.0 ? -theta - PI : -theta + PI);
                             }
@@ -384,14 +385,14 @@ namespace boost { namespace geometry { namespace projections
                                 r = -t;
                             }
                             /* Now compute phi and lam from the unit sphere coordinates. */
-                            lp_lat = acos(-s) - HALFPI;
+                            lp_lat = acos(-s) - geometry::math::half_pi<double>();
                             lp_lon = atan2(r, q);
                             if (this->m_proj_parm.face == FACE_RIGHT) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, -HALFPI);
+                                lp_lon = qsc_shift_lon_origin(lp_lon, -geometry::math::half_pi<double>());
                             } else if (this->m_proj_parm.face == FACE_BACK) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, -PI);
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, +HALFPI);
+                                lp_lon = qsc_shift_lon_origin(lp_lon, +geometry::math::half_pi<double>());
                             }
                         }
 
@@ -416,13 +417,13 @@ namespace boost { namespace geometry { namespace projections
             void setup_qsc(Parameters& par, par_qsc& proj_parm)
             {
                     /* Determine the cube face from the center of projection. */
-                    if (par.phi0 >= HALFPI - FORTPI / 2.0) {
+                    if (par.phi0 >= geometry::math::half_pi<double>() - FORTPI / 2.0) {
                         proj_parm.face = FACE_TOP;
-                    } else if (par.phi0 <= -(HALFPI - FORTPI / 2.0)) {
+                    } else if (par.phi0 <= -(geometry::math::half_pi<double>() - FORTPI / 2.0)) {
                         proj_parm.face = FACE_BOTTOM;
                     } else if (fabs(par.lam0) <= FORTPI) {
                         proj_parm.face = FACE_FRONT;
-                    } else if (fabs(par.lam0) <= HALFPI + FORTPI) {
+                    } else if (fabs(par.lam0) <= geometry::math::half_pi<double>() + FORTPI) {
                         proj_parm.face = (par.lam0 > 0.0 ? FACE_RIGHT : FACE_LEFT);
                     } else {
                         proj_parm.face = FACE_BACK;

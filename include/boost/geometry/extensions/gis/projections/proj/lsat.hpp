@@ -105,10 +105,10 @@ namespace boost { namespace geometry { namespace projections
                     double lamt, xlam, sdsq, c, d, s, lamdp, phidp, lampp, tanph,
                         lamtp, cl, sd, sp, fac, sav, tanphi;
 
-                    if (lp_lat > HALFPI)
-                        lp_lat = HALFPI;
-                    else if (lp_lat < -HALFPI)
-                        lp_lat = -HALFPI;
+                    if (lp_lat > geometry::math::half_pi<double>())
+                        lp_lat = geometry::math::half_pi<double>();
+                    else if (lp_lat < -geometry::math::half_pi<double>())
+                        lp_lat = -geometry::math::half_pi<double>();
                     lampp = lp_lat >= 0. ? HALFPI : PI_HALFPI;
                     tanphi = tan(lp_lat);
                     for (nn = 0;;) {
@@ -117,7 +117,7 @@ namespace boost { namespace geometry { namespace projections
                         cl = cos(lamtp);
                         if (fabs(cl) < TOL)
                             lamtp -= TOL;
-                        fac = lampp - sin(lampp) * (cl < 0. ? -HALFPI : HALFPI);
+                        fac = lampp - sin(lampp) * (cl < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>());
                         for (l = 50; l; --l) {
                             lamt = lp_lon + this->m_proj_parm.p22 * sav;
                             if (fabs(c = cos(lamt)) < TOL)
@@ -133,7 +133,7 @@ namespace boost { namespace geometry { namespace projections
                         if (lamdp <= this->m_proj_parm.rlm)
                             lampp = TWOPI_HALFPI;
                         else if (lamdp >= this->m_proj_parm.rlm2)
-                            lampp = HALFPI;
+                            lampp = geometry::math::half_pi<double>();
                     }
                     if (l) {
                         sp = sin(lp_lat);
@@ -185,7 +185,7 @@ namespace boost { namespace geometry { namespace projections
                         * (1. + this->m_proj_parm.u)));
                     sl = lamt >= 0. ? 1. : -1.;
                     scl = cos(lamdp) >= 0. ? 1. : -1;
-                    lamt -= HALFPI * (1. - scl) * sl;
+                    lamt -= geometry::math::half_pi<double>() * (1. - scl) * sl;
                     lp_lon = lamt - this->m_proj_parm.p22 * lamdp;
                     if (fabs(this->m_proj_parm.sa) < TOL)
                         lp_lat = aasin(spp / sqrt(this->m_par.one_es * this->m_par.one_es + this->m_par.es * sppsq));

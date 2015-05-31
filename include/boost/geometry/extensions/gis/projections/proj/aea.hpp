@@ -42,6 +42,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -144,15 +145,15 @@ namespace boost { namespace geometry { namespace projections
                                 if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
                                     throw proj_exception();
                             } else
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
                             lp_lat = asin(lp_lat);
                         else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     }
                 }
             };
@@ -213,7 +214,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_leac(Parameters& par, par_aea& proj_parm)
             {
                 proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? - HALFPI: HALFPI;
+                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? - geometry::math::half_pi<double>(): geometry::math::half_pi<double>();
                 setup(par, proj_parm);
             }
 

@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -85,7 +86,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                         double rho;
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) throw proj_exception();;
                         rho = 0.;
                         }
@@ -112,11 +113,11 @@ namespace boost { namespace geometry { namespace projections
                                 == HUGE_VAL)
                                 throw proj_exception();;
                         } else
-                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - HALFPI;
+                            lp_lat = 2. * atan(pow(this->m_proj_parm.c / rho, 1./this->m_proj_parm.n)) - geometry::math::half_pi<double>();
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     }
                 }
 
@@ -124,7 +125,7 @@ namespace boost { namespace geometry { namespace projections
                 inline void fac(Geographic lp, Factors &fac) const
                 {
                         double rho;
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS10) {
                         if ((lp_lat * this->m_proj_parm.n) <= 0.) return;
                         rho = 0.;
                     } else
@@ -169,7 +170,7 @@ namespace boost { namespace geometry { namespace projections
                         proj_parm.n /= log(ml1 / pj_tsfn(proj_parm.phi2, sinphi, par.e));
                     }
                     proj_parm.c = (proj_parm.rho0 = m1 * pow(ml1, -proj_parm.n) / proj_parm.n);
-                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
+                    proj_parm.rho0 *= (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10) ? 0. :
                         pow(pj_tsfn(par.phi0, sin(par.phi0), par.e), proj_parm.n);
                 } else {
                     if (secant)
@@ -177,7 +178,7 @@ namespace boost { namespace geometry { namespace projections
                            log(tan(FORTPI + .5 * proj_parm.phi2) /
                            tan(FORTPI + .5 * proj_parm.phi1));
                     proj_parm.c = cosphi * pow(tan(FORTPI + .5 * proj_parm.phi1), proj_parm.n) / proj_parm.n;
-                    proj_parm.rho0 = (fabs(fabs(par.phi0) - HALFPI) < EPS10) ? 0. :
+                    proj_parm.rho0 = (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10) ? 0. :
                         proj_parm.c * pow(tan(FORTPI + .5 * par.phi0), -proj_parm.n);
                 }
             }

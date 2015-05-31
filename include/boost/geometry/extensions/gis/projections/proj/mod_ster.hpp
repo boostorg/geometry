@@ -87,8 +87,8 @@ namespace boost { namespace geometry { namespace projections
                     sinlon = sin(lp_lon);
                     coslon = cos(lp_lon);
                     esphi = this->m_par.e * sin(lp_lat);
-                    chi = 2. * atan(tan((HALFPI + lp_lat) * .5) *
-                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - HALFPI;
+                    chi = 2. * atan(tan((geometry::math::half_pi<double>() + lp_lat) * .5) *
+                        pow((1. - esphi) / (1. + esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>();
                     schi = sin(chi);
                     cchi = cos(chi);
                     s = 2. / (1. + this->m_proj_parm.schio * schi + this->m_proj_parm.cchio * cchi * coslon);
@@ -133,8 +133,8 @@ namespace boost { namespace geometry { namespace projections
                         phi = chi;
                         for (nn = 20; nn ;--nn) {
                             esphi = this->m_par.e * sin(phi);
-                            dphi = 2. * atan(tan((HALFPI + chi) * .5) *
-                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - HALFPI - phi;
+                            dphi = 2. * atan(tan((geometry::math::half_pi<double>() + chi) * .5) *
+                                pow((1. + esphi) / (1. - esphi), this->m_par.e * .5)) - geometry::math::half_pi<double>() - phi;
                             phi += dphi;
                             if (fabs(dphi) <= EPSLN)
                                 break;
@@ -156,8 +156,8 @@ namespace boost { namespace geometry { namespace projections
 
                 if (par.es) {
                     esphi = par.e * sin(par.phi0);
-                    chio = 2. * atan(tan((HALFPI + par.phi0) * .5) *
-                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - HALFPI;
+                    chio = 2. * atan(tan((geometry::math::half_pi<double>() + par.phi0) * .5) *
+                        pow((1. - esphi) / (1. + esphi), par.e * .5)) - geometry::math::half_pi<double>();
                 } else
                     chio = par.phi0;
                 proj_parm.schio = sin(chio);

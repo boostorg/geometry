@@ -39,6 +39,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -81,7 +83,7 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double  Q, S, T, U, V, temp, u, v;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) > EPS) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) > EPS) {
                         Q = this->m_proj_parm.E / pow(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e), this->m_proj_parm.B);
                         temp = 1. / Q;
                         S = .5 * (Q - temp);
@@ -129,7 +131,7 @@ namespace boost { namespace geometry { namespace projections
                     Up = (Vp * this->m_proj_parm.cosgam + Sp * this->m_proj_parm.singam) / Tp;
                     if (fabs(fabs(Up) - 1.) < EPS) {
                         lp_lon = 0.;
-                        lp_lat = Up < 0. ? -HALFPI : HALFPI;
+                        lp_lat = Up < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     } else {
                         lp_lat = this->m_proj_parm.E / sqrt((1. + Up) / (1. - Up));
                         if ((lp_lat = pj_phi2(pow(lp_lat, 1. / this->m_proj_parm.B), this->m_par.e)) == HUGE_VAL)
@@ -173,9 +175,9 @@ namespace boost { namespace geometry { namespace projections
                     phi2 = pj_param(par.params, "rlat_2").f;
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL ||
-                        fabs(fabs(par.phi0) - HALFPI) <= TOL ||
-                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
+                        fabs(con - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(phi2) - geometry::math::half_pi<double>()) <= TOL) throw proj_exception(-33);
                 }
                 com = sqrt(par.one_es);
                 if (fabs(par.phi0) > EPS) {
@@ -209,7 +211,7 @@ namespace boost { namespace geometry { namespace projections
                         alpha_c = asin(D*sin(gamma0 = gamma));
                     if ((con = fabs(alpha_c)) <= TOL ||
                         fabs(con - PI) <= TOL ||
-                        fabs(fabs(par.phi0) - HALFPI) <= TOL)
+                        fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL)
                         throw proj_exception(-32);
                     par.lam0 = lamc - asin(.5 * (F - 1. / F) *
                        tan(gamma0)) / proj_parm.B;

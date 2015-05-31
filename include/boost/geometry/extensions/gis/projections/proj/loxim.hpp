@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -79,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
                         xy_x = FORTPI + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - HALFPI) < EPS)
+                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - geometry::math::half_pi<double>()) < EPS)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -93,7 +95,7 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     else
                         if (fabs( lp_lon = FORTPI + 0.5 * lp_lat ) < EPS ||
-                            fabs(fabs(lp_lon) - HALFPI) < EPS)
+                            fabs(fabs(lp_lon) - geometry::math::half_pi<double>()) < EPS)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;

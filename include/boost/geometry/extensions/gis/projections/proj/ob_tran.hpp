@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -190,10 +191,10 @@ namespace boost { namespace geometry { namespace projections
                     alpha    = pj_param(par.params, "ro_alpha").f;
             /*
                     if (fabs(phic) <= TOL ||
-                        fabs(fabs(phic) - HALFPI) <= TOL ||
-                        fabs(fabs(alpha) - HALFPI) <= TOL)
+                        fabs(fabs(phic) - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(alpha) - geometry::math::half_pi<double>()) <= TOL)
             */
-                    if (fabs(fabs(phic) - HALFPI) <= TOL)
+                    if (fabs(fabs(phic) - geometry::math::half_pi<double>()) <= TOL)
                         throw proj_exception(-32);
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
@@ -209,8 +210,8 @@ namespace boost { namespace geometry { namespace projections
                     phi2 = pj_param(par.params, "ro_lat_2").f;
                     if (fabs(phi1 - phi2) <= TOL ||
                         (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL ||
-                        fabs(fabs(phi2) - HALFPI) <= TOL) throw proj_exception(-33);
+                        fabs(con - geometry::math::half_pi<double>()) <= TOL ||
+                        fabs(fabs(phi2) - geometry::math::half_pi<double>()) <= TOL) throw proj_exception(-33);
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
                         sin(phi1) * cos(phi2) * cos(lam2),
                         sin(phi1) * cos(phi2) * sin(lam2) -

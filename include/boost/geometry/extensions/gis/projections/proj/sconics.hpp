@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -189,7 +190,7 @@ namespace boost { namespace geometry { namespace projections
                     proj_parm.n = sin(proj_parm.sig);
                     proj_parm.c2 = cos(del);
                     proj_parm.c1 = 1./tan(proj_parm.sig);
-                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= HALFPI)
+                    if (fabs(del = par.phi0 - proj_parm.sig) - EPS10 >= geometry::math::half_pi<double>())
                         throw proj_exception(-43);
                     proj_parm.rho_0 = proj_parm.c2 * (proj_parm.c1 - tan(del));
                     break;

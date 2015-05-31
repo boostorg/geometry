@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -99,7 +100,7 @@ namespace boost { namespace geometry { namespace projections
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS10) {
                         Az = lp_lat < 0. ? PI : 0.;
                         tphi = HUGE_VAL;
                     } else {

@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -93,11 +94,11 @@ namespace boost { namespace geometry { namespace projections
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, this->m_par.es, this->m_proj_parm.en);
-                    if ((s = fabs(lp_lat)) < HALFPI) {
+                    if ((s = fabs(lp_lat)) < geometry::math::half_pi<double>()) {
                         s = sin(lp_lat);
                         lp_lon = rh * atan2(xy_x, xy_y) *
                            sqrt(1. - this->m_par.es * s * s) / cos(lp_lat);
-                    } else if (fabs(s - HALFPI) <= EPS10)
+                    } else if (fabs(s - geometry::math::half_pi<double>()) <= EPS10)
                         lp_lon = 0.;
                     else throw proj_exception();;
                 }
@@ -136,8 +137,8 @@ namespace boost { namespace geometry { namespace projections
 
                     rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
-                    if (fabs(lp_lat) > HALFPI) throw proj_exception();;
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10)
+                    if (fabs(lp_lat) > geometry::math::half_pi<double>()) throw proj_exception();;
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10)
                         lp_lon = 0.;
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
@@ -158,7 +159,7 @@ namespace boost { namespace geometry { namespace projections
                         c = cos(proj_parm.phi1), proj_parm.en);
                     proj_parm.am1 = c / (sqrt(1. - par.es * proj_parm.am1 * proj_parm.am1) * proj_parm.am1);
                 } else {
-                    if (fabs(proj_parm.phi1) + EPS10 >= HALFPI)
+                    if (fabs(proj_parm.phi1) + EPS10 >= geometry::math::half_pi<double>())
                         proj_parm.cphi1 = 0.;
                     else
                         proj_parm.cphi1 = 1. / tan(proj_parm.phi1);

@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -97,7 +98,7 @@ namespace boost { namespace geometry { namespace projections
                     case N_POLE:
                         coslam = - coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > HALFPI) throw proj_exception();;
+                        if (fabs(lp_lat - this->m_par.phi0) - EPS10 > geometry::math::half_pi<double>()) throw proj_exception();;
                         xy_y = cosphi * coslam;
                         break;
                     }
@@ -136,13 +137,13 @@ namespace boost { namespace geometry { namespace projections
                             xy_x *= sinc * this->m_proj_parm.cosph0;
                         sinchk:
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             break;
                         }
                         lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == OBLIQ || this->m_proj_parm.mode == EQUIT))
-                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -HALFPI : HALFPI)
+                             ? (xy_x == 0. ? 0. : xy_x < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>())
                                            : atan2(xy_x, xy_y);
                     }
                 }
@@ -152,7 +153,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_ortho(Parameters& par, par_ortho& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - HALFPI) <= EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) > EPS10) {
                     proj_parm.mode = OBLIQ;

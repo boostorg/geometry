@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -76,7 +78,7 @@ namespace boost { namespace geometry { namespace projections
                     int i;
 
                     theta = lp_lat;
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS)
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS)
                         xy_x = 0.;
                     else {
                         c = sin(theta) * PI;

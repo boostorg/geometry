@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -69,7 +71,7 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();;
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
                 }
@@ -97,14 +99,14 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();;
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
                 }
 
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
-                    lp_lat = HALFPI - 2. * atan(exp(-xy_y / this->m_par.k0));
+                    lp_lat = geometry::math::half_pi<double>() - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
                 }
             };
@@ -118,7 +120,7 @@ namespace boost { namespace geometry { namespace projections
 
                 if( (is_phits = pj_param(par.params, "tlat_ts").i) ) {
                     phits = fabs(pj_param(par.params, "rlat_ts").f);
-                    if (phits >= HALFPI) throw proj_exception(-24);
+                    if (phits >= geometry::math::half_pi<double>()) throw proj_exception(-24);
                 }
                 if (par.es) { /* ellipsoid */
                     if (is_phits)

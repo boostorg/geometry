@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -72,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
 
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
-                    if (fabs(fabs(lp_lat) - HALFPI) <= EPS10) throw proj_exception();;
+                    if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
                     xy_x = lp_lon;
                     xy_y = tan(lp_lat);
                 }

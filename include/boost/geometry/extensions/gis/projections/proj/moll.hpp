@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -85,7 +87,7 @@ namespace boost { namespace geometry { namespace projections
                             break;
                     }
                     if (!i)
-                        lp_lat = (lp_lat < 0.) ? -HALFPI : HALFPI;
+                        lp_lat = (lp_lat < 0.) ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                     else
                         lp_lat *= 0.5;
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
@@ -119,7 +121,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_moll(Parameters& par, par_moll& proj_parm)
             {
-                setup(par, proj_parm, HALFPI);
+                setup(par, proj_parm, geometry::math::half_pi<double>());
             }
 
             // Wagner IV

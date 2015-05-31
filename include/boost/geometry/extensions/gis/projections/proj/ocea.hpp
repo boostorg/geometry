@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -126,7 +128,7 @@ namespace boost { namespace geometry { namespace projections
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
-                par.lam0 = proj_parm.singam + HALFPI;
+                par.lam0 = proj_parm.singam + geometry::math::half_pi<double>();
                 proj_parm.cosphi = cos(proj_parm.sinphi);
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);

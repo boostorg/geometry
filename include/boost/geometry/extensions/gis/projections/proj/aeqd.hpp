@@ -41,6 +41,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -154,8 +155,8 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = aasin(sin(Az) * sin(E) / cos(psi));
                         if ((t = fabs(psi)) < EPS10)
                             lp_lat = 0.;
-                        else if (fabs(t - HALFPI) < 0.)
-                            lp_lat = HALFPI;
+                        else if (fabs(t - geometry::math::half_pi<double>()) < 0.)
+                            lp_lat = geometry::math::half_pi<double>();
                         else
                             lp_lat = atan((1. - this->m_par.es * F * this->m_proj_parm.sinph0 / sin(psi)) * tan(psi) /
                                 this->m_par.one_es);
@@ -256,8 +257,8 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = -lp_lat;
                         coslam = -coslam;
                     case S_POLE:
-                        if (fabs(lp_lat - HALFPI) < EPS10) throw proj_exception();;
-                        xy_x = (xy_y = (HALFPI + lp_lat)) * sin(lp_lon);
+                        if (fabs(lp_lat - geometry::math::half_pi<double>()) < EPS10) throw proj_exception();;
+                        xy_x = (xy_y = (geometry::math::half_pi<double>() + lp_lat)) * sin(lp_lon);
                         xy_y *= coslam;
                         break;
                     }
@@ -290,10 +291,10 @@ namespace boost { namespace geometry { namespace projections
                         }
                         lp_lon = atan2(xy_x, xy_y);
                     } else if (this->m_proj_parm.mode == N_POLE) {
-                        lp_lat = HALFPI - c_rh;
+                        lp_lat = geometry::math::half_pi<double>() - c_rh;
                         lp_lon = atan2(xy_x, -xy_y);
                     } else {
-                        lp_lat = c_rh - HALFPI;
+                        lp_lat = c_rh - geometry::math::half_pi<double>();
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
@@ -304,7 +305,7 @@ namespace boost { namespace geometry { namespace projections
             void setup_aeqd(Parameters& par, par_aeqd& proj_parm)
             {
                 par.phi0 = pj_param(par.params, "rlat_0").f;
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10) {
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10) {
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                     proj_parm.sinph0 = par.phi0 < 0. ? -1. : 1.;
                     proj_parm.cosph0 = 0.;
@@ -325,10 +326,10 @@ namespace boost { namespace geometry { namespace projections
                     } else {
                         switch (proj_parm.mode) {
                         case N_POLE:
-                            proj_parm.Mp = pj_mlfn(HALFPI, 1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn(geometry::math::half_pi<double>(), 1., 0., proj_parm.en);
                             break;
                         case S_POLE:
-                            proj_parm.Mp = pj_mlfn(-HALFPI, -1., 0., proj_parm.en);
+                            proj_parm.Mp = pj_mlfn(-geometry::math::half_pi<double>(), -1., 0., proj_parm.en);
                             break;
                         case EQUIT:
                         case OBLIQ:

@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -131,7 +132,7 @@ namespace boost { namespace geometry { namespace projections
                         case OBLIQ:
                             lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
@@ -140,17 +141,17 @@ namespace boost { namespace geometry { namespace projections
                         case EQUIT:
                             lp_lat = xy_y * sinz / rh;
                             if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                                lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                             else
                                 lp_lat = asin(lp_lat);
                             xy_y = cosz * rh;
                             xy_x *= sinz;
                             break;
                         case S_POLE:
-                            lp_lat -= HALFPI;
+                            lp_lat -= geometry::math::half_pi<double>();
                             break;
                         case N_POLE:
-                            lp_lat = HALFPI - lp_lat;
+                            lp_lat = geometry::math::half_pi<double>() - lp_lat;
                             xy_y = -xy_y;
                             break;
                         }
@@ -163,7 +164,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_gnom(Parameters& par, par_gnom& proj_parm)
             {
-                if (fabs(fabs(par.phi0) - HALFPI) < EPS10)
+                if (fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(par.phi0) < EPS10)
                     proj_parm.mode = EQUIT;

@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -72,7 +74,7 @@ namespace boost { namespace geometry { namespace projections
                     if (fabs(lp_lat) < TOL) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < TOL) {
                         xy_x = 0.;
                         xy_y = lp_lat;
                     } else {
@@ -84,7 +86,7 @@ namespace boost { namespace geometry { namespace projections
                         dt = TWORPI * lp_lon;
                         dt = dt + 1. / dt;
                         dt = sqrt(dt * dt - 4.);
-                        if ((fabs(lp_lon) - HALFPI) < 0.) dt = -dt;
+                        if ((fabs(lp_lon) - geometry::math::half_pi<double>()) < 0.) dt = -dt;
                         dt2 = dt * dt;
                         x1 = bt + ct; x1 *= x1;
                         t = bt + 3.*ct;
@@ -93,8 +95,8 @@ namespace boost { namespace geometry { namespace projections
                             ct2 * (12. * bt * ct + 4. * ct2) );
                         x1 = (dt*(x1 + ct2 - 1.) + 2.*sqrt(ft)) /
                             (4.* x1 + dt2);
-                        xy_x = HALFPI * x1;
-                        xy_y = HALFPI * sqrt(1. + dt * fabs(x1) - x1 * x1);
+                        xy_x = geometry::math::half_pi<double>() * x1;
+                        xy_y = geometry::math::half_pi<double>() * sqrt(1. + dt * fabs(x1) - x1 * x1);
                         if (lp_lon < 0.) xy_x = -xy_x;
                         if (lp_lat < 0.) xy_y = -xy_y;
                     }

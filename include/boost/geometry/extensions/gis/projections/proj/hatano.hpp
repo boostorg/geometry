@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -97,7 +99,7 @@ namespace boost { namespace geometry { namespace projections
                     th = xy_y * ( xy_y < 0. ? RYCS : RYCN);
                     if (fabs(th) > 1.)
                         if (fabs(th) > ONETOL)    throw proj_exception();
-                        else            th = th > 0. ? HALFPI : - HALFPI;
+                        else            th = th > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     else
                         th = asin(th);
                     lp_lon = RXC * xy_x / cos(th);
@@ -105,7 +107,7 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = (th + sin(th)) * (xy_y < 0. ? RCS : RCN);
                     if (fabs(lp_lat) > 1.)
                         if (fabs(lp_lat) > ONETOL)    throw proj_exception();
-                        else            lp_lat = lp_lat > 0. ? HALFPI : - HALFPI;
+                        else            lp_lat = lp_lat > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     else
                         lp_lat = asin(lp_lat);
                 }

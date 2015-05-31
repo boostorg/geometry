@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -109,11 +110,11 @@ namespace boost { namespace geometry { namespace projections
                         b = 1. + cosb * coslam;
                         break;
                     case N_POLE:
-                        b = HALFPI + lp_lat;
+                        b = geometry::math::half_pi<double>() + lp_lat;
                         q = this->m_proj_parm.qp - q;
                         break;
                     case S_POLE:
-                        b = lp_lat - HALFPI;
+                        b = lp_lat - geometry::math::half_pi<double>();
                         q = this->m_proj_parm.qp + q;
                         break;
                     }
@@ -254,10 +255,10 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     case N_POLE:
                         xy_y = -xy_y;
-                        lp_lat = HALFPI - lp_lat;
+                        lp_lat = geometry::math::half_pi<double>() - lp_lat;
                         break;
                     case S_POLE:
-                        lp_lat -= HALFPI;
+                        lp_lat -= geometry::math::half_pi<double>();
                         break;
                     }
                     lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == EQUIT || this->m_proj_parm.mode == OBLIQ)) ?
@@ -271,7 +272,7 @@ namespace boost { namespace geometry { namespace projections
             {
                 double t;
 
-                if (fabs((t = fabs(par.phi0)) - HALFPI) < EPS10)
+                if (fabs((t = fabs(par.phi0)) - geometry::math::half_pi<double>()) < EPS10)
                     proj_parm.mode = par.phi0 < 0. ? S_POLE : N_POLE;
                 else if (fabs(t) < EPS10)
                     proj_parm.mode = EQUIT;

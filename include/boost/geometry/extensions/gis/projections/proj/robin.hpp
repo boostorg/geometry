@@ -158,7 +158,7 @@ namespace boost { namespace geometry { namespace projections
                     if (lp_lat >= 1.) { /* simple pathologic cases */
                         if (lp_lat > ONEEPS) throw proj_exception();
                         else {
-                            lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                            lp_lat = xy_y < 0. ? -geometry::math::half_pi<double>() : geometry::math::half_pi<double>();
                             lp_lon /= X[NODES].c0;
                         }
                     } else { /* general problem */
