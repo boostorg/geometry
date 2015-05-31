@@ -52,6 +52,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/gstmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/healpix.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/igh.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
@@ -177,6 +178,7 @@ public:
         detail::gstmerc_init(*this);
         detail::hammer_init(*this);
         detail::hatano_init(*this);
+        detail::healpix_init(*this);
         detail::krovak_init(*this);
         detail::igh_init(*this);
         detail::imw_p_init(*this);

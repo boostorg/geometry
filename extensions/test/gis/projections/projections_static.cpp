@@ -53,6 +53,7 @@
 #include <boost/geometry/extensions/gis/projections/proj/gstmerc.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hammer.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/hatano.hpp>
+#include <boost/geometry/extensions/gis/projections/proj/healpix.hpp>
 #include <boost/geometry/extensions/gis/projections/proj/krovak.hpp>
 //#include <boost/geometry/extensions/gis/projections/proj/igh.hpp> -> in combined
 #include <boost/geometry/extensions/gis/projections/proj/imw_p.hpp>
@@ -246,6 +247,12 @@ void test_all()
     test_forward<bg::projections::gstmerc_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
     test_forward<bg::projections::hammer_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m");
     test_forward<bg::projections::hatano_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
+
+    test_forward<bg::projections::healpix_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::healpix_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::rhealpix_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+    test_forward<bg::projections::rhealpix_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 6);
+
     test_forward<bg::projections::imw_p_ellipsoid>(amsterdam, utrecht, "+ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
     test_forward<bg::projections::isea_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);
     test_forward<bg::projections::kav5_spheroid>(amsterdam, utrecht, "+ellps=WGS84 +units=m", 2);

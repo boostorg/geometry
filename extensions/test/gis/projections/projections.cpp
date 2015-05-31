@@ -149,6 +149,8 @@ void test_all()
     test_forward<P>("gstmerc", 4.897000, 52.371000, 333173.875017, 5815062.181746, "+proj=gstmerc +ellps=WGS84 +units=m");
     test_forward<P>("hammer", 4.897000, 52.371000, 370843.923425, 5630047.232233, "+proj=hammer +ellps=WGS84 +units=m");
     test_forward<P>("hatano", 4.897000, 52.371000, 383644.128560, 6290117.704632, "+proj=hatano +ellps=WGS84 +units=m");
+    test_forward<P>("healpix", 4.897000, 52.371000, 1469886.5704, 6042138.5098, "+proj=healpix +ellps=WGS84 +units=m");
+    test_forward<P>("rhealpix", 4.897000, 52.371000, -11477441.24814, 13972970.8457, "+proj=rhealpix +ellps=WGS84 +units=m");
     test_forward<P>("imw_p", 4.897000, 52.371000, 318784.808056, 3594184.939568, "+proj=imw_p +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
     test_forward<P>("isea", 4.897000, 52.371000, -413613.639976, 9218173.701546, "+proj=isea +ellps=WGS84 +units=m");
     test_forward<P>("kav5", 4.897000, 52.371000, 383646.088858, 5997047.888175, "+proj=kav5 +ellps=WGS84 +units=m");
@@ -273,6 +275,8 @@ void test_all()
     test_inverse<P>("gs50", 3190310.148850, -564230.076744, -84.389678, 33.754825, "+proj=gs50 +ellps=WGS84 +units=m +lon1=-50"); // F/I: 35.589174
     test_inverse<P>("gstmerc", 333173.875017, 5815062.181746, 4.897000, 52.371000, "+proj=gstmerc +ellps=WGS84 +units=m");
     test_inverse<P>("hatano", 383644.128560, 6290117.704632, 4.897000, 52.371000, "+proj=hatano +ellps=WGS84 +units=m");
+    test_inverse<P>("healpix", 1469886.5704, 6042138.5098, 4.897000, 52.371000, "+proj=healpix +ellps=WGS84 +units=m");
+    test_inverse<P>("rhealpix", -11477441.24814, 13972970.8457, 4.897000, 52.371000, "+proj=rhealpix +ellps=WGS84 +units=m");
     test_inverse<P>("imw_p", 318784.808056, 3594184.939568, 4.897000, 52.371000, "+proj=imw_p +ellps=WGS84 +units=m +lat_1=20n +lat_2=60n +lon_1=5");
     test_inverse<P>("kav5", 383646.088858, 5997047.888175, 4.897000, 52.371000, "+proj=kav5 +ellps=WGS84 +units=m");
     test_inverse<P>("kav7", 407769.043907, 5829913.052335, 4.897000, 52.371000, "+proj=kav7 +ellps=WGS84 +units=m");
