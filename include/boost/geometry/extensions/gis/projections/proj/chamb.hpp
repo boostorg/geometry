@@ -37,6 +37,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
 #include <cstdio>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
@@ -178,7 +179,7 @@ namespace boost { namespace geometry { namespace projections
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);
                 proj_parm.beta_1 = lc(proj_parm.c[0].v.r, proj_parm.c[1].v.r, proj_parm.c[2].v.r);
-                proj_parm.beta_2 = PI - proj_parm.beta_0;
+                proj_parm.beta_2 = geometry::math::pi<double>() - proj_parm.beta_0;
                 proj_parm.p.y = 2. * (proj_parm.c[0].p.y = proj_parm.c[1].p.y = proj_parm.c[2].v.r * sin(proj_parm.beta_0));
                 proj_parm.c[2].p.y = 0.;
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);

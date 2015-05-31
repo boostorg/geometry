@@ -45,6 +45,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -169,41 +171,41 @@ namespace boost { namespace geometry { namespace projections
             int in_image(double x, double y, int proj, int north_square, int south_square) {
                 if (proj == 0) {
                     double healpixVertsJit[][2] = {
-                        {-1.0*PI- EPS, PI/4.0},
-                        {-3.0*PI/4.0, PI/2.0 + EPS},
-                        {-1.0*PI/2.0, PI/4.0 + EPS},
-                        {-1.0*PI/4.0, PI/2.0 + EPS},
-                        {0.0, PI/4.0 + EPS},
-                        {PI/4.0, PI/2.0 + EPS},
-                        {PI/2.0, PI/4.0 + EPS},
-                        {3.0*PI/4.0, PI/2.0 + EPS},
-                        {PI+ EPS, PI/4.0},
-                        {PI+ EPS, -1.0*PI/4.0},
-                        {3.0*PI/4.0, -1.0*PI/2.0 - EPS},
-                        {PI/2.0, -1.0*PI/4.0 - EPS},
-                        {PI/4.0, -1.0*PI/2.0 - EPS},
-                        {0.0, -1.0*PI/4.0 - EPS},
-                        {-1.0*PI/4.0, -1.0*PI/2.0 - EPS},
-                        {-1.0*PI/2.0, -1.0*PI/4.0 - EPS},
-                        {-3.0*PI/4.0, -1.0*PI/2.0 - EPS},
-                        {-1.0*PI - EPS, -1.0*PI/4.0}
+                        {-1.0*geometry::math::pi<double>()- EPS, geometry::math::pi<double>()/4.0},
+                        {-3.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
+                        {-1.0*geometry::math::pi<double>()/2.0, geometry::math::pi<double>()/4.0 + EPS},
+                        {-1.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
+                        {0.0, geometry::math::pi<double>()/4.0 + EPS},
+                        {geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
+                        {geometry::math::pi<double>()/2.0, geometry::math::pi<double>()/4.0 + EPS},
+                        {3.0*geometry::math::pi<double>()/4.0, geometry::math::pi<double>()/2.0 + EPS},
+                        {geometry::math::pi<double>()+ EPS, geometry::math::pi<double>()/4.0},
+                        {geometry::math::pi<double>()+ EPS, -1.0*geometry::math::pi<double>()/4.0},
+                        {3.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
+                        {geometry::math::pi<double>()/2.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
+                        {0.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
+                        {-1.0*geometry::math::pi<double>()/2.0, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-3.0*geometry::math::pi<double>()/4.0, -1.0*geometry::math::pi<double>()/2.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() - EPS, -1.0*geometry::math::pi<double>()/4.0}
                     };
                     return pnpoly((int)sizeof(healpixVertsJit)/
                                   sizeof(healpixVertsJit[0]), healpixVertsJit, x, y);
                 } else {
                     double rhealpixVertsJit[][2] = {
-                        {-1.0*PI - EPS, PI/4.0 + EPS},
-                        {-1.0*PI + north_square*PI/2.0- EPS, PI/4.0 + EPS},
-                        {-1.0*PI + north_square*PI/2.0- EPS, 3*PI/4.0 + EPS},
-                        {-1.0*PI + (north_square + 1.0)*PI/2.0 + EPS, 3*PI/4.0 + EPS},
-                        {-1.0*PI + (north_square + 1.0)*PI/2.0 + EPS, PI/4.0 + EPS},
-                        {PI + EPS, PI/4.0 + EPS},
-                        {PI + EPS, -1.0*PI/4.0 - EPS},
-                        {-1.0*PI + (south_square + 1.0)*PI/2.0 + EPS, -1.0*PI/4.0 - EPS},
-                        {-1.0*PI + (south_square + 1.0)*PI/2.0 + EPS, -3.0*PI/4.0 - EPS},
-                        {-1.0*PI + south_square*PI/2.0 - EPS, -3.0*PI/4.0 - EPS},
-                        {-1.0*PI + south_square*PI/2.0 - EPS, -1.0*PI/4.0 - EPS},
-                        {-1.0*PI - EPS, -1.0*PI/4.0 - EPS}};
+                        {-1.0*geometry::math::pi<double>() - EPS, geometry::math::pi<double>()/4.0 + EPS},
+                        {-1.0*geometry::math::pi<double>() + north_square*geometry::math::pi<double>()/2.0- EPS, geometry::math::pi<double>()/4.0 + EPS},
+                        {-1.0*geometry::math::pi<double>() + north_square*geometry::math::pi<double>()/2.0- EPS, 3*geometry::math::pi<double>()/4.0 + EPS},
+                        {-1.0*geometry::math::pi<double>() + (north_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, 3*geometry::math::pi<double>()/4.0 + EPS},
+                        {-1.0*geometry::math::pi<double>() + (north_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, geometry::math::pi<double>()/4.0 + EPS},
+                        {geometry::math::pi<double>() + EPS, geometry::math::pi<double>()/4.0 + EPS},
+                        {geometry::math::pi<double>() + EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() + (south_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() + (south_square + 1.0)*geometry::math::pi<double>()/2.0 + EPS, -3.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() + south_square*geometry::math::pi<double>()/2.0 - EPS, -3.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() + south_square*geometry::math::pi<double>()/2.0 - EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS},
+                        {-1.0*geometry::math::pi<double>() - EPS, -1.0*geometry::math::pi<double>()/4.0 - EPS}};
                     return pnpoly((int)sizeof(rhealpixVertsJit)/
                                   sizeof(rhealpixVertsJit[0]), rhealpixVertsJit, x, y);
                 }
@@ -242,17 +244,17 @@ namespace boost { namespace geometry { namespace projections
                 /* equatorial region */
                 if ( fabsl(phi) <= phi0) {
                     xy_x = lam;
-                    xy_y = 3.0*PI/8.0*sin(phi);
+                    xy_y = 3.0*geometry::math::pi<double>()/8.0*sin(phi);
                 } else {
                     double lamc;
                     double sigma = sqrt(3.0*(1 - fabsl(sin(phi))));
-                    double cn = floor(2*lam / PI + 2);
+                    double cn = floor(2*lam / geometry::math::pi<double>() + 2);
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    lamc = -3*PI/4 + (PI/2)*cn;
+                    lamc = -3*geometry::math::pi<double>()/4 + (geometry::math::pi<double>()/2)*cn;
                     xy_x = lamc + (lam - lamc)*sigma;
-                    xy_y = pj_sign(phi)*PI/4*(2 - sigma);
+                    xy_y = pj_sign(phi)*geometry::math::pi<double>()/4*(2 - sigma);
                 }
                 return;
             }
@@ -263,24 +265,24 @@ namespace boost { namespace geometry { namespace projections
 
                 double x = xy_x;
                 double y = xy_y;
-                double y0 = PI/4.0;
+                double y0 = geometry::math::pi<double>()/4.0;
                 /* Equatorial region. */
                 if (fabsl(y) <= y0) {
                     lp_lam = x;
-                    lp_phi = asin(8.0*y/(3.0*PI));
-                } else if (fabsl(y) < PI/2.0) {
-                    double cn = floor(2.0*x/PI + 2.0);
+                    lp_phi = asin(8.0*y/(3.0*geometry::math::pi<double>()));
+                } else if (fabsl(y) < geometry::math::pi<double>()/2.0) {
+                    double cn = floor(2.0*x/geometry::math::pi<double>() + 2.0);
                     double xc, tau;
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    xc = -3.0*PI/4.0 + (PI/2.0)*cn;
-                    tau = 2.0 - 4.0*fabsl(y)/PI;
+                    xc = -3.0*geometry::math::pi<double>()/4.0 + (geometry::math::pi<double>()/2.0)*cn;
+                    tau = 2.0 - 4.0*fabsl(y)/geometry::math::pi<double>();
                     lp_lam = xc + (x - xc)/tau;
                     lp_phi = pj_sign(y)*asin(1.0 - pow(tau , 2.0)/3.0);
                 } else {
-                    lp_lam = -1.0*PI;
-                    lp_phi = pj_sign(y)*PI/2.0;
+                    lp_lam = -1.0*geometry::math::pi<double>();
+                    lp_phi = pj_sign(y)*geometry::math::pi<double>()/2.0;
                 }
                 return;
             }
@@ -334,48 +336,48 @@ namespace boost { namespace geometry { namespace projections
                 capmap.x = x;
                 capmap.y = y;
                 if (inverse == 0) {
-                    if (y > PI/4.0) {
+                    if (y > geometry::math::pi<double>()/4.0) {
                         capmap.region = CapMap::north;
-                        c = PI/2.0;
-                    } else if (y < -1*PI/4.0) {
+                        c = geometry::math::pi<double>()/2.0;
+                    } else if (y < -1*geometry::math::pi<double>()/4.0) {
                         capmap.region = CapMap::south;
-                        c = -1*PI/2.0;
+                        c = -1*geometry::math::pi<double>()/2.0;
                     } else {
                         capmap.region = CapMap::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* polar region */
-                    if (x < -1*PI/2.0) {
+                    if (x < -1*geometry::math::pi<double>()/2.0) {
                         capmap.cn = 0;
-                        capmap.x = (-1*3.0*PI/4.0);
+                        capmap.x = (-1*3.0*geometry::math::pi<double>()/4.0);
                         capmap.y = c;
-                    } else if (x >= -1*PI/2.0 && x < 0) {
+                    } else if (x >= -1*geometry::math::pi<double>()/2.0 && x < 0) {
                         capmap.cn = 1;
-                        capmap.x = -1*PI/4.0;
+                        capmap.x = -1*geometry::math::pi<double>()/4.0;
                         capmap.y = c;
-                    } else if (x >= 0 && x < PI/2.0) {
+                    } else if (x >= 0 && x < geometry::math::pi<double>()/2.0) {
                         capmap.cn = 2;
-                        capmap.x = PI/4.0;
+                        capmap.x = geometry::math::pi<double>()/4.0;
                         capmap.y = c;
                     } else {
                         capmap.cn = 3;
-                        capmap.x = 3.0*PI/4.0;
+                        capmap.x = 3.0*geometry::math::pi<double>()/4.0;
                         capmap.y = c;
                     }
                     return capmap;
                 } else {
                     double eps;
-                    if (y > PI/4.0) {
+                    if (y > geometry::math::pi<double>()/4.0) {
                         capmap.region = CapMap::north;
-                        capmap.x = (-3.0*PI/4.0 + north_square*PI/2.0);
-                        capmap.y = PI/2.0;
-                        x = x - north_square*PI/2.0;
-                    } else if (y < -1*PI/4.0) {
+                        capmap.x = (-3.0*geometry::math::pi<double>()/4.0 + north_square*geometry::math::pi<double>()/2.0);
+                        capmap.y = geometry::math::pi<double>()/2.0;
+                        x = x - north_square*geometry::math::pi<double>()/2.0;
+                    } else if (y < -1*geometry::math::pi<double>()/4.0) {
                         capmap.region = CapMap::south;
-                        capmap.x = (-3.0*PI/4.0 + south_square*PI/2);
-                        capmap.y = -1*PI/2.0;
-                        x = x - south_square*PI/2.0;
+                        capmap.x = (-3.0*geometry::math::pi<double>()/4.0 + south_square*geometry::math::pi<double>()/2);
+                        capmap.y = -1*geometry::math::pi<double>()/2.0;
+                        x = x - south_square*geometry::math::pi<double>()/2.0;
                     } else {
                         capmap.region = CapMap::equatorial;
                         capmap.cn = 0;
@@ -385,21 +387,21 @@ namespace boost { namespace geometry { namespace projections
                        x, y moves to when rHEALPix polar square is disassembled. */
                     eps = 1e-15; /* Kludge.  Fuzz to avoid some rounding errors. */
                     if (capmap.region == CapMap::north) {
-                        if (y >= -1*x - PI/4.0 - eps && y < x + 5.0*PI/4.0 - eps) {
+                        if (y >= -1*x - geometry::math::pi<double>()/4.0 - eps && y < x + 5.0*geometry::math::pi<double>()/4.0 - eps) {
                             capmap.cn = (north_square + 1) % 4;
-                        } else if (y > -1*x -1*PI/4.0 + eps && y >= x + 5.0*PI/4.0 - eps) {
+                        } else if (y > -1*x -1*geometry::math::pi<double>()/4.0 + eps && y >= x + 5.0*geometry::math::pi<double>()/4.0 - eps) {
                             capmap.cn = (north_square + 2) % 4;
-                        } else if (y <= -1*x -1*PI/4.0 + eps && y > x + 5.0*PI/4.0 + eps) {
+                        } else if (y <= -1*x -1*geometry::math::pi<double>()/4.0 + eps && y > x + 5.0*geometry::math::pi<double>()/4.0 + eps) {
                             capmap.cn = (north_square + 3) % 4;
                         } else {
                             capmap.cn = north_square;
                         }
                     } else if (capmap.region == CapMap::south) {
-                        if (y <= x + PI/4.0 + eps && y > -1*x - 5.0*PI/4 + eps) {
+                        if (y <= x + geometry::math::pi<double>()/4.0 + eps && y > -1*x - 5.0*geometry::math::pi<double>()/4 + eps) {
                             capmap.cn = (south_square + 1) % 4;
-                        } else if (y < x + PI/4.0 - eps && y <= -1*x - 5.0*PI/4.0 + eps) {
+                        } else if (y < x + geometry::math::pi<double>()/4.0 - eps && y <= -1*x - 5.0*geometry::math::pi<double>()/4.0 + eps) {
                             capmap.cn = (south_square + 2) % 4;
-                        } else if (y >= x + PI/4.0 - eps && y < -1*x - 5.0*PI/4.0 - eps) {
+                        } else if (y >= x + geometry::math::pi<double>()/4.0 - eps && y < -1*x - 5.0*geometry::math::pi<double>()/4.0 - eps) {
                             capmap.cn = (south_square + 3) % 4;
                         } else {
                             capmap.cn = south_square;
@@ -441,16 +443,16 @@ namespace boost { namespace geometry { namespace projections
                     double c[2] = {capmap.x, capmap.y};
                     if (capmap.region == CapMap::north) {
                         pole = north_square;
-                        a[0] =  (-3.0*PI/4.0 + pole*PI/2);
-                        a[1] =  (PI/2.0 + pole*0);
+                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + pole*geometry::math::pi<double>()/2);
+                        a[1] =  (geometry::math::pi<double>()/2.0 + pole*0);
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
                         vector_add(ret_dot, a, vector);
                     } else {
                         pole = south_square;
-                        a[0] =  (-3.0*PI/4.0 + pole*PI/2);
-                        a[1] =  (PI/-2.0 + pole*0);
+                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + pole*geometry::math::pi<double>()/2);
+                        a[1] =  (geometry::math::pi<double>()/-2.0 + pole*0);
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
@@ -468,16 +470,16 @@ namespace boost { namespace geometry { namespace projections
                     /* disassemble */
                     if (capmap.region == CapMap::north) {
                         pole = north_square;
-                        a[0] =  (-3.0*PI/4.0 + capmap.cn*PI/2);
-                        a[1] =  (PI/2.0 + capmap.cn*0);
+                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + capmap.cn*geometry::math::pi<double>()/2);
+                        a[1] =  (geometry::math::pi<double>()/2.0 + capmap.cn*0);
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);
                         vector_add(ret_dot, a, vector);
                     } else {
                         pole = south_square;
-                        a[0] =  (-3.0*PI/4.0 + capmap.cn*PI/2);
-                        a[1] =  (PI/-2.0 + capmap.cn*0);
+                        a[0] =  (-3.0*geometry::math::pi<double>()/4.0 + capmap.cn*geometry::math::pi<double>()/2);
+                        a[1] =  (geometry::math::pi<double>()/-2.0 + capmap.cn*0);
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                         vector_sub(v, c, v_min_c);
                         dot_product(tmpRot, v_min_c, ret_dot);

@@ -268,9 +268,9 @@ namespace boost { namespace geometry { namespace projections
                 {
                     double cosc, c_rh, sinc;
 
-                    if ((c_rh = boost::math::hypot(xy_x, xy_y)) > PI) {
-                        if (c_rh - EPS10 > PI) throw proj_exception();;
-                        c_rh = PI;
+                    if ((c_rh = boost::math::hypot(xy_x, xy_y)) > geometry::math::pi<double>()) {
+                        if (c_rh - EPS10 > geometry::math::pi<double>()) throw proj_exception();;
+                        c_rh = geometry::math::pi<double>();
                     } else if (c_rh < EPS10) {
                         lp_lat = this->m_par.phi0;
                         lp_lon = 0.;

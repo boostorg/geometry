@@ -110,8 +110,8 @@ namespace boost { namespace geometry { namespace projections
 
                 par.es = 0;
                 sp = sin(p);
-                r = sqrt(TWOPI * sp / (p2 + sin(p2)));
-                proj_parm.C_x = 2. * r / PI;
+                r = sqrt(geometry::math::two_pi<double>() * sp / (p2 + sin(p2)));
+                proj_parm.C_x = 2. * r / geometry::math::pi<double>();
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
             }
@@ -128,7 +128,7 @@ namespace boost { namespace geometry { namespace projections
             template <typename Parameters>
             void setup_wag4(Parameters& par, par_moll& proj_parm)
             {
-                setup(par, proj_parm, PI/3.);
+                setup(par, proj_parm, geometry::math::pi<double>()/3.);
             }
 
             // Wagner V

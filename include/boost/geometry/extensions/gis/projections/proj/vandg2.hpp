@@ -37,6 +37,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <boost/geometry/util/math.hpp>
+
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/projects.hpp>
@@ -82,18 +84,18 @@ namespace boost { namespace geometry { namespace projections
                         ct = sqrt(ct);
                     if (fabs(lp_lon) < TOL) {
                         xy_x = 0.;
-                        xy_y = PI * (lp_lat < 0. ? -bt : bt) / (1. + ct);
+                        xy_y = geometry::math::pi<double>() * (lp_lat < 0. ? -bt : bt) / (1. + ct);
                     } else {
-                        at = 0.5 * fabs(PI / lp_lon - lp_lon / PI);
+                        at = 0.5 * fabs(geometry::math::pi<double>() / lp_lon - lp_lon / geometry::math::pi<double>());
                         if (this->m_proj_parm.vdg3) {
                             x1 = bt / (1. + ct);
-                            xy_x = PI * (sqrt(at * at + 1. - x1 * x1) - at);
-                            xy_y = PI * x1;
+                            xy_x = geometry::math::pi<double>() * (sqrt(at * at + 1. - x1 * x1) - at);
+                            xy_y = geometry::math::pi<double>() * x1;
                         } else {
                             x1 = (ct * sqrt(1. + at * at) - at * ct * ct) /
                                 (1. + at * at * bt * bt);
-                            xy_x = PI * x1;
-                            xy_y = PI * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
+                            xy_x = geometry::math::pi<double>() * x1;
+                            xy_y = geometry::math::pi<double>() * sqrt(1. - x1 * (x1 + 2. * at) + TOL);
                         }
                         if ( lp_lon < 0.) xy_x = -xy_x;
                         if ( lp_lat < 0.) xy_y = -xy_y;

@@ -126,7 +126,7 @@ namespace boost { namespace geometry { namespace projections
                             theta -= geometry::math::half_pi<double>();
                         } else if (theta > geometry::math::half_pi<double>() + FORTPI || theta <= -(geometry::math::half_pi<double>() + FORTPI)) {
                             *area = AREA_2;
-                            theta = (theta >= 0.0 ? theta - PI : theta + PI);
+                            theta = (theta >= 0.0 ? theta - geometry::math::pi<double>() : theta + geometry::math::pi<double>());
                         } else {
                             *area = AREA_3;
                             theta += geometry::math::half_pi<double>();
@@ -139,10 +139,10 @@ namespace boost { namespace geometry { namespace projections
             static double
             qsc_shift_lon_origin(double lon, double offset) {
                     double slon = lon + offset;
-                    if (slon < -PI) {
-                        slon += TWOPI;
-                    } else if (slon > +PI) {
-                        slon -= TWOPI;
+                    if (slon < -geometry::math::pi<double>()) {
+                        slon += geometry::math::two_pi<double>();
+                    } else if (slon > +geometry::math::pi<double>()) {
+                        slon -= geometry::math::two_pi<double>();
                     }
                     return slon;
             }
@@ -193,7 +193,7 @@ namespace boost { namespace geometry { namespace projections
                             if (this->m_proj_parm.face == FACE_RIGHT) {
                                 lon = qsc_shift_lon_origin(lon, +geometry::math::half_pi<double>());
                             } else if (this->m_proj_parm.face == FACE_BACK) {
-                                lon = qsc_shift_lon_origin(lon, +PI);
+                                lon = qsc_shift_lon_origin(lon, +geometry::math::pi<double>());
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
                                 lon = qsc_shift_lon_origin(lon, -geometry::math::half_pi<double>());
                             }
@@ -224,7 +224,7 @@ namespace boost { namespace geometry { namespace projections
                                 theta = lon - geometry::math::half_pi<double>();
                             } else if (lon > geometry::math::half_pi<double>() + FORTPI || lon <= -(geometry::math::half_pi<double>() + FORTPI)) {
                                 area = AREA_1;
-                                theta = (lon > 0.0 ? lon - PI : lon + PI);
+                                theta = (lon > 0.0 ? lon - geometry::math::pi<double>() : lon + geometry::math::pi<double>());
                             } else if (lon > -(geometry::math::half_pi<double>() + FORTPI) && lon <= -FORTPI) {
                                 area = AREA_2;
                                 theta = lon + geometry::math::half_pi<double>();
@@ -245,14 +245,14 @@ namespace boost { namespace geometry { namespace projections
                                 theta = -lon - geometry::math::half_pi<double>();
                             } else {
                                 area = AREA_3;
-                                theta = (lon > 0.0 ? -lon + PI : -lon - PI);
+                                theta = (lon > 0.0 ? -lon + geometry::math::pi<double>() : -lon - geometry::math::pi<double>());
                             }
                         }
 
                         /* Compute mu and nu for the area of definition.
                          * For mu, see Eq. (3-21) in [OL76], but note the typos:
                          * compare with Eq. (3-14). For nu, see Eq. (3-38). */
-                        mu = atan((12.0 / PI) * (theta + acos(sin(theta) * cos(FORTPI)) - geometry::math::half_pi<double>()));
+                        mu = atan((12.0 / geometry::math::pi<double>()) * (theta + acos(sin(theta) * cos(FORTPI)) - geometry::math::half_pi<double>()));
                         t = sqrt((1.0 - cos(phi)) / (cos(mu) * cos(mu)) / (1.0 - cos(atan(1.0 / cos(theta)))));
                         /* nu = atan(t);        We don't really need nu, just t, see below. */
 
@@ -260,9 +260,9 @@ namespace boost { namespace geometry { namespace projections
                         if (area == AREA_1) {
                             mu += geometry::math::half_pi<double>();
                         } else if (area == AREA_2) {
-                            mu += PI;
+                            mu += geometry::math::pi<double>();
                         } else if (area == AREA_3) {
-                            mu += geometry::math::half_pi<double>() + PI;
+                            mu += geometry::math::half_pi<double>() + geometry::math::pi<double>();
                         }
 
                         /* Now compute x, y from mu and nu */
@@ -291,7 +291,7 @@ namespace boost { namespace geometry { namespace projections
                             mu -= geometry::math::half_pi<double>();
                         } else if (xy_x < 0.0 && -xy_x >= fabs(xy_y)) {
                             area = AREA_2;
-                            mu = (mu < 0.0 ? mu + PI : mu - PI);
+                            mu = (mu < 0.0 ? mu + geometry::math::pi<double>() : mu - geometry::math::pi<double>());
                         } else {
                             area = AREA_3;
                             mu += geometry::math::half_pi<double>();
@@ -302,7 +302,7 @@ namespace boost { namespace geometry { namespace projections
                          * good hints can be found here (as of 2011-12-14):
                          * http://fits.gsfc.nasa.gov/fitsbits/saf.93/saf.9302
                          * (search for "Message-Id: <9302181759.AA25477 at fits.cv.nrao.edu>") */
-                        t = (PI / 12.0) * tan(mu);
+                        t = (geometry::math::pi<double>() / 12.0) * tan(mu);
                         tantheta = sin(t) / (cos(t) - (1.0 / sqrt(2.0)));
                         theta = atan(tantheta);
                         cosmu = cos(mu);
@@ -324,7 +324,7 @@ namespace boost { namespace geometry { namespace projections
                             if (area == AREA_0) {
                                 lp_lon = theta + geometry::math::half_pi<double>();
                             } else if (area == AREA_1) {
-                                lp_lon = (theta < 0.0 ? theta + PI : theta - PI);
+                                lp_lon = (theta < 0.0 ? theta + geometry::math::pi<double>() : theta - geometry::math::pi<double>());
                             } else if (area == AREA_2) {
                                 lp_lon = theta - geometry::math::half_pi<double>();
                             } else /* area == AREA_3 */ {
@@ -340,7 +340,7 @@ namespace boost { namespace geometry { namespace projections
                             } else if (area == AREA_2) {
                                 lp_lon = -theta - geometry::math::half_pi<double>();
                             } else /* area == AREA_3 */ {
-                                lp_lon = (theta < 0.0 ? -theta - PI : -theta + PI);
+                                lp_lon = (theta < 0.0 ? -theta - geometry::math::pi<double>() : -theta + geometry::math::pi<double>());
                             }
                         } else {
                             /* Compute phi and lam via cartesian unit sphere coordinates. */
@@ -390,7 +390,7 @@ namespace boost { namespace geometry { namespace projections
                             if (this->m_proj_parm.face == FACE_RIGHT) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, -geometry::math::half_pi<double>());
                             } else if (this->m_proj_parm.face == FACE_BACK) {
-                                lp_lon = qsc_shift_lon_origin(lp_lon, -PI);
+                                lp_lon = qsc_shift_lon_origin(lp_lon, -geometry::math::pi<double>());
                             } else if (this->m_proj_parm.face == FACE_LEFT) {
                                 lp_lon = qsc_shift_lon_origin(lp_lon, +geometry::math::half_pi<double>());
                             }

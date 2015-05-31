@@ -210,7 +210,7 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         alpha_c = asin(D*sin(gamma0 = gamma));
                     if ((con = fabs(alpha_c)) <= TOL ||
-                        fabs(con - PI) <= TOL ||
+                        fabs(con - geometry::math::pi<double>()) <= TOL ||
                         fabs(fabs(par.phi0) - geometry::math::half_pi<double>()) <= TOL)
                         throw proj_exception(-32);
                     par.lam0 = lamc - asin(.5 * (F - 1. / F) *
@@ -222,10 +222,10 @@ namespace boost { namespace geometry { namespace projections
                     p = (L - H) / (L + H);
                     J = proj_parm.E * proj_parm.E;
                     J = (J - L * H) / (J + L * H);
-                    if ((con = lam1 - lam2) < -PI)
-                        lam2 -= TWOPI;
-                    else if (con > PI)
-                        lam2 += TWOPI;
+                    if ((con = lam1 - lam2) < -geometry::math::pi<double>())
+                        lam2 -= geometry::math::two_pi<double>();
+                    else if (con > geometry::math::pi<double>())
+                        lam2 += geometry::math::two_pi<double>();
                     par.lam0 = adjlon(.5 * (lam1 + lam2) - atan(
                        J * tan(.5 * proj_parm.B * (lam1 - lam2)) / p) / proj_parm.B);
                     gamma0 = atan(2. * sin(proj_parm.B * adjlon(lam1 - par.lam0)) /

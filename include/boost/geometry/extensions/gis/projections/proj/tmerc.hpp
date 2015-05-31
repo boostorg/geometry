@@ -252,11 +252,11 @@ namespace boost { namespace geometry { namespace projections
                     else
                         throw proj_exception(-35);
                 else /* nearest central meridian input */
-                    if ((zone = int_floor((adjlon(par.lam0) + PI) * 30. / PI)) < 0)
+                    if ((zone = int_floor((adjlon(par.lam0) + geometry::math::pi<double>()) * 30. / geometry::math::pi<double>())) < 0)
                         zone = 0;
                     else if (zone >= 60)
                         zone = 59;
-                par.lam0 = (zone + .5) * PI / 30. - PI;
+                par.lam0 = (zone + .5) * geometry::math::pi<double>() / 30. - geometry::math::pi<double>();
                 par.k0 = 0.9996;
                 par.phi0 = 0.;
                 setup(par, proj_parm);

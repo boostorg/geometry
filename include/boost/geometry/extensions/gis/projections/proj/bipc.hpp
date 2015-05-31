@@ -101,7 +101,7 @@ namespace boost { namespace geometry { namespace projections
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
                     if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS10) {
-                        Az = lp_lat < 0. ? PI : 0.;
+                        Az = lp_lat < 0. ? geometry::math::pi<double>() : 0.;
                         tphi = HUGE_VAL;
                     } else {
                         tphi = sphi / cphi;

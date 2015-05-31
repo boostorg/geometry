@@ -81,7 +81,7 @@ namespace boost { namespace geometry { namespace projections
                     if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) < EPS)
                         xy_x = 0.;
                     else {
-                        c = sin(theta) * PI;
+                        c = sin(theta) * geometry::math::pi<double>();
                         for (i = NITER; i; --i) {
                             theta -= th1 = (theta + sin(theta) - c) /
                                 (1. + cos(theta));

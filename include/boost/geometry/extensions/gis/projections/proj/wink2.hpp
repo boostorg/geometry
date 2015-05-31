@@ -80,7 +80,7 @@ namespace boost { namespace geometry { namespace projections
                     int i;
 
                     xy_y = lp_lat * TWO_D_PI;
-                    k = PI * sin(lp_lat);
+                    k = geometry::math::pi<double>() * sin(lp_lat);
                     lp_lat *= 1.8;
                     for (i = MAX_ITER; i ; --i) {
                         lp_lat -= V = (lp_lat + sin(lp_lat) - k) /

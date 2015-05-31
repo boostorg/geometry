@@ -86,7 +86,7 @@ namespace boost { namespace geometry { namespace projections
                     t = cos(lp_lon);
                     xy_x = atan((tan(lp_lat) * this->m_proj_parm.cosphi + this->m_proj_parm.sinphi * xy_y) / t);
                     if (t < 0.)
-                        xy_x += PI;
+                        xy_x += geometry::math::pi<double>();
                     xy_x *= this->m_proj_parm.rtk;
                     xy_y = this->m_proj_parm.rok * (this->m_proj_parm.sinphi * sin(lp_lat) - this->m_proj_parm.cosphi * cos(lp_lat) * xy_y);
                 }

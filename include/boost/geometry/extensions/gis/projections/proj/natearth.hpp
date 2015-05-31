@@ -77,7 +77,7 @@ namespace boost { namespace geometry { namespace projections
             static const double C3 = (9 * B3);
             static const double C4 = (11 * B4);
             static const double EPS = 1e-11;
-            static const double MAX_Y = (0.8707 * 0.52 * PI);
+            static const double MAX_Y = (0.8707 * 0.52 * geometry::math::pi<double>());
 
             // template class, using CRTP to implement forward/inverse
             template <typename Geographic, typename Cartesian, typename Parameters>
