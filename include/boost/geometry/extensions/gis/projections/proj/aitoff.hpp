@@ -43,6 +43,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/extensions/gis/projections/impl/base_static.hpp>
 #include <boost/geometry/extensions/gis/projections/impl/base_dynamic.hpp>
@@ -145,13 +146,13 @@ namespace boost { namespace geometry { namespace projections
                             f1 -= xy_x; f2 -= xy_y;
                             dl = (f2 * f1p - f1 * f2p) / (dp = f1p * f2l - f2p * f1l);
                             dp = (f1 * f2l - f2 * f1l) / dp;
-                            while (dl > boost::math::constants::pi<double>()) dl -= boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
-                            while (dl < -boost::math::constants::pi<double>()) dl += boost::math::constants::pi<double>(); /* set to interval [-boost::math::constants::pi<double>(), boost::math::constants::pi<double>()]  */
+                            while (dl > geometry::math::pi<double>()) dl -= geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
+                            while (dl < -geometry::math::pi<double>()) dl += geometry::math::pi<double>(); /* set to interval [-geometry::math::pi<double>(), geometry::math::pi<double>()]  */
                             lp_lat -= dp;    lp_lon -= dl;
                         } while ((fabs(dp) > EPSILON || fabs(dl) > EPSILON) && (iter++ < MAXITER));
-                        if (lp_lat > (2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat-(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
-                        if (lp_lat < -(2.0 * boost::math::constants::pi<double>())) lp_lat -= 2.*(lp_lat+(2.0 * boost::math::constants::pi<double>())); /* correct if symmetrical solution for Aitoff */
-                        if ((fabs(fabs(lp_lat) - (2.0 * boost::math::constants::pi<double>())) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
+                        if (lp_lat > geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat-geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
+                        if (lp_lat < -geometry::math::two_pi<double>()) lp_lat -= 2.*(lp_lat+geometry::math::two_pi<double>()); /* correct if symmetrical solution for Aitoff */
+                        if ((fabs(fabs(lp_lat) - geometry::math::two_pi<double>()) < EPSILON) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
                         if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon)))) {/* Aitoff */
