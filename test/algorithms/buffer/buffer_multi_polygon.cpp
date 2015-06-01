@@ -344,7 +344,9 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nested_31", nested, join_round, end_flat, 399.771, 3.1);
     test_one<multi_polygon_type, polygon_type>("nested_31", nested, join_round, end_flat, 0, -3.1);
 
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<multi_polygon_type, polygon_type>("degenerate0", degenerate0, join_round, end_flat, 0.0, 1.0);
+#endif // BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
     test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 

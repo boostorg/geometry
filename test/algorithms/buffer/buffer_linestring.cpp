@@ -174,7 +174,9 @@ void test_all()
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_round, end_round, 718.761877, 16.5, 6.5);
     test_one<linestring, polygon>("field_sprayer1", field_sprayer1, join_miter, end_round, 718.939628, 16.5, 6.5);
 
+#ifdef BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<linestring, polygon>("degenerate0", degenerate0, join_round, end_round, 0.0, 3.0);
+#endif // BOOST_GEOMETRY_TEST_BUFFER_TEST_EMPTY_GEOMETRIES
     test_one<linestring, polygon>("degenerate1", degenerate1, join_round, end_round, 28.25, 3.0);
     test_one<linestring, polygon>("degenerate2", degenerate2, join_round, end_round, 28.2503, 3.0);
     test_one<linestring, polygon>("degenerate3", degenerate3, join_round, end_round, 28.2503, 3.0);
