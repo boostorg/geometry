@@ -106,14 +106,15 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
         Factor& factor)
 {
     // Get bounding boxes (when at least one of the geometries is not empty)
-    model::box<Point> env;
-    bool is_empty1 = (geometry::num_points(geometry1) == 0);
-    bool is_empty2 = (geometry::num_points(geometry2) == 0);
-    if (is_empty1 == 0 && is_empty2)
+    bool const is_empty1 = geometry::num_points(geometry1) == 0;
+    bool const is_empty2 = geometry::num_points(geometry2) == 0;
+    if (is_empty1 && is_empty2)
     {
         return;
     }
-    else if (is_empty1)
+
+    model::box<Point> env;
+    if (is_empty1)
     {
         geometry::envelope(geometry2, env);
     }
@@ -123,6 +124,10 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
     }
     else
     {
+        // The following approach (envelope + expand) may not give the
+        // optimal MBR when then two geometries are in the spherical
+        // equatorial or geographic coordinate systems.
+        // TODO: implement envelope for two (or possibly more geometries)
         geometry::envelope(geometry1, env);
         model::box<Point> env2 = geometry::return_envelope
             <
