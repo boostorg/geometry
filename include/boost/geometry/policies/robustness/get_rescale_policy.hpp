@@ -27,6 +27,7 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/get_max_size.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
@@ -86,6 +87,11 @@ static inline void init_rescale_policy(Geometry const& geometry,
         RobustPoint& min_robust_point,
         Factor& factor)
 {
+    if (geometry::num_points(geometry) == 0)
+    {
+        return;
+    }
+
     // Get bounding boxes
     model::box<Point> env = geometry::return_envelope<model::box<Point> >(geometry);
 
@@ -99,10 +105,30 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
         RobustPoint& min_robust_point,
         Factor& factor)
 {
-    // Get bounding boxes
-    model::box<Point> env = geometry::return_envelope<model::box<Point> >(geometry1);
-    model::box<Point> env2 = geometry::return_envelope<model::box<Point> >(geometry2);
-    geometry::expand(env, env2);
+    // Get bounding boxes (when at least one of the geometries is not empty)
+    model::box<Point> env;
+    if (geometry::num_points(geometry1) == 0
+        && geometry::num_points(geometry2) == 0)
+    {
+        return;
+    }
+    else if (geometry::num_points(geometry1) == 0)
+    {
+        geometry::envelope(geometry2, env);
+    }
+    else if (geometry::num_points(geometry2) == 0)
+    {
+        geometry::envelope(geometry1, env);
+    }
+    else
+    {
+        geometry::envelope(geometry1, env);
+        model::box<Point> env2 = geometry::return_envelope
+            <
+                model::box<Point>
+            >(geometry2);
+        geometry::expand(env, env2);
+    }
 
     scale_box_to_integer_range(env, min_point, min_robust_point, factor);
 }
