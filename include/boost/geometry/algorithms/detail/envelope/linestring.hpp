@@ -19,6 +19,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_LINESTRING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_LINESTRING_HPP
 
+#include <cstddef>
 #include <iterator>
 #include <vector>
 
@@ -34,7 +35,6 @@
 
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
@@ -51,7 +51,19 @@ namespace detail { namespace envelope
 {
 
 
+template
+<
+    typename Linear,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename ExpandPolicy
+>
 struct envelope_linear_on_spheroid
+    : envelope_range<Linear, Dimension, DimensionCount, ExpandPolicy>
+{};
+
+template <typename Linear, std::size_t DimensionCount, typename ExpandPolicy>
+struct envelope_linear_on_spheroid<Linear, 0, DimensionCount, ExpandPolicy>
 {
     template <typename Units, typename Longitude, typename OutputIterator>
     static inline OutputIterator push_interval(Longitude const& lon1,
@@ -81,7 +93,7 @@ struct envelope_linear_on_spheroid
         return oit;
     }
 
-    template <typename Linear, typename Box>
+    template <typename Box>
     static inline void apply(Linear const& linear, Box& mbr)
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
@@ -109,7 +121,9 @@ struct envelope_linear_on_spheroid
             Box segment_mbr;
             dispatch::envelope
                 <
-                    typename std::iterator_traits<iterator_type>::value_type
+                    typename std::iterator_traits<iterator_type>::value_type,
+                    0,
+                    DimensionCount
                 >::apply(*seg_it, segment_mbr);
 
             oit = push_interval
@@ -145,20 +159,17 @@ struct envelope_linear_on_spheroid
                 typename coordinate_system<Box>::type::units
             >::apply(longitude_intervals, lon_min, lon_max);
 
-        assign_values(mbr, lon_min, lat_min, lon_max, lat_max);
+        geometry::set<min_corner, 0>(mbr, lon_min);
+        geometry::set<min_corner, 1>(mbr, lat_min);
+        geometry::set<max_corner, 0>(mbr, lon_max);
+        geometry::set<max_corner, 1>(mbr, lat_max);
+
+        envelope_range
+            <
+                Linear, 2, DimensionCount, ExpandPolicy
+            >::apply(linear, mbr);
     }
 };
-
-
-template <typename CSTag>
-struct envelope_linestring
-    : envelope_range<>
-{};
-
-template <>
-struct envelope_linestring<spherical_equatorial_tag>
-    : envelope_linear_on_spheroid
-{};
 
 
 }} // namespace detail::envelope
@@ -169,10 +180,37 @@ struct envelope_linestring<spherical_equatorial_tag>
 namespace dispatch
 {
 
-template <typename Linestring>
-struct envelope<Linestring, linestring_tag>
-    : detail::envelope::envelope_linestring<typename cs_tag<Linestring>::type>
+
+template
+<
+    typename Linestring,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope<Linestring, Dimension, DimensionCount, linestring_tag, CS_Tag>
+    : detail::envelope::envelope_range<Linestring, Dimension, DimensionCount>
 {};
+
+template
+<
+    typename Linestring,
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct envelope
+    <
+        Linestring, Dimension, DimensionCount,
+        linestring_tag, spherical_equatorial_tag
+    > : detail::envelope::envelope_linear_on_spheroid
+        <
+            Linestring,
+            Dimension,
+            DimensionCount,
+            detail::envelope::default_expand_policy<Dimension, DimensionCount>
+        >
+{};
+
 
 } // namespace dispatch
 #endif

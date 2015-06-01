@@ -19,6 +19,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_SEGMENT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_SEGMENT_HPP
 
+#include <cstddef>
 #include <utility>
 
 #include <boost/assert.hpp>
@@ -36,15 +37,14 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
-#include <boost/geometry/strategies/strategy_transform.hpp>
+#include <boost/geometry/strategies/compare.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
-
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
+#include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
+#include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -55,6 +55,22 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace envelope
 {
+
+
+template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
+struct envelope_one_segment
+{
+    template<typename Point, typename Box>
+    static inline void apply(Point const& p1, Point const& p2, Box& mbr)
+    {
+        envelope_one_point<Dimension, DimensionCount, CS_Tag>::apply(p1, mbr);
+        dispatch::expand
+            <
+                Box, Point, Dimension, DimensionCount
+            >::apply(mbr, p2);
+    }
+};
+
 
 // Computes the MBR of a segment given by (lon1, lat1) and (lon2,
 // lat2), and with azimuths a1 and a2 at the two endpoints of the
@@ -256,29 +272,47 @@ public:
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
 
-        typename helper_geometry
+        typedef typename helper_geometry
             <
                 Box, box_coordinate_type, radian
-            >::type radian_mbr;
+            >::type helper_box_type;
+
+        helper_box_type radian_mbr;
 
         apply(lon1, lat1, lon2, lat2);
 
-        assign_values(radian_mbr,
-                      boost::numeric_cast<box_coordinate_type>(lon1),
-                      boost::numeric_cast<box_coordinate_type>(lat1),
-                      boost::numeric_cast<box_coordinate_type>(lon2),
-                      boost::numeric_cast<box_coordinate_type>(lat2));
+        geometry::set
+            <
+                min_corner, 0
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon1));
 
-        geometry::transform(radian_mbr, mbr);
+        geometry::set
+            <
+                min_corner, 1
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat1));
+
+        geometry::set
+            <
+                max_corner, 0
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lon2));
+
+        geometry::set
+            <
+                max_corner, 1
+            >(radian_mbr, boost::numeric_cast<box_coordinate_type>(lat2));
+
+        transform_units(radian_mbr, mbr);
     }
 };
 
 
-struct envelope_segment_on_spheroid
+template <std::size_t DimensionCount>
+struct envelope_one_segment<0, DimensionCount, spherical_equatorial_tag>
 {
     template <typename Point, typename Box>
     static inline void apply(Point const& p1, Point const& p2, Box& mbr)
     {
+        // first compute the envelope range for the first two coordinates
         Point p1_normalized = detail::return_normalized<Point>(p1);
         Point p2_normalized = detail::return_normalized<Point>(p2);
 
@@ -287,24 +321,16 @@ struct envelope_segment_on_spheroid
                                       geometry::get_as_radian<0>(p2_normalized),
                                       geometry::get_as_radian<1>(p2_normalized),
                                       mbr);
+
+        // now compute the envelope range for coordinates of
+        // dimension 2 and higher
+        envelope_one_segment
+            <
+                2, DimensionCount, spherical_equatorial_tag
+            >::apply(p1, p2, mbr);
     }
 };
 
-template <typename CSTag>
-struct envelope_one_segment
-{
-    template<typename Point, typename Box>
-    static inline void apply(Point const& p1, Point const& p2, Box& mbr)
-    {
-        envelope_one_point<CSTag>::apply(p1, mbr);
-        geometry::expand(mbr, p2);
-    }
-};
-
-template <>
-struct envelope_one_segment<spherical_equatorial_tag>
-    : envelope_segment_on_spheroid
-{};
 
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
@@ -315,8 +341,14 @@ namespace dispatch
 {
 
 
-template <typename Segment>
-struct envelope<Segment, segment_tag>
+template
+<
+    typename Segment,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope<Segment, Dimension, DimensionCount, segment_tag, CS_Tag>
 {
     template <typename Box>
     static inline void apply(Segment const& segment, Box& mbr)
@@ -326,14 +358,14 @@ struct envelope<Segment, segment_tag>
         detail::assign_point_from_index<1>(segment, p[1]);
         detail::envelope::envelope_one_segment
             <
-                typename cs_tag<Segment>::type
+                Dimension, DimensionCount, CS_Tag
             >::apply(p[0], p[1], mbr);
     }
 };
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
 
 }} // namespace boost::geometry
 

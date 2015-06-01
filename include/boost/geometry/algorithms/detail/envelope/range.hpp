@@ -19,11 +19,15 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_RANGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_RANGE_HPP
 
+#include <cstddef>
+
 #include <boost/range.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/expand.hpp>
-
+#include <boost/geometry/algorithms/detail/expand/box.hpp>
+#include <boost/geometry/algorithms/detail/expand/point.hpp>
+#include <boost/geometry/algorithms/detail/expand/segment.hpp>
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
 
@@ -35,12 +39,16 @@ namespace detail { namespace envelope
 {
 
 
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct default_expand_policy
 {
     template <typename Box, typename Geometry>
     static inline void apply(Box& mbr, Geometry const& geometry)
     {
-        geometry::expand(mbr, geometry);
+        dispatch::expand
+            <
+                Box, Geometry, Dimension, DimensionCount
+            >::apply(mbr, geometry);
     }
 };
 
@@ -55,11 +63,17 @@ inline void envelope_iterators(Iterator first, Iterator last, Box& mbr)
 }
 
 
-template <typename ExpandPolicy = default_expand_policy>
+template
+<
+    typename Range,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename ExpandPolicy = default_expand_policy<Dimension, DimensionCount>
+>
 struct envelope_range
 {
     /// Calculate envelope of range using a strategy
-    template <typename Range, typename Box>
+    template <typename Box>
     static inline void apply(Range const& range, Box& mbr)
     {
         typename boost::range_iterator<Range const>::type it 
@@ -70,7 +84,9 @@ struct envelope_range
             // initialize box with first element in range
             dispatch::envelope
                 <
-                    typename boost::range_value<Range>::type
+                    typename boost::range_value<Range>::type,
+                    Dimension,
+                    DimensionCount
                 >::apply(*it, mbr);
 
             // consider now the remaining elements in the range (if any)

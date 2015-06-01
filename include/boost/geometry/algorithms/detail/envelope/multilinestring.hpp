@@ -19,13 +19,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTILINESTRING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTILINESTRING_HPP
 
+#include <cstddef>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/expand.hpp>
-
 #include <boost/geometry/algorithms/detail/envelope/linestring.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
+#include <boost/geometry/algorithms/detail/expand/box.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -38,42 +39,79 @@ namespace detail { namespace envelope
 {
 
 
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_range_expand_policy
 {
     template <typename Box, typename Geometry>
     static inline void apply(Box& mbr, Geometry const& geometry)
     {
-        Box mbr2;
-        envelope_range<>::apply(geometry, mbr2);
-        geometry::expand(mbr, mbr2);
+        Box helper_mbr;
+        envelope_range
+            <
+                Geometry, Dimension, DimensionCount
+            >::apply(geometry, helper_mbr);
+
+        dispatch::expand
+            <
+                Box, Box, Dimension, DimensionCount
+            >::apply(mbr, helper_mbr);
     }
 };
 
 
-template <typename CSTag>
-struct envelope_multilinestring
-    : envelope_range<envelope_range_expand_policy>
-{};
-
-template <>
-struct envelope_multilinestring<spherical_equatorial_tag>
-    : envelope_linear_on_spheroid
-{};
-
-
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
+
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
 
-template <typename MultiLinestring>
-struct envelope<MultiLinestring, multi_linestring_tag>
-    : detail::envelope::envelope_multilinestring
+template
+<
+    typename MultiLinestring,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope
+    <
+        MultiLinestring,
+        Dimension, DimensionCount,
+        multi_linestring_tag, CS_Tag
+    > : detail::envelope::envelope_range
         <
-            typename cs_tag<MultiLinestring>::type
+            MultiLinestring,
+            Dimension,
+            DimensionCount,
+            detail::envelope::envelope_range_expand_policy
+                <
+                    Dimension, DimensionCount
+                >
+        >
+{};
+
+template
+<
+    typename MultiLinestring,
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct envelope
+    <
+        MultiLinestring,
+        Dimension, DimensionCount,
+        multi_linestring_tag, spherical_equatorial_tag
+    > : detail::envelope::envelope_linear_on_spheroid
+        <
+            MultiLinestring,
+            Dimension,
+            DimensionCount,
+            detail::envelope::envelope_range_expand_policy
+                <
+                    Dimension, DimensionCount
+                >
         >
 {};
 

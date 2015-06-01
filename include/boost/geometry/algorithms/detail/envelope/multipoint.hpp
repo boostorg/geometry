@@ -10,6 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTIPOINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_MULTIPOINT_HPP
 
+#include <cstddef>
 #include <algorithm>
 #include <utility>
 #include <vector>
@@ -27,14 +28,11 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
-#include <boost/geometry/strategies/strategy_transform.hpp>
-
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
-
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
+#include <boost/geometry/algorithms/detail/envelope/box.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
+
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
 
@@ -46,21 +44,33 @@ namespace detail { namespace envelope
 {
 
 
-class envelope_multipoint_on_spheroid
+template
+<
+    typename MultiPoint,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope_multipoint_on_spheroid
+    : envelope_range<MultiPoint, Dimension, DimensionCount>
+{};
+
+template <typename MultiPoint, std::size_t DimensionCount, typename CS_Tag>
+class envelope_multipoint_on_spheroid<MultiPoint, 0, DimensionCount, CS_Tag>
 {
 private:
-    template <std::size_t Dimension>
+    template <std::size_t Dim>
     struct coordinate_less
     {
         template <typename Point>
         inline bool operator()(Point const& point1, Point const& point2) const
         {
-            return math::smaller(geometry::get<Dimension>(point1),
-                                 geometry::get<Dimension>(point2));
+            return math::smaller(geometry::get<Dim>(point1),
+                                 geometry::get<Dim>(point2));
         }
     };
 
-    template <typename Constants, typename MultiPoint, typename OutputIterator>
+    template <typename Constants, typename OutputIterator>
     static inline void analyze_point_coordinates(MultiPoint const& multipoint,
                                                  bool& has_south_pole,
                                                  bool& has_north_pole,
@@ -224,7 +234,7 @@ private:
     }
 
 public:
-    template <typename MultiPoint, typename Box>
+    template <typename Box>
     static inline void apply(MultiPoint const& multipoint, Box& mbr)
     {
         typedef typename point_type<MultiPoint>::type point_type;
@@ -246,7 +256,9 @@ public:
         {
             return dispatch::envelope
                 <
-                    typename boost::range_value<MultiPoint>::type
+                    typename boost::range_value<MultiPoint>::type,
+                    0,
+                    DimensionCount
                 >::apply(range::front(multipoint), mbr);
         }
 
@@ -301,16 +313,36 @@ public:
                                              lat_max);
         }
 
-        typename helper_geometry
+        typedef typename helper_geometry
             <
                 Box,
                 coordinate_type,
                 typename coordinate_system<MultiPoint>::type::units
-            >::type helper_mbr;
+            >::type helper_box_type;
 
-        assign_values(helper_mbr, lon_min, lat_min, lon_max, lat_max);
+        helper_box_type helper_mbr;
 
-        geometry::transform(helper_mbr, mbr);
+        geometry::set<min_corner, 0>(helper_mbr, lon_min);
+        geometry::set<min_corner, 1>(helper_mbr, lat_min);
+        geometry::set<max_corner, 0>(helper_mbr, lon_max);
+        geometry::set<max_corner, 1>(helper_mbr, lat_max);
+
+        // compute envelope for higher coordinates
+        envelope_multipoint_on_spheroid
+            <
+                MultiPoint, 2, DimensionCount, CS_Tag
+            >::apply(multipoint, helper_mbr);
+
+        // now transform to output MBR (per index)
+        envelope_indexed_box
+            <
+                min_corner, 0, DimensionCount, CS_Tag
+            >::apply(helper_mbr, mbr);
+
+        envelope_indexed_box
+            <
+                max_corner, 0, DimensionCount, CS_Tag
+            >::apply(helper_mbr, mbr);
     }
 };
 
@@ -318,24 +350,60 @@ public:
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
 
+
+
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
 
-template <typename MultiPoint, typename CSTag>
-struct envelope<MultiPoint, multi_point_tag, CSTag>
-    : detail::envelope::envelope_range<>
+template
+<
+    typename MultiPoint,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CSTag
+>
+struct envelope
+    <
+        MultiPoint,
+        Dimension, DimensionCount,
+        multi_point_tag, CSTag
+    > : detail::envelope::envelope_range<MultiPoint, Dimension, DimensionCount>
 {};
 
-template <typename MultiPoint>
-struct envelope<MultiPoint, multi_point_tag, spherical_equatorial_tag>
-    : detail::envelope::envelope_multipoint_on_spheroid
+template
+<
+    typename MultiPoint,
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct envelope
+    <
+        MultiPoint,
+        Dimension, DimensionCount,
+        multi_point_tag, spherical_equatorial_tag
+    > : detail::envelope::envelope_multipoint_on_spheroid
+        <
+            MultiPoint, Dimension, DimensionCount, spherical_equatorial_tag
+        >
 {};
 
-template <typename MultiPoint>
-struct envelope<MultiPoint, multi_point_tag, geographic_tag>
-    : detail::envelope::envelope_multipoint_on_spheroid
+template
+<
+    typename MultiPoint,
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct envelope
+    <
+        MultiPoint,
+        Dimension, DimensionCount,
+        multi_point_tag, geographic_tag
+    > : detail::envelope::envelope_multipoint_on_spheroid
+        <
+            MultiPoint, Dimension, DimensionCount, geographic_tag
+        >
 {};
 
 

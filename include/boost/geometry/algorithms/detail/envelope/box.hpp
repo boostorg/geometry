@@ -19,15 +19,17 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_BOX_HPP
 
+#include <cstddef>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/strategies/strategy_transform.hpp>
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+#include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -40,36 +42,124 @@ namespace detail { namespace envelope
 {
 
 
-struct envelope_box_on_spheroid
+template
+<
+    std::size_t Index,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope_indexed_box
 {
-    template<typename BoxIn, typename BoxOut>
+    template <typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
-        BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
+        detail::indexed_point_view<BoxIn const, Index> box_in_corner(box_in);
+        detail::indexed_point_view<BoxOut, Index> mbr_corner(mbr);
 
-        geometry::transform(box_in_normalized, mbr);
+        detail::conversion::point_to_point
+            <
+                detail::indexed_point_view<BoxIn const, Index>,
+                detail::indexed_point_view<BoxOut, Index>,
+                Dimension,
+                DimensionCount
+            >::apply(box_in_corner, mbr_corner);
     }
 };
 
+template
+<
+    std::size_t Index,
+    std::size_t DimensionCount
+>
+struct envelope_indexed_box<Index, 0, DimensionCount, spherical_equatorial_tag>
+{
+    template <typename BoxIn, typename BoxOut>
+    static inline void apply(BoxIn const& box_in, BoxOut& mbr)
+    {
 
-template <typename CSTag>
+       // transform() does not work with boxes of dimension higher
+        // than 2; to account for such boxes we transform the min/max
+        // points of the boxes using the indexed_point_view
+        detail::indexed_point_view<BoxIn const, Index> box_in_corner(box_in);
+        detail::indexed_point_view<BoxOut, Index> mbr_corner(mbr);
+
+        // first transform the units
+        transform_units(box_in_corner, mbr_corner);
+
+        // now transform the remaining coordinates
+        detail::conversion::point_to_point
+            <
+                detail::indexed_point_view<BoxIn const, Index>,
+                detail::indexed_point_view<BoxOut, Index>,
+                2,
+                DimensionCount
+            >::apply(box_in_corner, mbr_corner);
+    }
+};
+
+template
+<
+    std::size_t Index,
+    std::size_t Dimension,
+    std::size_t DimensionCount
+>
+struct envelope_indexed_box<Index, Dimension, DimensionCount, geographic_tag>
+    : envelope_indexed_box
+        <
+            Index, Dimension, DimensionCount, spherical_equatorial_tag
+        >
+{};
+
+
+template
+<
+    typename std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
 struct envelope_box
 {
     template<typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
-        geometry::convert(box_in, mbr);
+        envelope_indexed_box
+            <
+                min_corner, Dimension, DimensionCount, CS_Tag
+            >::apply(box_in, mbr);
+
+        envelope_indexed_box
+            <
+                max_corner, Dimension, DimensionCount, CS_Tag
+            >::apply(box_in, mbr);
     }
 };
 
-template <>
-struct envelope_box<spherical_equatorial_tag>
-    : envelope_box_on_spheroid
-{};
 
-template <>
-struct envelope_box<geographic_tag>
-    : envelope_box_on_spheroid
+template <typename std::size_t DimensionCount>
+struct envelope_box<0, DimensionCount, spherical_equatorial_tag>
+{
+    template <typename BoxIn, typename BoxOut>
+    static inline void apply(BoxIn const& box_in, BoxOut& mbr)
+    {
+        BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
+
+        envelope_indexed_box
+            <
+                min_corner, 0, DimensionCount, spherical_equatorial_tag
+            >::apply(box_in_normalized, mbr);
+
+        envelope_indexed_box
+            <
+                max_corner, 0, DimensionCount, spherical_equatorial_tag
+            >::apply(box_in_normalized, mbr);
+    }
+};
+
+
+template <typename std::size_t DimensionCount>
+struct envelope_box<0, DimensionCount, geographic_tag>
+    : envelope_box<0, DimensionCount, spherical_equatorial_tag>
 {};
 
 
@@ -81,9 +171,15 @@ namespace dispatch
 {
 
 
-template <typename Box>
-struct envelope<Box, box_tag>
-    : detail::envelope::envelope_box<typename cs_tag<Box>::type>
+template
+<
+    typename Box,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope<Box, Dimension, DimensionCount, box_tag, CS_Tag>
+    : detail::envelope::envelope_box<Dimension, DimensionCount, CS_Tag>
 {};
 
 

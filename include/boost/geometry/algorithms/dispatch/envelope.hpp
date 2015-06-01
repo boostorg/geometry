@@ -19,6 +19,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISPATCH_ENVELOPE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISPATCH_ENVELOPE_HPP
 
+#include <cstddef>
+
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
 
@@ -35,8 +38,10 @@ namespace dispatch
 template
 <
     typename Geometry,
+    std::size_t Dimension = 0,
+    std::size_t DimensionCount = dimension<Geometry>::value,
     typename Tag = typename tag<Geometry>::type,
-    typename CSTag = typename cs_tag<Geometry>::type
+    typename CS_Tag = typename cs_tag<Geometry>::type
 >
 struct envelope : not_implemented<Tag>
 {};

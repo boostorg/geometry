@@ -19,16 +19,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_POINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_POINT_HPP
 
+#include <cstddef>
+
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/strategies/strategy_transform.hpp>
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
-
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
+
+#include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -40,7 +43,34 @@ namespace boost { namespace geometry
 namespace detail { namespace envelope
 {
 
-struct envelope_point_on_spheroid
+
+template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
+struct envelope_one_point
+{
+    template <std::size_t Index, typename Point, typename Box>
+    static inline void apply(Point const& point, Box& mbr)
+    {
+        detail::indexed_point_view<Box, Index> box_corner(mbr);
+        detail::conversion::point_to_point
+            <
+                Point,
+                detail::indexed_point_view<Box, Index>,
+                Dimension,
+                DimensionCount
+            >::apply(point, box_corner);
+    }
+
+    template <typename Point, typename Box>
+    static inline void apply(Point const& point, Box& mbr)
+    {
+        apply<min_corner>(point, mbr);
+        apply<max_corner>(point, mbr);
+    }
+};
+
+
+template <std::size_t DimensionCount>
+struct envelope_one_point<0, DimensionCount, spherical_equatorial_tag>
 {
     template<typename Point, typename Box>
     static inline void apply(Point const& point, Box& mbr)
@@ -49,33 +79,28 @@ struct envelope_point_on_spheroid
 
         typename point_type<Box>::type box_point;
 
-        // transform input point to a point of the same type as box's point
-        geometry::transform(normalized_point, box_point);
+        // transform units of input point to units of a box point
+        transform_units(normalized_point, box_point);
 
-        geometry::convert(box_point, mbr);
+        geometry::set<min_corner, 0>(mbr, geometry::get<0>(box_point));
+        geometry::set<min_corner, 1>(mbr, geometry::get<1>(box_point));
+
+        geometry::set<max_corner, 0>(mbr, geometry::get<0>(box_point));
+        geometry::set<max_corner, 1>(mbr, geometry::get<1>(box_point));
+
+        envelope_one_point
+            <
+                2, DimensionCount, spherical_equatorial_tag
+            >::apply(normalized_point, mbr);
     }
 };
 
 
-template <typename CSTag>
-struct envelope_one_point
-{
-    template<typename Point, typename Box>
-    static inline void apply(Point const& point, Box& mbr)
-    {
-        geometry::convert(point, mbr);
-    }
-};
-
-template <>
-struct envelope_one_point<spherical_equatorial_tag>
-    : envelope_point_on_spheroid
+template <std::size_t Dimension, std::size_t DimensionCount>
+struct envelope_one_point<Dimension, DimensionCount, geographic_tag>
+    : envelope_one_point<Dimension, DimensionCount, spherical_equatorial_tag>
 {};
 
-template <>
-struct envelope_one_point<geographic_tag>
-    : envelope_point_on_spheroid
-{};
 
 }} // namespace detail::envelope
 #endif // DOXYGEN_NO_DETAIL
@@ -85,9 +110,15 @@ namespace dispatch
 {
 
 
-template <typename Point>
-struct envelope<Point, point_tag>
-    : detail::envelope::envelope_one_point<typename cs_tag<Point>::type>
+template
+<
+    typename Point,
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename CS_Tag
+>
+struct envelope<Point, Dimension, DimensionCount, point_tag, CS_Tag>
+    : detail::envelope::envelope_one_point<Dimension, DimensionCount, CS_Tag>
 {};
 
 
