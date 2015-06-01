@@ -107,16 +107,17 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
 {
     // Get bounding boxes (when at least one of the geometries is not empty)
     model::box<Point> env;
-    if (geometry::num_points(geometry1) == 0
-        && geometry::num_points(geometry2) == 0)
+    bool is_empty1 = (geometry::num_points(geometry1) == 0);
+    bool is_empty2 = (geometry::num_points(geometry2) == 0);
+    if (is_empty1 == 0 && is_empty2)
     {
         return;
     }
-    else if (geometry::num_points(geometry1) == 0)
+    else if (is_empty1)
     {
         geometry::envelope(geometry2, env);
     }
-    else if (geometry::num_points(geometry2) == 0)
+    else if (is_empty2)
     {
         geometry::envelope(geometry1, env);
     }
