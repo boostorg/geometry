@@ -20,6 +20,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISPATCH_EXPAND_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISPATCH_EXPAND_HPP
 
+#include <cstddef>
+
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
 
@@ -39,6 +42,8 @@ namespace dispatch
 template
 <
     typename GeometryOut, typename Geometry,
+    std::size_t Dimension = 0,
+    std::size_t DimensionCount = dimension<Geometry>::value,
     typename StrategyLess = strategy::compare::default_strategy,
     typename StrategyGreater = strategy::compare::default_strategy,
     typename TagOut = typename tag<GeometryOut>::type,

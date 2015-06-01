@@ -22,9 +22,13 @@
 
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/envelope/box.hpp>
+#include <boost/geometry/algorithms/detail/envelope/range_of_boxes.hpp>
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
+
 #include <boost/geometry/algorithms/detail/expand/box.hpp>
 #include <boost/geometry/algorithms/detail/expand/indexed.hpp>
+
 #include <boost/geometry/algorithms/dispatch/expand.hpp>
 
 
@@ -36,14 +40,31 @@ namespace detail { namespace expand
 {
 
 
+template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
 struct segment_on_spheroid
 {
     template <typename Box, typename Segment>
     static inline void apply(Box& box, Segment const& segment)
     {
-        Box segment_envelope;
-        dispatch::envelope<Segment>::apply(segment, segment_envelope);
-        box_on_spheroid::apply(box, segment_envelope);
+        Box mbrs[2];
+
+        // compute the envelope of the segment
+        dispatch::envelope
+            <
+                Segment, Dimension, DimensionCount
+            >::apply(segment, mbrs[0]);
+
+        // normalize the box
+        detail::envelope::envelope_box
+            <
+                Dimension, DimensionCount, CS_Tag
+            >::apply(box, mbrs[1]);
+
+        // compute the envelope of the two boxes
+        detail::envelope::envelope_range_of_boxes
+            <
+                Dimension, DimensionCount
+            >::apply(mbrs, box);
     }
 };
 
@@ -59,27 +80,37 @@ namespace dispatch
 template
 <
     typename Box, typename Segment,
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater,
     typename CSTagOut, typename CSTag
 >
 struct expand
     <
-        Box, Segment, StrategyLess, StrategyGreater,
+        Box, Segment,
+        Dimension, DimensionCount, StrategyLess, StrategyGreater,
         box_tag, segment_tag, CSTagOut, CSTag
-    > : detail::expand::expand_indexed<StrategyLess, StrategyGreater>
+    > : detail::expand::expand_indexed
+        <
+            Dimension, DimensionCount, StrategyLess, StrategyGreater
+        >
 {};
 
 template
 <
     typename Box, typename Segment,
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater
 >
 struct expand
     <
-        Box, Segment, StrategyLess, StrategyGreater,
+        Box, Segment,
+        Dimension, DimensionCount, StrategyLess, StrategyGreater,
         box_tag, segment_tag,
         spherical_equatorial_tag, spherical_equatorial_tag
     > : detail::expand::segment_on_spheroid
+        <
+            Dimension, DimensionCount, spherical_equatorial_tag
+        >
 {};
 
 

@@ -20,6 +20,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_BOX_HPP
 
+#include <cstddef>
 #include <algorithm>
 
 #include <boost/geometry/core/access.hpp>
@@ -38,19 +39,27 @@ namespace boost { namespace geometry
 namespace detail { namespace expand
 {
 
-
+template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
 struct box_on_spheroid
 {
     template <typename BoxOut, typename BoxIn>
     static inline void apply(BoxOut& box_out, BoxIn const& box_in)
     {
+        typedef detail::envelope::envelope_box
+            <
+                Dimension, DimensionCount, CS_Tag
+            > envelope_box;
+
         // normalize both boxes and convert box-in to be of type of box-out
         BoxOut mbrs[2];
-        detail::envelope::envelope_box_on_spheroid::apply(box_in, mbrs[0]);
-        detail::envelope::envelope_box_on_spheroid::apply(box_out, mbrs[1]);
+        envelope_box::apply(box_in, mbrs[0]);
+        envelope_box::apply(box_out, mbrs[1]);
 
         // compute the envelope of the two boxes
-        detail::envelope::envelope_range_of_boxes::apply(mbrs, box_out);
+        detail::envelope::envelope_range_of_boxes
+            <
+                Dimension, DimensionCount
+            >::apply(mbrs, box_out);
     }
 };
 
@@ -67,38 +76,53 @@ namespace dispatch
 template
 <
     typename BoxOut, typename BoxIn,
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater,
     typename CSTagOut, typename CSTag
 >
 struct expand
     <
-        BoxOut, BoxIn, StrategyLess, StrategyGreater,
+        BoxOut, BoxIn,
+        Dimension, DimensionCount, StrategyLess, StrategyGreater,
         box_tag, box_tag, CSTagOut, CSTag
-    > : detail::expand::expand_indexed<StrategyLess, StrategyGreater>
+    > : detail::expand::expand_indexed
+        <
+           Dimension, DimensionCount, StrategyLess, StrategyGreater
+        >
 {};
 
 template
 <
     typename BoxOut, typename BoxIn,
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater
 >
 struct expand
     <
-        BoxOut, BoxIn, StrategyLess, StrategyGreater,
+        BoxOut, BoxIn,
+        Dimension, DimensionCount, StrategyLess, StrategyGreater,
         box_tag, box_tag, spherical_equatorial_tag, spherical_equatorial_tag
     > : detail::expand::box_on_spheroid
+        <
+            Dimension, DimensionCount, spherical_equatorial_tag
+        >
 {};
 
 template
 <
     typename BoxOut, typename BoxIn,
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater
 >
 struct expand
     <
-        BoxOut, BoxIn, StrategyLess, StrategyGreater,
+        BoxOut, BoxIn,
+        Dimension, DimensionCount, StrategyLess, StrategyGreater,
         box_tag, box_tag, geographic_tag, geographic_tag
     > : detail::expand::box_on_spheroid
+        <
+            Dimension, DimensionCount, geographic_tag
+        >
 {};
 
 

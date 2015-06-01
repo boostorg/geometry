@@ -23,7 +23,6 @@
 #include <cstddef>
 
 #include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/util/select_coordinate_type.hpp>
@@ -113,6 +112,7 @@ struct indexed_loop
 // Changes a box such that the other box is also contained by the box
 template
 <
+    std::size_t Dimension, std::size_t DimensionCount,
     typename StrategyLess, typename StrategyGreater
 >
 struct expand_indexed
@@ -123,13 +123,13 @@ struct expand_indexed
         indexed_loop
             <
                 StrategyLess, StrategyGreater,
-                0, 0, dimension<Geometry>::type::value
+                0, Dimension, DimensionCount
             >::apply(box, geometry);
 
         indexed_loop
             <
                 StrategyLess, StrategyGreater,
-                1, 0, dimension<Geometry>::type::value
+                1, Dimension, DimensionCount
             >::apply(box, geometry);
     }
 };
