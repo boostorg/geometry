@@ -140,9 +140,9 @@ namespace boost { namespace geometry { namespace projections
                 for (i = 1; i < nvert; i++) {
                     p2.x = vert[i % nvert][0];
                     p2.y = vert[i % nvert][1];
-                    if (testy > std::min(p1.y, p2.y)) {
-                        if (testy <= std::max(p1.y, p2.y)) {
-                            if (testx <= std::max(p1.x, p2.x)) {
+                    if (testy > (std::min)(p1.y, p2.y)) {
+                        if (testy <= (std::max)(p1.y, p2.y)) {
+                            if (testx <= (std::max)(p1.x, p2.x)) {
                                 if (p1.y != p2.y) {
                                     xinters = (testy-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x;
                                     if (p1.x == p2.x || testx <= xinters) {
