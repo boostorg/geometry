@@ -685,8 +685,6 @@ BOOST_AUTO_TEST_CASE( test_linestring_of_point_pointers )
     typedef tuple_multi_linestring_type TML;
     typedef std::vector<test::test_point_xy*> L;
 
-    typedef bg::point_type<L>::type point_type;
-
     std::vector<test::test_point_xy*> linestring;
     for (int i = 1; i < 10; i++)
     {
