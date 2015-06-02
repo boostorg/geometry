@@ -49,7 +49,7 @@ struct range_is_empty
     template <typename Range>
     static inline bool apply(Range const& range)
     {
-        return boost::size(range) == 0;
+        return boost::empty(range);
     }
 };
 
@@ -58,7 +58,7 @@ struct polygon_is_empty
     template <typename Polygon>
     static inline bool apply(Polygon const& polygon)
     {
-        return boost::size(exterior_ring(polygon)) == 0;
+        return boost::empty(exterior_ring(polygon));
     }
 };
 
