@@ -30,6 +30,7 @@
 * Added relate() and relation() algorithms.
 * Intersection has been implemented for combinations of pointlike and linear geometries
 * Added implementation for difference(pointlike, linear)
+* New algorithm is_empty, returning true if the geometry represents the empty set
 
 [*Improvements]
 
