@@ -69,11 +69,8 @@ public:
     template <typename Polygon>
     static inline bool apply(Polygon const& polygon)
     {
-        if (! boost::empty(exterior_ring(polygon)))
-        {
-            return false;
-        }
-        return check_interior_rings(interior_rings(polygon));
+        return boost::empty(exterior_ring(polygon))
+            && check_interior_rings(interior_rings(polygon));
     }
 };
 
