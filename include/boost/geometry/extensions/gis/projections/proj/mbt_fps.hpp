@@ -102,6 +102,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (C_x * (1. + 3. * cos(lp_lat)/cos(t)));
                     lp_lat = aasin((C1 * sin(t) + sin(lp_lat)) / C3);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mbt_fps_spheroid";
+                }
+
             };
 
             // McBryde-Thomas Flat-Pole Sine (No. 2)

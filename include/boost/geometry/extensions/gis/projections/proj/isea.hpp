@@ -1100,6 +1100,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = out.x;
                     xy_y = out.y;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "isea_spheroid";
+                }
+
             };
 
             // Icosahedral Snyder Equal Area

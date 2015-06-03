@@ -186,6 +186,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = atan2(xy_x, xy_y);
                     lp_lat = pj_authlat(asin(ab), this->m_proj_parm.apa);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "laea_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -272,6 +278,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == EQUIT || this->m_proj_parm.mode == OBLIQ)) ?
                         0. : atan2(xy_x, xy_y);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "laea_spheroid";
+                }
+
             };
 
             // Lambert Azimuthal Equal Area

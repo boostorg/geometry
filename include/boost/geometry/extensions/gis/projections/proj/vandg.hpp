@@ -143,6 +143,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "vandg_spheroid";
+                }
+
             };
 
             // van der Grinten (I)

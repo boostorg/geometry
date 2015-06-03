@@ -151,6 +151,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lon = lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mod_ster_ellipsoid";
+                }
+
             };
 
             template <typename Parameters>

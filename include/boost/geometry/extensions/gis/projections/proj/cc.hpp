@@ -88,6 +88,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = atan(xy_y);
                     lp_lon = xy_x;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cc_spheroid";
+                }
+
             };
 
             // Central Cylindrical

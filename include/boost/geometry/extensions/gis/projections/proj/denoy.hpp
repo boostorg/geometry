@@ -78,6 +78,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x *= cos((C0 + lp_lon * (C1 + lp_lon * lp_lon * C3)) *
                         (lp_lat * (D1 + D5 * lp_lat * lp_lat * lp_lat * lp_lat)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "denoy_spheroid";
+                }
+
             };
 
             // Denoyer Semi-Elliptical

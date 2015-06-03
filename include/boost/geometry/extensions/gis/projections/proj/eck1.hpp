@@ -80,6 +80,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = xy_y / FC;
                     lp_lon = xy_x / (FC * (1. - RP * fabs(lp_lat)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck1_spheroid";
+                }
+
             };
 
             // Eckert I

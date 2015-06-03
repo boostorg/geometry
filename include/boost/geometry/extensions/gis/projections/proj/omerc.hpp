@@ -144,6 +144,12 @@ namespace boost { namespace geometry { namespace projections
                             Vp * this->m_proj_parm.singam), cos(this->m_proj_parm.BrA * u));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "omerc_ellipsoid";
+                }
+
             };
 
             // Oblique Mercator

@@ -195,6 +195,12 @@ namespace boost { namespace geometry { namespace projections
                         if (!z) lp_lon = HUGE_VAL;
                         if (!z) lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "igh_spheroid";
+                }
+
             };
 
             // Interrupted Goode Homolosine

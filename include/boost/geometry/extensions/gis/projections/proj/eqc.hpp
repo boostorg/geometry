@@ -83,6 +83,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / this->m_proj_parm.rc;
                     lp_lat = xy_y + this->m_par.phi0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eqc_spheroid";
+                }
+
             };
 
             // Equidistant Cylindrical (Plate Caree)

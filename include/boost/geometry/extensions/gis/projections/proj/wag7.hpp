@@ -73,6 +73,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_y *= 1.24104 * (D = 1/(sqrt(0.5 * (1 + ct * cos(lp_lon)))));
                     xy_x *= D;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wag7_spheroid";
+                }
+
             };
 
             // Wagner VII

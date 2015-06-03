@@ -142,6 +142,12 @@ namespace boost { namespace geometry { namespace projections
                     this->m_fac.conv = - this->m_proj_parm.n * lp_lon;
                 }
                 #endif
+
+                static inline std::string get_name()
+                {
+                    return "lcc_ellipsoid";
+                }
+
             };
 
             // Lambert Conformal Conic

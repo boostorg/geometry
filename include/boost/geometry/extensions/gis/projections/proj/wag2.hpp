@@ -85,6 +85,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (C_x * cos(lp_lat));
                     lp_lat = aasin(sin(lp_lat) / C_p1) / C_p2;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wag2_spheroid";
+                }
+
             };
 
             // Wagner II

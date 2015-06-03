@@ -80,6 +80,12 @@ namespace boost { namespace geometry { namespace projections
                     t *= t;
                     xy_y = lp_lat * (1. + t * this->m_proj_parm.q3) * this->m_proj_parm.rmn;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "urm5_spheroid";
+                }
+
             };
 
             // Urmaev V

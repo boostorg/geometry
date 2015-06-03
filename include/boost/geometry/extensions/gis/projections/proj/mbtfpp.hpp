@@ -97,6 +97,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lat = asin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mbtfpp_spheroid";
+                }
+
             };
 
             // McBride-Thomas Flat-Polar Parabolic

@@ -91,6 +91,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon /= cos(lp_lat);
                     lp_lat = aasin(1.13137085 * sin(lp_lat));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "putp4p_spheroid";
+                }
+
             };
 
             template <typename Parameters>

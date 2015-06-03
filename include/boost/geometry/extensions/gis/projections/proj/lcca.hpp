@@ -118,6 +118,12 @@ namespace boost { namespace geometry { namespace projections
                     if (!i) throw proj_exception();
                     lp_lat = pj_inv_mlfn(S + this->m_proj_parm.M0, this->m_par.es, this->m_proj_parm.en);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lcca_ellipsoid";
+                }
+
             };
 
             // Lambert Conformal Conic Alternative

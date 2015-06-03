@@ -94,6 +94,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lon = xy_x / (FXC * sqrt(lp_lon));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "collg_spheroid";
+                }
+
             };
 
             // Collignon

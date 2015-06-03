@@ -93,6 +93,12 @@ namespace boost { namespace geometry { namespace projections
                     if (xy_y < 0)
                         lp_lat = -lp_lat;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck2_spheroid";
+                }
+
             };
 
             // Eckert II

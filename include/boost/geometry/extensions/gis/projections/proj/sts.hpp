@@ -104,6 +104,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lon *= c;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "sts_spheroid";
+                }
+
             };
 
             template <typename Parameters>

@@ -152,6 +152,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = this->m_proj_parm.rho_c - rho;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "sconics_spheroid";
+                }
+
             };
 
             template <typename Parameters>

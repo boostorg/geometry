@@ -92,6 +92,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = lp_lat - this->m_par.phi0 + (1. - cos(fa)) * xy_y;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rpoly_spheroid";
+                }
+
             };
 
             // Rectangular Polyconic

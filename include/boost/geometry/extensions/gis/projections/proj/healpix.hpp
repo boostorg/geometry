@@ -528,6 +528,12 @@ namespace boost { namespace geometry { namespace projections
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 1);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "healpix_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -565,6 +571,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "healpix_spheroid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -606,6 +618,12 @@ namespace boost { namespace geometry { namespace projections
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 1);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rhealpix_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -645,6 +663,12 @@ namespace boost { namespace geometry { namespace projections
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 1);
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rhealpix_spheroid";
+                }
+
             };
 
             // HEALPix

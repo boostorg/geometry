@@ -85,6 +85,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = xy_y;
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(TWOTHIRD * lp_lat));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wag3_spheroid";
+                }
+
             };
 
             // Wagner III

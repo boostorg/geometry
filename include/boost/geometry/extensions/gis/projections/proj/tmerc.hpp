@@ -159,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ))) / cosphi;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -222,6 +228,12 @@ namespace boost { namespace geometry { namespace projections
                     if (xy_y < 0.) lp_lat = -lp_lat;
                     lp_lon = (g || h) ? atan2(g, h) : 0.;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_spheroid";
+                }
+
             };
 
             template <typename Parameters>

@@ -77,6 +77,12 @@ namespace boost { namespace geometry { namespace projections
                     t = lp_lon * lp_lon;
                     xy_x *= (0.87 - Cl * t * t);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gins8_spheroid";
+                }
+
             };
 
             // Ginsburg VIII (TsNIIGAiK)

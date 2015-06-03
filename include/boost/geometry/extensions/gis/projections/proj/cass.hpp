@@ -116,6 +116,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = dd * (1. + t * d2 *
                         (-C4 + (1. + 3. * t) * d2 * C5)) / cos(ph1);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cass_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -149,6 +155,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = asin(sin(dd) * cos(xy_x));
                     lp_lon = atan2(tan(xy_x), cos(dd));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cass_spheroid";
+                }
+
             };
 
             // Cassini

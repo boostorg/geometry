@@ -83,6 +83,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = xy_y;
                         lp_lon = xy_x;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "geocent_other";
+                }
+
             };
 
             // Geocentric

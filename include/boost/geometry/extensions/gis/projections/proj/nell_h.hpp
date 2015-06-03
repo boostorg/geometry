@@ -95,6 +95,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lon = 2. * xy_x / (1. + cos(lp_lat));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nell_h_spheroid";
+                }
+
             };
 
             // Nell-Hammer

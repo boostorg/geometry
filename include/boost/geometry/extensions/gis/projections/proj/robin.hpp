@@ -187,6 +187,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon /= V(X[i], t);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "robin_spheroid";
+                }
+
             };
 
             // Robinson

@@ -243,6 +243,12 @@ namespace boost { namespace geometry { namespace projections
 
                    lp_lon -= this->m_par.lam0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "krovak_ellipsoid";
+                }
+
             };
 
             // Krovak

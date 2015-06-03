@@ -112,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                     s = sin(lp_lat);
                     lp_lon=al * sqrt(1. - this->m_par.es * s * s)/cos(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rouss_ellipsoid";
+                }
+
             };
 
             // Roussilhe Stereographic

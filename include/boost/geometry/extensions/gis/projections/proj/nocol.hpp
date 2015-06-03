@@ -100,6 +100,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = geometry::math::half_pi<double>() * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nocol_spheroid";
+                }
+
             };
 
             // Nicolosi Globular

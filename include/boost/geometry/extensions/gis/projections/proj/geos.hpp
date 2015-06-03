@@ -147,6 +147,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = atan (Vz * cos (lp_lon) / Vx);
                     lp_lat = atan (this->m_proj_parm.radius_p_inv2 * tan (lp_lat));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "geos_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -223,6 +229,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = atan2 (Vy, Vx);
                     lp_lat = atan (Vz * cos (lp_lon) / Vx);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "geos_spheroid";
+                }
+
             };
 
             // Geostationary Satellite View

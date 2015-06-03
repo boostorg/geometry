@@ -117,6 +117,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     detail::gauss::inv_gauss(m_proj_parm.en, lp_lon, lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "sterea_ellipsoid";
+                }
+
             };
 
             // Oblique Stereographic Alternative

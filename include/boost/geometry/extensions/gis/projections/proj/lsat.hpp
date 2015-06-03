@@ -197,6 +197,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = atan((tan(lamdp) * cos(lamt) - this->m_proj_parm.ca * sin(lamt)) /
                             (this->m_par.one_es * this->m_proj_parm.sa));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lsat_ellipsoid";
+                }
+
             };
 
             // Space oblique for LANDSAT

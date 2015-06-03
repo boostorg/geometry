@@ -109,6 +109,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = aatan2(sz * sin(Az),
                         this->m_proj_parm.cp0 * cz - this->m_proj_parm.sp0 * sz * cAz);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "oea_spheroid";
+                }
+
             };
 
             // Oblated Equal Area

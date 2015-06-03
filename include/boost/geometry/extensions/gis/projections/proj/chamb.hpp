@@ -154,6 +154,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y *= THIRD;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "chamb_spheroid";
+                }
+
             };
 
             // Chamberlin Trimetric

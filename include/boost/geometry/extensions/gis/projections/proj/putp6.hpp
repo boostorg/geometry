@@ -108,6 +108,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.D - r));
                     lp_lat = aasin(( (this->m_proj_parm.A - r) * lp_lat - log(lp_lat + r) ) / this->m_proj_parm.B);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "putp6_spheroid";
+                }
+
             };
 
             template <typename Parameters>

@@ -85,6 +85,12 @@ namespace boost { namespace geometry { namespace projections
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) throw proj_exception();;
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "merc_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -117,6 +123,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = geometry::math::half_pi<double>() - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "merc_spheroid";
+                }
+
             };
 
             // Mercator

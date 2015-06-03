@@ -103,6 +103,12 @@ namespace boost { namespace geometry { namespace projections
                         if ( lp_lat < 0.) xy_y = -xy_y;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "vandg2_spheroid";
+                }
+
             };
 
             // van der Grinten II

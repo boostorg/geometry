@@ -112,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = aasin(this->m_proj_parm.sa * sp + this->m_proj_parm.ca * cp * (s = cos(lp_lon -= this->m_proj_parm.lp)));
                     lp_lon = atan2(cp * sin(lp_lon), this->m_proj_parm.sa * cp * s - this->m_proj_parm.ca * sp) + this->m_proj_parm.lamc;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tpeqd_spheroid";
+                }
+
             };
 
             // Two Point Equidistant

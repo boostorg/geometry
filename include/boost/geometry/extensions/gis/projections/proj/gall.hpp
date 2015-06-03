@@ -82,6 +82,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = RXF * xy_x;
                     lp_lat = 2. * atan(xy_y * RYF);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gall_spheroid";
+                }
+
             };
 
             // Gall (Gall Stereographic)

@@ -102,6 +102,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat= -1.0*pj_phi2(exp((LC-this->m_proj_parm.c)/this->m_proj_parm.n1),this->m_par.e);
                     /*fprintf(stderr,"inv:\nL      =%16.13f\nsinC   =%16.13f\nLC     =%16.13f\nXY(%16.4f,%16.4f)=LP(%16.13f,%16.13f)\n",L,sinC,LC,((xy_x/this->m_par.ra)+this->m_par.x0)/this->m_par.to_meter,((xy_y/this->m_par.ra)+this->m_par.y0)/this->m_par.to_meter,lp_lon+this->m_par.lam0,lp_lat);*/
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gstmerc_spheroid";
+                }
+
             };
 
             // Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)

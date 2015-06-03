@@ -71,6 +71,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = 0.5 * lp_lon * (1. + sqrt(cos(lp_lat)));
                     xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(SIXTH * lp_lon));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "larr_spheroid";
+                }
+
             };
 
             // Larrivee

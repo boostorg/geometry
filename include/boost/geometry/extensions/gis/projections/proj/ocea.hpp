@@ -106,6 +106,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = atan2(t * this->m_proj_parm.sinphi * s - xy_y * this->m_proj_parm.cosphi,
                         t * cos(xy_x));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ocea_spheroid";
+                }
+
             };
 
             // Oblique Cylindrical Equal Area

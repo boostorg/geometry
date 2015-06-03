@@ -180,6 +180,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = lp_lon * xy_x / t.x;
                     } while (fabs(t.x - xy_x) > TOL || fabs(t.y - xy_y) > TOL);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "imw_p_ellipsoid";
+                }
+
             };
 
             // International Map of the World Polyconic

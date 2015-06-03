@@ -83,6 +83,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = xy_y;
                     lp_lon = 2. * xy_x / (this->m_proj_parm.cosphi1 + cos(lp_lat));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wink1_spheroid";
+                }
+
             };
 
             // Winkel I

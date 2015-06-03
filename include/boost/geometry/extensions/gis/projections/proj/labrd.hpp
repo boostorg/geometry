@@ -153,6 +153,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = pe + x2 * (-I7 + I8 * x2);
                     lp_lon = xy_x * (I9 + x2 * (-I10 + x2 * I11));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "labrd_ellipsoid";
+                }
+
             };
 
             // Laborde

@@ -84,6 +84,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = 3. * asin(xy_y * RYM);
                     lp_lon = xy_x * RXM / (2. * cos((lp_lat + lp_lat) * THIRD) - 1);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "crast_spheroid";
+                }
+
             };
 
             // Craster Parabolic (Putnins P4)

@@ -79,6 +79,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = this->m_proj_parm.m * d * cosphi * sin(lp_lon);
                     xy_y = this->m_proj_parm.rm * d * sin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "hammer_spheroid";
+                }
+
             };
 
             // Hammer & Eckert-Greifendorff

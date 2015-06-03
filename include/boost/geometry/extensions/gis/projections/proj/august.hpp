@@ -78,6 +78,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = M * x1 * (3. + (x12 = x1 * x1) - 3. * (y12 = y1 *  y1));
                     xy_y = M * y1 * (3. + 3. * x12 - y12);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "august_spheroid";
+                }
+
             };
 
             // August Epicycloidal

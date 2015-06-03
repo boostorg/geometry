@@ -88,6 +88,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = asin(t * sin(xy_y));
                     lp_lon = atan2(xy_x, t * cos(xy_y));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tcea_spheroid";
+                }
+
             };
 
             // Transverse Cylindrical Equal Area

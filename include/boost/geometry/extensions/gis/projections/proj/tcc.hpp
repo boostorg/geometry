@@ -81,6 +81,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = b / sqrt(bt);
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tcc_spheroid";
+                }
+
             };
 
             // Transverse Central Cylindrical

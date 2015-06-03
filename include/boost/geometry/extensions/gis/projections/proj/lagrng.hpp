@@ -92,6 +92,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = (v - 1./v) / c;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lagrng_spheroid";
+                }
+
             };
 
             // Lagrange

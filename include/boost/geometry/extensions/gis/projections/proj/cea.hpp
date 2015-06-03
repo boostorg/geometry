@@ -90,6 +90,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = pj_authlat(asin( 2. * xy_y * this->m_par.k0 / this->m_proj_parm.qp), this->m_proj_parm.apa);
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cea_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -129,6 +135,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = xy_x / this->m_par.k0;
                     } else throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cea_spheroid";
+                }
+
             };
 
             // Equal Area Cylindrical

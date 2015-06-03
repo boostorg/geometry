@@ -170,6 +170,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, this->m_proj_parm.mode == N_POLE ? -xy_y : xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -217,6 +223,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     lp_lon = xy_x * t / cos(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_guam";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -310,6 +322,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aeqd_spheroid";
+                }
+
             };
 
             // Azimuthal Equidistant

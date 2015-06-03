@@ -81,6 +81,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = fabs(xy_y = 1. - xy_y * xy_y) < TOL ? 0. :
                         xy_x / (0.819152 * sqrt(xy_y));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "fahey_spheroid";
+                }
+
             };
 
             // Fahey

@@ -105,6 +105,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat += lp_lat;
                     lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "moll_spheroid";
+                }
+
             };
 
             template <typename Parameters>

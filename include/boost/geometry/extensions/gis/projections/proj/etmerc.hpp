@@ -227,6 +227,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lat = lp_lon = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "etmerc_ellipsoid";
+                }
+
             };
 
             // Extended Transverse Mercator

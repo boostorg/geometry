@@ -196,6 +196,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lon = lamB - lp_lon;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "bipc_spheroid";
+                }
+
             };
 
             // Bipolar conic of western hemisphere

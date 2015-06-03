@@ -94,6 +94,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     xy_y = FYC * (lp_lat + FYC2 * sin(theta));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "boggs_spheroid";
+                }
+
             };
 
             // Boggs Eumorphic

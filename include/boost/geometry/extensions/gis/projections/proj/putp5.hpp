@@ -88,6 +88,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = xy_y / C;
                     lp_lon = xy_x / (C * (this->m_proj_parm.A - this->m_proj_parm.B * sqrt(1. + D * lp_lat * lp_lat)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "putp5_spheroid";
+                }
+
             };
 
             template <typename Parameters>

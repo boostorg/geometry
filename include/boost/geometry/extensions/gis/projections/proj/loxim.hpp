@@ -104,6 +104,12 @@ namespace boost { namespace geometry { namespace projections
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "loxim_spheroid";
+                }
+
             };
 
             // Loximuthal

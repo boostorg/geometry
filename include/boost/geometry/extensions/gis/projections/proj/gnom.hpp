@@ -162,6 +162,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gnom_spheroid";
+                }
+
             };
 
             // Gnomonic

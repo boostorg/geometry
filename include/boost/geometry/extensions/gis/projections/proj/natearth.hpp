@@ -136,6 +136,12 @@ namespace boost { namespace geometry { namespace projections
                     y2 = yc * yc;
                     lp_lon = xy_x / (A0 + y2 * (A1 + y2 * (A2 + y2 * y2 * y2 * (A3 + y2 * A4))));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "natearth_spheroid";
+                }
+
             };
 
             // Natural Earth

@@ -106,6 +106,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = 0.;
                     else throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "bonne_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -151,6 +157,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lon = rh * atan2(xy_x, xy_y) / cos(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "bonne_spheroid";
+                }
+
             };
 
             // Bonne (Werner lat_1=90)

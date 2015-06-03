@@ -127,6 +127,12 @@ namespace boost { namespace geometry { namespace projections
                         cosphi, this->m_proj_parm.en) : lp_lat)) / pj_msfn(sinphi, cosphi, this->m_par.es);
                 }
                 #endif
+
+                static inline std::string get_name()
+                {
+                    return "eqdc_ellipsoid";
+                }
+
             };
 
             // Equidistant Conic

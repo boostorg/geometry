@@ -103,6 +103,12 @@ namespace boost { namespace geometry { namespace projections
                     else throw proj_exception();;
                 }
                 /* General spherical sinusoidals */
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -153,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ( this->m_proj_parm.n != 1. ? aasin(sin(xy_y) / this->m_proj_parm.n) : xy_y );
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.m + cos(xy_y)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_spheroid";
+                }
+
             };
 
             template <typename Parameters>

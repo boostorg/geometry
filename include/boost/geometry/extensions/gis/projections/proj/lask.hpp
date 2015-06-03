@@ -85,6 +85,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = lp_lat * (b01 + l2 * (b21 + p2 * b23 + l2 * b41) +
                         p2 * (b03 + p2 * b05));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lask_spheroid";
+                }
+
             };
 
             // Laskowski

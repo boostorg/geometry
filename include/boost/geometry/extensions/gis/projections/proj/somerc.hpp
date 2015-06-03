@@ -120,6 +120,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         throw proj_exception();
                 }
+
+                static inline std::string get_name()
+                {
+                    return "somerc_ellipsoid";
+                }
+
             };
 
             // Swiss. Obl. Mercator

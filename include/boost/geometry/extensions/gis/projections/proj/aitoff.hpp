@@ -173,6 +173,12 @@ namespace boost { namespace geometry { namespace projections
 
                     if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aitoff_spheroid";
+                }
+
             };
 
             template <typename Parameters>

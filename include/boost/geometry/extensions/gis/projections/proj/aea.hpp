@@ -160,6 +160,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = this->m_proj_parm.n > 0. ? geometry::math::half_pi<double>() : - geometry::math::half_pi<double>();
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aea_ellipsoid";
+                }
+
             };
 
             template <typename Parameters>

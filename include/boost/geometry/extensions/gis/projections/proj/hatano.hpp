@@ -115,6 +115,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lat = asin(lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "hatano_spheroid";
+                }
+
             };
 
             // Hatano Asymmetrical Equal Area

@@ -81,6 +81,12 @@ namespace boost { namespace geometry { namespace projections
                 {
                     lp_lon = RXF * xy_x / (1. + cos( lp_lat = RYF * xy_y));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck5_spheroid";
+                }
+
             };
 
             // Eckert V

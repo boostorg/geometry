@@ -108,6 +108,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (C_x * (1. + (c = cos(lp_lat))));
                     lp_lat = aasin((lp_lat + sin(lp_lat) * (c + 2.)) / C_p);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck4_spheroid";
+                }
+
             };
 
             // Eckert IV

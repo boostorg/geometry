@@ -137,6 +137,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         lp_lon = lp_lat = HUGE_VAL;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nzmg_ellipsoid";
+                }
+
             };
 
             // New Zealand Map Grid

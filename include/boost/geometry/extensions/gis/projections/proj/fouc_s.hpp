@@ -107,6 +107,12 @@ namespace boost { namespace geometry { namespace projections
                     V = cos(lp_lat);
                     lp_lon = xy_x * (this->m_proj_parm.n + this->m_proj_parm.n1 * V) / V;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "fouc_s_spheroid";
+                }
+
             };
 
             // Foucaut Sinusoidal

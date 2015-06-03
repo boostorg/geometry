@@ -77,6 +77,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x;
                     lp_lat = 2.5 * (atan(exp(.8 * xy_y)) - FORTPI);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "mill_spheroid";
+                }
+
             };
 
             // Miller Cylindrical

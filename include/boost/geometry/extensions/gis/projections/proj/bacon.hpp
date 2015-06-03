@@ -92,6 +92,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         xy_x = 0.;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "bacon_spheroid";
+                }
+
             };
 
             // Apian Globular I

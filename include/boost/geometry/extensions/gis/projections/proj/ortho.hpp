@@ -151,6 +151,12 @@ namespace boost { namespace geometry { namespace projections
                                            : atan2(xy_x, xy_y);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ortho_spheroid";
+                }
+
             };
 
             // Orthographic

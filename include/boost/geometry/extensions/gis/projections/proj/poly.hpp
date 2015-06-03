@@ -125,6 +125,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = asin(xy_x * tan(lp_lat) * sqrt(1. - this->m_par.es * c * c)) / sin(lp_lat);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "poly_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -178,6 +184,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = asin(xy_x * tan(lp_lat)) / sin(lp_lat);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "poly_spheroid";
+                }
+
             };
 
             // Polyconic (American)

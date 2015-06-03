@@ -131,6 +131,12 @@ namespace boost { namespace geometry { namespace projections
                             xy_x = xy_y = 0.;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "airy_spheroid";
+                }
+
             };
 
             // Airy

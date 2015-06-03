@@ -89,6 +89,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = aasin(sin(xy_y) / this->m_proj_parm.n);
                     lp_lon = xy_x / (C_x * cos(xy_y));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "urmfps_spheroid";
+                }
+
             };
 
             template <typename Parameters>

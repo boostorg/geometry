@@ -414,6 +414,12 @@ namespace boost { namespace geometry { namespace projections
                             }
                         }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "qsc_ellipsoid";
+                }
+
             };
 
             // Quadrilateralized Spherical Cube

@@ -104,6 +104,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = xy_x / (C_x * ((c = cos(lp_lat)) - 0.5));
                     lp_lat = aasin((lp_lat + sin(lp_lat) * (c - 1.)) / C_p);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "putp2_spheroid";
+                }
+
             };
 
             // Putnins P2

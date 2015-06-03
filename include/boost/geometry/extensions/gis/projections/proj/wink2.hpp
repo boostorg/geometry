@@ -97,6 +97,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = 0.5 * lp_lon * (cos(lp_lat) + this->m_proj_parm.cosphi1);
                     xy_y = FORTPI * (sin(lp_lat) + xy_y);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wink2_spheroid";
+                }
+
             };
 
             // Winkel II

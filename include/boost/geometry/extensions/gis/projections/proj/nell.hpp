@@ -93,6 +93,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lon = 2. * xy_x / (1. + cos(xy_y));
                     lp_lat = aasin(0.5 * (xy_y + sin(xy_y)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nell_spheroid";
+                }
+
             };
 
             // Nell

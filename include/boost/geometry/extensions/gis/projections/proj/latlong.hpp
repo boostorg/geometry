@@ -87,6 +87,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = xy_y * this->m_par.a;
                         lp_lon = xy_x * this->m_par.a;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "latlong_other";
+                }
+
             };
 
             // Lat/long (Geodetic)

@@ -174,6 +174,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "stere_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -261,6 +267,12 @@ namespace boost { namespace geometry { namespace projections
                         break;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "stere_spheroid";
+                }
+
             };
 
             template <typename Parameters>

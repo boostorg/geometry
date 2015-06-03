@@ -112,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                             this->m_proj_parm.cphip * sinphi);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ob_tran_oblique";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -157,6 +163,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = aasin(cosphi * cos(t));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ob_tran_transverse";
+                }
+
             };
 
             // General Oblique Transformation

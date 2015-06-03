@@ -86,6 +86,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = xy_y / this->m_proj_parm.C_y;
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.A + asqrt(1. - this->m_proj_parm.B * lp_lat * lp_lat)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "eck3_spheroid";
+                }
+
             };
 
             template <typename Parameters>

@@ -100,6 +100,12 @@ namespace boost { namespace geometry { namespace projections
                         this->m_proj_parm.moll.inv(xy_x, xy_y, lp_lon, lp_lat);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "goode_spheroid";
+                }
+
             };
 
             // Goode Homolosine
