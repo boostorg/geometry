@@ -134,6 +134,8 @@ namespace boost { namespace geometry { namespace projections
                 inline double DV(COEFS const& C, double z) const
                 { return (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3)); }
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     int i;
@@ -147,6 +149,8 @@ namespace boost { namespace geometry { namespace projections
                     if (lp_lat < 0.) xy_y = -xy_y;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int i;

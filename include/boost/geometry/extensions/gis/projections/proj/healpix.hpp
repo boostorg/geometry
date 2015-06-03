@@ -506,12 +506,16 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_healpix_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_healpix_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
+                // INVERSE(e_healpix_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image. */
@@ -541,11 +545,15 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_healpix_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_healpix_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
+                // INVERSE(s_healpix_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image */
@@ -574,6 +582,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_rhealpix_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_rhealpix_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
@@ -581,6 +591,8 @@ namespace boost { namespace geometry { namespace projections
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 0);
                 }
 
+                // INVERSE(e_rhealpix_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */
@@ -611,12 +623,16 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_rhealpix_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_rhealpix_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 0);
                 }
 
+                // INVERSE(s_rhealpix_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */

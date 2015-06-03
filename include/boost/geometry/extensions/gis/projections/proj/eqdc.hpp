@@ -81,6 +81,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_eqdc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  sphere & ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double rho = 0.0;
@@ -90,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
                 }
 
+                // INVERSE(e_inverse)  sphere & ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho = 0.0;
@@ -109,6 +113,7 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // SPECIAL(fac)
                 #ifdef SPECIAL_FACTORS_NOT_CONVERTED
                 inline void fac(Geographic lp, Factors &fac) const
                 {

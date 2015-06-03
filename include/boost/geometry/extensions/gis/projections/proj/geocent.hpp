@@ -68,12 +68,16 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_geocent_other<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                         xy_x = lp_lon;
                         xy_y = lp_lat;
                 }
 
+                // INVERSE(inverse)
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                         lp_lat = xy_y;

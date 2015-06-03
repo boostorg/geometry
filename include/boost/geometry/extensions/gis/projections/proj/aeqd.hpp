@@ -92,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi, rho, s, H, H2, c, Az, t, ct, st, cA, sA;
@@ -133,6 +135,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(e_inverse)  elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double c, Az, cosAz, A, B, D, E, F, psi, t;
@@ -183,6 +187,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_guam<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_guam_fwd)  Guam elliptical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  cosphi, sinphi, t;
@@ -195,6 +201,8 @@ namespace boost { namespace geometry { namespace projections
                         .5 * lp_lon * lp_lon * cosphi * sinphi * t;
                 }
 
+                // INVERSE(e_guam_inv)  Guam elliptical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double x2, t;
@@ -226,6 +234,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aeqd_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spherical
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  coslam, cosphi, sinphi;
@@ -264,6 +274,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(s_inverse)  spherical
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosc, c_rh, sinc;

@@ -79,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_cass_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double n = sin(lp_lat);
@@ -95,6 +97,8 @@ namespace boost { namespace geometry { namespace projections
                         (.5 + (5. - t + 6. * c) * a2 * C3);
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double ph1;
@@ -129,12 +133,16 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_cass_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_x = asin(cos(lp_lat) * sin(lp_lon));
                     xy_y = atan2(tan(lp_lat) , cos(lp_lon)) - this->m_par.phi0;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double dd = xy_y + this->m_par.phi0;
