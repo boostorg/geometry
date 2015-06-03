@@ -26,6 +26,7 @@
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -263,9 +264,9 @@ inline void buffer(GeometryIn const& geometry_in,
 
     geometry_out.clear();
 
-    if (geometry::num_points(geometry_in) == 0)
+    if (geometry::is_empty(geometry_in))
     {
-        // There are no points in input geometry -> output geometry stays empty
+        // Then output geometry is kept empty as well
         return;
     }
 
