@@ -86,6 +86,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tmerc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipse
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double al, als, n, cosphi, sinphi, t;
@@ -125,6 +127,8 @@ namespace boost { namespace geometry { namespace projections
                         ))));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double n, con, cosphi, d, ds, sinphi, t;
@@ -155,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ))) / cosphi;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -172,6 +182,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tmerc_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double b, cosphi;
@@ -203,6 +215,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.esp * (xy_y - this->m_par.phi0);
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double h, g;
@@ -214,6 +228,12 @@ namespace boost { namespace geometry { namespace projections
                     if (xy_y < 0.) lp_lat = -lp_lat;
                     lp_lon = (g || h) ? atan2(g, h) : 0.;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tmerc_spheroid";
+                }
+
             };
 
             template <typename Parameters>

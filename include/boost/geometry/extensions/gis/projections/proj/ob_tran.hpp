@@ -80,6 +80,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_ob_tran_oblique<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(o_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double coslam, sinphi, cosphi;
@@ -94,6 +96,8 @@ namespace boost { namespace geometry { namespace projections
                     m_proj_parm.link->fwd(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
+                // INVERSE(o_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double coslam, sinphi, cosphi;
@@ -108,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                             this->m_proj_parm.cphip * sinphi);
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ob_tran_oblique";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -125,6 +135,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_ob_tran_transverse<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(t_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosphi, coslam;
@@ -137,6 +149,8 @@ namespace boost { namespace geometry { namespace projections
                     m_proj_parm.link->fwd(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
+                // INVERSE(t_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cosphi, t;
@@ -149,6 +163,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = aasin(cosphi * cos(t));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "ob_tran_transverse";
+                }
+
             };
 
             // General Oblique Transformation

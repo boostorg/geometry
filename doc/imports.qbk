@@ -45,6 +45,7 @@
 [import src/examples/algorithms/intersection_segment.cpp]
 [import src/examples/algorithms/intersection_poly_poly.cpp]
 [import src/examples/algorithms/intersects_linestring.cpp]
+[import src/examples/algorithms/is_empty.cpp]
 [import src/examples/algorithms/is_simple.cpp]
 [import src/examples/algorithms/is_valid.cpp]
 [import src/examples/algorithms/is_valid_failure.cpp]

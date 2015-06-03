@@ -787,7 +787,7 @@ struct buffered_piece_collection
 
     inline void start_new_ring()
     {
-        int const n = offsetted_rings.size();
+        int const n = static_cast<int>(offsetted_rings.size());
         current_segment_id.source_index = 0;
         current_segment_id.multi_index = n;
         current_segment_id.ring_index = -1;
@@ -796,7 +796,7 @@ struct buffered_piece_collection
         offsetted_rings.resize(n + 1);
         current_robust_ring.clear();
 
-        m_first_piece_index = boost::size(m_pieces);
+        m_first_piece_index = static_cast<int>(boost::size(m_pieces));
     }
 
     inline void update_closing_point()
@@ -849,7 +849,7 @@ struct buffered_piece_collection
             // If piece was added
             // Reassign left-of-first and right-of-last
             geometry::range::at(m_pieces, m_first_piece_index).left_index
-                                                    = boost::size(m_pieces) - 1;
+                    = static_cast<int>(boost::size(m_pieces)) - 1;
             geometry::range::back(m_pieces).right_index = m_first_piece_index;
         }
         m_first_piece_index = -1;
@@ -885,7 +885,7 @@ struct buffered_piece_collection
 
         current_segment_id.segment_index++;
         current_ring.push_back(p);
-        return current_ring.size();
+        return static_cast<int>(current_ring.size());
     }
 
     //-------------------------------------------------------------------------
@@ -900,7 +900,7 @@ struct buffered_piece_collection
 
         piece pc;
         pc.type = type;
-        pc.index = boost::size(m_pieces);
+        pc.index = static_cast<int>(boost::size(m_pieces));
         pc.first_seg_id = current_segment_id;
 
         // Assign left/right (for first/last piece per ring they will be re-assigned later)

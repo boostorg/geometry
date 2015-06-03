@@ -74,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_somerc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double phip, lamp, phipp, lampp, sp, cp;
@@ -90,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.kR * log(tan(FORTPI + 0.5 * phipp));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid & spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double phip, lamp, phipp, lampp, cp, esp, con, delp;
@@ -116,6 +120,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         throw proj_exception();
                 }
+
+                static inline std::string get_name()
+                {
+                    return "somerc_ellipsoid";
+                }
+
             };
 
             // Swiss. Obl. Mercator

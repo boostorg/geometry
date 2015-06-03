@@ -68,6 +68,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_denoy_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_y = lp_lat;
@@ -76,6 +78,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x *= cos((C0 + lp_lon * (C1 + lp_lon * lp_lon * C3)) *
                         (lp_lat * (D1 + D5 * lp_lat * lp_lat * lp_lat * lp_lat)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "denoy_spheroid";
+                }
+
             };
 
             // Denoyer Semi-Elliptical

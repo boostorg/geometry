@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SINGLE_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SINGLE_GEOMETRY_HPP
 
+#include <boost/mpl/if.hpp>
+
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/util/range.hpp>

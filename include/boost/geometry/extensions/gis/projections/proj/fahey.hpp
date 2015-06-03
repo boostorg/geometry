@@ -65,18 +65,28 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_fahey_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_y = 1.819152 * ( xy_x = tan(0.5 * lp_lat) );
                     xy_x = 0.819152 * lp_lon * asqrt(1 - xy_x * xy_x);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = 2. * atan(xy_y /= 1.819152);
                     lp_lon = fabs(xy_y = 1. - xy_y * xy_y) < TOL ? 0. :
                         xy_x / (0.819152 * sqrt(xy_y));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "fahey_spheroid";
+                }
+
             };
 
             // Fahey

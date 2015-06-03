@@ -69,6 +69,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_urm5_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t;
@@ -78,6 +80,12 @@ namespace boost { namespace geometry { namespace projections
                     t *= t;
                     xy_y = lp_lat * (1. + t * this->m_proj_parm.q3) * this->m_proj_parm.rmn;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "urm5_spheroid";
+                }
+
             };
 
             // Urmaev V

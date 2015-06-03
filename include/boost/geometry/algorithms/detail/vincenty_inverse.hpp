@@ -169,20 +169,20 @@ public:
         return radius_b * A * (sigma - delta_sigma); // (19)
     }
 
-    inline CT azimuth12() const
+    inline CT azimuth() const
     {
         return is_result_zero ?
                CT(0) :
                atan2(cos_U2 * sin_lambda, cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda); // (20)
     }
 
-    inline CT azimuth21() const
-    {
-        // NOTE: signs of X and Y are different than in the original paper
-        return is_result_zero ?
-               CT(0) :
-               atan2(-cos_U1 * sin_lambda, sin_U1 * cos_U2 - cos_U1 * sin_U2 * cos_lambda); // (21)
-    }
+//    inline CT azimuth21() const
+//    {
+//        // NOTE: signs of X and Y are different than in the original paper
+//        return is_result_zero ?
+//               CT(0) :
+//               atan2(-cos_U1 * sin_lambda, sin_U1 * cos_U2 - cos_U1 * sin_U2 * cos_lambda); // (21)
+//    }
 
 private:
     // alpha: azimuth of the geodesic at the equator

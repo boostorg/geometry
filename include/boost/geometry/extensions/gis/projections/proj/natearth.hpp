@@ -93,6 +93,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_natearth_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double phi2, phi4;
@@ -103,6 +105,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = lp_lat * (B0 + phi2 * (B1 + phi4 * (B2 + B3 * phi2 + B4 * phi4)));
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double yc, tol, y2, y4, f, fder;
@@ -132,6 +136,12 @@ namespace boost { namespace geometry { namespace projections
                     y2 = yc * yc;
                     lp_lon = xy_x / (A0 + y2 * (A1 + y2 * (A2 + y2 * y2 * y2 * (A3 + y2 * A4))));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "natearth_spheroid";
+                }
+
             };
 
             // Natural Earth

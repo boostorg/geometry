@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_RANGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SUB_RANGE_HPP
 
+#include <boost/mpl/if.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 namespace boost { namespace geometry {

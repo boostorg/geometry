@@ -74,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_loxim_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_y = lp_lat - this->m_proj_parm.phi1;
@@ -88,6 +90,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = xy_y + this->m_proj_parm.phi1;
@@ -100,6 +104,12 @@ namespace boost { namespace geometry { namespace projections
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "loxim_spheroid";
+                }
+
             };
 
             // Loximuthal

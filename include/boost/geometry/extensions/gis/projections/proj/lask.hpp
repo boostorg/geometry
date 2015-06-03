@@ -73,6 +73,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_lask_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double l2, p2;
@@ -83,6 +85,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = lp_lat * (b01 + l2 * (b21 + p2 * b23 + l2 * b41) +
                         p2 * (b03 + p2 * b05));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lask_spheroid";
+                }
+
             };
 
             // Laskowski

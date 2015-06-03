@@ -72,6 +72,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_boggs_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double theta, th1, c;
@@ -92,6 +94,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     xy_y = FYC * (lp_lat + FYC2 * sin(theta));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "boggs_spheroid";
+                }
+
             };
 
             // Boggs Eumorphic

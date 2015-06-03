@@ -409,7 +409,7 @@ class analyse_turn_wrt_piece
 
         point_type points[4];
 
-        int helper_count = piece.robust_ring.size() - piece.offsetted_count;
+        int helper_count = static_cast<int>(piece.robust_ring.size()) - piece.offsetted_count;
         if (helper_count == 4)
         {
             for (int i = 0; i < 4; i++)

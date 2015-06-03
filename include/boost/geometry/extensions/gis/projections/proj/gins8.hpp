@@ -66,6 +66,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_gins8_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t = lp_lat * lp_lat;
@@ -75,6 +77,12 @@ namespace boost { namespace geometry { namespace projections
                     t = lp_lon * lp_lon;
                     xy_x *= (0.87 - Cl * t * t);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gins8_spheroid";
+                }
+
             };
 
             // Ginsburg VIII (TsNIIGAiK)
