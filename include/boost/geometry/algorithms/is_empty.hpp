@@ -17,6 +17,7 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -53,12 +54,26 @@ struct range_is_empty
     }
 };
 
-struct polygon_is_empty
+class polygon_is_empty
 {
+    template <typename InteriorRings>
+    static inline bool check_interior_rings(InteriorRings const& interior_rings)
+    {
+        return check_iterator_range
+            <
+                range_is_empty, true // allow empty range
+            >::apply(boost::begin(interior_rings), boost::end(interior_rings));
+    }
+
+public:
     template <typename Polygon>
     static inline bool apply(Polygon const& polygon)
     {
-        return boost::empty(exterior_ring(polygon));
+        if (! boost::empty(exterior_ring(polygon)))
+        {
+            return false;
+        }
+        return check_interior_rings(interior_rings(polygon));
     }
 };
 
