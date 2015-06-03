@@ -19,6 +19,7 @@
 #include <boost/variant/variant.hpp>
 
 #include <boost/geometry/algorithms/is_empty.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -70,6 +71,7 @@ struct test_is_empty
                              << " detected: " << detected
                              << " wkt: " << bg::wkt(geometry)
                              << std::noboolalpha );
+        BOOST_CHECK_EQUAL(detected, bg::num_points(geometry) == 0);
     }
 
     static inline void apply(std::string const& wkt, bool expected)
@@ -92,6 +94,7 @@ struct test_is_empty<Box, bg::box_tag>
                              << " detected: " << detected
                              << " dsv: " << bg::dsv(box)
                              << std::noboolalpha );
+        BOOST_CHECK_EQUAL(detected, bg::num_points(box) == 0);
     }
 
     static inline void apply(std::string const& wkt, bool expected)
@@ -201,9 +204,9 @@ void test_open_polygon()
     tester::apply("POLYGON(())", true);
     tester::apply("POLYGON((),())", true);
     tester::apply("POLYGON((),(),())", true);
-    tester::apply("POLYGON((),(0 0,0 1,1 0))", true);
-    tester::apply("POLYGON((),(0 0,0 1,1 0),())", true);
-    tester::apply("POLYGON((),(),(0 0,0 1,1 0))", true);
+    tester::apply("POLYGON((),(0 0,0 1,1 0))", false);
+    tester::apply("POLYGON((),(0 0,0 1,1 0),())", false);
+    tester::apply("POLYGON((),(),(0 0,0 1,1 0))", false);
     tester::apply("POLYGON((0 0))", false);
     tester::apply("POLYGON((0 0,10 0),(0 0))", false);
     tester::apply("POLYGON((0 0,10 0),(1 1,2 1))", false);
@@ -223,9 +226,9 @@ void test_closed_polygon()
     tester::apply("POLYGON(())", true);
     tester::apply("POLYGON((),())", true);
     tester::apply("POLYGON((),(),())", true);
-    tester::apply("POLYGON((),(0 0,0 1,1 0,0 0))", true);
-    tester::apply("POLYGON((),(0 0,0 1,1 0,0 0),())", true);
-    tester::apply("POLYGON((),(),(0 0,0 1,1 0,0 0))", true);
+    tester::apply("POLYGON((),(0 0,0 1,1 0,0 0))", false);
+    tester::apply("POLYGON((),(0 0,0 1,1 0,0 0),())", false);
+    tester::apply("POLYGON((),(),(0 0,0 1,1 0,0 0))", false);
     tester::apply("POLYGON((0 0))", false);
     tester::apply("POLYGON((0 0,10 0,0 0),(0 0))", false);
     tester::apply("POLYGON((0 0,10 0,0 0),(1 1,2 1,1 1))", false);
@@ -254,7 +257,7 @@ void test_open_multipolygon()
     tester::apply("MULTIPOLYGON((()))", true);
     tester::apply("MULTIPOLYGON(((),()))", true);
     tester::apply("MULTIPOLYGON(((),()),((),(),()))", true);
-    tester::apply("MULTIPOLYGON(((),()),((),(0 0,10 0,10 10,0 10),()))", true);
+    tester::apply("MULTIPOLYGON(((),()),((),(0 0,10 0,10 10,0 10),()))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,2 2,1 2),(5 5,6 5,6 6,5 6)))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10),(1 1,2 1,1 2)),((100 100,110 100,110 110),(101 101,102 101,102 102)))", false);
@@ -269,7 +272,7 @@ void test_closed_multipolygon()
     tester::apply("MULTIPOLYGON((()))", true);
     tester::apply("MULTIPOLYGON(((),()))", true);
     tester::apply("MULTIPOLYGON(((),()),((),(),()))", true);
-    tester::apply("MULTIPOLYGON(((),()),((),(0 0,10 0,10 10,0 10,0 0),()))", true);
+    tester::apply("MULTIPOLYGON(((),()),((),(0 0,10 0,10 10,0 10,0 0),()))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 2,1 1),(5 5,6 5,6 6,5 6,5 5)))", false);
     tester::apply("MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,1 2,1 1)),((100 100,110 100,110 110,100 100),(101 101,102 101,102 102,101 101)))", false);
