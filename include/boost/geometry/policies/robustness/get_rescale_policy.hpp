@@ -27,7 +27,7 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/get_max_size.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
@@ -87,7 +87,7 @@ static inline void init_rescale_policy(Geometry const& geometry,
         RobustPoint& min_robust_point,
         Factor& factor)
 {
-    if (geometry::num_points(geometry) == 0)
+    if (geometry::is_empty(geometry))
     {
         return;
     }
@@ -106,8 +106,8 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
         Factor& factor)
 {
     // Get bounding boxes (when at least one of the geometries is not empty)
-    bool const is_empty1 = geometry::num_points(geometry1) == 0;
-    bool const is_empty2 = geometry::num_points(geometry2) == 0;
+    bool const is_empty1 = geometry::is_empty(geometry1);
+    bool const is_empty2 = geometry::is_empty(geometry2);
     if (is_empty1 && is_empty2)
     {
         return;
