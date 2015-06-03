@@ -261,6 +261,12 @@ inline void buffer(GeometryIn const& geometry_in,
 
     geometry_out.clear();
 
+    if (geometry::num_points(geometry_in) == 0)
+    {
+        // There are no points in input geometry -> output geometry stays empty
+        return;
+    }
+
     model::box<point_type> box;
     envelope(geometry_in, box);
     buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
