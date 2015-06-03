@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,8 +22,8 @@
 
 #include <boost/concept_check.hpp>
 
-#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
-#include <boost/geometry/strategies/geographic/side_andoyer.hpp>
+#include <boost/geometry/strategies/geographic/distance_thomas.hpp>
+#include <boost/geometry/strategies/geographic/side_thomas.hpp>
 
 #include <boost/geometry/core/srs.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -48,16 +48,17 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
 
     typedef bg::srs::spheroid<rtype> stype;
 
-    typedef bg::strategy::distance::andoyer<stype> andoyer_type;
+    typedef bg::strategy::distance::thomas<stype> thomas_type;
 
     BOOST_CONCEPT_ASSERT
         ( 
-            (bg::concept::PointDistanceStrategy<andoyer_type, P1, P2>) 
+            (bg::concept::PointDistanceStrategy<thomas_type, P1, P2>)
         );
 
-    andoyer_type andoyer;
+    thomas_type thomas;
     typedef typename bg::strategy::distance
-        ::services::return_type<andoyer_type, P1, P2>::type return_type;
+        ::services::return_type<thomas_type, P1, P2>::type return_type;
+
 
     P1 p1;
     P2 p2;
@@ -65,8 +66,8 @@ void test_distance(double lon1, double lat1, double lon2, double lat2, double ex
     bg::assign_values(p1, lon1, lat1);
     bg::assign_values(p2, lon2, lat2);
 
-    BOOST_CHECK_CLOSE(andoyer.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
-    BOOST_CHECK_CLOSE(bg::distance(p1, p2, andoyer), return_type(1000.0 * expected_km), 0.001);
+    BOOST_CHECK_CLOSE(thomas.apply(p1, p2), return_type(1000.0 * expected_km), 0.001);
+    BOOST_CHECK_CLOSE(bg::distance(p1, p2, thomas), return_type(1000.0 * expected_km), 0.001);
 }
 
 template <typename PS, typename P>
@@ -83,7 +84,7 @@ void test_side(double lon1, double lat1,
 
     typedef bg::srs::spheroid<rtype> stype;
 
-    typedef bg::strategy::side::andoyer<stype> strategy_type;
+    typedef bg::strategy::side::thomas<stype> strategy_type;
 
     strategy_type strategy;
 
@@ -102,18 +103,10 @@ void test_side(double lon1, double lat1,
 template <typename P1, typename P2>
 void test_all()
 {
-    test_distance<P1, P2>(0, 90, 1, 80, 1116.814237); // polar
+    test_distance<P1, P2>(0, 90, 1, 80, 1116.825795); // polar
+    test_distance<P1, P2>(0, -90, 1, -80, 1116.825795); // polar
     test_distance<P1, P2>(4, 52, 4, 52, 0.0); // no point difference
-    test_distance<P1, P2>(4, 52, 3, 40, 1336.039890); // normal case
-
-    /* SQL Server gives:
-        1116.82586908528, 0, 1336.02721932545
-
-       with:
-SELECT 0.001 * geography::STGeomFromText('POINT(0 90)', 4326).STDistance(geography::STGeomFromText('POINT(1 80)', 4326))
-union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(4 52)', 4326))
-union SELECT 0.001 * geography::STGeomFromText('POINT(4 52)', 4326).STDistance(geography::STGeomFromText('POINT(3 40)', 4326))
-     */
+    test_distance<P1, P2>(4, 52, 3, 40, 1336.025365); // normal case
 
     test_side<P1, P2>(0, 0, 0, 1, 0, 2, 0);
     test_side<P1, P2>(0, 0, 0, 1, 0, -2, 0);
