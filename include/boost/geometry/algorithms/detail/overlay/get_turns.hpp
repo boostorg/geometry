@@ -22,6 +22,7 @@
 #include <boost/array.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/access.hpp>

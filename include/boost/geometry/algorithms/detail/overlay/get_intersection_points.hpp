@@ -12,6 +12,7 @@
 
 #include <cstddef>
 
+#include <boost/mpl/if.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
