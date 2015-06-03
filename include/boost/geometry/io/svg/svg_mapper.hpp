@@ -2,6 +2,11 @@
 
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -32,9 +37,8 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
 #include <boost/geometry/views/segment_view.hpp>
 
@@ -310,7 +314,7 @@ public :
     template <typename Geometry>
     void add(Geometry const& geometry)
     {
-        if (num_points(geometry) > 0)
+        if (! geometry::is_empty(geometry))
         {
             expand(m_bounding_box,
                 return_envelope

@@ -35,7 +35,7 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range_of_boxes.hpp>
@@ -92,7 +92,7 @@ struct envelope_linear_on_spheroid
                 Linear const
             > iterator_type;
 
-        BOOST_ASSERT(geometry::num_points(linear) != 0);
+        BOOST_ASSERT(! geometry::is_empty(linear));
 
         std::vector<interval_type> longitude_intervals;
         std::back_insert_iterator
