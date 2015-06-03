@@ -147,7 +147,15 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         ;
 
     bg::model::box<point_type> envelope;
-    bg::envelope(geometry, envelope);
+    if (bg::num_points(geometry) > 0)
+    {
+        bg::envelope(geometry, envelope);
+    }
+    else
+    {
+        // TODO: use bg::is_empty
+        bg::assign_inverse(envelope);
+    }
 
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();
