@@ -77,6 +77,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_aitoff_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double c, d;
@@ -112,6 +114,8 @@ namespace boost { namespace geometry { namespace projections
                 *
                 ************************************************************************************/
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                         int iter, MAXITER = 10, round = 0, MAXROUND = 20;
@@ -169,6 +173,12 @@ namespace boost { namespace geometry { namespace projections
 
                     if (iter == MAXITER && round == MAXROUND) fprintf(stderr, "Warning: Accuracy of 1e-12 not reached. Last increments: dlat=%e and dlon=%e\n", dp, dl);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "aitoff_spheroid";
+                }
+
             };
 
             template <typename Parameters>

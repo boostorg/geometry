@@ -73,6 +73,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_vandg_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double  al, al2, g, g2, p2;
@@ -107,6 +109,8 @@ namespace boost { namespace geometry { namespace projections
                     }
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t, c0, c1, c2, c3, al, r2, r, m, d, ay, x2, y2;
@@ -139,6 +143,12 @@ namespace boost { namespace geometry { namespace projections
                     } else
                         throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "vandg_spheroid";
+                }
+
             };
 
             // van der Grinten (I)

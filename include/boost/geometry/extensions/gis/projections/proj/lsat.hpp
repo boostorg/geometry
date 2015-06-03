@@ -99,6 +99,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_lsat_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     int l, nn;
@@ -152,6 +154,8 @@ namespace boost { namespace geometry { namespace projections
                         xy_x = xy_y = HUGE_VAL;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     int nn;
@@ -193,6 +197,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lat = atan((tan(lamdp) * cos(lamt) - this->m_proj_parm.ca * sin(lamt)) /
                             (this->m_par.one_es * this->m_proj_parm.sa));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "lsat_ellipsoid";
+                }
+
             };
 
             // Space oblique for LANDSAT

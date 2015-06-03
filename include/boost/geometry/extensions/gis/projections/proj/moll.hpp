@@ -74,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_moll_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double k, V;
@@ -94,6 +96,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.C_y * sin(lp_lat);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
@@ -101,6 +105,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat += lp_lat;
                     lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "moll_spheroid";
+                }
+
             };
 
             template <typename Parameters>

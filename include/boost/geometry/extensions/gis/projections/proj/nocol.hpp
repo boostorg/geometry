@@ -66,6 +66,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_nocol_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (fabs(lp_lon) < EPS) {
@@ -98,6 +100,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = geometry::math::half_pi<double>() * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "nocol_spheroid";
+                }
+
             };
 
             // Nicolosi Globular

@@ -81,6 +81,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_sterea_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double cosc, sinc, cosl_, k;
@@ -94,6 +96,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = k * (this->m_proj_parm.cosc0 * sinc - this->m_proj_parm.sinc0 * cosc * cosl_);
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double rho, c, sinc, cosc;
@@ -113,6 +117,12 @@ namespace boost { namespace geometry { namespace projections
                     }
                     detail::gauss::inv_gauss(m_proj_parm.en, lp_lon, lp_lat);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "sterea_ellipsoid";
+                }
+
             };
 
             // Oblique Stereographic Alternative

@@ -73,6 +73,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_rpoly_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double fa;
@@ -90,6 +92,12 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = lp_lat - this->m_par.phi0 + (1. - cos(fa)) * xy_y;
                     }
                 }
+
+                static inline std::string get_name()
+                {
+                    return "rpoly_spheroid";
+                }
+
             };
 
             // Rectangular Polyconic

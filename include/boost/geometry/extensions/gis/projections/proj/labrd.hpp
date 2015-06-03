@@ -71,6 +71,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_labrd_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double V1, V2, ps, sinps, cosps, sinps2, cosps2, I1, I2, I3, I4, I5, I6,
@@ -101,6 +103,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y += this->m_proj_parm.Ca * V2 - this->m_proj_parm.Cb * V1;
                 }
 
+                // INVERSE(e_inverse)  ellipsoid & spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double x2, y2, V1, V2, V3, V4, t, t2, ps, pe, tpe, s,
@@ -149,6 +153,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = pe + x2 * (-I7 + I8 * x2);
                     lp_lon = xy_x * (I9 + x2 * (-I10 + x2 * I11));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "labrd_ellipsoid";
+                }
+
             };
 
             // Laborde

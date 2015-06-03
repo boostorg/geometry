@@ -329,6 +329,7 @@
      <member><link linkend="geometry.reference.algorithms.disjoint">disjoint</link></member>
      <member><link linkend="geometry.reference.algorithms.equals">equals</link></member>
      <member><link linkend="geometry.reference.algorithms.intersects">intersects</link></member>
+     <member><link linkend="geometry.reference.algorithms.is_empty">is_empty</link></member>
      <member><link linkend="geometry.reference.algorithms.is_simple">is_simple</link></member>
      <member><link linkend="geometry.reference.algorithms.is_valid">is_valid</link></member>
      <member><link linkend="geometry.reference.algorithms.overlaps">overlaps</link></member>

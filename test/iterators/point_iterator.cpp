@@ -717,8 +717,6 @@ BOOST_AUTO_TEST_CASE( test_multipoint_of_point_pointers )
     typedef tuple_multi_point_type TMP;
     typedef vector_as_multipoint<test::test_point_xy*> MP;
 
-    typedef bg::point_type<MP>::type point_type;
-
     MP multipoint;
     for (int i = 1; i < 10; i++)
     {
@@ -759,8 +757,6 @@ BOOST_AUTO_TEST_CASE( test_linestring_of_point_pointers )
 
     typedef tuple_multi_point_type TMP;
     typedef vector_as_linestring<test::test_point_xy*> L;
-
-    typedef bg::point_type<L>::type point_type;
 
     L linestring;
     for (int i = 1; i < 10; i++)

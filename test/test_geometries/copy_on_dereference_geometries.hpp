@@ -33,15 +33,19 @@ class copy_on_dereference_iterator
         >
 {
 private:
-    typedef
-    typename copy_on_dereference_iterator::iterator_facade_::reference
-    reference_t;
-
-    typedef
-    typename copy_on_dereference_iterator::iterator_facade_::difference_type
-    difference_t;
+    typedef boost::iterator_facade
+        <
+            copy_on_dereference_iterator<RandomAccessIterator>,
+            typename std::iterator_traits<RandomAccessIterator>::value_type,
+            boost::random_access_traversal_tag,
+            typename std::iterator_traits<RandomAccessIterator>::value_type,
+            typename std::iterator_traits<RandomAccessIterator>::difference_type
+        > base_type;
 
 public:
+    typedef typename base_type::reference reference;
+    typedef typename base_type::difference_type difference_type;
+
     copy_on_dereference_iterator() {}
     copy_on_dereference_iterator(RandomAccessIterator it) : m_it(it) {}
 
@@ -57,10 +61,10 @@ private:
     template <typename OtherRAI>
     friend class copy_on_dereference_iterator;
 
-    inline reference_t dereference() const { return *m_it; }
+    inline reference dereference() const { return *m_it; }
     inline void increment() { ++m_it; }
     inline void decrement() { --m_it; }
-    inline void advance(difference_t n) { m_it += n; }
+    inline void advance(difference_type n) { m_it += n; }
 
     template <typename OtherRAI>
     inline bool equal(copy_on_dereference_iterator<OtherRAI> const& other) const
@@ -69,7 +73,7 @@ private:
     }
 
     template <typename OtherRAI>
-    inline difference_t
+    inline difference_type
     distance_to(copy_on_dereference_iterator<OtherRAI> const& other) const
     {
         return std::distance(m_it, other.m_it);

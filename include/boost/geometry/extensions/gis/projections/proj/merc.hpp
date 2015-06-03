@@ -69,6 +69,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_merc_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
@@ -76,11 +78,19 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = - this->m_par.k0 * log(pj_tsfn(lp_lat, sin(lp_lat), this->m_par.e));
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     if ((lp_lat = pj_phi2(exp(- xy_y / this->m_par.k0), this->m_par.e)) == HUGE_VAL) throw proj_exception();;
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "merc_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -97,6 +107,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_merc_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (fabs(fabs(lp_lat) - geometry::math::half_pi<double>()) <= EPS10) throw proj_exception();;
@@ -104,11 +116,19 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_par.k0 * log(tan(FORTPI + .5 * lp_lat));
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = geometry::math::half_pi<double>() - 2. * atan(exp(-xy_y / this->m_par.k0));
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "merc_spheroid";
+                }
+
             };
 
             // Mercator

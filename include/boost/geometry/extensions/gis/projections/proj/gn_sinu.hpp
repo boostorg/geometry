@@ -79,6 +79,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gn_sinu_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  ellipsoid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double s, c;
@@ -87,6 +89,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = lp_lon * c / sqrt(1. - this->m_par.es * s * s);
                 }
 
+                // INVERSE(e_inverse)  ellipsoid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double s;
@@ -99,6 +103,12 @@ namespace boost { namespace geometry { namespace projections
                     else throw proj_exception();;
                 }
                 /* General spherical sinusoidals */
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -116,6 +126,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_gn_sinu_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if (!this->m_proj_parm.m)
@@ -138,6 +150,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = this->m_proj_parm.C_y * lp_lat;
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     xy_y /= this->m_proj_parm.C_y;
@@ -145,6 +159,12 @@ namespace boost { namespace geometry { namespace projections
                         ( this->m_proj_parm.n != 1. ? aasin(sin(xy_y) / this->m_proj_parm.n) : xy_y );
                     lp_lon = xy_x / (this->m_proj_parm.C_x * (this->m_proj_parm.m + cos(xy_y)));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "gn_sinu_spheroid";
+                }
+
             };
 
             template <typename Parameters>

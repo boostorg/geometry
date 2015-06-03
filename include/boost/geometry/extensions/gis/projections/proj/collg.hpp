@@ -68,6 +68,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_collg_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     if ((xy_y = 1. - sin(lp_lat)) <= 0.)
@@ -78,6 +80,8 @@ namespace boost { namespace geometry { namespace projections
                     xy_y = FYC * (1. - xy_y);
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = xy_y / FYC - 1.;
@@ -90,6 +94,12 @@ namespace boost { namespace geometry { namespace projections
                     else
                         lp_lon = xy_x / (FXC * sqrt(lp_lon));
                 }
+
+                static inline std::string get_name()
+                {
+                    return "collg_spheroid";
+                }
+
             };
 
             // Collignon

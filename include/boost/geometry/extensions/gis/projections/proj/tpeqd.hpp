@@ -73,6 +73,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_tpeqd_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  sphere
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double t, z1, z2, dl1, dl2, sp, cp;
@@ -90,6 +92,8 @@ namespace boost { namespace geometry { namespace projections
                         xy_y = -xy_y;
                 }
 
+                // INVERSE(s_inverse)  sphere
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double cz1, cz2, s, d, cp, sp;
@@ -108,6 +112,12 @@ namespace boost { namespace geometry { namespace projections
                     lp_lat = aasin(this->m_proj_parm.sa * sp + this->m_proj_parm.ca * cp * (s = cos(lp_lon -= this->m_proj_parm.lp)));
                     lp_lon = atan2(cp * sin(lp_lon), this->m_proj_parm.sa * cp * s - this->m_proj_parm.ca * sp) + this->m_proj_parm.lamc;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "tpeqd_spheroid";
+                }
+
             };
 
             // Two Point Equidistant

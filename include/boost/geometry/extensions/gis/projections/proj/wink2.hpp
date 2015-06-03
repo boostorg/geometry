@@ -74,6 +74,8 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_f<base_wink2_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     double k, V;
@@ -95,6 +97,12 @@ namespace boost { namespace geometry { namespace projections
                     xy_x = 0.5 * lp_lon * (cos(lp_lat) + this->m_proj_parm.cosphi1);
                     xy_y = FORTPI * (sin(lp_lat) + xy_y);
                 }
+
+                static inline std::string get_name()
+                {
+                    return "wink2_spheroid";
+                }
+
             };
 
             // Winkel II

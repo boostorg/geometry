@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 
@@ -147,7 +148,14 @@ void test_buffer(std::string const& caseid, Geometry const& geometry,
         ;
 
     bg::model::box<point_type> envelope;
-    bg::envelope(geometry, envelope);
+    if (bg::is_empty(geometry))
+    {
+        bg::assign_inverse(envelope);
+    }
+    else
+    {
+        bg::envelope(geometry, envelope);
+    }
 
     std::string join_name = JoinTestProperties<JoinStrategy>::name();
     std::string end_name = EndTestProperties<EndStrategy>::name();

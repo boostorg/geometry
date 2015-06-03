@@ -75,17 +75,27 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_cea_ellipsoid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(e_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = .5 * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es) / this->m_par.k0;
                 }
 
+                // INVERSE(e_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     lp_lat = pj_authlat(asin( 2. * xy_y * this->m_par.k0 / this->m_proj_parm.qp), this->m_proj_parm.apa);
                     lp_lon = xy_x / this->m_par.k0;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cea_ellipsoid";
+                }
+
             };
 
             // template class, using CRTP to implement forward/inverse
@@ -103,12 +113,16 @@ namespace boost { namespace geometry { namespace projections
                     : base_t_fi<base_cea_spheroid<Geographic, Cartesian, Parameters>,
                      Geographic, Cartesian, Parameters>(*this, par) {}
 
+                // FORWARD(s_forward)  spheroid
+                // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
                 {
                     xy_x = this->m_par.k0 * lp_lon;
                     xy_y = sin(lp_lat) / this->m_par.k0;
                 }
 
+                // INVERSE(s_inverse)  spheroid
+                // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
                 {
                     double t;
@@ -121,6 +135,12 @@ namespace boost { namespace geometry { namespace projections
                         lp_lon = xy_x / this->m_par.k0;
                     } else throw proj_exception();;
                 }
+
+                static inline std::string get_name()
+                {
+                    return "cea_spheroid";
+                }
+
             };
 
             // Equal Area Cylindrical
