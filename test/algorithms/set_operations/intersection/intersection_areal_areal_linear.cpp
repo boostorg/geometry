@@ -21,9 +21,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/point_type.hpp>
-
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/geometries/ring.hpp>
@@ -42,90 +39,59 @@ typedef bg::model::ring<point_type, true, false> open_ring_type;
 typedef bg::model::polygon<point_type, true, false> open_polygon_type;
 typedef bg::model::multi_polygon<open_polygon_type> open_multipolygon_type;
 
+typedef bg::model::ring<point_type> closed_ring_type;
+typedef bg::model::polygon<point_type> closed_polygon_type;
+typedef bg::model::multi_polygon<closed_polygon_type> closed_multipolygon_type;
 
-template <typename Areal, typename Tag = typename bg::tag<Areal>::type>
-struct closed_type
-{};
 
-template <typename Ring>
-struct closed_type<Ring, bg::ring_tag>
-{
-    typedef bg::model::ring
-        <
-            typename bg::point_type<Ring>::type, true, false
-        > type;
-};
-
-template <typename Polygon>
-struct closed_type<Polygon, bg::polygon_tag>
-{
-    typedef bg::model::polygon
-        <
-            typename bg::point_type<Polygon>::type, true, false
-        > type;
-};
-
-template <typename MultiPolygon>
-struct closed_type<MultiPolygon, bg::multi_polygon_tag>
-{
-    typedef bg::model::multi_polygon
-        <
-            typename closed_type
-                <
-                    typename boost::range_value<MultiPolygon>::type
-                >::type
-        > type;
-};
-
-template <typename Areal1, typename Areal2, typename MultiLinestring>
+template
+<
+    typename OpenAreal1,
+    typename OpenAreal2,
+    typename ClosedAreal1,
+    typename ClosedAreal2,
+    typename MultiLinestring
+>
 struct test_intersection_aal
 {
     static inline void apply(std::string const& case_id,
-                             Areal1 const& areal1,
-                             Areal2 const& areal2,
+                             OpenAreal1 const& open_areal1,
+                             OpenAreal2 const& open_areal2,
                              MultiLinestring const& expected1,
                              MultiLinestring const& expected2)
     {
         typedef test_intersection_of_geometries
             <
-                Areal1, Areal2, MultiLinestring
+                OpenAreal1, OpenAreal2, MultiLinestring
             > tester;
 
-        tester::apply(areal1, areal2, expected1, expected2, case_id);
+        tester::apply(open_areal1, open_areal2, expected1, expected2, case_id);
 
-        bool const is_open1 = (bg::closure<Areal1>::value == bg::open);
-        bool const is_open2 = (bg::closure<Areal2>::value == bg::open);
+        ClosedAreal1 closed_areal1;
+        ClosedAreal2 closed_areal2;
+        bg::convert(open_areal1, closed_areal1);
+        bg::convert(open_areal2, closed_areal2);
 
-        if (BOOST_GEOMETRY_CONDITION(is_open1 && is_open2))
-        {
-            typedef typename closed_type<Areal1>::type closed_areal1_type;
-            typedef typename closed_type<Areal2>::type closed_areal2_type;
-            closed_areal1_type closed_areal1;
-            closed_areal2_type closed_areal2;
-            bg::convert(areal1, closed_areal1);
-            bg::convert(areal2, closed_areal2);
+        typedef test_intersection_of_geometries
+            <
+                ClosedAreal1, ClosedAreal2, MultiLinestring
+            > tester_of_closed;
 
-            typedef test_intersection_of_geometries
-                <
-                    closed_areal1_type, closed_areal2_type, MultiLinestring
-                > tester_of_closed;
-
-            std::string case_id_closed = case_id + "-closed";
+        std::string case_id_closed = case_id + "-closed";
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "testing closed areal geometries..." << std::endl;
+        std::cout << "testing closed areal geometries..." << std::endl;
 #endif
-            tester_of_closed::apply(closed_areal1, closed_areal2,
-                                    expected1, expected2, case_id_closed);
-        }
+        tester_of_closed::apply(closed_areal1, closed_areal2,
+                                expected1, expected2, case_id_closed);
     }
 
     static inline void apply(std::string const& case_id,
-                             Areal1 const& areal1,
-                             Areal2 const& areal2,
+                             OpenAreal1 const& open_areal1,
+                             OpenAreal2 const& open_areal2,
                              MultiLinestring const& expected)
     {
-        apply(case_id, areal1, areal2, expected, expected);
+        apply(case_id, open_areal1, open_areal2, expected, expected);
     }
 };
 
@@ -138,9 +104,10 @@ BOOST_AUTO_TEST_CASE( test_intersection_ring_ring_linestring )
     std::cout << std::endl;
 #endif
     typedef open_ring_type OG;
+    typedef closed_ring_type CG;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG, OG, ML> tester;
+    typedef test_intersection_aal<OG, OG, CG, CG, ML> tester;
 
     tester::apply
         ("r-r-01",
@@ -161,9 +128,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_ring_polygon_linestring )
 #endif
     typedef open_ring_type OG1;
     typedef open_polygon_type OG2;
+    typedef closed_ring_type CG1;
+    typedef closed_polygon_type CG2;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG1, OG2, ML> tester;
+    typedef test_intersection_aal<OG1, OG2, CG1, CG2, ML> tester;
 
     tester::apply
         ("r-pg-01",
@@ -185,9 +154,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_ring_multipolygon_linestring )
 #endif
     typedef open_ring_type OG1;
     typedef open_multipolygon_type OG2;
+    typedef closed_ring_type CG1;
+    typedef closed_multipolygon_type CG2;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG1, OG2, ML> tester;
+    typedef test_intersection_aal<OG1, OG2, CG1, CG2, ML> tester;
 
     tester::apply
         ("r-mpg-01",
@@ -207,9 +178,10 @@ BOOST_AUTO_TEST_CASE( test_intersection_polygon_polygon_linestring )
     std::cout << std::endl;
 #endif
     typedef open_polygon_type OG;
+    typedef closed_polygon_type CG;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG, OG, ML> tester;
+    typedef test_intersection_aal<OG, OG, CG, CG, ML> tester;
 
     tester::apply
         ("pg-pg-01",
@@ -281,9 +253,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_polygon_multipolygon_linestring )
 #endif
     typedef open_polygon_type OG1;
     typedef open_multipolygon_type OG2;
+    typedef closed_polygon_type CG1;
+    typedef closed_multipolygon_type CG2;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG1, OG2, ML> tester;
+    typedef test_intersection_aal<OG1, OG2, CG1, CG2, ML> tester;
 
     tester::apply
         ("pg-mpg-01",
@@ -304,9 +278,10 @@ BOOST_AUTO_TEST_CASE( test_intersection_multipolygon_multipolygon_linestring )
     std::cout << std::endl;
 #endif
     typedef open_multipolygon_type OG;
+    typedef closed_multipolygon_type CG;
     typedef multi_linestring_type ML;
 
-    typedef test_intersection_aal<OG, OG, ML> tester;
+    typedef test_intersection_aal<OG, OG, CG, CG, ML> tester;
 
     tester::apply
         ("mpg-mpg-01",
