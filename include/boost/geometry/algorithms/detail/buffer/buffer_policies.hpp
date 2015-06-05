@@ -82,8 +82,8 @@ template <typename Point, typename SegmentRatio>
 struct buffer_turn_operation
     : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
-    int piece_index;
-    int index_in_robust_ring;
+    signed_index_type piece_index;
+    signed_index_type index_in_robust_ring;
 
     inline buffer_turn_operation()
         : piece_index(-1)
@@ -104,7 +104,7 @@ struct buffer_turn_info
     typedef Point point_type;
     typedef RobustPoint robust_point_type;
 
-    int turn_index; // TODO: this might go if partition can operate on non-const input
+    signed_index_type turn_index; // TODO: this might go if partition can operate on non-const input
 
     RobustPoint robust_point;
 #if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
@@ -127,23 +127,23 @@ struct buffer_turn_info
     robust_point_type rob_pi, rob_pj, rob_qi, rob_qj;
 #endif
 
-    int count_within;
+    signed_index_type count_within;
 
     bool within_original;
-    int count_on_original_boundary;
-    int count_in_original; // increased by +1 for in ext.ring, -1 for int.ring
+    signed_index_type count_on_original_boundary;
+    signed_index_type count_in_original; // increased by +1 for in ext.ring, -1 for int.ring
 
-    int count_on_offsetted;
-    int count_on_helper;
+    signed_index_type count_on_offsetted;
+    signed_index_type count_on_helper;
 #if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
-    int count_within_near_offsetted;
+    signed_index_type count_within_near_offsetted;
 #endif
 
     bool remove_on_multi;
 
     // Obsolete:
-    int count_on_occupied;
-    int count_on_multi;
+    signed_index_type count_on_occupied;
+    signed_index_type count_on_multi;
 
     inline buffer_turn_info()
         : turn_index(-1)
