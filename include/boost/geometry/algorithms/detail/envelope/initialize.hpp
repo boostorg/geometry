@@ -20,6 +20,7 @@
 namespace boost { namespace geometry
 {
 
+#ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace envelope
 {
 
@@ -72,8 +73,9 @@ struct initialize
     }
 };
 
-}} // detail::envelope
+}} // namespace detail::envelope
+#endif // DOXYGEN_NO_DETAIL
 
-}} // boost::geometry
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_INITIALIZE_HPP
