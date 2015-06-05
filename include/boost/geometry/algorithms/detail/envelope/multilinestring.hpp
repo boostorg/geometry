@@ -26,7 +26,6 @@
 
 #include <boost/geometry/algorithms/detail/envelope/linestring.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
-#include <boost/geometry/algorithms/detail/expand/box.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
@@ -34,29 +33,27 @@
 namespace boost { namespace geometry
 {
 
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace envelope
 {
 
 
 template <std::size_t Dimension, std::size_t DimensionCount>
-struct envelope_range_expand_policy
-{
-    template <typename Box, typename Geometry>
-    static inline void apply(Box& mbr, Geometry const& geometry)
-    {
-        Box helper_mbr;
-        envelope_range
-            <
-                Geometry, Dimension, DimensionCount
-            >::apply(geometry, helper_mbr);
+struct envelope_multilinestring_on_spheroid
+    : envelope_multi_range
+        <
+            Dimension,
+            DimensionCount,
+            detail::envelope::default_is_empty_policy,
+            detail::envelope::envelope_range<Dimension, DimensionCount>
+        >
+{};
 
-        dispatch::expand
-            <
-                Box, Box, Dimension, DimensionCount
-            >::apply(mbr, helper_mbr);
-    }
-};
+template <std::size_t DimensionCount>
+struct envelope_multilinestring_on_spheroid<0, DimensionCount>
+    : envelope_linear_on_spheroid<DimensionCount>
+{};
 
 
 }} // namespace detail::envelope
@@ -80,15 +77,12 @@ struct envelope
         MultiLinestring,
         Dimension, DimensionCount,
         multi_linestring_tag, CS_Tag
-    > : detail::envelope::envelope_range
+    > : detail::envelope::envelope_multi_range
         <
-            MultiLinestring,
             Dimension,
             DimensionCount,
-            detail::envelope::envelope_range_expand_policy
-                <
-                    Dimension, DimensionCount
-                >
+            detail::envelope::default_is_empty_policy,
+            detail::envelope::envelope_range<Dimension, DimensionCount>
         >
 {};
 
@@ -103,15 +97,9 @@ struct envelope
         MultiLinestring,
         Dimension, DimensionCount,
         multi_linestring_tag, spherical_equatorial_tag
-    > : detail::envelope::envelope_linear_on_spheroid
+    > : detail::envelope::envelope_multilinestring_on_spheroid
         <
-            MultiLinestring,
-            Dimension,
-            DimensionCount,
-            detail::envelope::envelope_range_expand_policy
-                <
-                    Dimension, DimensionCount
-                >
+            Dimension, DimensionCount
         >
 {};
 

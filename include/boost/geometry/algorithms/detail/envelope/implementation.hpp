@@ -24,6 +24,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/is_empty.hpp>
+
 #include <boost/geometry/algorithms/detail/envelope/box.hpp>
 #include <boost/geometry/algorithms/detail/envelope/linestring.hpp>
 #include <boost/geometry/algorithms/detail/envelope/multilinestring.hpp>
@@ -44,27 +46,12 @@ namespace detail { namespace envelope
 {
 
 
-template
-<
-    typename Geometry, std::size_t Dimension, std::size_t DimensionCount
->
-struct exterior_ring_expand_policy
+struct polygon_is_empty_policy
 {
-    template <typename Box>
-    static inline void apply(Box& mbr, Geometry const& geometry)
+    template <typename Polygon>
+    static inline bool apply(Polygon const& polygon)
     {
-        Box ring_mbr;
-        envelope_range
-            <
-                typename ring_type<Geometry>::type,
-                Dimension,
-                DimensionCount
-            >::apply(exterior_ring(geometry), ring_mbr);
-
-        dispatch::expand
-            <
-                Box, Box, Dimension, DimensionCount
-            >::apply(mbr, ring_mbr);
+        return geometry::is_empty(exterior_ring(polygon));
     }
 };
 
@@ -78,12 +65,9 @@ struct envelope_polygon
         // For polygon, inspecting outer ring is sufficient
         envelope_range
             <
-                typename ring_type<Polygon>::type,
-                Dimension,
-                DimensionCount
+                Dimension, DimensionCount
             >::apply(exterior_ring(poly), mbr);
     }
-
 };
 
 
@@ -97,7 +81,7 @@ namespace dispatch
 
 template <typename Ring, std::size_t Dimension, std::size_t DimensionCount>
 struct envelope<Ring, Dimension, DimensionCount, ring_tag>
-    : detail::envelope::envelope_range<Ring, Dimension, DimensionCount>
+    : detail::envelope::envelope_range<Dimension, DimensionCount>
 {};
 
 
@@ -114,17 +98,12 @@ template
     std::size_t DimensionCount
 >
 struct envelope<MultiPolygon, Dimension, DimensionCount, multi_polygon_tag>
-    : detail::envelope::envelope_range
+    : detail::envelope::envelope_multi_range
         <
-            MultiPolygon,
             Dimension,
             DimensionCount,
-            detail::envelope::exterior_ring_expand_policy
-                <
-                    typename boost::range_value<MultiPolygon>::type,
-                    Dimension,
-                    DimensionCount
-                >
+            detail::envelope::polygon_is_empty_policy,
+            detail::envelope::envelope_polygon<Dimension, DimensionCount>
         >
 {};
 

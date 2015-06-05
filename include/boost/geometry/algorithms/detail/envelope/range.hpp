@@ -25,6 +25,9 @@
 
 #include <boost/geometry/util/range.hpp>
 
+#include <boost/geometry/algorithms/is_empty.hpp>
+
+#include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 #include <boost/geometry/algorithms/detail/expand/box.hpp>
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 #include <boost/geometry/algorithms/detail/expand/segment.hpp>
@@ -39,43 +42,28 @@ namespace detail { namespace envelope
 {
 
 
-template <std::size_t Dimension, std::size_t DimensionCount>
-struct default_expand_policy
+struct default_is_empty_policy
 {
-    template <typename Box, typename Geometry>
-    static inline void apply(Box& mbr, Geometry const& geometry)
+    template <typename Geometry>
+    static inline bool apply(Geometry const& geometry)
     {
-        dispatch::expand
-            <
-                Box, Geometry, Dimension, DimensionCount
-            >::apply(mbr, geometry);
+        return geometry::is_empty(geometry);
     }
 };
 
 
-template <typename ExpandPolicy, typename Iterator, typename Box>
-inline void envelope_iterators(Iterator first, Iterator last, Box& mbr)
-{
-    for (Iterator it = first; it != last; ++it)
-    {
-        ExpandPolicy::apply(mbr, *it);
-    }
-}
-
-
-template
-<
-    typename Range,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename ExpandPolicy = default_expand_policy<Dimension, DimensionCount>
->
+// implementation for simple ranges
+template <std::size_t Dimension, std::size_t DimensionCount>
 struct envelope_range
 {
-    /// Calculate envelope of range using a strategy
-    template <typename Box>
+    template <typename Range, typename Box>
     static inline void apply(Range const& range, Box& mbr)
     {
+        typedef typename boost::range_value<Range>::type value_type;
+
+        // initialize MBR
+        initialize<Box, Dimension, DimensionCount>::apply(mbr);
+
         typename boost::range_iterator<Range const>::type it 
             = boost::begin(range);
 
@@ -84,17 +72,71 @@ struct envelope_range
             // initialize box with first element in range
             dispatch::envelope
                 <
-                    typename boost::range_value<Range>::type,
-                    Dimension,
-                    DimensionCount
+                    value_type, Dimension, DimensionCount
                 >::apply(*it, mbr);
 
             // consider now the remaining elements in the range (if any)
+            for (++it; it != boost::end(range); ++it)
+            {
+                dispatch::expand
+                    <
+                        Box, value_type, Dimension, DimensionCount
+                    >::apply(mbr, *it);
+            }
+        }
+    }
+};
+
+
+// implementation for multi-ranges
+template
+<
+    std::size_t Dimension,
+    std::size_t DimensionCount,
+    typename IsEmptyPolicy,
+    typename EnvelopePolicy
+>
+struct envelope_multi_range
+{
+    template <typename MultiRange, typename Box>
+    static inline void apply(MultiRange const& multirange, Box& mbr)
+    {
+        typedef typename boost::range_iterator
+            <
+                MultiRange const
+            >::type iterator_type;
+
+        // initialize MBR
+        initialize<Box, Dimension, DimensionCount>::apply(mbr);
+
+        // skip through empty geometries
+        iterator_type it = boost::begin(multirange);
+        while (it != boost::end(multirange) && IsEmptyPolicy::apply(*it))
+        {
             ++it;
-            envelope_iterators
-                <
-                    ExpandPolicy
-                >(it, boost::end(range), mbr);
+        }
+
+        // if there are still elements left, apply the envelope policy
+        if (it != boost::end(multirange))
+        {
+            // compute the initial envelope
+            EnvelopePolicy::apply(*it, mbr);
+
+            // for the remaining non-empty geometries just expand the mbr
+            // using the envelope
+            for (++it; it != boost::end(multirange); ++it)
+            {
+                if (! IsEmptyPolicy::apply(*it))
+                {
+                    Box helper_mbr;
+                    EnvelopePolicy::apply(*it, helper_mbr);
+
+                    dispatch::expand
+                        <
+                            Box, Box, Dimension, DimensionCount
+                        >::apply(mbr, helper_mbr);
+                }
+            }
         }
     }
 };

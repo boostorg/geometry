@@ -37,6 +37,7 @@
 
 #include <boost/geometry/algorithms/is_empty.hpp>
 
+#include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range_of_boxes.hpp>
 
@@ -51,19 +52,8 @@ namespace detail { namespace envelope
 {
 
 
-template
-<
-    typename Linear,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename ExpandPolicy
->
+template <std::size_t DimensionCount>
 struct envelope_linear_on_spheroid
-    : envelope_range<Linear, Dimension, DimensionCount, ExpandPolicy>
-{};
-
-template <typename Linear, std::size_t DimensionCount, typename ExpandPolicy>
-struct envelope_linear_on_spheroid<Linear, 0, DimensionCount, ExpandPolicy>
 {
     template <typename Units, typename Longitude, typename OutputIterator>
     static inline OutputIterator push_interval(Longitude const& lon1,
@@ -93,7 +83,7 @@ struct envelope_linear_on_spheroid<Linear, 0, DimensionCount, ExpandPolicy>
         return oit;
     }
 
-    template <typename Box>
+    template <typename Linear, typename Box>
     static inline void apply(Linear const& linear, Box& mbr)
     {
         typedef typename coordinate_type<Box>::type box_coordinate_type;
@@ -104,7 +94,13 @@ struct envelope_linear_on_spheroid<Linear, 0, DimensionCount, ExpandPolicy>
                 Linear const
             > iterator_type;
 
-        BOOST_ASSERT(! geometry::is_empty(linear));
+        if (geometry::is_empty(linear))
+        {
+            initialize<Box, 0, DimensionCount>::apply(mbr);
+            return;
+        }
+
+        initialize<Box, 0, 2>::apply(mbr);
 
         std::vector<interval_type> longitude_intervals;
         std::back_insert_iterator
@@ -164,12 +160,23 @@ struct envelope_linear_on_spheroid<Linear, 0, DimensionCount, ExpandPolicy>
         geometry::set<max_corner, 0>(mbr, lon_max);
         geometry::set<max_corner, 1>(mbr, lat_max);
 
-        envelope_range
+        dispatch::envelope
             <
-                Linear, 2, DimensionCount, ExpandPolicy
+                Linear, 2, DimensionCount
             >::apply(linear, mbr);
     }
 };
+
+
+template <std::size_t Dimension, std::size_t DimensionCount>
+struct envelope_linestring_on_spheroid
+    : envelope_range<Dimension, DimensionCount>
+{};
+
+template <std::size_t DimensionCount>
+struct envelope_linestring_on_spheroid<0, DimensionCount>
+    : envelope_linear_on_spheroid<DimensionCount>
+{};
 
 
 }} // namespace detail::envelope
@@ -189,7 +196,7 @@ template
     typename CS_Tag
 >
 struct envelope<Linestring, Dimension, DimensionCount, linestring_tag, CS_Tag>
-    : detail::envelope::envelope_range<Linestring, Dimension, DimensionCount>
+    : detail::envelope::envelope_range<Dimension, DimensionCount>
 {};
 
 template
@@ -202,18 +209,15 @@ struct envelope
     <
         Linestring, Dimension, DimensionCount,
         linestring_tag, spherical_equatorial_tag
-    > : detail::envelope::envelope_linear_on_spheroid
+    > : detail::envelope::envelope_linestring_on_spheroid
         <
-            Linestring,
-            Dimension,
-            DimensionCount,
-            detail::envelope::default_expand_policy<Dimension, DimensionCount>
+            Dimension, DimensionCount
         >
 {};
 
 
 } // namespace dispatch
-#endif
+#endif // DOXYGEN_NO_DISPATCH
 
 
 }} // namespace boost::geometry

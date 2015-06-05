@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/box.hpp>
+#include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 #include <boost/geometry/algorithms/detail/envelope/range.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
@@ -44,19 +45,13 @@ namespace detail { namespace envelope
 {
 
 
-template
-<
-    typename MultiPoint,
-    std::size_t Dimension,
-    std::size_t DimensionCount,
-    typename CS_Tag
->
+template <std::size_t Dimension, std::size_t DimensionCount, typename CS_Tag>
 struct envelope_multipoint_on_spheroid
-    : envelope_range<MultiPoint, Dimension, DimensionCount>
+    : envelope_range<Dimension, DimensionCount>
 {};
 
-template <typename MultiPoint, std::size_t DimensionCount, typename CS_Tag>
-class envelope_multipoint_on_spheroid<MultiPoint, 0, DimensionCount, CS_Tag>
+template <std::size_t DimensionCount, typename CS_Tag>
+class envelope_multipoint_on_spheroid<0, DimensionCount, CS_Tag>
 {
 private:
     template <std::size_t Dim>
@@ -70,7 +65,7 @@ private:
         }
     };
 
-    template <typename Constants, typename OutputIterator>
+    template <typename Constants, typename MultiPoint, typename OutputIterator>
     static inline void analyze_point_coordinates(MultiPoint const& multipoint,
                                                  bool& has_south_pole,
                                                  bool& has_north_pole,
@@ -234,7 +229,7 @@ private:
     }
 
 public:
-    template <typename Box>
+    template <typename MultiPoint, typename Box>
     static inline void apply(MultiPoint const& multipoint, Box& mbr)
     {
         typedef typename point_type<MultiPoint>::type point_type;
@@ -246,11 +241,13 @@ public:
                 typename coordinate_system<MultiPoint>::type::units
             > constants;
 
-
         if (boost::empty(multipoint))
         {
+            initialize<Box, 0, DimensionCount>::apply(mbr);
             return;
         }
+
+        initialize<Box, 0, 2>::apply(mbr);
 
         if (boost::size(multipoint) == 1)
         {
@@ -330,7 +327,7 @@ public:
         // compute envelope for higher coordinates
         envelope_multipoint_on_spheroid
             <
-                MultiPoint, 2, DimensionCount, CS_Tag
+                2, DimensionCount, CS_Tag
             >::apply(multipoint, helper_mbr);
 
         // now transform to output MBR (per index)
@@ -369,7 +366,7 @@ struct envelope
         MultiPoint,
         Dimension, DimensionCount,
         multi_point_tag, CSTag
-    > : detail::envelope::envelope_range<MultiPoint, Dimension, DimensionCount>
+    > : detail::envelope::envelope_range<Dimension, DimensionCount>
 {};
 
 template
@@ -385,7 +382,7 @@ struct envelope
         multi_point_tag, spherical_equatorial_tag
     > : detail::envelope::envelope_multipoint_on_spheroid
         <
-            MultiPoint, Dimension, DimensionCount, spherical_equatorial_tag
+            Dimension, DimensionCount, spherical_equatorial_tag
         >
 {};
 
@@ -402,7 +399,7 @@ struct envelope
         multi_point_tag, geographic_tag
     > : detail::envelope::envelope_multipoint_on_spheroid
         <
-            MultiPoint, Dimension, DimensionCount, geographic_tag
+            Dimension, DimensionCount, geographic_tag
         >
 {};
 

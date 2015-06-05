@@ -979,11 +979,7 @@ struct buffered_piece_collection
             return;
         }
 
-        geometry::detail::envelope::envelope_range
-            <
-                typename piece::piece_robust_ring_type,
-                0, dimension<typename piece::piece_robust_ring_type>::value
-            >::apply(pc.robust_ring, pc.robust_envelope);
+        geometry::envelope(pc.robust_ring, pc.robust_envelope);
 
         geometry::assign_inverse(pc.robust_offsetted_envelope);
         for (int i = 0; i < pc.offsetted_count; i++)
