@@ -177,14 +177,26 @@ public:
                        lon_max, lat_max, height_max,
                        tolerance);
 
-        base_test<other_mbr_type>(case_id, geometry,
-                                  other::convert(lon_min),
-                                  other::convert(lat_min),
-                                  height_min,
-                                  other::convert(lon_max),
-                                  other::convert(lat_max),
-                                  height_max,
-                                  tolerance);
+        if (lon_max < lon_min)
+        {
+            // we are in the case were a special MBR is returned;
+            // makes no sense to change units
+            base_test<other_mbr_type>(case_id, geometry,
+                                      lon_min, lat_min, height_min,
+                                      lon_max, lat_max, height_max,
+                                      tolerance);
+        }
+        else
+        {
+            base_test<other_mbr_type>(case_id, geometry,
+                                      other::convert(lon_min),
+                                      other::convert(lat_min),
+                                      height_min,
+                                      other::convert(lon_max),
+                                      other::convert(lat_max),
+                                      height_max,
+                                      tolerance);
+        }
     }
 };
 
@@ -646,6 +658,11 @@ void test_envelope_multipoint()
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
+    // empty multipoint
+    tester::apply("mp00",
+                  from_wkt<G>("MULTIPOINT()"),
+                  1, 1, -1, -1);
+
     tester::apply("mp01",
                   from_wkt<G>("MULTIPOINT(0 0,10 10)"),
                   0, 0, 10, 10);
@@ -785,6 +802,11 @@ void test_envelope_multipoint_with_height()
     typedef bg::model::multi_point<point_type> G;
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty multipoint
+    tester::apply("mph00",
+                  from_wkt<G>("MULTIPOINT()"),
+                  1, 1, 1, -1, -1, -1);
 
     tester::apply("mph01",
                   from_wkt<G>("MULTIPOINT(0 0 567,10 10 1456)"),
@@ -1037,6 +1059,11 @@ BOOST_AUTO_TEST_CASE( envelope_linestring )
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
+    // empty linestring
+    tester::apply("l00",
+                  from_wkt<G>("LINESTRING()"),
+                  1, 1, -1, -1);
+
     tester::apply("l01",
                   from_wkt<G>("LINESTRING(10 15)"),
                   10, 15, 10, 15);
@@ -1153,6 +1180,11 @@ BOOST_AUTO_TEST_CASE( envelope_linestring_with_height )
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
 
+    // empty linestring
+    tester::apply("lh00",
+                  from_wkt<G>("LINESTRING()"),
+                  1, 1, 1, -1, -1, -1);
+
     tester::apply("lh01",
                   from_wkt<G>("LINESTRING(10 15 30,20 25 434,30 35 186)"),
                   10, 15, 30, 30, 35, 434);
@@ -1166,6 +1198,31 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring )
     typedef bg::model::multi_linestring<bg::model::linestring<point_type> > G;
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_spheroid<G, B> tester;
+
+    // empty multilinestring
+    tester::apply("ml00",
+                  from_wkt<G>("MULTILINESTRING()"),
+                  1, 1, -1, -1);
+
+    // invalid multilinestring
+    tester::apply("ml00a",
+                  from_wkt<G>("MULTILINESTRING(())"),
+                  1, 1, -1, -1);
+
+    // invalid multilinestring
+    tester::apply("ml00b",
+                  from_wkt<G>("MULTILINESTRING((),())"),
+                  1, 1, -1, -1);
+
+    // invalid multilinestring
+    tester::apply("ml00c",
+                  from_wkt<G>("MULTILINESTRING((10 15),(),())"),
+                  10, 15, 10, 15);
+
+    // invalid multilinestring
+    tester::apply("ml00d",
+                  from_wkt<G>("MULTILINESTRING((),(10 15),())"),
+                  10, 15, 10, 15);
 
     tester::apply("ml01",
                   from_wkt<G>("MULTILINESTRING((10 15))"),
