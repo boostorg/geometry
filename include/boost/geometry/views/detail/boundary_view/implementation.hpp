@@ -13,6 +13,9 @@
 #include <cstddef>
 #include <algorithm>
 #include <iterator>
+#include <memory>
+#include <new> // for std::bad_alloc
+#include <utility>
 #include <vector>
 
 #include <boost/core/addressof.hpp>
@@ -206,88 +209,69 @@ public:
     explicit ring_boundary(Ring& ring)
         : base_type(ring) {}
 
-    iterator begin()
-    {
-        return base_type::begin();
-    }
-
-    iterator end()
-    {
-        return base_type::end();
-    }
-
-    const_iterator begin() const
-    {
-        return base_type::begin();
-    }
-
-    const_iterator end() const
-    {
-        return base_type::end();
-    }
-};
-
-
-struct as_boundary_view
-{
-    template <typename Ring>
-    inline boundary_view<Ring> operator()(Ring& ring) const
-    {
-        return boundary_view<Ring>(ring);
-    }
+    iterator begin() { return base_type::begin(); }
+    iterator end() { return base_type::end(); }
+    const_iterator begin() const { return base_type::begin(); }
+    const_iterator end() const { return base_type::end(); }
 };
 
 
 template <typename Polygon>
 class polygon_boundary
 {
-    typedef std::vector
-        <
-            boundary_view<typename ring_type<Polygon>::type>
-        > views_vector_type;
+    typedef boundary_view<typename ring_type<Polygon>::type> boundary_view_type;
+    typedef polygon_rings_iterator<Polygon> rings_iterator_type;
 
     inline void initialize_views(Polygon& polygon)
     {
-        polygon_rings_iterator<Polygon> first(polygon);
-        polygon_rings_iterator<Polygon> last(polygon, true);
-        std::transform(first, last,
-                       std::back_inserter(m_views),
-                       as_boundary_view());
+        std::pair<boundary_view_type*, std::ptrdiff_t> result
+            = std::get_temporary_buffer<boundary_view_type>(m_num_rings);
+
+        if ( result.second == 0 )
+        {
+            throw std::bad_alloc();
+        }
+
+        m_views = result.first;
+
+        std::ptrdiff_t ctr = 0;
+        rings_iterator_type first(polygon);
+        rings_iterator_type last(polygon, true);
+        for (rings_iterator_type rit = first; rit != last; ++rit, ++ctr)
+        {
+            new (m_views + ctr) boundary_view_type(*rit);
+        }
     }
 
+
 public:
-    typedef typename views_vector_type::iterator iterator;
-    typedef typename views_vector_type::const_iterator const_iterator;
+    typedef boundary_view_type* iterator;
+    typedef boundary_view_type const* const_iterator;
 
     typedef multi_linestring_tag tag_type;
 
     explicit polygon_boundary(Polygon& polygon)
+        : m_num_rings(static_cast
+                          <
+                              std::ptrdiff_t
+                          >(num_interior_rings(polygon) + 1))
     {
         initialize_views(polygon);
     }
 
-    inline iterator begin()
+    ~polygon_boundary()
     {
-        return m_views.begin();
+        std::return_temporary_buffer(m_views);
     }
 
-    inline iterator end()
-    {
-        return m_views.end();
-    }
-
-    inline const_iterator begin() const
-    {
-        return m_views.begin();
-    }
-
-    inline const_iterator end() const
-    {
-        return m_views.end();
-    }
+    inline iterator begin() { return m_views; }
+    inline iterator end() { return m_views + m_num_rings; }
+    inline const_iterator begin() const { return m_views; }
+    inline const_iterator end() const { return m_views + m_num_rings; }
 
 private:
-    views_vector_type m_views;
+    std::ptrdiff_t m_num_rings;
+    boundary_view_type* m_views;
 };
 
 
@@ -302,57 +286,68 @@ private:
             typename boost::range_value<MultiPolygon>::type
         >::type polygon_type;
 
-    typedef std::vector
+    typedef polygon_rings_iterator<polygon_type> rings_iterator_type;
+
+    typedef boundary_view
         <
-            boundary_view<typename ring_type<MultiPolygon>::type>
-        > views_vector_type;
+            typename ring_type<MultiPolygon>::type
+        > boundary_view_type;
 
     inline void initialize_views(MultiPolygon& multipolygon)
     {
-        std::back_insert_iterator<views_vector_type> oit(m_views);
+        std::pair<boundary_view_type*, std::ptrdiff_t> result
+            = std::get_temporary_buffer<boundary_view_type>(m_num_rings);
+
+        if ( result.second == 0 )
+        {
+            throw std::bad_alloc();
+        }
+
+        m_views = result.first;
+        std::ptrdiff_t ctr = 0;
         for (typename boost::range_iterator<MultiPolygon>::type
                  it = boost::begin(multipolygon);
              it != boost::end(multipolygon);
              ++it)
         {
-            polygon_rings_iterator<polygon_type> first(*it);
-            polygon_rings_iterator<polygon_type> last(*it, true);
-            oit = std::transform(first, last, oit, as_boundary_view());
+            rings_iterator_type first(*it);
+            rings_iterator_type last(*it, true);
+            for (rings_iterator_type rit = first; rit != last; ++rit, ++ctr)
+            {
+                new (m_views + ctr) boundary_view_type(*rit);
+            }
         }
     }
+
 public:
-    typedef typename views_vector_type::iterator iterator;
-    typedef typename views_vector_type::const_iterator const_iterator;
+    typedef boundary_view_type* iterator;
+    typedef boundary_view_type const* const_iterator;
 
     typedef multi_linestring_tag tag_type;
 
     multipolygon_boundary(MultiPolygon& multipolygon)
+        : m_num_rings(static_cast
+                          <
+                              std::ptrdiff_t
+                          >(geometry::num_interior_rings(multipolygon)
+                            + boost::size(multipolygon)))
     {
         initialize_views(multipolygon);
     }
 
-    inline iterator begin()
+    ~multipolygon_boundary()
     {
-        return m_views.begin();
+        std::return_temporary_buffer(m_views);
     }
 
-    inline iterator end()
-    {
-        return m_views.end();
-    }
-
-    inline const_iterator begin() const
-    {
-        return m_views.begin();
-    }
-
-    inline const_iterator end() const
-    {
-        return m_views.end();
-    }
+    inline iterator begin() { return m_views; }
+    inline iterator end() { return m_views + m_num_rings; }
+    inline const_iterator begin() const { return m_views; }
+    inline const_iterator end() const { return m_views + m_num_rings; }
 
 private:
-    views_vector_type m_views;
+    std::ptrdiff_t m_num_rings;
+    boundary_view_type* m_views;
 };
 
 
