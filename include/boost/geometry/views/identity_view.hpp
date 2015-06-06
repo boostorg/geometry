@@ -1,13 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -19,7 +14,7 @@
 #ifndef BOOST_GEOMETRY_VIEWS_IDENTITY_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_IDENTITY_VIEW_HPP
 
-#include <boost/core/ref.hpp>
+
 #include <boost/range.hpp>
 
 
@@ -44,20 +39,16 @@ struct identity_view
     typedef typename boost::range_iterator<Range>::type iterator;
 
     explicit inline identity_view(Range& r)
-        : m_range(boost::ref(r))
+        : m_range(r)
     {}
 
-    inline const_iterator begin() const { return boost::begin(cref()); }
-    inline const_iterator end() const { return boost::end(cref()); }
+    inline const_iterator begin() const { return boost::begin(m_range); }
+    inline const_iterator end() const { return boost::end(m_range); }
 
-    inline iterator begin() { return boost::begin(ref()); }
-    inline iterator end() { return boost::end(ref()); }
-
+    inline iterator begin() { return boost::begin(m_range); }
+    inline iterator end() { return boost::end(m_range); }
 private :
-    inline Range& ref() { return m_range; }
-    inline Range const& cref() const { return m_range; }
-
-    boost::reference_wrapper<Range> m_range;
+    Range& m_range;
 };
 
 #if defined(_MSC_VER)
