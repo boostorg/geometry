@@ -46,12 +46,7 @@ struct single_geometry
 template <typename Geometry>
 struct single_geometry<Geometry, true>
 {
-    typedef typename boost::mpl::if_c
-        <
-            boost::is_const<Geometry>::value,
-            typename boost::range_value<Geometry>::type const&,
-            typename boost::range_value<Geometry>::type
-        >::type return_type;
+    typedef typename boost::range_reference<Geometry>::type return_type;
 
     template <typename Id>
     static inline return_type apply(Geometry & g, Id const& id)

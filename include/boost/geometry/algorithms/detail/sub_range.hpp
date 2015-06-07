@@ -113,6 +113,13 @@ sub_range(Geometry & geometry, Id const& id)
     return detail_dispatch::sub_range<Geometry>::apply(geometry, id);
 }
 
+template <typename Geometry, typename Id> inline
+typename sub_range_return_type<Geometry const>::type
+sub_range(Geometry const& geometry, Id const& id)
+{
+    return detail_dispatch::sub_range<Geometry const>::apply(geometry, id);
+}
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
