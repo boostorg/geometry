@@ -290,4 +290,11 @@ BOOST_AUTO_TEST_CASE( test_intersection_multipolygon_multipolygon_linestring )
          from_wkt<ML>("MULTILINESTRING((2 1,2 2),(2 0,1 0),(2 1,2 1))"),
          from_wkt<ML>("MULTILINESTRING((2 2,2 1),(2 0,1 0),(2 1,2 1))")
          );
+
+    tester::apply
+        ("mpg-mpg-02",
+         from_wkt<OG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0),(2 2,8 2,8 8,2 8)))"),
+         from_wkt<OG>("MULTIPOLYGON(((2 4,2 6,8 6,8 4)))"),
+         from_wkt<ML>("MULTILINESTRING((2 4,2 4),(2 4,2 6),(8 6,8 4))")
+         );
 }
