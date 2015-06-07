@@ -233,14 +233,9 @@ class polygon_boundary
         }
 
         m_views = result.first;
-
-        std::ptrdiff_t ctr = 0;
-        rings_iterator_type first(polygon);
-        rings_iterator_type last(polygon, true);
-        for (rings_iterator_type rit = first; rit != last; ++rit, ++ctr)
-        {
-            new (m_views + ctr) boundary_view_type(*rit);
-        }
+        std::uninitialized_copy(rings_iterator_type(polygon),
+                                rings_iterator_type(polygon, true),
+                                m_views);
     }
 
 
@@ -261,6 +256,10 @@ public:
 
     ~polygon_boundary()
     {
+        for (std::ptrdiff_t i = 0; i < m_num_rings; ++i)
+        {
+            m_views[i].~boundary_view_type();
+        }
         std::return_temporary_buffer(m_views);
     }
 
@@ -304,18 +303,15 @@ private:
         }
 
         m_views = result.first;
-        std::ptrdiff_t ctr = 0;
+        boundary_view_type* cur_it = m_views;
         for (typename boost::range_iterator<MultiPolygon>::type
                  it = boost::begin(multipolygon);
              it != boost::end(multipolygon);
              ++it)
         {
-            rings_iterator_type first(*it);
-            rings_iterator_type last(*it, true);
-            for (rings_iterator_type rit = first; rit != last; ++rit, ++ctr)
-            {
-                new (m_views + ctr) boundary_view_type(*rit);
-            }
+            cur_it = std::uninitialized_copy(rings_iterator_type(*it),
+                                             rings_iterator_type(*it, true),
+                                             cur_it);
         }
     }
 
@@ -337,6 +333,10 @@ public:
 
     ~multipolygon_boundary()
     {
+        for (std::ptrdiff_t i = 0; i < m_num_rings; ++i)
+        {
+            m_views[i].~boundary_view_type();
+        }
         std::return_temporary_buffer(m_views);
     }
 
