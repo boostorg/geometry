@@ -227,7 +227,7 @@ public :
                 && point_y >= geometry::get<min_corner, 1>(section.bounding_box) - 1
                 && point_y <= geometry::get<max_corner, 1>(section.bounding_box) + 1)
             {
-                for (signed_index_type i = section.begin_index + 1; i <= section.end_index; i++)
+                for (signed_size_type i = section.begin_index + 1; i <= section.end_index; i++)
                 {
                     point_type const& previous = piece.robust_ring[i - 1];
                     point_type const& current = piece.robust_ring[i];
@@ -409,7 +409,7 @@ class analyse_turn_wrt_piece
 
         point_type points[4];
 
-        signed_index_type helper_count = static_cast<signed_index_type>(piece.robust_ring.size())
+        signed_size_type helper_count = static_cast<signed_size_type>(piece.robust_ring.size())
                                             - piece.offsetted_count;
         if (helper_count == 4)
         {
@@ -560,7 +560,7 @@ public :
         // It is small or not monotonic, walk linearly through offset
         // TODO: this will be combined with winding strategy
 
-        for (signed_index_type i = 1; i < piece.offsetted_count; i++)
+        for (signed_size_type i = 1; i < piece.offsetted_count; i++)
         {
             point_type const& previous = piece.robust_ring[i - 1];
             point_type const& current = piece.robust_ring[i];
