@@ -340,14 +340,13 @@ class areal_boundary
     template <typename T>
     struct automatic_deallocator
     {
-        automatic_deallocator() : m_ptr(NULL) {}
+        automatic_deallocator(T* ptr) : m_ptr(ptr) {}
 
         ~automatic_deallocator()
         {
             operator delete(m_ptr);
         }
 
-        inline void lock(T* ptr) { m_ptr = ptr; }
         inline void release() { m_ptr = NULL; }
 
         T* m_ptr;
@@ -371,8 +370,7 @@ class areal_boundary
 
         // initialize; if exceptions are thrown by constructors
         // they are handled automatically by automatic_deallocator
-        automatic_deallocator<boundary_view_type> deallocator;
-        deallocator.lock(views_ptr);
+        automatic_deallocator<boundary_view_type> deallocator(views_ptr);
         exception_safe_initializer::apply(areal, views_ptr);
         deallocator.release();
 
