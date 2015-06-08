@@ -21,6 +21,7 @@ namespace boost { namespace geometry
 
 
 typedef boost::make_signed<std::size_t>::type signed_index_type;
+typedef boost::make_signed<std::size_t>::type signed_size_type;
 //typedef std::ptrdiff_t signed_index_type;
 
 
