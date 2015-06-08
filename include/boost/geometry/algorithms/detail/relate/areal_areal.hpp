@@ -88,7 +88,7 @@ public:
         // TODO: This is O(N)
         // Run in a loop O(NM) - optimize!
         int const pig = detail::within::point_in_geometry(pt, m_other_areal);
-        //BOOST_ASSERT( pig != 0 );
+        //BOOST_GEOMETRY_ASSERT( pig != 0 );
         
         // inside
         if ( pig > 0 )
@@ -405,7 +405,7 @@ struct areal_areal
                   typename TurnIt>
         void apply(Result & result, TurnIt it)
         {
-            //BOOST_ASSERT( it != last );
+            //BOOST_GEOMETRY_ASSERT( it != last );
 
             overlay::operation_type const op = it->operations[op_id].operation;
 
@@ -498,7 +498,7 @@ struct areal_areal
         template <typename Result>
         void apply(Result & result)
         {
-            //BOOST_ASSERT( first != last );
+            //BOOST_GEOMETRY_ASSERT( first != last );
 
             if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
             {
@@ -618,7 +618,7 @@ struct areal_areal
             // O(N) - running it in a loop gives O(NM)
             int const pig = detail::within::point_in_geometry(range::front(range_ref), other_geometry);
 
-            //BOOST_ASSERT(pig != 0);
+            //BOOST_GEOMETRY_ASSERT(pig != 0);
             if ( pig > 0 )
             {
                 update<interior, interior, '2', transpose_result>(m_result);

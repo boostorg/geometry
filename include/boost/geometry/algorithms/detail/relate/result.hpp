@@ -16,7 +16,6 @@
 
 #include <cstddef>
 
-#include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/begin.hpp>
@@ -28,6 +27,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/util/condition.hpp>
@@ -87,7 +87,7 @@ public:
 
     inline char operator[](std::size_t index) const
     {
-        BOOST_ASSERT(index < static_size);
+        BOOST_GEOMETRY_ASSERT(index < static_size);
         return m_array[index];
     }
 

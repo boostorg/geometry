@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
@@ -127,9 +128,9 @@ private :
 template<typename Pieces>
 inline void move_index(Pieces const& pieces, int& index, int& piece_index, int direction)
 {
-    BOOST_ASSERT(direction == 1 || direction == -1);
-    BOOST_ASSERT(piece_index >= 0 && piece_index < static_cast<int>(boost::size(pieces)) );
-    BOOST_ASSERT(index >= 0 && index < static_cast<int>(boost::size(pieces[piece_index].robust_ring)));
+    BOOST_GEOMETRY_ASSERT(direction == 1 || direction == -1);
+    BOOST_GEOMETRY_ASSERT(piece_index >= 0 && piece_index < static_cast<int>(boost::size(pieces)) );
+    BOOST_GEOMETRY_ASSERT(index >= 0 && index < static_cast<int>(boost::size(pieces[piece_index].robust_ring)));
 
     index += direction;
     if (direction == -1 && index < 0)
