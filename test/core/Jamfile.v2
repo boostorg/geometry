@@ -12,6 +12,7 @@
 test-suite boost-geometry-core
     :
     [ run access.cpp                : : : : core_access ]
+    [ run assert.cpp                : : : : core_assert ]
     [ run coordinate_dimension.cpp  : : : : core_coordinate_dimension ]
     [ run coordinate_system.cpp     : : : : core_coordinate_system ]
     [ run coordinate_type.cpp       : : : : core_coordinate_type ]
