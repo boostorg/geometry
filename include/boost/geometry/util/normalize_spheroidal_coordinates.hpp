@@ -10,8 +10,7 @@
 #ifndef BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_COORDINATES_HPP
 #define BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_COORDINATES_HPP
 
-#include <boost/assert.hpp>
-
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/util/math.hpp>
 
@@ -178,12 +177,12 @@ public:
         }
 
 #ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
-        BOOST_ASSERT(! math::larger(constants::min_latitude(), latitude));
-        BOOST_ASSERT(! math::larger(latitude, constants::max_latitude()));
+        BOOST_GEOMETRY_ASSERT(! math::larger(constants::min_latitude(), latitude));
+        BOOST_GEOMETRY_ASSERT(! math::larger(latitude, constants::max_latitude()));
 #endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
-        BOOST_ASSERT(math::smaller(constants::min_longitude(), longitude));
-        BOOST_ASSERT(! math::larger(longitude, constants::max_longitude()));
+        BOOST_GEOMETRY_ASSERT(math::smaller(constants::min_longitude(), longitude));
+        BOOST_GEOMETRY_ASSERT(! math::larger(longitude, constants::max_longitude()));
     }
 };
 
