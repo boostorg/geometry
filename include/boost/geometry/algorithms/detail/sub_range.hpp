@@ -16,6 +16,7 @@
 
 #include <boost/mpl/if.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/range.hpp>
 
 namespace boost { namespace geometry {
@@ -86,7 +87,7 @@ struct sub_range<Geometry, Tag, true>
     template <typename Id> static inline
     return_type apply(Geometry & geometry, Id const& id)
     {
-        BOOST_ASSERT(0 <= id.multi_index);
+        BOOST_GEOMETRY_ASSERT(0 <= id.multi_index);
         typedef typename boost::range_size<Geometry>::type size_type;
         size_type const mi = static_cast<size_type>(id.multi_index);
         return sub_sub_range::apply(range::at(geometry, mi), id);

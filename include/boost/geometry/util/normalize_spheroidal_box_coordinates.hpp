@@ -10,8 +10,7 @@
 #ifndef BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_BOX_COORDINATES_HPP
 #define BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_BOX_COORDINATES_HPP
 
-#include <boost/assert.hpp>
-
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
@@ -78,14 +77,14 @@ public:
         }
 
 #ifdef BOOST_GEOMETRY_NORMALIZE_LATITUDE
-        BOOST_ASSERT(! math::larger(latitude1, latitude2));
-        BOOST_ASSERT(! math::smaller(latitude1, constants::min_latitude()));
-        BOOST_ASSERT(! math::larger(latitude2, constants::max_latitude()));
+        BOOST_GEOMETRY_ASSERT(! math::larger(latitude1, latitude2));
+        BOOST_GEOMETRY_ASSERT(! math::smaller(latitude1, constants::min_latitude()));
+        BOOST_GEOMETRY_ASSERT(! math::larger(latitude2, constants::max_latitude()));
 #endif
 
-        BOOST_ASSERT(! math::larger(longitude1, longitude2));
-        BOOST_ASSERT(! math::smaller(longitude1, constants::min_longitude()));
-        BOOST_ASSERT
+        BOOST_GEOMETRY_ASSERT(! math::larger(longitude1, longitude2));
+        BOOST_GEOMETRY_ASSERT(! math::smaller(longitude1, constants::min_longitude()));
+        BOOST_GEOMETRY_ASSERT
             (! math::larger(longitude2 - longitude1, constants::period()));
     }
 

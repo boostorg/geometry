@@ -18,6 +18,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -116,8 +117,8 @@ inline bool assign_next_ip(G1 const& g1, G2 const& g2,
             return false;
         }
 
-        BOOST_ASSERT(info.enriched.travels_to_vertex_index >= 0);
-        BOOST_ASSERT(info.enriched.travels_to_ip_index >= 0);
+        BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_vertex_index >= 0);
+        BOOST_GEOMETRY_ASSERT(info.enriched.travels_to_ip_index >= 0);
 
         if (info.seg_id.source_index == 0)
         {

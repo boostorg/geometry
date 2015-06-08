@@ -435,7 +435,7 @@ private:
 
         if (n->is_leaf())
         {
-            // TODO: mloskot - add assert(node.size() >= 2); or similar
+            // TODO: mloskot - add BOOST_GEOMETRY_ASSERT(node.size() >= 2); or similar
 
             typename rtree_leaf<Box, Value>::leaf_map nodes = n->get_leaves();
             unsigned int remaining = nodes.size() - 2;
@@ -510,7 +510,7 @@ private:
         }
         else
         {
-            // TODO: mloskot - add assert(node.size() >= 2); or similar
+            // TODO: mloskot - add BOOST_GEOMETRY_ASSERT(node.size() >= 2); or similar
 
             typename rtree_node<Box, Value>::node_map nodes = n->get_nodes();
             unsigned int remaining = nodes.size() - 2;

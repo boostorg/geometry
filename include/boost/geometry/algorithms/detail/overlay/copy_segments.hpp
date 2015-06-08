@@ -19,14 +19,11 @@
 #include <vector>
 
 #include <boost/array.hpp>
-#include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
@@ -96,7 +93,7 @@ struct copy_segments_ring
         signed_index_type const from_index = seg_id.segment_index + 1;
 
         // Sanity check
-        BOOST_ASSERT(from_index < static_cast<signed_index_type>(boost::size(view)));
+        BOOST_GEOMETRY_ASSERT(from_index < static_cast<signed_index_type>(boost::size(view)));
 
         ec_iterator it(boost::begin(view), boost::end(view),
                     boost::begin(view) + from_index);
@@ -225,7 +222,7 @@ struct copy_segments_box
             RangeOut& current_output)
     {
         signed_index_type index = seg_id.segment_index + 1;
-        BOOST_ASSERT(index < 5);
+        BOOST_GEOMETRY_ASSERT(index < 5);
 
         signed_index_type const count = index <= to_index
             ? to_index - index + 1
@@ -265,7 +262,7 @@ struct copy_segments_multi
             RangeOut& current_output)
     {
 
-        BOOST_ASSERT
+        BOOST_GEOMETRY_ASSERT
             (
                 seg_id.multi_index >= 0
                 && seg_id.multi_index < int(boost::size(multi_geometry))

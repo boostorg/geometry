@@ -21,10 +21,9 @@
 
 #include <utility>
 
-#include <boost/assert.hpp>
-
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -76,7 +75,7 @@ private:
                                 CalculationType& a1,
                                 CalculationType& a2)
     {
-        BOOST_ASSERT(math::smaller(lon1, lon2));
+        BOOST_GEOMETRY_ASSERT(math::smaller(lon1, lon2));
 
         CalculationType dlon = lon2 - lon1;
         CalculationType sin_dlon = sin(dlon);
@@ -109,7 +108,7 @@ private:
                                         CalculationType const& a2)
     {
         // azimuths a1 and a2 are assumed to be in radians
-        BOOST_ASSERT(! math::equals(a1, a2));
+        BOOST_GEOMETRY_ASSERT(! math::equals(a1, a2));
 
         static CalculationType const pi_half = math::half_pi<CalculationType>();
 
@@ -142,13 +141,13 @@ private:
                                            CalculationType const& a2)
     {
         // coordinates are assumed to be in radians
-        BOOST_ASSERT(! math::larger(lon1, lon2));
+        BOOST_GEOMETRY_ASSERT(! math::larger(lon1, lon2));
 
         if (math::equals(a1, a2))
         {
             // the segment must lie on the equator; nothing to do
-            BOOST_ASSERT(math::equals(lat1, CalculationType(0)));
-            BOOST_ASSERT(math::equals(lat2, CalculationType(0)));
+            BOOST_GEOMETRY_ASSERT(math::equals(lat1, CalculationType(0)));
+            BOOST_GEOMETRY_ASSERT(math::equals(lat2, CalculationType(0)));
             return;
         }
 
@@ -198,7 +197,7 @@ private:
         {
             // both points are poles; nothing more to do:
             // longitudes are already normalized to 0
-            BOOST_ASSERT(lon1 == CalculationType(0)
+            BOOST_GEOMETRY_ASSERT(lon1 == CalculationType(0)
                          &&
                          lon2 == CalculationType(0));
         }
@@ -227,7 +226,7 @@ private:
             return;
         }
 
-        BOOST_ASSERT(!is_pole1 && !is_pole2);
+        BOOST_GEOMETRY_ASSERT(!is_pole1 && !is_pole2);
 
         if (math::larger(lon1, lon2))
         {
